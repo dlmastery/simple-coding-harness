@@ -20,9 +20,10 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal
 
 import yaml
+from typing_extensions import TypedDict  # pydantic needs this variant on Python < 3.12
 from agents import Agent, RunConfig, RunHooks, Runner, SQLiteSession, function_tool, set_tracing_disabled
 from agents.run import CallModelData, ModelInputData
 from agents.tool_guardrails import ToolGuardrailFunctionOutput, ToolInputGuardrailData, tool_input_guardrail

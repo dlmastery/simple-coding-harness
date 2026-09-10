@@ -25,5 +25,7 @@ for step in steps:
     print(f"{step.name:<36} {verdict}")
     if result.returncode:
         failed.append(step.name)
+        tail = "\n".join((result.stdout + result.stderr).strip().splitlines()[-40:])
+        print("\n".join("    " + line for line in tail.splitlines()))
 
 sys.exit(1 if failed else 0)
