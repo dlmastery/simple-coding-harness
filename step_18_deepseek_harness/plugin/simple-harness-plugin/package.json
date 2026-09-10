@@ -1,0 +1,12 @@
+{
+  "name": "simple-harness-plugin",
+  "version": "0.1.0",
+  "description": "The step 12 allow / ask / deny rules as a DeepSeek Harness (dsh) plugin",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": "./src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "check": "node --check src/index.js && node --check src/rules.js && node src/rules.test.js"
+  }
+}

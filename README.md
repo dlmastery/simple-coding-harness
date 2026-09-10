@@ -1,8 +1,10 @@
 # simple-coding-harness
 
 **A coding agent, built in 14 snapshots, from a 27-line round trip to a
-1,200-line harness with subagents.** Each step is a complete, runnable
-program with its own README that explains the one idea it adds.
+1,200-line harness with subagents - then rebuilt four more times on the
+Claude Agent SDK, the OpenAI Agents SDK, Google's Antigravity SDK and
+DeepSeek Harness.** Each step is a complete, runnable program with its own
+README that explains the one idea it adds.
 
 ```
 step 1   one round trip            27 lines    you ──▶ model ──▶ reply
@@ -44,6 +46,41 @@ the input line.
 | [14](step_14_subagents/) | subagents | 1,219 | spend exploration tokens in a context that is thrown away |
 
 Lines are non-blank lines of harness code, excluding tests and READMEs.
+
+## Part 2 - The same harness on four agent SDKs
+
+Steps 15-18 rebuild the step 14 feature set on a framework each, so you can
+see exactly which of the fourteen ideas a given SDK does for you and which
+ones stay yours. The rule table from step 12 (`rules.py`) is copied into
+each step unchanged: the SDK supplies the hook, you supply the policy.
+
+| Step | Framework | Runs where | You still write |
+|-----:|-----------|------------|-----------------|
+| [15](step_15_claude_agent_sdk/) | **Claude Agent SDK** (`claude-agent-sdk`) - Claude Code as a library | spawns the `claude` CLI | policy (`can_use_tool` + `PreToolUse` hook), a `UserPromptSubmit` injection hook, one MCP tool, a subagent definition, the screen |
+| [16](step_16_openai_agents_sdk/) | **OpenAI Agents SDK** (`openai-agents`) - loop, sessions, approvals, agents-as-tools | in-process, any OpenAI-compatible endpoint | all coding tools (step 7 verbatim, wrapped), skills, todos, the request filter that does late injection + stripping, the screen |
+| [17](step_17_google_antigravity_sdk/) | **Google Antigravity SDK** (`google-antigravity`) - the Antigravity runtime as a wheel | a bundled runtime binary, Gemini or OpenAI-compatible | a policy list, three hooks, a `SubagentConfig`, two tools, todos |
+| [18](step_18_deepseek_harness/) | **DeepSeek Harness** (`deepseek-harness-sdk`) - everything is a Cordis plugin | a bundled `dsh` runtime over JSON-RPC | the policy as a `tools/pre-execute` plugin, the patch that mounts it, the event renderer |
+
+### Who owns which mechanism
+
+| Mechanism (step) | Hand-built (1-14) | Claude Agent SDK | OpenAI Agents SDK | Antigravity SDK | DeepSeek Harness |
+|------------------|:-:|:-:|:-:|:-:|:-:|
+| agent loop (4) | you | SDK | SDK | runtime | runtime |
+| coding tools (2, 3, 7) | you | SDK | **you** | runtime | runtime |
+| custom tools (3) | you | `@tool` + MCP server | `function_tool` | plain functions | `defineTool` plugin |
+| skills (6) | you | SDK (`.claude/skills`) | **you** | runtime (`skills_paths`) | runtime |
+| late injection (8) | you | hook | request filter | prompt prefix | runtime |
+| file freshness (9) | you | SDK | **you** (filter) | runtime | runtime |
+| sessions / rewind (10) | you | SDK | `SQLiteSession` + `pop_item` | runtime | runtime (JSONL) |
+| todos (11) | you | SDK | **you** | **you** | runtime |
+| permissions (12) | you | hook + callback | guardrail + approval pause | policy list + hook | plugin |
+| OS sandbox (12) | you | SDK flag | - | runtime flag | provider seam |
+| compaction (13) | you | SDK | **you** (strip only) | runtime | runtime |
+| subagents (14) | you | `AgentDefinition` | `agent.as_tool()` | `SubagentConfig` | runtime |
+
+Every "you" cell is code you can read in that step, and it is the same code
+as in Part 1. The offline tests for steps 15-18 test only that code; they
+never launch a model. Install the SDKs with `pip install -r requirements-sdks.txt`.
 
 ## Run a step
 
