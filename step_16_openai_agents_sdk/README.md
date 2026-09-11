@@ -60,6 +60,20 @@ you> /rewind
 Offline tests: `python -m pytest test_step.py` (tools, policy, the request
 filter, rewind on a real `SQLiteSession`).
 
+## Two things the live run taught
+
+- **Inject as `system`, not `user`.** The first version appended the late
+  block as a user message. After an approval pause the run resumes with
+  that block as the newest item, and the model answered it instead of
+  finishing the approved tool call. As a `system` item it is context, not
+  a turn.
+- **Give the subagent explicit `ModelSettings()`.** An `Agent` built
+  without a model assumes the SDK default (GPT-5) and pre-fills
+  `verbosity="low"` / `reasoning=none`; assigning a model later does not
+  reset them, and `gpt-4.1-mini` rejects `verbosity` with a 400. The
+  explorer also needs the same model bound, or its nested run falls back
+  to the default client and `OPENAI_API_KEY`.
+
 ## What the SDK does not give you
 
 Coding tools, skills, a compaction agent, and any opinion about the screen.

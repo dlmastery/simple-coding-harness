@@ -6,6 +6,7 @@ touching the logic.
 """
 
 import json
+import sys
 from contextlib import contextmanager
 
 from rich.console import Console, Group
@@ -26,6 +27,10 @@ MAX_TOOL_LINES = 12  # what you see; the model still gets the whole result
 
 class UI:
     def __init__(self):
+        # Windows consoles default to a legacy code page that cannot encode
+        # box-drawing characters; ask for UTF-8 before rich touches stdout.
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         self.console = Console()
         self.totals = {}
 

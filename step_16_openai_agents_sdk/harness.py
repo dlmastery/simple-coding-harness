@@ -24,7 +24,7 @@ from typing import Literal
 
 import yaml
 from typing_extensions import TypedDict  # pydantic needs this variant on Python < 3.12
-from agents import Agent, RunConfig, RunHooks, Runner, SQLiteSession, function_tool, set_tracing_disabled
+from agents import Agent, ModelSettings, RunConfig, RunHooks, Runner, SQLiteSession, function_tool, set_tracing_disabled
 from agents.run import CallModelData, ModelInputData
 from agents.tool_guardrails import ToolGuardrailFunctionOutput, ToolInputGuardrailData, tool_input_guardrail
 
@@ -209,7 +209,9 @@ reading the codebase in {os.getcwd()}, then report in under 150 words: paths
 with line numbers, names, values. You cannot edit anything. Say plainly what
 you could not find."""
 
-explorer = Agent(name="explorer", instructions=SUBAGENT_PROMPT, tools=[bash, read_file, read_skill])
+# Explicit empty ModelSettings: an Agent built without a model assumes the SDK
+# default (GPT-5) and pre-fills verbosity/reasoning that other models reject.
+explorer = Agent(name="explorer", instructions=SUBAGENT_PROMPT, tools=[bash, read_file, read_skill], model_settings=ModelSettings())
 task = explorer.as_tool(
     tool_name="task",
     tool_description=(
@@ -234,6 +236,9 @@ Skills:
 
 
 def build_agent(model_override=None):
+    # The subagent runs its own nested Runner.run; without a model it would fall
+    # back to the SDK default client, which only knows OPENAI_API_KEY.
+    explorer.model = model_override
     return Agent(
         name="harness",
         instructions=SYSTEM,
@@ -298,7 +303,10 @@ def shape_request(data: CallModelData) -> ModelInputData:
         out = item.get("output")
         if isinstance(out, str) and len(out) > STUB:
             item["output"] = out[:STUB] + f"\n[output trimmed: {len(out) - STUB} more chars. Run the command again if you need them.]"
-    items.append({"role": "user", "content": reminder()})
+    # A system item, not a user message: when a run resumes after an approval
+    # the reminder is the newest thing in the list, and as a user message the
+    # model answers it instead of finishing the task it was approved for.
+    items.append({"role": "system", "content": "Automated context, not a message from the user. Continue the current task.\n" + reminder()})
     return ModelInputData(input=items, instructions=data.model_data.instructions)
 
 
@@ -312,7 +320,7 @@ class Console(RunHooks):
 
     async def on_tool_start(self, context, agent, tool):
         pad = "        " if agent.name == "explorer" else "  "
-        args = getattr(context, "tool_input", None)
+        args = getattr(context, "tool_arguments", None) or getattr(context, "tool_input", None)
         print(f"{pad}tool> {tool.name} {str(args or '')[:90]}")
 
     async def on_tool_end(self, context, agent, tool, result):

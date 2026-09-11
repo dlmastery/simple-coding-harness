@@ -6,6 +6,7 @@ touching the logic.
 """
 
 import json
+import sys
 from contextlib import contextmanager
 
 from rich.console import Console, Group
@@ -31,6 +32,10 @@ TODO_STYLES = {"done": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pend
 
 class UI:
     def __init__(self):
+        # Windows consoles default to a legacy code page that cannot encode
+        # box-drawing characters; ask for UTF-8 before rich touches stdout.
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
         self.console = Console()
         self.totals = {}
 

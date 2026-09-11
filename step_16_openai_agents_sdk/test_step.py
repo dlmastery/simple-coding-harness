@@ -69,7 +69,7 @@ def test_shape_request_strips_old_outputs_and_appends_reminder():
     assert outputs[-1]["output"] == "o" * 1000                       # newest three untouched
     assert items[1 + 1]["output"] == "o" * 1000                       # the original list was not mutated
     tail = shaped.input[-1]
-    assert tail["role"] == "user" and tail["content"].startswith("<env>") and "[~] Do it" in tail["content"]
+    assert tail["role"] == "system" and "<env>" in tail["content"] and "[~] Do it" in tail["content"]
     assert shaped.instructions == "sys"
     harness._write_todos([])
 
