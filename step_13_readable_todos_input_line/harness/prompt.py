@@ -7,6 +7,7 @@ the text is longer than the screen. It also gives persistent history and
 alt-enter for a newline.
 """
 
+import sys
 from pathlib import Path
 
 from prompt_toolkit import PromptSession
@@ -33,9 +34,20 @@ SESSION = None
 
 
 def read(prompt="> "):
-    """Read one message. Raises EOFError on ctrl-d, like input() does."""
+    """Read one message. Raises EOFError on ctrl-d, like input() does.
+
+    Without a real terminal (piped stdin, a plain Windows pipe, tests) the
+    editor cannot start, so fall back to input() rather than refuse to run.
+    """
     global SESSION
+    if not sys.stdin.isatty():
+        return input(prompt)
     if SESSION is None:
         HISTORY.parent.mkdir(parents=True, exist_ok=True)
-        SESSION = PromptSession(history=FileHistory(str(HISTORY)), key_bindings=bindings, style=STYLE)
+        try:
+            SESSION = PromptSession(history=FileHistory(str(HISTORY)), key_bindings=bindings, style=STYLE)
+        except Exception:  # noqa: BLE001 - e.g. NoConsoleScreenBufferError on Windows
+            SESSION = False
+    if not SESSION:
+        return input(prompt)
     return SESSION.prompt(HTML(f"<prompt>{prompt}</prompt>"))
