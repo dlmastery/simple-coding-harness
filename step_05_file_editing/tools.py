@@ -1,8 +1,7 @@
-"""Stage 5 - file editing tools (video 25:08).
+"""Stage 5 - file editing tools.
 
-"We need two more tools, a write file tool and a string replace tool. The
-write file tool is going to write a brand new file onto our disk, and the
-string replace tool will swap a specific block of code for something else."
+Two more tools: write_file and str_replace. write_file writes a new file
+to disk. str_replace swaps one exact block of text in a file for another.
 """
 
 import subprocess

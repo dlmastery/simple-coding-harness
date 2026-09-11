@@ -1,4 +1,5 @@
-"""Stage 12 - slash commands. Anything typed starting with / lands here."""
+"""Stage 12 - redraw() shows the sandbox name in the banner.
+"""
 
 from . import sandbox
 from . import session

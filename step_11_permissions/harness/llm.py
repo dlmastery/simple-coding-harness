@@ -1,4 +1,5 @@
-"""Stage 11 - llm.py, unchanged."""
+"""Stage 11 - llm, unchanged since stage 10.
+"""
 
 import json
 import os

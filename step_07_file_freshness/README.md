@@ -1,32 +1,105 @@
-# Stage 7 - File freshness reminders (video 28:28 - 29:20)
+# Stage 7 - File freshness reminders
 
-> "You can alert the agent if a file has changed since it last read it and
-> prompt it to read the file once again before making changes to it."
+The harness can alert the agent when a file has changed since the agent
+last read it, and prompt the agent to read the file again before editing
+it.
 
-`context.py` gains a global dict `SEEN`; `tools.py` records into it.
+**What this stage adds:** the harness remembers the modification time of
+every file the agent touched, and warns the agent, through the late block,
+when one of them changes underneath it.
 
+```text
+read_file / write_file / str_replace ──▶ SEEN[path] = mtime
+next call: reminder() ──▶ any path whose mtime moved ──▶ <system-reminder> in the late block
 ```
-read_file / write_file / str_replace  ──▶  SEEN[path] = mtime
-next call: reminder()                 ──▶  any path whose mtime moved
-                                            ──▶ <system-reminder> in the late block
+
+## The code, piece by piece
+
+### 1. Remembering what the agent saw
+
+`context.py`:
+
+```python
+SEEN = {}  # path -> mtime when the agent last read or wrote it
+
+
+def note_seen(path):
+    """Called by the read and write tools: remember the file as the agent saw it."""
+    if os.path.exists(path):
+        SEEN[path] = os.path.getmtime(path)
+
+
+def stale_files():
+    """Files whose mtime on disk no longer matches what the agent saw."""
+    return [p for p, mtime in SEEN.items() if not os.path.exists(p) or os.path.getmtime(p) != mtime]
 ```
 
-## In the video's words
+A global dictionary called `SEEN` records the mtime whenever the agent
+reads or writes a file. On the next call, the harness checks whether any
+recorded file has a newer mtime.
 
-"We record the mtime whenever the agent reads or writes to this file. Then
-on the next turn, we notice if any file has an updated mtime. This way we
-can easily catch if a file was updated since the agent last interacted
-with it." The note "comes through as a system reminder and it says these
-files changed on disk since you read them".
+### 2. The tools report what they touch
 
-The bug this prevents: the model's picture of a file is whatever it last
-read. You fix a typo in your editor, a formatter runs, a test writes a
-fixture - the model does not know, and its next `str_replace` either fails
-or lands on text that is now wrong.
+`tools.py`:
 
-It uses the stage 6 mechanism unchanged: the warning is part of the
-injected block, so it costs nothing in the prefix and disappears once the
-file is re-read.
+```python
+def read_file(path: str) -> str:
+    """Read a file and return its contents."""
+    note_seen(path)
+    with open(path) as f:
+        return f.read()
+```
+
+One line in `tools.py` updates the mtime whenever the read tool is used.
+The same line extends to the write and string-replace tools. Here all
+three call `note_seen`, so the agent's own edits do not trigger warnings.
+
+### 3. The warning rides in the late block
+
+`context.py`:
+
+```python
+def stale_note():
+    """Warn about files that changed on disk since the agent read them."""
+    changed = stale_files()
+    if not changed:
+        return ""
+    return (
+        "\n<system-reminder>\n"
+        "These files changed on disk since you read them. Read them again "
+        "before editing:\n" + "\n".join(changed) + "\n</system-reminder>"
+    )
+```
+
+```python
+            "</env>" + stale_note()
+```
+
+The stale note arrives as a system reminder. It says that these files
+changed on disk since the agent read them, and it lists every file that
+changed since the agent last saw it.
+
+## The bug this prevents
+
+The model's picture of a file is whatever it last read. You fix a typo in
+your editor, a formatter runs, a test writes a fixture. The model does not
+know. Its next `str_replace` fails with "old_str was not found", or worse,
+lands on text that is now wrong. With the note it re-reads first.
+
+The note is part of the injected message from stage 6, so it costs
+nothing in the cached prefix. It disappears by itself once the file is
+re-read, because re-reading updates `SEEN`.
+
+## Run it
+
+```bash
+python agent.py
+> read hello.txt and wait
+# ... edit hello.txt in your editor ...
+> change the first line to something else
+```
+
+The reminder appears and the model reads the file again before editing.
 
 ## Diff from stage 6
 

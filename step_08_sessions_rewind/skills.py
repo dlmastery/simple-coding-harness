@@ -1,9 +1,9 @@
-"""Stage 4 - skill discovery and reading (video 18:31).
+"""Stage 4 - skill discovery and reading.
 
-"Skills are just markdown documents placed in a special folder." Each has a
-YAML front matter with a name and a description; only those two lines go
-into the system prompt. The body is read on demand with the read_skill tool,
-and "that's the only time we actually show this prompt to the agent".
+Skills are markdown documents placed in a known folder. Each has YAML
+front matter with a name and a description; only those two lines go into
+the system prompt. The body is read on demand with the read_skill tool,
+and that is the only time the model sees the full instructions.
 """
 
 from pathlib import Path

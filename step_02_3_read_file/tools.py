@@ -1,7 +1,7 @@
 """Stage 2.3 - a read_file tool.
 
-"All that I have done here is just this def read_file which opens a path
-and reads it and returns it back to the agent."
+read_file opens a path, reads it and returns the text to the agent. It is
+one function, one schema and one entry in TOOLS; llm.py does not change.
 """
 
 import subprocess

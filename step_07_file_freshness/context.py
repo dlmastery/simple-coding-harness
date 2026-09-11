@@ -1,7 +1,7 @@
-"""Stage 7 - file freshness reminders (video 28:28).
+"""Stage 7 - file freshness reminders.
 
-"We can alert the agent if a file has changed since it last read it and
-prompt it to read the file once again before making changes to it."
+The harness alerts the agent when a file has changed since the agent last
+read it, and prompts the agent to read the file again before editing it.
 
 A global dict SEEN records the mtime whenever the agent reads or writes a
 file. On the next call, any file whose mtime moved is listed in a

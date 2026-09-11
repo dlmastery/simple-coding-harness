@@ -1,5 +1,5 @@
-"""Stage 13 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 13 - todos render as a checklist and every input goes through prompt.read().
+"""
 
 import json
 import sys

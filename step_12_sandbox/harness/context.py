@@ -1,9 +1,4 @@
-"""Stage 12 - the late block, now watching git instead of an in-memory dict.
-
-Stage 7 remembered mtimes in SEEN. That dict dies with the process, and
-this stage makes chats resumable across processes. `git status --porcelain`
-is remembered by nothing but git, so the freshness check moves onto it: the
-block reports every path whose status changed since the previous call.
+"""Stage 12 - context, unchanged since stage 10.
 """
 
 import subprocess

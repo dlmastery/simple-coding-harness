@@ -1,7 +1,6 @@
 """Stage 3 - tools, unchanged.
 
-"All that I have done here is just this def read_file which opens a path
-and reads it and returns it back to the agent."
+read_file opens a path, reads it and returns the text to the agent.
 """
 
 import subprocess

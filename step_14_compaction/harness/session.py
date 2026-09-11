@@ -1,9 +1,4 @@
-"""Stage 14 - transcripts on disk. One append-only JSONL file per chat.
-
-A rewind does not delete lines: it appends a marker saying "the list is now
-this long". Loading replays the log from the top and applies the markers, so
-the file is the full history of what happened, including what you rewound
-past.
+"""Stage 14 - the session log records compactions, so --resume reloads the compacted list.
 """
 
 import json

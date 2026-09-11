@@ -1,8 +1,4 @@
-"""Stage 10 - tools; note_seen is gone, git watches files now.
-
-"We need two more tools, a write file tool and a string replace tool. The
-write file tool is going to write a brand new file onto our disk, and the
-string replace tool will swap a specific block of code for something else."
+"""Stage 10 - tools gain write_todos.
 """
 
 import subprocess

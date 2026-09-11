@@ -1,4 +1,6 @@
-"""Stage 14 - llm.py, unchanged."""
+"""Stage 14 - call_llm takes an optional tool set (tools=[] for the compaction agent);
+the prompt explains trimmed tool output.
+"""
 
 import json
 import os

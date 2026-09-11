@@ -1,4 +1,5 @@
-"""Stage 15 - slash commands. Anything typed starting with / lands here."""
+"""Stage 15 - commands, unchanged since stage 14.
+"""
 
 from . import compact as compaction
 from . import sandbox

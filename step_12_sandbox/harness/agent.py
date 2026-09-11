@@ -1,10 +1,4 @@
-"""Stage 12 - the loop from stage 8 inside main(), so pip can install it as a command.
-
-    pip install -e .
-    harness            # from any directory
-
-The project directory is wherever you run it: skills, sessions and git
-status all key off the current working directory.
+"""Stage 12 - the loop, with the sandbox name in the banner.
 """
 
 import argparse

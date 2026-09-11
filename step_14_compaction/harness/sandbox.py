@@ -1,12 +1,13 @@
-"""Stage 14 - an OS sandbox for bash (video 33:02).
+"""Stage 14 - an OS sandbox for bash.
 
-Permissions are "not real security because a file can still be removed
-using Python". A sandbox "asks a completely different question: if a
-specific operation is allowed or not", and the kernel answers it.
+Permissions are not real security. A file can still be removed from a
+Python one-liner, because the rules only see the command text. A sandbox
+asks a different question: is this specific operation allowed at all? The
+kernel answers it.
 
 One policy - read anything, write only inside the project, no network - and
 one mechanism per OS. The macOS profile is the shape used by the OpenAI
-Codex CLI (Apache-2.0), which the video borrows; the Linux one is bubblewrap.
+Codex CLI (Apache-2.0); the Linux one is bubblewrap.
 Windows has no equivalent here and the banner says so.
 """
 

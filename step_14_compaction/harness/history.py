@@ -1,16 +1,16 @@
-"""Stage 14 - keeping the transcript small enough to send (video 36:50).
+"""Stage 14 - keeping the transcript small enough to send.
 
-"Tool call outputs is one of the main reasons why messages explode." Three
+Tool call output is the main reason a transcript explodes. Three
 mechanisms, cheapest first. Only the first two live here; the expensive one
 (the compaction agent) is compact.py.
 
 1. cap    a fresh tool result is trimmed at 10,000 characters and the full
           text parked in a temp file the agent can page through with head,
-          tail, sed or grep. The file "is only available until that message
-          finishes" - it is deleted when the turn ends.
-2. strip  once a turn is over, its tool results shrink to a stub. "This
-          strip only happens on past messages." The edit lands at the tail,
-          so the cached prefix in front of it survives.
+          tail, sed or grep. The file lives only until the turn ends; then
+          it is deleted.
+2. strip  once a turn is over, its tool results shrink to a stub. Strip
+          touches past turns only. The edit lands at the tail, so the
+          cached prefix in front of it survives.
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
 """

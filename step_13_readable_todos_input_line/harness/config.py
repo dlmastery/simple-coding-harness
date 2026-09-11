@@ -1,7 +1,7 @@
 """Stage 13 - settings. Real environment variables win; ~/.simple-harness/env fills gaps.
 
 One KEY=VALUE per line, so the key is set once instead of exported in every
-shell. The video keeps the same two variables in a .env file.
+shell, the way a .env file would.
 """
 
 import os

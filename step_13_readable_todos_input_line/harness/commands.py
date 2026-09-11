@@ -1,4 +1,5 @@
-"""Stage 13 - slash commands. Anything typed starting with / lands here."""
+"""Stage 13 - commands, unchanged since stage 12.
+"""
 
 from . import sandbox
 from . import session

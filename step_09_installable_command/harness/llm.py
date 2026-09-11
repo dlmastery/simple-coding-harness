@@ -1,4 +1,5 @@
-"""Stage 9 - llm.py, unchanged."""
+"""Stage 9 - call_llm reads its credentials from config.py.
+"""
 
 import json
 import os

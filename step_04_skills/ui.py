@@ -1,8 +1,8 @@
-"""Stage 3 - a terminal presentation layer (video 16:54).
+"""Stage 3 - a terminal presentation layer.
 
-"Let's actually ask Claude to build us a better UI." Everything that draws
-lives here. It receives strings and dicts and knows nothing about models or
-tools, so agent.py stays the loop and nothing else.
+Everything that draws lives here. The class receives strings and dicts and
+knows nothing about models or tools, so agent.py stays the loop and
+nothing else.
 """
 
 import json

@@ -1,12 +1,13 @@
-# Stage 10 - Todos (video 29:26 - 31:39)
+# Stage 10 - Todos
 
-> "When you give an agent a long task, it can split that task into smaller
-> subtasks and work through them one by one."
+A long task can be split into smaller subtasks. The agent then works
+through them one by one.
 
-New file `harness/todos.py`: a `write_todos` tool and the list it writes.
-The list is shown to the agent through the late block from stage 6.
+**What this stage adds:** a `write_todos` tool, the list it writes, and a
+`<todos>` block in the late injection so the plan is in front of the model
+on every call.
 
-```
+```text
 <env> ... </env>
 <todos>
 [x] Write hello.txt with five hello worlds
@@ -15,21 +16,92 @@ The list is shown to the agent through the late block from stage 6.
 </todos>
 ```
 
-## In the video's words
+## The code, piece by piece
 
-- "I keep a list of every task the agent wants to save and each task
-  carries a status: in progress, completed, or pending."
-- "Whenever this tool is called, the agent has to overwrite previous
-  to-dos by writing a new list of action items." The tool *replaces* the
-  list; there is one current plan, never a stack of stale ones. Exactly one
-  item may be in progress, and its `activeForm` becomes the spinner label.
-- "The way existing todos are shown to the agent is once again using our
-  late injection feature." `context.py` appends a `<todos>` block after
-  `<env>`, so "the LLM will always have access to it after each message".
+### 1. The list and the tool
 
-The system prompt tells the model when to plan (multi-step tasks), when
-not to (single steps: "it is noise there"), and that the injected block,
-not the transcript, "is the truth about where you are".
+`harness/todos.py`:
+
+```python
+MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}
+
+TODOS = []  # [{"content": ..., "activeForm": ..., "status": ...}]
+
+
+def write_todos(todos):
+    """Replace the whole list. Exactly one task may be in_progress."""
+    active = [t for t in todos if t["status"] == "in_progress"]
+    if len(active) > 1:
+        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+
+    TODOS[:] = todos
+    return todos_prompt() or "Todo list cleared."
+
+
+def todos_prompt():
+    return "\n".join(f"{MARKS[t['status']]} {t['content']}" for t in TODOS)
+```
+
+The harness keeps a list of every task the agent wants to save. Each task
+carries a status: pending, in_progress or completed. Every call to the
+tool overwrites the previous todos with a new list of action items.
+`TODOS[:] = todos` replaces the list wholesale, so there is exactly one
+current plan and no stack of stale ones. The rule "exactly
+one in progress" is enforced in code and returned as an error string, the
+stage 5 habit.
+
+```python
+def active_form():
+    """What the agent is doing right now, for the spinner."""
+    for todo in TODOS:
+        if todo["status"] == "in_progress":
+            return todo["activeForm"]
+    return "thinking"
+```
+
+Each item carries an `activeForm` ("Writing the star pattern") that the
+loop shows as the spinner label:
+
+`harness/agent.py`:
+
+```python
+            with ui.working(active_form()):
+```
+
+### 2. The plan is shown through the late block
+
+`harness/context.py`:
+
+```python
+def todos_note():
+    plan = todos_prompt()
+    return f"\n<todos>\n{plan}\n</todos>" if plan else ""
+```
+
+```python
+            "</env>" + todos_note() + changes_note()
+```
+
+The existing todos reach the agent through the late injection. The
+current list is appended to the late block, so the model has access to it
+after each message. The plan lives in a variable, not in the transcript.
+Twenty tool calls later it is still the last thing the model reads before
+it acts.
+
+### 3. The prompt tells the model when to plan
+
+`harness/llm.py`:
+
+```python
+For any task that takes more than one step, call write_todos first and plan it
+out. Send the whole list every time you call it - it replaces the old one.
+Keep exactly one task in_progress, mark it completed the moment it is finished,
+and move the next one to in_progress in the same call. Skip the tool entirely
+for single-step tasks; it is noise there.
+
+The current list is injected back to you every turn inside <todos> tags, so
+that block - not the transcript - is the truth about where you are.
+```
 
 ## Run it
 
@@ -40,8 +112,9 @@ harness
   with the Fibonacci series. then do them.
 ```
 
-"It created the to-dos and it keeps updating them as it retrieves them and
-rewrites them."
+The agent creates the todos and keeps updating them as it works. Each
+rewrite puts the whole list back in front of the model, so its tasks stay
+close to its recent memory.
 
 ## Diff from stage 9
 
@@ -49,5 +122,5 @@ rewrites them."
 diff -r ../step_09_installable_command/harness harness
 ```
 
-New: `todos.py`. Changed: `context.py` (the `<todos>` block), `llm.py`
-(the planning instructions), `tools.py` (registry), `agent.py` (spinner).
+New: `todos.py`. Changed: `context.py`, `llm.py`, `tools.py` (registry
+line), `agent.py` (spinner label).

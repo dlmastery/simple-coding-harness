@@ -1,4 +1,5 @@
-"""Stage 10 - llm.py, unchanged."""
+"""Stage 10 - the system prompt tells the model when and how to plan with write_todos.
+"""
 
 import json
 import os

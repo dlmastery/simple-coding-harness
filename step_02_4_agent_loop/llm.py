@@ -1,9 +1,8 @@
-"""Stage 2.4 - llm.py becomes a function (video 12:07).
+"""Stage 2.4 - llm.py becomes a function.
 
-"All we have done here is put this entire thing of the client chat
-completions create into a function: call_llm(messages)." It is invoked from
-agent.py, which owns the message list and the loop. Run this file on its
-own and it still does the single-turn forward pass from 2.3.
+The chat completion request moves into call_llm(messages). agent.py owns
+the message list and the loop and calls this function. Run this file on
+its own and it still does the single-turn request from 2.3.
 """
 
 import json

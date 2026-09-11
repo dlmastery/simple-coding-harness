@@ -1,7 +1,7 @@
 """Stage 14 - settings. Real environment variables win; ~/.simple-harness/env fills gaps.
 
 One KEY=VALUE per line, so the key is set once instead of exported in every
-shell. The video keeps the same two variables in a .env file.
+shell, the way a .env file would.
 """
 
 import os
@@ -20,7 +20,7 @@ BASE_URL = os.environ.get("BASE_URL", "https://openrouter.ai/api/v1")
 API_KEY = os.environ.get("API_KEY", "")
 MODEL = os.environ.get("MODEL", "deepseek/deepseek-v4-flash")
 
-# How much room the model has, and how we spend it (video: 85% -> 35%).
+# How much room the model has, and how we spend it (85% -> 35%).
 CONTEXT_WINDOW = int(os.environ.get("CONTEXT_WINDOW", 128_000))
 COMPACT_AT = 0.85  # compact once the prompt crosses this fraction of the window
 COMPACT_TO = 0.35  # and cut back to this fraction, so it does not retrigger soon

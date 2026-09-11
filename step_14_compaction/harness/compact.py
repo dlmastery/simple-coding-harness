@@ -1,16 +1,14 @@
-"""Stage 14 - the compaction agent (video 37:52).
+"""Stage 14 - the compaction agent.
 
-"When the number of tokens reaches 85% of the total context length, we're
-going to reduce it to 35%." Not by dropping the oldest messages - "that's
-going to break the KV cache" - but by compaction: "we summarize everything
-that has happened in the session, a summary of the things that we are about
-to delete from the messages array."
+When the prompt reaches 85% of the context window, the harness cuts it back
+to 35%. It does not drop the oldest messages, because that would break the
+KV cache. Instead it compacts: a summary of everything that happened in the
+session replaces the messages about to be deleted.
 
 A second agent with one job and no tools writes that handoff note. The note
-is folded into the system prompt: "we kept the compaction string at the
-start of the system prompt", and because the transcript then has to fill
-from 35% back to 85% before the next compaction, the prefix stays the same
-in between.
+is folded into the system prompt. The transcript then has to fill from 35%
+back to 85% before the next compaction, so the system prompt stays the same
+in between and the cached prefix survives.
 """
 
 import re

@@ -1,5 +1,5 @@
-"""Stage 9 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 9 - the presentation layer, unchanged from stage 8.
+"""
 
 import json
 import sys

@@ -1,7 +1,7 @@
 """Run every step's offline test suite. No API key needed.
 
     python run_tests.py            # all steps
-    python run_tests.py 13 14      # just these
+    python run_tests.py 13 14      # just these (2 selects every 2.x stage)
 """
 
 import subprocess

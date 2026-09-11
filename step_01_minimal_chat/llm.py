@@ -1,12 +1,12 @@
-"""Stage 1 - a minimal chat completion round trip (video 01:19).
+"""Stage 1 - a minimal chat completion round trip.
 
 One prompt in, one reply out. A system message, a user message, the model's
 answer, and the usage numbers. This is the whole program, and every later
 stage is this file plus one more idea.
 
 Run:   python llm.py
-Needs: BASE_URL and API_KEY in the environment. The video uses OpenRouter
-       with deepseek/deepseek-v4-flash; MODEL overrides that.
+Needs: BASE_URL and API_KEY in the environment. The defaults point at
+       OpenRouter with deepseek/deepseek-v4-flash; MODEL overrides that.
 """
 
 import os

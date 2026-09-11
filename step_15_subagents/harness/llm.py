@@ -1,4 +1,5 @@
-"""Stage 15 - llm.py, unchanged."""
+"""Stage 15 - the system prompt tells the model when to delegate to a task subagent.
+"""
 
 import json
 import os

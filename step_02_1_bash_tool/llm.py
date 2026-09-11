@@ -1,8 +1,9 @@
-"""Stage 2.1 - chat with a simple bash tool (video 02:54).
+"""Stage 2.1 - chat with a simple bash tool.
 
-The model can now ask us to run a shell command. We describe the tool as
-JSON, pass it in `tools=`, and if the reply carries a tool call we run it.
-The result is printed for you, not sent back to the model - that is 2.4.
+The model can now ask the harness to run a shell command. The tool is
+described as JSON and passed in `tools=`. If the reply carries a tool call,
+the harness runs it. The result is printed for the user, not sent back to
+the model - that is 2.4.
 
 Run:   python llm.py
 Needs: BASE_URL, API_KEY (and optionally MODEL) in the environment.

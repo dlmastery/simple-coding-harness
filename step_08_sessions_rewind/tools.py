@@ -1,8 +1,7 @@
 """Stage 8 - tools; note_seen is gone, git watches files now.
 
-"We need two more tools, a write file tool and a string replace tool. The
-write file tool is going to write a brand new file onto our disk, and the
-string replace tool will swap a specific block of code for something else."
+write_file writes a new file to disk. str_replace swaps one exact block of
+text in a file for another.
 """
 
 import subprocess

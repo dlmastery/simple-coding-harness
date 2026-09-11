@@ -1,7 +1,7 @@
 """Stage 4 - the system prompt carries the skills index.
 
-"You have skills available. Each one is a set of instructions for a task.
-If a skill matches what the user wants, call read_skill first and follow it."
+The prompt lists every skill by name and description and tells the model
+to call read_skill first when a skill matches the task.
 """
 
 import json

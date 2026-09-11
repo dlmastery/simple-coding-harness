@@ -1,5 +1,5 @@
-"""Stage 11 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 11 - the presentation layer gains approve(), the allow? (y/n) prompt.
+"""
 
 import json
 import sys

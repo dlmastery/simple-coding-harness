@@ -1,36 +1,103 @@
-# Stage 9 - An installable command (video 30:30)
+# Stage 9 - An installable command
 
-> "I have also installed agent.py as a UV tool. And now it's called
-> neuralcode."
+**What this stage adds:** packaging. The flat files move into a `harness/`
+package, the loop moves inside `main()`, credentials get a config module,
+and `pyproject.toml` declares a console script. The loop itself does not
+change.
 
-The flat files move into a package, the loop moves inside `main()`, and
-`pyproject.toml` declares a console script. Nothing in the loop changes.
-
-```
+```text
 harness/
 ├── agent.py      main(): the stage 8 loop, indented one level
-├── config.py     new: BASE_URL / API_KEY / MODEL from env or ~/.simple-harness/env
+├── config.py     new: BASE_URL / API_KEY / MODEL from the env or ~/.simple-harness/env
 ├── llm.py        reads config instead of os.environ
 ├── tools.py  skills.py  context.py  session.py  commands.py  ui.py   (relative imports)
 pyproject.toml    [project.scripts] harness = "harness.agent:main"
 ```
 
+## The code, piece by piece
+
+### 1. The entry point
+
+`pyproject.toml`:
+
+```text
+[project.scripts]
+harness = "harness.agent:main"
+```
+
+`harness/agent.py`:
+
+```python
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--resume", action="store_true", help="continue the last session")
+    parser.add_argument("--debug", action="store_true", help="show the raw model response")
+    cli = parser.parse_args()
+
+    ui.banner()
+
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+```
+
+```python
+if __name__ == "__main__":
+    main()
+```
+
+`pip install -e .` creates a `harness` executable that calls
+`harness.agent.main`. `uv tool install .` does the same job. Because the
+loop now runs from any directory, every "where am I" decision keys off the
+current working directory: skills are looked up under that directory's
+`.agents/skills`, sessions are filed under its name, and `git status` is
+taken there.
+
+### 2. Credentials in one place
+
+`harness/config.py`:
+
+```python
+HOME = Path.home() / ".simple-harness"
+ENV_FILE = HOME / "env"
+
+if ENV_FILE.exists():
+    for line in ENV_FILE.read_text().splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
+BASE_URL = os.environ.get("BASE_URL", "https://openrouter.ai/api/v1")
+API_KEY = os.environ.get("API_KEY", "")
+MODEL = os.environ.get("MODEL", "deepseek/deepseek-v4-flash")
+```
+
+Real environment variables win; the file fills the gaps, so you set the
+key once. `setdefault` is what makes the precedence work.
+
+`harness/llm.py`:
+
+```python
+client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
+MODEL = config.MODEL
+```
+
+### 3. Relative imports
+
+Every `from tools import ...` became `from .tools import ...`. That is the
+whole difference between a folder of scripts and a package.
+
+## Run it
+
 ```bash
-pip install -e .          # the video uses `uv tool install`
+pip install -e .
 cd ~/any/other/project
 harness
 ```
 
-The project is wherever you run it: skills are found under that
-directory's `.agents/skills`, sessions are filed under its name, and git
-status is taken there. The video's command is `neuralcode`; this one is
-`harness`.
+or without installing: `python -m harness.agent` from this directory.
 
 ## Diff from stage 8
 
-Every `from x import` became `from .x import`, and `agent.py` gained four
-spaces of indentation and a `def main():`. Compare the loop itself:
-
 ```bash
-diff ../step_08_sessions_rewind/agent.py harness/agent.py
+diff ../step_08_sessions_rewind/agent.py harness/agent.py   # four spaces and a def main()
+cat harness/config.py
 ```

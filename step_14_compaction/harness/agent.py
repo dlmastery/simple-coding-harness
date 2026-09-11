@@ -1,10 +1,9 @@
-"""Stage 14 - the loop from stage 8 inside main(), so pip can install it as a command.
+"""Stage 14 - the loop keeps the transcript inside the context window.
 
-    pip install -e .
-    harness            # from any directory
-
-The project directory is wherever you run it: skills, sessions and git
-status all key off the current working directory.
+Before each call: fit() drops old tool output if a request is still too big.
+After each turn: sweep() deletes the turn's temp files, strip() shrinks its
+tool results, and if the last prompt crossed 85% of the window the
+compaction agent rewrites history.
 """
 
 import argparse

@@ -1,8 +1,8 @@
 """Stage 7 - the loop, unchanged from stage 6.
 
-`call_llm(messages + [reminder()])` is the only change. "We never touch the
-messages array itself. So in future turns, the old dates and the old git
-statuses never get shown to the agent."
+`call_llm(messages + [reminder()])` is the only change. The messages list
+is never touched, so old dates and old git status blocks never reach the
+model in later turns.
 
 Run:   python agent.py
 """

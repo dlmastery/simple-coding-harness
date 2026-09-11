@@ -1,5 +1,5 @@
-"""Stage 14 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 14 - the compacted() panel shows the handoff note.
+"""
 
 import json
 import sys

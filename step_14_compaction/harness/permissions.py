@@ -1,13 +1,14 @@
-"""Stage 14 - which tool calls need a human (video 31:44).
+"""Stage 14 - which tool calls need a human.
 
-"An allow list of commands that the agent can just run - ls, pwd, echo,
-read-only commands. However, to run stuff that is risky like rm or sudo or
-changing ownership or curl some random website, the agent must ask for
-permission, and if I approve then that tool call gets executed."
+An allow list names the commands the agent may run on its own: ls, pwd,
+echo and other read-only commands it uses to gather information. Every
+other command stops and asks the user. If the user approves, the tool call
+runs.
 
-The allow / ask design is the one "open code has adopted". A third verdict,
-deny, covers the handful of commands no answer at the prompt should unlock.
-Last matching rule wins, so the catch-all goes first.
+The allow / ask design comes from OpenCode. A third verdict, deny, covers
+the handful of commands no answer at the prompt should unlock: rm, sudo,
+chmod, chown, curl and the like. The last matching rule wins, so the
+catch-all goes first.
 """
 
 from fnmatch import fnmatch

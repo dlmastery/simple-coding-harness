@@ -1,47 +1,127 @@
-# Stage 4 - Skill discovery and reading (video 18:31 - 25:02)
+# Stage 4 - Skill discovery and reading
 
-> "Skills are just markdown documents. They can be placed in a special
-> folder on your disk and all of your agents know to check these specific
-> directories to find the SKILL.md file."
+Skills are markdown documents. They live in a known folder on disk, and
+agents check that folder for `SKILL.md` files.
 
-New file `skills.py`; `tools.py` gains `read_skill`; the system prompt in
-`llm.py` gains the skills index.
+**What this stage adds:** the agent finds `SKILL.md` files, puts their
+name and description into the system prompt, and reads the full
+instructions only when a task matches. The result is a model that follows
+a project's written procedure without further prompting.
 
-```
-~/.agents/skills/<name>/SKILL.md      your skills
-./.agents/skills/<name>/SKILL.md      this project's skills
-
----                      ← YAML front matter: pasted into the system prompt
-name: explain-code
-description: How to explain ...
+```text
+./.agents/skills/explain-code/SKILL.md
+---                                          ← YAML front matter
+name: explain-code                            → into the system prompt (index)
+description: How to explain a piece of code…  → into the system prompt (index)
 ---
-(the instructions)       ← shown only when the agent calls read_skill
+# Explaining code                             → only via read_skill, on demand
+1. Read the whole file first ...
 ```
 
-## How it works, in the video's words
+## The code, piece by piece
 
-- `find_skills` "globs the skill.md in these skill dirs, reads the front
-  matter separated by those three dashes, does a yaml.safe_load, and
-  extracts its description and its name".
-- `skills_prompt` "loops over all of the skills we found and joins them to
-  create a long name-and-description object". Run `python skills.py` to
-  see it.
-- `read_skill` "given a skill name, looks up the path of that skill and
-  reads it in and sends it back".
+### 1. Where skills live
 
-Only the index costs context on every call. The body costs nothing until a
-task matches. "It's so powerful that it's almost hilarious that it just
-works."
+`skills.py`:
+
+```python
+SKILL_DIRS = [
+    Path.home() / ".agents" / "skills",  # your skills
+    Path.cwd() / ".agents" / "skills",   # this project's skills
+]
+```
+
+The first directory is the user's home. The second is the project the
+agent runs from. More paths can be added here, such as `.claude`, to
+target other tools' skill folders.
+
+### 2. Discovery: glob, split the front matter, parse YAML
+
+`skills.py`:
+
+```python
+def find_skills():
+    """Glob SKILL.md under every skill dir; name -> {description, path}."""
+    skills = {}
+    for directory in SKILL_DIRS:
+        for path in sorted(directory.glob("*/SKILL.md")):
+            text = path.read_text(encoding="utf-8")
+            if not text.startswith("---"):
+                continue
+            _, frontmatter, _ = text.split("---", 2)
+            meta = yaml.safe_load(frontmatter) or {}
+            if "name" not in meta:
+                continue
+            description = " ".join(str(meta.get("description", "")).split())
+            skills[meta["name"]] = {"description": description, "path": path}
+    return skills
+```
+
+`find_skills` globs `SKILL.md` under every skill directory. It reads the
+front matter between the two `---` lines, parses it with
+`yaml.safe_load`, and extracts the name and the description. It returns
+a dictionary of skills keyed by name. Each entry holds the description
+and the path where the skill lives.
+
+### 3. The index that goes into the prompt, and the tool that reads the body
+
+`skills.py`:
+
+```python
+def skills_prompt():
+    """One line per skill: the index that goes into the system prompt."""
+    return "\n".join(f"- {name}: {s['description']}" for name, s in SKILLS.items())
+
+
+def read_skill(name: str) -> str:
+    """Open a skill and return its full instructions."""
+    if name not in SKILLS:
+        return f"No skill named '{name}'."
+    return SKILLS[name]["path"].read_text(encoding="utf-8")
+```
+
+`python skills.py` prints the index so you can see what the model will
+see. Given a skill name, `read_skill` looks up the path of that skill,
+reads the file, and returns the text.
+
+### 4. Wiring: the prompt and the registry
+
+`llm.py`:
+
+```python
+You have skills available. Each one is a set of instructions for a task.
+If a skill matches what the user wants, call read_skill first and follow it.
+
+{skills_prompt()}
+```
+
+`tools.py`:
+
+```python
+TOOLS = {"bash": bash, "read_file": read_file, "read_skill": read_skill}
+```
+
+## Why only the front matter goes into the prompt
+
+The front matter at the top of the file is pasted into the system prompt.
+When the agent starts, it sees each skill's name and description, so it
+knows to call the skill when a matching task arrives. The instructions
+below the front matter are shown only when the model chooses to load the
+skill. The index costs a line per skill on every call. The body costs
+nothing until it is needed. A project can ship fifty skills without
+spending fifty skills' worth of context.
 
 ## Run it
 
 ```bash
+pip install pyyaml
+python skills.py                 # see the index
 python agent.py
 > explain what agent.py does
 ```
 
-The prompt tells the model `explain-code` exists; it calls `read_skill`
-first, then follows the four rules in the skill.
+The model calls `read_skill("explain-code")` first and then follows the
+skill's four rules. Delete `.agents` and ask again to see the difference.
 
 ## Diff from stage 3
 

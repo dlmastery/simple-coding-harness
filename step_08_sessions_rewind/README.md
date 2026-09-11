@@ -1,48 +1,151 @@
 # Stage 8 - Sessions, slash commands and rewind
 
-This stage is in the reference commits but not narrated in the video; it is
-the plumbing that makes the later demos (`--resume`, the installed
-`neuralcode` command) work.
+This stage is the plumbing behind the features that follow: `--resume`,
+`/sessions`, `/rewind`, and the installed command of stage 9.
 
-New: `session.py`, `commands.py`. Changed: `agent.py` (`--resume`,
-`--debug`, the `/` branch, a `save()` after every message), `ui.py`
-(replay, pick, injection panel, debug panel), `context.py`.
+**What this stage adds:** every message is written to disk as it happens,
+a chat can be reopened in a new process, and you can jump back to an
+earlier point. The file-change check moves from the in-memory `SEEN` dict
+to `git status`, because a dict does not survive a restart.
 
-```
+```text
 ~/.simple-harness/sessions/<project>/20260910-140212.jsonl
 {"role": "system", "content": "..."}
 {"role": "user", "content": "add a test"}
 {"role": "assistant", "content": null, "tool_calls": [...]}
 {"role": "tool", "tool_call_id": "c1", "content": "..."}
 {"rewind_to": 2}                     ← a rewind is an entry, not a delete
+{"role": "user", "content": "actually, do it differently"}
 ```
 
-## Append-only
+## The code, piece by piece
 
-`session.save()` writes only the messages not yet on disk, after every
-message, so a crash mid-turn loses nothing. A rewind appends a marker;
-`load()` replays the file and applies markers as it goes. You get undo with
-the full history preserved, in a format you can read with `cat`.
+### 1. Append-only saving
 
-## Slash commands
+`session.py`:
 
-Anything starting with `/` never reaches the model. A command takes the
-message list and returns the list to continue with: shorter for `/rewind`,
-a different one for `/sessions`. After either, the screen is redrawn from
-the transcript through the same `ui.agent` / `ui.tool` calls the live loop
-uses.
+```python
+def save(messages):
+    """Append what is new. Never rewrite what is already on disk."""
+    global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        for message in messages[WRITTEN:]:
+            f.write(json.dumps(message) + "\n")
+    WRITTEN = len(messages)
+```
 
-## Why freshness moves to git here
+`WRITTEN` counts how many messages are already in the file, so each call
+appends only the new tail. The loop calls `session.save(messages)` after
+every single message, including each tool result, so a crash mid-turn
+loses nothing.
 
-Stage 7's `SEEN` dict of mtimes lives in the process. Once chats can be
-resumed in a new process, that memory is gone, so the check moves onto
-`git status --porcelain`: the block lists every path whose status changed
-since the previous call, and git remembers across processes. Same
-`<system-reminder>`, different source of truth.
+### 2. Rewind as an entry
+
+`session.py`:
+
+```python
+def rewind_to(count):
+    """Record a rewind as an entry, so the old messages stay in the file."""
+    global WRITTEN
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"rewind_to": count}) + "\n")
+    WRITTEN = count
+```
+
+```python
+def load(session_id):
+    """Replay the log: messages accumulate, rewinds cut them back."""
+    messages = []
+    for line in path_for(session_id).read_text(encoding="utf-8").splitlines():
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue  # a half-written last line from a kill mid-save
+        if "rewind_to" in entry:
+            del messages[entry["rewind_to"]:]
+        else:
+            messages.append(entry)
+    return messages
+```
+
+A rewind appends a marker; loading replays the file from the top and
+applies markers as it meets them. You get undo with the full history kept,
+in a format you can inspect with `cat`.
+
+### 3. Slash commands never reach the model
+
+`agent.py`:
+
+```python
+    if user_input.startswith("/"):
+        messages = commands.handle(user_input, messages)
+        session.save(messages)
+        continue
+```
+
+`commands.py`:
+
+```python
+def rewind(messages):
+    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
+    choice = ui.pick("rewind to", rows)
+    if choice is None:
+        return messages
+    session.rewind_to(choice + 1)
+    return redraw(messages[: choice + 1], "rewound")
+```
+
+The contract is one function: take the list, return the list to continue
+with. `/rewind` returns a shorter one, `/sessions` a different one. After
+either, `redraw` clears the screen and replays the transcript through the
+same `ui.agent` / `ui.tool` calls the live loop uses, so a reopened chat
+looks exactly as it did.
+
+### 4. Freshness moves to git
+
+`context.py`:
+
+```python
+def git_status():
+    """path -> status code, straight from git."""
+    return {line[3:]: line[:2].strip() for line in git("status --porcelain").splitlines()}
+
+
+LAST_STATUS = git_status()
+
+
+def file_changes():
+    """What git sees as different since the previous call."""
+    global LAST_STATUS
+    now = git_status()
+    changed = {p: c for p, c in now.items() if LAST_STATUS.get(p) != c}
+    LAST_STATUS = now
+    return changed
+```
+
+Stage 7's `SEEN` dict lives in the process. Once a chat can be resumed in
+a new process that memory is gone, so the check moves onto
+`git status --porcelain`, which git remembers on its own. Same
+`<system-reminder>`, different source of truth; `note_seen` leaves
+`tools.py`.
+
+## Run it
+
+```bash
+python agent.py
+> what is in this folder?
+> /rewind          # pick 1 to go back to just after your first message
+> /sessions        # or reopen any earlier chat
+python agent.py --resume
+```
+
+`--debug` prints the raw model reply as JSON after each call.
 
 ## Diff from stage 7
 
 ```bash
 diff ../step_07_file_freshness/agent.py agent.py
 diff ../step_07_file_freshness/context.py context.py
+cat session.py commands.py
 ```

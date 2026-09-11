@@ -1,5 +1,5 @@
-"""Stage 15 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 15 - the subagent() panel and nested tool panels.
+"""
 
 import json
 import sys

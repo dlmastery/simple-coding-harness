@@ -1,9 +1,4 @@
-"""Stage 4 - skill discovery and reading (video 18:31).
-
-"Skills are just markdown documents placed in a special folder." Each has a
-YAML front matter with a name and a description; only those two lines go
-into the system prompt. The body is read on demand with the read_skill tool,
-and "that's the only time we actually show this prompt to the agent".
+"""Stage 9 - skills, unchanged from stage 4.
 """
 
 from pathlib import Path

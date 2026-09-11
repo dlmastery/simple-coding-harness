@@ -1,4 +1,4 @@
-"""Stage 2.2 - generic tools (video 09:53).
+"""Stage 2.2 - generic tools.
 
 Same behaviour as 2.1, but the tool is looked up by name in a table instead
 of being hard-coded. The model's `tool_call.function.name` becomes a

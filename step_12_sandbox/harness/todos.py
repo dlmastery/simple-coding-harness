@@ -1,12 +1,11 @@
-"""Stage 12 - the plan (video 29:26).
+"""Stage 12 - the plan.
 
-"I keep a list of every task the agent wants to save and each task carries a
-status: in progress, completed, or pending. Whenever this tool is called,
-the agent has to overwrite previous to-dos by writing a new list."
+The harness keeps a list of every task the agent wants to save. Each task
+carries a status: pending, in_progress or completed. Every write_todos call
+replaces the whole list, so there is exactly one current plan.
 
-The list lives here, not in the transcript, and is shown to the agent through
-the late-injected block on every call - "so the LLM will always have access
-to it after each message".
+The list lives here, not in the transcript. The late injection shows it to
+the model on every call, so the plan is always in front of the model.
 """
 
 MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}

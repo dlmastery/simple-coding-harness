@@ -1,7 +1,7 @@
 """Stage 4 - tools gain read_skill.
 
-"The other tool that tools.py now has is that read_skill tool that we wrote
-in that other file. And the tool schema also gets an update."
+read_skill comes from skills.py. It gets an entry in TOOLS and a schema in
+TOOL_SCHEMAS like every other tool.
 """
 
 import subprocess

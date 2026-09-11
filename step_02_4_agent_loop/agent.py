@@ -1,9 +1,9 @@
-"""Stage 2.4 - the agent loop (video 12:07 - 16:50).
+"""Stage 2.4 - the agent loop.
 
-"An agent is something that loops around an LLM call." This file is the
-harness loop: call the model, append its reply, run every tool it asked
-for, append each result with role "tool", and go again until a reply has no
-tool calls.
+An agent is a loop around a model call. This file is the harness loop:
+call the model, append its reply, run every tool call it asked for, append
+each result with role "tool", and call again until a reply has no tool
+calls.
 
 Run:   python agent.py
 """

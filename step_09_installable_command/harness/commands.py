@@ -1,4 +1,5 @@
-"""Stage 9 - slash commands. Anything typed starting with / lands here."""
+"""Stage 9 - slash commands, unchanged from stage 8.
+"""
 
 from . import session
 from .ui import ui

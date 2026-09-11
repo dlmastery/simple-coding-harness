@@ -1,5 +1,5 @@
-"""Stage 12 - the presentation layer grows: replaying a loaded chat, picking
-from a list, showing the late block, and a raw-response debug panel."""
+"""Stage 12 - the banner shows which OS sandbox is active.
+"""
 
 import json
 import sys
