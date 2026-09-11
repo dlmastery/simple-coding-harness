@@ -1,0 +1,9 @@
+[project]
+name = "coding-agent"
+version = "0.3.0"
+description = "A minimal coding agent, stage 3"
+requires-python = ">=3.10"
+dependencies = [
+    "openai>=1.50",
+    "rich>=13.0",
+]

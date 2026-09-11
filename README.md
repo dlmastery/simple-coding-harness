@@ -1,183 +1,141 @@
 # simple-coding-harness
 
-**A coding agent, built in 14 snapshots, from a 27-line round trip to a
-1,200-line harness with subagents - then rebuilt four more times on the
-Claude Agent SDK, the OpenAI Agents SDK, Google's Antigravity SDK and
-DeepSeek Harness.** Each step is a complete, runnable program with its own
-README that explains the one idea it adds.
-
-```
-step 1   one round trip            27 lines    you ──▶ model ──▶ reply
-   ...
-step 4   the agent loop           105 lines    tool results go back to the model
-   ...
-step 14  subagents              1,219 lines    exploration in a throwaway context
-```
-
-The progression follows the commit history of
-[avbiswas/neural-code](https://github.com/avbiswas/neural-code) and the
-accompanying video
+**A coding agent harness built from scratch, one commit at a time, following
 [*Let's build a Coding Agent Harness from Scratch (Step by Step, No frameworks)*](https://www.youtube.com/watch?v=Lu1UWqVTbQg)
-by Neural Breakdown with AVB. The code here is an independent
-implementation written to be read one step at a time; the ideas, the order
-they arrive in, and several of the design decisions are theirs.
+by Neural Breakdown with AVB and its repo
+[avbiswas/neural-code](https://github.com/avbiswas/neural-code).** Then the
+same harness rebuilt on four agent SDKs, so you can see what each one does
+for you.
 
-No frameworks. Plain Python, the `openai` client (any OpenAI-compatible
-endpoint), `rich` for the terminal, and from step 13 `prompt_toolkit` for
-the input line.
+The video walks through its commits, stage 1 to stage 15. Each stage here is
+a directory with the same files the video shows at that point, a README that
+quotes the relevant part of the video, and an offline test that drives the
+code with a fake model. The code is an independent implementation with the
+same structure; the ideas and their order are the video's.
 
-## The ladder
+## Part 1 - The video, stage by stage
 
-| Step | Adds | Lines | The idea |
-|-----:|------|------:|----------|
-| [1](step_01_one_round_trip/) | one round trip | 27 | the model only sees what is in the list |
-| [2](step_02_first_tool/) | a `bash` tool | 63 | schema for the model, function for us; the model never executes |
-| [3](step_03_tool_registry/) | tool registry, `read_file` | 70 | one `execute()` that every later feature hooks into |
-| [4](step_04_agent_loop/) | **the agent loop** | 105 | results go back; call again until there are no tool calls |
-| [5](step_05_terminal_ui/) | package + terminal UI | 224 | usage numbers make the growing prompt visible |
-| [6](step_06_skills/) | skills | 276 | progressive disclosure: index in the prompt, body on demand |
-| [7](step_07_editing_tools/) | `write_file`, `str_replace` | 338 | exact-match edits; errors become results the model can read |
-| [8](step_08_late_injection/) | late injection | 381 | volatile context at the end, never stored; the prefix stays cached |
-| [9](step_09_file_freshness/) | file freshness reminders | 415 | tell the model which files changed under it |
-| [10](step_10_sessions_and_rewind/) | sessions, `/rewind` | 569 | append-only JSONL; a rewind is an entry, not a delete |
-| [11](step_11_todos_and_install/) | todos, installable command | 663 | a plan that is re-injected every call cannot be lost |
-| [12](step_12_permissions_and_sandbox/) | permissions, OS sandbox | 816 | rules decide what to ask about; the kernel decides what is possible |
-| [13](step_13_context_management/) | cap / strip / fit / compact | 1,088 | four ways to stay inside the window, cheapest first |
-| [14](step_14_subagents/) | subagents | 1,219 | spend exploration tokens in a context that is thrown away |
+| Stage | Video | Adds | Files that change |
+|------:|------:|------|-------------------|
+| [1](step_01_minimal_chat/) | 01:19 | minimal chat: one prompt, one reply, usage printed | `llm.py` |
+| [2.1](step_02_1_bash_tool/) | 02:54 | a `bash` tool: JSON schema, `subprocess.run`, tool call parsed | `llm.py` |
+| [2.2](step_02_2_generic_tools/) | 09:53 | `tools.py`: `TOOLS` dict + `TOOL_SCHEMAS`, dispatch by name | `tools.py`, `llm.py` |
+| [2.3](step_02_3_read_file/) | 10:57 | `read_file` | `tools.py` |
+| [2.4](step_02_4_agent_loop/) | 12:07 | **the agent loop**: `agent.py` feeds tool results back; prefix caching | `agent.py`, `llm.py` |
+| [3](step_03_better_ui/) | 16:54 | rich UI, outer chat loop, usage with cached tokens | `ui.py`, `agent.py` |
+| [4](step_04_skills/) | 18:31 | skills: `SKILL.md` front matter in the prompt, `read_skill` on demand | `skills.py`, `tools.py`, `llm.py` |
+| [5](step_05_file_editing/) | 25:08 | `write_file`, `str_replace` | `tools.py`, `llm.py` |
+| [6](step_06_late_injection/) | 26:37 | late injection: `<env>` block appended to the request, never stored | `context.py`, `agent.py` |
+| [7](step_07_file_freshness/) | 28:28 | file freshness: mtime `SEEN` dict, stale-file reminder | `context.py`, `tools.py` |
+| [8](step_08_sessions_rewind/) | - | JSONL sessions, `--resume`, `/sessions`, `/rewind`; freshness via git status | `session.py`, `commands.py`, `agent.py`, `ui.py` |
+| [9](step_09_installable_command/) | 30:30 | package + `main()` + console script (`harness`, the video's `neuralcode`) | `harness/`, `pyproject.toml` |
+| [10](step_10_todos/) | 29:26 | `write_todos`; the plan re-injected every call | `todos.py`, `context.py`, `llm.py` |
+| [11](step_11_permissions/) | 31:44 | allow / ask / deny rules before every tool call | `permissions.py`, `agent.py`, `ui.py` |
+| [12](step_12_sandbox/) | 33:02 | OS sandbox for bash (Seatbelt / bubblewrap), timeouts | `sandbox.py`, `tools.py` |
+| [13](step_13_readable_todos_input_line/) | - | todo checklist panel, prompt_toolkit input line | `prompt.py`, `ui.py` |
+| [14](step_14_compaction/) | 36:50 | cap / strip / fit tool output; compaction agent, 85% → 35%, note in the system prompt | `history.py`, `compact.py`, `agent.py` |
+| [15](step_15_subagents/) | 41:57 | `task` subagent: own context, fewer tools, same loop, only the answer returns | `subagent.py`, `tools.py` |
 
-Lines are non-blank lines of harness code, excluding tests and READMEs.
+Stages 8 and 13 are in the reference commits but not narrated in the video.
 
-## Part 2 - The same harness on four agent SDKs
+## The loop, since that is the point
 
-Steps 15-18 rebuild the step 14 feature set on a framework each, so you can
-see exactly which of the fourteen ideas a given SDK does for you and which
-ones stay yours. The rule table from step 12 (`rules.py`) is copied into
-each step unchanged: the SDK supplies the hook, you supply the policy.
+Stage 2.4, `agent.py`, unchanged in spirit through stage 15:
 
-| Step | Framework | Runs where | You still write |
-|-----:|-----------|------------|-----------------|
-| [15](step_15_claude_agent_sdk/) | **Claude Agent SDK** (`claude-agent-sdk`) - Claude Code as a library | spawns the `claude` CLI | policy (`can_use_tool` + `PreToolUse` hook), a `UserPromptSubmit` injection hook, one MCP tool, a subagent definition, the screen |
-| [16](step_16_openai_agents_sdk/) | **OpenAI Agents SDK** (`openai-agents`) - loop, sessions, approvals, agents-as-tools | in-process, any OpenAI-compatible endpoint | all coding tools (step 7 verbatim, wrapped), skills, todos, the request filter that does late injection + stripping, the screen |
-| [17](step_17_google_antigravity_sdk/) | **Google Antigravity SDK** (`google-antigravity`) - the Antigravity runtime as a wheel | a bundled runtime binary, Gemini or OpenAI-compatible | a policy list, three hooks, a `SubagentConfig`, two tools, todos |
-| [18](step_18_deepseek_harness/) | **DeepSeek Harness** (`deepseek-harness-sdk`) - everything is a Cordis plugin | a bundled `dsh` runtime over JSON-RPC | the policy as a `tools/pre-execute` plugin, the patch that mounts it, the event renderer |
+```python
+while True:
+    message, usage = call_llm(messages)              # the model sees the whole transcript
+    messages.append(message.model_dump(exclude_none=True))
+    if not message.tool_calls:                        # plain text: the turn is over
+        break
+    for tool_call in message.tool_calls:              # otherwise run each call ...
+        args = json.loads(tool_call.function.arguments)
+        result = TOOLS[tool_call.function.name](**args)
+        messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})  # ... and feed it back
+```
 
-### Who owns which mechanism
+Later stages wrap it (stage 3), inject into its request (6), save its
+messages (8), gate its tool calls (11, 12), shrink its transcript (14) and
+point a copy of it at a fresh list (15). Follow `agent.py` through the
+stages to see each change land.
 
-| Mechanism (step) | Hand-built (1-14) | Claude Agent SDK | OpenAI Agents SDK | Antigravity SDK | DeepSeek Harness |
-|------------------|:-:|:-:|:-:|:-:|:-:|
-| agent loop (4) | you | SDK | SDK | runtime | runtime |
-| coding tools (2, 3, 7) | you | SDK | **you** | runtime | runtime |
-| custom tools (3) | you | `@tool` + MCP server | `function_tool` | plain functions | `defineTool` plugin |
-| skills (6) | you | SDK (`.claude/skills`) | **you** | runtime (`skills_paths`) | runtime |
-| late injection (8) | you | hook | request filter | prompt prefix | runtime |
-| file freshness (9) | you | SDK | **you** (filter) | runtime | runtime |
-| sessions / rewind (10) | you | SDK | `SQLiteSession` + `pop_item` | runtime | runtime (JSONL) |
-| todos (11) | you | SDK | **you** | **you** | runtime |
-| permissions (12) | you | hook + callback | guardrail + approval pause | policy list + hook | plugin |
-| OS sandbox (12) | you | SDK flag | - | runtime flag | provider seam |
-| compaction (13) | you | SDK | **you** (strip only) | runtime | runtime |
-| subagents (14) | you | `AgentDefinition` | `agent.as_tool()` | `SubagentConfig` | runtime |
-
-Every "you" cell is code you can read in that step, and it is the same code
-as in Part 1. The offline tests for steps 15-18 test only that code; they
-never launch a model. Install the SDKs with `pip install -r requirements-sdks.txt`.
-
-## Run a step
+## Run a stage
 
 ```bash
 pip install -r requirements.txt
+export BASE_URL=https://openrouter.ai/api/v1     # the video: OpenRouter
+export API_KEY=sk-or-...
+export MODEL=deepseek/deepseek-v4-flash          # the video's model; any tool-calling model works
 
-export BASE_URL=https://api.openai.com/v1      # or any OpenAI-compatible endpoint
-export API_KEY=sk-...
-export MODEL=gpt-4.1-mini                      # optional
-
-cd step_04_agent_loop && python agent.py       # steps 1-4: a single file
-cd step_14_subagents  && python -m harness     # steps 5-14: a package
+cd step_02_4_agent_loop && python agent.py       # stages 2.4 - 8: flat files
+cd step_15_subagents && python -m harness.agent  # stages 9 - 15: a package
+pip install -e step_15_subagents && harness      # or install the command
 ```
 
-From step 5 the settings can live in `~/.simple-harness/env` instead of
-your shell. From step 11 `pip install -e .` inside the step gives you a
-`harness` command that works in any directory.
-
-Other endpoints that work unchanged: OpenRouter
-(`BASE_URL=https://openrouter.ai/api/v1`), Gemini
-(`BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/`),
-DeepSeek, Ollama (`BASE_URL=http://localhost:11434/v1`). Pick a model that
-supports tool calling.
-
-## Read it as diffs
-
-Every step is the previous step plus one idea. The fastest way through is:
-
-```bash
-diff ../step_03_tool_registry/agent.py agent.py          # inside step_04
-diff -r ../step_12_permissions_and_sandbox/harness harness  # inside step_13
-```
-
-Each step's README says which files changed and why. The diffs are small
-on purpose: the biggest single step (13) adds three files and touches six.
+Any OpenAI-compatible endpoint works: OpenAI (`https://api.openai.com/v1`),
+Gemini (`https://generativelanguage.googleapis.com/v1beta/openai/`),
+DeepSeek, Ollama. From stage 9 the variables can live in
+`~/.simple-harness/env`.
 
 ## Tests
 
-Every step ships an offline test that drives the loop with a fake model,
-so you can check a step without an API key:
+Every stage has a `test_step.py` that runs the real files against a fake
+model, so nothing needs a key:
 
 ```bash
-python run_tests.py          # all 14
-python run_tests.py 13 14    # a subset
-cd step_07_editing_tools && python -m pytest test_step.py
+python run_tests.py            # every stage
+python run_tests.py 2 14       # stages 2.x and 14
 ```
 
 CI runs the whole ladder on Linux, macOS and Windows.
 
-## The shape you end up with
+## Part 2 - The same harness on four agent SDKs
 
-```
-harness/
-├── agent.py        the two loops (step 4), plus fit/strip/compact hooks (step 13)
-├── llm.py          one function that calls the model, returns (message, usage)
-├── tools.py        registry + execute(): permissions, error handling, capping
-├── prompts.py      the system prompt
-├── ui.py           everything that touches the screen
-├── config.py       endpoint, key, model, context window
-├── skills.py       SKILL.md discovery + read_skill               (step 6)
-├── context.py      late-injected <env>, <todos>, file reminders  (steps 8, 9, 11)
-├── session.py      append-only JSONL transcripts                 (step 10)
-├── commands.py     /rewind /sessions /compact                    (steps 10, 13)
-├── todos.py        the plan                                      (step 11)
-├── permissions.py  allow / ask / deny rules                      (step 12)
-├── sandbox.py      Seatbelt on macOS, bubblewrap on Linux        (step 12)
-├── history.py      cap, strip, fit                               (step 13)
-├── compact.py      the compaction agent                          (step 13)
-├── inputline.py    prompt_toolkit input                          (step 13)
-└── subagent.py     the task tool                                 (step 14)
-```
+Stages 16-19 rebuild the stage 15 feature set on a framework each, so you
+can see exactly which of the video's ideas a given SDK does for you and
+which stay yours. The rules table from stage 11 (`rules.py`) is copied into
+each unchanged: the SDK supplies the hook, you supply the policy.
 
-Three rules hold the whole thing together, and each gets its own step:
+| Step | Framework | Runs where | You still write |
+|-----:|-----------|------------|-----------------|
+| [16](step_16_claude_agent_sdk/) | **Claude Agent SDK** (`claude-agent-sdk`) - Claude Code as a library | spawns the `claude` CLI | policy (`can_use_tool` + `PreToolUse` hook), a `UserPromptSubmit` injection hook, one MCP tool, a subagent definition, the screen |
+| [17](step_17_openai_agents_sdk/) | **OpenAI Agents SDK** (`openai-agents`) - loop, sessions, approvals, agents-as-tools | in-process, any OpenAI-compatible endpoint | all coding tools (stage 5 verbatim, wrapped), skills, todos, the request filter that does late injection + stripping, the screen |
+| [18](step_18_google_antigravity_sdk/) | **Google Antigravity SDK** (`google-antigravity`) - the Antigravity runtime as a wheel | a bundled runtime binary, Gemini or OpenAI-compatible | a policy list, three hooks, a `SubagentConfig`, two tools, todos |
+| [19](step_19_deepseek_harness/) | **DeepSeek Harness** (`deepseek-harness-sdk`) - everything is a Cordis plugin | a bundled `dsh` runtime over JSON-RPC | the policy as a `tools/pre-execute` plugin, the patch that mounts it, the event renderer |
 
-1. **Every tool call goes through one `execute()`** (step 3). Permissions,
-   sandboxing, error handling and subagents all hook in there.
-2. **Never edit the cached prefix** (steps 8 and 13). Volatile context is
-   appended at send time and dropped; old tool output is shrunk only at the
-   tail; compaction freezes everything before its summary.
-3. **Errors are results** (step 7). A bad tool call, a missing file, a
-   timeout, a failed compaction: each comes back as text the model can read
-   and recover from. Nothing the model does can end the session.
+### Who owns which mechanism
+
+| Mechanism (stage) | Hand-built (1-15) | Claude Agent SDK | OpenAI Agents SDK | Antigravity SDK | DeepSeek Harness |
+|------------------|:-:|:-:|:-:|:-:|:-:|
+| agent loop (2.4) | you | SDK | SDK | runtime | runtime |
+| coding tools (2.1-2.3, 5) | you | SDK | **you** | runtime | runtime |
+| custom tools (2.2) | you | `@tool` + MCP server | `function_tool` | plain functions | `defineTool` plugin |
+| skills (4) | you | SDK (`.claude/skills`) | **you** | runtime (`skills_paths`) | runtime |
+| late injection (6) | you | hook | request filter | prompt prefix | runtime |
+| file freshness (7) | you | SDK | **you** (filter) | runtime | runtime |
+| sessions / rewind (8) | you | SDK | `SQLiteSession` + `pop_item` | runtime | runtime (JSONL) |
+| todos (10) | you | SDK | **you** | **you** | runtime |
+| permissions (11) | you | hook + callback | guardrail + approval pause | policy list + hook | plugin |
+| OS sandbox (12) | you | SDK flag | - | runtime flag | provider seam |
+| compaction (14) | you | SDK | **you** (strip only) | runtime | runtime |
+| subagents (15) | you | `AgentDefinition` | `agent.as_tool()` | `SubagentConfig` | runtime |
+
+Install the SDKs with `pip install -r requirements-sdks.txt`. Their tests
+never launch a model.
 
 ## Platform notes
 
-- **macOS / Linux**: the step 12 sandbox uses `sandbox-exec` (built in) or
+- **macOS / Linux**: the stage 12 sandbox uses `sandbox-exec` (built in) or
   `bwrap` (`apt install bubblewrap`). The banner shows which is active.
-- **Windows**: no OS sandbox; the permission rules are the only guard, and
-  the banner says `sandbox: none`. `bash` runs through `cmd.exe` unless you
-  run the harness from Git Bash or WSL.
+- **Windows**: no OS sandbox; the banner says `sandbox: none`. `bash` runs
+  through `cmd.exe` unless you run from Git Bash or WSL.
 
 ## Credits
 
 - Avishek Biswas, [neural-code](https://github.com/avbiswas/neural-code)
   and the [video walkthrough](https://www.youtube.com/watch?v=Lu1UWqVTbQg)
-  that this ladder follows.
-- The Seatbelt profile shape in step 12 follows the one used by the OpenAI
-  Codex CLI.
+  this ladder follows stage for stage.
+- The Seatbelt profile in stage 12 follows the one used by the OpenAI Codex
+  CLI, as the video does.
 
 MIT licensed.
