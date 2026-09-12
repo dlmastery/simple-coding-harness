@@ -67,6 +67,12 @@ def check_step(step):
 def main():
     wanted = {int(a) for a in sys.argv[1:]} or None
     total, failures = 0, []
+    if wanted is None:  # the root README quotes code by full path, e.g. `step_02_4_agent_loop/agent.py`
+        found = check_step(ROOT)
+        count = sum(1 for _ in snippets(ROOT / "README.md"))
+        total += count
+        print(f"{'README.md (root)':<36} {count:>2} snippets  {'ok' if not found else f'{len(found)} problems'}")
+        failures += found
     for step in sorted(ROOT.glob("step_*/")):
         number = int(step.name.split("_")[1])
         if wanted and number not in wanted:

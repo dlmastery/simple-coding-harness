@@ -1,26 +1,50 @@
-# simple-coding-harness
+# Zero to Hero: Harness Engineering
 
-**Zero to hero harness engineering.** Build a coding agent from one API
-call to a full harness with tools, skills, sessions, permissions, a
-sandbox, compaction and subagents. Then run the same harness on four agent
-SDKs and on OpenRouter, and see which parts each framework does for you.
+## Build a coding agent from one API call to a full harness, then run it on four SDKs and OpenRouter
 
-Each stage is one directory. Each directory holds the complete program at
-that stage, a README that explains the code line by line, and a test that
-runs the code against a fake model. You can run any stage on its own. You
-can diff any stage against the one before it.
+You have used a coding agent. You typed a request, it read files, ran
+commands, edited code, and came back with an answer. This codelab shows you
+what is inside that box, by building one. You start with a single API call.
+You end with a harness that has tools, skills, sessions, permissions, a
+sandbox, compaction and subagents. Then you rebuild the same harness on four
+agent SDKs to see what each one gives you, and you point it at OpenRouter to
+route between models and track cost.
+
+Every step is a directory you can run. Every step has a test you can run
+without a key. Every step's README shows the code with an explanation under
+each snippet.
+
+**What you will build**
 
 ```text
-Part 1   stages 1 - 15    build the harness by hand, one idea per stage
+Part 1   stages 1 - 15    a coding agent harness, by hand, one idea per stage
 Part 2   steps 16 - 19    the same harness on four agent SDKs
-Part 3   step 20          the same harness on OpenRouter, with model routing and cost
+Part 3   step 20          the same harness on OpenRouter, with routing and cost
 ```
+
+**What you will learn**
+
+- Why an agent is a loop, and what the loop is made of.
+- How tool calls work: a schema for the model, a function for you.
+- Why you must never change the beginning of the prompt.
+- How to inject fresh facts without breaking the cache.
+- How to keep a transcript inside the context window.
+- How to gate and sandbox what the agent can do.
+- How to run a subagent in a throwaway context.
+- Which of those ideas each SDK does for you, and which stay yours.
+
+**What you need**
+
+- Python 3.10 or newer.
+- A key for any endpoint that speaks the OpenAI chat API. OpenRouter is the
+  default and gives you many models with one key.
+- About two hours if you run every stage. Each stage takes a few minutes.
 
 ---
 
-## Quick start
+## Step 0: Set up
 
-### 1. Install
+### Install
 
 ```bash
 git clone https://github.com/dlmastery/simple-coding-harness
@@ -28,13 +52,10 @@ cd simple-coding-harness
 pip install -r requirements.txt
 ```
 
-This installs `openai`, `rich`, `pyyaml`, `prompt-toolkit` and `pytest`.
-Python 3.10 or newer is required.
+### Set the endpoint
 
-### 2. Set the model endpoint
-
-The harness talks to any endpoint that implements the OpenAI chat API.
-Set three variables:
+The harness uses the `openai` client. Any endpoint that implements the same
+API works. Set three variables.
 
 | Variable | What it is | Example |
 |----------|------------|---------|
@@ -42,215 +63,902 @@ Set three variables:
 | `API_KEY` | your key for that endpoint | `sk-or-...` |
 | `MODEL` | a model id that supports tool calling | `deepseek/deepseek-v4-flash` |
 
-Examples for common providers:
-
 ```bash
-# OpenRouter (one key, hundreds of models; see Part 3)
+# OpenRouter: one key, many models
 export BASE_URL=https://openrouter.ai/api/v1 API_KEY=sk-or-... MODEL=deepseek/deepseek-v4-flash
 
 # OpenAI
 export BASE_URL=https://api.openai.com/v1 API_KEY=sk-... MODEL=gpt-4.1-mini
 
-# Google Gemini
+# Gemini
 export BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/ API_KEY=AIza... MODEL=gemini-2.5-flash
-
-# DeepSeek
-export BASE_URL=https://api.deepseek.com/v1 API_KEY=sk-... MODEL=deepseek-chat
 
 # Ollama, local
 export BASE_URL=http://localhost:11434/v1 API_KEY=ollama MODEL=qwen2.5-coder
 ```
 
-On Windows PowerShell use `$env:BASE_URL = "..."` for each variable.
+On Windows PowerShell, use `$env:BASE_URL = "..."` for each one.
 
-From stage 9 onward you can put the same three lines in
-`~/.simple-harness/env` instead. Then you do not export them in each shell.
+### Check that everything works
 
-### 3. Run a stage
-
-Stages 1 to 8 are flat files. Run the script directly:
+The tests do not need a key. They run each stage against a fake model.
 
 ```bash
-cd step_01_minimal_chat && python llm.py          # one prompt, one reply
-cd step_02_4_agent_loop && python agent.py        # the first real agent
-cd step_08_sessions_rewind && python agent.py     # sessions, /rewind, --resume
+python run_tests.py
 ```
 
-Stages 9 to 15 are a package named `harness`. Run it as a module, or
-install it as a command:
+You should see one line per stage ending in `passed`. If you do, you are
+ready.
 
-```bash
-cd step_15_subagents
-python -m harness.agent                           # run in place
-
-pip install -e .                                  # or install the command
-cd ~/some/other/project
-harness                                           # works in any directory
-harness --resume                                  # continue the last chat
-```
-
-Inside the chat: type a request and press enter. `/rewind`, `/sessions`
-and `/compact` are commands. An empty line or ctrl-d exits.
-
-### 4. Run the tests
-
-No key is needed for the tests. Each stage has a `test_step.py` that runs
-the real code against a fake model.
-
-```bash
-python run_tests.py              # every stage
-python run_tests.py 2 14         # stages 2.x and 14 only
-python check_snippets.py         # every code snippet in every README exists in that stage's code
-```
-
-CI runs both on Linux, macOS and Windows.
+> **How to read this codelab.** Each step has the same shape: the goal, the
+> idea, the code, a command to try, what you should see, and one takeaway.
+> Each step's directory has a longer README with every snippet explained.
+> Each README ends with a `diff` command that shows exactly what changed
+> from the step before.
 
 ---
 
-## Part 1 - Build the harness by hand
+# Part 1: Build the harness by hand
 
-This is the story of the harness. Each stage adds one idea. The code of
-each stage is the code of the stage before it plus that idea.
+## Stage 1: One API call
 
-### The core loop
+**Goal.** Send a prompt to a model and print the reply.
 
-Everything in Part 1 is built around one loop. It appears at stage 2.4 and
-never changes in spirit:
+**The idea.** A model call is a list of messages in and one message out.
+There is no hidden state. The model sees only the list you send.
+
+**The code.** `step_01_minimal_chat/llm.py`:
+
+```python
+response = client.chat.completions.create(
+    model=MODEL,
+    messages=[
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user_input},
+    ],
+)
+```
+
+The system prompt is the first message. The user's text is the second. The
+reply is at `response.choices[0].message`. The script also prints the token
+usage, and you will watch one of those numbers, `cached_tokens`, grow in
+later stages.
+
+**Try it.**
+
+```bash
+cd step_01_minimal_chat
+python llm.py
+Enter your prompt> hi
+```
+
+**You should see** one reply and a usage line with prompt and completion
+token counts.
+
+**Takeaway.** Everything that follows is this file plus one idea at a time.
+
+---
+
+## Stage 2.1: The first tool
+
+**Goal.** Let the model ask you to run a shell command.
+
+**The idea.** A tool is two things in two worlds. A JSON schema tells the
+model that a function exists and what arguments it takes. A Python function
+does the work. The model never executes anything. It replies with a *tool
+call*, a function name and JSON arguments, and stops. Your code runs the
+function.
+
+**The code.** `step_02_1_bash_tool/llm.py`:
+
+```python
+def bash(command):
+    """The Python behind the schema. subprocess.run executes what the model chose."""
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    return result.stdout + result.stderr
+```
+
+```python
+if message.tool_calls:
+    tool_call = message.tool_calls[0]
+    command = json.loads(tool_call.function.arguments)["command"]
+    print("Tool: bash", command)
+    print(bash(command), "\n")
+```
+
+**Try it.**
+
+```bash
+cd step_02_1_bash_tool
+python llm.py
+Enter your prompt> what is your current directory? use the bash tool
+```
+
+**You should see** `Agent: None`, then `Tool: bash pwd`, then the path. The
+model did not write text. It wrote a tool call.
+
+**Takeaway.** The split between schema and function is the security model of
+every coding agent. The model proposes. Your code disposes.
+
+---
+
+## Stage 2.2: A tool registry
+
+**Goal.** Make the next tool cost one function and one schema.
+
+**The idea.** Put the schemas in a list the model sees and the functions in a
+dictionary keyed by the same names. The model's function name becomes a
+dictionary lookup. The JSON arguments become keyword arguments.
+
+**The code.** `step_02_2_generic_tools/llm.py`:
+
+```python
+    result = TOOLS[tool_call.function.name](**args)  # name -> function, JSON -> kwargs
+```
+
+**Try it.** Same as stage 2.1. The behaviour is the same. The structure is
+new.
+
+**Takeaway.** Every later capability, read, write, edit, skills, todos,
+subagents, is one entry in each table.
+
+---
+
+## Stage 2.3: A read tool
+
+**Goal.** Add `read_file` without touching `llm.py`.
+
+**The code.** `step_02_3_read_file/tools.py`:
+
+```python
+def read_file(path: str) -> str:
+    """Read a file and return its contents."""
+    with open(path) as f:
+        return f.read()
+```
+
+**Try it.**
+
+```bash
+cd step_02_3_read_file
+python llm.py
+Enter your prompt> can you read the llm.py file
+```
+
+**You should see** the model call `read_file` and the file printed on your
+screen.
+
+**Takeaway.** The file went to *your* screen, not to the model. The model
+cannot use what it read. That is the problem the next stage solves.
+
+---
+
+## Stage 2.4: The agent loop
+
+**Goal.** Feed tool results back to the model until it answers in text.
+
+**The idea.** An agent is a loop around a model call. Send the transcript.
+Add the reply. If the reply has tool calls, run them, add each result with
+role `tool`, and send again. If the reply has no tool calls, stop.
+
+**The code.** `step_02_4_agent_loop/agent.py`:
 
 ```python
 while True:
-    message, usage = call_llm(messages)              # the model sees the whole transcript
+    # 1. the model sees the whole transcript so far
+    message, usage = call_llm(messages)
+    # 2. its reply joins the transcript - tool calls included, because every
+    #    "tool" message must follow the assistant message that asked for it
     messages.append(message.model_dump(exclude_none=True))
-    if not message.tool_calls:                        # plain text: the turn is over
+
+    if message.content:
+        print("\nAgent: ", message.content, "\n")
+
+    # 3. no tool calls means it has answered; the loop is done
+    if not message.tool_calls:
         break
-    for tool_call in message.tool_calls:              # otherwise run each call ...
+
+    # 4. otherwise run each call and feed the result back, tied to the call by id
+    for tool_call in message.tool_calls:
         args = json.loads(tool_call.function.arguments)
         result = TOOLS[tool_call.function.name](**args)
-        messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})  # ... and feed it back
+        print("Tool: ", tool_call.function.name, args)
+        print(result, "\n")
+
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "content": result,
+        })
 ```
 
-Read it as four steps. Send the transcript to the model. Add the reply to
-the transcript. If the reply has no tool calls, stop. If it has tool
-calls, run each one, add each result to the transcript, and go again.
+Two details matter. The assistant message is stored with its tool calls,
+because the API rejects a `tool` message that does not follow the assistant
+message that asked for it. Each result carries the `tool_call_id` of the
+call it answers.
 
-The later stages wrap this loop, inject into its request, save its
-messages, gate its tool calls, shrink its transcript, and run a copy of it
-inside a subagent. Follow `agent.py` from stage to stage to watch each
-change land.
+**Try it.**
 
-### The stages
+```bash
+cd step_02_4_agent_loop
+python agent.py
+Enter your prompt> explain what happens in llm.py and agent.py
+```
 
-**Stage 1 - Minimal chat.** `llm.py` sends a system message and a user
-message and prints the reply and the token usage. There are no tools and
-no memory. This is the whole program, and every later stage is this file
-plus one idea. The usage line is printed from the start because
-`cached_tokens` becomes the number to watch once the transcript is re-sent
-on every call.
+**You should see** three or four tool calls in a row, then one explanation.
+That is several model calls for one question. That is the loop working.
 
-**Stage 2.1 - A bash tool.** A tool is two things. A JSON schema tells the
-model that a function named `bash` exists and takes a `command`. A Python
-function runs that command with `subprocess.run`. The model never runs
-anything. It replies with a tool call, a function name and JSON arguments,
-and the harness runs the function. This split is the security model of
-every coding agent.
+**Takeaway.** This loop never changes in spirit for the rest of Part 1. And
+it introduces the rule that shapes the rest of the build: the whole
+transcript is re-sent on every call, providers cache the unchanged prefix,
+so **never change the beginning of the prompt**.
 
-**Stage 2.2 - Generic tools.** The tool moves into `tools.py` with two
-tables. `TOOL_SCHEMAS` is what the model sees. `TOOLS` maps each name to a
-function. Dispatch becomes one line: the model's function name is a
-dictionary key, and the parsed JSON becomes keyword arguments. Adding a
-tool is now one function and one schema.
+---
 
-**Stage 2.3 - A read_file tool.** A second tool proves the point of stage
-2.2: `llm.py` does not change. But the result still goes to the screen,
-not to the model, so the model cannot use what it read.
+## Stage 3: A terminal you can use
 
-**Stage 2.4 - The agent loop.** The request moves into `call_llm(messages)`
-and `agent.py` gains the loop shown above. Tool results are appended with
-role `tool` and the matching `tool_call_id`, and the model is called again
-until it answers in text. The program is now an agent. This stage also
-introduces the rule that shapes the rest of the build: the transcript is
-re-sent on every call, providers cache the unchanged prefix, so never
-change the beginning of the prompt.
+**Goal.** Make the agent a chat, and make the screen readable.
 
-**Stage 3 - Better UI.** `ui.py` draws the agent's text, each tool call in
-a panel, and a usage line after every call that shows how many tokens were
-served from cache. `agent.py` gains an outer loop so the program is a chat.
-The inner loop is stage 2.4 unchanged.
+**The idea.** Wrap the loop in a second loop that asks for your next message.
+Move all drawing into `ui.py`, which knows nothing about models or tools.
+Show a usage line after every call.
 
-**Stage 4 - Skills.** A skill is a `SKILL.md` file with a YAML front
-matter. Only the name and description go into the system prompt. The body
-is read on demand with a `read_skill` tool. A project can ship fifty
-skills and pay for fifty lines of context, not fifty documents.
+**The code.** `step_03_better_ui/agent.py`:
 
-**Stage 5 - File editing.** `write_file` creates a file. `str_replace`
-swaps one exact block of text for another and refuses if the text is
-missing or ambiguous. The refusal is returned as the tool result, so the
-model reads it and retries with a more specific match. The agent can now
-change code.
+```python
+while True:
+    user_input = ui.ask()
+    if not user_input:
+        break
 
-**Stage 6 - Late injection.** Some facts change on every call: the time,
-the git branch. `context.py` builds a small `<env>` block and the loop
-sends `messages + [reminder()]`. The block is appended to the request, at
-the end, and never stored in the transcript. That keeps the cached prefix
-intact and keeps stale copies out of the history.
+    messages.append({"role": "user", "content": user_input})
 
-**Stage 7 - File freshness.** The tools record the modification time of
-every file they touch in a `SEEN` dict. If a file changes on disk before
-the next call, the late block carries a reminder to read it again before
-editing. This prevents edits against a stale picture of a file.
+    while True:
+        with ui.working():
+            message, usage = call_llm(messages)
+```
 
-**Stage 8 - Sessions and rewind.** Every message is appended to a JSONL
-file as it happens. `--resume` reopens the last chat. `/sessions` opens
-any chat. `/rewind` cuts the transcript back, and the rewind is stored as a
-marker, not a deletion, so the file is the full history. The freshness
-check moves onto `git status` because a dict does not survive a restart.
+**Try it.**
 
-**Stage 9 - An installable command.** The files move into a `harness/`
-package, the loop moves into `main()`, credentials move into `config.py`,
-and `pyproject.toml` declares a `harness` console script. Skills, sessions
-and git status all key off the directory you run it in.
+```bash
+cd step_03_better_ui
+python agent.py
+> what does this repo do?
+> and what is ui.py for?
+```
 
-**Stage 10 - Todos.** A `write_todos` tool replaces the plan on every call.
-Exactly one item may be in progress. The plan lives in a variable, not in
-the transcript, and is injected in the late block on every call, so it is
-always the last thing the model reads before it acts.
+**You should see** the second question answered from memory of the first.
+Look at the usage line. Most of the prompt tokens are marked `cached`.
 
-**Stage 11 - Permissions.** A rule table rates every tool call before it
-runs. Read-only commands run silently. Risky commands stop and ask you.
-A few commands are refused whatever you answer. Compound commands are
-split and the strictest part wins. The verdict is returned as the tool
-result, so the model reads "Blocked by policy" and adapts. The rules only
-see the command text, so this is not real security.
+**Takeaway.** The transcript is the memory. The usage line is where prefix
+caching becomes visible.
 
-**Stage 12 - Sandbox.** `bash` runs inside a kernel-enforced sandbox where
-the OS provides one: Seatbelt on macOS, bubblewrap on Linux. The policy is
-read anything, write only inside the project, no network. A Python script
-that deletes a file outside the project fails even when you approved the
-command. Every command also has a timeout that comes back as a result.
+---
 
-**Stage 13 - Readable todos and a real input line.** The plan is drawn as
-a checklist. Typing goes through prompt_toolkit, which can edit a wrapped
-line, keeps history across sessions and inserts a newline on alt-enter.
-No change to the loop.
+## Stage 4: Skills
 
-**Stage 14 - Compaction.** Tool output is the main reason transcripts
-explode, so `history.py` handles it three ways. A fresh result over
-10,000 characters is capped and the rest is saved to a temp file the model
-can page through. When a turn ends, its results shrink to a 300-character
-stub. If a request is still too big, whole results are dropped, oldest
-first. When the prompt passes 85% of the context window, a second agent
-with no tools writes a handoff note about the old messages, the note is
-folded into the system prompt, and the transcript is cut back to 35%. The
-prefix is rebuilt once and then stays stable until the next compaction.
+**Goal.** Let the agent follow a written procedure when a task matches.
 
-**Stage 15 - Subagents.** A `task` tool runs a fresh agent on one
-question. It starts with an empty transcript. It gets every tool except
-`task`, `write_todos`, `write_file` and `str_replace`, so it cannot edit
-and cannot recurse. It runs the same loop through the same permission
-check and sandbox. Only its final answer returns to the main agent. The
-exploration cost stays in a context that is thrown away.
+**The idea.** A skill is a `SKILL.md` file with a YAML front matter. Only the
+name and description go into the system prompt. The body is read on demand
+with a `read_skill` tool. A project can ship fifty skills and pay for fifty
+lines of context, not fifty documents.
 
-### Stage index
+**The code.** `step_04_skills/skills.py`:
+
+```python
+def skills_prompt():
+    """One line per skill: the index that goes into the system prompt."""
+    return "\n".join(f"- {name}: {s['description']}" for name, s in SKILLS.items())
+
+
+def read_skill(name: str) -> str:
+    """Open a skill and return its full instructions."""
+    if name not in SKILLS:
+        return f"No skill named '{name}'."
+    return SKILLS[name]["path"].read_text(encoding="utf-8")
+```
+
+**Try it.**
+
+```bash
+cd step_04_skills
+python skills.py                 # prints the index the model will see
+python agent.py
+> explain what agent.py does
+```
+
+**You should see** a `read_skill` call before the explanation, and an
+explanation that follows the skill's four rules.
+
+**Takeaway.** Index in the prompt, body on demand. This is how every major
+coding agent handles skills and rules files.
+
+---
+
+## Stage 5: Editing files
+
+**Goal.** Let the agent change code.
+
+**The idea.** `write_file` creates a file. `str_replace` swaps one exact
+block of text for another. It refuses if the text is missing or matches
+more than once, and the refusal is the tool's result, so the model reads it
+and retries with a more specific match.
+
+**The code.** `step_05_file_editing/tools.py`:
+
+```python
+    count = content.count(old_str)
+    if count == 0:
+        return f"Error: old_str was not found in {path}"
+    if count > 1 and not allow_multi_edit:
+        return (
+            f"Error: old_str matches {count} times in {path}. "
+            "Add surrounding lines to make it unique, "
+            "or set allow_multi_edit to replace them all."
+        )
+```
+
+**Try it.**
+
+```bash
+cd step_05_file_editing
+python agent.py
+> write a new file called hello.txt with five hello worlds
+> replace every hello world with goodbye
+```
+
+**You should see** a `write_file` call, then a `read_file` and a
+`str_replace` call, and a file with five `goodbye` lines.
+
+**Takeaway.** Errors are results. Nothing the model does can crash the
+session. It reads the error and adapts.
+
+---
+
+## Stage 6: Late injection
+
+**Goal.** Give the model fresh facts on every call without breaking the
+cache.
+
+**The idea.** Some facts change on every call: the time, the git branch.
+Build them into a small block and append it to the *request*, at the end.
+Never store it in the transcript.
+
+**The code.** `step_06_late_injection/agent.py`:
+
+```python
+            message, usage = call_llm(messages + [reminder()])  # request = transcript + late block
+```
+
+`messages + [reminder()]` builds a new list for this request only. The stored
+transcript never contains the block.
+
+**Try it.**
+
+```bash
+cd step_06_late_injection
+python agent.py
+> what branch am I on and what time is it?
+```
+
+**You should see** the answer with no tool call. The model read it from the
+block.
+
+**Takeaway.** Stable things first, volatile things last, the middle never
+edited. Stages 7 and 10 both ride in this block.
+
+---
+
+## Stage 7: File freshness
+
+**Goal.** Warn the agent when a file changed under it.
+
+**The idea.** The tools record the modification time of every file they
+touch. If a file changes on disk before the next call, the late block
+carries a reminder to read it again before editing.
+
+**The code.** `step_07_file_freshness/context.py`:
+
+```python
+def stale_note():
+    """Warn about files that changed on disk since the agent read them."""
+    changed = stale_files()
+    if not changed:
+        return ""
+    return (
+        "\n<system-reminder>\n"
+        "These files changed on disk since you read them. Read them again "
+        "before editing:\n" + "\n".join(changed) + "\n</system-reminder>"
+    )
+```
+
+**Try it.** Ask the agent to read a file. Edit that file in your editor.
+Then ask the agent to change it.
+
+**You should see** the reminder in the late block, and a fresh `read_file`
+before the edit.
+
+**Takeaway.** The model's picture of a file is whatever it last read. The
+harness has to tell it when that picture is stale.
+
+---
+
+## Stage 8: Sessions and rewind
+
+**Goal.** Save every chat. Reopen it. Undo it.
+
+**The idea.** Append every message to a JSONL file as it happens. A rewind
+is an entry in the file, not a deletion, so the file is the full history.
+Loading replays the file and applies the markers.
+
+**The code.** `step_08_sessions_rewind/session.py`:
+
+```python
+def save(messages):
+    """Append what is new. Never rewrite what is already on disk."""
+    global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        for message in messages[WRITTEN:]:
+            f.write(json.dumps(message) + "\n")
+    WRITTEN = len(messages)
+```
+
+**Try it.**
+
+```bash
+cd step_08_sessions_rewind
+python agent.py
+> what is in this folder?
+> /rewind
+> /sessions
+python agent.py --resume
+```
+
+**You should see** a numbered list to rewind to, the screen redrawn from the
+transcript, and the last chat reopened with `--resume`.
+
+**Takeaway.** Slash commands never reach the model. A command takes the
+message list and returns the list to continue with.
+
+---
+
+## Stage 9: An installable command
+
+**Goal.** Run the harness from any directory.
+
+**The idea.** Move the files into a `harness/` package, put the loop in
+`main()`, read credentials from `config.py`, and declare a console script in
+`pyproject.toml`.
+
+**Try it.**
+
+```bash
+cd step_09_installable_command
+pip install -e .
+cd ~/some/other/project
+harness
+```
+
+**You should see** the same chat, in that project. Skills, sessions and git
+status all key off the directory you run it in.
+
+**Takeaway.** From here on, `~/.simple-harness/env` can hold your three
+variables, so you set them once.
+
+---
+
+## Stage 10: Todos
+
+**Goal.** Keep the agent on plan through a long task.
+
+**The idea.** A `write_todos` tool replaces the plan on every call. Exactly
+one item may be in progress. The plan lives in a variable, not in the
+transcript, and rides in the late block, so it is the last thing the model
+reads before it acts.
+
+**The code.** `step_10_todos/harness/todos.py`:
+
+```python
+def write_todos(todos):
+    """Replace the whole list. Exactly one task may be in_progress."""
+    active = [t for t in todos if t["status"] == "in_progress"]
+    if len(active) > 1:
+        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+
+    TODOS[:] = todos
+    return todos_prompt() or "Todo list cleared."
+```
+
+**Try it.**
+
+```bash
+harness
+> create a todo list with three things: write hello.txt with five hello
+  worlds, write a Python file that prints a star pattern, and write another
+  with the Fibonacci series. then do them.
+```
+
+**You should see** the plan written first, then updated as each item
+completes, and the in-progress item as the spinner label.
+
+**Takeaway.** Twenty tool calls later, the plan is still in front of the
+model.
+
+---
+
+## Stage 11: Permissions
+
+**Goal.** Decide which tool calls need a human.
+
+**The idea.** A rule table rates every command. Read-only commands run
+silently. Risky commands stop and ask you. A few are refused whatever you
+answer. Compound commands are split and the strictest part wins. The
+verdict is returned as the tool result.
+
+**The code.** `step_11_permissions/harness/permissions.py`:
+
+```python
+def decide(command):
+    """Rate every part of a compound command; the strictest verdict wins."""
+    verdicts = []
+    for part in split_command(command):
+        action = "ask"
+        for pattern, rule in BASH_RULES.items():
+            if fnmatch(part, pattern):
+                action = rule
+        verdicts.append(action)
+    for strictest in ("deny", "ask"):
+        if strictest in verdicts:
+            return strictest
+    return "allow"
+```
+
+**Try it.**
+
+```bash
+harness
+> delete the __pycache__ folders
+```
+
+**You should see** `Blocked by policy` when the model reaches for `rm -rf`,
+and the model finding another way or explaining.
+
+**Takeaway.** The rules only see the command text. A Python one-liner can
+still delete a file. This is not real security. The next stage is.
+
+---
+
+## Stage 12: Sandbox
+
+**Goal.** Make the kernel enforce what the agent can touch.
+
+**The idea.** Run `bash` inside an OS sandbox. Read anything, write only
+inside the project, no network. On macOS that is Seatbelt. On Linux it is
+bubblewrap. A script that deletes a file outside the project fails even when
+you approved the command. Every command also has a timeout that comes back
+as a result.
+
+**The code.** `step_12_sandbox/harness/sandbox.py`:
+
+```python
+PROFILE = f"""(version 1)
+(deny default)
+(allow process-exec process-fork signal)
+(allow file-read*)
+(allow sysctl-read)
+(deny network*)
+(allow file-write* (subpath "{PROJECT}") (literal "/dev/null"))
+(deny file-write* (subpath "{PROJECT}/.git"))
+"""
+```
+
+**Try it.** On macOS or Linux, ask the agent to delete a file outside the
+project and say yes at the prompt.
+
+**You should see** `operation not permitted`. The banner shows which
+sandbox is active. On Windows it shows `sandbox: none`.
+
+**Takeaway.** Permissions ask whether to interrupt you. The sandbox asks
+whether the operation is possible at all.
+
+---
+
+## Stage 13: Readable todos and a real input line
+
+**Goal.** Draw the plan as a checklist. Edit long prompts.
+
+**The idea.** `write_todos` renders as `[x]`, `[~]`, `[ ]` rows. Typing goes
+through prompt_toolkit, which can edit a wrapped line, keeps history and
+inserts a newline on alt-enter. No change to the loop.
+
+**Takeaway.** Presentation is separate from the loop, so it can improve
+without touching it.
+
+---
+
+## Stage 14: Compaction
+
+**Goal.** Keep the transcript inside the context window.
+
+**The idea.** Tool output is the main reason transcripts explode, so it is
+handled three ways. A fresh result over 10,000 characters is capped and the
+rest goes to a temp file the model can page through. When a turn ends, its
+results shrink to a 300-character stub. If a request is still too big, whole
+results are dropped, oldest first. When the prompt passes 85% of the window,
+a second agent with no tools writes a handoff note about the old messages.
+The note is folded into the system prompt and the transcript is cut back to
+35%.
+
+**The code.** `step_14_compaction/harness/compact.py`:
+
+```python
+def compact(messages):
+    """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
+    cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
+    if cut <= 1:
+        return messages
+
+    system = messages[0]["content"]
+    summary = summarize(messages[1:cut], previous_summary(system))
+    kept = [
+        {"role": "system", "content": base_prompt(system) + "\n\n" + HANDOFF.format(summary=summary)},
+        *messages[cut:],
+    ]
+    strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    return kept
+```
+
+**Try it.**
+
+```bash
+CONTEXT_WINDOW=6000 harness
+> cat every file under harness
+> /compact
+```
+
+**You should see** `[output trimmed: ...]` markers on long results, then the
+handoff note in a panel and the message count drop.
+
+**Takeaway.** The prefix is rebuilt once per compaction and then left alone
+until the next one. Cheap mechanisms first, the expensive one rarely.
+
+---
+
+## Stage 15: Subagents
+
+**Goal.** Explore a codebase without filling the main context.
+
+**The idea.** A `task` tool runs a fresh agent on one question. It starts
+with an empty transcript. It gets every tool except `task`, `write_todos`,
+`write_file` and `str_replace`, so it cannot edit and cannot recurse. It
+runs the same loop through the same permission check and sandbox. Only its
+final answer returns.
+
+**The code.** `step_15_subagents/harness/subagent.py`:
+
+```python
+WITHHELD = {"task", "write_todos", "str_replace", "write_file"}
+```
+
+```python
+        # rule 4: no tool calls means it has stopped looking and started answering
+        if not message.tool_calls:
+            return report or "(the subagent came back with nothing)"
+```
+
+**Try it.**
+
+```bash
+harness
+> use a sub agent to explore this repo and tell me what you find
+```
+
+**You should see** the question in a blue panel, the subagent's tool calls
+indented under it, and then the main agent's summary. The subagent's tool
+output never enters the main transcript.
+
+**Takeaway.** Compaction throws context away after it is spent. A subagent
+spends it somewhere that is thrown away by design.
+
+You have built a coding agent harness from one API call. The full stage
+index is at the end of this document.
+
+---
+
+# Part 2: The same harness on four agent SDKs
+
+You now know the fifteen ideas. Each SDK below implements some of them for
+you. Rebuilding the stage 15 harness on each one shows you exactly which
+ideas the SDK owns and which stay yours. The permission rules from stage 11
+are copied into every step unchanged. The SDK supplies the hook. You supply
+the policy.
+
+Install them all with `pip install -r requirements-sdks.txt`.
+
+## Step 16: Claude Agent SDK
+
+**What it is.** Claude Code as a library. It spawns the `claude` CLI and
+speaks to it over JSON. The loop, the coding tools, sessions, compaction and
+the `Task` subagent tool are built in.
+
+**What you write.** Policy hooks, an injection hook, one custom tool, a
+subagent definition, and the screen. `step_16_claude_agent_sdk/harness.py`:
+
+```python
+    options = ClaudeAgentOptions(
+        system_prompt={"type": "preset", "preset": "claude_code", "append": APPEND},
+        cwd=os.getcwd(),
+        setting_sources=["project"],  # step 4: loads .claude/skills/*/SKILL.md
+        skills="all",
+        mcp_servers={"harness": SERVER},
+        # pre-approved: read-only built-ins, the plan, the subagent, our tool
+        allowed_tools=["Read", "Glob", "Grep", "TodoWrite", "Task", "Skill", "mcp__harness__run_tests"],
+        can_use_tool=can_use_tool,
+        hooks={
+            "PreToolUse": [HookMatcher(matcher="Bash", hooks=[deny_dangerous])],
+            "UserPromptSubmit": [HookMatcher(hooks=[env_context])],
+            "PreCompact": [HookMatcher(hooks=[on_compact])],
+        },
+        agents={"explorer": EXPLORER},
+        resume=resume,
+    )
+```
+
+**Needs.** The `claude` CLI logged in, or `ANTHROPIC_API_KEY`.
+
+## Step 17: OpenAI Agents SDK
+
+**What it is.** A general agent framework: the runner loop, typed function
+tools, SQLite sessions, approval pauses, guardrails, and agents as tools. It
+has no coding tools, so the stage 5 tools come back and get wrapped.
+
+**What you write.** The tools, skills, todos, a request filter that does
+late injection and stripping, and the screen.
+`step_17_openai_agents_sdk/harness.py`:
+
+```python
+bash = function_tool(_bash, name_override="bash", needs_approval=bash_needs_approval, tool_input_guardrails=[policy_gate], timeout=60)
+```
+
+```python
+task = explorer.as_tool(
+    tool_name="task",
+```
+
+**Needs.** `BASE_URL`, `API_KEY`, `MODEL`, as in Part 1.
+
+## Step 18: Google Antigravity SDK
+
+**What it is.** The Antigravity agent runtime shipped as a binary inside a
+wheel, driven from Python. Coding tools, subagents, compaction, sessions and
+skills are in the runtime.
+
+**What you write.** A policy list, three hooks, a subagent config, two
+tools, todos. `step_18_google_antigravity_sdk/harness.py`:
+
+```python
+EXPLORER = SubagentConfig(
+    name="explorer",
+    description="Explores the codebase and reports findings. Use for 'where is X' and 'how does Y work'.",
+```
+
+**Needs.** `GEMINI_API_KEY`.
+
+## Step 19: DeepSeek Harness
+
+**What it is.** A harness where everything is a plugin: the loop, the tool
+registry, the model adapter, sessions and the permission gate are plugins
+composed by a profile. The Python SDK drives a bundled runtime over JSON-RPC.
+
+**What you write.** The policy as a plugin on the `tools/pre-execute` event,
+the patch that mounts it, and the event renderer.
+`step_19_deepseek_harness/plugin/simple-harness-plugin/src/index.js`:
+
+```javascript
+  ctx.on('tools/pre-execute', async (exec, next) => {
+    if (!SHELL_TOOLS.has(exec.name)) return next()
+    const command = commandOf(exec)
+    const verdict = decide(command)
+    if (verdict === 'deny') return { kind: 'deny', reason: `Blocked by policy: ${command}` }
+    if (verdict === 'ask') return { kind: 'ask', reason: `run: ${command}` }
+    return next()
+  })
+```
+
+**Needs.** `DEEPSEEK_API_KEY`.
+
+## Who owns which mechanism
+
+| Mechanism (stage) | Hand-built | Claude Agent SDK | OpenAI Agents SDK | Antigravity SDK | DeepSeek Harness |
+|------------------|:-:|:-:|:-:|:-:|:-:|
+| agent loop (2.4) | you | SDK | SDK | runtime | runtime |
+| coding tools (2.1-2.3, 5) | you | SDK | **you** | runtime | runtime |
+| custom tools (2.2) | you | `@tool` + MCP server | `function_tool` | plain functions | `defineTool` plugin |
+| skills (4) | you | SDK | **you** | runtime | runtime |
+| late injection (6) | you | hook | request filter | prompt prefix | runtime |
+| file freshness (7) | you | SDK | **you** | runtime | runtime |
+| sessions / rewind (8) | you | SDK | `SQLiteSession` | runtime | runtime |
+| todos (10) | you | SDK | **you** | **you** | runtime |
+| permissions (11) | you | hook + callback | guardrail + approval pause | policy list + hook | plugin |
+| OS sandbox (12) | you | SDK flag | - | runtime flag | provider seam |
+| compaction (14) | you | SDK | **you** (strip only) | runtime | runtime |
+| subagents (15) | you | `AgentDefinition` | `agent.as_tool()` | `SubagentConfig` | runtime |
+
+Every **you** cell is code you can read in that step, and it is the same
+code you wrote in Part 1.
+
+---
+
+# Part 3: The same harness on OpenRouter
+
+## Step 20: Model routing and cost
+
+**Goal.** Swap models without code changes, fall back when one fails, and
+see what each call costs.
+
+**The idea.** OpenRouter is one endpoint with one key in front of hundreds
+of models. It speaks the OpenAI chat API, so the harness from stage 15 works
+against it unchanged. What OpenRouter adds is routing, sent as extra fields
+in the request body.
+
+**The code.** `step_20_openrouter/harness/openrouter.py`:
+
+```python
+BASE_URL = "https://openrouter.ai/api/v1"
+API_KEY = os.environ.get("OPENROUTER_API_KEY") or os.environ.get("API_KEY", "")
+```
+
+```python
+    body = {
+        "models": list(MODELS),        # the fallback route, primary first
+        "usage": {"include": True},    # ask for usage.cost in the response
+    }
+    if PROVIDER:
+        body["provider"] = dict(PROVIDER)
+```
+
+`MODELS` is an ordered route. The first model is the primary. The rest are
+fallbacks OpenRouter uses when the primary fails or is rate limited. The
+usage line shows which model was served and what it cost.
+
+**Try it.**
+
+```bash
+export OPENROUTER_API_KEY=sk-or-...
+export MODELS=deepseek/deepseek-v4-flash,openai/gpt-4.1-mini
+cd step_20_openrouter
+python -m harness.agent
+> /models
+> /route anthropic/claude-sonnet-4,deepseek/deepseek-v4-flash
+```
+
+**You should see** the route and a price list from `/models`, the served
+model and a dollar cost after every call, and a cost total at exit.
+
+**Takeaway.** The model is a string. The harness is the product.
+
+---
+
+# Wrap-up
+
+## Three rules that hold the design together
+
+1. **Every tool call goes through one place.** From stage 2.2 the model's
+   function name is a dictionary key. From stage 15 that lookup lives in
+   `execute()`, shared by the main loop and the subagent. Permissions, the
+   sandbox and the subagent all hook in there.
+2. **Never change the beginning of the prompt.** The transcript is re-sent
+   on every call and the provider caches the unchanged prefix. Volatile
+   facts are appended at send time and thrown away. Old tool output is
+   shrunk only after its turn ends. Compaction rebuilds the prefix once and
+   then leaves it alone.
+3. **Errors are results.** A refused edit, a blocked command, a declined
+   prompt, a timeout, a failed compaction: each comes back as text the model
+   can read and recover from. Nothing the model does can end the session.
+
+## Stage index
 
 | Stage | Adds | Files that change |
 |------:|------|-------------------|
@@ -272,109 +980,33 @@ exploration cost stays in a context that is thrown away.
 | [13](step_13_readable_todos_input_line/) | checklist, input line | `prompt.py`, `ui.py` |
 | [14](step_14_compaction/) | cap / strip / fit, compaction | `history.py`, `compact.py`, `agent.py` |
 | [15](step_15_subagents/) | subagents | `subagent.py`, `tools.py` |
+| [16](step_16_claude_agent_sdk/) | Claude Agent SDK | `harness.py`, `rules.py` |
+| [17](step_17_openai_agents_sdk/) | OpenAI Agents SDK | `harness.py`, `rules.py` |
+| [18](step_18_google_antigravity_sdk/) | Google Antigravity SDK | `harness.py`, `rules.py` |
+| [19](step_19_deepseek_harness/) | DeepSeek Harness | `harness.py`, `plugin/` |
+| [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
 
-Each stage README has a "Diff from stage N" section with the exact
-`diff` command to see what changed.
-
----
-
-## Part 2 - The same harness on four agent SDKs
-
-Steps 16 to 19 rebuild the stage 15 feature set on a framework each. The
-purpose is to see which of the fifteen ideas a given SDK does for you and
-which stay yours. The rule table from stage 11 is copied into each step
-unchanged as `rules.py`. The SDK supplies the hook. You supply the policy.
-
-| Step | Framework | Runs where | You still write |
-|-----:|-----------|------------|-----------------|
-| [16](step_16_claude_agent_sdk/) | **Claude Agent SDK** (`claude-agent-sdk`), Claude Code as a library | spawns the `claude` CLI | policy hooks, a prompt-injection hook, one MCP tool, a subagent definition, the screen |
-| [17](step_17_openai_agents_sdk/) | **OpenAI Agents SDK** (`openai-agents`) | in-process, any OpenAI-compatible endpoint | all coding tools, skills, todos, a request filter for injection and stripping, the screen |
-| [18](step_18_google_antigravity_sdk/) | **Google Antigravity SDK** (`google-antigravity`) | a bundled runtime binary | a policy list, three hooks, a subagent config, two tools, todos |
-| [19](step_19_deepseek_harness/) | **DeepSeek Harness** (`deepseek-harness-sdk`) | a bundled `dsh` runtime over JSON-RPC | the policy as a plugin, the patch that mounts it, the event renderer |
-
-### Who owns which mechanism
-
-| Mechanism (stage) | Hand-built | Claude Agent SDK | OpenAI Agents SDK | Antigravity SDK | DeepSeek Harness |
-|------------------|:-:|:-:|:-:|:-:|:-:|
-| agent loop (2.4) | you | SDK | SDK | runtime | runtime |
-| coding tools (2.1-2.3, 5) | you | SDK | **you** | runtime | runtime |
-| custom tools (2.2) | you | `@tool` + MCP server | `function_tool` | plain functions | `defineTool` plugin |
-| skills (4) | you | SDK | **you** | runtime | runtime |
-| late injection (6) | you | hook | request filter | prompt prefix | runtime |
-| file freshness (7) | you | SDK | **you** | runtime | runtime |
-| sessions / rewind (8) | you | SDK | `SQLiteSession` | runtime | runtime |
-| todos (10) | you | SDK | **you** | **you** | runtime |
-| permissions (11) | you | hook + callback | guardrail + approval pause | policy list + hook | plugin |
-| OS sandbox (12) | you | SDK flag | - | runtime flag | provider seam |
-| compaction (14) | you | SDK | **you** (strip only) | runtime | runtime |
-| subagents (15) | you | `AgentDefinition` | `agent.as_tool()` | `SubagentConfig` | runtime |
-
-Install the SDKs with `pip install -r requirements-sdks.txt`. Each step's
-README inlines the code that wires the SDK. The tests never launch a
-model.
-
-Each SDK needs its own credential:
-
-| Step | Needs |
-|-----:|-------|
-| 16 | the `claude` CLI logged in, or `ANTHROPIC_API_KEY` |
-| 17 | `BASE_URL`, `API_KEY`, `MODEL`, as in Part 1 |
-| 18 | `GEMINI_API_KEY` |
-| 19 | `DEEPSEEK_API_KEY` |
-
----
-
-## Part 3 - The same harness on OpenRouter
-
-[Step 20](step_20_openrouter/) takes the stage 15 harness and points it at
-OpenRouter, one gateway with one key in front of hundreds of models. The
-loop does not change. What changes is the model layer:
-
-- **Model routing.** `MODELS` is an ordered list. The first model is the
-  primary. The rest are fallbacks that OpenRouter uses when the primary
-  fails or is rate limited. The usage line shows which model was served.
-- **Provider preferences.** Sort providers by price, throughput or
-  latency for the same model.
-- **Cost per call.** OpenRouter returns the cost of each request. The
-  harness shows it after every call and totals it at exit.
-- **`/models` and `/route`.** List available models with their prices, and
-  change the route without restarting.
+## Tests and checks
 
 ```bash
-export OPENROUTER_API_KEY=sk-or-...
-export MODELS=deepseek/deepseek-v4-flash,openai/gpt-4.1-mini
-cd step_20_openrouter && python -m harness.agent
+python run_tests.py              # every stage, against a fake model, no key needed
+python run_tests.py 2 14         # stages 2.x and 14 only
+python check_snippets.py         # every code snippet in every README exists in the code
 ```
 
----
-
-## Three rules that hold the whole thing together
-
-1. **Every tool call goes through one place.** From stage 2.2 the model's
-   function name is a dictionary key. From stage 15 that lookup lives in
-   `execute()`, which the main loop and the subagent share. Permissions,
-   the sandbox and the subagent all hook in there.
-2. **Never change the beginning of the prompt.** The transcript is re-sent
-   on every call and the provider caches the unchanged prefix. Volatile
-   facts are appended at send time and thrown away (stage 6). Old tool
-   output is shrunk only after its turn ends (stage 14). Compaction rebuilds
-   the prefix once and then leaves it alone (stage 14).
-3. **Errors are results.** A refused edit, a blocked command, a declined
-   prompt, a timeout, a failed compaction: each comes back as text the
-   model can read and recover from. Nothing the model does can end the
-   session.
+CI runs both on Linux, macOS and Windows.
 
 ## Platform notes
 
 - **macOS and Linux.** The stage 12 sandbox uses `sandbox-exec` (built in)
   or `bwrap` (`apt install bubblewrap`). The banner shows which is active.
 - **Windows.** There is no OS sandbox. The banner shows `sandbox: none`.
-  `bash` runs through `cmd.exe` unless you run from Git Bash or WSL. The
-  UI forces UTF-8 output so panels draw correctly.
+  `bash` runs through `cmd.exe` unless you run from Git Bash or WSL. The UI
+  forces UTF-8 output so panels draw correctly.
 
 ## Credits
 
-The stage 12 sandbox profile follows the shape used by the OpenAI Codex
-CLI (Apache-2.0). The allow / ask permission design follows OpenCode.
+The stage 12 sandbox profile follows the shape used by the OpenAI Codex CLI
+(Apache-2.0). The allow / ask permission design follows OpenCode.
 
 MIT licensed.
