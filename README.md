@@ -963,6 +963,25 @@ loop already stores, so nothing downstream changes. The inner loop moves
 into a `turn()` function, and `harness -p "prompt"` runs one turn and prints
 the answer.
 
+**The code.** `step_21_streaming_headless/harness/llm.py`:
+
+```python
+        if delta.content:
+            parts.append(delta.content)
+            if on_delta:
+                on_delta(delta.content)
+
+        for piece in delta.tool_calls or []:
+            call = calls.setdefault(piece.index, StreamedToolCall())
+            if piece.id:
+                call.id = piece.id
+```
+
+Text deltas go to the screen through `on_delta` as they arrive. Tool call
+deltas are collected by `index`, because one call's arguments arrive in
+many pieces. The assembled `StreamedMessage` has the same `model_dump()`
+as before, so the loop stores it unchanged.
+
 **Try it.**
 
 ```bash
@@ -1244,7 +1263,7 @@ harness can be improved on purpose.
 | [18](step_18_google_antigravity_sdk/) | Google Antigravity SDK | `harness.py`, `rules.py` |
 | [19](step_19_deepseek_harness/) | DeepSeek Harness | `harness.py`, `plugin/` |
 | [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
-| 21 | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
+| [21](step_21_streaming_headless/) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
 | 22 | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
 | 23 | browser use, browser subagent | `browser.py`, `permissions.py` |
 | 24 | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
