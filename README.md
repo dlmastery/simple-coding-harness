@@ -1105,6 +1105,22 @@ the file into an image message the model can see. An act tool clicks,
 types, presses keys and scrolls through PyAutoGUI. Every action asks unless
 you set `COMPUTER_AUTO=1`.
 
+**The code.** `step_24_computer_use/harness/history.py`:
+
+```python
+    return {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": caption},
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{data}"}},
+```
+
+The screenshot tool returns text with an `[[image:path]]` marker. After the
+tool results are appended, the loop turns each marker into a user message
+with a text part and an image part, as a base64 data URL, so the file never
+leaves the machine. Old screenshots are shrunk to their caption by
+`strip()`, like any other tool output.
+
 **Try it.**
 
 ```bash
@@ -1317,7 +1333,7 @@ harness can be improved on purpose.
 | [21](step_21_streaming_headless/) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
 | [22](step_22_parallel_tools/) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
 | [23](step_23_browser_use/) | browser use, browser subagent | `browser.py`, `permissions.py` |
-| 24 | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
+| [24](step_24_computer_use/) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
 | 25 | persistent memory | `memory.py`, `context.py`, `commands.py` |
 | 26 | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
 | 27 | hooks | `hooks.py`, `tools.py`, `agent.py` |
