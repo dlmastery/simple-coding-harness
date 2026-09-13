@@ -1205,6 +1205,28 @@ over stdio, lists each server's tools, and registers them in the same
 `TOOLS` and `TOOL_SCHEMAS` tables as `mcp__server__tool`. Same registry,
 same permission check, same sandbox. MCP tools ask unless allow-listed.
 
+**The code.** `step_26_mcp_client/harness/mcp_client.py`:
+
+```python
+        def wrapper(_tool=tool.name, **args):
+            return call_tool(server, _tool, args)
+
+        registry.TOOLS[name] = wrapper
+        registry.TOOL_SCHEMAS.append({
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": tool.description or f"{tool.name} from the {server} MCP server",
+                "parameters": tool.inputSchema or {"type": "object", "properties": {}},
+            },
+        })
+```
+
+Each remote tool becomes one entry in each table, exactly as stage 2.2
+laid them out. The server's own JSON schema is passed through as the
+`parameters`. The MCP client runs on one background thread with its own
+asyncio loop, so the sync tool wrapper can call it from the stage 22 pool.
+
 **Try it.**
 
 ```bash
@@ -1367,7 +1389,7 @@ harness can be improved on purpose.
 | [23](step_23_browser_use/) | browser use, browser subagent | `browser.py`, `permissions.py` |
 | [24](step_24_computer_use/) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
 | [25](step_25_memory/) | persistent memory | `memory.py`, `context.py`, `commands.py` |
-| 26 | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
+| [26](step_26_mcp_client/) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
 | 27 | hooks | `hooks.py`, `tools.py`, `agent.py` |
 | 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
