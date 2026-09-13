@@ -1860,6 +1860,70 @@ never asks for edits inside the project, `read-only` denies every write,
 `auto` never asks but keeps the deny rules and the sandbox, and `plan`
 comes from step 28. `/mode` switches at runtime and `--mode` at start.
 
+**The code.** A mode is a table. It maps the category of a call and the
+verdict the rules gave to a final verdict. Only allow and ask appear as
+keys, so a deny from the rules, from a session "never", or from the
+sandbox is final in every mode, including `auto`.
+
+`step_39_approval_modes/harness/modes.py`:
+
+```python
+TABLE = {
+    "default": {},
+    "accept-edits": {
+        "edit-inside": {"ask": "allow"},
+    },
+    "read-only": {
+        "edit-inside": {"allow": "deny", "ask": "deny"},
+        "edit-outside": {"allow": "deny", "ask": "deny"},
+        "bash": {"ask": "deny"},
+        "other": {"ask": "deny"},
+    },
+    "auto": {
+        "edit-inside": {"ask": "allow"},
+        "edit-outside": {"ask": "allow"},
+        "bash": {"ask": "allow"},
+        "other": {"ask": "allow"},
+    },
+    "plan": {},
+}
+```
+
+The stage 11 check did not change. Its body became `rules`, and the new
+`check` wraps it: read the mode, keep the step 28 plan fence, rate the
+call with the rules, then let the table have the last word. When the mode
+changed the verdict, the reason names the mode, so the model reads
+"read-only mode: write_file a.txt" and knows why nothing was written.
+
+`step_39_approval_modes/harness/permissions.py`:
+
+```python
+def check(name, args):
+    ...
+    mode = modes.current()
+    if mode == "plan" and not plan.offered(name):
+        return "deny", f"plan mode: {name} is not available until the plan is approved"
+    action, reason = rules(name, args)
+    final = modes.apply(mode, modes.category(name, args, inside_project), action)
+    if final != action:
+        reason = f"{mode} mode: {reason or describe(name, args)}"
+    return final, reason
+```
+
+**Try it.**
+
+```bash
+cd step_39_approval_modes
+python -m harness.agent --mode read-only
+> create a file called notes.txt
+> /mode
+> /mode auto
+```
+
+**You should see** the write denied with a reason that names the mode,
+the mode list with the current one starred, and after the switch the same
+request run without a prompt.
+
 **Takeaway.** The rules are the same. The mode chooses how much to
 interrupt you.
 
@@ -1992,7 +2056,7 @@ the three places the languages differ in practice.
 | [36](step_36_orchestration/) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
 | [37](step_37_production_anatomy/) | production harness anatomy | `README.md` |
 | [38](step_38_capstone/) | capstone | `capstone/` |
-| 39 | approval modes | `modes.py`, `permissions.py` |
+| [39](step_39_approval_modes/) | approval modes | `modes.py`, `permissions.py` |
 | 40 | handoffs | `handoff.py`, `agent.py` |
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
 | 42 | streaming tool output | `tools.py`, `ui.py` |
