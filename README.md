@@ -2110,6 +2110,63 @@ call, and `/cost` shows the session total against its cap.
 command runs. The model still receives the capped final result. Background
 jobs and subagents use the same reader.
 
+**The code.** The calling thread does not read. It waits, with the
+timeout. A reader thread does the reading, one line at a time, and each
+line goes two ways: raw into a list, stripped into the screen callback.
+This split is why the timeout still works: a `readline` blocks for as
+long as the process is silent, and a thread stuck on it cannot count
+seconds. `process.wait` can.
+
+`step_42_streaming_tool_output/harness/streaming.py`:
+
+```python
+def run(command, timeout=None, on_line=None):
+    ...
+    timeout = TIMEOUT if timeout is None else timeout
+    process = popen(command)
+    reader = Reader(process, on_line)
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        kill(process)
+        reader.join()
+        raise
+    except BaseException:
+        kill(process)
+        raise
+    reader.join()
+    return reader.text()
+```
+
+The bash tool changed by three lines. It opens a panel, passes the panel
+as the line callback, and caps the joined output exactly as stage 14 did.
+The model reads the same text it read in step 41. Only you see it early.
+
+`step_42_streaming_tool_output/harness/tools.py`:
+
+```python
+    with ui.streaming("bash", {"command": command}) as show:
+        try:
+            output = streaming.run(command, on_line=show)
+        except subprocess.TimeoutExpired as expired:
+            # A slow command is the model's problem to work around, not a reason
+            # to take the session down. Hand the failure back as a result.
+            return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+    return history.cap(output or "(no output)")
+```
+
+**Try it.**
+
+```bash
+cd step_42_streaming_tool_output
+python -m harness.agent
+> run the test suite with pytest -v and tell me which test is slowest
+```
+
+**You should see** a panel titled "running" that shows the last eight
+lines of pytest as they arrive, then the panel comes down and the reply
+is built from the capped result.
+
 **Takeaway.** What you see and what the model sees are different streams
 with different budgets.
 
@@ -2213,7 +2270,7 @@ the three places the languages differ in practice.
 | [39](step_39_approval_modes/) | approval modes | `modes.py`, `permissions.py` |
 | [40](step_40_handoffs/) | handoffs | `handoff.py`, `agent.py` |
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
-| 42 | streaming tool output | `tools.py`, `ui.py` |
+| [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
 | 43 | extensions | `extensions.py` |
 | 44 | replay and trace viewer | `session.py`, `trace.py` |
 | 45 | the core loop in TypeScript | `harness-ts/` |
