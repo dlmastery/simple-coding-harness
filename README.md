@@ -2262,6 +2262,73 @@ that pi and DeepSeek Harness share.
 recorded timing. `harness trace` writes a standalone HTML page with one row
 per model call, tokens, cost, duration and collapsible tool calls.
 
+**The code.** The session log from stage 8 gains two things: a time
+stamp on every line, and one extra line per model call with its usage,
+seconds and cost. The stamp goes on the line, not on the message in
+memory, and the usage line is keyed by the index of the assistant
+message it belongs to. The list sent to the model does not change.
+
+`step_44_replay_trace/harness/session.py`:
+
+```python
+def stamped(entry):
+    """The entry with `ts` added, as one JSON line. The dict passed in is not touched."""
+    return json.dumps({**entry, "ts": round(clock(), 3)}) + NL
+```
+
+```python
+        for message in messages[WRITTEN:]:
+            f.write(stamped(message))
+        if usage is not None:
+            f.write(stamped({"usage": usage, "index": len(messages) - 1, "seconds": seconds, "cost": cost}))
+```
+
+Loading drops both. Two lines in `load`, before the rewind and
+compaction markers are applied, and a resumed session sends the model
+exactly the list it sent before this step. The tests assert that
+equality.
+
+```python
+        entry.pop("ts", None)
+        if "usage" in entry:
+            continue  # the numbers of a model call: replay and trace read them, the model does not
+```
+
+Replay is the log read back with its gaps. The delay between two events
+is the recorded gap, divided by the speed and capped, so a session that
+waited a minute on a slow model does not make you wait a minute.
+
+`step_44_replay_trace/harness/replay.py`:
+
+```python
+def delay(previous, event, speed):
+    """Seconds to wait before `event`: the recorded gap, scaled and capped. 0 without stamps."""
+    if previous is None or event.ts is None or previous.ts is None or speed <= 0:
+        return 0.0
+    return min(max(event.ts - previous.ts, 0.0) / speed, MAX_PAUSE)
+```
+
+The trace page is one file with no fetches. Every string from the log
+passes through one escape function, so a reply that contains a script
+tag shows the text and runs nothing. An image is inlined only when it
+is a base64 PNG or JPEG data URL.
+
+**Try it.**
+
+```bash
+cd step_44_replay_trace
+python -m harness.agent
+> list the python files here and count their lines
+> /exit
+python -m harness.agent replay last --speed 4
+python -m harness.agent trace last --html trace.html
+```
+
+**You should see** the session redrawn at four times speed with the
+tool panels in their original order, then a `trace.html` you can open in
+a browser: one row per model call with tokens, seconds and dollars, each
+tool call a collapsed section, and a totals row at the bottom.
+
 **Takeaway.** Evaluations tell you a task failed. Traces tell you where.
 
 ## Step 45: The core loop in TypeScript
@@ -2344,7 +2411,7 @@ the three places the languages differ in practice.
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
 | [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
 | [43](step_43_extensions/) | extensions | `extensions.py` |
-| 44 | replay and trace viewer | `session.py`, `trace.py` |
+| [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
 | 45 | the core loop in TypeScript | `harness-ts/` |
 
 ## Tests and checks
