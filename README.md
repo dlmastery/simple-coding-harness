@@ -2500,7 +2500,7 @@ both directions.
 | [38](step_38_capstone/) | capstone | `capstone/` |
 | [39](step_39_approval_modes/) | approval modes | `modes.py`, `permissions.py` |
 | [40](step_40_handoffs/) | handoffs | `handoff.py`, `agent.py` |
-| 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
+| [41](step_41_stop_conditions/) | stop conditions, stop hook | `stop.py`, `hooks.py` |
 | [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
 | [43](step_43_extensions/) | extensions | `extensions.py` |
 | [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
