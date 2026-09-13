@@ -36,7 +36,7 @@ except ImportError:
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))  # the step directory, so `harness` imports from any cwd
 
-from harness import agent, evaluate, llm  # noqa: E402 - after the TLS setup, before the OpenAI client exists
+from harness import agent, evaluate, history, llm  # noqa: E402 - after the TLS setup, before the OpenAI client exists
 from harness.ui import ui  # noqa: E402
 
 TASK = HERE / "task.md"
@@ -132,9 +132,19 @@ def short_args(name, arguments):
     return json.dumps(args)[:120]
 
 
+FULL_RESULTS = {}  # tool_call_id -> the result as the model saw it, before history.strip shortened it
+
+
+def remember_results(messages):
+    """Keep every tool result before the end-of-turn strip cuts it to a stub."""
+    for message in messages:
+        if message.get("role") == "tool" and message["tool_call_id"] not in FULL_RESULTS:
+            FULL_RESULTS[message["tool_call_id"]] = message.get("content") or ""
+
+
 def summarise_transcript(messages):
     """The steps of the run: one entry per assistant message, with its calls and their results."""
-    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    results = {m["tool_call_id"]: FULL_RESULTS.get(m["tool_call_id"], m["content"]) for m in messages if m["role"] == "tool"}
     steps = []
     for message in messages:
         if message["role"] == "user":
@@ -187,8 +197,10 @@ def run_brief(brief, workspace, state, max_turns=MAX_TURNS):
     prompt = Path(brief).read_text(encoding="utf-8").strip()
     session_id = f"capstone-{datetime.now():%Y%m%d-%H%M%S}"
     usage, notes, continuations = {}, [], []
-    saved_note = ui.note
+    saved_note, saved_strip = ui.note, history.strip
     ui.note = lambda text: (notes.append(text), saved_note(text))
+    history.strip = lambda messages: (remember_results(messages), saved_strip(messages))[1]
+    FULL_RESULTS.clear()
     try:
         with evaluate.isolated(workspace, state / "sessions", session_id, usage) as cwd:
             messages = [{"role": "system", "content": evaluate.system_prompt_for(cwd)}]
@@ -204,7 +216,7 @@ def run_brief(brief, workspace, state, max_turns=MAX_TURNS):
             except Exception as failed:  # noqa: BLE001 - a crashed run still gets a report
                 notes.append(f"run failed: {type(failed).__name__}: {failed}")
     finally:
-        ui.note = saved_note
+        ui.note, history.strip = saved_note, saved_strip
     return messages, usage, notes, continuations
 
 

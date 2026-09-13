@@ -442,6 +442,13 @@ directory:
         profile.write_text(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
 ```
 
+The same run on macOS exposed one more: pytest printed more than the
+300 characters stage 14 keeps once a turn is over, so the report's last
+line for that call was the strip notice instead of "2 passed". The runner
+now keeps every tool result as the model saw it, by wrapping
+`history.strip` for the length of the run, and builds the report from
+those.
+
 Nothing about the model found this. A second operating system did.
 
 ## What to notice

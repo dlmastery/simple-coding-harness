@@ -2023,6 +2023,83 @@ is answering now.
 cost and time end it by force. A stop hook can veto a stop, for example
 when tests were not run, and send the agent back with the reason.
 
+**The code.** Three budgets, checked before every model call. The call
+that would cross a line is the one that is not made. A budget trip does
+not ask the hooks: a budget is the harness's decision, and a hook that
+sent the agent back would spend past the cap.
+
+`step_41_stop_conditions/harness/stop.py`:
+
+```python
+def tripped(calls):
+    """The report for the budget this turn has crossed, or None when it may go on.
+
+    calls is how many model calls the turn has made. The three checks run
+    before every model call, so the call that would cross a line is the
+    one that is not made.
+    """
+    if calls >= MAX_TURN_CALLS:
+        return f"stopped after {calls} model calls in one turn (MAX_TURN_CALLS={MAX_TURN_CALLS}); say continue to go on"
+    if SPENT >= MAX_SESSION_COST:
+        return (
+            f"stopped: this session has cost ${SPENT:.4f}, over MAX_SESSION_COST=${MAX_SESSION_COST:.2f}; "
+            "raise it in the environment and start again"
+        )
+    seconds = elapsed()
+    if seconds >= MAX_TURN_SECONDS:
+        return f"stopped after {seconds:.0f}s in one turn (MAX_TURN_SECONDS={MAX_TURN_SECONDS:.0f}); say continue to go on"
+    return None
+```
+
+The loop gained two questions. A reply without tool calls used to end
+the turn. Now the Stop hooks see it first, and a block becomes a user
+message the agent reads on its next call. A reply that called `finish`
+goes through the same gate, so a model cannot get past a Stop hook by
+calling `finish` instead of answering.
+
+`step_41_stop_conditions/harness/agent.py`:
+
+```python
+        if not message.tool_calls:
+            reason = stop.may_stop(messages, start, message.content or "")  # the Stop hooks have the last word
+            if reason:
+                stop.send_back(messages, reason)
+                continue  # the block is a user message now; the agent reads it on the next call
+            break
+```
+
+The example Stop hook is a script. It reads the turn's tool calls from
+stdin, finds the newest edit to a Python file, and looks for a pytest
+run after it. No pytest, exit 2, and the agent goes back to work.
+
+`step_41_stop_conditions/.agents/require_tests.py`:
+
+```python
+if last_edit is not None:
+    index, path = last_edit
+    tested = any(
+        call.get("tool_name") == "bash" and "pytest" in str((call.get("tool_input") or {}).get("command") or "")
+        for call in calls[index + 1:]
+    )
+    if not tested:
+        print(f"tests were not run after editing {path}; run pytest, then answer", file=sys.stderr)
+        sys.exit(2)
+```
+
+**Try it.**
+
+```bash
+cd step_41_stop_conditions
+python -m harness.agent
+> add a subtract function to calc.py
+> /cost
+```
+
+**You should see** the agent write the function and try to answer, a
+muted "Stop blocked: tests were not run after editing calc.py" line, a
+pytest run, then the answer. Every usage line carries the cost of the
+call, and `/cost` shows the session total against its cap.
+
 **Takeaway.** When the loop stops is a design decision, not an accident.
 
 ## Step 42: Streaming tool output
