@@ -181,7 +181,9 @@ def test_suite_passes_two_tasks_and_fails_one(model, suite):
     for s in main_calls:
         assert f"working directory is: {s['cwd']}" in s["system"]
     sub_calls = [s for s in model if "exploration subagent" in s["system"]]
-    assert len(sub_calls) == 1 and f"working in {workspaces['find_function']}." in sub_calls[0]["system"]
+    assert len(sub_calls) == 1
+    assert (f"working in {workspaces['find_function']}." in sub_calls[0]["system"]
+            or f"working in {workspaces['find_function'].resolve()}." in sub_calls[0]["system"])  # macOS reports /var as /private/var
     assert len({s["session"] for s in model}) == 3 and all(s["session"].startswith("eval-evals-") for s in model)
     assert os.getcwd() == before
     for workspace in workspaces.values():  # --keep left them for inspection; the test tidies up
