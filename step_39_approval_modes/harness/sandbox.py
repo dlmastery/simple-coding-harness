@@ -19,22 +19,29 @@ from pathlib import Path
 
 PROJECT = Path.cwd().resolve()
 
-PROFILE = f"""(version 1)
+# Filled in per command by wrap(): PROJECT can change (step 30 runs evaluations
+# in a temp workspace), and tests need the temp directory to be writable.
+PROFILE = """(version 1)
 (deny default)
 (allow process-exec process-fork signal)
 (allow file-read*)
 (allow sysctl-read)
 (deny network*)
-(allow file-write* (subpath "{PROJECT}") (literal "/dev/null"))
-(deny file-write* (subpath "{PROJECT}/.git"))
+(allow file-write* (subpath "{project}") (subpath "{tmp}") (literal "/dev/null"))
+(deny file-write* (subpath "{project}/.git"))
 """
+
+
+def temp_dir():
+    """The real path of the temp directory; on macOS /var/folders is a link into /private."""
+    return Path(tempfile.gettempdir()).resolve()
 
 
 def wrap(command):
     """Wrap a shell command in an OS sandbox. None means we have no sandbox."""
     if sys.platform == "darwin":
         profile = Path(tempfile.gettempdir()) / "simple-harness.sb"
-        profile.write_text(PROFILE)
+        profile.write_text(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
         return ["sandbox-exec", "-f", str(profile), "/bin/sh", "-c", command]
 
     if sys.platform.startswith("linux") and shutil.which("bwrap"):
@@ -42,6 +49,7 @@ def wrap(command):
             "bwrap",
             "--ro-bind", "/", "/",
             "--bind", str(PROJECT), str(PROJECT),
+            "--bind", str(temp_dir()), str(temp_dir()),
             "--dev", "/dev", "--proc", "/proc",
             "--unshare-net", "--die-with-parent",
             "/bin/sh", "-c", command,

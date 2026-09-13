@@ -418,6 +418,32 @@ worked for eighteen steps failed on the first real run against a new
 API, and both failures were invisible to a fake model that never rejects
 a schema and never raises inside a tool.
 
+### Run 5: the same tests on macOS
+
+The recorded run was on Windows, where the harness has no OS sandbox.
+The offline tests replay it on every platform in continuous integration,
+and on macOS the pytest call inside the workspace failed. Two things
+were wrong in `harness/sandbox.py`, both since step 12. The Seatbelt
+profile was an f-string built once at import, with the project directory
+of that moment, so under step 30's isolation the temp workspace was
+still read-only. And pytest's `tmp_path` fixture, which the model's tests
+used for the database, lives in the system temp directory, which the
+profile never allowed. The profile is now a template filled in per
+command from the current project, and both sandboxes allow the temp
+directory:
+
+`harness/sandbox.py`:
+
+```python
+(allow file-write* (subpath "{project}") (subpath "{tmp}") (literal "/dev/null"))
+```
+
+```python
+        profile.write_text(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
+```
+
+Nothing about the model found this. A second operating system did.
+
 ## What to notice
 
 - The checks import, they do not serve. A `TestClient` runs the app's

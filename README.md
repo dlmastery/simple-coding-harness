@@ -1936,6 +1936,83 @@ the opposite: the transcript stays, the prompt and tools change, and the
 new agent answers the user from then on. Definitions declare who they may
 hand off to. A router agent shows the pattern.
 
+**The code.** A definition gains one key, `handoffs`, next to its tool
+list. The router may pass the conversation to the coder or the reviewer.
+The coder and reviewer may pass it to each other, so a change can go
+around the loop: written, judged, fixed, judged again.
+
+`step_40_handoffs/.agents/agents/router.md`:
+
+```text
+---
+name: router
+description: Reads the request, decides which specialist should handle it, and hands the conversation off to that specialist.
+tools: [bash, read_file, read_skill, task]
+handoffs: [coder, reviewer]
+max_turns: 6
+---
+You are the router. You decide who should handle the request, then you hand off.
+```
+
+The `handoff_to` tool does not switch anything. It checks the target
+against the active agent's list, records it as pending, and returns a
+result. The switch happens after every tool result of the reply is in,
+so the transcript is never cut between a call and its result.
+
+`step_40_handoffs/harness/handoff.py`:
+
+```python
+def handoff_to(agent: str, reason: str) -> str:
+    """Ask for a handoff. The switch happens after this reply's results are in."""
+    global PENDING, LAST_REASON
+    if agent == active_name():
+        return f"Error: {agent} is already the active agent."
+    allowed = targets()
+    if agent not in allowed:
+        if definition(agent) is None and agent != MAIN:
+            return f"Error: no agent named '{agent}'. You may hand off to: {', '.join(allowed) or 'nobody'}."
+        return f"Error: {active_name()} may not hand off to '{agent}'. You may hand off to: {', '.join(allowed) or 'nobody'}."
+    PENDING = agent
+    LAST_REASON = reason
+    return f"Handing off to {agent}: {reason}. The {agent} agent answers from the next reply on; do not answer the user yourself."
+```
+
+The switch itself rewrites the first message. The system prompt becomes
+the new agent's prompt, the compaction summary from stage 14 is carried
+over, and the tool set for the next call comes from the new definition.
+The session log gets one marker line, so `--resume` brings back the agent
+that was answering when the session ended.
+
+```python
+def apply(name, messages):
+...
+    global ACTIVE
+    from . import compact  # here, not at the top: compact imports llm
+
+    ACTIVE = None if name == MAIN else definition(name)
+    if name != MAIN and ACTIVE is None:
+        raise KeyError(name)
+    if messages and messages[0].get("role") == "system":
+        summary = compact.previous_summary(messages[0]["content"])
+        prompt = system_prompt(ACTIVE)
+        messages[0]["content"] = prompt + ("\n\n" + summary if summary else "")
+    return ACTIVE
+```
+
+**Try it.**
+
+```bash
+cd step_40_handoffs
+python -m harness.agent
+> /handoff router
+> add a --verbose flag to the CLI and make sure it is tested
+> /agent
+```
+
+**You should see** a "handoff -> coder" line when the router decides, the
+coder's edits, a second handoff to the reviewer, and `/agent` naming who
+is answering now.
+
 **Takeaway.** Subagents isolate work. Handoffs route it.
 
 ## Step 41: Stop conditions
@@ -2057,7 +2134,7 @@ the three places the languages differ in practice.
 | [37](step_37_production_anatomy/) | production harness anatomy | `README.md` |
 | [38](step_38_capstone/) | capstone | `capstone/` |
 | [39](step_39_approval_modes/) | approval modes | `modes.py`, `permissions.py` |
-| 40 | handoffs | `handoff.py`, `agent.py` |
+| [40](step_40_handoffs/) | handoffs | `handoff.py`, `agent.py` |
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
 | 42 | streaming tool output | `tools.py`, `ui.py` |
 | 43 | extensions | `extensions.py` |
