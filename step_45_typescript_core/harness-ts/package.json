@@ -1,0 +1,17 @@
+{
+  "name": "simple-coding-harness-ts",
+  "version": "0.45.0",
+  "description": "The stage 15 coding agent loop, ported to TypeScript. Runs on node 22.6+ with no build step.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "start": "node --experimental-strip-types agent.ts",
+    "test": "node --experimental-strip-types --test \"tests/*.test.ts\""
+  },
+  "dependencies": {
+    "openai": "^4.80.0"
+  }
+}

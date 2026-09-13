@@ -961,12 +961,11 @@ The harness from stage 15 can read, edit, run, plan, remember a session and
 delegate. Real coding agents do more. Part 4 adds ten capabilities, one per
 step, each built on the step before it, in the same shape as Part 1.
 
-> **Build status.** Steps 21 to 45 are being built in order, each complete
-> and tested before the next starts. A step with a link in the index at the
-> end of this document is finished; its "The code" excerpt is verified
-> against the step's source by `check_snippets.py`. Steps without a link
-> are specified in `NEXT_STEPS_SPEC.md` and described here so you can see
-> where the ladder goes.
+> **Build status.** All 45 steps are built and tested. Every step is
+> linked from the index at the end of this document, and every "The code"
+> excerpt in this document is verified against the step's source by
+> `check_snippets.py` in continuous integration. The specification the
+> steps were built from is in `NEXT_STEPS_SPEC.md`.
 
 ## Step 21: Streaming and headless mode
 
@@ -2340,6 +2339,99 @@ names, the same environment variables and the same session file format, so
 a session written by one language resumes in the other. The README shows
 the three places the languages differ in practice.
 
+**The code.** The loop is the same loop. Read it next to the inner
+`while True` of stage 15: the late injection is built and shown, `fit`
+runs, the spinner starts, the model answers, the reply is appended and
+saved, each tool call runs and its result is appended and saved. Every
+`await` marks a place where the Python loop blocks.
+
+`step_45_typescript_core/harness-ts/agent.ts`:
+
+```ts
+    messages.push(entry(message));
+    session.save(messages);
+    ui.usage(usage);
+    ...
+    if (!message.tool_calls?.length) {
+      break;
+    }
+
+    for (const toolCall of message.tool_calls) {
+      const [args, result] = await execute(toolCall);
+      ui.tool(toolCall.function.name, args, result);
+
+      messages.push({
+        role: "tool",
+        tool_call_id: toolCall.id,
+        content: result,
+      });
+      session.save(messages); // after every message, so a crash loses nothing
+    }
+```
+
+The three differences are all about waiting. Python's `bash` tool calls
+`subprocess.run`, which blocks and hands back the whole output. Node has
+no blocking call that also captures output. `spawn` returns at once with
+two streams, the output arrives in `data` events, and the timeout is a
+timer that kills the process. Step 42 added a reader thread to Python so
+lines could reach the screen as they arrived. The TypeScript side has
+that for free: the `data` handler is already called per chunk.
+
+`step_45_typescript_core/harness/sandbox.py`:
+
+```python
+def run(command, timeout=60):
+    """Run a command, sandboxed when the OS lets us."""
+    sandboxed = wrap(command)
+    return subprocess.run(
+        sandboxed or command,
+        shell=sandboxed is None,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+    )
+```
+
+`step_45_typescript_core/harness-ts/sandbox.ts`:
+
+```ts
+    const timer = setTimeout(() => {
+      expired = true;
+      kill(child.pid, child);
+    }, timeout * 1000);
+    child.on("error", (failure) => {
+      clearTimeout(timer);
+      fail(failure);
+    });
+    child.on("close", () => {
+      clearTimeout(timer);
+      if (expired) fail(new TimedOut(timeout));
+      else done({ stdout, stderr });
+    });
+```
+
+The second difference is threads versus promises: step 22 needs a
+thread pool to run tool calls in parallel, and Node needs
+`Promise.all`. The third is sandbox spawning: `spawn(argv)` for the
+wrapped command and `spawn(command, {shell: true})` without a sandbox,
+with `taskkill /T` on Windows to reach the process tree.
+
+**Try it.**
+
+```bash
+cd step_45_typescript_core/harness-ts
+npm test                     # 25 tests, no install needed
+npm install && npm start     # a real session, same env vars as Python
+> list the files in this directory and count them
+> /exit
+cd .. && python -m harness.agent --resume
+```
+
+**You should see** the TypeScript harness answer with the same panels in
+plain text, then the Python harness open the session the TypeScript one
+just wrote and carry on from it. The step's tests run that round trip in
+both directions.
+
 **Takeaway.** The harness is a set of ideas. The language is a detail.
 
 ---
@@ -2412,7 +2504,7 @@ the three places the languages differ in practice.
 | [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
 | [43](step_43_extensions/) | extensions | `extensions.py` |
 | [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
-| 45 | the core loop in TypeScript | `harness-ts/` |
+| [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
 
 ## Tests and checks
 
