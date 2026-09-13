@@ -16,6 +16,8 @@ foreground path: start, pump, wait with a timeout, kill on expiry, and
 raise subprocess.TimeoutExpired so bash can turn it into a result.
 """
 
+import os
+import signal
 import subprocess
 import sys
 import threading
@@ -94,11 +96,22 @@ class Reader:
 
 
 def kill(process):
-    """End a process that ran past its time, and the tree it started."""
+    """End a process that ran past its time, and the tree it started.
+
+    process.kill() alone reaches only the shell. The command it started
+    keeps the pipe open and keeps printing, and the reader keeps reading.
+    group_options() gave the command a group of its own, so on POSIX the
+    whole group gets the signal; on Windows taskkill walks the tree.
+    """
     if process.poll() is not None:
         return
     if sys.platform == "win32":
         subprocess.run(["taskkill", "/F", "/T", "/PID", str(process.pid)], capture_output=True)
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)  # start_new_session: the group id is the pid
+        except (ProcessLookupError, PermissionError):
+            pass
     process.kill()
     try:
         process.wait(timeout=JOIN_GRACE)
