@@ -1147,6 +1147,38 @@ the skills index. A `recall` tool reads the body on demand. After a
 compaction, the handoff note is saved as a memory, so the next session can
 continue where this one stopped.
 
+**The code.** `step_25_memory/harness/memory.py`:
+
+```python
+    directory = MEMORY_DIRS[SCOPES.index(scope)]
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{slug(name)}.md"
+    existed = path.exists()
+    front = yaml.safe_dump({"name": name, "description": description, "type": type}, sort_keys=False, allow_unicode=True)
+    path.write_text(f"---
+{front}---
+
+{content.strip()}
+", encoding="utf-8")
+```
+
+`step_25_memory/harness/context.py`:
+
+```python
+def memory_note():
+```
+
+```python
+    return f"
+<memory>
+{index}
+</memory>" if index else ""
+```
+
+A memory is written with the same front matter shape as a skill, so the
+same parser reads both. The index rides in the late block after the todo
+list. Nothing about memory touches the stable prefix.
+
 **Try it.**
 
 ```bash
@@ -1334,7 +1366,7 @@ harness can be improved on purpose.
 | [22](step_22_parallel_tools/) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
 | [23](step_23_browser_use/) | browser use, browser subagent | `browser.py`, `permissions.py` |
 | [24](step_24_computer_use/) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
-| 25 | persistent memory | `memory.py`, `context.py`, `commands.py` |
+| [25](step_25_memory/) | persistent memory | `memory.py`, `context.py`, `commands.py` |
 | 26 | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
 | 27 | hooks | `hooks.py`, `tools.py`, `agent.py` |
 | 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
