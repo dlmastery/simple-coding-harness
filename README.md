@@ -20,6 +20,8 @@ each snippet.
 Part 1   stages 1 - 15    a coding agent harness, by hand, one idea per stage
 Part 2   steps 16 - 19    the same harness on four agent SDKs
 Part 3   step 20          the same harness on OpenRouter, with routing and cost
+Part 4   steps 21 - 30    ten more capabilities: streaming, parallel tools, browser use,
+                          computer use, memory, MCP, hooks, plan mode, background jobs, evals
 ```
 
 **What you will learn**
@@ -32,13 +34,16 @@ Part 3   step 20          the same harness on OpenRouter, with routing and cost
 - How to gate and sandbox what the agent can do.
 - How to run a subagent in a throwaway context.
 - Which of those ideas each SDK does for you, and which stay yours.
+- How a browser, a desktop, external MCP servers and persistent memory
+  plug into the same loop, and how to measure whether any of it helped.
 
 **What you need**
 
 - Python 3.10 or newer.
 - A key for any endpoint that speaks the OpenAI chat API. OpenRouter is the
   default and gives you many models with one key.
-- About two hours if you run every stage. Each stage takes a few minutes.
+- About two hours for Parts 1 to 3, and another two for Part 4. Each step
+  takes a few minutes.
 
 ---
 
@@ -941,6 +946,260 @@ model and a dollar cost after every call, and a cost total at exit.
 
 ---
 
+# Part 4: Ten more capabilities
+
+The harness from stage 15 can read, edit, run, plan, remember a session and
+delegate. Real coding agents do more. Part 4 adds ten capabilities, one per
+step, each built on the step before it, in the same shape as Part 1.
+
+## Step 21: Streaming and headless mode
+
+**Goal.** See the answer as it is written, and run the harness from a
+script.
+
+**The idea.** The model call streams. Text deltas print as they arrive.
+Tool call deltas are assembled by index into the same message shape the
+loop already stores, so nothing downstream changes. The inner loop moves
+into a `turn()` function, and `harness -p "prompt"` runs one turn and prints
+the answer.
+
+**Try it.**
+
+```bash
+cd step_21_streaming_headless
+python -m harness.agent
+> explain harness/llm.py
+python -m harness.agent -p "how many tools are registered?"
+```
+
+**You should see** text appear word by word instead of after a pause, and
+the headless call print one answer and exit.
+
+**Takeaway.** Streaming changes how the reply is collected, not what is
+stored. Headless mode is what step 30 uses to run evaluations.
+
+## Step 22: Parallel tool calls
+
+**Goal.** Run several tool calls from one reply at the same time.
+
+**The idea.** Permission decisions happen first, on the main thread, one at
+a time, so approval prompts never interleave. Then the allowed calls run in
+a thread pool and their results are appended in the original order. The
+subagent uses the same path.
+
+**Try it.**
+
+```bash
+cd step_22_parallel_tools
+python -m harness.agent
+> read llm.py, tools.py and ui.py and summarise each in one line
+```
+
+**You should see** three tool panels appear together instead of one after
+another.
+
+**Takeaway.** Order of results is part of the protocol. Concurrency may
+change timing, never order.
+
+## Step 23: Browser use
+
+**Goal.** Let the agent read and operate web pages.
+
+**The idea.** Playwright drives a Chromium page. Six tools open, click,
+type, read, screenshot and close. The main agent never holds them. It holds
+one tool, `browse(task)`, which runs a browser subagent with its own
+context, so page dumps never enter the main transcript. Opening a URL asks
+unless the host is on an allow list.
+
+**Try it.**
+
+```bash
+pip install playwright && playwright install chromium
+cd step_23_browser_use
+python -m harness.agent
+> browse to https://example.com and tell me the page title and first paragraph
+```
+
+**You should see** the subagent panel, its browser tool calls indented, and
+a short report.
+
+**Takeaway.** The stage 15 subagent pattern is how any noisy capability is
+added without polluting the main context.
+
+## Step 24: Computer use
+
+**Goal.** Let the agent see the screen and act on any application.
+
+**The idea.** A screenshot tool captures the display and the harness turns
+the file into an image message the model can see. An act tool clicks,
+types, presses keys and scrolls through PyAutoGUI. Every action asks unless
+you set `COMPUTER_AUTO=1`.
+
+**Try it.**
+
+```bash
+pip install pyautogui
+cd step_24_computer_use
+python -m harness.agent
+> take a screenshot and tell me which windows are open
+```
+
+**You should see** a screenshot tool call, then an image message appended
+to the transcript, then a description of the screen.
+
+**Takeaway.** Images enter the transcript as user content parts. The tool
+result stays text; the harness adds the picture.
+
+## Step 25: Persistent memory
+
+**Goal.** Make the agent remember between sessions.
+
+**The idea.** A memory is a markdown file with a name, a description and a
+body, per project or per user. A `remember` tool writes one. The index of
+names and descriptions rides in the late block on every call, exactly like
+the skills index. A `recall` tool reads the body on demand. After a
+compaction, the handoff note is saved as a memory, so the next session can
+continue where this one stopped.
+
+**Try it.**
+
+```bash
+cd step_25_memory
+python -m harness.agent
+> remember that this project uses pytest and the tests live in tests/
+# exit, start again
+python -m harness.agent
+> how do I run the tests here?
+```
+
+**You should see** the answer come from memory, with a `recall` call and no
+search.
+
+**Takeaway.** Memory is skills plus late injection plus a write tool. Three
+mechanisms you already built.
+
+## Step 26: MCP client
+
+**Goal.** Use tools from any MCP server without writing tool code.
+
+**The idea.** A config file lists servers. At start, the harness connects
+over stdio, lists each server's tools, and registers them in the same
+`TOOLS` and `TOOL_SCHEMAS` tables as `mcp__server__tool`. Same registry,
+same permission check, same sandbox. MCP tools ask unless allow-listed.
+
+**Try it.**
+
+```bash
+pip install mcp
+cd step_26_mcp_client
+python -m harness.agent
+> /mcp
+> use the echo server to add 2 and 3
+```
+
+**You should see** the example echo server listed with its two tools, and
+the model call `mcp__echo__add`.
+
+**Takeaway.** The registry from stage 2.2 was the right abstraction. A
+whole ecosystem of tools plugs into it unchanged.
+
+## Step 27: Hooks
+
+**Goal.** Let users customise the harness without forking it.
+
+**The idea.** A config file maps events to shell commands or Python
+functions: before and after a tool call, when a prompt is submitted, before
+compaction, at session start and end. A hook can block a call, replace a
+result, or add context to the late block.
+
+**Try it.**
+
+```bash
+cd step_27_hooks
+python -m harness.agent
+> write a file named .env with API_KEY=test
+```
+
+**You should see** `Blocked by hook`, from the example hook that protects
+`.env` files, and a `tool_log.txt` that grows with every call.
+
+**Takeaway.** Hooks are the same extension points the SDKs in Part 2
+expose. Now you know what is behind them.
+
+## Step 28: Plan mode and structured output
+
+**Goal.** Plan first, approve, then act.
+
+**The idea.** In plan mode the model gets read-only tools and one extra:
+`submit_plan`, whose argument is validated against a JSON schema. A valid
+plan is drawn as a panel and you approve it. On approval the steps become
+todos, the mode switches to act, and the plan rides in the late block until
+every todo is done.
+
+**Try it.**
+
+```bash
+cd step_28_plan_mode
+python -m harness.agent
+> /plan
+> add a --version flag to the harness with a test
+```
+
+**You should see** the plan panel, an approval prompt, and then the todo
+checklist driving the edits.
+
+**Takeaway.** Structured output turns a free-text plan into data the
+harness can act on.
+
+## Step 29: Background jobs and parallel subagents
+
+**Goal.** Run long commands without blocking, and send several explorers at
+once.
+
+**The idea.** A background bash tool starts a job and returns an id. Status,
+wait and kill tools manage it, and running jobs are listed in the late
+block. The `task` tool accepts a list of questions and runs one subagent per
+question concurrently.
+
+**Try it.**
+
+```bash
+cd step_29_jobs_parallel_subagents
+python -m harness.agent
+> start the test suite in the background, then send two subagents to find where sessions are saved and where compaction is triggered
+```
+
+**You should see** a job id, two subagent panels running together, and the
+job status when you ask for it.
+
+**Takeaway.** Stage 15 stopped at one subagent. The same loop, in a thread
+pool, is a team.
+
+## Step 30: Evaluation harness
+
+**Goal.** Measure whether any of this made the agent better.
+
+**The idea.** A suite is a directory of tasks. Each task has a prompt, an
+optional starting workspace, and a checker: a script, an expected string,
+or an LLM judge. `harness eval` runs each task in a fresh temp workspace
+through the same `turn()` function, and reports pass rate, time, tokens and
+cost.
+
+**Try it.**
+
+```bash
+cd step_30_eval
+python -m harness.agent eval evals
+```
+
+**You should see** a table with one row per task and a pass rate, and an
+`eval_report.json` next to the suite.
+
+**Takeaway.** Without a number, every change is a guess. With this step, the
+harness can be improved on purpose.
+
+---
+
 # Wrap-up
 
 ## Three rules that hold the design together
@@ -985,6 +1244,16 @@ model and a dollar cost after every call, and a cost total at exit.
 | [18](step_18_google_antigravity_sdk/) | Google Antigravity SDK | `harness.py`, `rules.py` |
 | [19](step_19_deepseek_harness/) | DeepSeek Harness | `harness.py`, `plugin/` |
 | [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
+| 21 | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
+| 22 | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
+| 23 | browser use, browser subagent | `browser.py`, `permissions.py` |
+| 24 | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
+| 25 | persistent memory | `memory.py`, `context.py`, `commands.py` |
+| 26 | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
+| 27 | hooks | `hooks.py`, `tools.py`, `agent.py` |
+| 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
+| 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
+| 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 
 ## Tests and checks
 
