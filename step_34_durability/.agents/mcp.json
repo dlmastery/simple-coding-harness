@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "echo": {
+      "command": "python",
+      "args": [".agents/mcp_echo_server.py"]
+    }
+  }
+}

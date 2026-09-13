@@ -1604,6 +1604,45 @@ row with a message asking for a different approach. On `--resume`, a
 session that died with unanswered tool calls is completed before the next
 prompt.
 
+**The code.** `step_34_durability/harness/llm.py`:
+
+```python
+    for attempt in range(1, MAX_TRIES + 1):
+        try:
+            return stream_once(request, on_delta)
+        except openai.APIError as error:
+            if not retryable(error):
+                reason = f"model call failed and will not be retried ({describe(error)}): {error}"
+                break
+            if attempt == MAX_TRIES:
+                reason = f"model call failed {MAX_TRIES} times, giving up ({describe(error)}): {error}"
+                break
+            wait = BACKOFF[attempt - 1]
+            ui.note(f"model call failed ({describe(error)}); retry {attempt} of {MAX_TRIES - 1} in {wait:g}s")
+```
+
+The whole stream sits inside the retry, so a connection that drops halfway
+through a reply starts that reply over. A 4xx error is never retried. When
+every try fails, the result is a message with a `failed` reason that the
+loop shows, and the session continues.
+
+`step_34_durability/harness/agent.py`:
+
+```python
+def recover(messages):
+```
+
+```python
+    pending = durability.unanswered(messages)
+    if not pending:
+        return 0
+```
+
+On resume, tool calls that never received a result are run through the
+same permissions and hooks, and their results are appended before the
+next prompt, because the API refuses a transcript that ends in an
+unanswered call.
+
 **Try it.**
 
 ```bash
@@ -1845,7 +1884,7 @@ the three places the languages differ in practice.
 | [31](step_31_instruction_files/) | project instruction files, `/init` | `instructions.py`, `commands.py` |
 | [32](step_32_context_budget/) | context budget, deferred tools | `budget.py`, `tools.py` |
 | [33](step_33_checkpoints/) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
-| 34 | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
+| [34](step_34_durability/) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
 | 35 | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
 | 36 | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
 | 37 | production harness anatomy | `README.md` |
