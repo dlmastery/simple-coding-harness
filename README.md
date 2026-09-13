@@ -1404,6 +1404,26 @@ or an LLM judge. `harness eval` runs each task in a fresh temp workspace
 through the same `turn()` function, and reports pass rate, time, tokens and
 cost.
 
+**The code.** `step_30_eval/harness/evaluate.py`:
+
+```python
+def run_task(task, run=1, suite_name="suite", keep=False):
+    """One run of one task in a fresh temp workspace. Returns a Result."""
+    root = Path(tempfile.mkdtemp(prefix=f"eval-{task.name}-"))
+    workspace = root / "workspace"
+    if (task.path / "workspace").is_dir():
+        shutil.copytree(task.path / "workspace", workspace)
+    else:
+        workspace.mkdir()
+    session_id = f"eval-{suite_name}-{task.name}-{run}-{datetime.now():%Y%m%d-%H%M%S-%f}"
+```
+
+Every run gets a fresh copy of the task's workspace, a fresh session id
+and a fresh message list, then goes through the same `turn()` as the chat.
+The cost of module-level state shows here: the working directory, the
+project root for permissions and the sandbox, and the todo list all have
+to be reset per task, and the README of the step says exactly which.
+
 **Try it.**
 
 ```bash
@@ -1749,7 +1769,7 @@ the three places the languages differ in practice.
 | [27](step_27_hooks/) | hooks | `hooks.py`, `tools.py`, `agent.py` |
 | [28](step_28_plan_mode/) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | [29](step_29_jobs_parallel_subagents/) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
-| 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
+| [30](step_30_eval/) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 | 31 | project instruction files, `/init` | `instructions.py`, `commands.py` |
 | 32 | context budget, deferred tools | `budget.py`, `tools.py` |
 | 33 | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
