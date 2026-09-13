@@ -263,3 +263,136 @@ variant and is not in this chain).
 4. Tests: run the suite with a scripted fake model that passes two tasks and
    fails one; assert the report shape, pass rate, and that each task ran in
    its own temp workspace; `--repeat 2` doubles the run count.
+
+## Step 31 - Project instruction files (`step_31_instruction_files`)
+
+1. `harness/instructions.py`: discover `AGENTS.md` (and `CLAUDE.md` as an
+   alias) in `~/.simple-harness/`, in every ancestor of the working
+   directory from the git root down, and in the working directory itself.
+   Order: home first, then root to leaf. `instructions_prompt()` joins them
+   with a header per file (`# Instructions from <relative path>`). Inject
+   into the SYSTEM prompt (stable prefix), not the late block. Truncate each
+   file at 20,000 characters and say so in the text.
+2. `commands.py`: `/init` sends an explorer subagent (the `task` tool) with a
+   fixed question (build system, test command, layout, conventions) and
+   writes the report to `AGENTS.md` in the working directory after
+   `approve? (y/n)`. `/instructions` lists the files that were loaded.
+3. Ship an example `AGENTS.md` in the step directory.
+4. Tests with a temp tree: discovery order, the alias, truncation, `/init`
+   writes the file with a fake subagent, the prompt contains the headers.
+
+## Step 32 - Context budget (`step_32_context_budget`)
+
+1. `harness/budget.py`: `breakdown(messages)` -> ordered dict of estimated
+   tokens for: system prompt, instruction files, skills index, memory index,
+   tool schemas, transcript text, tool results, images; plus the total and
+   the window. `render()` draws one bar per category and the percentage of
+   `CONTEXT_WINDOW` used. The usage line shows the real prompt tokens next
+   to the estimate.
+2. `commands.py`: `/context` prints the breakdown. `ui.note` warnings at 50%
+   and 75% of the window, once each per session.
+3. Deferred tools: a tool whose schema is over 300 tokens is sent as a
+   one-line stub; a `load_tool(name)` tool returns the full schema and
+   enables it for the rest of the session (`TOOL_SCHEMAS` becomes
+   `active_schemas()`). The system prompt lists the deferred tool names.
+4. Tests: the breakdown sums to the total, every category is present, the
+   stub and load flow enables a tool, warnings fire once.
+
+## Step 33 - Workspace checkpoints and /undo (`step_33_checkpoints`)
+
+1. `harness/checkpoint.py`: before `write_file` or `str_replace` runs, copy
+   the current file (or record that it did not exist) into
+   `~/.simple-harness/checkpoints/<session>/<turn>/<hashed path>` and
+   append a manifest line. `undo_turn()` restores every file of the last
+   turn in reverse order and deletes files that did not exist.
+2. `commands.py`: `/undo` reverts the last turn's file changes and rewinds
+   the transcript one turn. `/rewind` to point N also restores the files to
+   the state at N. `/checkpoints` lists turns and files.
+3. Wire it as a PreToolUse hook from step 27 rather than inside `tools.run`;
+   explain the choice in the README.
+4. Tests: edit then undo restores the file; a new file that is undone is
+   deleted; rewind restores; the manifest survives a restart.
+
+## Step 34 - Durability and recovery (`step_34_durability`)
+
+1. `llm.call_llm`: retry on `openai.RateLimitError`, `APIConnectionError`
+   and 5xx status errors with exponential backoff (0.5s, 1s, 2s, 4s, at most
+   5 tries) and a `ui.note` per retry. On giving up, return an error the
+   loop shows to the user; never crash.
+2. `agent.turn`: a per-turn limit `MAX_CALLS = 40` model calls; on reaching
+   it the loop stops and tells the user. A loop detector: the same tool name
+   with the same arguments three times in a row replaces the third call's
+   result with "Repeated call detected; change approach or ask the user".
+3. Crash recovery: on `--resume`, if the last message is an assistant
+   message with tool calls that have no results, `agent.recover()` runs
+   those calls (through permissions) and appends the results before asking
+   for input; the UI reports how many calls were recovered.
+4. Tests: a client that fails twice then succeeds; a repeated call is
+   detected; a session file ending in an unanswered tool call is recovered;
+   the call limit stops the turn.
+
+## Step 35 - Human in the loop (`step_35_human_in_the_loop`)
+
+1. `ask_user(question, options=None)` tool: prints the question and numbered
+   options, reads an answer with `prompt.read`, returns it as the tool
+   result. Always allowed. System prompt: ask when a requirement is
+   ambiguous; never guess at destructive choices.
+2. Steering: during a turn, Ctrl-C does not kill the loop. It stops the
+   current wait, reads one line from the user, appends it as a user message
+   after the pending tool results, and continues. A second Ctrl-C within two
+   seconds exits. Implement with a `KeyboardInterrupt` handler in
+   `agent.turn`; document the Windows caveat.
+3. Permissions: the approve prompt accepts `y`, `n`, `a` (always, for this
+   session, for this tool and the first word of the command) and `never`;
+   stored in `permissions.SESSION_RULES`, consulted before `BASH_RULES`.
+4. Tests: `ask_user` returns the typed answer; option numbers map to text;
+   steering appends the message in the right place (simulate the interrupt
+   by raising `KeyboardInterrupt` from a fake tool); an `a` answer is
+   remembered.
+
+## Step 36 - Orchestration patterns (`step_36_orchestration`)
+
+1. `harness/agents.py`: subagent definitions from `.agents/agents/*.md`
+   (front matter: `name`, `description`, `tools` list, `max_turns`; body is
+   the system prompt), like skills. Each definition becomes a tool named
+   `agent_<name>` built on `subagent.loop`. The main system prompt lists
+   them (name: description).
+2. Ship three definitions: `planner` (read-only, returns a numbered plan),
+   `worker` (edit tools, executes one step), `reviewer` (read-only, checks a
+   diff against a plan step and returns PASS or FAIL with reasons).
+3. `commands.py`: `/pipeline <task>` runs planner, then worker per step,
+   then reviewer per step, retrying a failed step once with the reviewer's
+   notes, and prints a summary table. Independent steps run in parallel
+   with the step 29 runner when the plan marks them.
+4. Tests: definitions load; tool names; withheld tools respected; the
+   pipeline with a scripted fake model plans, works, reviews and retries
+   once.
+
+## Step 37 - Production harness anatomy (`step_37_production_anatomy`)
+
+No new harness code. A README that maps every mechanism in this repo to
+five production harnesses: Claude Code, Codex CLI, OpenCode, pi, Hermes.
+One table per mechanism group (loop, tools, permissions, sandbox, context,
+sessions, subagents, hooks, memory, evals) with columns for this repo and
+for each harness: what it is called, where it lives, one line on how it
+differs. Cite each claim with a link to public docs or source. Where a
+harness has no equivalent, say so. Include a "what they all agree on"
+section and a "where they disagree" section. A `test_step.py` that checks
+each cited URL returns 200 is optional; skip when offline.
+
+## Step 38 - Capstone (`step_38_capstone`)
+
+1. The task: build a small FastAPI todo API with a SQLite store, tests and a
+   README, in a fresh workspace, driven only through the harness. Provide
+   `capstone/task.md` (the brief), `capstone/evals/` (a step 30 suite with
+   five checks: the server starts, CRUD endpoints work, tests pass, a README
+   exists, no file outside the workspace changed), and `capstone/run.py`
+   that runs the harness headless on the brief and then the eval suite,
+   writing `capstone/report.json` and a markdown scorecard.
+2. The README documents a full recorded run: transcript summary, tool call
+   counts, tokens, cost, eval results, what went wrong and how the harness
+   recovered. Run it live once with the OpenAI key from
+   `~/.simple-harness/env` if present (`BASE_URL=https://api.openai.com/v1`,
+   `MODEL=gpt-4.1-mini`); if no key is present, mark that section pending.
+3. Tests: the eval suite passes against a hand-written reference solution
+   shipped in `capstone/reference/`.
