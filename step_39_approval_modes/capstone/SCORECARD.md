@@ -33,7 +33,7 @@ I built a small todo API using FastAPI backed by a SQLite database accessed via 
 ## What went wrong
 
 - step 4: `bash` python -m pytest -q -> [output trimmed: 8856 more chars. Run the command again if you need them.]
-- step 7: `bash` python -m pytest -q -> [output trimmed: 97 of 10097 chars cut. The whole output is at C:\Users\evija\AppData\Local\Temp\harness-1px3gqe_.txt - 
+- step 7: `bash` python -m pytest -q -> [output trimmed: 97 of 10097 chars cut. The whole output is at C:\Users\you\AppData\Local\Temp\harness-1px3gqe_.txt - 
 
 ## Steps
 
@@ -49,7 +49,7 @@ I built a small todo API using FastAPI backed by a SQLite database accessed via 
 6. assistant:
    - `str_replace` test_app.py -> Replaced 1 match(es) in test_app.py
 7. assistant:
-   - `bash` python -m pytest -q -> [output trimmed: 97 of 10097 chars cut. The whole output is at C:\Users\evija\AppData\Local\Temp\har (error)
+   - `bash` python -m pytest -q -> [output trimmed: 97 of 10097 chars cut. The whole output is at C:\Users\you\AppData\Local\Temp\har (error)
 8. assistant:
    - `agent_planner` {"request": "The test fails with sqlite3.OperationalError: no such table: todos. This indicates the  -> [output trimmed: 1067 more chars. Run the command again if you need them.]
 9. assistant:

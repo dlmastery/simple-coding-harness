@@ -147,7 +147,7 @@ ________ ERROR at teardown of test_create_list_get_update_delete_todo _________
             del os.environ["TODO_DB"]
             dbfile.close()
 >           os.unlink(dbfile.name)
-E           PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\evija\\AppData\\Local\\Temp\\tmpd94ghwpr'
+E           PermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\Users\\you\\AppData\\Local\\Temp\\tmpd94ghwpr'
 
 test_app.py:20: PermissionError
 ================================== FAILURES ===================================
@@ -217,7 +217,7 @@ call `bash`:
 ..                                                                       [100%]
 ============================== warnings summary ===============================
 app.py:15
-  C:\Users\evija\AppData\Local\Temp\capstone-5b99msu9\workspace\app.py:15: DeprecationWarning: 
+  C:\Users\you\AppData\Local\Temp\capstone-5b99msu9\workspace\app.py:15: DeprecationWarning: 
           on_event is deprecated, 
 
 [output trimmed: 937 more chars. Run the command again if you need them.]
