@@ -1051,6 +1051,36 @@ one tool, `browse(task)`, which runs a browser subagent with its own
 context, so page dumps never enter the main transcript. Opening a URL asks
 unless the host is on an allow list.
 
+**The code.** `step_23_browser_use/harness/browser.py`:
+
+```python
+def browser_read() -> str:
+    """The page's title, URL and visible text, capped like any tool output."""
+    current = page()
+    lines = (line.strip() for line in current.inner_text("body").splitlines())
+    text = "
+".join(line for line in lines if line)  # visible text, blank lines dropped
+    return history.cap(f"Title: {current.title()}
+URL: {current.url}
+
+{text}")
+```
+
+`step_23_browser_use/harness/browse.py`:
+
+```python
+def browse(task: str) -> str:
+```
+
+```python
+    return loop(SYSTEM_PROMPT, task, toolset(), MAX_TURNS, label="subagent browsing")
+```
+
+A page read goes through the same `history.cap` as any tool output. The
+`browse` tool is the stage 15 subagent loop with a browser prompt and the
+browser tool set. Playwright's sync API must be called from one thread, so
+`browser.py` owns a worker thread and every tool call is forwarded to it.
+
 **Try it.**
 
 ```bash
@@ -1286,7 +1316,7 @@ harness can be improved on purpose.
 | [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
 | [21](step_21_streaming_headless/) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
 | [22](step_22_parallel_tools/) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
-| 23 | browser use, browser subagent | `browser.py`, `permissions.py` |
+| [23](step_23_browser_use/) | browser use, browser subagent | `browser.py`, `permissions.py` |
 | 24 | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
 | 25 | persistent memory | `memory.py`, `context.py`, `commands.py` |
 | 26 | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
