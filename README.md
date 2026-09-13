@@ -1006,6 +1006,27 @@ a time, so approval prompts never interleave. Then the allowed calls run in
 a thread pool and their results are appended in the original order. The
 subagent uses the same path.
 
+**The code.** `step_22_parallel_tools/harness/tools.py`:
+
+```python
+    outcomes = []  # (args, result) per call; result is None until it has run
+    for tool_call in tool_calls:
+        args, action, reason = decide(tool_call)
+        outcomes.append((args, settle(action, reason)))
+
+    pending = [i for i, (_, result) in enumerate(outcomes) if result is None]
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
+        for i, future in futures.items():
+            outcomes[i] = (outcomes[i][0], future.result())
+    return outcomes
+```
+
+`decide` does the JSON parse and the permission check. `settle` turns a
+deny or a declined prompt into a result string, so those calls never run.
+Only calls whose result is still `None` go to the pool, and the results
+are written back into their original slots.
+
 **Try it.**
 
 ```bash
@@ -1264,7 +1285,7 @@ harness can be improved on purpose.
 | [19](step_19_deepseek_harness/) | DeepSeek Harness | `harness.py`, `plugin/` |
 | [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
 | [21](step_21_streaming_headless/) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
-| 22 | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
+| [22](step_22_parallel_tools/) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
 | 23 | browser use, browser subagent | `browser.py`, `permissions.py` |
 | 24 | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
 | 25 | persistent memory | `memory.py`, `context.py`, `commands.py` |
