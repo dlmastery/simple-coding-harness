@@ -1457,6 +1457,35 @@ down to the working directory and puts them into the system prompt, where
 they are stable and cached. A `/init` command writes the first one by
 sending an explorer subagent through the repository.
 
+**The code.** `step_31_instruction_files/harness/instructions.py`:
+
+```python
+def find_instructions(cwd=None):
+    """Every instruction file, in the order it is read: home, root, ..., cwd."""
+    found = []
+    for directory in search_dirs(cwd):
+        for name in NAMES:
+            path = directory / name
+            if path.is_file():
+                found.append(path)
+                break  # AGENTS.md and CLAUDE.md are one file under two names
+    return found
+```
+
+```python
+    for path in LOADED:
+        parts.append(f"# Instructions from {label(path, cwd)}
+
+{read_instructions(path).strip()}")
+    return "
+
+".join(parts)
+```
+
+The files are read from the most general to the most specific, joined
+under headers, and placed in the system prompt. They change rarely, so
+they belong in the cached prefix, not in the late block.
+
 **Try it.**
 
 ```bash
@@ -1770,7 +1799,7 @@ the three places the languages differ in practice.
 | [28](step_28_plan_mode/) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | [29](step_29_jobs_parallel_subagents/) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | [30](step_30_eval/) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
-| 31 | project instruction files, `/init` | `instructions.py`, `commands.py` |
+| [31](step_31_instruction_files/) | project instruction files, `/init` | `instructions.py`, `commands.py` |
 | 32 | context budget, deferred tools | `budget.py`, `tools.py` |
 | 33 | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
 | 34 | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |

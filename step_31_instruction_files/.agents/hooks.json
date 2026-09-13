@@ -1,0 +1,8 @@
+{
+  "PreToolUse": [
+    {"matcher": "write_file|str_replace", "command": "python .agents/block_env_writes.py"}
+  ],
+  "PostToolUse": [
+    {"matcher": "*", "command": "python .agents/log_tool_use.py"}
+  ]
+}
