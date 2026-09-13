@@ -1557,6 +1557,28 @@ turn's files and rewinds the transcript one turn. `/rewind` restores files
 to the chosen point as well. The capture is a hook from step 27, not a
 change to the tools.
 
+**The code.** `step_33_checkpoints/harness/checkpoint.py`:
+
+```python
+    with LOCK:
+        restored = [restore(entry, turn, session_id) for entry in reversed(manifest(turn, session_id))]
+        start = start_of(turn, session_id)
+        shutil.rmtree(turn_dir(turn, session_id), ignore_errors=True)
+    return turn, start, restored
+```
+
+`step_33_checkpoints/harness/hooks.py`:
+
+```python
+BUILTIN = {  # the harness's own hooks; same shape as a config entry, run first
+```
+
+The capture is a built-in `PreToolUse` hook that runs before any
+configured hook, so the harness uses its own extension point. Undo
+replays the turn's manifest in reverse, deletes files that did not exist
+before, and returns the transcript length at the start of the turn so the
+session can be rewound to match.
+
 **Try it.**
 
 ```bash
@@ -1822,7 +1844,7 @@ the three places the languages differ in practice.
 | [30](step_30_eval/) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 | [31](step_31_instruction_files/) | project instruction files, `/init` | `instructions.py`, `commands.py` |
 | [32](step_32_context_budget/) | context budget, deferred tools | `budget.py`, `tools.py` |
-| 33 | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
+| [33](step_33_checkpoints/) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
 | 34 | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
 | 35 | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
 | 36 | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |

@@ -1,0 +1,418 @@
+# Step 33 - Workspace checkpoints and /undo
+
+**What this step adds:** a copy of every file before the agent changes
+it, and three commands that use those copies. Before `write_file` or
+`str_replace` runs, the file as it is now goes into
+`~/.simple-harness/checkpoints/<session>/<turn>/<hashed path>`, and one
+line goes into that turn's manifest. `/undo` puts the files of the last
+turn back and cuts the transcript to the start of that turn. `/rewind`
+now restores the files as well as the messages. `/checkpoints` lists the
+turns and the files each one changed. The capture is a hook, not a change
+to the tools: `hooks.py` gains a `BUILTIN` list that the harness
+registers itself, and it runs before every hook from `hooks.json`.
+
+## Why checkpoints
+
+Step 8 gave the chat a `/rewind`. It cut the transcript back to an
+earlier message, and the model forgot what came after. The files did not.
+A rewind after a bad edit left the workspace in the state the transcript
+no longer described. The next turn started from a model that thought the
+edit had never happened and a file that said otherwise.
+
+The fix is to make the workspace rewind with the transcript. Git could do
+it, but not every workspace is a repository, and a commit per tool call
+would bury the user's own history. The harness keeps its own copies
+instead, outside the workspace, keyed by session and by turn. A turn is
+the unit because that is what the user sees: one prompt, one answer, one
+`/undo`.
+
+The copies are cheap. A file is captured once per turn, before the first
+edit, so a turn that rewrites one file twenty times stores it once. A
+file that did not exist is recorded as absent, so undoing the turn deletes
+it. The manifest is a JSONL file on disk, like the session log, so a
+resumed session can still undo the turn that ran before the restart.
+
+## The code, piece by piece
+
+### 1. The store
+
+`harness/checkpoint.py`:
+
+```python
+ROOT = Path.home() / ".simple-harness" / "checkpoints"
+
+EDIT_TOOLS = ("write_file", "str_replace")  # the tools whose target file is captured
+
+MANIFEST = "manifest.jsonl"  # one JSON line per captured file, in capture order
+TURN_FILE = "turn.json"      # where the transcript stood when the turn began
+
+TURN = 0  # the number of the turn now running; 0 before the first begin_turn
+...
+def hashed(path):
+    """A short, file-system safe name for a path: the first 16 hex digits of its SHA-1."""
+    return hashlib.sha1(str(path).encode("utf-8")).hexdigest()[:16]
+
+
+def session_dir(session_id=None):
+    return ROOT / (session_id or session.CURRENT)
+
+
+def turn_dir(turn=None, session_id=None):
+    return session_dir(session_id) / f"{TURN if turn is None else turn:04d}"
+```
+
+One directory per session, one per turn under it. A captured file is
+stored under a hash of its absolute path, because a path with slashes
+and drive letters cannot be a file name, and because the manifest keeps
+the real path anyway. The session directory is named by `session.CURRENT`,
+the same id the session log uses, so `--resume` finds both.
+
+### 2. Numbering the turn
+
+`harness/checkpoint.py`:
+
+```python
+def begin_turn(message_count):
+    """Number the next turn and record how long the transcript is before it.
+
+    The number continues from what is on disk, so a resumed session does
+    not reuse a turn number that still holds checkpoints.
+    """
+    global TURN
+    TURN = max(turns(), default=0) + 1
+    folder = turn_dir()
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / TURN_FILE).write_text(json.dumps({"turn": TURN, "messages": message_count}), encoding="utf-8")
+    return TURN
+```
+
+`harness/agent.py`:
+
+```python
+    submitted = hooks.run_hooks("UserPromptSubmit", {"prompt": user_input})
+    if submitted.blocked:
+        ui.note(f"prompt blocked by hook: {submitted.reason}")
+        return messages
+    checkpoint.begin_turn(len(messages))  # where /undo cuts back to, and what the captures are keyed by
+    messages.append({"role": "user", "content": user_input})
+```
+
+The loop calls `begin_turn` once per user message, after the prompt
+hooks let it through and before the message is appended. The number it
+records is the length of the transcript at that moment: the index the
+user message is about to take. `/undo` cuts the transcript to exactly
+that length. The turn number is not a counter in memory. It is one more
+than the highest directory on disk, so a session that resumes after a
+restart carries on from where its checkpoints stopped.
+
+### 3. The capture
+
+`harness/checkpoint.py`:
+
+```python
+def capture(path, tool=None):
+    """Save the file as it is before the tool changes it. Returns the manifest entry, or None.
+
+    Once per file per turn: a second write in the same turn keeps the first
+    copy, which is the state the turn started from.
+    """
+    target = Path(path).resolve()
+    blob = hashed(target)
+    with LOCK:
+        folder = turn_dir()
+        if any(entry["blob"] == blob for entry in manifest(TURN)):
+            return None
+        folder.mkdir(parents=True, exist_ok=True)
+        existed = target.is_file()
+        if existed:
+            shutil.copy2(target, folder / blob)
+        entry = {"path": str(target), "blob": blob, "existed": existed, "tool": tool, "time": datetime.now().isoformat(timespec="seconds")}
+        with (folder / MANIFEST).open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    return entry
+
+
+def pre_tool_use(event):
+    """The built-in PreToolUse hook: capture the target of an edit tool. Never blocks."""
+    if event.get("tool_name") not in EDIT_TOOLS:
+        return None
+    path = (event.get("tool_input") or {}).get("path")
+    if path:
+        capture(path, tool=event["tool_name"])
+    return None
+```
+
+`capture` reads the manifest before it writes, so the second edit of a
+file in one turn changes nothing. The first copy is the state the turn
+started from, and that is the one an undo must bring back. The lock is
+there because step 22 runs tool calls in threads and step 29 runs
+subagents in threads; two captures of the same file at the same time
+would both copy and both append.
+
+`pre_tool_use` is the hook. It takes the event dict every hook takes,
+looks at two keys, and returns `None`, which the hook system reads as
+"carry on".
+
+### 4. A built-in hook
+
+`harness/hooks.py`:
+
+```python
+BUILTIN = {  # the harness's own hooks; same shape as a config entry, run first
+    "PreToolUse": [{"matcher": "write_file|str_replace", "python": "harness.checkpoint:pre_tool_use"}],
+}
+...
+    for hook in BUILTIN.get(event_name, []) + load_config().get(event_name, []):
+        if not matches(hook, event.get("tool_name")):
+            continue
+        reply = run_hook(hook, event)
+```
+
+The capture could have been two lines at the top of `tools.run`. It is a
+hook instead, for three reasons.
+
+The first is placement. Step 27 already defined the point "before a tool
+runs, with its name and its arguments". That is the point the capture
+needs, and the matcher already answers "which tools". Adding the same
+point again inside `tools.run` would be a second copy of the same idea.
+
+The second is that the tools stay ignorant. `write_file` and
+`str_replace` are unchanged from step 5. A new edit tool, or an MCP tool
+that writes files, joins the capture by adding its name to the matcher,
+not by learning about checkpoints.
+
+The third is honesty about the hook system. If the harness's own
+features can be built on it, it is enough for the user's features too.
+`BUILTIN` has the same shape as an entry in `hooks.json`, runs through
+the same `run_hook`, and shows up in `/hooks` with a `(built-in)` tag.
+
+The cost of this choice is order. `decide` runs the hooks before the
+permission prompt, so a call the user then declines still left a
+checkpoint. That checkpoint is harmless: the file it copied is the file
+that is still there. It shows up in `/checkpoints` as a file the turn
+"changed", and it did not.
+
+### 5. Undo
+
+`harness/checkpoint.py`:
+
+```python
+def restore(entry, turn, session_id=None):
+    """Put one file back as it was: copy the blob over it, or delete it if it was new."""
+    target = Path(entry["path"])
+    if entry["existed"]:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(turn_dir(turn, session_id) / entry["blob"], target)
+    elif target.exists():
+        target.unlink()
+    return str(target)
+
+
+def undo_turn(turn=None, session_id=None):
+    """Restore every file of one turn (the last, by default) in reverse order.
+
+    Returns (turn number, transcript length at its start, restored paths),
+    or None when there is no turn to undo. The turn's checkpoints are
+    removed afterwards: an undone turn cannot be undone twice.
+    """
+    if turn is None:
+        found = turns(session_id)
+        if not found:
+            return None
+        turn = found[-1]
+    with LOCK:
+        restored = [restore(entry, turn, session_id) for entry in reversed(manifest(turn, session_id))]
+        start = start_of(turn, session_id)
+        shutil.rmtree(turn_dir(turn, session_id), ignore_errors=True)
+    return turn, start, restored
+```
+
+An undo walks the manifest backwards. A file that existed gets its copy
+back; a file that did not exist is deleted. Then the turn directory goes.
+That last step is what makes a second `/undo` move to the turn before,
+instead of restoring the same files again and cutting the transcript to
+a point it is already at.
+
+### 6. /undo
+
+`harness/commands.py`:
+
+```python
+def undo(messages):
+    """Restore the files of the last turn and cut the transcript to where that turn began."""
+    undone = checkpoint.undo_turn()
+    if undone is None:
+        ui.note("nothing to undo")
+        return messages
+    turn, start, restored = undone
+    ui.note(f"turn {turn} undone: " + (", ".join(restored) if restored else "no files were changed"))
+    if start is None or start > len(messages):
+        ui.note("that turn's place in the transcript is not known; the messages stay")
+        return messages
+    session.rewind_to(start)
+    return redraw(messages[:start], "undone")
+```
+
+The two halves of an undo are the files and the messages. The files come
+first, from the manifest. Then `session.rewind_to` appends the same
+`{"rewind_to": N}` marker step 8 uses, so the session log replays to the
+same place, and the screen is redrawn from the shortened list. A turn
+that changed no files is still a turn: `/undo` on it cuts the transcript
+and says so.
+
+### 7. /rewind restores files too
+
+`harness/checkpoint.py`:
+
+```python
+def undo_since(message_count, session_id=None):
+    """Undo every turn that began at or after a transcript length, newest first.
+
+    This is what `/rewind` needs: keeping the first N messages means the
+    files must go back to how they were when message N was about to be
+    written.
+    """
+    undone = []
+    for turn in reversed(turns(session_id)):
+        start = start_of(turn, session_id)
+        if start is None or start < message_count:
+            continue
+        undone.append(undo_turn(turn, session_id))
+    return undone
+```
+
+`harness/commands.py`:
+
+```python
+    keep = choice + 1
+    undone = checkpoint.undo_since(keep)
+    restored = [path for _, _, paths in undone for path in paths]
+    if undone:
+        ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
+    session.rewind_to(keep)
+    return redraw(messages[:keep], "rewound")
+```
+
+A rewind to message N keeps N messages. Every turn that began at index N
+or later is about to vanish from the transcript, so its files are undone,
+newest first. A turn that began before N and ends after it is cut in the
+middle: its messages before the cut stay, and so do its file changes. The
+checkpoint is per turn, not per tool call, so a rewind into the middle of
+a turn is a rewind of the transcript only.
+
+### 8. Compaction and /checkpoints
+
+`harness/checkpoint.py`:
+
+```python
+def compacted(before, after):
+    """Compaction cut the transcript; move every recorded start with it.
+
+    The compacted list is one summary message plus the tail of the old
+    list, so a start inside the tail shifts by a constant. A start inside
+    the summarised part has no place in the new list any more and is
+    recorded as unknown; its files can still be undone, its transcript
+    position cannot.
+    """
+    cut = before - after + 1
+```
+
+`harness/commands.py`:
+
+```python
+    session.compacted(compacted)
+    checkpoint.compacted(before, len(compacted))  # the turn starts move with the messages
+    ui.compacted(before, compacted)
+    return compacted
+...
+def checkpoint_list(messages):
+    """One row per turn: its number, where it began, and the files it captured."""
+    rows = checkpoint.summary()
+    ui.note("\n".join(rows) if rows else "no checkpoints in this chat yet")
+    return messages
+```
+
+Compaction replaces the old messages with one summary and keeps the
+tail, so every index in the tail moves by the same amount. The recorded
+starts move with them. A turn that was summarised away keeps its files,
+but its start becomes unknown: `/undo` on it restores the files and
+leaves the messages, and says so.
+
+## Run it
+
+```bash
+pip install -e .
+harness
+> create hello.py that prints hello
+> change the greeting to "hi there"
+> /checkpoints
+```
+
+The list shows two turns. Turn 1 has `hello.py (new)`; turn 2 has
+`hello.py`. Type `/undo`:
+
+```text
+turn 2 undone: C:\work\hello.py
+undone · 5 messages · 1 turns
+```
+
+The screen is redrawn with the first turn only, and `hello.py` prints
+hello again. A second `/undo` deletes the file and empties the chat. A
+third says `nothing to undo`.
+
+Now try the same with `/rewind`. After three turns, pick the last
+message of turn 1. The note says `2 turn(s) undone, 2 file(s) restored`
+and the files are back to how they were after turn 1.
+
+Type `/hooks` and the first row is the capture:
+
+```text
+PreToolUse         write_file|str_replace    harness.checkpoint:pre_tool_use  (built-in)
+```
+
+Quit, run `harness --resume`, and `/undo` still works: the manifest is on
+disk under `~/.simple-harness/checkpoints/<session>/`.
+
+Run the offline tests from the repository root:
+
+```bash
+python run_tests.py 33
+python check_snippets.py 33
+```
+
+## What to notice
+
+- A checkpoint is taken before the edit, not after. What is stored is
+  the state to go back to, never the state the agent produced.
+- The unit is the turn. A subagent's edits and the parallel tool calls of
+  one reply all land in the turn that was running, and one `/undo` takes
+  them all back.
+- The turn number lives on disk, not in memory. `begin_turn` reads the
+  directory to pick the next one, so a resumed session continues the
+  numbering and never overwrites an old turn's copies.
+- The capture is a hook. `tools.py` did not change in this step. The
+  matcher `write_file|str_replace` is the only place that says which
+  tools are captured.
+- An undone turn is removed from the store. Undo is not idempotent by
+  design: each `/undo` moves one turn further back.
+- Only the edit tools are captured. A `bash` command that runs `rm` or
+  `sed -i` changes files the checkpoints do not know about. Git is still
+  the safety net for that.
+
+## Diff from step 32
+
+```bash
+diff -r ../step_32_context_budget/harness harness
+```
+
+Added: `checkpoint.py` (`ROOT`, `EDIT_TOOLS`, `MANIFEST`, `TURN_FILE`,
+`TURN`, `LOCK`, `hashed`, `session_dir`, `turn_dir`, `turns`,
+`begin_turn`, `start_of`, `manifest`, `capture`, `pre_tool_use`,
+`restore`, `undo_turn`, `undo_since`, `compacted`, `summary`).
+Changed: `hooks.py` (`BUILTIN`, run first in `run_hooks`), `agent.py`
+(`checkpoint.begin_turn` in `turn`), `commands.py` (`/undo`,
+`/checkpoints`, `rewind` restores files, `compact` moves the turn
+starts, `hook_list` shows the built-ins), `ui.py` (`/undo` in the
+banner), `evaluate.py` (`isolated` removes the checkpoints of an eval run
+and restores `checkpoint.TURN`). Everything else is unchanged from step
+32.
