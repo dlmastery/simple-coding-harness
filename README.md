@@ -2,6 +2,10 @@
 
 ## Build a coding agent from one API call to a full harness, then run it on four SDKs and OpenRouter
 
+**Models are commodities. The harness is the product.** The same model
+behaves like a toy or like a colleague depending on the loop around it.
+This codelab builds that loop.
+
 You have used a coding agent. You typed a request, it read files, ran
 commands, edited code, and came back with an answer. This codelab shows you
 what is inside that box, by building one. You start with a single API call.
@@ -22,6 +26,11 @@ Part 2   steps 16 - 19    the same harness on four agent SDKs
 Part 3   step 20          the same harness on OpenRouter, with routing and cost
 Part 4   steps 21 - 30    ten more capabilities: streaming, parallel tools, browser use,
                           computer use, memory, MCP, hooks, plan mode, background jobs, evals
+Part 5   steps 31 - 38    durability, context and orchestration: instruction files, context
+                          budget, checkpoints, recovery, human in the loop, pipelines,
+                          production anatomy, capstone
+Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop conditions,
+                          streaming tool output, extensions, replay, TypeScript core
 ```
 
 **What you will learn**
@@ -42,8 +51,8 @@ Part 4   steps 21 - 30    ten more capabilities: streaming, parallel tools, brow
 - Python 3.10 or newer.
 - A key for any endpoint that speaks the OpenAI chat API. OpenRouter is the
   default and gives you many models with one key.
-- About two hours for Parts 1 to 3, and another two for Part 4. Each step
-  takes a few minutes.
+- About two hours for Parts 1 to 3, and two more for each of Parts 4 to 6.
+  Each step takes a few minutes.
 
 ---
 
@@ -952,6 +961,13 @@ The harness from stage 15 can read, edit, run, plan, remember a session and
 delegate. Real coding agents do more. Part 4 adds ten capabilities, one per
 step, each built on the step before it, in the same shape as Part 1.
 
+> **Build status.** Steps 21 to 45 are being built in order, each complete
+> and tested before the next starts. A step with a link in the index at the
+> end of this document is finished; its "The code" excerpt is verified
+> against the step's source by `check_snippets.py`. Steps without a link
+> are specified in `NEXT_STEPS_SPEC.md` and described here so you can see
+> where the ladder goes.
+
 ## Step 21: Streaming and headless mode
 
 **Goal.** See the answer as it is written, and run the harness from a
@@ -1340,6 +1356,283 @@ harness can be improved on purpose.
 
 ---
 
+# Part 5: Durability, context and orchestration
+
+Part 4 gave the harness reach. Part 5 makes it dependable and explains how
+it compares to production systems. These steps follow the five layers of a
+production harness: the loop, tools and guardrails, the context engine,
+durability, and orchestration.
+
+## Step 31: Project instruction files
+
+**Goal.** Let a project tell the agent how to work in it.
+
+**The idea.** An `AGENTS.md` file at the project root, or in any directory
+above the working one, holds standing instructions: the build command, the
+test command, the conventions. The harness finds every such file from home
+down to the working directory and puts them into the system prompt, where
+they are stable and cached. A `/init` command writes the first one by
+sending an explorer subagent through the repository.
+
+**Try it.**
+
+```bash
+cd step_31_instruction_files
+python -m harness.agent
+> /init
+> /instructions
+```
+
+**You should see** a generated `AGENTS.md` after approval, and the list of
+instruction files the harness loaded.
+
+**Takeaway.** This is the most used harness feature in practice, and it is
+sixty lines: find files, join them, put them in the prefix.
+
+## Step 32: Context budget
+
+**Goal.** See where the context window goes, and spend it on purpose.
+
+**The idea.** A `/context` command draws one bar per category: system
+prompt, instruction files, skills index, memory index, tool schemas,
+transcript, tool results, images. Warnings fire at half and three quarters
+of the window. Large tool schemas are sent as one-line stubs and loaded on
+demand with a `load_tool` call, so rarely used tools cost almost nothing.
+
+**Try it.**
+
+```bash
+cd step_32_context_budget
+python -m harness.agent
+> /context
+```
+
+**You should see** the breakdown, the estimate next to the real prompt
+token count from the last call, and the deferred tools listed by name.
+
+**Takeaway.** The context window is a budget. A harness that cannot show
+the bill cannot manage it.
+
+## Step 33: Workspace checkpoints and undo
+
+**Goal.** Undo what the agent did to your files, not just to the
+transcript.
+
+**The idea.** Before every edit, the harness copies the file into a
+checkpoint directory keyed by session and turn. `/undo` restores the last
+turn's files and rewinds the transcript one turn. `/rewind` restores files
+to the chosen point as well. The capture is a hook from step 27, not a
+change to the tools.
+
+**Try it.**
+
+```bash
+cd step_33_checkpoints
+python -m harness.agent
+> add a docstring to harness/config.py
+> /undo
+```
+
+**You should see** the edit land, then the file back to its previous
+content and the transcript one turn shorter.
+
+**Takeaway.** Stage 8 made the transcript durable. This step makes the
+workspace match it.
+
+## Step 34: Durability and recovery
+
+**Goal.** Survive rate limits, network failures, crashes and loops.
+
+**The idea.** Model calls retry with backoff on retryable errors. A turn has
+a call limit. A loop detector replaces the third identical tool call in a
+row with a message asking for a different approach. On `--resume`, a
+session that died with unanswered tool calls is completed before the next
+prompt.
+
+**Try it.**
+
+```bash
+cd step_34_durability
+python -m harness.agent
+# kill the process during a tool call, then
+python -m harness.agent --resume
+```
+
+**You should see** "recovered N pending tool calls" and the chat continue
+from where it stopped.
+
+**Takeaway.** Every failure mode becomes a message, a retry, or a recovery.
+None of them ends the session.
+
+## Step 35: Human in the loop
+
+**Goal.** Let the agent ask, and let you steer.
+
+**The idea.** An `ask_user` tool with numbered options, so the agent asks
+instead of guessing at an ambiguous requirement. Ctrl-C during a turn
+pauses the loop and takes a new message from you, appended after the
+pending tool results. The approval prompt accepts yes, no, always for this
+session, and never.
+
+**Try it.**
+
+```bash
+cd step_35_human_in_the_loop
+python -m harness.agent
+> refactor the config module        # press ctrl-c while it works, type a correction
+```
+
+**You should see** the steering message land between tool calls and the
+agent change course.
+
+**Takeaway.** Approval is one channel. Questions and steering are two more,
+and both are cheap.
+
+## Step 36: Orchestration patterns
+
+**Goal.** Define subagents in files, and compose them into a pipeline.
+
+**The idea.** A subagent definition is a markdown file with a name, a
+description, a tool list and a prompt, discovered like skills. Each one
+becomes a tool. A `/pipeline` command runs a planner, then a worker per
+step, then a reviewer per step, retrying a failed step once with the
+reviewer's notes.
+
+**Try it.**
+
+```bash
+cd step_36_orchestration
+python -m harness.agent
+> /pipeline add input validation to the todo API
+```
+
+**You should see** the plan, one worker run per step, a review verdict per
+step, and a summary table.
+
+**Takeaway.** Stage 15 built one subagent. This step builds the vocabulary
+for many.
+
+## Step 37: Production harness anatomy
+
+**Goal.** Map everything in this repo to real systems.
+
+**The idea.** No new code. A reading that places each mechanism next to
+Claude Code, Codex CLI, OpenCode, pi and Hermes: what each calls it, where
+it lives, and how it differs, with links to their public sources. It ends
+with what they all agree on and where they disagree.
+
+**Takeaway.** After this step, reading any production harness is reading
+something you have already built.
+
+## Step 38: Capstone
+
+**Goal.** Build a real application with the harness, and grade it.
+
+**The idea.** A brief asks for a small FastAPI todo service with a database,
+tests and a README. `capstone/run.py` runs the harness headless on the
+brief in a fresh workspace, then runs a step 30 evaluation suite with five
+checks, and writes a scorecard. The README records one full run: tool
+calls, tokens, cost, what went wrong, and how the harness recovered.
+
+**Try it.**
+
+```bash
+cd step_38_capstone
+python capstone/run.py
+```
+
+**You should see** the build happen, the checks run, and a scorecard with
+the pass rate and the cost.
+
+**Takeaway.** This is the whole codelab in one run: a model, a loop, tools,
+guardrails, context, durability and a number at the end.
+
+---
+
+# Part 6: The production surface
+
+Six more mechanisms that production harnesses expose, and a port of the
+core to a second language.
+
+## Step 39: Approval modes
+
+**Goal.** Switch the whole permission policy with one command.
+
+**The idea.** Named modes: `default` uses the stage 11 rules, `accept-edits`
+never asks for edits inside the project, `read-only` denies every write,
+`auto` never asks but keeps the deny rules and the sandbox, and `plan`
+comes from step 28. `/mode` switches at runtime and `--mode` at start.
+
+**Takeaway.** The rules are the same. The mode chooses how much to
+interrupt you.
+
+## Step 40: Handoffs
+
+**Goal.** Transfer the conversation to a different agent.
+
+**The idea.** A subagent starts empty and returns a report. A handoff is
+the opposite: the transcript stays, the prompt and tools change, and the
+new agent answers the user from then on. Definitions declare who they may
+hand off to. A router agent shows the pattern.
+
+**Takeaway.** Subagents isolate work. Handoffs route it.
+
+## Step 41: Stop conditions
+
+**Goal.** Make stopping explicit and checkable.
+
+**The idea.** A `finish` tool ends a turn on purpose. Budgets for calls,
+cost and time end it by force. A stop hook can veto a stop, for example
+when tests were not run, and send the agent back with the reason.
+
+**Takeaway.** When the loop stops is a design decision, not an accident.
+
+## Step 42: Streaming tool output
+
+**Goal.** Watch long commands as they run.
+
+**The idea.** Shell output streams to the screen line by line while the
+command runs. The model still receives the capped final result. Background
+jobs and subagents use the same reader.
+
+**Takeaway.** What you see and what the model sees are different streams
+with different budgets.
+
+## Step 43: Extensions
+
+**Goal.** One plugin mechanism for everything.
+
+**The idea.** An extension is a Python file with an `apply(ctx)` function
+that registers tools, commands, hooks, prompt sections or subagent
+definitions. Skills, hooks, agents and MCP become extensions of the same
+kind. `/extensions` lists what is loaded.
+
+**Takeaway.** Small core, everything else pluggable. This is the design
+that pi and DeepSeek Harness share.
+
+## Step 44: Replay and trace viewer
+
+**Goal.** Debug a session after the fact.
+
+**The idea.** `harness replay` redraws a session log turn by turn with the
+recorded timing. `harness trace` writes a standalone HTML page with one row
+per model call, tokens, cost, duration and collapsible tool calls.
+
+**Takeaway.** Evaluations tell you a task failed. Traces tell you where.
+
+## Step 45: The core loop in TypeScript
+
+**Goal.** Prove the design is not tied to Python.
+
+**The idea.** The stage 15 harness as one Node package with the same file
+names, the same environment variables and the same session file format, so
+a session written by one language resumes in the other. The README shows
+the three places the languages differ in practice.
+
+**Takeaway.** The harness is a set of ideas. The language is a detail.
+
+---
+
 # Wrap-up
 
 ## Three rules that hold the design together
@@ -1394,6 +1687,21 @@ harness can be improved on purpose.
 | 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
+| 31 | project instruction files, `/init` | `instructions.py`, `commands.py` |
+| 32 | context budget, deferred tools | `budget.py`, `tools.py` |
+| 33 | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
+| 34 | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
+| 35 | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
+| 36 | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
+| 37 | production harness anatomy | `README.md` |
+| 38 | capstone | `capstone/` |
+| 39 | approval modes | `modes.py`, `permissions.py` |
+| 40 | handoffs | `handoff.py`, `agent.py` |
+| 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
+| 42 | streaming tool output | `tools.py`, `ui.py` |
+| 43 | extensions | `extensions.py` |
+| 44 | replay and trace viewer | `session.py`, `trace.py` |
+| 45 | the core loop in TypeScript | `harness-ts/` |
 
 ## Tests and checks
 
