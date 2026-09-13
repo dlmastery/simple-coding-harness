@@ -1722,6 +1722,26 @@ becomes a tool. A `/pipeline` command runs a planner, then a worker per
 step, then a reviewer per step, retrying a failed step once with the
 reviewer's notes.
 
+**The code.** `step_36_orchestration/harness/agents.py`:
+
+```python
+def make_tool(name):
+    """The callable behind agent_<name>: one request in, one report out."""
+
+    def agent_tool(request: str) -> str:
+        return run(name, request)
+
+    agent_tool.__name__ = tool_name(name)
+    agent_tool.__doc__ = f"Run the {name} agent on one request and return its report."
+    return agent_tool
+```
+
+A definition file has the same front matter shape as a skill, plus a tool
+list and a turn cap, and its body is the system prompt. Each one becomes
+a tool named `agent_<name>` that runs the stage 15 loop with that prompt
+and that tool list. The shipped `planner`, `worker` and `reviewer` are
+the three roles a pipeline needs.
+
 **Try it.**
 
 ```bash
@@ -1916,7 +1936,7 @@ the three places the languages differ in practice.
 | [33](step_33_checkpoints/) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
 | [34](step_34_durability/) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
 | [35](step_35_human_in_the_loop/) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
-| 36 | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
+| [36](step_36_orchestration/) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
 | 37 | production harness anatomy | `README.md` |
 | 38 | capstone | `capstone/` |
 | 39 | approval modes | `modes.py`, `permissions.py` |
