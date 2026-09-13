@@ -1765,6 +1765,13 @@ Claude Code, Codex CLI, OpenCode, pi and Hermes: what each calls it, where
 it lives, and how it differs, with links to their public sources. It ends
 with what they all agree on and where they disagree.
 
+**What it found.** All five harnesses run the same loop, keep one JSON
+transcript per session on disk, walk the directory tree for `AGENTS.md` or
+`CLAUDE.md`, and ship a headless mode. They disagree on sandboxing (two of
+five have no OS sandbox), on memory (only two ship it), on undo (one has
+removed it), and on evaluation (only one ships a scored eval runner). The
+step's README has the tables, 49 rows with a source link on every row.
+
 **Takeaway.** After this step, reading any production harness is reading
 something you have already built.
 
@@ -1937,7 +1944,7 @@ the three places the languages differ in practice.
 | [34](step_34_durability/) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
 | [35](step_35_human_in_the_loop/) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
 | [36](step_36_orchestration/) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
-| 37 | production harness anatomy | `README.md` |
+| [37](step_37_production_anatomy/) | production harness anatomy | `README.md` |
 | 38 | capstone | `capstone/` |
 | 39 | approval modes | `modes.py`, `permissions.py` |
 | 40 | handoffs | `handoff.py`, `agent.py` |
