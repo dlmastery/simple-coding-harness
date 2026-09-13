@@ -1310,6 +1310,29 @@ plan is drawn as a panel and you approve it. On approval the steps become
 todos, the mode switches to act, and the plan rides in the late block until
 every todo is done.
 
+**The code.** `step_28_plan_mode/harness/plan.py`:
+
+```python
+def submit_plan(plan):
+    """Validate the plan, show it, and ask the user. Returns the result for the model."""
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
+
+    problems = validate(plan)
+    if problems:
+        return "Error: the plan is invalid:
+" + "
+".join(f"- {p}" for p in problems)
+    ui.plan(plan)
+    approved, feedback = ui.approve_plan()
+    if approved:
+        approve(plan)
+```
+
+`submit_plan` is an ordinary tool. Its argument is validated against a
+JSON schema; a bad plan comes back as an error result the model can fix.
+A good plan is drawn, you approve it, and `approve()` turns its steps into
+todos and switches the mode to act.
+
 **Try it.**
 
 ```bash
@@ -1702,7 +1725,7 @@ the three places the languages differ in practice.
 | [25](step_25_memory/) | persistent memory | `memory.py`, `context.py`, `commands.py` |
 | [26](step_26_mcp_client/) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
 | [27](step_27_hooks/) | hooks | `hooks.py`, `tools.py`, `agent.py` |
-| 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
+| [28](step_28_plan_mode/) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 | 31 | project instruction files, `/init` | `instructions.py`, `commands.py` |
