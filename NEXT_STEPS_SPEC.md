@@ -1,4 +1,4 @@
-# Steps 21 - 30: build spec
+# Steps 21 - 45: build spec
 
 Shared conventions for every step below. Each step is one directory
 `step_NN_<name>/` in this repo. Each step is built ON TOP of the previous
@@ -396,3 +396,110 @@ each cited URL returns 200 is optional; skip when offline.
    `MODEL=gpt-4.1-mini`); if no key is present, mark that section pending.
 3. Tests: the eval suite passes against a hand-written reference solution
    shipped in `capstone/reference/`.
+
+## Step 39 - Approval modes (`step_39_approval_modes`)
+
+1. `harness/modes.py`: named permission policies: `default` (the stage 11
+   rules), `accept-edits` (write_file and str_replace inside the project
+   never ask; bash rules unchanged), `read-only` (edits and any bash rated
+   `ask` are denied; explorations run), `auto` (nothing asks; `deny` rules
+   still apply; the sandbox still enforces), and `plan` (delegates to step
+   28). `permissions.check` consults `modes.CURRENT` first.
+2. `commands.py`: `/mode [name]` shows or switches the mode; `--mode` CLI
+   flag; the banner and the late block `<env>` show the mode.
+3. Tests: each mode's verdict for the same four calls (ls, python x.py,
+   write inside, write outside); `/mode` switches; `--mode auto` never
+   prompts; `deny` rules survive `auto`.
+
+## Step 40 - Handoffs (`step_40_handoffs`)
+
+1. `harness/handoff.py`: a handoff is a transfer of the whole conversation
+   to another agent definition (from step 36's `.agents/agents/*.md`): the
+   transcript stays, the system prompt and tool set change, and the new
+   agent answers the user from then on. Tool `handoff_to(agent, reason)`.
+   The loop in `agent.turn` swaps `ACTIVE` (prompt + toolset) when a
+   handoff result is seen; the system prompt is replaced by rewriting
+   `messages[0]` (explain in the README that this is the one deliberate
+   prefix change, and why it is acceptable at a handoff boundary).
+2. Ship `router` (decides which specialist should handle the request and
+   hands off), `coder`, `reviewer` definitions with `handoffs:` lists in
+   their front matter that limit who can hand off to whom.
+3. `commands.py`: `/agent` shows the active agent; `/handoff <name>` forces
+   one. The UI shows a "handoff -> name" line.
+4. Tests: a scripted model hands off; the next call uses the new prompt and
+   tools; a disallowed handoff returns an error result; `/handoff` works.
+
+## Step 41 - Stop conditions (`step_41_stop_conditions`)
+
+1. `harness/stop.py`: a `finish(summary)` tool the model calls to end a
+   turn explicitly (result: the summary; the loop stops even if the reply
+   had other calls); `MAX_TURN_CALLS` (from step 34) and new `MAX_SESSION_COST`
+   (dollars, from step 20's cost when present, else token-estimated) and
+   `MAX_TURN_SECONDS`; when a budget trips, the loop stops and reports.
+2. A `Stop` hook (step 27's hooks): runs when the model produces a final
+   answer; exit 2 blocks the stop and its stderr is appended as a user
+   message ("Stop blocked: tests were not run"), so the agent continues.
+   Ship an example Stop hook that requires pytest to have been run when any
+   `.py` file was edited in the turn.
+3. Tests: finish ends the turn; cost and time budgets stop the loop with a
+   message; the Stop hook sends the agent back once and then allows.
+
+## Step 42 - Streaming tool output (`step_42_streaming_tool_output`)
+
+1. `tools.bash` streams: run through `subprocess.Popen`, forward each stdout
+   line to `ui.tool_line(name, line)` as it arrives (through the sandbox
+   wrapper), collect the full output, and return the capped result as
+   before. The panel shows the last N lines live and finalises when the
+   command exits. Background jobs (step 29) reuse the same reader.
+2. Long-running subagent and browse calls stream their nested tool lines
+   the same way.
+3. Tests: a fake command that prints three lines with sleeps produces three
+   `tool_line` calls before the result; the result is still capped; a
+   timeout still becomes a result.
+
+## Step 43 - Extensions (`step_43_extensions`)
+
+1. `harness/extensions.py`: load every `.agents/extensions/*.py` (project)
+   and `~/.simple-harness/extensions/*.py` (user). Each module exports
+   `apply(ctx)`; `ctx` offers `ctx.tool(fn, schema)`, `ctx.command(name,
+   help, fn)`, `ctx.hook(event, fn, matcher="*")`, `ctx.prompt_section(text)`,
+   `ctx.agent(definition)`. Registrations are recorded so `/extensions`
+   can list them and so a failing extension is skipped with a note.
+2. Refactor skills, hooks, agents (step 36) and MCP (step 26) loading to
+   go through the same registry calls, so they are extensions too; the
+   README shows the before and after.
+3. Ship two example extensions: `git_tools.py` (a `git_diff_summary` tool
+   and a `/status` command) and `word_count.py` (a prompt section).
+4. Tests: extensions load and register; a broken extension is skipped;
+   `/extensions` lists them; the example tool works.
+
+## Step 44 - Replay and trace viewer (`step_44_replay_trace`)
+
+1. `harness replay <session id> [--speed 2]`: reads the JSONL session log
+   (step 8) and redraws it turn by turn with the recorded timing (session
+   entries gain a `ts` field from this step; older logs replay without
+   delays). `--step` waits for enter between turns.
+2. `harness trace <session id> --html trace.html`: writes a standalone HTML
+   page: one row per model call with tokens, cost, duration, and collapsible
+   tool calls and results; images (step 24) inline.
+3. `session.save` records `ts` and the usage of each assistant message
+   (store `usage` next to the message as a separate `{"usage": ...}` entry
+   keyed by index, so the message shape sent to the model is unchanged).
+4. Tests: a saved session replays in order; the HTML contains every tool
+   call; usage entries are skipped by `load()`.
+
+## Step 45 - The core loop in TypeScript (`step_45_typescript_core`)
+
+1. A Node package `harness-ts/` with the stage 15 feature set: `llm.ts`,
+   `tools.ts`, `agent.ts`, `context.ts`, `session.ts`, `permissions.ts`,
+   `history.ts`, `compact.ts`, `subagent.ts`, `ui.ts` (plain console),
+   using the `openai` npm client. Same file names, same env vars, same
+   session JSONL format, so a session written by the Python harness can be
+   resumed by the TypeScript one and vice versa.
+2. `npm test` with `node --test` against a fake client, mirroring the
+   Python tests for the loop, permissions, strip/fit and the subagent.
+3. README: a side-by-side table, Python file -> TypeScript file, and the
+   three places the two languages differ in practice (streams, threads
+   versus promises, sandbox spawning).
+4. `test_step.py` runs `npm test` when node is available
+   (`pytest.importorskip` style check with `shutil.which("node")`).
