@@ -1668,6 +1668,36 @@ pauses the loop and takes a new message from you, appended after the
 pending tool results. The approval prompt accepts yes, no, always for this
 session, and never.
 
+**The code.** `step_35_human_in_the_loop/harness/ask_user.py`:
+
+```python
+    options = list(options or [])
+    ui.question(question, options)
+    try:
+        answer = prompt.read("  answer> ").strip()
+    except (EOFError, KeyboardInterrupt):
+        return NO_ANSWER
+    if answer.isdigit() and 1 <= int(answer) <= len(options):
+        return options[int(answer) - 1]
+```
+
+`step_35_human_in_the_loop/harness/permissions.py`:
+
+```python
+def remember(name, args, verdict):
+    """Store an always (allow) or never (deny) answer for the rest of the session. Returns what was stored."""
+    stored = []
+    for key in session_keys(name, args):
+        SESSION_RULES[key] = verdict
+        stored.append(" ".join(part for part in key if part))
+    return f"{verdict} for this session: " + ", ".join(stored)
+```
+
+`ask_user` is an ordinary tool whose result is whatever you typed, so the
+answer enters the transcript like any other tool result. Session rules
+sit in front of the stage 11 table, keyed by tool and the first word of
+the command, and a `deny` in the table still wins over an `always`.
+
 **Try it.**
 
 ```bash
@@ -1885,7 +1915,7 @@ the three places the languages differ in practice.
 | [32](step_32_context_budget/) | context budget, deferred tools | `budget.py`, `tools.py` |
 | [33](step_33_checkpoints/) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
 | [34](step_34_durability/) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
-| 35 | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
+| [35](step_35_human_in_the_loop/) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
 | 36 | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
 | 37 | production harness anatomy | `README.md` |
 | 38 | capstone | `capstone/` |
