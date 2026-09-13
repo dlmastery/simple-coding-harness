@@ -2179,6 +2179,78 @@ that registers tools, commands, hooks, prompt sections or subagent
 definitions. Skills, hooks, agents and MCP become extensions of the same
 kind. `/extensions` lists what is loaded.
 
+**The code.** An extension is the smallest possible thing: a file with
+one function. The shipped git example registers one tool and one
+command. No schema is written. The signature and the docstring become
+the schema.
+
+`step_43_extensions/.agents/extensions/git_tools.py`:
+
+```python
+def git_diff_summary(staged: bool = False) -> str:
+    """Summarise the uncommitted changes: one line per changed file with the lines added and removed."""
+    output = git("diff", "--stat", *(["--cached"] if staged else []))
+    return output or "no changes"
+```
+
+```python
+def apply(ctx):
+    ctx.tool(git_diff_summary)  # the schema is built from the signature and the docstring
+    ctx.command("/status", "show the git branch and the changed files", status)
+```
+
+The loader runs one file's `apply`. Three things can go wrong: the file
+does not import, it has no `apply`, or `apply` raises. All three end the
+same way: what the file registered before it failed is removed, the row
+stays so `/extensions` can show the failure, and the loader moves on.
+
+`step_43_extensions/harness/extensions.py`:
+
+```python
+def apply_module(name, module, path=None):
+    """Run one module's apply(ctx) as the extension `name`. Returns the Extension, loaded or failed."""
+    if name in EXTENSIONS:
+        unload(name)  # a reload replaces what the old copy registered
+    extension = EXTENSIONS[name] = Extension(name, path)
+    apply = getattr(module, "apply", None)
+    if not callable(apply):
+        return _failed(extension, "no apply(ctx) function")
+    try:
+        apply(Context(extension))
+    except Exception as failed:  # noqa: BLE001 - one broken extension must not stop the harness
+        return _failed(extension, f"{type(failed).__name__}: {failed}")
+    return extension
+```
+
+The refactor is the point of the step. Skills, hooks, agent definitions
+and MCP servers stop being special. Each loader becomes an `apply`
+function that registers through the same context. Skills are the
+smallest: one tool, one prompt section.
+
+`step_43_extensions/harness/skills.py`:
+
+```python
+def apply(ctx):
+    """The skills extension: the read_skill tool, and the skill index in the system prompt."""
+    ctx.tool(read_skill, READ_SKILL_SCHEMA)
+    ctx.prompt_section(skills_section)  # a function: rendered when the prompt is built
+```
+
+**Try it.**
+
+```bash
+cd step_43_extensions
+python -m harness.agent
+> /extensions
+> /status
+> what changed in this repo since the last commit?
+```
+
+**You should see** the four built-in loaders and the two shipped
+extensions listed with what each registered, the git status from the
+extension's command, and the model calling `git_diff_summary`, a tool it
+learned about from a file.
+
 **Takeaway.** Small core, everything else pluggable. This is the design
 that pi and DeepSeek Harness share.
 
@@ -2271,7 +2343,7 @@ the three places the languages differ in practice.
 | [40](step_40_handoffs/) | handoffs | `handoff.py`, `agent.py` |
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
 | [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
-| 43 | extensions | `extensions.py` |
+| [43](step_43_extensions/) | extensions | `extensions.py` |
 | 44 | replay and trace viewer | `session.py`, `trace.py` |
 | 45 | the core loop in TypeScript | `harness-ts/` |
 
