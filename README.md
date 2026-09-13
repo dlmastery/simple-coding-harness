@@ -1268,6 +1268,24 @@ functions: before and after a tool call, when a prompt is submitted, before
 compaction, at session start and end. A hook can block a call, replace a
 result, or add context to the late block.
 
+**The code.** `step_27_hooks/harness/tools.py`:
+
+```python
+    args = json.loads(tool_call.function.arguments)
+    action, reason = check(tool_call.function.name, args)
+    if action == "deny":
+        return args, action, reason
+    outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
+    if outcome.blocked:
+        return args, "blocked", outcome.reason
+    return args, action, reason
+```
+
+The hook runs after the permission rules and before the tool, on the one
+shared path from stage 22, so subagents and parallel calls go through it
+too. A command hook gets the event as JSON on stdin and blocks by exiting
+with code 2; its stderr becomes the reason the model reads.
+
 **Try it.**
 
 ```bash
@@ -1683,7 +1701,7 @@ the three places the languages differ in practice.
 | [24](step_24_computer_use/) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
 | [25](step_25_memory/) | persistent memory | `memory.py`, `context.py`, `commands.py` |
 | [26](step_26_mcp_client/) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
-| 27 | hooks | `hooks.py`, `tools.py`, `agent.py` |
+| [27](step_27_hooks/) | hooks | `hooks.py`, `tools.py`, `agent.py` |
 | 28 | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
 | 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
