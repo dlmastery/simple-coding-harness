@@ -1785,6 +1785,40 @@ brief in a fresh workspace, then runs a step 30 evaluation suite with five
 checks, and writes a scorecard. The README records one full run: tool
 calls, tokens, cost, what went wrong, and how the harness recovered.
 
+**The code.** Headless, nobody answers a question. The runner watches how
+each turn ended and decides whether to send a follow-up, at most twice.
+
+`step_38_capstone/capstone/run.py`:
+
+```python
+def why_continue(messages):
+    ...
+    last = messages[-1]
+    if last["role"] == "tool":
+        return "the turn stopped at MAX_CALLS"
+    if last["role"] == "user":
+        return "the model call failed"
+    if last["role"] == "assistant" and (last.get("content") or "").rstrip().endswith("?"):
+        return "the answer ended with a question"
+    return None
+```
+
+The fifth check proves the agent stayed inside its workspace. The runner
+hashes every file next to the workspace before and after the run, and the
+check compares the two manifests. Without a manifest the check fails: a
+check that cannot compare must not pass by default.
+
+```python
+def manifest(root, skip):
+    """Relative path -> sha256 of every file under root, except those under skip."""
+    root, skip = Path(root), Path(skip)
+    found = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_file() and path != skip and skip not in path.parents:
+            found[path.relative_to(root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return found
+```
+
 **Try it.**
 
 ```bash
@@ -1794,6 +1828,18 @@ python capstone/run.py
 
 **You should see** the build happen, the checks run, and a scorecard with
 the pass rate and the cost.
+
+**The recorded run.** The step ships the scorecard, report and transcript
+of a real run with `gpt-4.1-mini`. It scored 4 of 5: the server started,
+the tests passed, the README had a run section, and nothing outside the
+workspace changed. The CRUD check failed because DELETE returned a body.
+The three runs before it are written up too, because two of them changed
+the harness. The first made zero model calls: the OpenAI API rejects a
+function schema with `anyOf` at the top level, which OpenRouter and
+DeepSeek had accepted for twenty steps. The second ended with the model
+asking "Would you like me to create it now?" to nobody, which is why
+`why_continue` treats a trailing question mark as a reason to continue.
+The third crashed inside a subagent and still produced a report.
 
 **Takeaway.** This is the whole codelab in one run: a model, a loop, tools,
 guardrails, context, durability and a number at the end.
@@ -1945,7 +1991,7 @@ the three places the languages differ in practice.
 | [35](step_35_human_in_the_loop/) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
 | [36](step_36_orchestration/) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
 | [37](step_37_production_anatomy/) | production harness anatomy | `README.md` |
-| 38 | capstone | `capstone/` |
+| [38](step_38_capstone/) | capstone | `capstone/` |
 | 39 | approval modes | `modes.py`, `permissions.py` |
 | 40 | handoffs | `handoff.py`, `agent.py` |
 | 41 | stop conditions, stop hook | `stop.py`, `hooks.py` |
