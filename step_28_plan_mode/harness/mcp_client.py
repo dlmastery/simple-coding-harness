@@ -26,6 +26,11 @@ from pathlib import Path
 
 from . import history
 
+try:  # Python 3.11+ has it built in
+    BaseExceptionGroup
+except NameError:  # Python 3.10: anyio ships the backport
+    from exceptiongroup import BaseExceptionGroup
+
 CONFIG_PATHS = [
     Path.home() / ".simple-harness" / "mcp.json",  # every project
     Path.cwd() / ".agents" / "mcp.json",           # this project; wins on a clash

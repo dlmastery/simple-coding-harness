@@ -7,7 +7,10 @@ reads. Logging is turned down so the server's stderr stays quiet in the
 harness terminal.
 """
 
-from mcp.server.fastmcp import FastMCP
+try:  # mcp 1.x
+    from mcp.server.fastmcp import FastMCP
+except ModuleNotFoundError:  # mcp 2.x renamed it
+    from mcp.server.mcpserver import MCPServer as FastMCP
 
 server = FastMCP("echo", log_level="WARNING")
 

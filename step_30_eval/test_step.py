@@ -177,7 +177,7 @@ def test_suite_passes_two_tasks_and_fails_one(model, suite):
 
     # the model saw the workspace as cwd and in the system prompt, and a fresh session per task
     main_calls = [s for s in model if "exploration subagent" not in s["system"]]
-    assert {Path(s["cwd"]) for s in main_calls} == set(workspaces.values())
+    assert {Path(s["cwd"]).resolve() for s in main_calls} == {w.resolve() for w in workspaces.values()}
     for s in main_calls:
         assert f"working directory is: {s['cwd']}" in s["system"]
     sub_calls = [s for s in model if "exploration subagent" in s["system"]]
