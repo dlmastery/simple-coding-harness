@@ -1358,6 +1358,28 @@ wait and kill tools manage it, and running jobs are listed in the late
 block. The `task` tool accepts a list of questions and runs one subagent per
 question concurrently.
 
+**The code.** `step_29_jobs_parallel_subagents/harness/subagent.py`:
+
+```python
+    with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
+        futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
+        reports = [future.result() for future in futures]
+    return "
+
+".join(
+        f"## subagent {number}: {title(description)}
+
+{report}"
+        for number, (description, report) in enumerate(zip(descriptions, reports), 1)
+    )
+```
+
+Each description gets its own `loop()` run on a worker thread, with its
+own message list, and the reports come back joined under numbered headers
+in the order they were asked. A background job is the same idea for shell
+commands: `Popen` through the sandbox wrapper, output to a temp file, and
+an id the model can poll or kill.
+
 **Try it.**
 
 ```bash
@@ -1726,7 +1748,7 @@ the three places the languages differ in practice.
 | [26](step_26_mcp_client/) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
 | [27](step_27_hooks/) | hooks | `hooks.py`, `tools.py`, `agent.py` |
 | [28](step_28_plan_mode/) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
-| 29 | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
+| [29](step_29_jobs_parallel_subagents/) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | 30 | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 | 31 | project instruction files, `/init` | `instructions.py`, `commands.py` |
 | 32 | context budget, deferred tools | `budget.py`, `tools.py` |
