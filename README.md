@@ -1511,6 +1511,27 @@ transcript, tool results, images. Warnings fire at half and three quarters
 of the window. Large tool schemas are sent as one-line stubs and loaded on
 demand with a `load_tool` call, so rarely used tools cost almost nothing.
 
+**The code.** `step_32_context_budget/harness/tools.py`:
+
+```python
+    offered = []
+    stubbed = False
+    for schema in TOOL_SCHEMAS if schemas is None else schemas:
+        if schema["function"]["name"] in LOADED or not is_deferred(schema):
+            offered.append(schema)
+        else:
+            offered.append(stub(schema))
+            stubbed = True
+    if stubbed:
+        offered.append(LOAD_TOOL_SCHEMA)
+    return offered
+```
+
+A deferred tool keeps its name on the wire but loses its parameters, so
+the model knows it exists and knows to call `load_tool` first. Once loaded
+it stays loaded for the session. The function takes an already filtered
+list, so it composes with plan mode and with each subagent's tool set.
+
 **Try it.**
 
 ```bash
@@ -1800,7 +1821,7 @@ the three places the languages differ in practice.
 | [29](step_29_jobs_parallel_subagents/) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
 | [30](step_30_eval/) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
 | [31](step_31_instruction_files/) | project instruction files, `/init` | `instructions.py`, `commands.py` |
-| 32 | context budget, deferred tools | `budget.py`, `tools.py` |
+| [32](step_32_context_budget/) | context budget, deferred tools | `budget.py`, `tools.py` |
 | 33 | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
 | 34 | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
 | 35 | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
