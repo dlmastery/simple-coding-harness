@@ -92,7 +92,8 @@ export async function renderSpecToText(spec, { columns = 88, onAction } = {}) {
   });
   await new Promise((resolve) => setTimeout(resolve, 30));
   instance.unmount();
-  return stdout.frames.at(-1) ?? "";
+  // On a CI runner Ink unmounts with one more, empty write: keep the last frame that has content.
+  return stdout.frames.filter((frame) => frame.trim()).at(-1) ?? "";
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/").split("/").pop())) {
