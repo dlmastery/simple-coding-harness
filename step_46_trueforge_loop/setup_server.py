@@ -30,8 +30,9 @@ CONTEXT_LENGTH = 1_047_576
 MAX_OUTPUT_TOKENS = 32_768
 
 
-def read_key(env_file=ENV_FILE):
+def read_key(env_file=None):
     """OPENAI_API_KEY from the environment, else from the KEY=value lines of the env file."""
+    env_file = ENV_FILE if env_file is None else env_file  # resolved at call time, so tests can point elsewhere
     key = os.environ.get("OPENAI_API_KEY")
     if key:
         return key
