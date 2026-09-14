@@ -2538,6 +2538,62 @@ become a remote MCP server with annotations, and the server's default
 approval policy pauses on write and destructive tools. The client answers
 `tool.approval_required` with `user.tool_approval`.
 
+**The code.** Stage 11's permission table becomes two annotation sets.
+The readers say they are read-only. The writers say they are destructive.
+TrueForge's default policy, ask before `@write` and `@destructive`, then
+gates exactly what stage 11 gated.
+
+`step_47_trueforge_tools_mcp/tools_server.py`:
+
+```python
+READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False)
+DESTRUCTIVE = ToolAnnotations(readOnlyHint=False, destructiveHint=True, openWorldHint=False)
+```
+
+```python
+TOOLS = [
+    (read_file, READ_ONLY),
+    (list_dir, READ_ONLY),
+    (write_file, DESTRUCTIVE),
+    (str_replace, DESTRUCTIVE),
+    (bash, DESTRUCTIVE),
+]
+```
+
+An approval is a turn boundary. The gated call ends the turn with a
+pending event that names the call id and the message it came from. The
+client looks the call up, asks on the terminal, and starts a new turn
+whose input is one decision per call. A turn's input cannot mix a user
+message with approvals, so the resume carries no text.
+
+`step_47_trueforge_tools_mcp/client/approve.py`:
+
+```python
+    inputs = [UserMessage(content=prompt)]
+    while True:
+        result = run_turn(client, session_id, inputs, events, out)
+        for key, value in (result.metrics or {}).items():
+            totals[key] = totals.get(key, 0) + value
+        if not result.pending:
+            result.metrics = totals or None
+            return result
+        inputs = approvals_for(result.pending, events, approver)
+```
+
+**Try it.**
+
+```bash
+cd step_47_trueforge_tools_mcp
+python demo.py "add a docstring to hello.py"
+```
+
+**You should see** the five tools listed with their annotations and the
+policy verdict for each, the readers run without a prompt, an `allow?`
+prompt for `str_replace` with its arguments, and the edited file printed
+at the end. Answer `n` and the model reads a denial as its tool result.
+There is no `deny` tier in MCP annotations. Stage 11's `rm *` rule has no
+equivalent here; the sandbox of step 48 is the answer to that.
+
 **Takeaway.** Permissions moved from a rules table to tool annotations,
 and the ask moved from a terminal prompt to an event.
 
@@ -2716,7 +2772,7 @@ runs and who holds the credentials.
 | [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
 | [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
 | [46](step_46_trueforge_loop/) | the loop on TrueForge | `client/loop.py` |
-| 47 | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
+| [47](step_47_trueforge_tools_mcp/) | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
 | 48 | sandbox, skills, code mode | `client/sandbox.py` |
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
 | 50 | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
