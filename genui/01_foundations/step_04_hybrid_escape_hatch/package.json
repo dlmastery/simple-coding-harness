@@ -1,0 +1,14 @@
+{
+  "name": "genui-01-step-04-hybrid-escape-hatch",
+  "version": "0.1.0",
+  "description": "Hybrid generative UI: the catalog plus one GeneratedView escape hatch, and actions that run the next model turn. No dependencies, no build.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "demo": "python demo.py"
+  }
+}

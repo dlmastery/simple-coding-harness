@@ -86,6 +86,151 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 01 -->
+# Sub-theme 01: Foundations
+
+The three generation modes with no framework at all: one Python server,
+one page, hand-written renderers. Every later sub-theme is one of these
+three mechanisms with a library around it.
+
+## Step 01.1: Static components
+
+**Goal.** The agent picks a component and fills its props.
+
+**The idea.** Three prebuilt components are offered to the model as strict
+function-calling tools. Each finished tool call becomes one message on an
+SSE stream, and the page has three renderers keyed by component name.
+The streaming model call emits a tool call the moment the next one
+starts, so the first metric paints while the chart is still streaming.
+
+`01_foundations/step_01_static_components/catalog.py`:
+
+```python
+def tool(name, description, properties):
+    """One function-calling schema. Every property is required; nothing else is allowed."""
+    return {
+        "type": "function",
+        "function": {
+            "name": name,
+            "description": description,
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": properties,
+                "required": list(properties),
+                "additionalProperties": False,
+            },
+        },
+```
+
+**Try it.**
+
+```bash
+cd genui/01_foundations/step_01_static_components
+python demo.py
+```
+
+**You should see** six SSE messages for a lemonade stand dashboard: three
+metrics, a table, a chart, and the usage line. The recorded run used
+about 250 prompt tokens and 300 completion tokens.
+
+**Takeaway.** Static generation is the cheapest and the safest. The
+agent cannot draw anything you did not build.
+
+## Step 01.2: A declarative tree, and why the flat shape wins
+
+**Goal.** Let the agent compose a whole layout from a catalog.
+
+**The idea.** Eight components in one catalog drive three things: the
+prompt, a generated JSON Schema, and the renderer table. The model's JSON
+streams as it arrives, and a tolerant partial-JSON parser re-renders on
+every chunk. Two shapes are measured. A nested tree cannot show its
+layout until the last chunk closes the root. A flat element map with ids
+names the layout in its first lines and fills the holes afterwards.
+
+**Try it.**
+
+```bash
+cd genui/01_foundations/step_02_declarative_tree
+python demo.py
+```
+
+**You should see** a table with both shapes. In the recording the flat
+map's layout was known at chunk 33 of 266, the nested tree's at chunk
+408 of 408. The screenshot shows both pages stopped at the same chunk.
+
+![Nested tree and flat element map stopped at the same chunk](01_foundations/step_02_declarative_tree/demo_streaming.png)
+
+**Takeaway.** This is why A2UI and json-render use flat lists with ids.
+Structure first, content later, and every hole is a placeholder.
+
+## Step 01.3: Open-ended HTML in a sandbox
+
+**Goal.** Let the model write the document, and pay for it.
+
+**The idea.** No catalog. The model writes HTML, CSS and JavaScript. The
+host puts a content security policy first in the document's head, mounts
+it in an iframe that allows scripts and nothing else, and accepts exactly
+one message shape back. Then the three modes are counted with the same
+tokenizer.
+
+`01_foundations/step_03_open_ended_html/page/sandbox.mjs`:
+
+```js
+export function mount(iframe, html) {
+  iframe.setAttribute("sandbox", "allow-scripts");
+  iframe.srcdoc = sandboxed(html);
+}
+
+export function isEvent(data) {
+  // The only shape the host accepts from the iframe: {type: "event", name, payload?}.
+  return data !== null && typeof data === "object" && data.type === "event" && typeof data.name === "string";
+}
+```
+
+**Try it.**
+
+```bash
+cd genui/01_foundations/step_03_open_ended_html
+python demo.py
+```
+
+**You should see** the token count for static, flat and HTML modes on
+the same prompt, and a click inside the sandbox arriving at the host as
+an event. Across three recorded runs the HTML document cost between nine
+and ten times the tokens of the flat spec, and eight times the wall
+time. The report's claim of five to ten times holds.
+
+**Takeaway.** Open-ended generation buys freedom with tokens, time and
+an isolation boundary you must build yourself.
+
+## Step 01.4: The hybrid escape hatch
+
+**Goal.** Keep the catalog, allow one open-ended component inside it.
+
+**The idea.** The catalog gains `GeneratedView`, whose one prop is
+model-written HTML rendered with the step 3 sandbox inside the layout.
+Everything else stays schema-checked. A button carries an action name
+the model chose; a click posts it to the server, the server appends it to
+the transcript as a user message, and the next turn streams through the
+same generator. The loop closes.
+
+**Try it.**
+
+```bash
+cd genui/01_foundations/step_04_hybrid_escape_hatch
+python demo.py
+```
+
+**You should see** a dashboard with a generated gauge among catalog
+components, a click on "Restock Lemons" become a second model turn, and
+the diff: in the recording the model changed two of eleven elements and
+left the rest alone.
+
+**Takeaway.** The report's hybrid pattern confines the cost and the risk
+of open-ended generation to one subtree, and keeps the rest declarative.
+
+
 <!-- SUBTHEME 04 -->
 # Sub-theme 04: OpenUI Lang
 
@@ -556,7 +701,7 @@ and nothing executable.
 
 | Sub-theme | Steps | Packages |
 |---|---|---|
-| 01 foundations | static components, declarative tree, open-ended HTML, hybrid escape hatch | none |
+| [01 foundations](01_foundations/) | static components, declarative tree, open-ended HTML, hybrid escape hatch | none |
 | [02 AG-UI](02_ag_ui/) | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
 | 03 A2UI | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | [04 OpenUI Lang](04_openui_lang/) | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |

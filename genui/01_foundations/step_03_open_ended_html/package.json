@@ -1,0 +1,14 @@
+{
+  "name": "genui-01-step-03-open-ended-html",
+  "version": "0.1.0",
+  "description": "Open-ended generative UI: model-written HTML in a sandboxed iframe with a CSP and a postMessage bridge. No dependencies, no build.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "demo": "python demo.py"
+  }
+}

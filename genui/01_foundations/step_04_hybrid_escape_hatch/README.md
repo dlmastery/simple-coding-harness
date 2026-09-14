@@ -1,0 +1,229 @@
+# Step 04 - Hybrid escape hatch
+
+**What this step adds:** the report's hybrid pattern, and a loop that
+closes. The step 02 catalog gains one component, `GeneratedView`, whose
+only prop is HTML the model writes; the page renders it in the step 03
+sandbox. Everything else stays catalog-constrained. A `Button` carries an
+`action` name; a click posts that event to the server, which appends it to
+the session's transcript and runs the next model turn. The page renders the
+new layout the same way it rendered the first.
+
+## Quick demo
+
+```bash
+python demo.py
+```
+
+```text
+prompt: show me a dashboard for a lemonade stand, with a gauge for today's sales goal and a button to restock lemons
+turn 1: session 021c15b36ace, valid=True, 11 elements:
+  card           Card           Lemonade Stand Dashboard
+  row_metrics    Row            
+  metric_sales   Metric         Today's Sales
+  metric_customers Metric         Customers Today
+  metric_inventory Metric         Lemons in Stock
+  gauge_sales_goal GeneratedView  481 chars of html
+  row_table_chart Row            
+  table_inventory Table          
+  column_chart_button Column         
+  chart_sales_trend Chart          
+  button_restock Button         'Restock Lemons' -> action 'restock_lemons'
+clicked 'Restock Lemons'; the page sent: {"source": "button", "action": "restock_lemons", "payload": {"label": "Restock Lemons"}}
+turn 2: valid=True, 9 elements unchanged, changed ['metric_inventory', 'table_inventory'], added [], removed []
+  metric_inventory: {"title": "Lemons in Stock", "value": "20", "delta": "-5"}
+                    -> {"title": "Lemons in Stock", "value": "100", "delta": "+80"}
+  table_inventory: {"columns": ["Item", "Quantity", "Status"], "rows": [["Lemons", "20", 
+                   -> {"columns": ["Item", "Quantity", "Status"], "rows": [["Lemons", "100",
+saved demo.png, demo_after_action.png
+```
+
+Turn 1. Ten catalog components and one `GeneratedView` (the gauge, dashed
+border), with the model's JSON below:
+
+![demo](demo.png)
+
+Turn 2, after the click. The inventory metric and the table changed; the
+rest is byte-for-byte the first layout:
+
+![after the action](demo_after_action.png)
+
+## The hybrid pattern
+
+The State of Generative UI report's recommendation is not one of the three
+modes but a mix: declarative by default, with an escape hatch to open-ended
+generation for the one thing the catalog cannot express. Step 02 showed why
+declarative is the default: typed props, a schema to check, a renderer the
+product owns, and a tenth of the tokens. Step 03 showed what open-ended
+costs and how to contain it. This step puts the container inside the
+catalog. `GeneratedView` is a component like any other, with one string
+prop. The renderer for that component is the sandbox.
+
+The second idea is the loop. A dashboard that cannot be clicked is a
+report. The catalog's `Button` has an `action` prop, which is a name the
+model chose. When the user clicks, the page does not know what the name
+means; it posts it back. The server turns the event into a user message on
+the same transcript, and the model, which does know what it meant, answers
+with the next layout. The first turn and every later turn use the same
+code path and the same stream.
+
+## The code, piece by piece
+
+`catalog.py`: one more entry. The schema, the prompt and the renderer table
+all pick it up from here.
+
+```python
+    "Button": ({"label": STRING, "action": STRING}, False),
+    # The escape hatch: model-written HTML, rendered in the step 03 sandbox.
+    "GeneratedView": ({"html": STRING}, False),
+}
+```
+
+`catalog.py`: two more lines in the prompt. The model is told what the
+hatch is for and how small to keep it, and what a button's action means.
+
+```python
+        "GeneratedView is the escape hatch: its html prop is a small self-contained HTML fragment "
+        "(inline style, inline SVG, no external resources) for one thing the catalog cannot show, "
+        "such as a gauge. Use it at most once and keep it short.\n"
+        "Button.action is an event name. When the user clicks, the app sends you that event and "
+        "you answer with the updated dashboard.\n"
+```
+
+`page/render.mjs`: the renderer for the hatch. It is the step 03 sandbox
+as a component: `sandbox="allow-scripts"`, the CSP injected, and the
+document escaped because here it is an attribute value.
+
+```js
+export function GeneratedView({ html }) {
+  // The escape hatch: model-written HTML in the step 03 sandbox. The document
+  // goes through esc() because it is an attribute value here; the browser
+  // unescapes it when it reads srcdoc.
+  return `<iframe class="card generated" sandbox="allow-scripts" srcdoc="${esc(sandboxed(String(html ?? "")))}"></iframe>`;
+}
+```
+
+`server.py`: sessions. A declarative run opens a transcript; each turn
+appends the model's reply, so the next action continues from the layout
+the user is looking at.
+
+```python
+def declarative_turn(session_id):
+    """One model turn on a session's transcript: the JSON as it streams, then the checked spec.
+
+    The model's reply is appended to the transcript, so the next action
+    continues from the layout the user is looking at.
+    """
+    session = SESSIONS[session_id]
+    shape = session["shape"]
+    for item in stream_text(session["messages"], response_format={"type": "json_object"}):
+        if isinstance(item, dict):
+            yield item
+            continue
+        text, usage = item
+        session["messages"].append({"role": "assistant", "content": text})
+```
+
+`server.py`: the action endpoint. The event becomes a user message and the
+same generator streams the reply.
+
+```python
+EVENT_PROMPT = (
+    "Event from the dashboard: the user triggered {action!r} with payload {payload}. "
+    "Apply it and answer with the whole updated dashboard, as one JSON document in the same shape as before. "
+    "Change only what the event changes; keep the other elements as they were."
+)
+```
+
+```python
+@app.post("/api/action")
+def action(body: Action):
+    """The loop closes: the event becomes a user message, the model answers with the next layout."""
+    session = SESSIONS.get(body.session)
+    if session is None:
+        raise HTTPException(404, "unknown session")
+    session["turn"] += 1
+    session["messages"].append({"role": "user", "content": EVENT_PROMPT.format(action=body.action, payload=json.dumps(body.payload))})
+    return stream(declarative_turn(body.session))
+```
+
+`page/app.js`: the two sources of events. A click on any catalog button is
+one; a `postMessage` from any `GeneratedView` iframe is the other. Both go
+through `act`, which posts to the server and hands the reply to the same
+`consume` that rendered the first turn.
+
+```js
+export async function act(action, payload, source) {
+  // The event goes to the server as the next user turn; the reply is a whole new layout.
+  const event = { source, action, payload };
+  inbox.push(event);
+  inboxPanel.textContent += JSON.stringify(event) + "\n";
+  if (!session) return; // html mode, or nothing rendered yet: logged, not acted on
+  timeline.length = 0;
+  const response = await fetch("/api/action", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session, action, payload }),
+  });
+  await consume(response, currentMode);
+}
+
+dashboard.addEventListener("click", (event) => {
+  // Every Button in the catalog carries data-action; the click is the event.
+  const button = event.target.closest("button.action");
+  if (button) act(button.dataset.action, { label: button.textContent }, "button");
+});
+
+window.addEventListener("message", (event) => {
+  // Only a window the page mounted, and only the one shape the host accepts.
+  const frames = [frame, ...dashboard.querySelectorAll("iframe.generated")];
+  if (!frames.some((f) => f.contentWindow === event.source) || !isEvent(event.data)) return;
+  act(event.data.name, event.data.payload ?? null, "generated");
+});
+```
+
+## Run it
+
+```bash
+python server.py            # http://127.0.0.1:8010, run the prompt, click the button
+python demo.py              # turn 1, the click, turn 2, two screenshots
+python -m pytest test_step.py
+npm test
+```
+
+Sessions live in memory in `server.SESSIONS`; restart the server and the
+page must run a new prompt before a click does anything.
+
+## What to notice
+
+- The hatch is a component. Nothing in the server knows that
+  `GeneratedView` is special: it is a string prop that passes the schema.
+  Only the renderer treats it differently, and it treats it the way step
+  03 treated a whole page.
+- The gauge cost 481 characters of HTML inside a 11-element layout. The
+  same dashboard as a whole page in step 03 cost about 9000. The hatch buys
+  the one thing the catalog lacks at a fraction of the price.
+- The model changed two elements and left nine untouched, because the
+  prompt asked for that and the transcript held the previous layout. A
+  diff-based protocol (JSON Patch, as json-render streams it, or A2UI's
+  `updateComponents`) would send only those two; this step re-sends the
+  whole layout, which is simpler and costs a second turn of tokens.
+- The action name is the model's. `restock_lemons` was never in any
+  schema. The page treats it as opaque; the server treats it as text; the
+  model interprets it. That is the loop's contract, and it is thin on
+  purpose. Sub-theme 02 makes it a typed event stream.
+- A `GeneratedView` can post events too, and they take the same route.
+  The demo's model wrote a static gauge, so the click came from the
+  catalog button; the message listener accepts both.
+
+## Diff from the previous step
+
+```bash
+diff -r ../step_03_open_ended_html .
+```
+
+Changed: `catalog.py` (`GeneratedView`, two prompt rules), `server.py`
+(`SESSIONS`, `new_session`, `declarative_turn`, `EVENT_PROMPT`,
+`/api/action`), `page/render.mjs` (`GeneratedView`), `page/app.js`
+(`consume`, `act`, click delegation, the listener accepts generated
+iframes), `page/index.html` (default prompt and mode, generated iframe
+style), `demo.py`, `tests/render.test.mjs`. Everything else is step 03.

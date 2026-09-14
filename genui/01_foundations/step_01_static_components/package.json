@@ -1,0 +1,14 @@
+{
+  "name": "genui-01-step-01-static-components",
+  "version": "0.1.0",
+  "description": "Static generative UI: the model picks a prebuilt component and fills its props. No dependencies, no build.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "demo": "python demo.py"
+  }
+}

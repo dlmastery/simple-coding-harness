@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Step 02 - declarative tree</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 20px; color: #1f2933; background: #f5f7fa; }
+  form { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; }
+  input, select { padding: 8px 10px; font: inherit; border: 1px solid #cbd2d9; border-radius: 6px; background: white; }
+  input { flex: 1; }
+  button { padding: 8px 14px; font: inherit; border: 0; border-radius: 6px; background: #2563eb; color: white; }
+  #status { color: #616e7c; font-size: 12px; min-width: 6em; }
+  /* static mode: a grid, as in step 01 */
+  #dashboard.static { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  #dashboard.static .table, #dashboard.static .chart { grid-column: span 2; }
+  /* declarative modes: the layout comes from the spec */
+  .row { display: flex; gap: 12px; margin: 12px 0; }
+  .row > * { flex: 1; min-width: 0; }
+  .column { display: flex; flex-direction: column; gap: 12px; }
+  .card { background: white; border: 1px solid #e4e7eb; border-radius: 8px; padding: 12px; }
+  .box .heading { font-size: 16px; font-weight: 600; }
+  .metric .title { color: #616e7c; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .metric .value { font-size: 28px; font-weight: 600; margin: 4px 0; }
+  .metric .delta.up { color: #15803d; }
+  .metric .delta.down { color: #b91c1c; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e4e7eb; }
+  th { color: #616e7c; font-weight: 500; font-size: 12px; }
+  svg { width: 100%; height: auto; color: #2563eb; }
+  svg rect { fill: #2563eb; }
+  svg text { font-size: 11px; fill: #616e7c; }
+  .text { margin: 8px 0; }
+  .action { background: #e4e7eb; color: #1f2933; }
+  .pending { min-height: 48px; border-style: dashed; background: repeating-linear-gradient(45deg, #f5f7fa, #f5f7fa 6px, #eef1f4 6px, #eef1f4 12px); }
+  .pending-wrap > .card { border-style: dashed; }
+  .unknown { color: #b91c1c; }
+  #wire { margin-top: 20px; padding: 12px; font: 12px/1.5 ui-monospace, monospace; background: #1f2933; color: #cbd2d9; border-radius: 8px; white-space: pre-wrap; word-break: break-all; min-height: 3em; }
+</style>
+</head>
+<body>
+<form id="form">
+  <input id="prompt" value="show me a dashboard for a lemonade stand" autocomplete="off">
+  <select id="mode">
+    <option value="static">static (tools)</option>
+    <option value="tree">declarative: nested tree</option>
+    <option value="flat" selected>declarative: flat element map</option>
+  </select>
+  <button id="run" type="submit">Run</button>
+  <span id="status"></span>
+</form>
+<div id="dashboard" class="flat"></div>
+<pre id="wire"></pre>
+<script type="module" src="app.js"></script>
+</body>
+</html>
