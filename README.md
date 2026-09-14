@@ -2737,6 +2737,57 @@ run the step 30 evaluation suite through the server.
 trace, already stored. The step 30 evaluation format runs unchanged with
 the step 47 tools server pointed at a temp workspace.
 
+**The code.** A subagent is a thread inside the turn. Every event carries
+a `thread_id`, so one printer indents children under the main thread and
+a parallel run reads like step 29's job list.
+
+`step_50_trueforge_subagents_eval/client/threads.py`:
+
+```python
+    def line(self, thread_id, text: str) -> None:
+        """One output line; subagent threads are indented under the main thread."""
+        if thread_id is None:
+            self.out.write(f"{text}\n")
+            return
+        indent = "" if thread_id == "main" else "    "
+        self.out.write(f"{indent}{self.label(thread_id):<4} {text}\n")
+```
+
+The step 30 evaluation format runs unchanged. Each task gets a fresh
+workspace, its own tools server, one session with approvals off, one
+turn, and its check. A crash becomes a failed result, not a stopped
+suite.
+
+`step_50_trueforge_subagents_eval/client/evaluate.py`:
+
+```python
+    started = time.perf_counter()
+    try:
+        with ToolsServer(workspace, port=port) as tools:
+            register_tools(client, tools.url)
+            session_id = client.sessions.create(agent=spec or build_spec()).data.id
+            turn_id, answer, metrics = run_turn(client, session_id, task.prompt, on_event)
+        passed, detail = check(task, workspace, answer)
+    except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
+        session_id, turn_id, answer, metrics = "", "", "", {}
+        passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
+```
+
+**Try it.**
+
+```bash
+cd step_50_trueforge_subagents_eval
+python demo.py --threads "compare three sorting algorithms in parallel and summarise"
+python demo.py --eval
+```
+
+**You should see** the main thread spawn three subagents, each one's
+report indented under it, and a summary. Then the three step 30 tasks
+run through the server with a pass rate. The recording scored 3 of 3
+after one real fix: on Windows the tools server's `bash` ran under
+`cmd.exe`, where single quotes are not quotes, and a subagent's `rg`
+call failed. The server now prefers Git Bash when it is on the path.
+
 **Takeaway.** The evaluation harness does not care where the loop runs.
 
 ## Step 51: TrueForge versus this codelab versus managed agents
@@ -2825,7 +2876,7 @@ runs and who holds the credentials.
 | [47](step_47_trueforge_tools_mcp/) | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
 | [48](step_48_trueforge_sandbox_skills/) | sandbox, skills, code mode | `client/sandbox.py` |
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
-| 50 | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
+| [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | 51 | TrueForge versus this codelab versus managed agents | `README.md` |
 
 ## Tests and checks
