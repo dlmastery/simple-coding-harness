@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-PATH_RE = re.compile(r"`([\w./-]+\.(?:py|js|jsx|ts|tsx|toml|md|yml|yaml|html|css|json))`")
+PATH_RE = re.compile(r"`([\w./-]+\.(?:py|js|mjs|cjs|jsx|ts|tsx|toml|md|yml|yaml|html|css|json))`")
 FENCES = {"```python", "```ts", "```tsx", "```js", "```jsx", "```html", "```css"}
 
 
