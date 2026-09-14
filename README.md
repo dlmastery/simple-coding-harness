@@ -2798,6 +2798,30 @@ call failed. The server now prefers Git Bash when it is on the path.
 and what a hosted managed-agent service does differently, with the cost
 numbers from the recorded runs.
 
+**What it found.** Thirteen tables, one per capability, with a source
+link on every row. Three findings stand out. First, both servers turn a
+pause into data: an approval, a question or an OAuth prompt ends the turn
+with a typed event and a list of required actions, and any client resumes
+later with a typed input. Stage 11's terminal prompt blocks the process
+instead. Second, some things do not cross to a server: hooks, memory,
+rewind and checkpoints, instruction files, and a direct file system. On
+TrueForge every tool is a remote MCP server and the agent edits files in
+a sandbox, not your checkout. Third, cost: a one-line TrueForge turn
+floors at about a thousand input tokens of harness framing, every Part 7
+demo cost under a cent at list prices, and the hosted service adds a
+charge per hour of session time on top of tokens.
+
+**Try it.**
+
+```bash
+cd step_51_trueforge_comparison
+python demo.py permissions
+```
+
+**You should see** the permissions table as blocks: what this codelab
+does, what TrueForge does, what the hosted service documents, and the
+sources.
+
 **Takeaway.** The design is the same in all three. The trade is where it
 runs and who holds the credentials.
 
@@ -2877,7 +2901,7 @@ runs and who holds the credentials.
 | [48](step_48_trueforge_sandbox_skills/) | sandbox, skills, code mode | `client/sandbox.py` |
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
 | [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
-| 51 | TrueForge versus this codelab versus managed agents | `README.md` |
+| [51](step_51_trueforge_comparison/) | TrueForge versus this codelab versus managed agents | `README.md` |
 
 ## Tests and checks
 
