@@ -1,0 +1,26 @@
+{
+  "name": "genui-step-04-openui-html-artifact",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenUI's html artifact pattern on the step 02 stack: the Zod catalog plus Markdown and HtmlArtifact, the artifact rendered in a sandboxed iframe with an injected CSP.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "esbuild app.mjs --bundle --format=esm --outfile=static/bundle.js --define:process.env.NODE_ENV=\\\"production\\\" --log-level=warning",
+    "prompt": "node prompt.mjs",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "start": "python server.py"
+  },
+  "dependencies": {
+    "@openuidev/lang-core": "0.2.18",
+    "@openuidev/react-lang": "0.2.15",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

@@ -8,7 +8,8 @@ arrives. The State of Generative UI report (June 2026,
 https://www.openui.com/blog/state-of-generative-ui-report) places it in the
 declarative middle of its generation spectrum and measures it as the most
 token-efficient of the open formats. This sub-theme builds the language by
-hand, then uses the real packages, then reproduces the report's numbers.
+hand, then uses the real packages, then reproduces the report's numbers,
+then adds OpenUI's open-ended escape hatch to the catalog.
 
 Steps, in order:
 
@@ -25,6 +26,43 @@ Steps, in order:
    Thesys C1 JSON and json-render's element map, counted with `tiktoken`
    (`o200k_base`), with time-to-first-render at 60 tokens per second and an
    explicit account of which numbers reproduce.
+4. `step_04_openui_html_artifact` - the report's hybrid pattern as OpenUI
+   ships it (`examples/miscellaneous/html-artifact`, the "Open-ended HTML"
+   guide): the step 02 catalog plus `Markdown` and `HtmlArtifact`, whose
+   document streams inside one statement, shows its raw source while
+   `useIsStreaming()` is true, then runs in a sandboxed iframe with an
+   injected CSP, a document check and a message check. Two live prompts:
+   a dashboard stays in the catalog, a calculator becomes an artifact.
+
+## Layout
+
+```text
+04_openui_lang/
+├── step_01_openui_lang_parser/
+│   ├── server.py  openui_parse.py  openui-parse.mjs  catalog.json  render.mjs  app.js  index.html  style.css
+│   ├── program.oui  tree_js.mjs  tests/  test_step.py  demo.py  demo_partial.png  demo.png  package.json
+│   └── README.md
+├── step_02_openui_react_lang/
+│   ├── server.py  llm.py  nodetools.py  library.mjs  prompt.mjs  prompt.txt  app.mjs  index.html  style.css
+│   ├── tests/  test_step.py  demo.py  demo.png  package.json  package-lock.json  .gitignore
+│   └── README.md
+├── step_03_format_benchmark/
+│   ├── benchmark.py  convert.py  openui_parse.py  samples/  report/  generated/  test_step.py  demo.py
+│   └── README.md
+├── step_04_openui_html_artifact/
+│   ├── server.py  llm.py  nodetools.py  artifact.py  library.mjs  html-artifact.mjs  sandbox.mjs  markdown.mjs
+│   ├── prompt.mjs  prompt.txt  app.mjs  index.html  style.css  tests/  test_step.py  demo.py
+│   ├── demo_catalog.png  demo_streaming.png  demo.png  package.json  package-lock.json  .gitignore
+│   └── README.md
+└── README.md
+```
+
+Steps 01, 02 and 04 share one shape: a standard-library `server.py` with a
+static route and one SSE route, a page that re-parses the whole program on
+every chunk, `demo.py` for the recorded screenshots and `test_step.py`
+offline. Step 02 adds the npm packages, `nodetools.py` and the esbuild
+bundle; step 04 copies step 02 and adds the artifact files. Step 03 has no
+page and reuses step 01's `openui_parse.py` unchanged.
 
 Each step is self-contained: `python demo.py` records the README's demo,
 `python -m pytest -q` runs offline. From the repository root,

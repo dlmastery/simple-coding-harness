@@ -38,6 +38,30 @@ screenshot: demo.png
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_a2ui_messages_by_hand/
+├── a2ui.py               the four envelope messages, schema validation, JSON Pointer, SurfaceStore
+├── server.py             FastAPI app: GET /stream replays the spec's contact form over SSE
+├── contact_form.jsonl    the "Example Stream" from the A2UI v0.9.1 protocol document, unchanged
+├── schema/
+│   ├── server_to_client.json   the envelope schema (the four messages)
+│   ├── common_types.json       shared types: ComponentId, bindings, actions
+│   └── catalog.json            the Basic Catalog: every component and function schema
+├── static/
+│   ├── index.html        the page shell and the styles for the hand renderer
+│   ├── app.mjs           reads the SSE stream, feeds the store, repaints after every message
+│   ├── surface.mjs       the DOM-free client state: JSON Pointer, Surface, SurfaceStore
+│   └── render.mjs        the hand painter for part of the Basic Catalog, keyed by component name
+├── surface.test.mjs      node --test for surface.mjs
+├── test_step.py          offline pytest: builders, validation, surface state, the SSE endpoint, the node tests
+├── demo.py               validates the stream, replays it in Python and the browser, saves demo.png
+├── demo.png              the recorded page
+├── package.json          npm test = node --test (no dependencies)
+└── README.md             this file
+```
+
 ## Why a flat list and a separate data model
 
 A2UI is the declarative middle of the State of Generative UI report's

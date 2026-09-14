@@ -23,6 +23,59 @@ the previous one:
    page, and the same messages carried as AG-UI `CUSTOM` events from a
    server built on `ag-ui-protocol`; the A2UI over AG-UI over A2A stack.
 
+## Layout
+
+```text
+03_a2ui/
+├── README.md
+├── step_01_a2ui_messages_by_hand/
+│   ├── a2ui.py
+│   ├── server.py
+│   ├── contact_form.jsonl
+│   ├── schema/
+│   ├── static/
+│   ├── surface.test.mjs
+│   ├── test_step.py
+│   ├── demo.py
+│   ├── demo.png
+│   ├── package.json
+│   └── README.md
+├── step_02_a2ui_from_a_model/
+│   ├── envelope.py
+│   ├── llm.py
+│   ├── prompt.py
+│   ├── server.py
+│   ├── schema/
+│   ├── static/
+│   ├── surface.test.mjs
+│   ├── test_step.py
+│   ├── demo.py
+│   ├── demo.png
+│   ├── package.json
+│   └── README.md
+└── step_03_a2ui_lit_and_ag_ui/
+    ├── envelope.py
+    ├── llm.py
+    ├── prompt.py
+    ├── server.py
+    ├── schema/
+    ├── src/
+    ├── static/
+    ├── agui.test.mjs
+    ├── test_step.py
+    ├── demo.py
+    ├── demo.png
+    ├── package.json
+    ├── package-lock.json
+    ├── .gitignore
+    └── README.md
+```
+
+Every step carries the same `schema/` (the three official v0.9.1 files) and
+the same envelope module (`a2ui.py`, renamed `envelope.py` from step 02 on);
+steps 02 and 03 share `llm.py` and `prompt.py` unchanged, and each step
+swaps the server routes and the page while keeping the message shapes.
+
 Packages: `jsonschema` (step 01), `a2ui-agent-sdk` with `a2ui-core` (steps
 02 and 03), `ag-ui-protocol` (step 03) on the Python side; `@a2ui/lit`,
 `@a2ui/web_core`, `@a2ui/markdown-it`, `@lit/context` and `esbuild` for

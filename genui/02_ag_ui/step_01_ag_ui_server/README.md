@@ -31,6 +31,25 @@ saved demo.png
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_ag_ui_server/
+├── server.py         FastAPI app: POST /agent streams the run as text/event-stream, GET / serves the page
+├── agent.py          run(): one RunAgentInput in, RUN_STARTED, TEXT_MESSAGE_*, RUN_FINISHED (or RUN_ERROR) out
+├── llm.py            one streaming chat completion; settings from the env or ~/.simple-harness/env
+├── sse.py            SSE reader in Python, used by the tests and demo.py
+├── index.html        the page shell: prompt, rendered chat, the wire panel
+├── app.js            hand-written AG-UI client: posts RunAgentInput, renders TEXT_MESSAGE_* events, keeps the history
+├── sse.mjs           SSE reader for the page: fetch() body stream to JSON events
+├── sse.test.mjs      node --test for parseBlock and readEvents
+├── test_step.py      offline pytest: fake model, event sequence, wire format, endpoint, Python SSE reader
+├── demo.py           starts the server, posts one run, prints the wire, drives the page, saves demo.png
+├── demo.png          the recorded page
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## Why a transport
 
 The State of Generative UI report (June 2026) separates two choices. One

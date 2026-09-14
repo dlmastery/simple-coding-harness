@@ -77,6 +77,21 @@ e-commerce-product       2344*[2381]     2146*[2145]
   Lang and YAML: the map pays for keys and quotes but not for one patch
   envelope per element.
 
+## Files
+
+```text
+step_03_format_benchmark/
+├── benchmark.py        parses every sample, projects it, counts tokens with o200k_base, prints the three tables
+├── convert.py          the projections: to_c1, the json-render element map and patch stream, the YAML emitter
+├── openui_parse.py     the step 01 parser, copied unchanged
+├── samples/            the seven .oui programs and schema.json from the OpenUI repository's benchmarks/ (MIT)
+├── report/             the repository's committed C1, YAML and patch projections, the ground truth for the tests
+├── generated/          this step's projections, written by python benchmark.py --write
+├── test_step.py        offline pytest: byte-for-byte match with report/, and the report's token totals
+├── demo.py             same as python benchmark.py: the three tables
+└── README.md           this file
+```
+
 ## The idea
 
 The State of Generative UI report puts OpenUI Lang, json-render and A2UI in

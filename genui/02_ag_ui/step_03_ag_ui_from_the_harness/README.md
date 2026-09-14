@@ -61,6 +61,28 @@ message are cut here to keep the listing short.
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_03_ag_ui_from_the_harness/
+├── server.py               FastAPI app: moves into the work directory, then POST /agent runs one harness turn as events
+├── bridge.py               the harness loop as an event generator: deltas, tool calls, permissions and todos as AG-UI events
+├── llm.py                  settings only; loads API_KEY, BASE_URL and MODEL before any harness module is imported
+├── sse.py                  SSE reader in Python, used by the tests and demo.py
+├── harness/                verbatim copy of the harness codelab's step 21 (call_llm, execute, todos, permissions, sandbox)
+├── index.html              the page shell: prompt, chat, the todo panel
+├── app.js                  HttpAgent from @ag-ui/client; the page subscribes to events and draws them
+├── client-entry.mjs        the one line esbuild bundles into vendor/ag-ui-client.js
+├── http-agent.test.mjs     node --test: the real HttpAgent against a fake server replaying the bridge's stream
+├── test_step.py            offline pytest: fake model, bridge events, real harness tools in a temp dir, endpoint; runs npm
+├── demo.py                 bundles the client if needed, starts the server, drives one coding task, saves demo.png
+├── demo.png                the recorded page
+├── package.json            @ag-ui/client and esbuild; npm run build bundles, npm test = node --test
+├── package-lock.json       pinned npm dependency tree
+├── .gitignore              node_modules/, vendor/ (the bundle), workdir/ (the agent's files)
+└── README.md               this file
+```
+
 ## Two codelabs, one loop
 
 The harness codelab built an agent loop for a terminal. Its `call_llm`

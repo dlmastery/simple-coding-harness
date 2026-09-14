@@ -41,6 +41,33 @@ screenshot: demo.png
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_03_a2ui_lit_and_ag_ui/
+├── envelope.py           the four messages, validation, SurfaceStore; unchanged from step 02
+├── llm.py                model access; unchanged from step 02
+├── prompt.py             the a2ui-agent-sdk prompt and parsers; unchanged from step 02
+├── server.py             FastAPI app: POST /agent takes a RunAgentInput and streams AG-UI events via EventEncoder
+├── schema/
+│   ├── server_to_client.json   the envelope schema (the four messages)
+│   ├── common_types.json       shared types: ComponentId, bindings, actions
+│   └── catalog.json            the Basic Catalog: every component and function schema
+├── src/
+│   ├── page.mjs          the official @a2ui/lit renderer fed by AG-UI events; the CUSTOM a2ui join
+│   └── agui.mjs          a small AG-UI client: SSE frame parser, RunAgentInput shape, reader loop
+├── static/
+│   └── index.html        the page shell; loads bundle.js, which npm run build writes here
+├── agui.test.mjs         node --test for agui.mjs and @a2ui/web_core's MessageProcessor without a DOM
+├── test_step.py          offline pytest: scripted reply, AG-UI wire decoded with the event classes, npm tests and build
+├── demo.py               builds if needed, a live model call, typing, a click, the raw wire; saves demo.png
+├── demo.png              the recorded page
+├── package.json          @a2ui/lit, @a2ui/web_core, @a2ui/markdown-it, @lit/context; esbuild for the build
+├── package-lock.json     pinned npm dependency tree
+├── .gitignore            node_modules/ and static/bundle.js
+└── README.md             this file
+```
+
 ## A2UI over AG-UI over A2A: where each layer stops
 
 The State of Generative UI report separates two choices: the transport

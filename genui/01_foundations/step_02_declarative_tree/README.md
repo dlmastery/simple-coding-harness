@@ -34,6 +34,31 @@ The finished flat layout:
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_02_declarative_tree/
+├── server.py         FastAPI app: /api/run in static, tree or flat mode; /api/schema/{shape}
+├── llm.py            one streamed call over the OpenAI-compatible API, with response_format
+├── catalog.py        the eight-component catalog; tree and flat schemas, prompt and validate() built from it
+├── partial_json.py   tolerant parser for JSON that is still arriving; PartialDict and PartialList
+├── progress.py       per chunk: how many components are closed and whether the root's children are final
+├── page/
+│   ├── index.html    the page shell with a mode select and the layout styles
+│   ├── app.js        three modes on one page; re-parses and re-renders after every delta
+│   ├── partial-json.mjs   the tolerant parser, mirrored in JavaScript
+│   └── render.mjs    the catalog renderers plus renderTree and renderFlat
+├── tests/
+│   ├── partial-json.test.mjs   node --test for the parser
+│   └── render.test.mjs         node --test for the renderers and walkers
+├── test_step.py      offline pytest: parser, schemas, prompt, progress, both stream modes
+├── demo.py           both shapes headlessly; the timing table, demo.png and demo_streaming.png
+├── demo.png          the finished flat layout
+├── demo_streaming.png   both shapes replayed to the same chunk
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## Declarative generation
 
 The State of Generative UI report calls this the middle mode. Static

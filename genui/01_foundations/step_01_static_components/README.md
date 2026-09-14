@@ -26,6 +26,25 @@ saved demo.png
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_static_components/
+├── server.py         FastAPI app: POST /api/run streams one SSE message per finished tool call, GET / serves the page
+├── llm.py            one streamed call over the OpenAI-compatible API; key from the env or ~/.simple-harness/env
+├── catalog.py        the three show_* tools as strict schemas, and message_from_call
+├── page/
+│   ├── index.html    the page shell: prompt box, dashboard, wire panel
+│   ├── app.js        reads the SSE stream, appends one rendered component per message
+│   └── render.mjs    three renderers keyed by component name, every prop through esc()
+├── tests/render.test.mjs   node --test for the renderers
+├── test_step.py      offline pytest: fake model stream, real server, real page code
+├── demo.py           starts the server, runs the prompt headlessly, saves demo.png
+├── demo.png          the recorded page
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## Static generation
 
 The State of Generative UI report separates two choices. **Transport** is

@@ -22,3 +22,45 @@ Steps, in order:
    harness codelab's step 26 MCP client extended into a text host, with
    the configuration for Claude Desktop and Goose, and the comparison with
    AG-UI: one interface, two transports, ship both.
+
+## Layout
+
+```text
+06_mcp_apps/
+├── README.md
+├── step_01_mcp_app_resource/
+│   ├── server.py          the MCP server: tool, ui:// resource, _meta link
+│   ├── data.py            deterministic sales rows
+│   ├── view.html          the view the resource serves
+│   ├── host.py            the browser host's process and model call
+│   ├── host.html          the host page: CSP, sandboxed iframe, chat
+│   ├── mcp-http.mjs       MCP client for the browser
+│   ├── bridge.mjs         the host side of the postMessage bridge
+│   ├── llm.py             one model call
+│   ├── bridge.test.mjs    node --test
+│   ├── test_step.py       offline pytest
+│   ├── demo.py            the recorded run, saves demo.png
+│   ├── demo.png
+│   ├── package.json
+│   └── README.md
+└── step_02_mcp_app_in_a_real_host/
+    ├── .agents/mcp.json   the server over stdio, for the harness
+    ├── harness/           the harness codelab's step 26 loop as a text host
+    ├── server.py          unchanged from step 01
+    ├── data.py            unchanged
+    ├── view.html          unchanged
+    ├── host.py            unchanged
+    ├── host.html          unchanged
+    ├── mcp-http.mjs       unchanged
+    ├── bridge.mjs         unchanged
+    ├── llm.py             unchanged
+    ├── bridge.test.mjs    unchanged
+    ├── test_step.py       step 01's tests plus the harness as a host
+    ├── demo.py            the recorded run, in the terminal
+    ├── package.json
+    └── README.md
+```
+
+Step 02 is step 01 plus a second host: every server and browser-host file
+is byte-for-byte the same, and the new files are the harness copy and the
+stdio configuration that points it at the server.

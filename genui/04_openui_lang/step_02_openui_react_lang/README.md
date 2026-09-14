@@ -51,6 +51,29 @@ Recorded with `gpt-4.1-mini`. The whole system prompt is in
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_02_openui_react_lang/
+├── server.py           static files plus POST /generate: the model's text deltas as SSE, system prompt from prompt.txt
+├── llm.py              OpenAI-compatible streaming call; API_KEY, BASE_URL, MODEL from the env or ~/.simple-harness/env
+├── nodetools.py        runs npm install, npm run build (esbuild) and node prompt.mjs from Python, on Windows too
+├── library.mjs         the catalog: eight defineComponent() calls with Zod props and React renderers; createLibrary()
+├── prompt.mjs          prints library.prompt(); server.py caches the output in prompt.txt
+├── prompt.txt          the generated system prompt, sent as the system message
+├── app.mjs             the page: a prompt box, an SSE reader, <Renderer> from @openuidev/react-lang; React without JSX
+├── index.html          the page shell; loads static/bundle.js
+├── style.css           the page styles for the catalog components
+├── tests/library.test.mjs   node --test: the generated prompt, createParser on toJSONSchema(), renderToString(<Renderer>)
+├── test_step.py        offline pytest: fake model behind the SSE route, prompt caching, then npm test
+├── demo.py             prints the prompt signatures, runs the live model call in headless Chromium, saves demo.png
+├── demo.png            the recorded page
+├── package.json        pinned @openuidev/lang-core, @openuidev/react-lang, react, react-dom, zod, esbuild; scripts build, prompt, test
+├── package-lock.json   the lockfile for the pinned versions
+├── .gitignore          node_modules/ and static/bundle.js (rebuilt by nodetools.py)
+└── README.md           this file
+```
+
 ## The idea
 
 Step 01 showed the mechanism. This step shows the contract the library puts

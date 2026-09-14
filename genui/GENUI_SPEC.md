@@ -210,6 +210,19 @@ renderer); no Python package. Read https://github.com/thesysdev/openui
   demo output is that table. Say clearly which numbers reproduce the
   report's and which do not.
 
+- `step_04_openui_html_artifact` (added after the first build): the report's
+  hybrid pattern on OpenUI's own reference implementation,
+  `examples/miscellaneous/html-artifact` in the OpenUI repository and its
+  "Open-ended HTML" guide: the step 02 catalog plus a `Markdown` component
+  and an `HtmlArtifact(title, document)` component that shows a status
+  while streaming and Raw / Rendered tabs when complete, the rendered tab
+  a sandboxed iframe with a CSP injected first in the document head (which
+  the example leaves out); the example's prompt rules (artifact only when
+  the user asks for something interactive, inline CSS and JS only, one
+  statement per line). Demo: a catalog-only dashboard reply and an
+  interactive-artifact reply, three screenshots, a click inside the
+  sandbox, and the token share of the artifact document.
+
 ## Sub-theme 05 - json-render, Vercel's declarative renderer (`genui/05_json_render`)
 
 Packages npm `@json-render/core` and `@json-render/react`

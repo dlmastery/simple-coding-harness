@@ -75,6 +75,30 @@ The page once the program is complete:
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_02_trueforge_generative_ui/
+├── client/
+│   ├── __init__.py   exports ask, extract_program, open_session
+│   └── genui.py      a TrueForge session with generative UI on; streams one turn and pulls the openui fence out of the reply
+├── openui_parse.py   the OpenUI Lang parser, streaming-first: feed(), tree() with Pending references, outline()
+├── server.py         http.server + SSE: streams the program to the page one line per event; /reply for the raw text
+├── web/
+│   ├── index.html    the page shell: the rendered tree beside the program text
+│   ├── app.js        one SSE line at a time into the parser, the tree redrawn after every line
+│   ├── openui-parse.mjs   the same parser in JavaScript
+│   └── render.mjs    DOM renderer keyed by TrueForge component name; unknown box and dashed pending placeholder
+├── openui-parse.test.mjs   node --test: the JS parser must agree with openui_parse.py on the same program
+├── test_step.py      offline pytest: both parsers, the extractor, the SDK against a fake TrueForge, the page server
+├── demo.py           live turn on TrueForge (or --offline replay), then the page and two screenshots
+├── demo_stream.png   the page mid-stream, forward references still pending
+├── demo.png          the page once the program is complete
+├── sample_reply.md   the recorded reply, replayed by --offline and the tests
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## The idea: the same language, a different renderer
 
 The State of Generative UI report (June 2026) calls OpenUI Lang the most

@@ -47,6 +47,34 @@ rest is byte-for-byte the first layout:
 
 ![after the action](demo_after_action.png)
 
+## Files
+
+```text
+step_04_hybrid_escape_hatch/
+├── server.py         FastAPI app: /api/run keeps a session transcript; POST /api/action runs the next turn
+├── llm.py            one streamed call over the OpenAI-compatible API
+├── catalog.py        the catalog plus GeneratedView, and the two prompt rules for the hatch and Button.action
+├── partial_json.py   the step 02 tolerant JSON parser
+├── progress.py       the step 02 streaming measurement
+├── tokens.py         the step 03 token count
+├── page/
+│   ├── index.html    the page shell; default prompt and mode, generated iframe style
+│   ├── app.js        consume() renders any turn; act() posts a click or a generated event to /api/action
+│   ├── partial-json.mjs   the step 02 parser in JavaScript
+│   ├── render.mjs    the catalog renderers, walkers, and GeneratedView as a sandboxed iframe
+│   └── sandbox.mjs   the step 03 box: sandbox attribute, CSP meta tag, isEvent()
+├── tests/
+│   ├── partial-json.test.mjs   node --test for the parser
+│   ├── render.test.mjs         node --test for the renderers, GeneratedView included
+│   └── sandbox.test.mjs        node --test for the CSP injection and the event shape
+├── test_step.py      offline pytest: sessions, the action endpoint, the hatch, the page
+├── demo.py           turn 1 headlessly, the click, turn 2; prints the element diff, saves both screenshots
+├── demo.png          turn 1: ten catalog components and one GeneratedView
+├── demo_after_action.png   turn 2, after the click
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## The hybrid pattern
 
 The State of Generative UI report's recommendation is not one of the three

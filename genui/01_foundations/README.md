@@ -40,6 +40,39 @@ A `Button` carries an action name; a click goes back to the server as the
 next user message and the model answers with the updated layout. The loop
 closes.
 
+## Layout
+
+```text
+01_foundations/
+├── README.md                         this file
+├── step_01_static_components/
+│   ├── server.py  llm.py  catalog.py
+│   ├── page/                         index.html, app.js, render.mjs
+│   ├── tests/                        render.test.mjs
+│   └── test_step.py  demo.py  demo.png  package.json  README.md
+├── step_02_declarative_tree/
+│   ├── server.py  llm.py  catalog.py  partial_json.py  progress.py
+│   ├── page/                         + partial-json.mjs
+│   ├── tests/                        + partial-json.test.mjs
+│   └── test_step.py  demo.py  demo.png  demo_streaming.png  package.json  README.md
+├── step_03_open_ended_html/
+│   ├── server.py  llm.py  catalog.py  partial_json.py  progress.py  tokens.py
+│   ├── page/                         + sandbox.mjs
+│   ├── tests/                        + sandbox.test.mjs
+│   └── test_step.py  demo.py  demo.png  package.json  README.md
+└── step_04_hybrid_escape_hatch/
+    ├── server.py  llm.py  catalog.py  partial_json.py  progress.py  tokens.py
+    ├── page/                         index.html, app.js, render.mjs, partial-json.mjs, sandbox.mjs
+    ├── tests/                        render, partial-json and sandbox tests
+    └── test_step.py  demo.py  demo.png  demo_after_action.png  package.json  README.md
+```
+
+Every step has the same shape: `server.py` (FastAPI, `/api/run` as SSE),
+`llm.py` (one streamed call), `catalog.py`, a `page/` with no build step, a
+`tests/` directory for `node --test`, `test_step.py` for the offline pytest
+and `demo.py` to record the README. Later steps add files (`+` above) and
+keep the earlier ones unchanged where the header comment still says so.
+
 ## Running
 
 Every step: `python server.py` to use it, `python demo.py` to record the

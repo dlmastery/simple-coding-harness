@@ -62,6 +62,26 @@ stays empty; the bridge log is the same.
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_mcp_app_resource/
+├── server.py         FastMCP server: the lemonade_dashboard tool, the ui:// resource, the _meta link; --stdio for desktop hosts
+├── data.py           the stand's sales, deterministic so the tests are exact
+├── view.html         the MCP App: JSON-RPC over postMessage in three functions, the lifecycle, the two buttons
+├── host.py           the host process: serves host.html and owns the model call at /chat
+├── host.html         the host page: connects, calls the tool, builds the CSP, mounts the view in a sandboxed iframe
+├── mcp-http.mjs      MCP client for the browser over streamable HTTP, one fetch per JSON-RPC message
+├── bridge.mjs        the host side of the bridge: capabilities, delivery, proxying, the restrictive CSP
+├── llm.py            one model call over the OpenAI-compatible API, key from the env or the key file
+├── bridge.test.mjs   node --test for the bridge and the browser client, no browser, no network
+├── test_step.py      offline pytest: the server in process, the wire in process, a fake model
+├── demo.py           starts both processes, drives a headless browser, prints the bridge log, saves demo.png
+├── demo.png          the recorded host page
+├── package.json      npm test = node --test bridge.test.mjs (no dependencies)
+└── README.md         this file
+```
+
 ## The idea: UI for a host you do not control
 
 Sub-theme 02 put the agent inside a product you own: your page, your

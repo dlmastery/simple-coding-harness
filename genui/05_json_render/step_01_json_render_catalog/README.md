@@ -38,6 +38,32 @@ The model chose to put three numbers in `state` and to reference them with
 `$state` and `$template` props. The catalog prompt suggests that; the
 renderer resolves the expressions before the `Metric` component sees them.
 
+## Files
+
+```text
+step_01_json_render_catalog/
+├── server.py           FastAPI app: POST /generate returns one complete spec; GET /spec the last one; serves the page
+├── llm.py              OpenAI-compatible client, key from the env or ~/.simple-harness/env; complete_spec() in JSON mode
+├── prompt.py           runs prompt.mjs and catalog_json.mjs once and caches prompt.txt and catalog.json
+├── spec.py             check_spec(): unknown types, dangling child ids and wrong prop types, against catalog.json
+├── catalog.mjs         the catalog: six components with Zod props; PROMPT = catalog.prompt() plus four "one object" rules
+├── registry.mjs        one React function per catalog entry through defineRegistry, written with htm (no JSX)
+├── app.mjs             the page: send the prompt, receive one spec, hand it to Renderer inside JSONUIProvider
+├── index.html          the page shell and the import map of pinned esm.sh builds (React 19, htm, json-render)
+├── prompt.mjs          prints the system prompt json-render generates from the catalog
+├── catalog_json.mjs    prints the catalog as JSON Schema, one entry per component
+├── prompt.txt          the cached prompt (about 4,100 tokens)
+├── catalog.json        the cached JSON Schema of the six components
+├── demo_spec.json      the spec the recorded demo produced
+├── tests/render.test.mjs   node --test: the catalog, the prompt and the registry through react-dom/server
+├── test_step.py        offline pytest: fake model, real server, spec check, prompt cache, then the Node suite
+├── demo.py             starts the server, generates once, prints the spec as a tree, saves demo_spec.json and demo.png
+├── demo.png            the recorded page
+├── package.json        @json-render/core and /react 0.20.0, htm, react 19, zod pinned; npm test
+├── package-lock.json   the lockfile for those pins
+└── README.md           this file
+```
+
 ## The idea
 
 json-render is the declarative middle of the State of Generative UI report:

@@ -60,6 +60,29 @@ After the last line every skeleton has been replaced:
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_openui_lang_parser/
+├── server.py           standard-library static server; GET /stream sends program.oui one line per SSE message
+├── openui_parse.py     the Python parser: tokenize, split_statements, parse, resolve, StreamingParser
+├── openui-parse.mjs    the same parser in JavaScript for the page, function for function
+├── catalog.json        eight components as JSON Schema $defs; property order is argument order
+├── render.mjs          hand-written DOM renderer, one function per component; placeholders become skeletons
+├── app.js              the page: one StreamingParser, one render() per pushed line; window.openui for the demo
+├── index.html          the page shell: two buttons, the UI column, the program and unresolved panes
+├── style.css           the page styles, including the grey skeleton box
+├── program.oui         the fixed twelve-line lemonade-stand program the page streams
+├── tree_js.mjs         prints the JavaScript parser's tree as JSON so test_step.py can diff it with Python's
+├── tests/parse.test.mjs   node --test for the JavaScript parser and StreamingParser
+├── test_step.py        offline pytest: the Python parser, npm test, and the Python-vs-JavaScript tree comparison
+├── demo.py             parses, streams line by line, then screenshots the page after 3 and 12 lines
+├── demo_partial.png    the page after three lines, six skeletons still open
+├── demo.png            the page after the last line
+├── package.json        npm test = node --test (no dependencies, no build step)
+└── README.md           this file
+```
+
 ## The idea
 
 The State of Generative UI report (June 2026,

@@ -72,6 +72,34 @@ and set `/showNotes`, so the notes card appeared and the toggle button's
 `$cond` label became "Hide Notes". The last press was that toggle:
 `setState` ran inside the page and no request left the browser.
 
+## Files
+
+```text
+step_03_json_render_actions_and_targets/
+├── server.py           FastAPI app: POST /stream starts a session; POST /action runs the next turn as patches; GET /last lists the turns
+├── llm.py              OpenAI-compatible client; stream_text(messages) streams one turn of a transcript
+├── json_patch.py       RFC 6902 JSON Patch and RFC 6901 JSON Pointer; SpecStream compiles every turn
+├── prompt.py           runs prompt.mjs and catalog_json.mjs once and caches prompt.txt and catalog.json
+├── spec.py             check_spec(): types, child ids, props, and every on binding against the declared actions
+├── catalog.mjs         six components plus Button; actions refresh_numbers and show_details with Zod params
+├── registry.mjs        the React component map; Button emits "press" and the renderer dispatches on.press
+├── app.mjs             the page: the compiler in a ref, handlers that POST /action, onStateChange logs setState, the #log element
+├── ink_render.mjs      the second target: the same catalog with ink Box and Text components; node ink_render.mjs spec.json
+├── index.html          the page shell and the import map of pinned esm.sh builds
+├── prompt.mjs          prints the system prompt json-render generates from the catalog
+├── catalog_json.mjs    prints the JSON Schema plus the action names (catalog and built-in)
+├── prompt.txt          the cached prompt
+├── catalog.json        the cached JSON Schema and action names
+├── demo_spec.json      the spec after the recorded generate, refresh_numbers and show_details turns
+├── tests/targets.test.mjs   node --test: one spec through react-dom/server and through a fake terminal; every page text appears in both
+├── test_step.py        offline pytest: a fake model streams a first spec and an action turn; one transcript and compiler across both
+├── demo.py             streams a dashboard, presses every button, prints each turn, saves demo.png, renders the spec with ink
+├── demo.png            the page after the three presses, with the action log
+├── package.json        adds @json-render/ink 0.20.0 and ink 6.8.0; npm test, npm run ink
+├── package-lock.json   the lockfile for those pins
+└── README.md           this file
+```
+
 ## The idea
 
 A spec is data, so a press is data too. json-render binds events with an

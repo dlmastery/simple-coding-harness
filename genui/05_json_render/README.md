@@ -40,3 +40,43 @@ Each step is self-contained. From the repository root,
 `python run_tests.py genui/05` runs the offline tests and
 `python check_snippets.py genui/05` checks that every README snippet exists
 in the code.
+
+## Layout
+
+```text
+05_json_render/
+├── README.md                                  this file
+├── step_01_json_render_catalog/
+│   ├── server.py  llm.py  prompt.py  spec.py    the server: one complete spec per request, checked against catalog.json
+│   ├── catalog.mjs  registry.mjs  app.mjs       the catalog, the React component map, the page
+│   ├── index.html  prompt.mjs  catalog_json.mjs the page shell with its import map; the two Node exports
+│   ├── prompt.txt  catalog.json  demo_spec.json the cached prompt and JSON Schema; the recorded spec
+│   ├── tests/render.test.mjs  test_step.py      the Node suite and the offline pytest
+│   ├── demo.py  demo.png                        the recorded demo and its screenshot
+│   └── package.json  package-lock.json          pinned json-render, react, htm, zod
+├── step_02_json_render_streaming_patches/
+│   ├── server.py  llm.py  prompt.py  spec.py    the server: /stream relays JSONL chunk by chunk
+│   ├── json_patch.py                            RFC 6902 patches and SpecStream, new in this step
+│   ├── catalog.mjs  registry.mjs  app.mjs       the page now compiles the stream with createSpecStreamCompiler
+│   ├── index.html  prompt.mjs  catalog_json.mjs
+│   ├── prompt.txt  catalog.json  demo_spec.json
+│   ├── tests/  test_step.py                     patches.jsonl, compile.mjs, stream.test.mjs; the offline pytest
+│   ├── demo.py  demo_first_paint.png  demo.png  two screenshots: first paint and complete
+│   └── package.json  package-lock.json
+└── step_03_json_render_actions_and_targets/
+    ├── server.py  llm.py  prompt.py  spec.py    the server: /stream starts a session, /action runs the next turn
+    ├── json_patch.py                            unchanged from step 2
+    ├── catalog.mjs  registry.mjs  app.mjs       a Button, two actions, handlers that call the server
+    ├── ink_render.mjs                           the terminal target, new in this step
+    ├── index.html  prompt.mjs  catalog_json.mjs
+    ├── prompt.txt  catalog.json  demo_spec.json
+    ├── tests/targets.test.mjs  test_step.py     one spec through both targets; the offline pytest
+    ├── demo.py  demo.png
+    └── package.json  package-lock.json          adds @json-render/ink and ink
+```
+
+Every step has the same shape: a Python server (`server.py`, `llm.py`,
+`prompt.py`, `spec.py`), a Node catalog and page (`catalog.mjs`,
+`registry.mjs`, `app.mjs`, `index.html`), the two exports that feed Python
+(`prompt.mjs`, `catalog_json.mjs`) and their caches; later steps add
+`json_patch.py` and `ink_render.mjs`, and each step has its own tests.

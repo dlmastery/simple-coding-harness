@@ -66,6 +66,20 @@ The same spec on the web surface, taken headlessly by the demo script:
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_01_render_ui_tool/
+├── harness/          the stage 15 loop; changed from step_15_subagents: agent.py (--web flag), config.py (OpenAI defaults, OPENAI_API_KEY), llm.py (catalog in the system prompt), tools.py (render_ui), ui.py (rich renderer), subagent.py (render_ui withheld); new: genui.py (catalog + validate), web.py (SSE surface)
+├── web/
+│   ├── index.html    the browser surface's page shell
+│   └── app.js        one renderer per catalog type, walking the element map from root
+├── test_step.py      offline pytest: the validator, the tool, both surfaces, the loop against a scripted model
+├── demo.py           one scripted turn on the real model, both surfaces, saves demo.png
+├── demo.png          the recorded web surface
+└── README.md         this file
+```
+
 ## The idea: the spec is the interface
 
 In the report's terms this is **declarative generation** on a custom

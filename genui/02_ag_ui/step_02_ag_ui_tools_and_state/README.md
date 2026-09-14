@@ -64,6 +64,30 @@ last reply are cut for the same reason.
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_02_ag_ui_tools_and_state/
+├── server.py             FastAPI app: POST /agent streams the run, GET / serves the page
+├── agent.py              run(): STATE_SNAPSHOT, then a loop of TEXT_*, TOOL_CALL_*, STATE_DELTA; stops on a client tool
+├── tools.py              server tools; each returns JSON Patch operations against the dashboard state
+├── json_patch.py         JSON Patch add/replace/remove with JSON Pointer paths, applied on the server
+├── llm.py                streaming chat completion that yields text and tool call fragments
+├── sse.py                SSE reader in Python, used by the tests and demo.py
+├── index.html            the page shell: prompt, chat, dashboard, the wire panel
+├── app.js                hand-written client: keeps state, applies patches, draws tool calls, runs confirm_purchase
+├── render.mjs            three renderers (metric, table, chart) from the dashboard object to DOM
+├── json-patch.mjs        the same JSON Patch code as json_patch.py, for the page
+├── sse.mjs               SSE reader for the page: fetch() body stream to JSON events
+├── json-patch.test.mjs   node --test for splitPointer and applyPatch
+├── sse.test.mjs          node --test for parseBlock and readEvents
+├── test_step.py          offline pytest: fake model with tool fragments, state events, patches, client tool hand-off
+├── demo.py               starts the server, drives the page through the two runs and the Confirm click, saves demo.png
+├── demo.png              the recorded page
+├── package.json          npm test = node --test (no dependencies)
+└── README.md             this file
+```
+
 ## Generative UI as state
 
 The report's "static generation" mode has the agent pick a component and

@@ -30,6 +30,33 @@ The bridge line is cut here; the demo prints the whole payload.
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_03_open_ended_html/
+├── server.py         FastAPI app: /api/run gains html mode and HTML_PROMPT; every done carries raw
+├── llm.py            one streamed call over the OpenAI-compatible API
+├── catalog.py        the step 02 catalog, schemas, prompt and validate()
+├── partial_json.py   the step 02 tolerant JSON parser
+├── progress.py       the step 02 streaming measurement
+├── tokens.py         counts what each mode made the model write, with tiktoken's o200k_base
+├── page/
+│   ├── index.html    the page shell with the sandbox iframe and the inbox panel
+│   ├── app.js        four modes; mounts the finished document and listens for postMessage
+│   ├── partial-json.mjs   the step 02 parser in JavaScript
+│   ├── render.mjs    the step 02 renderers and walkers
+│   └── sandbox.mjs   the box: sandbox="allow-scripts", the CSP meta tag, isEvent()
+├── tests/
+│   ├── partial-json.test.mjs   node --test for the parser
+│   ├── render.test.mjs         node --test for the renderers
+│   └── sandbox.test.mjs        node --test for the CSP injection and the event shape
+├── test_step.py      offline pytest: html mode, the sandbox, the token count, the page
+├── demo.py           the three modes headlessly; the token table, a click in the sandbox, demo.png
+├── demo.png          the model's page mounted in the sandbox
+├── package.json      npm test = node --test (no dependencies)
+└── README.md         this file
+```
+
 ## Open-ended generation
 
 The State of Generative UI report's third mode gives the agent everything: it

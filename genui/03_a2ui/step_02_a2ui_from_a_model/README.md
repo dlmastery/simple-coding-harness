@@ -35,6 +35,31 @@ screenshot: demo.png
 
 ![demo](demo.png)
 
+## Files
+
+```text
+step_02_a2ui_from_a_model/
+├── envelope.py           a2ui.py from step 01, renamed so it does not shadow the SDK's `a2ui` package
+├── llm.py                model access: API_KEY, BASE_URL, MODEL from the env or ~/.simple-harness/env
+├── prompt.py             the a2ui-agent-sdk side: system prompt from the catalog, stream parser, full parser
+├── server.py             FastAPI app: POST /generate (the generate loop over SSE), POST /action, the STORE mirror
+├── schema/
+│   ├── server_to_client.json   the envelope schema (the four messages)
+│   ├── common_types.json       shared types: ComponentId, bindings, actions
+│   └── catalog.json            the Basic Catalog: every component and function schema
+├── static/
+│   ├── index.html        the page shell, the prompt form, a striped style for loading_* rows
+│   ├── app.mjs           sends the prompt, reads the SSE body over fetch, posts Button actions
+│   ├── surface.mjs       the DOM-free client state, unchanged from step 01
+│   └── render.mjs        the hand painter, unchanged from step 01
+├── surface.test.mjs      node --test for surface.mjs
+├── test_step.py          offline pytest: a scripted reply stands in for the model; SDK tests skip without it
+├── demo.py               a live model call, typing, a click, the server's answer; saves demo.png
+├── demo.png              the recorded page
+├── package.json          npm test = node --test (no dependencies)
+└── README.md             this file
+```
+
 ## Prompt-first, then validate
 
 A2UI v0.9 is "prompt-first": the schema and the catalog go into the model's

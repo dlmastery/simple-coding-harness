@@ -60,6 +60,27 @@ policy, then the structured data as a table. The demo script leaves out
 the harness's late-injection panels; everything else is the harness's
 output as printed. A run in Claude Desktop was not recorded (see below).
 
+## Files
+
+```text
+step_02_mcp_app_in_a_real_host/
+├── .agents/mcp.json  the lemonade server over stdio, the way the harness finds it
+├── harness/          the harness codelab's step 26 loop, extended into a text MCP Apps host (mcp_client.py, ui_text.py, ui.py, agent.py)
+├── server.py         FastMCP server, unchanged from step 01: the tool, the ui:// resource, the _meta link; --stdio here
+├── data.py           the stand's sales, deterministic so the tests are exact
+├── view.html         the MCP App, unchanged from step 01
+├── host.py           step 01's browser host process, unchanged
+├── host.html         step 01's host page, unchanged
+├── mcp-http.mjs      step 01's browser MCP client, unchanged
+├── bridge.mjs        step 01's host bridge, unchanged
+├── llm.py            one model call over the OpenAI-compatible API, key from the env or the key file
+├── bridge.test.mjs   node --test for the bridge and the browser client, unchanged
+├── test_step.py      offline pytest: step 01's suite plus the harness as a host, a fake session then the real server over stdio
+├── demo.py           runs the harness in print mode with the server over stdio and prints the run
+├── package.json      npm test = node --test bridge.test.mjs (no dependencies)
+└── README.md         this file
+```
+
 ## The idea: ship both
 
 Step 01 built a host to prove the protocol. Real hosts are built by other

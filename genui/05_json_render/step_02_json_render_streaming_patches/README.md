@@ -46,6 +46,37 @@ nothing until its whole object arrived at 5.8 s. The time to the first chunk
 (2.5 s here) is the model reading a 4,000-token prompt, and no format can
 remove that part.
 
+## Files
+
+```text
+step_02_json_render_streaming_patches/
+├── server.py           FastAPI app: POST /stream forwards the model's JSONL chunk by chunk; GET /last has the compiled spec, patches, timings, usage
+├── llm.py              OpenAI-compatible client; stream_text() yields deltas, .usage from the last chunk
+├── json_patch.py       RFC 6902 JSON Patch and RFC 6901 JSON Pointer; SpecStream compiles a chunked JSONL stream
+├── prompt.py           runs prompt.mjs and catalog_json.mjs once and caches prompt.txt and catalog.json
+├── spec.py             check_spec(): unknown types, dangling child ids and wrong prop types, against catalog.json
+├── catalog.mjs         the same six components; PROMPT is the library's default JSONL prompt plus one id rule
+├── registry.mjs        one React function per catalog entry through defineRegistry, written with htm (no JSX)
+├── app.mjs             the page: read the stream, push each chunk into createSpecStreamCompiler, render after each patch
+├── index.html          the page shell and the import map of pinned esm.sh builds
+├── prompt.mjs          prints the system prompt json-render generates from the catalog
+├── catalog_json.mjs    prints the catalog as JSON Schema, one entry per component
+├── prompt.txt          the cached prompt
+├── catalog.json        the cached JSON Schema of the six components
+├── demo_spec.json      the spec the recorded stream compiled to
+├── tests/
+│   ├── patches.jsonl   a 13-patch fixture stream whose last line has no newline
+│   ├── compile.mjs     compiles a JSONL file with createSpecStreamCompiler and prints the spec
+│   └── stream.test.mjs node --test: the compiler on the fixture cut at arbitrary points; rendering a spec still arriving
+├── test_step.py        offline pytest: RFC 6902 examples, SpecStream against compile.mjs, the relay with a fake model
+├── demo.py             starts the server, streams in a headless page, saves demo_first_paint.png and demo.png, prints the patches
+├── demo_first_paint.png   the page at the first paint
+├── demo.png            the page when the stream ended
+├── package.json        the same pins as step 1; npm test
+├── package-lock.json   the lockfile for those pins
+└── README.md           this file
+```
+
 ## The idea
 
 Step 1 rendered once. That was fine for a reader, and slow for a user: a
