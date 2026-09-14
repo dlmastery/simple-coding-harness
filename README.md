@@ -968,7 +968,7 @@ The harness from stage 15 can read, edit, run, plan, remember a session and
 delegate. Real coding agents do more. Part 4 adds ten capabilities, one per
 step, each built on the step before it, in the same shape as Part 1.
 
-> **Build status.** All 45 steps are built and tested. Every step is
+> **Build status.** All 51 steps are built and tested. Every step is
 > linked from the index at the end of this document, and every "The code"
 > excerpt in this document is verified against the step's source by
 > `check_snippets.py` in continuous integration. The specification the
