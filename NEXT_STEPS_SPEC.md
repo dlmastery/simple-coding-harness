@@ -1,4 +1,4 @@
-# Steps 21 - 45: build spec
+# Steps 21 - 51: build spec
 
 Shared conventions for every step below. Each step is one directory
 `step_NN_<name>/` in this repo. Each step is built ON TOP of the previous
@@ -503,3 +503,226 @@ each cited URL returns 200 is optional; skip when offline.
    versus promises, sandbox spawning).
 4. `test_step.py` runs `npm test` when node is available
    (`pytest.importorskip` style check with `shutil.which("node")`).
+
+
+---
+
+# Steps 46 - 51: Part 7, the same harness on TrueForge (build spec)
+
+TrueForge (github.com/truefoundry/trueforge, MIT) is an open-source agent
+harness that runs as a server: the agent loop, sessions, tools (as MCP
+servers), sandbox, skills, subagents, compaction and approvals all live in
+the server, and a client talks to it over HTTP and Server-Sent Events. It
+positions itself as the open-source alternative to hosted "managed agent"
+services. Part 7 shows every capability the codelab built in Parts 1 to 6
+on TrueForge, capability by capability, with the Python SDK
+(`pip install trueforge_sdk`, import `trueforge_sdk`).
+
+## Rules for Part 7 (in addition to "Rules for every step" above)
+
+- The steps are **independent**: no `.done` chain, no copying of a base
+  step. Each step is a small standalone Python package: `client/` (or a
+  single module), `README.md`, `test_step.py`, `demo.py`. Do not copy
+  `harness/` in.
+- A local TrueForge server is already running for the recorded demos at
+  `http://localhost:8790` (standalone mode, no login, model
+  `openai/gpt-4-1-mini` configured, local sandbox and skills enabled). Its
+  settings are shared by every step: never delete or replace the `openai`
+  model provider; give every MCP server, skill and saved agent you register
+  a name that starts with your step number, for example `s47-tools`,
+  `s48-explain-code`, `s50-router`; delete what you created when the demo
+  ends where the API allows it.
+- Read the local copy of the docs first, they are downloaded in
+  `C:\Users\evija\AppData\Local\Temp\claude\C--Users-evija-class\d9867287-0cb4-4cd5-b7ce-99de7294ae8e\scratchpad\trueforge\`
+  (`api_quickstart.md`, `api_overview.md`, `api_use-agent.md`,
+  `create-agent_overview.md`, `key-features_*.md`, `mcp-servers.md`,
+  `skills.md`, `sandbox.md`, `openapi.json`, and the SDK source under
+  `sdk/src/trueforge_sdk/`). Facts to know: the SDK client is
+  `TrueForge(base_url="http://localhost:8790", timeout=600)` (no `/api`
+  suffix); an inline agent is `SessionAgentSpecBody(spec=AgentSpec(...))`
+  (the docs' `{"type": "inline"}` shape is rejected by server 0.1.4); a
+  turn is `client.sessions.create_turn_stream(session_id=..., input=[UserMessage(content=...)])`
+  and yields events whose `.data` has a `.type` such as `turn.created`,
+  `model.message`, `model.message.delta`, `tool.response`,
+  `tool.approval_required`, `tool.response_required`, `thread.created`,
+  `thread.done`, `sandbox.created`, `turn.done`; usage is in
+  `turn.done` `state.metrics`. Settings go through
+  `PUT /api/v1/settings/{model-providers,mcp-servers,skills,sandbox-providers}`
+  with `{"manifest": ...}` (see `openapi.json` for the exact schemas; the
+  SDK has clients for most of them under `client.settings`, check).
+- Live calls from Python on this machine need `truststore.inject_into_ssl()`
+  before any HTTPS client is created (guard the import with try/except).
+  The OpenAI key is already in the server; your code never needs it.
+- `test_step.py` must be **offline**: start a fake TrueForge server in a
+  thread (`http.server` + hand-written SSE lines that follow the event
+  shapes in `api_use-agent.md`) and point the real SDK at it. Tests never
+  contact `localhost:8790`.
+- **Quick demo.** Every README has a `## Quick demo` section near the top:
+  the exact command to run (`python demo.py ...`) and the real recorded
+  output of that command against the local server, trimmed to at most 40
+  lines, in a ```text fence. Record it by running it. If part of a demo
+  could not run on this machine, say so in one sentence under the output
+  and show what did run. Never print secrets; the server redacts keys but
+  check your output before pasting it.
+- Windows note for the README: TrueForge standalone (0.1.4) crashes on
+  Windows and its local sandbox needs Linux or macOS with `bwrap`, `socat`
+  and `rg` on PATH. On this machine the server runs inside WSL Ubuntu with
+  `networkingMode=mirrored` in `.wslconfig` so `localhost` is shared both
+  ways. Say this in step 46's setup section; later steps link to it.
+- Every step README maps its capability to the codelab step that built it
+  ("Stage 11 built permissions as rules in `permissions.py`; TrueForge
+  configures them per MCP server with `require_approval_for_tools`"), in
+  a short table: capability, this codelab, TrueForge.
+
+## Step 46 - The loop on TrueForge (`step_46_trueforge_loop`)
+
+1. `setup_server.py`: register the model provider from the key file
+   `~/.simple-harness/env` (`PUT /api/v1/settings/model-providers`, type
+   `openai`, one model `gpt-4.1-mini` named `gpt-4-1-mini`, context 1047576,
+   max output 32768). Idempotent. Prints the model list, never the key.
+2. `client/loop.py`: `chat(prompt, session_id=None)` opens a session with an
+   inline `AgentSpec` (model, instructions) or reuses `session_id`, streams
+   one turn, prints deltas as they arrive, and returns `(session_id, text,
+   metrics)`. Turns chain automatically (`previous_turn_id` = `auto`), so
+   passing the session id back is stage 8's `--resume`.
+3. `demo.py`: a REPL (`> ` prompt, `/exit`, `--resume <session id>`,
+   `-p "prompt"` for headless like step 21). Shows the usage line after each
+   turn from `state.metrics`.
+4. README: setup (npx, WSL note), the five events of one turn next to the
+   stage 2.4 loop, and the capability table. Snippets from `client/loop.py`.
+5. Tests: fake server streams `turn.created`, `model.message`, two
+   `model.message.delta`, `turn.done`; `chat` returns the joined text and
+   the metrics; a second call reuses the session id; `-p` prints and exits.
+
+## Step 47 - Tools and permissions as MCP (`step_47_trueforge_tools_mcp`)
+
+1. `tools_server.py`: the codelab's coding tools (`read_file`, `list_dir`,
+   `write_file`, `str_replace`, `bash`) as a **remote MCP server** with the
+   `mcp` package's FastMCP over streamable HTTP on port 8931, rooted at a
+   `--project DIR`. Every tool carries MCP annotations: `readOnlyHint` for
+   the two readers, `destructiveHint` for `write_file`, `str_replace` and
+   `bash`, so TrueForge's default approval policy (`@write`,
+   `@destructive`) gates exactly what stage 11 gated. Results are strings;
+   errors are results, as in stage 5.
+2. `register.py`: `PUT /api/v1/settings/mcp-servers` with body
+   `{"manifest": {"type": "remote", "name": "s47-tools", "url":
+   "http://localhost:8931/mcp", "description": "..."}}` (no `auth` key when
+   the server needs none); list its tools with
+   `GET /api/v1/mcp-servers/s47-tools/tools` and print them with their
+   annotations. The TrueForge server runs in WSL on this machine and
+   reaches Windows services on `localhost` (mirrored networking), so bind
+   the tools server to `0.0.0.0` or `127.0.0.1` and use `localhost` in
+   the manifest.
+3. `client/approve.py`: the approval loop from `api_use-agent.md`: collect
+   `tool.approval_required`, look up the call's name and arguments in the
+   `model.message` it points to, ask on the terminal (`y`/`n`, plus `a` for
+   always this session like step 35), resume with `user.tool_approval`
+   inputs. The agent spec attaches `s47-tools` with `preload: false`
+   (deferred tool loading = step 32) and `require_approval_for_tools`
+   left at the default.
+4. `demo.py`: `python demo.py "add a docstring to hello.py"` against a temp
+   project; shows the approval prompt and the tool responses.
+5. README: annotations table, deferred loading versus step 32, the
+   approval event pair versus stage 11 and step 39 (`auto` mode is
+   `require_approval_for_tools: []`; `read-only` is `enable_tools:
+   ["@read-only"]`).
+6. Tests: the MCP server's tools and annotations (in-process, no network,
+   via the `mcp` client over an in-memory transport or by calling the tool
+   functions); the approval loop against the fake server (one
+   `tool.approval_required`, a scripted `y`, the resume request body has
+   one `user.tool_approval` with `allow`; a scripted `n` sends `deny` with
+   a reason).
+
+## Step 48 - Sandbox, skills and code mode (`step_48_trueforge_sandbox_skills`)
+
+1. `client/sandbox.py`: an agent spec with `config.sandbox.enabled: true`
+   and `file_downloads: true`; a turn that writes and runs a script in the
+   sandbox; on `turn.done`, list the turn's events and download a produced
+   file with `GET .../download-sandbox-file` (check `openapi.json` for the
+   query parameter). Compare to stage 12: sandbox as a tool, not around
+   the agent.
+2. Skills: TrueForge only accepts skills from a GitHub or GitLab HTTPS
+   URL (`GitSkill`: `type: "git"`, `name`, `url`, `ref`, optional `path`,
+   `description`; see `openapi.json`). This codelab is public at
+   `https://github.com/dlmastery/simple-coding-harness`, so
+   `register_skill.py` registers the stage 4 skill from there: `path`
+   `step_04_skills/.agents/skills/explain-code`, `ref` `main`, name
+   `s48-explain-code`. Ship a copy of that `SKILL.md` under
+   `skills/explain-code/` in the step for the reader, and say in the README
+   that a skill must be pushed before TrueForge can load it (compare
+   stage 4, which reads it from disk).
+3. Code mode (`key-features_code-mode.md`): explain it as step 22's
+   parallel tool calls taken further: the model writes a script that calls
+   tools; show the config flag if one exists in the spec, else explain that
+   it is automatic when the sandbox is on.
+4. `demo.py`: "create hello.py that prints hello, run it, and report the
+   python version" with the sandbox on. Record the output including the
+   `sandbox.created` event and the tool responses.
+5. Tests: the spec builder sets the sandbox flags; the downloader writes the
+   bytes the fake server returns; the SKILL.md front matter parses; the
+   event printer names a `sandbox.created` event.
+
+## Step 49 - Context, questions and stop conditions (`step_49_trueforge_context`)
+
+1. `client/context.py`: an agent spec that sets
+   `config.context_management.compaction` with an explicit
+   `trigger: {"type": "input_tokens", "value": N}` (stage 14), enables
+   `large_tool_response` offloading (step 32's spill file), sets
+   `iteration_limit` (step 34's `MAX_CALLS`, step 41's budget), and enables
+   `ask_user_questions` (step 35's `ask_user`).
+2. The question loop: `tool.response_required` -> show the `question` and
+   `options` from the pending call's arguments -> read the answer -> resume
+   with `user.tool_response`.
+3. A usage report per turn from every `model.message`'s `usage` including
+   `input_tokens_breakdown` (harness, skills, instructions,
+   tool_definitions, messages): this is step 32's `/context` bar chart,
+   drawn as a table.
+4. `demo.py`: a prompt that makes the agent ask a question ("set up a
+   project for me" with two named options in the instructions), then the
+   breakdown table for the turn.
+5. Tests: spec fields; the question loop against the fake server; the
+   breakdown table from a fake `model.message` with usage.
+
+## Step 50 - Subagents, sessions and evaluation (`step_50_trueforge_subagents_eval`)
+
+1. `client/threads.py`: `dynamic_sub_agents` on; print `thread.created` /
+   `thread.done` and indent every event by its `thread_id`, so a parallel
+   subagent run reads like step 29's job list. Compare to stage 15.
+2. `client/sessions.py`: list sessions, list a session's turns and events
+   (`GET .../events`), and a `replay` that prints a finished turn from its
+   stored events (step 44), plus `subscribe_to_turn` to reconnect to a
+   running turn (step 34's recovery).
+3. `client/evaluate.py`: run the step 30 evaluation format
+   (`evals/<task>/task.md` + `check.py`) through TrueForge: each task gets a
+   temp workspace served by step 47's MCP tools server (import nothing from
+   step 47; ship a copy of `tools_server.py` in this step), a session with
+   the tools attached and approvals off (`require_approval_for_tools: []`),
+   one turn, then `check.py` in the workspace; write `eval_report.json`
+   with the pass rate and the metrics per task. Ship three small tasks
+   (write_hello, fix_test, find_function from step 30, copied).
+4. `demo.py --eval` and `demo.py --threads "compare three sorting
+   algorithms in parallel and summarise"`.
+5. Tests: thread indentation from a fake stream with two threads; replay
+   from a fake events list; the eval runner against the fake server with a
+   fake tool response that writes the expected file (the fake server can
+   call the real MCP tools server started in-process on a free port).
+
+## Step 51 - TrueForge versus this codelab versus managed agents (`step_51_trueforge_comparison`)
+
+1. README only, in the style of step 37: one table per capability
+   (loop, tools, permissions, sandbox, skills, context, sessions,
+   subagents, hooks, memory, evals, streaming, UI) with three columns: this
+   codelab (step number and mechanism), TrueForge (field, event or
+   endpoint, with a link into trueforge.dev or the repo), and Anthropic's
+   Claude Managed Agents (concept name and doc link, marked "from the docs,
+   not run here": there is no Anthropic key on this machine).
+2. A "what changes when the harness is a server" section: what you gain
+   (many clients, one session store, credentials never leave the server,
+   sandbox on demand) and what you lose (no direct file system, tools must
+   be MCP, hooks are not exposed, no cross-language session file).
+3. A "cost and hosting" section with the numbers from step 46 to 50's
+   recorded demos (tokens per turn from `state.metrics`) next to the
+   codelab's step 38 numbers.
+4. Tests: every table row has three cells and a link; every URL is http(s)
+   and points at trueforge.dev, github.com/truefoundry, docs.anthropic.com
+   or platform.claude.com; the step numbers cited exist as directories.
