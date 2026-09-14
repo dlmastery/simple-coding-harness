@@ -86,6 +86,107 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 07 -->
+# Sub-theme 07: Generative UI in the harness
+
+The two codelabs meet here. The harness codelab built a loop and moved it
+onto TrueForge. This series showed the formats an agent can emit instead
+of prose. Sub-theme 07 puts a rendering surface on both harnesses.
+
+## Step 07.1: A render_ui tool for the stage 15 harness
+
+**Goal.** One agent, two surfaces: the terminal and a browser page.
+
+**The idea.** The stage 15 loop gains one tool. Its argument is a
+json-render element map, `{root, elements: {id: {type, props, children}}}`,
+validated against a six-component catalog that is also written into the
+system prompt. The model never sees the picture. It sees a short result
+string. The surfaces interpret the spec.
+
+`07_harness_genui/step_01_render_ui_tool/harness/tools.py`:
+
+```python
+def render_ui(spec: dict) -> str:
+    """Validate a json-render element map and hand it to every surface.
+
+    The terminal draws it in ui.tool(); the web page gets it over SSE. The
+    model only sees this short string, never the picture: the spec is data
+    that the surfaces interpret, not something the model has to describe.
+    """
+    problems = validate(spec)
+    if problems:
+        return "Invalid spec, nothing rendered:\n- " + "\n- ".join(problems)
+    web.publish(spec)
+    return f"Rendered {len(spec['elements'])} elements from root '{spec['root']}'."
+```
+
+**Try it.**
+
+```bash
+cd genui/07_harness_genui/step_01_render_ui_tool
+python -m harness.agent --web
+> show me a dashboard for a lemonade stand
+```
+
+**You should see** a panel tree in the terminal, nested cards with a bar
+chart, a table and metric tiles, and the same dashboard in the browser
+page the `--web` flag opened. The recorded run produced ten elements on
+the first call.
+
+**Takeaway.** Errors are results here too: an invalid spec comes back as
+text the model can fix, and nothing is drawn.
+
+## Step 07.2: TrueForge's built-in generative UI, rendered by your own page
+
+**Goal.** Capture a hosted harness's UI output and render it yourself.
+
+**The idea.** TrueForge with `generative_ui` enabled answers a report
+request with an OpenUI Lang program inside its reply. The step streams
+the turn over the SDK, extracts the program, and parses it with a
+streaming-first parser written here in Python and JavaScript. Forward
+references become pending nodes, so the page shows placeholders before
+their definitions arrive. The live agent writes multi-line statements, so
+a line is committed only when its brackets balance.
+
+`07_harness_genui/step_02_trueforge_generative_ui/openui_parse.py`:
+
+```python
+    def feed(self, text):
+        """Add a chunk. Every complete statement it finishes is parsed now."""
+        self.buffer += text
+        while True:
+            # the first newline at which the text before it is balanced ends a statement
+            start, cut = 0, None
+            while cut is None:
+                nl = self.buffer.find("\n", start)
+                if nl == -1:
+                    return  # the rest is an unfinished line: hold it back
+                if complete(self.buffer[:nl]):
+                    cut = nl
+                start = nl + 1
+            line, self.buffer = self.buffer[:cut], self.buffer[cut + 1:]
+            self.add_line(line.replace("\n", " "))
+```
+
+**Try it.**
+
+```bash
+cd genui/07_harness_genui/step_02_trueforge_generative_ui
+python demo.py
+```
+
+**You should see** the raw reply with its OpenUI fence, the extracted
+program (32 lines, 7 statements in the recording), a mid-stream
+screenshot with dashed "waiting for" placeholders, and the finished page:
+a table, a line chart, metric cards and a status tag.
+
+![TrueForge generative UI rendered by the step's own page](07_harness_genui/step_02_trueforge_generative_ui/demo.png)
+
+**Takeaway.** A UI language is only as portable as its parsers. Writing
+one shows exactly what the format promises: streaming, forward references
+and nothing executable.
+
+
 ## Sub-theme index
 
 | Sub-theme | Steps | Packages |
@@ -96,7 +197,7 @@ says what its steps add in order.
 | 04 OpenUI Lang | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
 | 06 MCP Apps | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
-| 07 in the harness | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |
+| [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |
 
 > **Build status.** Sub-themes with a link in the table above are finished
 > and tested. The specification they are built from is `GENUI_SPEC.md`.

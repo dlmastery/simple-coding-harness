@@ -1,0 +1,9 @@
+{
+  "name": "g07-step-02-trueforge-generative-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "python demo.py"
+  }
+}
