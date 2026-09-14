@@ -1,0 +1,13 @@
+{"op":"add","path":"/root","value":"card-1"}
+{"op":"add","path":"/elements/card-1","value":{"type":"Card","props":{"title":"Lemonade","subtitle":"Week 32"},"children":["row-1","table-1"]}}
+{"op":"add","path":"/elements/row-1","value":{"type":"Row","props":{"gap":"large"},"children":["metric-1","metric-2"]}}
+{"op":"add","path":"/elements/metric-1","value":{"type":"Metric","props":{"label":"Sales","value":{"$state":"/sales/total"},"delta":"+8%"},"children":[]}}
+{"op":"add","path":"/state/sales","value":{"total":"$250"}}
+{"op":"add","path":"/state/sales/bestDay","value":"Tuesday"}
+{"op":"add","path":"/elements/metric-2","value":{"type":"Metric","props":{"label":"Best day","value":{"$state":"/sales/bestDay"}},"children":[]}}
+{"op":"add","path":"/elements/table-1","value":{"type":"Table","props":{"columns":["Day","Cups"],"rows":[["Mon","12"]]},"children":[]}}
+{"op":"add","path":"/elements/table-1/props/rows/-","value":["Tue","30"]}
+{"op":"replace","path":"/elements/card-1/props/subtitle","value":"Week 33"}
+{"op":"remove","path":"/elements/metric-1/props/delta"}
+{"op":"add","path":"/state/days","value":[]}
+{"op":"add","path":"/state/days/0","value":{"id":"mon","cups":12}}

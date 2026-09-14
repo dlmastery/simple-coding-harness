@@ -1,0 +1,275 @@
+{
+  "root": "dashboard",
+  "elements": {
+    "dashboard": {
+      "type": "Card",
+      "props": {
+        "title": "Lemonade Stand Dashboard"
+      },
+      "children": [
+        "metrics-row",
+        "buttons-row",
+        "sales-chart-card",
+        "best-days-card",
+        "products-sold-card",
+        "notes-toggle-button",
+        "notes-card"
+      ]
+    },
+    "metrics-row": {
+      "type": "Row",
+      "props": {
+        "gap": "large"
+      },
+      "children": [
+        "metric-sales",
+        "metric-best-day",
+        "metric-products-sold"
+      ]
+    },
+    "metric-sales": {
+      "type": "Metric",
+      "props": {
+        "label": "This Week's Sales",
+        "value": {
+          "$state": "/sales/thisWeekTotal"
+        },
+        "delta": "+5%"
+      },
+      "children": []
+    },
+    "metric-best-day": {
+      "type": "Metric",
+      "props": {
+        "label": "Best Day",
+        "value": {
+          "$state": "/sales/bestDay"
+        },
+        "delta": "+20%"
+      },
+      "children": []
+    },
+    "metric-products-sold": {
+      "type": "Metric",
+      "props": {
+        "label": "Products Sold",
+        "value": {
+          "$state": "/sales/totalProductsSold"
+        },
+        "delta": "+10%"
+      },
+      "children": []
+    },
+    "buttons-row": {
+      "type": "Row",
+      "props": {
+        "gap": "small"
+      },
+      "children": [
+        "refresh-button",
+        "details-button"
+      ]
+    },
+    "refresh-button": {
+      "type": "Button",
+      "props": {
+        "label": "Refresh Numbers",
+        "variant": "primary"
+      },
+      "on": {
+        "press": {
+          "action": "refresh_numbers",
+          "params": {}
+        }
+      },
+      "children": []
+    },
+    "details-button": {
+      "type": "Button",
+      "props": {
+        "label": "Show Details",
+        "variant": "secondary"
+      },
+      "on": {
+        "press": {
+          "action": "show_details",
+          "params": {
+            "metric": "This Week's Sales"
+          }
+        }
+      },
+      "children": []
+    },
+    "sales-chart-card": {
+      "type": "Card",
+      "props": {
+        "title": "Sales Over the Week"
+      },
+      "children": [
+        "sales-chart"
+      ]
+    },
+    "sales-chart": {
+      "type": "Chart",
+      "props": {
+        "kind": "line",
+        "labels": {
+          "$state": "/sales/days"
+        },
+        "values": {
+          "$state": "/sales/dailySales"
+        }
+      },
+      "children": []
+    },
+    "best-days-card": {
+      "type": "Card",
+      "props": {
+        "title": "Best Days"
+      },
+      "children": [
+        "best-days-table"
+      ]
+    },
+    "best-days-table": {
+      "type": "Table",
+      "props": {
+        "columns": [
+          "Day",
+          "Sales"
+        ],
+        "rows": {
+          "$state": "/sales/bestDaysTable"
+        }
+      },
+      "children": []
+    },
+    "products-sold-card": {
+      "type": "Card",
+      "props": {
+        "title": "Products Sold"
+      },
+      "children": [
+        "products-sold-table"
+      ]
+    },
+    "products-sold-table": {
+      "type": "Table",
+      "props": {
+        "columns": [
+          "Product",
+          "Quantity Sold"
+        ],
+        "rows": {
+          "$state": "/sales/productsSoldTable"
+        }
+      },
+      "children": []
+    },
+    "notes-toggle-button": {
+      "type": "Button",
+      "props": {
+        "label": {
+          "$cond": {
+            "$state": "/showNotes"
+          },
+          "$then": "Hide Notes",
+          "$else": "Show Notes"
+        },
+        "variant": "secondary"
+      },
+      "on": {
+        "press": {
+          "action": "setState",
+          "params": {
+            "statePath": "/showNotes",
+            "value": {
+              "$cond": {
+                "$state": "/showNotes"
+              },
+              "$then": false,
+              "$else": true
+            }
+          }
+        }
+      },
+      "children": []
+    },
+    "notes-card": {
+      "type": "Card",
+      "props": {
+        "title": "Notes"
+      },
+      "visible": {
+        "$state": "/showNotes"
+      },
+      "children": [
+        "notes-text"
+      ]
+    },
+    "notes-text": {
+      "type": "Text",
+      "props": {
+        "text": {
+          "$state": "/notes"
+        }
+      },
+      "children": []
+    }
+  },
+  "state": {
+    "sales": {
+      "thisWeekTotal": "$270",
+      "bestDay": "Saturday",
+      "totalProductsSold": "165",
+      "days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "dailySales": [
+        22,
+        28,
+        33,
+        38,
+        45,
+        64,
+        40
+      ],
+      "bestDaysTable": [
+        [
+          "Saturday",
+          "64"
+        ],
+        [
+          "Friday",
+          "45"
+        ],
+        [
+          "Thursday",
+          "38"
+        ]
+      ],
+      "productsSoldTable": [
+        [
+          "Classic Lemonade",
+          "90"
+        ],
+        [
+          "Strawberry Lemonade",
+          "45"
+        ],
+        [
+          "Mint Lemonade",
+          "30"
+        ]
+      ]
+    },
+    "showNotes": true,
+    "notes": "Detailed sales analysis:\n- Total revenue increased by 10% compared to last week.\n- Saturday remains the strongest sales day.\n- Classic Lemonade is the top-selling product.\nConsider promotions on slower days to boost sales."
+  }
+}

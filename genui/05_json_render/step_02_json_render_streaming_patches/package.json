@@ -1,0 +1,22 @@
+{
+  "name": "genui-05-step-02-json-render-streaming-patches",
+  "version": "0.1.0",
+  "description": "The model streams RFC 6902 patches; the page applies them with createSpecStreamCompiler and renders after each one.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prompt": "node prompt.mjs",
+    "test": "node --test \"tests/*.test.mjs\""
+  },
+  "dependencies": {
+    "@json-render/core": "0.20.0",
+    "@json-render/react": "0.20.0",
+    "htm": "3.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "4.3.6"
+  }
+}

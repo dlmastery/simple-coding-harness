@@ -1,0 +1,25 @@
+{
+  "name": "genui-05-step-03-json-render-actions-and-targets",
+  "version": "0.1.0",
+  "description": "Actions round-tripped to the server for the next model turn, and the same spec rendered by @json-render/ink in the terminal.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prompt": "node prompt.mjs",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "ink": "node ink_render.mjs demo_spec.json"
+  },
+  "dependencies": {
+    "@json-render/core": "0.20.0",
+    "@json-render/ink": "0.20.0",
+    "@json-render/react": "0.20.0",
+    "htm": "3.1.1",
+    "ink": "6.8.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "zod": "4.3.6"
+  }
+}

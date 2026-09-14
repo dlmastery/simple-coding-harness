@@ -1,0 +1,137 @@
+{
+  "root": "dashboard",
+  "elements": {
+    "dashboard": {
+      "type": "Card",
+      "props": {
+        "title": "Lemonade Stand Dashboard"
+      },
+      "children": [
+        "row-metrics",
+        "card-best-days",
+        "card-products"
+      ]
+    },
+    "row-metrics": {
+      "type": "Row",
+      "props": {
+        "gap": "large"
+      },
+      "children": [
+        "metric-sales",
+        "metric-best-day",
+        "metric-products-sold"
+      ]
+    },
+    "metric-sales": {
+      "type": "Metric",
+      "props": {
+        "label": "This Week's Sales",
+        "value": {
+          "$state": "/sales/totalValue"
+        },
+        "delta": "+5%"
+      },
+      "children": []
+    },
+    "metric-best-day": {
+      "type": "Metric",
+      "props": {
+        "label": "Best Day",
+        "value": {
+          "$state": "/sales/bestDay"
+        },
+        "delta": "+20%"
+      },
+      "children": []
+    },
+    "metric-products-sold": {
+      "type": "Metric",
+      "props": {
+        "label": "Products Sold",
+        "value": {
+          "$state": "/sales/totalUnits"
+        },
+        "delta": "+10%"
+      },
+      "children": []
+    },
+    "card-best-days": {
+      "type": "Card",
+      "props": {
+        "title": "Best Days"
+      },
+      "children": [
+        "table-best-days"
+      ]
+    },
+    "table-best-days": {
+      "type": "Table",
+      "props": {
+        "columns": [
+          "Day",
+          "Sales"
+        ],
+        "rows": [
+          [
+            "Monday",
+            "50"
+          ],
+          [
+            "Wednesday",
+            "75"
+          ],
+          [
+            "Friday",
+            "65"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "card-products": {
+      "type": "Card",
+      "props": {
+        "title": "What Sold"
+      },
+      "children": [
+        "table-products"
+      ]
+    },
+    "table-products": {
+      "type": "Table",
+      "props": {
+        "columns": [
+          "Product",
+          "Units Sold",
+          "Revenue"
+        ],
+        "rows": [
+          [
+            "Classic Lemonade",
+            "120",
+            "$240"
+          ],
+          [
+            "Strawberry Lemonade",
+            "80",
+            "$160"
+          ],
+          [
+            "Mint Lemonade",
+            "50",
+            "$100"
+          ]
+        ]
+      },
+      "children": []
+    }
+  },
+  "state": {
+    "sales": {
+      "totalValue": "$500",
+      "bestDay": "Wednesday",
+      "totalUnits": "250"
+    }
+  }
+}

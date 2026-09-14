@@ -1,0 +1,248 @@
+{
+  "components": {
+    "Card": {
+      "description": "A titled container. Put related elements inside it.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "subtitle"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Row": {
+      "description": "Lays its children out side by side.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "gap": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "small",
+                  "large"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "gap"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Text": {
+      "description": "One paragraph of text.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "tone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "muted",
+                  "strong"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "text",
+          "tone"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Metric": {
+      "description": "One key number with a label and an optional change such as '+12%'.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "delta"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Table": {
+      "description": "A table. Every row has one cell per column.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "columns",
+          "rows"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Chart": {
+      "description": "A small bar or line chart. labels and values have the same length.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bar",
+              "line"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "kind",
+          "labels",
+          "values"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Button": {
+      "description": "A button. Bind its press event to an action with the on field.",
+      "props": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "primary",
+                  "secondary"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "label",
+          "variant"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "actions": {
+    "refresh_numbers": {
+      "description": "Reload this week's numbers from the stand. The agent answers with patches that replace the values.",
+      "params": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    "show_details": {
+      "description": "Ask the agent for a details card about one metric. params.metric is the metric's label.",
+      "params": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "metric": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "metric"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "builtInActions": [
+    "setState",
+    "pushState",
+    "removeState",
+    "validateForm"
+  ]
+}

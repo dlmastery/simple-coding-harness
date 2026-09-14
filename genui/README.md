@@ -86,130 +86,6 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
-<!-- SUBTHEME 03 -->
-# Sub-theme 03: A2UI, Google's declarative protocol
-
-A2UI is a streaming JSON protocol with four envelope messages: create a
-surface, update its components, update its data model, delete it. The
-component list is flat and joined by ids. The data model is separate and
-addressed by JSON Pointer. The catalog is swappable. It is transport
-agnostic, which the third step uses.
-
-## Step 03.1: The four messages, by hand
-
-**Goal.** Build and validate the messages, and render them without a
-library.
-
-**The idea.** A Python module builds the four envelopes and validates
-them against the official schemas, with the spec's own error shape. A
-surface on the page is two maps, components by id and a data model, and
-a tree walk from `root` that returns a placeholder for a child that has
-not arrived. The demo is the protocol document's own contact form,
-streamed message by message.
-
-`03_a2ui/step_01_a2ui_messages_by_hand/static/surface.mjs`:
-
-```js
-  apply(message) {
-    const kind = messageType(message);
-    const body = message[kind];
-    if (kind === 'updateComponents') {
-      for (const component of body.components) this.components.set(component.id, component);
-    } else if (kind === 'updateDataModel') {
-      if ('value' in body) pointerSet(this.data, body.path ?? '/', body.value);
-      else pointerDelete(this.data, body.path ?? '/');
-    } else {
-      throw new Error(`${kind} is not a surface update`);
-    }
-  }
-```
-
-**Try it.**
-
-```bash
-cd genui/03_a2ui/step_01_a2ui_messages_by_hand
-python demo.py
-```
-
-**You should see** each message validated and applied in order, the
-contact form rendered from a flat list of components, and the data model
-filled by the last message.
-
-**Takeaway.** Structure and data are two streams. A component can be on
-screen before its value exists, and a value can change without
-resending the layout.
-
-## Step 03.2: The messages from a model
-
-**Goal.** Let the model write A2UI, render progressively, and close the
-loop with an action.
-
-**The idea.** The agent SDK builds the prompt from the catalog and parses
-the stream as it arrives, so components render before the reply ends.
-The full reply is then parsed and validated; a failure becomes a
-correction message and the model tries again. Text fields bind both ways
-into the data model, and a button posts its action to the server, which
-answers with a data model update into the path the model itself chose.
-
-`03_a2ui/step_02_a2ui_from_a_model/server.py`:
-
-```python
-        text = "".join(reply)
-        try:
-            messages, prose = prompt.parse_reply(text)
-        except ValueError as error:
-            yield "note", {"attempt": attempt, "error": str(error)[:300]}
-            for surface_id in created:
-                yield mirror(envelope.delete_surface(surface_id))
-            conversation += [{"role": "assistant", "content": text},
-                             {"role": "user", "content": f"The reply failed validation. Fix it and send the complete reply again.\n{error}"}]
-            continue
-```
-
-**Try it.**
-
-```bash
-cd genui/03_a2ui/step_02_a2ui_from_a_model
-python demo.py
-```
-
-**You should see** the components appear while the model is still
-writing, the validated final messages, a typed value reach the data
-model, and a click answered by the server in the status field.
-
-**Takeaway.** Validation errors are results. The correction loop is the
-stage 5 rule of the harness codelab, applied to UI.
-
-## Step 03.3: The official renderer, over AG-UI
-
-**Goal.** Swap in the reference renderer and carry the messages on the
-transport from sub-theme 02.
-
-**The idea.** The page uses the official Lit renderer. The server is
-built on the AG-UI package and carries each A2UI message as a custom
-event named `a2ui`. That is the stack the report describes, A2UI over
-AG-UI, with A2A one layer further out for agent-to-agent traffic. Each
-layer stops where the next one starts: AG-UI knows nothing about
-surfaces, and A2UI knows nothing about runs.
-
-**Try it.**
-
-```bash
-cd genui/03_a2ui/step_03_a2ui_lit_and_ag_ui
-npm install && npm run build
-python demo.py
-```
-
-**You should see** the run lifecycle events, then custom events carrying
-a surface and its components, the form rendered by the official
-components, and a submit that reaches the server with the typed values.
-
-![A2UI over AG-UI, rendered by the official Lit renderer](03_a2ui/step_03_a2ui_lit_and_ag_ui/demo.png)
-
-**Takeaway.** A format and a transport are separate choices. This step
-changes both and the agent's code changes in one place each.
-
-
 <!-- SUBTHEME 01 -->
 # Sub-theme 01: Foundations
 
@@ -353,221 +229,6 @@ left the rest alone.
 
 **Takeaway.** The report's hybrid pattern confines the cost and the risk
 of open-ended generation to one subtree, and keeps the rest declarative.
-
-
-<!-- SUBTHEME 04 -->
-# Sub-theme 04: OpenUI Lang
-
-The report's most token-efficient format is a line-oriented language:
-`id = Component(args)`, one statement per line, forward references
-allowed. The reader writes a parser first, then uses the real library,
-then measures the format against three others.
-
-## Step 04.1: A parser written by hand
-
-**Goal.** Understand the language by implementing its core.
-
-**The idea.** A tokenizer, a statement parser, and a resolver that walks
-from `root`. A reference with no statement yet becomes a placeholder, and
-a streaming parser holds back incomplete lines. The catalog is plain JSON
-Schema, one entry per component, property order as argument order. A
-DOM renderer draws placeholders as dashed boxes, so the skeleton of a
-layout appears before its parts arrive.
-
-`04_openui_lang/step_01_openui_lang_parser/openui_parse.py`:
-
-```python
-    def reference(name: str) -> object:
-        if name not in program.statements or name in visiting:
-            unresolved.append(name)
-            return {"type": "placeholder", "name": name}
-        ...
-
-    def element(node: dict) -> object:
-        name = node["name"]
-        if name not in catalog:
-            errors.append(f"unknown component {name}")
-            return None
-        params = catalog[name]
-        ...
-        props = {param: value(arg) for param, arg in zip(params, node["args"])}
-        return {"type": "element", "typeName": name, "props": props}
-```
-
-**Try it.**
-
-```bash
-cd genui/04_openui_lang/step_01_openui_lang_parser
-python demo.py
-```
-
-**You should see** a hard-coded program rendered, then the same program
-streamed line by line with two screenshots: the skeleton with pending
-references, and the finished page.
-
-**Takeaway.** Forward references are the whole trick. The first line
-names the layout, and everything after it fills a hole that is already
-on screen.
-
-## Step 04.2: The real renderer, with a catalog in Zod
-
-**Goal.** Let the library generate the prompt from the component
-definitions, and stream a model's program into React.
-
-**The idea.** Each component is defined once: a name, a description, a
-Zod schema for its props, and the React function that draws it. The
-library builds the system prompt from those definitions, so the model
-learns the catalog from the same source the renderer uses. The Python
-server caches that prompt and streams the model's output to the page.
-
-`04_openui_lang/step_02_openui_react_lang/library.mjs`:
-
-```js
-const Metric = defineComponent({
-  name: "Metric",
-  description: "One number with a label and an optional change",
-  props: z.object({
-    label: z.string(),
-    value: z.union([z.string(), z.number()]),
-    delta: z.string().optional().describe('such as "+12%"'),
-  }),
-  component: ({ props }) =>
-    h("div", { className: "metric" },
-      h("div", { className: "label" }, props.label),
-      h("div", { className: "value" }, String(props.value)),
-      h("div", { className: `delta ${String(props.delta ?? "").startsWith("-") ? "down" : "up"}` }, props.delta ?? "")),
-});
-```
-
-**Try it.**
-
-```bash
-cd genui/04_openui_lang/step_02_openui_react_lang
-npm install && npm run build
-python demo.py
-```
-
-**You should see** the generated prompt, then a dashboard program
-streaming into a React page component by component.
-
-**Takeaway.** One definition, three uses: the prompt, the validator, the
-renderer. That is what "typed component contracts" means in practice.
-
-## Step 04.3: The format benchmark, reproduced
-
-**Goal.** Check the report's token table instead of quoting it.
-
-**The idea.** The same seven interfaces written in OpenUI Lang, YAML, the
-legacy Thesys C1 JSON and json-render's patch stream, counted with the
-`o200k_base` tokenizer, plus time to first paint at sixty tokens per
-second. The step's own projections are byte-identical to the artifacts in
-the OpenUI repository's benchmark folder, and the test checks that.
-
-**Try it.**
-
-```bash
-cd genui/04_openui_lang/step_03_format_benchmark
-python demo.py
-```
-
-**You should see** every cell of the report's table reproduce: 4,800
-tokens for OpenUI Lang against 9,122 for YAML, 9,948 for C1 JSON and
-10,180 for patches in total, and the contact form's first paint at 0.2
-seconds against 14.9. Two of the repository's committed artifacts count
-differently from the table, because they were reformatted after the
-numbers were taken. The model run itself is not reproduced: the OpenUI
-samples are the ones the report's benchmark generated.
-
-**Takeaway.** The token gap is real and reproducible. The first-paint
-gap is bigger than the token gap, because a nested JSON document cannot
-render until it closes.
-
-
-<!-- SUBTHEME 06 -->
-# Sub-theme 06: MCP Apps, UI in a host you do not control
-
-AG-UI puts the agent in your product. MCP Apps put your UI in someone
-else's: Claude, ChatGPT, VS Code, Goose. The tool result carries a
-pointer to an HTML resource. The host mounts it in a sandboxed iframe and
-talks to it over `postMessage` with the same JSON-RPC shape MCP already
-uses.
-
-## Step 06.1: An MCP App from scratch
-
-**Goal.** One tool, one HTML resource, one minimal host.
-
-**The idea.** The tool returns two things: text for the model and
-structured content for the view. Its metadata points at the resource.
-The resource is a self-contained HTML document with a small bridge. The
-host declares the UI extension, mounts the document with a content
-security policy built from the resource's metadata, delivers the tool
-input and result, and proxies the view's own tool calls back to the
-server. Nothing here needs an SDK, which is the point of reading the
-specification.
-
-`06_mcp_apps/step_01_mcp_app_resource/server.py`:
-
-```python
-@server.tool(meta={"ui": {"resourceUri": VIEW_URI}})
-def lemonade_dashboard(days: int = 7) -> types.CallToolResult:
-    """Sales dashboard for the lemonade stand over the last `days` days (1 to 28)."""
-    days = max(1, min(int(days), 28))
-    rows = data.sales(days)
-    return types.CallToolResult(
-        content=[types.TextContent(type="text", text=data.as_text(days, rows))],
-        structuredContent={"days": days, "rows": rows, "summary": data.summary(rows)},
-    )
-
-
-@server.resource(VIEW_URI, name="lemonade_dashboard_view", mime_type=MIME_TYPE, meta=VIEW_META)
-def dashboard_view() -> str:
-    """The dashboard's HTML document. Static: the data arrives later, over postMessage."""
-    return VIEW_FILE.read_text(encoding="utf-8")
-```
-
-**Try it.**
-
-```bash
-cd genui/06_mcp_apps/step_01_mcp_app_resource
-python demo.py
-```
-
-**You should see** the host connect, the model call the tool, the
-dashboard mount inside the app panel, a click on "14 days" inside the
-view trigger a second tool call through the host, and the bridge log of
-every message in both directions.
-
-![A minimal MCP Apps host with the lemonade dashboard mounted](06_mcp_apps/step_01_mcp_app_resource/demo.png)
-
-**Takeaway.** The model sees text. The view sees data. The host sees
-neither's secrets, and it decides what the iframe may do.
-
-## Step 06.2: The same server in a host not written for it
-
-**Goal.** Put the app in front of a real host, and in front of the
-harness codelab's own MCP client.
-
-**The idea.** A terminal cannot mount HTML. The stage 26 MCP client
-learns to read the UI metadata, fetch the resource once, and draw the
-structured content as a text card under the tool panel, while the model
-still sees only the text. The step also gives the Claude Desktop, Goose
-and reference-host configuration and what to expect there. Those runs
-were not recorded: editing your desktop configuration is your decision.
-
-**Try it.**
-
-```bash
-cd genui/06_mcp_apps/step_02_mcp_app_in_a_real_host
-python demo.py
-```
-
-**You should see** the harness call the tool over stdio, the tool panel
-with the model's text, and an app card under it with the resource's
-name, size, policy and the structured rows rendered as a table.
-
-**Takeaway.** One interface, two transports. The report's rule is to
-ship both, and this sub-theme with sub-theme 02 is what that costs.
-
 
 <!-- SUBTHEME 02 -->
 # Sub-theme 02: AG-UI, the transport
@@ -719,6 +380,459 @@ second task planned with the todo list live in a side panel.
 **Takeaway.** The loop did not change. Its callbacks became events, and
 a browser became a client.
 
+<!-- SUBTHEME 03 -->
+# Sub-theme 03: A2UI, Google's declarative protocol
+
+A2UI is a streaming JSON protocol with four envelope messages: create a
+surface, update its components, update its data model, delete it. The
+component list is flat and joined by ids. The data model is separate and
+addressed by JSON Pointer. The catalog is swappable. It is transport
+agnostic, which the third step uses.
+
+## Step 03.1: The four messages, by hand
+
+**Goal.** Build and validate the messages, and render them without a
+library.
+
+**The idea.** A Python module builds the four envelopes and validates
+them against the official schemas, with the spec's own error shape. A
+surface on the page is two maps, components by id and a data model, and
+a tree walk from `root` that returns a placeholder for a child that has
+not arrived. The demo is the protocol document's own contact form,
+streamed message by message.
+
+`03_a2ui/step_01_a2ui_messages_by_hand/static/surface.mjs`:
+
+```js
+  apply(message) {
+    const kind = messageType(message);
+    const body = message[kind];
+    if (kind === 'updateComponents') {
+      for (const component of body.components) this.components.set(component.id, component);
+    } else if (kind === 'updateDataModel') {
+      if ('value' in body) pointerSet(this.data, body.path ?? '/', body.value);
+      else pointerDelete(this.data, body.path ?? '/');
+    } else {
+      throw new Error(`${kind} is not a surface update`);
+    }
+  }
+```
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_01_a2ui_messages_by_hand
+python demo.py
+```
+
+**You should see** each message validated and applied in order, the
+contact form rendered from a flat list of components, and the data model
+filled by the last message.
+
+**Takeaway.** Structure and data are two streams. A component can be on
+screen before its value exists, and a value can change without
+resending the layout.
+
+## Step 03.2: The messages from a model
+
+**Goal.** Let the model write A2UI, render progressively, and close the
+loop with an action.
+
+**The idea.** The agent SDK builds the prompt from the catalog and parses
+the stream as it arrives, so components render before the reply ends.
+The full reply is then parsed and validated; a failure becomes a
+correction message and the model tries again. Text fields bind both ways
+into the data model, and a button posts its action to the server, which
+answers with a data model update into the path the model itself chose.
+
+`03_a2ui/step_02_a2ui_from_a_model/server.py`:
+
+```python
+        text = "".join(reply)
+        try:
+            messages, prose = prompt.parse_reply(text)
+        except ValueError as error:
+            yield "note", {"attempt": attempt, "error": str(error)[:300]}
+            for surface_id in created:
+                yield mirror(envelope.delete_surface(surface_id))
+            conversation += [{"role": "assistant", "content": text},
+                             {"role": "user", "content": f"The reply failed validation. Fix it and send the complete reply again.\n{error}"}]
+            continue
+```
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_02_a2ui_from_a_model
+python demo.py
+```
+
+**You should see** the components appear while the model is still
+writing, the validated final messages, a typed value reach the data
+model, and a click answered by the server in the status field.
+
+**Takeaway.** Validation errors are results. The correction loop is the
+stage 5 rule of the harness codelab, applied to UI.
+
+## Step 03.3: The official renderer, over AG-UI
+
+**Goal.** Swap in the reference renderer and carry the messages on the
+transport from sub-theme 02.
+
+**The idea.** The page uses the official Lit renderer. The server is
+built on the AG-UI package and carries each A2UI message as a custom
+event named `a2ui`. That is the stack the report describes, A2UI over
+AG-UI, with A2A one layer further out for agent-to-agent traffic. Each
+layer stops where the next one starts: AG-UI knows nothing about
+surfaces, and A2UI knows nothing about runs.
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_03_a2ui_lit_and_ag_ui
+npm install && npm run build
+python demo.py
+```
+
+**You should see** the run lifecycle events, then custom events carrying
+a surface and its components, the form rendered by the official
+components, and a submit that reaches the server with the typed values.
+
+![A2UI over AG-UI, rendered by the official Lit renderer](03_a2ui/step_03_a2ui_lit_and_ag_ui/demo.png)
+
+**Takeaway.** A format and a transport are separate choices. This step
+changes both and the agent's code changes in one place each.
+
+<!-- SUBTHEME 04 -->
+# Sub-theme 04: OpenUI Lang
+
+The report's most token-efficient format is a line-oriented language:
+`id = Component(args)`, one statement per line, forward references
+allowed. The reader writes a parser first, then uses the real library,
+then measures the format against three others.
+
+## Step 04.1: A parser written by hand
+
+**Goal.** Understand the language by implementing its core.
+
+**The idea.** A tokenizer, a statement parser, and a resolver that walks
+from `root`. A reference with no statement yet becomes a placeholder, and
+a streaming parser holds back incomplete lines. The catalog is plain JSON
+Schema, one entry per component, property order as argument order. A
+DOM renderer draws placeholders as dashed boxes, so the skeleton of a
+layout appears before its parts arrive.
+
+`04_openui_lang/step_01_openui_lang_parser/openui_parse.py`:
+
+```python
+    def reference(name: str) -> object:
+        if name not in program.statements or name in visiting:
+            unresolved.append(name)
+            return {"type": "placeholder", "name": name}
+        ...
+
+    def element(node: dict) -> object:
+        name = node["name"]
+        if name not in catalog:
+            errors.append(f"unknown component {name}")
+            return None
+        params = catalog[name]
+        ...
+        props = {param: value(arg) for param, arg in zip(params, node["args"])}
+        return {"type": "element", "typeName": name, "props": props}
+```
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_01_openui_lang_parser
+python demo.py
+```
+
+**You should see** a hard-coded program rendered, then the same program
+streamed line by line with two screenshots: the skeleton with pending
+references, and the finished page.
+
+**Takeaway.** Forward references are the whole trick. The first line
+names the layout, and everything after it fills a hole that is already
+on screen.
+
+## Step 04.2: The real renderer, with a catalog in Zod
+
+**Goal.** Let the library generate the prompt from the component
+definitions, and stream a model's program into React.
+
+**The idea.** Each component is defined once: a name, a description, a
+Zod schema for its props, and the React function that draws it. The
+library builds the system prompt from those definitions, so the model
+learns the catalog from the same source the renderer uses. The Python
+server caches that prompt and streams the model's output to the page.
+
+`04_openui_lang/step_02_openui_react_lang/library.mjs`:
+
+```js
+const Metric = defineComponent({
+  name: "Metric",
+  description: "One number with a label and an optional change",
+  props: z.object({
+    label: z.string(),
+    value: z.union([z.string(), z.number()]),
+    delta: z.string().optional().describe('such as "+12%"'),
+  }),
+  component: ({ props }) =>
+    h("div", { className: "metric" },
+      h("div", { className: "label" }, props.label),
+      h("div", { className: "value" }, String(props.value)),
+      h("div", { className: `delta ${String(props.delta ?? "").startsWith("-") ? "down" : "up"}` }, props.delta ?? "")),
+});
+```
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_02_openui_react_lang
+npm install && npm run build
+python demo.py
+```
+
+**You should see** the generated prompt, then a dashboard program
+streaming into a React page component by component.
+
+**Takeaway.** One definition, three uses: the prompt, the validator, the
+renderer. That is what "typed component contracts" means in practice.
+
+## Step 04.3: The format benchmark, reproduced
+
+**Goal.** Check the report's token table instead of quoting it.
+
+**The idea.** The same seven interfaces written in OpenUI Lang, YAML, the
+legacy Thesys C1 JSON and json-render's patch stream, counted with the
+`o200k_base` tokenizer, plus time to first paint at sixty tokens per
+second. The step's own projections are byte-identical to the artifacts in
+the OpenUI repository's benchmark folder, and the test checks that.
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_03_format_benchmark
+python demo.py
+```
+
+**You should see** every cell of the report's table reproduce: 4,800
+tokens for OpenUI Lang against 9,122 for YAML, 9,948 for C1 JSON and
+10,180 for patches in total, and the contact form's first paint at 0.2
+seconds against 14.9. Two of the repository's committed artifacts count
+differently from the table, because they were reformatted after the
+numbers were taken. The model run itself is not reproduced: the OpenUI
+samples are the ones the report's benchmark generated.
+
+**Takeaway.** The token gap is real and reproducible. The first-paint
+gap is bigger than the token gap, because a nested JSON document cannot
+render until it closes.
+
+<!-- SUBTHEME 05 -->
+# Sub-theme 05: json-render, Vercel's declarative renderer
+
+json-render's spec is a flat element map with a root id, the shape
+sub-theme 01 showed streams best. Its distinguishing feature is renderer
+coverage: the same spec renders in React, Vue, Svelte, the terminal, PDF
+and more. This sub-theme uses two of those targets.
+
+## Step 05.1: A catalog and the React renderer
+
+**Goal.** One catalog as the whole contract.
+
+**The idea.** Six components with Zod props. The library generates the
+model prompt from them, validates the model's spec against them, and
+maps them to React components for the renderer. The server asks for one
+complete spec in JSON mode and validates it with the same catalog before
+the page sees it. No JSX and no bundler: React 19 ships no browser
+module build, so the page pins builds from a CDN in an import map.
+
+`05_json_render/step_01_json_render_catalog/catalog.mjs`:
+
+```js
+export const catalog = defineCatalog(schema, {
+  components: {
+    Card: {
+      props: z.object({
+        title: z.string(),
+        subtitle: z.string().nullable(),
+      }),
+      description: "A titled container. Put related elements inside it.",
+    },
+```
+
+**Try it.**
+
+```bash
+cd genui/05_json_render/step_01_json_render_catalog
+npm install
+python demo.py
+```
+
+**You should see** the generated prompt, a nine-element dashboard spec
+after about six seconds, and the rendered page. The first paint waits
+for the whole spec, which the next step fixes.
+
+**Takeaway.** The catalog is the prompt, the validator and the registry.
+Change one component and all three change.
+
+## Step 05.2: Streaming JSON Patch into the element map
+
+**Goal.** Paint before the spec is complete.
+
+**The idea.** The model streams one RFC 6902 patch per line. The page
+pushes each chunk into the library's stream compiler and renders after
+every complete patch. A Python patch applier does the same on the
+server, and a test asserts both compilers agree on a shared fixture. Two
+library quirks are worked around and documented: the renderer reads the
+root element with no guard, and a state prop is undefined until its
+patch lands.
+
+`05_json_render/step_02_json_render_streaming_patches/app.mjs`:
+
+```js
+    for await (const chunk of chunks(response)) {
+      const { result, newPatches } = compiler.push(chunk);
+      if (newPatches.length === 0) continue;
+      // The first patch sets /root alone; Renderer reads spec.elements[spec.root]
+      // with no guard, so give it an empty map until /elements arrives.
+      setSpec(result.elements ? result : { ...result, elements: {} });
+      if (firstPaint === null && result.root && result.elements?.[result.root]) {
+        firstPaint = seconds();
+        setStatus(`first paint at ${firstPaint} s`);
+      }
+    }
+```
+
+**Try it.**
+
+```bash
+cd genui/05_json_render/step_02_json_render_streaming_patches
+python demo.py
+```
+
+**You should see** the first paint at about three and a half seconds and
+completion at about ten, against step 1's single paint at almost six.
+Two screenshots show the first card alone, then the full dashboard.
+
+**Takeaway.** Same model, same spec, same tokens. Only the wire format
+changed, and the page is usable twice as early.
+
+## Step 05.3: Actions, and a second target
+
+**Goal.** Close the loop with buttons, then render the same spec in a
+terminal.
+
+**The idea.** A button carries an action. The built-in `setState` stays
+in the page. Catalog actions post to the server, and the model's next
+turn answers with patches against the spec already on screen, on one
+transcript and one compiler. Then the same catalog and the same spec
+render in the terminal with the library's Ink target. A test renders
+both from one fixture.
+
+**Try it.**
+
+```bash
+cd genui/05_json_render/step_03_json_render_actions_and_targets
+python demo.py
+```
+
+**You should see** "Refresh Numbers" produce twelve replace patches from
+the model, "Show Details" add a notes card, "Hide Notes" handled in the
+page alone, and the dashboard drawn again as boxes and block bars in the
+terminal. The terminal shows the notes card and the page does not,
+because a page-local state change never reaches the server.
+
+**Takeaway.** One spec, two renderers. That is the report's reason to
+choose json-render when the output must go somewhere other than a
+browser.
+
+<!-- SUBTHEME 06 -->
+# Sub-theme 06: MCP Apps, UI in a host you do not control
+
+AG-UI puts the agent in your product. MCP Apps put your UI in someone
+else's: Claude, ChatGPT, VS Code, Goose. The tool result carries a
+pointer to an HTML resource. The host mounts it in a sandboxed iframe and
+talks to it over `postMessage` with the same JSON-RPC shape MCP already
+uses.
+
+## Step 06.1: An MCP App from scratch
+
+**Goal.** One tool, one HTML resource, one minimal host.
+
+**The idea.** The tool returns two things: text for the model and
+structured content for the view. Its metadata points at the resource.
+The resource is a self-contained HTML document with a small bridge. The
+host declares the UI extension, mounts the document with a content
+security policy built from the resource's metadata, delivers the tool
+input and result, and proxies the view's own tool calls back to the
+server. Nothing here needs an SDK, which is the point of reading the
+specification.
+
+`06_mcp_apps/step_01_mcp_app_resource/server.py`:
+
+```python
+@server.tool(meta={"ui": {"resourceUri": VIEW_URI}})
+def lemonade_dashboard(days: int = 7) -> types.CallToolResult:
+    """Sales dashboard for the lemonade stand over the last `days` days (1 to 28)."""
+    days = max(1, min(int(days), 28))
+    rows = data.sales(days)
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text=data.as_text(days, rows))],
+        structuredContent={"days": days, "rows": rows, "summary": data.summary(rows)},
+    )
+
+
+@server.resource(VIEW_URI, name="lemonade_dashboard_view", mime_type=MIME_TYPE, meta=VIEW_META)
+def dashboard_view() -> str:
+    """The dashboard's HTML document. Static: the data arrives later, over postMessage."""
+    return VIEW_FILE.read_text(encoding="utf-8")
+```
+
+**Try it.**
+
+```bash
+cd genui/06_mcp_apps/step_01_mcp_app_resource
+python demo.py
+```
+
+**You should see** the host connect, the model call the tool, the
+dashboard mount inside the app panel, a click on "14 days" inside the
+view trigger a second tool call through the host, and the bridge log of
+every message in both directions.
+
+![A minimal MCP Apps host with the lemonade dashboard mounted](06_mcp_apps/step_01_mcp_app_resource/demo.png)
+
+**Takeaway.** The model sees text. The view sees data. The host sees
+neither's secrets, and it decides what the iframe may do.
+
+## Step 06.2: The same server in a host not written for it
+
+**Goal.** Put the app in front of a real host, and in front of the
+harness codelab's own MCP client.
+
+**The idea.** A terminal cannot mount HTML. The stage 26 MCP client
+learns to read the UI metadata, fetch the resource once, and draw the
+structured content as a text card under the tool panel, while the model
+still sees only the text. The step also gives the Claude Desktop, Goose
+and reference-host configuration and what to expect there. Those runs
+were not recorded: editing your desktop configuration is your decision.
+
+**Try it.**
+
+```bash
+cd genui/06_mcp_apps/step_02_mcp_app_in_a_real_host
+python demo.py
+```
+
+**You should see** the harness call the tool over stdio, the tool panel
+with the model's text, and an app card under it with the resource's
+name, size, policy and the structured rows rendered as a table.
+
+**Takeaway.** One interface, two transports. The report's rule is to
+ship both, and this sub-theme with sub-theme 02 is what that costs.
 
 <!-- SUBTHEME 07 -->
 # Sub-theme 07: Generative UI in the harness
@@ -820,7 +934,6 @@ a table, a line chart, metric cards and a status tag.
 one shows exactly what the format promises: streaming, forward references
 and nothing executable.
 
-
 ## Sub-theme index
 
 | Sub-theme | Steps | Packages |
@@ -829,12 +942,14 @@ and nothing executable.
 | [02 AG-UI](02_ag_ui/) | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
 | [03 A2UI](03_a2ui/) | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | [04 OpenUI Lang](04_openui_lang/) | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
-| 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
+| [05 json-render](05_json_render/) | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
 | [06 MCP Apps](06_mcp_apps/) | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
 | [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |
 
-> **Build status.** Sub-themes with a link in the table above are finished
-> and tested. The specification they are built from is `GENUI_SPEC.md`.
+> **Build status.** All seven sub-themes, twenty steps, are built and
+> tested, and every snippet in this document and in the step READMEs is
+> verified against the code in continuous integration. The specification
+> they were built from is `GENUI_SPEC.md`.
 
 MIT licensed. The specifications and libraries this series uses are
 Apache-2.0 (A2UI, json-render) and MIT (AG-UI, OpenUI, MCP Apps); each
