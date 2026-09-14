@@ -1,0 +1,12 @@
+{
+  "name": "genui-step-01-openui-lang-parser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A hand-written parser and DOM renderer for the core of OpenUI Lang. No dependencies, no build step.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "start": "python server.py"
+  }
+}

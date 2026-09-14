@@ -86,6 +86,134 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 04 -->
+# Sub-theme 04: OpenUI Lang
+
+The report's most token-efficient format is a line-oriented language:
+`id = Component(args)`, one statement per line, forward references
+allowed. The reader writes a parser first, then uses the real library,
+then measures the format against three others.
+
+## Step 04.1: A parser written by hand
+
+**Goal.** Understand the language by implementing its core.
+
+**The idea.** A tokenizer, a statement parser, and a resolver that walks
+from `root`. A reference with no statement yet becomes a placeholder, and
+a streaming parser holds back incomplete lines. The catalog is plain JSON
+Schema, one entry per component, property order as argument order. A
+DOM renderer draws placeholders as dashed boxes, so the skeleton of a
+layout appears before its parts arrive.
+
+`04_openui_lang/step_01_openui_lang_parser/openui_parse.py`:
+
+```python
+    def reference(name: str) -> object:
+        if name not in program.statements or name in visiting:
+            unresolved.append(name)
+            return {"type": "placeholder", "name": name}
+        ...
+
+    def element(node: dict) -> object:
+        name = node["name"]
+        if name not in catalog:
+            errors.append(f"unknown component {name}")
+            return None
+        params = catalog[name]
+        ...
+        props = {param: value(arg) for param, arg in zip(params, node["args"])}
+        return {"type": "element", "typeName": name, "props": props}
+```
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_01_openui_lang_parser
+python demo.py
+```
+
+**You should see** a hard-coded program rendered, then the same program
+streamed line by line with two screenshots: the skeleton with pending
+references, and the finished page.
+
+**Takeaway.** Forward references are the whole trick. The first line
+names the layout, and everything after it fills a hole that is already
+on screen.
+
+## Step 04.2: The real renderer, with a catalog in Zod
+
+**Goal.** Let the library generate the prompt from the component
+definitions, and stream a model's program into React.
+
+**The idea.** Each component is defined once: a name, a description, a
+Zod schema for its props, and the React function that draws it. The
+library builds the system prompt from those definitions, so the model
+learns the catalog from the same source the renderer uses. The Python
+server caches that prompt and streams the model's output to the page.
+
+`04_openui_lang/step_02_openui_react_lang/library.mjs`:
+
+```js
+const Metric = defineComponent({
+  name: "Metric",
+  description: "One number with a label and an optional change",
+  props: z.object({
+    label: z.string(),
+    value: z.union([z.string(), z.number()]),
+    delta: z.string().optional().describe('such as "+12%"'),
+  }),
+  component: ({ props }) =>
+    h("div", { className: "metric" },
+      h("div", { className: "label" }, props.label),
+      h("div", { className: "value" }, String(props.value)),
+      h("div", { className: `delta ${String(props.delta ?? "").startsWith("-") ? "down" : "up"}` }, props.delta ?? "")),
+});
+```
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_02_openui_react_lang
+npm install && npm run build
+python demo.py
+```
+
+**You should see** the generated prompt, then a dashboard program
+streaming into a React page component by component.
+
+**Takeaway.** One definition, three uses: the prompt, the validator, the
+renderer. That is what "typed component contracts" means in practice.
+
+## Step 04.3: The format benchmark, reproduced
+
+**Goal.** Check the report's token table instead of quoting it.
+
+**The idea.** The same seven interfaces written in OpenUI Lang, YAML, the
+legacy Thesys C1 JSON and json-render's patch stream, counted with the
+`o200k_base` tokenizer, plus time to first paint at sixty tokens per
+second. The step's own projections are byte-identical to the artifacts in
+the OpenUI repository's benchmark folder, and the test checks that.
+
+**Try it.**
+
+```bash
+cd genui/04_openui_lang/step_03_format_benchmark
+python demo.py
+```
+
+**You should see** every cell of the report's table reproduce: 4,800
+tokens for OpenUI Lang against 9,122 for YAML, 9,948 for C1 JSON and
+10,180 for patches in total, and the contact form's first paint at 0.2
+seconds against 14.9. Two of the repository's committed artifacts count
+differently from the table, because they were reformatted after the
+numbers were taken. The model run itself is not reproduced: the OpenUI
+samples are the ones the report's benchmark generated.
+
+**Takeaway.** The token gap is real and reproducible. The first-paint
+gap is bigger than the token gap, because a nested JSON document cannot
+render until it closes.
+
+
 <!-- SUBTHEME 06 -->
 # Sub-theme 06: MCP Apps, UI in a host you do not control
 
@@ -431,7 +559,7 @@ and nothing executable.
 | 01 foundations | static components, declarative tree, open-ended HTML, hybrid escape hatch | none |
 | [02 AG-UI](02_ag_ui/) | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
 | 03 A2UI | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
-| 04 OpenUI Lang | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
+| [04 OpenUI Lang](04_openui_lang/) | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
 | [06 MCP Apps](06_mcp_apps/) | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
 | [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |

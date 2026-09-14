@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Step 01 - OpenUI Lang parser</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>OpenUI Lang, parsed by hand</h1>
+    <button id="render-all">Render the whole program</button>
+    <button id="stream">Stream it line by line</button>
+    <span id="status"></span>
+  </header>
+  <main>
+    <section id="ui"></section>
+    <aside>
+      <h2>Program so far</h2>
+      <pre id="source"></pre>
+      <h2>Unresolved references</h2>
+      <pre id="unresolved"></pre>
+    </aside>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

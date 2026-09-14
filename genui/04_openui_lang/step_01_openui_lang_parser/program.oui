@@ -1,0 +1,12 @@
+root = Stack([title, kpis, chart, table, actions], "column", "l")
+title = Text("Lemonade stand, week 37", "heading")
+kpis = Stack([revenue, cups, margin], "row", "m")
+revenue = Metric("Revenue", "$482", "+12%")
+cups = Metric("Cups sold", 241, "+8%")
+margin = Metric("Margin", "63%", "-2%")
+chart = BarChart("Cups per day", days, [28, 35, 31, 44, 52, 51])
+days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+table = Table(["Flavour", "Cups", "Price"], [["Classic", 140, "$2.00"], ["Pink", 61, "$2.50"], ["Ginger", 40, "$3.00"]])
+actions = Card("Next step", [note, restock])
+note = Text("Lemons run out on Saturday. Order before Thursday.", "small")
+restock = Button("Order lemons", "restock", "primary")
