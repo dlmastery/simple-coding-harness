@@ -14,13 +14,13 @@ python demo.py
 
 ```text
 prompt: show me a dashboard for a lemonade stand
-6 SSE messages in 6.0s:
-  {"component": "Metric", "props": {"title": "Lemonade Sold", "value": "1,250 cups", "delta": "+15%"}}
-  {"component": "Metric", "props": {"title": "Revenue", "value": "$625", "delta": "+10%"}}
-  {"component": "Metric", "props": {"title": "Profit", "value": "$200", "delta": "+8%"}}
-  {"component": "Table", "props": {"columns": ["Date", "Cups Sold", "Revenue", "Profit"], "rows": [["2024-04-...
+6 SSE messages in 7.9s:
+  {"component": "Metric", "props": {"title": "Lemonades Sold", "value": "1500 cups", "delta": "+8%"}}
+  {"component": "Metric", "props": {"title": "Revenue", "value": "$4500", "delta": "+10%"}}
+  {"component": "Metric", "props": {"title": "Profit", "value": "$1200", "delta": "+15%"}}
+  {"component": "Table", "props": {"columns": ["Date", "Lemonades Sold", "Revenue", "Profit"], "rows": [["202...
   {"component": "Chart", "props": {"kind": "line", "labels": ["Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24...
-  {"done": true, "usage": {"prompt_tokens": 249, "completion_tokens": 297}}
+  {"done": true, "usage": {"prompt_tokens": 249, "completion_tokens": 295}}
 saved demo.png
 ```
 
