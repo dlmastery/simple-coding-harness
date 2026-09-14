@@ -1,6 +1,6 @@
 # Zero to Hero: Harness Engineering
 
-## Build a coding agent from one API call to a full harness, then run it on four SDKs and OpenRouter
+## Build a coding agent from one API call to a full harness, then run it on four SDKs, OpenRouter and an open-source harness server
 
 **Models are commodities. The harness is the product.** The same model
 behaves like a toy or like a colleague depending on the loop around it.
@@ -31,7 +31,14 @@ Part 5   steps 31 - 38    durability, context and orchestration: instruction fil
                           production anatomy, capstone
 Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop conditions,
                           streaming tool output, extensions, replay, TypeScript core
+Part 7   steps 46 - 51    the same harness on TrueForge, an open-source harness server:
+                          loop, tools as MCP, sandbox and skills, context, subagents, comparison
 ```
+
+A second series lives in [`genui/`](genui/): **zero to hero on generative
+UI**, where the agent's output becomes an interface. It continues this
+codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
+json-render and MCP Apps.
 
 **What you will learn**
 
@@ -2436,6 +2443,101 @@ both directions.
 
 ---
 
+# Part 7: The same harness on TrueForge
+
+Parts 1 to 6 built a harness that runs on your machine, in your terminal,
+with your files. TrueForge ([github.com/truefoundry/trueforge](https://github.com/truefoundry/trueforge),
+MIT) is an open-source harness that runs as a **server**: the loop,
+sessions, tools, sandbox, skills, subagents, compaction and approvals live
+in the server, and clients talk to it over HTTP and Server-Sent Events. It
+presents itself as the open-source alternative to hosted managed-agent
+services. Part 7 maps every capability of this codelab onto it, one step
+per group, with the Python SDK. Every step README opens with a recorded
+quick demo against a local server.
+
+> **Setup.** `npx @truefoundry/trueforge` starts a local server on port
+> 8790 with SQLite and no login. It needs Linux or macOS for the local
+> sandbox (`bwrap`, `socat`, `rg` on PATH). On Windows run it inside WSL
+> with mirrored networking; step 46 has the exact commands. Then
+> `pip install trueforge_sdk` and register a model provider with the
+> step 46 script. No key goes into any agent definition.
+
+## Step 46: The loop on TrueForge
+
+**Goal.** Run one turn: open a session, stream events, read the usage.
+
+**The idea.** An agent is a definition, a session is a conversation, a turn
+is one request, and events stream back: `turn.created`, `model.message`,
+`model.message.delta`, `tool.response`, `turn.done`. The client never runs
+the loop. Passing the session id back is stage 8's `--resume`.
+
+**Takeaway.** The five events of one turn are the stage 2.4 loop, seen
+from outside.
+
+## Step 47: Tools and permissions as MCP
+
+**Goal.** Give the server your tools, and gate them the way stage 11 did.
+
+**The idea.** TrueForge has no built-in coding tools. Tools arrive as MCP
+servers. The codelab's `read_file`, `write_file`, `str_replace` and `bash`
+become a remote MCP server with annotations, and the server's default
+approval policy pauses on write and destructive tools. The client answers
+`tool.approval_required` with `user.tool_approval`.
+
+**Takeaway.** Permissions moved from a rules table to tool annotations,
+and the ask moved from a terminal prompt to an event.
+
+## Step 48: Sandbox, skills and code mode
+
+**Goal.** Run code in a sandbox the server provisions, and load skills
+from git.
+
+**The idea.** Stage 12 wrapped `bash` in an OS sandbox around the agent.
+TrueForge uses a sandbox as a tool: created on demand, files kept across
+turns, credentials never inside it. Skills are `SKILL.md` directories in a
+git repository, loaded when the model picks them.
+
+**Takeaway.** Same mechanisms, different host: the sandbox and the skills
+belong to the server, not to your machine.
+
+## Step 49: Context, questions and stop conditions
+
+**Goal.** Configure compaction, large-result offloading, questions to the
+user, and the iteration limit.
+
+**The idea.** Stage 14's compaction is a trigger in the agent spec. Step
+32's spill file is `large_tool_response`. Step 35's `ask_user` is
+`ask_user_questions`, answered through `tool.response_required`. Step 41's
+call budget is `iteration_limit`. Every `model.message` carries a token
+breakdown, which is step 32's `/context` view.
+
+**Takeaway.** Context engineering became configuration.
+
+## Step 50: Subagents, sessions and evaluation
+
+**Goal.** Watch subagent threads, replay a session from its events, and
+run the step 30 evaluation suite through the server.
+
+**The idea.** Subagents are threads inside a turn, announced by
+`thread.created` and `thread.done`. A session's events are the step 44
+trace, already stored. The step 30 evaluation format runs unchanged with
+the step 47 tools server pointed at a temp workspace.
+
+**Takeaway.** The evaluation harness does not care where the loop runs.
+
+## Step 51: TrueForge versus this codelab versus managed agents
+
+**Goal.** One table per capability, three columns.
+
+**The idea.** What you gain when the harness is a server, what you lose,
+and what a hosted managed-agent service does differently, with the cost
+numbers from the recorded runs.
+
+**Takeaway.** The design is the same in all three. The trade is where it
+runs and who holds the credentials.
+
+---
+
 # Wrap-up
 
 ## Three rules that hold the design together
@@ -2505,6 +2607,12 @@ both directions.
 | [43](step_43_extensions/) | extensions | `extensions.py` |
 | [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
 | [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
+| 46 | the loop on TrueForge | `client/loop.py` |
+| 47 | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
+| 48 | sandbox, skills, code mode | `client/sandbox.py` |
+| 49 | context, questions, stop conditions | `client/context.py` |
+| 50 | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
+| 51 | TrueForge versus this codelab versus managed agents | `README.md` |
 
 ## Tests and checks
 
