@@ -2471,6 +2471,60 @@ is one request, and events stream back: `turn.created`, `model.message`,
 `model.message.delta`, `tool.response`, `turn.done`. The client never runs
 the loop. Passing the session id back is stage 8's `--resume`.
 
+**The code.** There is no `messages` list and no `while True` on the
+client. One function opens a session when it has none, streams one turn,
+prints each delta on the main thread, and reads the text and the token
+totals out of the terminal event.
+
+`step_46_trueforge_loop/client/loop.py`:
+
+```python
+def chat(prompt, session_id=None, on_delta=print_delta):
+    """Run one turn. Return (session_id, text, metrics).
+
+    A new session is opened when `session_id` is None. Passing an id back
+    continues that conversation: the server chains the new turn onto the last
+    one (`previous_turn_id` defaults to "auto"), so no history is resent.
+    """
+    if session_id is None:
+        session_id = open_session()
+    stream = client().sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
+    pieces = []
+    text = None
+    metrics = {}
+    for event in stream.with_metadata():
+        data = event.data
+        if data.type == "model.message.delta" and data.thread_id == "main" and data.content:
+            pieces.append(data.content)
+            if on_delta:
+                on_delta(data.content)
+        elif data.type == "turn.done":
+            text, metrics = finish(data.state)
+    if text is None:
+        text = "".join(pieces)
+    return session_id, text, metrics
+```
+
+A plain turn streams exactly five events. `turn.created` is the user
+message being appended. `model.message` is the call beginning. The deltas
+are the chunks of content, the last one carrying the usage. `turn.done` is
+the `break` when a reply has no tool calls. A turn that calls tools
+streams more, and step 47 builds those tools.
+
+**Try it.**
+
+```bash
+cd step_46_trueforge_loop
+pip install trueforge_sdk truststore
+python setup_server.py
+python demo.py -p "Remember this: the project codename is HERON. Reply in one short sentence."
+python demo.py --resume <session id> -p "What is the project codename?"
+```
+
+**You should see** the reply stream, a usage line with the session id, and
+the second command answer from the first one's memory. No history was
+resent: the transcript lives on the server.
+
 **Takeaway.** The five events of one turn are the stage 2.4 loop, seen
 from outside.
 
@@ -2661,7 +2715,7 @@ runs and who holds the credentials.
 | [43](step_43_extensions/) | extensions | `extensions.py` |
 | [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
 | [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
-| 46 | the loop on TrueForge | `client/loop.py` |
+| [46](step_46_trueforge_loop/) | the loop on TrueForge | `client/loop.py` |
 | 47 | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
 | 48 | sandbox, skills, code mode | `client/sandbox.py` |
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
