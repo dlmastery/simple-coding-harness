@@ -14,3 +14,4 @@ ag-ui-protocol>=0.1.22
 a2ui-core>=0.1.1
 jsonschema>=4.0
 tiktoken>=0.7
+a2ui-agent-sdk>=0.6.0
