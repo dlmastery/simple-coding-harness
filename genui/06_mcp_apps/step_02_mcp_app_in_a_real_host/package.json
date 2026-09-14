@@ -1,0 +1,12 @@
+{
+  "name": "genui-06-step-01-mcp-app-resource",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An MCP App: a tool result with a ui:// HTML resource, and a minimal browser host for it. No dependencies.",
+  "scripts": {
+    "test": "node --test bridge.test.mjs",
+    "demo": "python demo.py"
+  },
+  "license": "MIT"
+}

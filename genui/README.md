@@ -86,6 +86,92 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 06 -->
+# Sub-theme 06: MCP Apps, UI in a host you do not control
+
+AG-UI puts the agent in your product. MCP Apps put your UI in someone
+else's: Claude, ChatGPT, VS Code, Goose. The tool result carries a
+pointer to an HTML resource. The host mounts it in a sandboxed iframe and
+talks to it over `postMessage` with the same JSON-RPC shape MCP already
+uses.
+
+## Step 06.1: An MCP App from scratch
+
+**Goal.** One tool, one HTML resource, one minimal host.
+
+**The idea.** The tool returns two things: text for the model and
+structured content for the view. Its metadata points at the resource.
+The resource is a self-contained HTML document with a small bridge. The
+host declares the UI extension, mounts the document with a content
+security policy built from the resource's metadata, delivers the tool
+input and result, and proxies the view's own tool calls back to the
+server. Nothing here needs an SDK, which is the point of reading the
+specification.
+
+`06_mcp_apps/step_01_mcp_app_resource/server.py`:
+
+```python
+@server.tool(meta={"ui": {"resourceUri": VIEW_URI}})
+def lemonade_dashboard(days: int = 7) -> types.CallToolResult:
+    """Sales dashboard for the lemonade stand over the last `days` days (1 to 28)."""
+    days = max(1, min(int(days), 28))
+    rows = data.sales(days)
+    return types.CallToolResult(
+        content=[types.TextContent(type="text", text=data.as_text(days, rows))],
+        structuredContent={"days": days, "rows": rows, "summary": data.summary(rows)},
+    )
+
+
+@server.resource(VIEW_URI, name="lemonade_dashboard_view", mime_type=MIME_TYPE, meta=VIEW_META)
+def dashboard_view() -> str:
+    """The dashboard's HTML document. Static: the data arrives later, over postMessage."""
+    return VIEW_FILE.read_text(encoding="utf-8")
+```
+
+**Try it.**
+
+```bash
+cd genui/06_mcp_apps/step_01_mcp_app_resource
+python demo.py
+```
+
+**You should see** the host connect, the model call the tool, the
+dashboard mount inside the app panel, a click on "14 days" inside the
+view trigger a second tool call through the host, and the bridge log of
+every message in both directions.
+
+![A minimal MCP Apps host with the lemonade dashboard mounted](06_mcp_apps/step_01_mcp_app_resource/demo.png)
+
+**Takeaway.** The model sees text. The view sees data. The host sees
+neither's secrets, and it decides what the iframe may do.
+
+## Step 06.2: The same server in a host not written for it
+
+**Goal.** Put the app in front of a real host, and in front of the
+harness codelab's own MCP client.
+
+**The idea.** A terminal cannot mount HTML. The stage 26 MCP client
+learns to read the UI metadata, fetch the resource once, and draw the
+structured content as a text card under the tool panel, while the model
+still sees only the text. The step also gives the Claude Desktop, Goose
+and reference-host configuration and what to expect there. Those runs
+were not recorded: editing your desktop configuration is your decision.
+
+**Try it.**
+
+```bash
+cd genui/06_mcp_apps/step_02_mcp_app_in_a_real_host
+python demo.py
+```
+
+**You should see** the harness call the tool over stdio, the tool panel
+with the model's text, and an app card under it with the resource's
+name, size, policy and the structured rows rendered as a table.
+
+**Takeaway.** One interface, two transports. The report's rule is to
+ship both, and this sub-theme with sub-theme 02 is what that costs.
+
+
 <!-- SUBTHEME 02 -->
 # Sub-theme 02: AG-UI, the transport
 
@@ -347,7 +433,7 @@ and nothing executable.
 | 03 A2UI | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | 04 OpenUI Lang | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
-| 06 MCP Apps | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
+| [06 MCP Apps](06_mcp_apps/) | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
 | [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |
 
 > **Build status.** Sub-themes with a link in the table above are finished

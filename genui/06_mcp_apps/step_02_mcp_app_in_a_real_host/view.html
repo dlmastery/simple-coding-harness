@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<title>Lemonade dashboard</title>
+<style>
+  /* The host hands over CSS variables at ui/initialize; each has a fallback. */
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; padding: 12px;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    background: var(--color-background-primary, #ffffff);
+    color: var(--color-text-primary, #1a1a1a);
+  }
+  h1 { font-size: 16px; margin: 0 0 8px; }
+  .muted { color: var(--color-text-secondary, #6b7280); font-size: 12px; }
+  .cards { display: flex; gap: 8px; margin: 8px 0; }
+  .card {
+    flex: 1; padding: 8px 10px; border-radius: 8px;
+    background: var(--color-background-secondary, #f3f4f6);
+    border: 1px solid var(--color-border-primary, #e5e7eb);
+  }
+  .card .value { font-size: 20px; font-weight: 600; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 90px; margin: 10px 0 4px; }
+  .bar { flex: 1; background: var(--color-text-info, #2563eb); border-radius: 3px 3px 0 0; position: relative; min-height: 2px; }
+  .bar span { position: absolute; top: 100%; left: 0; right: 0; text-align: center; font-size: 11px; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 12px; }
+  th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--color-border-primary, #e5e7eb); }
+  td.num, th.num { text-align: right; }
+  .actions { display: flex; gap: 6px; margin-top: 10px; }
+  button {
+    font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--color-border-primary, #d1d5db);
+    background: var(--color-background-secondary, #f9fafb);
+    color: var(--color-text-primary, #1a1a1a);
+  }
+  button.primary { background: var(--color-text-info, #2563eb); color: #fff; border-color: transparent; }
+</style>
+</head>
+<body>
+<h1>Lemonade stand</h1>
+<div id="status" class="muted">waiting for the host...</div>
+<div id="dashboard" hidden>
+  <div class="cards">
+    <div class="card"><div class="muted">cups sold</div><div class="value" id="cups"></div></div>
+    <div class="card"><div class="muted">revenue</div><div class="value" id="revenue"></div></div>
+    <div class="card"><div class="muted">best day</div><div class="value" id="best"></div></div>
+  </div>
+  <div class="bars" id="bars"></div>
+  <table><thead><tr><th>day</th><th class="num">temp</th><th class="num">cups</th><th class="num">revenue</th></tr></thead><tbody id="rows"></tbody></table>
+  <div class="actions">
+    <button data-days="7">7 days</button>
+    <button data-days="14">14 days</button>
+    <button data-days="28">28 days</button>
+    <button class="primary" id="tell">Tell the chat</button>
+    <button id="spec">Spec</button>
+  </div>
+</div>
+<script>
+  // --- the JSON-RPC bridge, view side: no SDK, three functions -------------
+  // Every message crosses to the host with postMessage. Requests carry an id
+  // and get a response; notifications do not. The host is window.parent.
+  const pending = new Map();
+  let nextId = 1;
+
+  function request(method, params) {
+    const id = nextId++;
+    return new Promise((resolve, reject) => {
+      pending.set(id, { resolve, reject });
+      window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+    });
+  }
+
+  function notify(method, params) {
+    window.parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+  }
+
+  function respond(id, result) {
+    window.parent.postMessage({ jsonrpc: "2.0", id, result }, "*");
+  }
+
+  const handlers = {
+    "ui/notifications/tool-input": ({ arguments: args }) => {
+      status.textContent = `loading the last ${args.days ?? 7} days...`;
+    },
+    "ui/notifications/tool-result": (result) => render(result),
+    "ui/notifications/tool-cancelled": ({ reason }) => { status.textContent = `cancelled: ${reason}`; },
+    "ui/notifications/host-context-changed": (context) => applyContext(context),
+    "ui/resource-teardown": (params, id) => respond(id, {}),  // a request: the host waits for the answer
+  };
+
+  window.addEventListener("message", (event) => {
+    const msg = event.data;
+    if (!msg || msg.jsonrpc !== "2.0") return;
+    if (msg.method) {
+      handlers[msg.method]?.(msg.params ?? {}, msg.id);
+    } else if (pending.has(msg.id)) {
+      const { resolve, reject } = pending.get(msg.id);
+      pending.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve(msg.result);
+    }
+  });
+
+  // --- rendering: structuredContent in, DOM out ----------------------------
+  const status = document.getElementById("status");
+  const dashboard = document.getElementById("dashboard");
+  let latest = null;
+
+  function render(result) {
+    const data = result.structuredContent;
+    if (!data) { status.textContent = result.content?.[0]?.text ?? "no data"; return; }
+    latest = data;
+    document.getElementById("cups").textContent = data.summary.total_cups;
+    document.getElementById("revenue").textContent = `$${data.summary.total_revenue.toFixed(2)}`;
+    document.getElementById("best").textContent = data.summary.best_day;
+    const most = Math.max(...data.rows.map((row) => row.cups));
+    const bars = document.getElementById("bars");
+    bars.replaceChildren(...data.rows.map((row) => {
+      const bar = document.createElement("div");
+      bar.className = "bar";
+      bar.style.height = `${Math.round(100 * row.cups / most)}%`;
+      bar.title = `${row.day}: ${row.cups} cups`;
+      if (data.rows.length <= 14) bar.innerHTML = `<span>${row.day}</span>`;
+      return bar;
+    }));
+    document.getElementById("rows").replaceChildren(...data.rows.map((row) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${row.day}</td><td class="num">${row.temperature} C</td><td class="num">${row.cups}</td><td class="num">$${row.revenue.toFixed(2)}</td>`;
+      return tr;
+    }));
+    status.textContent = `last ${data.days} days`;
+    dashboard.hidden = false;
+  }
+
+  function applyContext(context) {
+    const variables = context?.styles?.variables ?? {};
+    for (const [name, value] of Object.entries(variables)) {
+      if (value) document.documentElement.style.setProperty(name, value);
+    }
+    if (context?.theme) document.documentElement.style.colorScheme = context.theme;
+  }
+
+  // --- the interactive phase: the view calls tools through the host --------
+  for (const button of document.querySelectorAll("button[data-days]")) {
+    button.addEventListener("click", async () => {
+      status.textContent = `asking the server for ${button.dataset.days} days...`;
+      const result = await request("tools/call", { name: "lemonade_dashboard", arguments: { days: Number(button.dataset.days) } });
+      render(result);
+    });
+  }
+  document.getElementById("tell").addEventListener("click", () => {
+    const text = `The best day was ${latest.summary.best_day} with ${latest.summary.total_cups} cups over ${latest.days} days. Why?`;
+    request("ui/message", { role: "user", content: { type: "text", text } });
+  });
+  document.getElementById("spec").addEventListener("click", () => {
+    request("ui/open-link", { url: "https://github.com/modelcontextprotocol/ext-apps" });
+  });
+
+  // --- lifecycle: initialize, then say so, then report the size ------------
+  (async () => {
+    const init = await request("ui/initialize", {
+      appInfo: { name: "Lemonade Dashboard", version: "0.1.0" },
+      appCapabilities: { availableDisplayModes: ["inline"] },
+      protocolVersion: "2025-06-18",
+    });
+    applyContext(init.hostContext);
+    notify("ui/notifications/initialized", {});
+    new ResizeObserver(() => {
+      notify("ui/notifications/size-changed", { width: document.body.scrollWidth, height: document.body.scrollHeight + 24 });
+    }).observe(document.body);
+  })();
+</script>
+</body>
+</html>

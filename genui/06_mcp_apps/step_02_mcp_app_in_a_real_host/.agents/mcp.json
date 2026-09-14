@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "lemonade": {
+      "command": "python",
+      "args": ["server.py", "--stdio"]
+    }
+  }
+}
