@@ -1,13 +1,15 @@
-"""Verify that every Python snippet quoted in a step README exists in that step's code.
+"""Verify that every code snippet quoted in a step README exists in that step's code.
 
-Convention: a ```python block belongs to the last backticked path named above
-it in the README, such as `agent.py` or `harness/tools.py`.
+Convention: a ```python (or ```ts, ```tsx, ```js, ```jsx, ```html, ```css)
+block belongs to the last backticked path named above it in the README, such
+as `agent.py` or `harness/tools.py`.
 Every non-blank snippet line (except elisions starting with `...` or `# ...`)
 must appear, whitespace-normalised, in that file. Illustrative pseudo-code
 goes in ```text blocks, which are not checked.
 
-    python check_snippets.py            # all steps
-    python check_snippets.py 14 16      # a subset
+    python check_snippets.py            # all steps, root and genui/
+    python check_snippets.py 14 16      # a subset of the root steps
+    python check_snippets.py genui/03   # every step under genui/03_*
 """
 
 import re
@@ -15,7 +17,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-PATH_RE = re.compile(r"`([\w./-]+\.(?:py|js|toml|md|yml))`")
+PATH_RE = re.compile(r"`([\w./-]+\.(?:py|js|jsx|ts|tsx|toml|md|yml|yaml|html|css|json))`")
+FENCES = {"```python", "```ts", "```tsx", "```js", "```jsx", "```html", "```css"}
 
 
 def snippets(readme):
@@ -23,7 +26,7 @@ def snippets(readme):
     lines = readme.read_text(encoding="utf-8").splitlines()
     i = 0
     while i < len(lines):
-        if lines[i].strip() == "```python":
+        if lines[i].strip() in FENCES:
             # the file a snippet belongs to is the last `path` named above it
             paths = [m for l in lines[:i] for m in PATH_RE.findall(l)]
             j = i + 1
@@ -47,7 +50,7 @@ def check_step(step):
     problems = []
     for path, block, line in snippets(readme):
         if path is None:
-            problems.append(f"{readme}:{line}: python block has no `file.py` reference above it")
+            problems.append(f"{readme}:{line}: code block has no `file` reference above it")
             continue
         candidates = [step / path, step / "harness" / path, step / "plugin" / "simple-harness-plugin" / path]
         source = next((c for c in candidates if c.exists()), None)
@@ -64,23 +67,36 @@ def check_step(step):
     return problems
 
 
-def main():
-    wanted = {int(a) for a in sys.argv[1:]} or None
-    total, failures = 0, []
-    if wanted is None:  # the root README quotes code by full path, e.g. `step_02_4_agent_loop/agent.py`
-        found = check_step(ROOT)
-        count = sum(1 for _ in snippets(ROOT / "README.md"))
-        total += count
-        print(f"{'README.md (root)':<36} {count:>2} snippets  {'ok' if not found else f'{len(found)} problems'}")
-        failures += found
+def step_dirs(args):
+    """The step directories the arguments select: numbers pick root steps, prefixes pick series."""
+    numbers = {int(a) for a in args if a.isdigit()}
+    prefixes = [a.rstrip("/") for a in args if not a.isdigit()]
+    if not args:
+        yield ROOT, "README.md (root)"
+        if (ROOT / "genui" / "README.md").exists():
+            yield ROOT / "genui", "genui/README.md"
     for step in sorted(ROOT.glob("step_*/")):
-        number = int(step.name.split("_")[1])
-        if wanted and number not in wanted:
+        if prefixes and not numbers:
             continue
+        if numbers and int(step.name.split("_")[1]) not in numbers:
+            continue
+        yield step, step.name
+    for step in sorted(ROOT.glob("genui/*/step_*/")):
+        rel = step.relative_to(ROOT).as_posix()
+        if numbers and not prefixes:
+            continue
+        if prefixes and not any(rel.startswith(p) for p in prefixes):
+            continue
+        yield step, rel
+
+
+def main():
+    total, failures = 0, []
+    for step, label in step_dirs(sys.argv[1:]):
         found = check_step(step)
         count = sum(1 for _ in snippets(step / "README.md")) if (step / "README.md").exists() else 0
         total += count
-        print(f"{step.name:<36} {count:>2} snippets  {'ok' if not found else f'{len(found)} problems'}")
+        print(f"{label:<44} {count:>2} snippets  {'ok' if not found else f'{len(found)} problems'}")
         failures += found
     for f in failures:
         print("  " + f)
