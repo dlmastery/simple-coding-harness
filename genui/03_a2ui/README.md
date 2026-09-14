@@ -1,0 +1,30 @@
+# Sub-theme 03 - A2UI, Google's declarative protocol
+
+A2UI v0.9.1 is a streaming JSON protocol: four envelope messages
+(`createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`), a
+flat component list joined by ids, a separate data model addressed by JSON
+Pointer, and a swappable component catalog. It sits in the declarative
+middle of the generation axis in the State of Generative UI report
+(June 2026, https://www.openui.com/blog/state-of-generative-ui-report), and
+it is transport-agnostic, which the third step uses.
+
+The three steps, in order; each is self-contained and starts from a copy of
+the previous one:
+
+1. `step_01_a2ui_messages_by_hand` - the four messages built and validated
+   in Python against the official schemas, a DOM-free surface state and a
+   hand-written renderer for part of the Basic Catalog; the protocol
+   document's own contact form, streamed over SSE and rendered.
+2. `step_02_a2ui_from_a_model` - the model writes the messages: the
+   `a2ui-agent-sdk` prompt from the catalog, its stream parser for
+   progressive rendering, its repair-and-validate pass, the correction
+   loop, two-way binding, and a `Button` action answered by the server.
+3. `step_03_a2ui_lit_and_ag_ui` - the official `@a2ui/lit` renderer in the
+   page, and the same messages carried as AG-UI `CUSTOM` events from a
+   server built on `ag-ui-protocol`; the A2UI over AG-UI over A2A stack.
+
+Packages: `jsonschema` (step 01), `a2ui-agent-sdk` with `a2ui-core` (steps
+02 and 03), `ag-ui-protocol` (step 03) on the Python side; `@a2ui/lit`,
+`@a2ui/web_core`, `@a2ui/markdown-it`, `@lit/context` and `esbuild` for
+the build (step 03) on the npm side. Each step's README says what it took
+from each.

@@ -1,0 +1,8 @@
+{
+  "name": "step-01-a2ui-messages-by-hand",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test surface.test.mjs"
+  }
+}

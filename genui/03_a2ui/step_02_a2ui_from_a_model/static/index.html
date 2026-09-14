@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>A2UI from a model</title>
+  <style>
+    :root { --a2ui-primary: #1a5fb4; }
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f4f5f7; color: #1b1b1f; }
+    main { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    #prompt-form { display: flex; gap: 8px; margin-bottom: 16px; }
+    #prompt-form input { flex: 1; font: inherit; padding: 8px; border: 1px solid #b8bcc4; border-radius: 6px; }
+    #prompt-form button { font: inherit; padding: 8px 16px; border-radius: 6px; border: none; background: var(--a2ui-primary); color: #fff; cursor: pointer; }
+    /* leaf-margin strategy from the catalog guide: containers carry no spacing, leaves do */
+    .a2ui-surface { background: #fff; border: 1px solid #d9dbe0; border-radius: 12px; padding: 12px; }
+    .a2ui-card { border: 1px solid #d9dbe0; border-radius: 10px; padding: 8px; margin: 8px; }
+    .a2ui-column { display: flex; flex-direction: column; }
+    .a2ui-row { display: flex; flex-direction: row; gap: 0; }
+    .a2ui-row[data-id^="loading_"] { min-height: 28px; margin: 8px; border: 1px dashed #b8bcc4; border-radius: 6px; background: repeating-linear-gradient(90deg, #f4f5f7 0 12px, #fff 12px 24px); }
+    .a2ui-text { margin: 8px; }
+    .a2ui-h1 { font-size: 2.5em; } .a2ui-h2 { font-size: 2em; } .a2ui-h3 { font-size: 1.75em; }
+    .a2ui-caption { font-size: 0.8em; color: #666; font-style: italic; }
+    .a2ui-field { display: flex; flex-direction: column; margin: 8px; font-size: 13px; }
+    .a2ui-input { font: inherit; padding: 8px; border: 1px solid #b8bcc4; border-radius: 6px; margin-top: 4px; }
+    .a2ui-check, .a2ui-choice { display: flex; gap: 8px; align-items: center; margin: 8px; }
+    .a2ui-choices { display: flex; flex-direction: column; }
+    .a2ui-button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid #b8bcc4; background: #fff; margin: 8px; cursor: pointer; }
+    .a2ui-button .a2ui-text { margin: 0; }
+    .a2ui-primary { background: var(--a2ui-primary); color: #fff; border-color: var(--a2ui-primary); }
+    .a2ui-borderless { border: none; background: none; color: var(--a2ui-primary); }
+    .a2ui-icon { margin: 8px; font-size: 12px; color: #666; }
+    .a2ui-divider { border: none; border-top: 1px solid #d9dbe0; margin: 8px; }
+    .a2ui-placeholder { margin: 8px; padding: 4px 8px; border: 1px dashed #b8bcc4; border-radius: 6px; color: #888; font-size: 12px; }
+    .a2ui-unknown { margin: 8px; padding: 4px 8px; background: #fff3cd; border-radius: 6px; font-size: 12px; }
+    #log { margin-top: 16px; font: 12px/1.5 ui-monospace, monospace; color: #444; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>A2UI from a model</h1>
+    <form id="prompt-form">
+      <input name="prompt" value="Make a contact form with first name, email, a newsletter checkbox and a send button.">
+      <button type="submit">Generate</button>
+    </form>
+    <div id="app"></div>
+    <div id="log"></div>
+  </main>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

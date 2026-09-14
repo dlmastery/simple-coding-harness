@@ -86,6 +86,130 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 03 -->
+# Sub-theme 03: A2UI, Google's declarative protocol
+
+A2UI is a streaming JSON protocol with four envelope messages: create a
+surface, update its components, update its data model, delete it. The
+component list is flat and joined by ids. The data model is separate and
+addressed by JSON Pointer. The catalog is swappable. It is transport
+agnostic, which the third step uses.
+
+## Step 03.1: The four messages, by hand
+
+**Goal.** Build and validate the messages, and render them without a
+library.
+
+**The idea.** A Python module builds the four envelopes and validates
+them against the official schemas, with the spec's own error shape. A
+surface on the page is two maps, components by id and a data model, and
+a tree walk from `root` that returns a placeholder for a child that has
+not arrived. The demo is the protocol document's own contact form,
+streamed message by message.
+
+`03_a2ui/step_01_a2ui_messages_by_hand/static/surface.mjs`:
+
+```js
+  apply(message) {
+    const kind = messageType(message);
+    const body = message[kind];
+    if (kind === 'updateComponents') {
+      for (const component of body.components) this.components.set(component.id, component);
+    } else if (kind === 'updateDataModel') {
+      if ('value' in body) pointerSet(this.data, body.path ?? '/', body.value);
+      else pointerDelete(this.data, body.path ?? '/');
+    } else {
+      throw new Error(`${kind} is not a surface update`);
+    }
+  }
+```
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_01_a2ui_messages_by_hand
+python demo.py
+```
+
+**You should see** each message validated and applied in order, the
+contact form rendered from a flat list of components, and the data model
+filled by the last message.
+
+**Takeaway.** Structure and data are two streams. A component can be on
+screen before its value exists, and a value can change without
+resending the layout.
+
+## Step 03.2: The messages from a model
+
+**Goal.** Let the model write A2UI, render progressively, and close the
+loop with an action.
+
+**The idea.** The agent SDK builds the prompt from the catalog and parses
+the stream as it arrives, so components render before the reply ends.
+The full reply is then parsed and validated; a failure becomes a
+correction message and the model tries again. Text fields bind both ways
+into the data model, and a button posts its action to the server, which
+answers with a data model update into the path the model itself chose.
+
+`03_a2ui/step_02_a2ui_from_a_model/server.py`:
+
+```python
+        text = "".join(reply)
+        try:
+            messages, prose = prompt.parse_reply(text)
+        except ValueError as error:
+            yield "note", {"attempt": attempt, "error": str(error)[:300]}
+            for surface_id in created:
+                yield mirror(envelope.delete_surface(surface_id))
+            conversation += [{"role": "assistant", "content": text},
+                             {"role": "user", "content": f"The reply failed validation. Fix it and send the complete reply again.\n{error}"}]
+            continue
+```
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_02_a2ui_from_a_model
+python demo.py
+```
+
+**You should see** the components appear while the model is still
+writing, the validated final messages, a typed value reach the data
+model, and a click answered by the server in the status field.
+
+**Takeaway.** Validation errors are results. The correction loop is the
+stage 5 rule of the harness codelab, applied to UI.
+
+## Step 03.3: The official renderer, over AG-UI
+
+**Goal.** Swap in the reference renderer and carry the messages on the
+transport from sub-theme 02.
+
+**The idea.** The page uses the official Lit renderer. The server is
+built on the AG-UI package and carries each A2UI message as a custom
+event named `a2ui`. That is the stack the report describes, A2UI over
+AG-UI, with A2A one layer further out for agent-to-agent traffic. Each
+layer stops where the next one starts: AG-UI knows nothing about
+surfaces, and A2UI knows nothing about runs.
+
+**Try it.**
+
+```bash
+cd genui/03_a2ui/step_03_a2ui_lit_and_ag_ui
+npm install && npm run build
+python demo.py
+```
+
+**You should see** the run lifecycle events, then custom events carrying
+a surface and its components, the form rendered by the official
+components, and a submit that reaches the server with the typed values.
+
+![A2UI over AG-UI, rendered by the official Lit renderer](03_a2ui/step_03_a2ui_lit_and_ag_ui/demo.png)
+
+**Takeaway.** A format and a transport are separate choices. This step
+changes both and the agent's code changes in one place each.
+
+
 <!-- SUBTHEME 01 -->
 # Sub-theme 01: Foundations
 
@@ -703,7 +827,7 @@ and nothing executable.
 |---|---|---|
 | [01 foundations](01_foundations/) | static components, declarative tree, open-ended HTML, hybrid escape hatch | none |
 | [02 AG-UI](02_ag_ui/) | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
-| 03 A2UI | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
+| [03 A2UI](03_a2ui/) | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | [04 OpenUI Lang](04_openui_lang/) | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
 | [06 MCP Apps](06_mcp_apps/) | app resource, in a real host | `mcp`, `@modelcontextprotocol/ext-apps` |
