@@ -2511,6 +2511,60 @@ user, and the iteration limit.
 call budget is `iteration_limit`. Every `model.message` carries a token
 breakdown, which is step 32's `/context` view.
 
+**The code.** Four stages of this codelab are nine lines of one spec.
+
+`step_49_trueforge_context/client/context.py`:
+
+```python
+    return AgentSpec(
+        model=Model(name=model),
+        instructions=instructions,
+        config=RuntimeConfig(
+            context_management=ContextManagementConfig(
+                compaction=CompactionConfig(
+                    enabled=True,
+                    trigger=InputTokensCompactionTrigger(type="input_tokens", value=compact_at),
+                ),
+                large_tool_response=LargeToolResponseConfig(enabled=True),
+            ),
+            iteration_limit=iteration_limit,
+            ask_user_questions=AskUserQuestionsConfig(enabled=True),
+        ),
+    )
+```
+
+The client keeps the two jobs the server cannot do: answer a question and
+show the bill. Step 35 answered inside the tool call. Here the server has
+no terminal, so it ends the turn with a pending question and the client
+starts a new turn whose input is only the answers.
+
+`step_49_trueforge_context/client/questions.py`:
+
+```python
+    turns = [context.stream_turn(client, session_id, [UserMessage(content=prompt)], on_delta)]
+    while turns[-1].pending:
+        replies = answers(turns[-1], read)
+        if not replies:
+            break  # pending calls that are not questions; nothing this client can answer
+        turns.append(context.stream_turn(client, session_id, replies, on_delta))
+    return turns
+```
+
+**Try it.**
+
+```bash
+cd step_49_trueforge_context
+python demo.py "set up a project for me"
+```
+
+**You should see** the spec summary, the agent's question with numbered
+options, your answer, the reply, and a token table per model call with
+the harness, skills, instructions, tool definitions and messages columns.
+Two things the recorded run found: a crossed iteration limit ends the
+turn with status `error` and a message asking you to request again, and
+the breakdown is a server-side estimate, so read its columns as
+proportions and the `input` column as the bill.
+
 **Takeaway.** Context engineering became configuration.
 
 ## Step 50: Subagents, sessions and evaluation
@@ -2610,7 +2664,7 @@ runs and who holds the credentials.
 | 46 | the loop on TrueForge | `client/loop.py` |
 | 47 | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
 | 48 | sandbox, skills, code mode | `client/sandbox.py` |
-| 49 | context, questions, stop conditions | `client/context.py` |
+| [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
 | 50 | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | 51 | TrueForge versus this codelab versus managed agents | `README.md` |
 
