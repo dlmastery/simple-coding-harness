@@ -2607,6 +2607,56 @@ TrueForge uses a sandbox as a tool: created on demand, files kept across
 turns, credentials never inside it. Skills are `SKILL.md` directories in a
 git repository, loaded when the model picks them.
 
+**The code.** One flag turns the sandbox on. Skills attach by name, and
+two server quirks show in the spec builder: the SDK's skill model sends a
+key the server rejects, and an explicit empty skills list is rejected
+too, so the key is set only when needed.
+
+`step_48_trueforge_sandbox_skills/client/sandbox.py`:
+
+```python
+def agent_spec(skills: typing.Sequence[str] = ()) -> AgentSpec:
+    """An inline agent with the sandbox on, file downloads allowed and the named skills attached."""
+    spec = AgentSpec(
+        model=Model(name=MODEL),
+        instructions=INSTRUCTIONS,
+        config=RuntimeConfig(sandbox=SandboxConfig(enabled=True, file_downloads=True)),
+    )
+    if skills:  # an explicit `skills: null` is rejected, so the key is set only when needed
+        spec.skills = [SkillRef(name=name) for name in skills]
+    return spec
+```
+
+The turn reads as one line per event. The sandbox is created after the
+first `exec` call, not before the turn, which is the "on demand" in
+sandbox as a tool. Its id carries the working directory, which the file
+download needs afterwards.
+
+```python
+    if kind == "turn.created":
+        return [f"turn.created     {event.turn_id}"]
+    if kind == "sandbox.created":
+        return [f"sandbox.created  {event.sandbox_id}"]
+    if kind == "tool.response":
+        return [f"tool.response    {tool_output(event.content)}"]
+```
+
+**Try it.**
+
+```bash
+cd step_48_trueforge_sandbox_skills
+python demo.py
+python register_skill.py && python demo.py --skill
+```
+
+**You should see** the model write and run `hello.py` in a sandbox that
+appears mid-turn, the Python version reported from inside it, the stored
+event list, and the produced file downloaded next to you. With the skill
+registered, the token breakdown shows a `skills` column. On the recording
+machine the skill body itself did not load: the local sandbox's egress
+proxy aborted the git clone. Code mode has no flag; it is automatic with
+the sandbox on.
+
 **Takeaway.** Same mechanisms, different host: the sandbox and the skills
 belong to the server, not to your machine.
 
@@ -2773,7 +2823,7 @@ runs and who holds the credentials.
 | [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
 | [46](step_46_trueforge_loop/) | the loop on TrueForge | `client/loop.py` |
 | [47](step_47_trueforge_tools_mcp/) | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
-| 48 | sandbox, skills, code mode | `client/sandbox.py` |
+| [48](step_48_trueforge_sandbox_skills/) | sandbox, skills, code mode | `client/sandbox.py` |
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
 | 50 | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | 51 | TrueForge versus this codelab versus managed agents | `README.md` |
