@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AG-UI step 03 - the harness in the browser</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 0; background: #f6f7f9; color: #1f2933; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 16px; grid-template-columns: 2fr 1fr; }
+  h1 { grid-column: 1 / -1; font-size: 18px; margin: 0; }
+  form { grid-column: 1 / -1; display: flex; gap: 8px; }
+  input { flex: 1; padding: 8px 10px; border: 1px solid #cbd2d9; border-radius: 6px; font: inherit; }
+  button { padding: 8px 14px; border: 0; border-radius: 6px; background: #2563eb; color: white; font: inherit; cursor: pointer; }
+  section { background: white; border: 1px solid #e4e7eb; border-radius: 8px; padding: 12px; min-height: 240px; }
+  section h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #52606d; margin: 0 0 8px; }
+  .message { padding: 8px 10px; border-radius: 6px; margin-bottom: 8px; white-space: pre-wrap; }
+  .user { background: #eef2ff; }
+  .assistant { background: #f0fdf4; }
+  .tool { background: #fff7ed; font: 12px/1.4 ui-monospace, monospace; word-break: break-all; }
+  .tool .result { color: #52606d; display: block; margin-top: 4px; white-space: pre-wrap; max-height: 120px; overflow: auto; }
+  .permission { background: #fef3c7; font-size: 12px; }
+  .todos { list-style: none; padding: 0; margin: 0; }
+  .todos li { padding: 4px 0; border-bottom: 1px solid #e4e7eb; }
+  .todos .completed { color: #9aa5b1; text-decoration: line-through; }
+  .todos .in_progress { font-weight: 600; color: #2563eb; }
+  #usage { font-size: 12px; color: #52606d; margin-top: 12px; }
+  #wire { font: 11px/1.4 ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; color: #3e4c59; margin: 0; max-height: 200px; overflow: auto; }
+  #status { grid-column: 1 / -1; color: #52606d; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>AG-UI step 03: the harness codelab's loop, driven from the browser</h1>
+  <form id="ask">
+    <input id="prompt" value="Create hello.py that prints 'hello from AG-UI', then run it with python and report the output." autocomplete="off">
+    <button type="submit">Run</button>
+  </form>
+  <section><h2>Chat</h2><div id="chat"></div></section>
+  <section><h2>Todos (shared state)</h2><ul id="todos" class="todos"></ul><div id="usage"></div></section>
+  <section style="grid-column: 1 / -1; min-height: 0"><h2>Wire (one event per line)</h2><pre id="wire"></pre></section>
+  <div id="status">idle</div>
+</main>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

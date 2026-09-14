@@ -1,0 +1,16 @@
+{
+  "name": "genui-02-step-03-ag-ui-from-the-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild client-entry.mjs --bundle --format=esm --platform=browser --outfile=vendor/ag-ui-client.js --log-level=warning",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@ag-ui/client": "0.0.59"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

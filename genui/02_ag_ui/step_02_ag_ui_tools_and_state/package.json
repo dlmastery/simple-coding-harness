@@ -1,0 +1,9 @@
+{
+  "name": "genui-02-step-02-ag-ui-tools-and-state",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

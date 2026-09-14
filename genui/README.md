@@ -86,6 +86,157 @@ says what its steps add in order.
 
 <!-- SUBTHEMES -->
 
+<!-- SUBTHEME 02 -->
+# Sub-theme 02: AG-UI, the transport
+
+AG-UI is an event protocol. A run is a request. The server streams typed
+events back over Server-Sent Events: lifecycle, text, tool calls, state.
+Nothing in it says what the UI looks like. That is why it is the transport
+the report recommends for an agent inside your own product.
+
+## Step 02.1: An AG-UI server, and a client written by hand
+
+**Goal.** Stream one run's events from a real model call and read them
+with `fetch`.
+
+**The idea.** The agent is a plain Python generator that never sees HTTP.
+It yields events; the endpoint encodes them one per line. A model
+failure becomes a terminal event, not a broken stream. The page reads
+the stream with a 25-line SSE reader and a switch on the event type.
+
+`02_ag_ui/step_01_ag_ui_server/agent.py`:
+
+```python
+def run(input: RunAgentInput):
+    """Yield the events of one run. A model failure becomes RUN_ERROR, not a broken stream."""
+    yield RunStartedEvent(thread_id=input.thread_id, run_id=input.run_id)
+    message_id = str(uuid4())
+    try:
+        yield TextMessageStartEvent(message_id=message_id, role="assistant")
+        for delta in stream_text(to_openai(input.messages)):
+            yield TextMessageContentEvent(message_id=message_id, delta=delta)
+        yield TextMessageEndEvent(message_id=message_id)
+    except Exception as error:  # noqa: BLE001 - the client must see a terminal event
+        yield RunErrorEvent(message=str(error))
+        return
+    yield RunFinishedEvent(thread_id=input.thread_id, run_id=input.run_id)
+```
+
+**Try it.**
+
+```bash
+cd genui/02_ag_ui/step_01_ag_ui_server
+python demo.py
+```
+
+**You should see** the exact wire bytes, one `data:` line per event from
+`RUN_STARTED` to `RUN_FINISHED`, the assembled text, and the page
+rendering the same reply.
+
+**Takeaway.** The transport is the whole protocol. The events carry text
+here; the next step makes them carry UI.
+
+## Step 02.2: Tools and shared state
+
+**Goal.** Generative UI as state, the AG-UI way.
+
+**The idea.** Server tools do not draw. They return JSON Patch operations
+against a `dashboard` object. The server applies them, streams them as
+`STATE_DELTA`, and the page re-renders from state. One tool belongs to
+the page: the server streams the call and ends the run, the page shows
+Confirm or Decline, and the answer returns as a tool message on the next
+run with no user text.
+
+`02_ag_ui/step_02_ag_ui_tools_and_state/agent.py`:
+
+```python
+            waiting_on_client = False
+            for call_id, call in calls.items():
+                if call["name"] in client_tools:
+                    waiting_on_client = True  # the page runs it; its result opens the next run
+                    continue
+                result, operations = execute(call["name"], json.loads(call["arguments"] or "{}"))
+                if operations:
+                    apply_patch(state, operations)
+                    yield StateDeltaEvent(delta=operations)
+                yield ToolCallResultEvent(message_id=str(uuid4()), tool_call_id=call_id, content=result, role="tool")
+                messages.append({"role": "tool", "tool_call_id": call_id, "content": result})
+            if waiting_on_client:
+                break
+```
+
+**Try it.**
+
+```bash
+cd genui/02_ag_ui/step_02_ag_ui_tools_and_state
+python demo.py
+```
+
+**You should see** three metric tool calls each followed by a state
+delta, a table and a chart, then "Buy a new cooler for $40" end the run
+at the client tool, and the purchase recorded after the confirm click.
+
+**Takeaway.** State is the UI. A patch stream is a UI stream.
+
+## Step 02.3: The harness codelab's loop, speaking AG-UI
+
+**Goal.** Drive the stage 21 harness from a browser with the official
+client.
+
+**The idea.** The harness's model call blocks and reports text through a
+callback. A worker thread runs it and pushes every callback onto a
+queue; a generator drains the queue. From there every part of the loop
+maps to an event: deltas to text content, assembled tool calls to tool
+call events, tool results to results, permission questions to custom
+events, the todo list to a state delta, and the usage dict to the
+finished event. The page only subscribes.
+
+`02_ag_ui/step_03_ag_ui_from_the_harness/bridge.py`:
+
+```python
+def streamed(messages):
+    """call_llm as a generator: ("delta", text) while it streams, then ("message", (message, usage)).
+
+    call_llm blocks and reports text through a callback. A worker thread runs
+    it and pushes every callback onto a queue; this generator drains the queue.
+    """
+    items = queue.Queue()
+
+    def worker():
+        try:
+            result = call_llm(messages, on_delta=lambda text: items.put(("delta", text)))
+            items.put(("message", result))
+        except Exception as error:  # noqa: BLE001 - re-raised on the generator side
+            items.put(("error", error))
+
+    threading.Thread(target=worker, daemon=True).start()
+    while True:
+        kind, payload = items.get()
+        if kind == "error":
+            raise payload
+        yield kind, payload
+        if kind == "message":
+            return
+```
+
+**Try it.**
+
+```bash
+cd genui/02_ag_ui/step_03_ag_ui_from_the_harness
+npm install && npm run build
+python demo.py
+```
+
+**You should see** a coding task run from the browser: the file written,
+the command run after a permission event, the answer streamed, and a
+second task planned with the todo list live in a side panel.
+
+![The harness codelab's loop driven from the browser over AG-UI](02_ag_ui/step_03_ag_ui_from_the_harness/demo.png)
+
+**Takeaway.** The loop did not change. Its callbacks became events, and
+a browser became a client.
+
+
 <!-- SUBTHEME 07 -->
 # Sub-theme 07: Generative UI in the harness
 
@@ -192,7 +343,7 @@ and nothing executable.
 | Sub-theme | Steps | Packages |
 |---|---|---|
 | 01 foundations | static components, declarative tree, open-ended HTML, hybrid escape hatch | none |
-| 02 AG-UI | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
+| [02 AG-UI](02_ag_ui/) | server, tools and state, from the harness | `ag-ui-protocol`, `@ag-ui/client` |
 | 03 A2UI | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | 04 OpenUI Lang | parser, React renderer, format benchmark | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | 05 json-render | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react` |
