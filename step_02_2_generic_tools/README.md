@@ -7,6 +7,16 @@ This stage sets that file up before any more tools arrive.
 `llm.py` into `tools.py`, and the model's tool call is dispatched through a
 table instead of an `if` on the name.
 
+## Files
+
+```text
+step_02_2_generic_tools/
+├── llm.py           dispatches the tool call through the TOOLS table
+├── tools.py         the tool registry: TOOLS and TOOL_SCHEMAS
+├── test_step.py     offline tests: registry and schemas agree, dispatch by name
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. Two tables in `tools.py`

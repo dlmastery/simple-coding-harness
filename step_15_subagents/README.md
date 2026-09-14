@@ -20,6 +20,34 @@ tool: "This project is ..."     ◀───── only this crosses back
 assistant: (summary for you)
 ```
 
+## Files
+
+```text
+step_15_subagents/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop hands every tool call to tools.execute()
+│   ├── commands.py      slash commands, unchanged
+│   ├── compact.py       the compaction agent, unchanged
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged
+│   ├── history.py       tool output caps, unchanged
+│   ├── llm.py           the system prompt explains when to delegate a task
+│   ├── permissions.py   the rule table, unchanged
+│   ├── prompt.py        the input line, unchanged
+│   ├── sandbox.py       the OS sandbox, unchanged
+│   ├── session.py       transcripts on disk, unchanged
+│   ├── skills.py        skills, unchanged
+│   ├── subagent.py      task(): a fresh agent with toolset() and MAX_TURNS
+│   ├── todos.py         the plan, unchanged
+│   ├── tools.py         gains the task tool and execute(), the shared entry
+│   └── ui.py            the subagent() panel and nested tool panels
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: toolset, isolation, permissions, cutoff
+├── pyproject.toml       package metadata; version 0.15.0
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. Rule 2: which tools the subagent gets

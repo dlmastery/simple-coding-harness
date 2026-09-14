@@ -9,6 +9,16 @@ injection and stripping logic becomes one request filter.
 through `OpenAIChatCompletionsModel`, so the same `BASE_URL` / `API_KEY` /
 `MODEL` as stages 1-15.
 
+## Files
+
+```text
+step_17_openai_agents_sdk/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill, read by our read_skill tool
+├── harness.py         Runner, SQLiteSession, wrapped stage 5 tools, approvals, the REPL
+├── rules.py           the stage 11 allow / ask / deny table, unchanged
+└── test_step.py       offline tests; the Runner is never invoked
+```
+
 ## Concept map
 
 | Step | We built | OpenAI Agents SDK | Who writes it now |

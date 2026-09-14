@@ -31,6 +31,19 @@ already knew the codename. The bracketed line is the usage line from the
 turn's `metrics`; the reply itself arrived as deltas on stdout, and the
 usage line goes to stderr so `-p` output stays pipeable.
 
+## Files
+
+```text
+step_46_trueforge_loop/
+├── client/          a thin client for one agent loop on a TrueForge server
+│   ├── __init__.py  package marker
+│   └── loop.py      chat(): one session, one streamed turn, deltas as they arrive
+├── demo.py          a chat REPL on TrueForge, with --resume and -p headless mode
+├── setup_server.py  registers the OpenAI provider and one model on the server
+├── test_step.py     offline tests: the real SDK against a fake server in a thread
+└── README.md        this file
+```
+
 ## Setup
 
 TrueForge runs as one process. `npx @truefoundry/trueforge@latest` starts

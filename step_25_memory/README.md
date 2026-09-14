@@ -7,6 +7,37 @@ inside a `<memory>` tag. A `/memory` command lists the notes with their
 scope and type. After a compaction, the handoff note is saved as a memory
 too, so the next session can pick up where this one stopped.
 
+## Files
+
+```text
+step_25_memory/
+├── harness/
+│   ├── memory.py      persistent memory: markdown files with front matter, two scopes
+│   ├── tools.py       the registry gains memory: remember, recall and forget
+│   ├── context.py     the late block carries the memory index in a <memory> tag
+│   ├── llm.py         streams; the system prompt says when to remember and recall
+│   ├── commands.py    /memory lists what the agent remembers, with scope and type
+│   ├── compact.py     the compaction agent; its handoff note is now kept as a memory
+│   ├── agent.py       the loop from step 24, image markers included
+│   ├── subagent.py    the subagent loop from step 24, shared by task and browse
+│   ├── computer.py    the three computer-use tools from step 24
+│   ├── browser.py     six browser tools from step 23
+│   ├── browse.py      the browse subagent from step 23
+│   ├── permissions.py allow / ask / deny rules, including browser and computer
+│   ├── history.py     keeps the transcript small, pictures included
+│   ├── ui.py          replay, streaming panels and headless() from step 24
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests against a fake client and a temp memory home
+├── pyproject.toml     package metadata; version 0.25.0
+└── README.md          this file
+```
+
 ## Why memory, and why as files
 
 Every session up to now started blank. The agent learned that the user

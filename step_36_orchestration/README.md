@@ -14,6 +14,62 @@ worked once more with the reviewer's notes. Steps the plan marks
 `[parallel]` run at the same time on the step 29 thread pool. A summary
 table closes the run.
 
+## Files
+
+```text
+step_36_orchestration/
+├── harness/
+│   ├── __init__.py       package marker
+│   ├── agent.py          the loop; Ctrl-C steers the turn instead of killing it
+│   ├── agents.py         agent definitions: subagents described in Markdown files
+│   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
+│   ├── browse.py         the browse tool set over the step 23 browser subagent
+│   ├── browser.py        browser tools: one Chromium page driven through Playwright
+│   ├── budget.py         the context budget: where the window goes, when to warn
+│   ├── checkpoint.py     workspace checkpoints: file copies taken before each edit
+│   ├── commands.py       slash commands: /pipeline joins /undo, /rewind, /checkpoints
+│   ├── compact.py        the compaction agent; its note is kept
+│   ├── computer.py       computer use: the screen as a tool
+│   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py        the late injection block: <env>, <plan>, <jobs>
+│   ├── durability.py     the loop detector and the crash-recovery scan
+│   ├── evaluate.py       the evaluation harness; `isolated` auto-answers prompts
+│   ├── history.py        keeps the transcript small enough to send, pictures too
+│   ├── hooks.py          hook events with a built-in list; checkpoint capture is one
+│   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
+│   ├── jobs.py           background jobs: commands that run while the chat goes on
+│   ├── llm.py            the model call with retries; the prompt lists the agent definitions
+│   ├── mcp_client.py     MCP client: tools served by other processes over stdio
+│   ├── memory.py         persistent memory
+│   ├── permissions.py    which calls need a human; session rules from `a` and `never`
+│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
+│   ├── plan.py           plan mode: the read-only tool set, ask_user included
+│   ├── prompt.py         the input line
+│   ├── sandbox.py        an OS sandbox for bash
+│   ├── session.py        append-only JSONL session log, load() and --resume
+│   ├── skills.py         skills, unchanged since stage 9
+│   ├── subagent.py       the subagent loop; withheld() and the gather() thread pool
+│   ├── todos.py          the plan behind write_todos
+│   ├── tools.py          the tool registry; agents.register() adds agent_<name> at import
+│   └── ui.py             rich panels; pipeline() draws the summary table
+├── .agents/
+│   ├── .gitignore                     ignores tool_log.txt, the PostToolUse hook's log
+│   ├── hooks.json                     hook config: one PreToolUse and one PostToolUse hook
+│   ├── block_env_writes.py            example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py                example PostToolUse hook: appends every tool name to a log
+│   ├── mcp.json                       MCP config: one stdio server, echo
+│   ├── mcp_echo_server.py             a tiny MCP server: two tools, stdio transport
+│   ├── skills/explain-code/SKILL.md   the stage 4 skill
+│   ├── agents/planner.md              definition: reads the code, returns a numbered plan
+│   ├── agents/worker.md               definition: carries out one plan step with the edit tools
+│   └── agents/reviewer.md             definition: checks one step, answers PASS or FAIL
+├── evals/           three step 30 tasks: task.md, check.py or expect.txt, workspace/
+├── AGENTS.md        project instructions the harness reads into its prompt
+├── test_step.py     offline tests: definitions, /pipeline and the loop on a fake model
+├── pyproject.toml   package metadata; version 0.36.0
+└── README.md        this file
+```
+
 ## Why definitions and a pipeline
 
 Step 15 gave the harness one subagent, the explorer behind `task`. It

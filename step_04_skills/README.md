@@ -18,6 +18,21 @@ description: How to explain a piece of code…  → into the system prompt (inde
 1. Read the whole file first ...
 ```
 
+## Files
+
+```text
+step_04_skills/
+├── .agents/skills/explain-code/SKILL.md   the example project skill
+├── agent.py         the loop, unchanged from stage 3
+├── llm.py           the system prompt carries the skills index
+├── skills.py        find_skills(), skills_prompt() and read_skill()
+├── tools.py         the registry gains read_skill
+├── ui.py            the presentation layer, unchanged
+├── test_step.py     offline tests: front matter indexed, body read on demand
+├── pyproject.toml   package metadata; version 0.4.0
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. Where skills live

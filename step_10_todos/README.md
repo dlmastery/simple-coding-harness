@@ -16,6 +16,28 @@ on every call.
 </todos>
 ```
 
+## Files
+
+```text
+step_10_todos/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop, with the spinner showing the active todo
+│   ├── commands.py      slash commands, unchanged
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block gains the <todos> list
+│   ├── llm.py           the system prompt explains when to plan with write_todos
+│   ├── session.py       transcripts on disk, unchanged
+│   ├── skills.py        skills, unchanged
+│   ├── todos.py         the plan: TODOS, write_todos(), todos_prompt()
+│   ├── tools.py         the registry gains write_todos
+│   └── ui.py            the presentation layer, unchanged
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: write_todos replaces and validates
+├── pyproject.toml       package metadata; version 0.10.0
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. The list and the tool

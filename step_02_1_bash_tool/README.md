@@ -10,6 +10,15 @@ is not yet sent back to the model; that is stage 2.4.
 you ──▶ model ──▶ tool_call: bash {"command": "pwd"} ──▶ subprocess.run ──▶ printed for you
 ```
 
+## Files
+
+```text
+step_02_1_bash_tool/
+├── llm.py           the chat, plus a bash tool the harness runs on request
+├── test_step.py     offline test: a tool call is parsed and executed
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. The system prompt says the tool exists

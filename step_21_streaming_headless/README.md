@@ -6,6 +6,33 @@ written, not after it is finished. The inner loop moves into a function,
 `harness -p PROMPT`, runs one turn without the chat and prints the answer
 to stdout, so the harness can sit inside a script or a pipe.
 
+## Files
+
+```text
+step_21_streaming_headless/
+├── harness/
+│   ├── llm.py         call_llm streams: text deltas, tool calls assembled chunk by chunk
+│   ├── agent.py       turn() runs one user message; -p PROMPT runs one turn headless
+│   ├── ui.py          stream_start / stream_delta / stream_end; headless() to stderr
+│   ├── tools.py       the registry; execute() is the one permission-checked entry point
+│   ├── commands.py    slash commands, unchanged since stage 14
+│   ├── compact.py     the compaction agent from stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── history.py     keeps the transcript small: trims old tool output
+│   ├── permissions.py allow / ask / deny rules; which tool calls need a human
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   ├── subagent.py    exploration subagents with their own context window
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests against a fake streaming client
+├── pyproject.toml     package metadata; version 0.21.0
+└── README.md          this file
+```
+
 ## Why stream
 
 Up to step 15 the harness sent a request and waited. The spinner turned for

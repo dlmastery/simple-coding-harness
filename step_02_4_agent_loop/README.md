@@ -19,6 +19,17 @@ messages ──▶ call_llm ──▶ tool calls? ──yes──▶ run each to
                         the answer
 ```
 
+## Files
+
+```text
+step_02_4_agent_loop/
+├── agent.py         the harness loop: call, append, run tools, repeat
+├── llm.py           call_llm(messages): the request becomes a function
+├── tools.py         tools, unchanged from 2.3
+├── test_step.py     offline test: a scripted model drives the loop
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. `llm.py` becomes a function

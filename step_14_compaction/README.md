@@ -9,6 +9,33 @@ that.
 compaction agent that summarises the past into a handoff note kept in the
 system prompt (`compact.py`). Plus `/compact`.
 
+## Files
+
+```text
+step_14_compaction/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop calls fit(), sweep(), strip() and compact()
+│   ├── commands.py      slash commands gain /compact
+│   ├── compact.py       the compaction agent: summarize() and compact()
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged
+│   ├── history.py       cap(), spill(), sweep(), strip() and fit()
+│   ├── llm.py           call_llm takes an optional tool set
+│   ├── permissions.py   the rule table, unchanged
+│   ├── prompt.py        the input line, unchanged
+│   ├── sandbox.py       the OS sandbox, unchanged
+│   ├── session.py       the log records compactions so --resume reloads them
+│   ├── skills.py        skills, unchanged
+│   ├── todos.py         the plan, unchanged
+│   ├── tools.py         bash and read_file cap their output via history.cap()
+│   └── ui.py            the compacted() panel shows the handoff note
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: cap, strip, fit, compaction, the log
+├── pyproject.toml       package metadata; version 0.14.0
+└── README.md            this file
+```
+
 ## Part 1 - Tool output (`history.py`)
 
 Tool call output is the main reason a transcript explodes.

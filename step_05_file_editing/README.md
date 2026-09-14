@@ -7,6 +7,21 @@ one block of text in a file for another.
 **What this stage adds:** the agent can change code. Two tools in
 `tools.py`, one line in the system prompt.
 
+## Files
+
+```text
+step_05_file_editing/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── agent.py         the loop, unchanged
+├── llm.py           the system prompt tells the model how to edit
+├── skills.py        skill discovery, unchanged from stage 4
+├── tools.py         the registry gains write_file and str_replace
+├── ui.py            the presentation layer, unchanged
+├── test_step.py     offline tests: write then replace; five tools registered
+├── pyproject.toml   package metadata; version 0.4.0
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. `write_file`

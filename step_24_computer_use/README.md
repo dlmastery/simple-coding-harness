@@ -7,6 +7,36 @@ scrolls. A screenshot does not come back as text: the tool result carries a
 marker, and the loop turns that marker into an image message the model can
 look at. Every act asks for approval unless `COMPUTER_AUTO=1`.
 
+## Files
+
+```text
+step_24_computer_use/
+├── harness/
+│   ├── computer.py    computer_screen, computer_screenshot, computer_act
+│   ├── agent.py       an [[image:PATH]] marker in a result becomes an image message
+│   ├── subagent.py    the subagent loop, shared by task and browse, shows pictures too
+│   ├── tools.py       the registry gains the computer
+│   ├── permissions.py allow / ask / deny rules, now including the computer
+│   ├── llm.py         streams; the system prompt says how to use the screen
+│   ├── history.py     keeps the transcript small, pictures included
+│   ├── compact.py     the compaction agent reads an image message by its caption
+│   ├── ui.py          replay draws an image message by its caption; streaming as in 21
+│   ├── browser.py     six browser tools from step 23
+│   ├── browse.py      the browse subagent from step 23
+│   ├── commands.py    slash commands, unchanged since stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests; ImageGrab and pyautogui are replaced by fakes
+├── pyproject.toml     package metadata; version 0.24.0
+└── README.md          this file
+```
+
 ## Why the screen, and why as a picture
 
 Step 23 gave the agent a browser. That covers web pages, but not the rest

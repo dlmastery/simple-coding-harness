@@ -71,6 +71,15 @@ The server is TrueForge 0.1.4 in standalone mode. `sandbox`, `skill` and
 `settings` are the three switches the server exposes; all three are on.
 The model was registered by step 46's `setup_server.py`.
 
+## Files
+
+```text
+step_51_trueforge_comparison/
+├── demo.py       prints one capability's comparison table from this file
+├── test_step.py  offline checks of the README's shape and the demo
+└── README.md     this file: the comparison, thirteen tables
+```
+
 ## How to read the tables
 
 - **This codelab** names the stage or step that built the mechanism and

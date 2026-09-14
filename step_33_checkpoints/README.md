@@ -11,6 +11,55 @@ turns and the files each one changed. The capture is a hook, not a change
 to the tools: `hooks.py` gains a `BUILTIN` list that the harness
 registers itself, and it runs before every hook from `hooks.json`.
 
+## Files
+
+```text
+step_33_checkpoints/
+├── harness/
+│   ├── llm.py                        the model call; lists the deferred tools, offers active_schemas()
+│   ├── tools.py                      the registry; deferred tools, load_tool(), active_schemas()
+│   ├── agent.py                      the loop; turn() numbers each turn and calls begin_turn()
+│   ├── checkpoint.py                 workspace checkpoints: capture before a write, undo a turn
+│   ├── hooks.py                      hooks; BUILTIN holds the checkpoint capture on PreToolUse
+│   ├── commands.py                   slash commands; /undo, /rewind restores files, /checkpoints
+│   ├── evaluate.py                   the eval harness; isolated() clears the run's checkpoints
+│   ├── budget.py                     the context budget: breakdown(), render(), check()
+│   ├── plan.py                       plan mode; load_tool joins the read-only tools
+│   ├── instructions.py               finds AGENTS.md / CLAUDE.md from home and git root down
+│   ├── jobs.py                       background jobs: Popen through the sandbox, a job table, kill_all
+│   ├── subagent.py                   the subagent loop; task runs one subagent per description
+│   ├── permissions.py                allow / ask / deny; a job is rated by the bash rules
+│   ├── context.py                    the late injection block, with a <jobs> tag
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load(), /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; usage() shows the estimate, context() the breakdown
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── hooks.json                    hook config: block .env writes, log every tool name
+│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
+│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── evals/                            one folder per task: task.md, a checker, optional workspace/
+├── AGENTS.md                         the project instruction file the harness reads at start
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.33.0
+└── README.md                         this file
+```
+
 ## Why checkpoints
 
 Step 8 gave the chat a `/rewind`. It cut the transcript back to an

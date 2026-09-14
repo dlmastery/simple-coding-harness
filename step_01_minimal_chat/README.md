@@ -11,6 +11,15 @@ a time, so it is worth reading slowly.
 you type a prompt ──▶ [system message, user message] ──▶ model ──▶ reply text + usage
 ```
 
+## Files
+
+```text
+step_01_minimal_chat/
+├── llm.py           one request, one reply: the whole program
+├── test_step.py     offline test: the script against a fake OpenAI client
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. The client and its credentials

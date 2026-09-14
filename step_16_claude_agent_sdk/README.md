@@ -9,6 +9,16 @@ as a library. It spawns the `claude` CLI as a subprocess and speaks to it
 over JSON. Every mechanism from stages 1-15 has a counterpart. The table says
 which ones you configure and which ones you never see again.
 
+## Files
+
+```text
+step_16_claude_agent_sdk/
+├── .claude/skills/explain-code/SKILL.md   the stage 4 skill, where the SDK looks for it
+├── harness.py         the SDK client: policy hook, @tool tools, show(), the REPL
+├── rules.py           the stage 11 allow / ask / deny table, unchanged
+└── test_step.py       offline tests: policy, hooks, config; never launches Claude
+```
+
 ## Concept map
 
 | Step | We built | Claude Agent SDK | Who writes it now |

@@ -7,6 +7,53 @@ Their text goes into the system prompt, one header per file. `/init` sends
 a subagent to survey the project and writes its report to `AGENTS.md`
 after `approve? (y/n)`. `/instructions` lists the files that were loaded.
 
+## Files
+
+```text
+step_31_instruction_files/
+├── harness/
+│   ├── llm.py                        the model call; the system prompt carries the instruction files
+│   ├── tools.py                      the registry; bash_background, job_status, job_wait, job_kill
+│   ├── agent.py                      the loop; main() has subcommands, harness eval <suite>
+│   ├── instructions.py               finds AGENTS.md / CLAUDE.md from home and git root down
+│   ├── commands.py                   slash commands; /init writes AGENTS.md, /instructions lists
+│   ├── evaluate.py                   the eval harness: runs a suite through turn(), scores each run
+│   ├── jobs.py                       background jobs: Popen through the sandbox, a job table, kill_all
+│   ├── subagent.py                   the subagent loop; task runs one subagent per description
+│   ├── permissions.py                allow / ask / deny; a job is rated by the bash rules
+│   ├── context.py                    the late injection block, with a <jobs> tag
+│   ├── plan.py                       plan mode: MODE, toolset(), PLAN_SCHEMA, submit_plan, approval
+│   ├── hooks.py                      hooks: reads hooks.json, runs commands and functions per event
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load(), /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; confirm() asks before a command writes a file
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── hooks.json                    hook config: block .env writes, log every tool name
+│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
+│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── evals/                            one folder per task: task.md, a checker, optional workspace/
+├── AGENTS.md                         the project instruction file the harness reads at start
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.31.0
+└── README.md                         this file
+```
+
 ## Why a file, and why the system prompt
 
 Every project has facts the model cannot guess: which command runs the

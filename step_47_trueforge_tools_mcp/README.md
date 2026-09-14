@@ -47,6 +47,21 @@ turn carries the answer. Answer `n` instead and the model reads
 `User denied tool call: The user denied this tool call.` as the tool
 result, exactly like stage 11.
 
+## Files
+
+```text
+step_47_trueforge_tools_mcp/
+├── client/          the TrueForge connection and the approval loop
+│   ├── __init__.py  package marker
+│   ├── connect.py   one place that builds the client; truststore on Windows
+│   └── approve.py   stream a turn, answer its approval pauses, resume
+├── tools_server.py  the five coding tools as a FastMCP server on port 8931
+├── register.py      registers the tools server with TrueForge and lists its tools
+├── demo.py          one coding task end to end, with the approval prompt
+├── test_step.py     offline tests: the MCP server in-process, a fake SSE server
+└── README.md        this file
+```
+
 ## Why tools become a server
 
 In the hand-built harness the tools are Python functions in the same

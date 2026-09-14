@@ -9,6 +9,22 @@ injection.
 **What this stage adds:** a small block of fresh facts attached to every
 request, at the very end, and never stored in the transcript.
 
+## Files
+
+```text
+step_06_late_injection/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── agent.py         the loop sends messages + [reminder()]
+├── context.py       the late injection block: date, git branch
+├── llm.py           call_llm, unchanged
+├── skills.py        skill discovery, unchanged from stage 4
+├── tools.py         tools, unchanged
+├── ui.py            the presentation layer, unchanged
+├── test_step.py     offline tests: the block is sent but never stored
+├── pyproject.toml   package metadata; version 0.4.0
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. The block

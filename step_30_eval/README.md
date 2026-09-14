@@ -10,6 +10,51 @@ a table, and writes `eval_report.json` next to the tasks. `--repeat N`
 runs every task N times and reports a pass rate. Three tasks ship in
 `evals/`.
 
+## Files
+
+```text
+step_30_eval/
+├── harness/
+│   ├── llm.py                        the model call; build_system_prompt(cwd) for any workspace
+│   ├── tools.py                      the registry; bash_background, job_status, job_wait, job_kill
+│   ├── agent.py                      the loop; main() has subcommands, harness eval <suite>
+│   ├── evaluate.py                   the eval harness: runs a suite through turn(), scores each run
+│   ├── jobs.py                       background jobs: Popen through the sandbox, a job table, kill_all
+│   ├── subagent.py                   the subagent loop; task runs one subagent per description
+│   ├── permissions.py                allow / ask / deny; a job is rated by the bash rules
+│   ├── context.py                    the late injection block, with a <jobs> tag
+│   ├── commands.py                   slash commands; /jobs lists jobs, running or ended
+│   ├── plan.py                       plan mode: MODE, toolset(), PLAN_SCHEMA, submit_plan, approval
+│   ├── hooks.py                      hooks: reads hooks.json, runs commands and functions per event
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load(), /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; eval_table() draws the result of an eval run
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── hooks.json                    hook config: block .env writes, log every tool name
+│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
+│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── evals/                            one folder per task: task.md, a checker, optional workspace/
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.30.0
+└── README.md                         this file
+```
+
 ## Why an eval harness
 
 Every change to a prompt, a tool description or a permission rule changes

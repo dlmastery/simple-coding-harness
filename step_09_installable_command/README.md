@@ -14,6 +14,27 @@ harness/
 pyproject.toml    [project.scripts] harness = "harness.agent:main"
 ```
 
+## Files
+
+```text
+step_09_installable_command/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         main(): the stage 8 loop, indented one level
+│   ├── commands.py      slash commands, unchanged from stage 8
+│   ├── config.py        BASE_URL / API_KEY / MODEL from env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged from stage 8
+│   ├── llm.py           call_llm reads its credentials from config.py
+│   ├── session.py       transcripts on disk, unchanged from stage 8
+│   ├── skills.py        skills, unchanged from stage 4
+│   ├── tools.py         tools, unchanged from stage 8
+│   └── ui.py            the presentation layer, unchanged from stage 8
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: the console script runs the loop; config
+├── pyproject.toml       [project.scripts] harness = "harness.agent:main"; 0.9.0
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. The entry point

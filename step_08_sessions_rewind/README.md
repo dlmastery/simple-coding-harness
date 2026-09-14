@@ -18,6 +18,24 @@ to `git status`, because a dict does not survive a restart.
 {"role": "user", "content": "actually, do it differently"}
 ```
 
+## Files
+
+```text
+step_08_sessions_rewind/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── agent.py         the loop; reads --resume, --debug and slash commands
+├── commands.py      slash commands: /rewind, /sessions
+├── context.py       the late block, now watching git status for changes
+├── llm.py           call_llm, unchanged
+├── session.py       append-only JSONL log, load(), /rewind markers
+├── skills.py        skill discovery, unchanged from stage 4
+├── tools.py         tools; note_seen is gone, git watches files now
+├── ui.py            replay, session picker, late block and debug panels
+├── test_step.py     offline tests: save, rewind, git reminder, commands
+├── pyproject.toml   package metadata; version 0.4.0
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. Append-only saving

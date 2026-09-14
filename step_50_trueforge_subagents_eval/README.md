@@ -72,6 +72,24 @@ Both outputs were recorded against the local server with
 where single quotes are not quotes. The tools server now runs `bash` when
 one is on PATH, and every task passes.
 
+## Files
+
+```text
+step_50_trueforge_subagents_eval/
+├── .gitignore       ignores eval_report.json and __pycache__
+├── client/          threads, sessions and the eval runner on TrueForge
+│   ├── __init__.py  package marker
+│   ├── common.py    connect(), as_dict() and the EventIndex every module shares
+│   ├── threads.py   parallel subagents as threads; ThreadPrinter indents by thread
+│   ├── sessions.py  list sessions, turns and stored events; replay; reconnect
+│   └── evaluate.py  the step 30 eval format, one session per task over MCP
+├── evals/           one folder per task: task.md, check.py or expect.txt, optional workspace/
+├── tools_server.py  the five coding tools as an MCP server for the eval runner
+├── demo.py          --threads, --eval, --sessions, --replay
+├── test_step.py     offline tests: a fake server in a thread, the real SDK
+└── README.md        this file
+```
+
 ## Why these three together
 
 Stage 15 built a subagent as a second loop over the same tools. Step 29

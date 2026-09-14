@@ -6,6 +6,16 @@ That is the whole change.
 **What this stage adds:** a second tool, and proof that stage 2.2 paid
 off: `llm.py` does not change.
 
+## Files
+
+```text
+step_02_3_read_file/
+├── llm.py           unchanged from 2.2
+├── tools.py         the registry gains read_file
+├── test_step.py     offline tests: read_file, and the script reading itself
+└── README.md        this file
+```
+
 ## The code
 
 `tools.py`:

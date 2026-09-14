@@ -7,6 +7,34 @@ ordered list of fallbacks, optional provider preferences, and a request for
 per-call cost. Two commands, `/models` and `/route`, let you inspect and
 change the route while the chat is running.
 
+## Files
+
+```text
+step_20_openrouter/
+├── harness/
+│   ├── llm.py         the client points at OpenRouter; sends the route, reads the cost
+│   ├── openrouter.py  the route: primary model, fallbacks, provider preferences
+│   ├── tools.py       the registry; execute() is the one permission-checked entry point
+│   ├── agent.py       the loop, unchanged from stage 15
+│   ├── commands.py    /models shows the route and catalogue; /route swaps it in place
+│   ├── ui.py          usage() shows which model answered and what the call cost
+│   ├── compact.py     the compaction agent from stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── history.py     keeps the transcript small: trims old tool output
+│   ├── permissions.py allow / ask / deny rules; which tool calls need a human
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   ├── subagent.py    exploration subagents with their own context window
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests against a fake client
+├── pyproject.toml     package metadata; version 0.20.0
+└── README.md          this file
+```
+
 ## What OpenRouter is
 
 OpenRouter is a gateway. It exposes one endpoint, `https://openrouter.ai/api/v1`,

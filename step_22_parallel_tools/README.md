@@ -6,6 +6,33 @@ still come one at a time, in order, before anything runs. The results
 come back in the order the model asked for them. The subagent gets the
 same behaviour, because it uses the same code.
 
+## Files
+
+```text
+step_22_parallel_tools/
+├── harness/
+│   ├── tools.py       execute() splits into decide() and run(); execute_all() uses a pool
+│   ├── agent.py       one reply's tool calls go to execute_all(); results back in order
+│   ├── subagent.py    exploration subagents, now on the parallel tool path
+│   ├── llm.py         streams; the system prompt says independent calls run together
+│   ├── ui.py          streaming panels and headless() from step 21
+│   ├── commands.py    slash commands, unchanged since stage 14
+│   ├── compact.py     the compaction agent from stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── history.py     keeps the transcript small: trims old tool output
+│   ├── permissions.py allow / ask / deny rules; which tool calls need a human
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests: ordering, decisions on one thread, the pool
+├── pyproject.toml     package metadata; version 0.22.0
+└── README.md          this file
+```
+
 ## Why run tool calls together
 
 A model that has learned to batch its work sends replies like this: read

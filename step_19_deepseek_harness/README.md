@@ -14,6 +14,20 @@ pip install --pre deepseek-harness-sdk
 export DEEPSEEK_API_KEY=sk-...
 ```
 
+## Files
+
+```text
+step_19_deepseek_harness/
+├── harness.py         the Python client: the patch, sessions, notifications, the REPL
+├── plugin/simple-harness-plugin/
+│   ├── package.json           plugin metadata; `npm run check` syntax-checks and tests
+│   └── src/
+│       ├── index.js           the policy plugin: a tools/pre-execute gate
+│       ├── rules.js           the stage 11 rules, ported to JavaScript
+│       └── rules.test.js      plain node unit test of decide() and splitCommand()
+└── test_step.py       offline tests: patch, client config, renderer, plugin via node
+```
+
 ## Two halves
 
 ```text

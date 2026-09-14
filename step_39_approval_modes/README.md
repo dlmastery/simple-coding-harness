@@ -11,6 +11,74 @@ five: it delegates to step 28, and leaving it brings back the mode the
 user had before. A `deny` rule and a session `never` from step 35 hold
 in every mode, `auto` included.
 
+## Files
+
+```text
+step_39_approval_modes/
+├── harness/
+│   ├── __init__.py       package marker
+│   ├── agent.py          the loop; --mode starts the chat in an approval mode
+│   ├── agents.py         agent definitions: subagents described in Markdown files
+│   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
+│   ├── browse.py         the browse tool set over the step 23 browser subagent
+│   ├── browser.py        browser tools: one Chromium page driven through Playwright
+│   ├── budget.py         the context budget: where the window goes, when to warn
+│   ├── checkpoint.py     workspace checkpoints: file copies taken before each edit
+│   ├── commands.py       slash commands: /mode joins /pipeline, /undo, /rewind
+│   ├── compact.py        the compaction agent; its note is kept
+│   ├── computer.py       computer use: the screen as a tool
+│   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py        the late injection block; <env> names the approval mode
+│   ├── durability.py     the loop detector and the crash-recovery scan
+│   ├── evaluate.py       the evaluation harness; run_suite(workspace=DIR) grades a copy
+│   ├── history.py        keeps the transcript small enough to send, pictures too
+│   ├── hooks.py          hook events with a built-in list; checkpoint capture is one
+│   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
+│   ├── jobs.py           background jobs: commands that run while the chat goes on
+│   ├── llm.py            the model call with retries; the prompt lists the agent definitions
+│   ├── mcp_client.py     MCP client: tools served by other processes over stdio
+│   ├── memory.py         persistent memory
+│   ├── modes.py          named permission policies, one layer above the rules
+│   ├── permissions.py    the rules, then modes.apply rewrites an allow or an ask
+│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
+│   ├── plan.py           plan mode: the read-only tool set, ask_user included
+│   ├── prompt.py         the input line
+│   ├── sandbox.py        an OS sandbox for bash
+│   ├── session.py        append-only JSONL session log, load() and --resume
+│   ├── skills.py         skills, unchanged since stage 9
+│   ├── subagent.py       the subagent loop; TASK_SCHEMA has no top-level anyOf
+│   ├── todos.py          the plan behind write_todos
+│   ├── tools.py          the tool registry; run() turns a raised exception into Error:
+│   └── ui.py             rich panels; pipeline() draws the summary table
+├── .agents/
+│   ├── .gitignore                     ignores tool_log.txt, the PostToolUse hook's log
+│   ├── hooks.json                     hook config: one PreToolUse and one PostToolUse hook
+│   ├── block_env_writes.py            example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py                example PostToolUse hook: appends every tool name to a log
+│   ├── mcp.json                       MCP config: one stdio server, echo
+│   ├── mcp_echo_server.py             a tiny MCP server: two tools, stdio transport
+│   ├── skills/explain-code/SKILL.md   the stage 4 skill
+│   ├── agents/planner.md              definition: reads the code, returns a numbered plan
+│   ├── agents/worker.md               definition: carries out one plan step with the edit tools
+│   └── agents/reviewer.md             definition: checks one step, answers PASS or FAIL
+├── evals/           three step 30 tasks: task.md, check.py or expect.txt, workspace/
+├── capstone/        the end-to-end task, carried over from step 38
+│   ├── task.md         the brief: a FastAPI todo API with SQLite, tests and a README
+│   ├── run.py          the runner: one headless harness run, then the eval suite
+│   ├── evals/          five checks, one folder each: task.md, check.py; _common.py helpers
+│   ├── reference/      hand-written solution that proves the checks are passable
+│   │   ├── app.py        the todo API: FastAPI on top of a SQLite file
+│   │   ├── test_app.py   its tests; every test gets an empty database
+│   │   └── README.md     its README, with the run section check 4 looks for
+│   ├── report.json     the recorded run: calls, tokens, cost and the check results
+│   ├── SCORECARD.md    the recorded run as a markdown scorecard, 4/5
+│   └── transcript.md   the recorded run's messages, readable
+├── AGENTS.md        project instructions the harness reads into its prompt
+├── test_step.py     offline tests: every mode through permissions.check and the loop
+├── pyproject.toml   package metadata; version 0.39.0
+└── README.md        this file
+```
+
 ## Why a mode above the rules
 
 The rules of step 11 answer one question per call: does this call run,

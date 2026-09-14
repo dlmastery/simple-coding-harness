@@ -13,6 +13,22 @@ read_file / write_file / str_replace ──▶ SEEN[path] = mtime
 next call: reminder() ──▶ any path whose mtime moved ──▶ <system-reminder> in the late block
 ```
 
+## Files
+
+```text
+step_07_file_freshness/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── agent.py         the loop, unchanged from stage 6
+├── context.py       SEEN mtimes, note_seen() and the stale-file note
+├── llm.py           call_llm, unchanged
+├── skills.py        skill discovery, unchanged from stage 4
+├── tools.py         the file tools call note_seen on every touch
+├── ui.py            the presentation layer, unchanged
+├── test_step.py     offline tests: a changed file is reported once
+├── pyproject.toml   package metadata; version 0.4.0
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. Remembering what the agent saw

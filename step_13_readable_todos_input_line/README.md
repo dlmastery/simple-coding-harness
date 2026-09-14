@@ -6,6 +6,31 @@ change to the loop, the tools or the context.
 **What this stage adds:** the plan is drawn as a checklist instead of raw
 tool output, and typing goes through prompt_toolkit instead of `input()`.
 
+## Files
+
+```text
+step_13_readable_todos_input_line/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop, unchanged from stage 12
+│   ├── commands.py      slash commands, unchanged
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged
+│   ├── llm.py           call_llm, unchanged
+│   ├── permissions.py   the rule table, unchanged
+│   ├── prompt.py        the input line: prompt_toolkit read() with history
+│   ├── sandbox.py       the OS sandbox, unchanged
+│   ├── session.py       transcripts on disk, unchanged
+│   ├── skills.py        skills, unchanged
+│   ├── todos.py         the plan, unchanged
+│   ├── tools.py         tools, unchanged
+│   └── ui.py            todos render as a checklist; input via prompt.read()
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: the checklist; the input line is wired
+├── pyproject.toml       package metadata; version 0.13.0, adds prompt-toolkit
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. The checklist panel

@@ -5,6 +5,35 @@ through Playwright, a `browse` subagent that holds those tools, and a
 permission rule for opening URLs. The main agent gets only `browse`. It
 never sees a page dump.
 
+## Files
+
+```text
+step_23_browser_use/
+├── harness/
+│   ├── browser.py     six browser tools: one Chromium page, driven through Playwright
+│   ├── browse.py      the browse subagent: fresh history, the browser tools, one report
+│   ├── subagent.py    the subagent loop, shared by task and browse
+│   ├── tools.py       the registry gains the browser; the main agent is offered only browse
+│   ├── permissions.py allow / ask / deny rules, now with a rule for opening URLs
+│   ├── llm.py         streams; the system prompt says when to send the browser subagent
+│   ├── agent.py       main() closes the browser on the way out; the turn loop is unchanged
+│   ├── ui.py          streaming panels and headless() from step 21
+│   ├── commands.py    slash commands, unchanged since stage 14
+│   ├── compact.py     the compaction agent from stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── history.py     keeps the transcript small: trims old tool output
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash
+│   ├── session.py     append-only JSONL session log, unchanged since stage 14
+│   ├── skills.py      skills, unchanged since stage 9
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests with a fake page; Playwright is never launched
+├── pyproject.toml     package metadata; version 0.23.0
+└── README.md          this file
+```
+
 ## Why a browser, and why behind a subagent
 
 A coding agent that can only read files stops at the edge of the disk.

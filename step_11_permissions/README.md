@@ -13,6 +13,29 @@ tool call ──▶ check(name, args) ──▶ allow ──▶ run
                                 ──▶ deny  ──▶ "Blocked by policy: ..."
 ```
 
+## Files
+
+```text
+step_11_permissions/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop asks permissions.check() before every tool
+│   ├── commands.py      slash commands, unchanged
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged
+│   ├── llm.py           call_llm, unchanged
+│   ├── permissions.py   BASH_RULES, decide() and check(): allow / ask / deny
+│   ├── session.py       transcripts on disk, unchanged
+│   ├── skills.py        skills, unchanged
+│   ├── todos.py         the plan, unchanged
+│   ├── tools.py         tools, unchanged
+│   └── ui.py            gains approve(), the allow? (y/n) prompt
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: verdicts; the loop denies, asks, allows
+├── pyproject.toml       package metadata; version 0.11.0
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. The rules

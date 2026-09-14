@@ -8,6 +8,48 @@ act, and the plan rides in the late block until every todo is completed.
 On no the model stays in plan mode and gets the user's feedback. `/plan`
 and `/act` switch modes by hand.
 
+## Files
+
+```text
+step_28_plan_mode/
+├── harness/
+│   ├── llm.py                        the model call; PLAN_PROMPT and with_mode() per request
+│   ├── tools.py                      the registry; submit_plan can run but is offered only in plan mode
+│   ├── agent.py                      the loop; tool set and system prompt read per call for the mode
+│   ├── plan.py                       plan mode: MODE, toolset(), PLAN_SCHEMA, submit_plan, approval
+│   ├── permissions.py                allow / ask / deny per tool call; plan mode denies writes
+│   ├── context.py                    the late injection block; mode in <env>, a <plan> tag
+│   ├── commands.py                   slash commands; /plan and /act switch the mode
+│   ├── hooks.py                      hooks: reads hooks.json, runs commands and functions per event
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── subagent.py                   the subagent loop shared by task and browse
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load(), /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; the banner names the mode, plan() and approve_plan()
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── hooks.json                    hook config: block .env writes, log every tool name
+│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
+│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.28.0
+└── README.md                         this file
+```
+
 ## Why a mode, and why a schema
 
 Up to now the model could start editing the moment it had an idea. For a

@@ -65,6 +65,21 @@ download failed (404): File not found: /home/you/.local/share/trueforge/sandboxe
 session deleted
 ```
 
+## Files
+
+```text
+step_48_trueforge_sandbox_skills/
+├── client/                       the sandbox turn and the skill helpers
+│   ├── __init__.py               package marker
+│   ├── sandbox.py                a sandboxed turn: events, stored events, file download
+│   └── skills.py                 skills on TrueForge: front matter to a GitHub-URL manifest
+├── skills/explain-code/SKILL.md  the stage 4 skill; supplies the manifest description
+├── demo.py                       one sandboxed turn; --skill, --download, --keep
+├── register_skill.py             registers the skill from this repo's GitHub URL
+├── test_step.py                  offline tests: a fake server streams SSE and serves a file
+└── README.md                     this file
+```
+
 ## Sandbox as a tool, not around the agent
 
 | | Stage 12 | TrueForge |

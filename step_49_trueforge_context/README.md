@@ -55,6 +55,19 @@ status: done
 
 Without `--answer` the `answer>` prompt waits for the keyboard.
 
+## Files
+
+```text
+step_49_trueforge_context/
+├── client/           context, questions and stop conditions on TrueForge
+│   ├── __init__.py   package marker
+│   ├── context.py    build_spec, the turn stream and the token breakdown table
+│   └── questions.py  tool.response_required -> ask on the terminal -> resume
+├── demo.py           an agent that asks before it acts, then the usage table
+├── test_step.py      offline tests: a fake server streams a question, then a reply
+└── README.md         this file
+```
+
 ## Why these four belong together
 
 Stages 14, 32, 34 and 35 and step 41 each added code to the loop: a

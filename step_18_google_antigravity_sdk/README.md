@@ -10,6 +10,16 @@ Linux, macOS and Windows). Auth is `GEMINI_API_KEY`, or Vertex credentials.
 The runtime can also be pointed at an OpenAI-compatible endpoint with
 `LocalOpenAIAgentConfig(base_url=...)`. Same harness, different model.
 
+## Files
+
+```text
+step_18_google_antigravity_sdk/
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill, loaded via skills_paths
+├── harness.py         Agent config, policy hook, three hooks, one subagent, two tools
+├── rules.py           the stage 11 allow / ask / deny table, unchanged
+└── test_step.py       offline tests: policy, hooks, config; the runtime never starts
+```
+
 ## Concept map
 
 | Step | We built | Antigravity SDK | Who writes it now |

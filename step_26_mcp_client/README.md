@@ -8,6 +8,42 @@ any other tool. A `/mcp` command lists the servers, and an `MCP_ALLOW`
 list decides which tools may run without asking. A tiny echo server ships
 in `.agents/`, so the harness shows real MCP tools out of the box.
 
+## Files
+
+```text
+step_26_mcp_client/
+├── harness/
+│   ├── llm.py                        the model call; the system prompt names the MCP tools
+│   ├── tools.py                      the registry, grown at run time by mcp_client.register()
+│   ├── agent.py                      the loop; starts the MCP servers first, stops them last
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── permissions.py                allow / ask / deny per tool call, MCP tools included
+│   ├── commands.py                   slash commands; /mcp lists servers, status and tools
+│   ├── context.py                    the late injection block, with the memory index
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── subagent.py                   the subagent loop shared by task and browse
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load(), /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; streams the reply, headless() sends panels to stderr
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.26.0
+└── README.md                         this file
+```
+
 ## Why MCP
 
 Every tool so far is a Python function in this package. Adding one means

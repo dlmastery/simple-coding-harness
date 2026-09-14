@@ -14,6 +14,30 @@ where the OS provides one, and every command has a timeout.
 | enforced by | the harness, in Python | the kernel |
 | beaten by | `python -c "shutil.rmtree(...)"` | nothing the process can do |
 
+## Files
+
+```text
+step_12_sandbox/
+├── harness/
+│   ├── __init__.py      marks the package
+│   ├── agent.py         the loop, with the sandbox name in the banner
+│   ├── commands.py      redraw() shows the sandbox name in the banner
+│   ├── config.py        settings from the env or ~/.simple-harness/env
+│   ├── context.py       the late block, unchanged
+│   ├── llm.py           call_llm, unchanged
+│   ├── permissions.py   the rule table, unchanged from stage 11
+│   ├── sandbox.py       wrap(), name() and run(): the OS sandbox and timeout
+│   ├── session.py       transcripts on disk, unchanged
+│   ├── skills.py        skills, unchanged
+│   ├── todos.py         the plan, unchanged
+│   ├── tools.py         bash runs inside the sandbox with a timeout
+│   └── ui.py            the banner shows which OS sandbox is active
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py         offline tests: sandbox name and run; timeout is a result
+├── pyproject.toml       package metadata; version 0.12.0
+└── README.md            this file
+```
+
 ## The code, piece by piece
 
 ### 1. One policy, written as a macOS Seatbelt profile

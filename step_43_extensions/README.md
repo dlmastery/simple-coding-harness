@@ -16,6 +16,82 @@ too. Two examples ship: `git_tools.py`, with a `git_diff_summary` tool
 and a `/status` command, and `word_count.py`, with one paragraph for the
 system prompt.
 
+## Files
+
+```text
+step_43_extensions/
+├── .agents/                          project config the harness loads at start
+│   ├── .gitignore                    ignores tool_log.txt written by the PostToolUse hook
+│   ├── agents/                       one .md per agent definition: front matter + prompt
+│   │   ├── coder.md                  writes, changes and tests code; hands off to reviewer
+│   │   ├── planner.md                returns a numbered plan without changing anything
+│   │   ├── reviewer.md               checks the diff against one plan step: PASS or FAIL
+│   │   ├── router.md                 picks the specialist and hands the conversation off
+│   │   └── worker.md                 executes one plan step with the edit tools
+│   ├── extensions/                   project extension files, one apply(ctx) each
+│   │   ├── git_tools.py              example: a git_diff_summary tool and a /status command
+│   │   └── word_count.py             example: one paragraph of the system prompt
+│   ├── skills/explain-code/SKILL.md  the stage 4 skill
+│   ├── hooks.json                    hook config: which script runs on which event
+│   ├── mcp.json                      MCP config: the echo server, started with the chat
+│   ├── block_env_writes.py           example PreToolUse hook: refuse to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: append every tool name to a log
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── require_tests.py              example Stop hook: a .py edit must be followed by pytest
+├── capstone/                         the step 38 capstone, carried forward
+│   ├── evals/                        one folder per check: task.md, check.py; _common.py shared
+│   ├── reference/                    a hand-written todo API: app.py, test_app.py, README.md
+│   ├── run.py                        one headless harness run on the brief, then the eval suite
+│   ├── task.md                       the brief: a small todo API in an empty directory
+│   ├── report.json                   the recorded run: model, timing, per-check results
+│   ├── SCORECARD.md                  the recorded run as a table, 4/5
+│   └── transcript.md                 the recorded run's transcript
+├── evals/                            one folder per task: task.md, check.py or expect.txt, optional workspace/
+├── harness/                          the Python harness
+│   ├── __init__.py                   package marker
+│   ├── agent.py                      the loop; four ways a turn ends; the harness subcommands
+│   ├── agents.py                     agent definitions as an extension; agent_<name> tools
+│   ├── ask_user.py                   the ask_user tool: a question, numbered options, the answer
+│   ├── browse.py                     the browse tool set, gated by active_schemas()
+│   ├── browser.py                    browser tools: one Chromium page driven through Playwright
+│   ├── budget.py                     the context budget: where the window goes, when to warn
+│   ├── checkpoint.py                 workspace checkpoints: a copy of every file before an edit
+│   ├── commands.py                   slash commands; /extensions; registry commands run here too
+│   ├── compact.py                    the compaction agent; its note is kept
+│   ├── computer.py                   computer use: the screen as a tool
+│   ├── config.py                     settings; real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py                    the late injection block: <env>, <plan>, <jobs>, active agent
+│   ├── durability.py                 the loop detector and the crash-recovery scan
+│   ├── evaluate.py                   the eval runner; run_suite can grade one workspace
+│   ├── extensions.py                 the registry: tool, command, hook, prompt_section, agent
+│   ├── handoff.py                    handoffs: the conversation moves to another agent definition
+│   ├── history.py                    cap / strip / fit: the transcript small enough to send
+│   ├── hooks.py                      hooks as an extension; run_hooks over registry and config files
+│   ├── instructions.py               project instruction files (AGENTS.md) into the prompt
+│   ├── jobs.py                       background jobs: shell commands that keep running
+│   ├── llm.py                        the model call; prompt sections come from the registry
+│   ├── mcp_client.py                 MCP as an extension; servers start with the chat
+│   ├── memory.py                     persistent memory
+│   ├── modes.py                      named permission policies, one layer above the rules
+│   ├── permissions.py                which tool calls need a human; modes sit above the rules
+│   ├── pipeline.py                   the plan, work, review pipeline behind /pipeline
+│   ├── plan.py                       plan mode: read-only tools, propose, act after approval
+│   ├── prompt.py                     the input line
+│   ├── sandbox.py                    an OS sandbox for bash
+│   ├── session.py                    append-only JSONL log; handoff entries applied on load
+│   ├── skills.py                     skills as an extension: read_skill and the prompt section
+│   ├── stop.py                       stop conditions: finish(summary) and the turn budgets
+│   ├── streaming.py                  streaming tool output: lines reach the screen as they arrive
+│   ├── subagent.py                   subagents: task tool, nested loop with a live panel
+│   ├── todos.py                      the plan
+│   ├── tools.py                      core tools; TOOLS and TOOL_SCHEMAS filled through extensions
+│   └── ui.py                         rich panels, live ToolStream panels for running tools
+├── AGENTS.md                         project instructions read into the system prompt
+├── test_step.py                      offline tests: extension files in a temp dir, a fake model
+├── pyproject.toml                    package metadata; version 0.43.0
+└── README.md                         this file
+```
+
 ## Why one registry
 
 Four steps taught the harness to load things from files. Each one wrote

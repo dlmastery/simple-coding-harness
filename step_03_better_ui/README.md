@@ -6,6 +6,19 @@ The plain white command line gives way to a styled terminal interface.
 and an outer loop, so the program is a chat instead of a one-shot script.
 No new agent capability.
 
+## Files
+
+```text
+step_03_better_ui/
+├── agent.py         the 2.4 loop, drawn by ui.py and wrapped in a chat
+├── llm.py           call_llm, unchanged from 2.4
+├── tools.py         tools, unchanged
+├── ui.py            the rich presentation layer: everything that draws
+├── test_step.py     offline test: two chat turns through the two loops
+├── pyproject.toml   package metadata; version 0.3.0, depends on rich
+└── README.md        this file
+```
+
 ## The code, piece by piece
 
 ### 1. Two loops in `agent.py`
