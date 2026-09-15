@@ -1,0 +1,307 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 05",
+      "title": "json-render, Vercel's declarative renderer",
+      "lead": "json-render is one of the open formats in the declarative middle of the report: the model emits a JSON document that names components from a catalog you wrote, and a renderer draws it. Sub-theme 01 built that loop by hand. This sub-theme hands the prompt, the parser and the renderer to the library: one defineCatalog object produces the system prompt, the typed component map, the validation and the JSON Schema. The spec is a flat element map that streams as RFC 6902 patches, and the same spec renders in a browser and in a terminal.",
+      "steps": [
+        {"id": "05.1", "title": "A catalog and the React Renderer"},
+        {"id": "05.2", "title": "Streaming JSON Patch into the element map"},
+        {"id": "05.3", "title": "Actions, and a second target"}
+      ],
+      "notes": "Sub-theme 05 is the third open format in the declarative middle, after A2UI and OpenUI Lang. The difference from sub-theme 01 is not the idea but who does the work: the library. One catalog object with Zod props produces four things at once, and the spec shape is a flat map of elements addressed by id, which is what makes streaming and later edits cheap. Three steps: a whole spec painted once, the same spec streamed as patches, and then buttons that drive the next model turn plus a terminal renderer. Packages are pinned at 0.20.0 in every step."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 05.1 · Level 15 of 23 · your own product",
+      "title": "The catalog is the contract: one object, four outputs",
+      "headline": "`defineCatalog` with Zod props produces the **prompt, the JSON Schema, the typed registry and the validator**, and the page paints once when the whole spec arrives.",
+      "bullets": [
+        "Six components with Zod props; `.nullable()` marks a prop the model may skip and the prompt shows it as `subtitle?`.",
+        "`catalog.prompt()` writes the system prompt; four extra rules ask for one JSON object instead of the library's native JSONL.",
+        "Python never imports the catalog: `prompt.mjs` and `catalog_json.mjs` run once and the text is cached in `prompt.txt` and `catalog.json`.",
+        "`spec.py` checks the reply against that JSON Schema: unknown types, dangling child ids, wrong prop types.",
+        "`defineRegistry` maps each entry to a React function written with `htm`; no JSX, no bundler, an import map of pinned esm.sh builds.",
+        "The spec is a flat element map `{root, elements, state}`, not a nested tree; elements name each other by id."
+      ],
+      "diagram": {"type": "flow", "direction": "down", "nodes": [
+        {"label": "catalog.mjs", "sub": "defineCatalog: six components, Zod props", "kind": "catalog"},
+        {"label": "prompt.txt", "sub": "catalog.prompt(), about 4,100 tokens", "kind": "model"},
+        {"label": "catalog.json and spec.py", "sub": "JSON Schema; the Python check", "kind": "server"},
+        {"label": "registry.mjs", "sub": "defineRegistry: one React function per entry", "kind": "page"}
+      ], "caption": "Change a prop in the catalog and three of the four outputs regenerate; only the registry needs a hand edit."},
+      "takeaway": "One annotation in the catalog reaches three layers: the prompt, the JSON Schema and the Python check.",
+      "notes": "This step gives the hand-built loop of sub-theme 01 to a library. The single idea to land is that the catalog is the contract. One object with Zod props produces the prompt the model reads, the JSON Schema the server checks against, the typed component map the page renders with, and the validator. Point at the diagram: the prompt and the schema are cached text files, so the Python server never runs Node at request time. Note the spec shape: a flat map of elements keyed by id. That shape looks odd now and pays off in the next step. The demo still paints once, after the whole object arrives."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.1 · code walkthrough",
+      "title": "Six components, Zod props, one description each",
+      "snippet": {"file": "05_json_render/step_01_json_render_catalog/catalog.mjs", "from": "export const catalog = defineCatalog(schema, {", "to": "description: \"Lays its children out side by side.\",", "maxWidth": 96},
+      "callouts": [
+        {"line": 1, "text": "`schema` from `@json-render/react/schema` fixes the spec shape: `{root, elements: {id: {type, props, children}}}`."},
+        {"line": 6, "text": "`.nullable()` is the one annotation: the prompt shows `subtitle?`, the JSON Schema allows null, `spec.py` accepts it."},
+        {"line": 8, "text": "The description goes into the generated prompt word for word; it is the model's only guide to when to use the component."}
+      ],
+      "caption": "The same file serves the prompt export, the JSON Schema export, the page and the Node tests.",
+      "notes": "Read the file top down. defineCatalog takes the React schema and an object of components. Each component is a Zod props object and a description. Line 6 is the one to dwell on: nullable is a single annotation, and it shows up in three places, the prompt, the JSON Schema and the Python check. Line 8 matters more than it looks: the description is the whole of what the model knows about when to pick Card over Row. The four custom rules that follow in the file ask for one complete object; step 05.2 deletes them and streams."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.1 · code walkthrough",
+      "title": "The server checks the spec for the three faults a renderer fails on quietly",
+      "snippet": {"file": "05_json_render/step_01_json_render_catalog/spec.py", "from": "for element_id, element in elements.items():", "to": "problems.append(f\"{element_id}: {kind}.{where}: {error.message}\")", "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "An unknown type: the catalog has no such component, so the renderer would draw nothing for that element."},
+        {"line": 7, "text": "A dangling child id: a parent names an element that is not in the map."},
+        {"line": 9, "text": "Expression props such as `{\"$state\": ...}` are set aside; the renderer resolves them before the component sees them."}
+      ],
+      "caption": "Python cannot run the Zod schema, so it validates against the JSON Schema `catalog_json.mjs` exported: two runtimes, one catalog.",
+      "notes": "This is the validator output of the catalog, on the Python side. Three faults are checked because those are the ones a renderer fails on without an error: an unknown type, a child id that points nowhere, and a prop of the wrong type. Line 9 is the subtle one. The model may write a prop as an expression, a $state or $template reference, and the renderer resolves those before the component sees them, so the check skips them rather than failing on a string where it expected a number. The jsonschema validator runs the exported schema; catalog.validate does the same job in Node."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 05.1 · quick demo",
+      "title": "The whole dashboard arrived at 5.8 s and painted once",
+      "image": "05_json_render/step_01_json_render_catalog/demo.png",
+      "imageWidth": 6.5, "imageHeight": 4.9,
+      "stats": [
+        {"value": "5.8 s", "label": "first paint, after the complete spec", "color": "amber"},
+        {"value": "9", "label": "elements in the spec"},
+        {"value": "4,109", "label": "prompt tokens; 351 completion tokens"}
+      ],
+      "notice": [
+        "Three metrics in a row, then two cards with tables: the model's own layout from six components.",
+        "The three numbers live in `state`; the metrics read them with `$state` and `$template` props.",
+        "Nothing rendered before 5.8 s; the reply was 351 tokens, the prompt 4,109."
+      ],
+      "caption": "Most of the 4,100-token prompt is the library's text about state, repeats, events and visibility: the price of a general renderer.",
+      "notes": "The recorded run. One request, one complete spec, one paint at 5.8 seconds. The picture is the lemonade dashboard the model composed from six components: a card, a row of three metrics, two cards with tables. Look at the token split: 4,109 in the prompt against 351 in the reply. The prompt is that long because the library describes its whole feature set, state, repeats, events, visibility, for six components. Sub-theme 04 measured the other side of that trade with a smaller DSL. Also note the model put numbers in state and referenced them from props, which the prompt suggests and the renderer resolves."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 05.2 · Level 16 of 23 · your own product",
+      "title": "A flat element map paints on its second line",
+      "headline": "The library's native format is **one RFC 6902 patch per line**; each element is a line complete on its own, so the page renders after every patch.",
+      "bullets": [
+        "The four \"one object\" rules are gone; `llm.py` streams with no JSON mode, because JSONL is many objects.",
+        "The first line sets `/root`; the second adds the root element, and the page can paint.",
+        "A parent lists children that have not arrived; the renderer skips them until their line comes.",
+        "`json_patch.py` mirrors the library's compiler with its two tolerances: `add` creates a missing parent, `replace` a missing target.",
+        "`server.py` relays every chunk unchanged and compiles a copy, so it ends with the spec, the patches and the timings.",
+        "`app.mjs` pushes each chunk into `createSpecStreamCompiler`; `Renderer` gets an empty element map until `/elements` exists."
+      ],
+      "diagram": {"type": "chips", "items": [
+        {"label": "add /root", "note": "the root id, \"dashboard\"; nothing to draw yet", "kind": "spec"},
+        {"label": "add /elements/dashboard", "note": "a Card with a title: the page paints, first paint", "kind": "page"},
+        {"label": "add /elements/row-metrics", "note": "a Row the card already named as a child", "kind": "spec"},
+        {"label": "add /elements/metric-sales", "note": "a Metric whose value is a $state reference", "kind": "spec"},
+        {"label": "add /state/sales/total", "note": "the number the metric reads; it fills in on arrival", "kind": "data"},
+        {"label": "… 13 patches in all", "note": "9 elements; the last line may arrive without a newline", "kind": "user"}
+      ], "caption": "The element map fills one line at a time; every line is a complete JSON object with an op, a path and a value."},
+      "takeaway": "Streaming changes when the user sees something, not the prompt cost: 4,043 prompt tokens, 487 completion tokens.",
+      "notes": "Step 05.1 showed nothing until the whole object arrived. This step removes the four rules and uses the library's own format: JSON Patch, one operation per line. Walk the chips: the first line names the root, the second line adds the root element and the page paints. From then on each line is an element or a state value, and a parent may name a child that has not arrived yet. That property is why the report favours flat element maps over nested trees. The Python json_patch.py is a small RFC 6902 with the library's two tolerances so both sides build the same spec. Stress the takeaway: the prompt still costs 4,000 tokens."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.2 · code walkthrough",
+      "title": "Push each chunk into the compiler; render only when a patch applied",
+      "snippet": {"file": "05_json_render/step_02_json_render_streaming_patches/app.mjs", "from": "for await (const chunk of chunks(response)) {", "to": "setSpec(compiler.getResult()); // applies a last line that had no newline", "maxWidth": 96},
+      "callouts": [
+        {"line": 2, "text": "`push` returns the spec so far and the patches this chunk completed; `newPatches` is empty while a line is still partial."},
+        {"line": 6, "text": "The first patch sets `/root` alone and `Renderer` has no guard for that, so the page hands it an empty element map."},
+        {"line": 12, "text": "A stream may end without a newline; `getResult()` applies that last line."}
+      ],
+      "caption": "`result` is a new object whenever a patch applied, so `setSpec` re-renders only on a real change.",
+      "notes": "The page side of streaming in twelve lines. Chunks arrive at any boundary, mid-line included, so the compiler buffers and only reports patches for complete lines; the continue on line 3 skips renders when nothing new applied. Line 6 is a real edge the library does not cover: after the very first patch the spec has a root id and no elements map, and Renderer reads elements[root] without a guard, so the page supplies an empty map. The first-paint timestamp is taken when the root element exists. Line 12 handles the last line with no trailing newline, which the fixture in tests exercises: twelve in the loop, the thirteenth here."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.2 · code walkthrough",
+      "title": "The server forwards every chunk and compiles a copy on the way",
+      "snippet": {"file": "05_json_render/step_02_json_render_streaming_patches/server.py", "from": "def relay(prompt):", "to": "timings[\"complete\"] = time.perf_counter() - started", "maxWidth": 96},
+      "callouts": [
+        {"line": 5, "text": "`SpecStream` is the Python mirror of `createSpecStreamCompiler`: the same lines, the same two tolerances."},
+        {"line": 11, "text": "`has_root()` is the moment a first paint became possible; the demo compares it with the page's own timestamp."},
+        {"line": 13, "text": "The chunk goes to the page unchanged; the server never re-encodes the model's text."}
+      ],
+      "caption": "The server ends with the compiled spec, the patch list, the usage and three timings, all at `GET /last`.",
+      "notes": "The server is a relay with a tap. Each chunk from the model goes straight to the page, and a copy goes into SpecStream, so when the stream ends the server holds the same spec the page built, plus the patches and the timings. Line 11 is where the server records when a first paint became possible: 3.46 seconds in the recorded run, against 3.48 on the page. Line 13 is the design decision: the server never reshapes the text, so what the page compiles is exactly what the model wrote. The tests compile one fixture with both compilers and assert the same spec."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 05.2 · quick demo, first paint",
+      "title": "At 3.48 s the page shows one card with a title and no children yet",
+      "image": "05_json_render/step_02_json_render_streaming_patches/demo_first_paint.png",
+      "imageWidth": 6.5, "imageHeight": 4.9,
+      "stats": [
+        {"value": "3.48 s", "label": "first paint on the page", "color": "green"},
+        {"value": "2.53 s", "label": "first chunk at the server"},
+        {"value": "2", "label": "lines needed: /root and the root element"}
+      ],
+      "notice": [
+        "The status line reads \"first paint at 3.48 s\": the root Card has painted with its title alone.",
+        "The Card already names `row-metrics` as a child; the renderer skips it until its line arrives.",
+        "The 2.5 s before the first chunk is the model reading a 4,000-token prompt; no format removes that."
+      ],
+      "caption": "Step 05.1 showed nothing until 5.8 s; this page shows something 2.3 s earlier.",
+      "notes": "The first of two screenshots from one run. At 3.48 seconds the page has one card and its title, and nothing else. That is the second patch line: the root id came first, then the root element. The card's children list already names elements that have not arrived, and the renderer simply draws nothing for them. The server saw the first chunk at 2.53 seconds, so about a second of the difference is the model writing the first two lines. The 2.5 seconds before that is prompt reading and is the floor for any format with a 4,000-token prompt."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 05.2 · quick demo, complete",
+      "title": "The same page when the stream ends at 10.14 s, after 13 patches",
+      "image": "05_json_render/step_02_json_render_streaming_patches/demo.png",
+      "imageWidth": 6.5, "imageHeight": 4.9,
+      "stats": [
+        {"value": "10.14 s", "label": "complete on the page"},
+        {"value": "13", "label": "patches, 9 elements"},
+        {"value": "487", "label": "completion tokens; 4,043 prompt tokens", "color": "amber"}
+      ],
+      "notice": [
+        "The status line now reads first paint 3.48 s, complete 10.14 s, 13 patches.",
+        "Three metrics filled in from `/state/...` patches; a fresh copy of `spec.state` per version is what lets them reach the store.",
+        "The catalog check passed on the compiled spec, the same check as step 05.1."
+      ],
+      "caption": "The whole reply took longer than step 05.1's 5.8 s; what changed is when the first element appeared.",
+      "notes": "The end of the same run. Thirteen patches, nine elements, the same dashboard shape as step 05.1. The complete time, 10.14 seconds, is later than step 05.1's single paint, and that is worth saying out loud: streaming did not make the model faster, and runs vary with the model's speed. What it changed is that the user saw a card at 3.5 seconds and watched it fill. The metrics read state, and the page makes a fresh copy of spec.state per version because the state provider compares by reference. Token cost is unchanged: about 4,000 in, under 500 out."
+    },
+    {
+      "type": "chart",
+      "kicker": "Step 05.1 versus 05.2 · first paint and complete",
+      "title": "One paint at 5.8 s, or a first element at 3.48 s and the last at 10.14 s",
+      "chartType": "bar",
+      "labels": ["05.1 one complete spec", "05.2 streamed patches"],
+      "series": [
+        {"name": "first paint (s)", "values": [5.8, 3.48]},
+        {"name": "complete (s)", "values": [5.8, 10.14]}
+      ],
+      "valueTitle": "seconds after the request",
+      "bullets": [
+        "In step 05.1 first paint and complete are the same moment: nothing renders before the last bracket closes.",
+        "Streaming moved the first paint 2.3 s earlier and the last element 4.3 s later in this pair of runs.",
+        "Both runs paid about 4,000 prompt tokens; the reply was 351 and 487 tokens.",
+        "The 2.5 s to the first chunk is prompt reading and belongs to neither format."
+      ],
+      "caption": "Numbers from the recorded demos of steps 05.1 and 05.2; runs vary with the model's speed.",
+      "notes": "Two bars per step. On the left, step 05.1: first paint and complete coincide at 5.8 seconds because a single JSON object cannot be rendered until it closes. On the right, step 05.2: the first element at 3.48 seconds and the last at 10.14. The honest reading is that streaming trades a later finish for an earlier start, and the user experience follows the start. The prompt cost is the same in both. Say clearly that these are single recorded runs, not averages; the point is the shape of the difference, not the exact seconds."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 05.3 · Level 17 of 23 · your own product",
+      "title": "A press is data the model answers with more data",
+      "headline": "A `Button` binds its press with an **`on` field on the element**; catalog actions go to the server for the next turn, `setState` stays in the page.",
+      "bullets": [
+        "Two catalog actions, `refresh_numbers` and `show_details`, declared with Zod `params`; the model's press carries a typed `metric`.",
+        "The page maps each action to one handler: `POST /action`, then push the reply into the same compiler, kept in a ref.",
+        "`server.py` keeps one transcript per session; a press becomes a user message that asks for patches against the spec already produced.",
+        "Built-in actions (`setState`, `pushState`, `removeState`) change the state model and never leave the page.",
+        "`spec.py` now checks every `on` binding against the declared actions, before the page drops one with a console warning.",
+        "The loop the report describes: the model edits a document, and the document is the UI."
+      ],
+      "diagram": {"type": "flow", "direction": "down", "nodes": [
+        {"label": "press", "sub": "on.press: { action: \"refresh_numbers\" }", "kind": "user"},
+        {"label": "POST /action", "sub": "the handler sends the name and params", "kind": "page"},
+        {"label": "one more model turn", "sub": "appended to the session transcript", "kind": "model"},
+        {"label": "JSONL patches", "sub": "replace on state paths, add for new elements", "kind": "spec"},
+        {"label": "the spec on screen", "sub": "the same compiler, the same ids", "kind": "catalog"}
+      ], "caption": "setState takes the short path: the page changes its state model and the server never hears about it."},
+      "takeaway": "The compiler lives in a ref so the second turn's patches land on the spec the first turn built.",
+      "notes": "Step 05.2 streams a spec and stops. This step closes the loop. A button element carries an on field that names an action; that is data in the spec, not code in props. Two kinds of action: built-in ones change state inside the page, catalog actions are names you declare and the page maps to handlers. Here every handler does the same thing, tell the server, run one more model turn, feed the reply into the compiler already holding the spec. Follow the diagram down. The server's user message asks for patches against the spec the model already produced, so the reply is small: replace values, keep ids."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.3 · code walkthrough",
+      "title": "Every catalog action is the same handler: post it, then compile the reply",
+      "snippet": {"file": "05_json_render/step_03_json_render_actions_and_targets/app.mjs", "from": "async function serverAction(action, params) {", "to": "show_details: (params) => serverAction(\"show_details\", params ?? {}),", "count": 20, "skip": ["setLoading(true);", "setLoading(false);"], "maxWidth": 96},
+      "callouts": [
+        {"line": 9, "text": "`consume` is shared with the first turn: it pushes the reply into the compiler in the ref and returns the patch count."},
+        {"line": 10, "text": "The action log under the dashboard in the demo is these `note` calls: name, params, patches, seconds."},
+        {"line": 14, "text": "Two catalog actions, two handlers, one function; `params` comes from the spec's `on` binding."}
+      ],
+      "caption": "`setState` never reaches a handler; the page's `onStateChange` is the only trace it keeps of a built-in action.",
+      "notes": "The handler side of the loop. serverAction posts the action name and its params to the server and hands the streamed reply to consume, the same function that compiled the first turn, so the patches apply to the spec on screen. The handlers object maps the two catalog actions to that one function. Line 16 is the design decision made visible: setState is handled by the library inside the page and no handler sees it; onStateChange exists only so the demo can log it. That is why the last press in the recorded demo shows as handled in the page and no request leaves the browser."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 05.3 · code walkthrough",
+      "title": "The second target: the same catalog, a component map of ink Box and Text",
+      "snippet": {"file": "05_json_render/step_03_json_render_actions_and_targets/ink_render.mjs", "from": "export const components = {", "to": "export const InkRenderer = createRenderer(catalog, components);", "skip": ["Text: ({ element }) =>", "h(Text, { dimColor: element.props.tone === \"muted\"", "Table: ({ element }) =>", "...tableLines(element.props.columns", "Chart: ({ element }) =>", "...bars(element.props.labels", "h(Box, { flexDirection: \"column\" },"], "maxWidth": 96},
+      "callouts": [
+        {"line": 2, "text": "The ink package hands components the whole `element`; the React one hands them `props`. The catalog and the spec are shared."},
+        {"line": 7, "text": "A Row is a horizontal Box; a Card is a bordered column. Layout words change, the spec does not."},
+        {"line": 16, "text": "`createRenderer(catalog, components)` wraps the providers; a `state` prop seeds the `$state` expressions."}
+      ],
+      "caption": "`tests/targets.test.mjs` renders one spec through both targets and checks that every text the page shows, the terminal shows.",
+      "notes": "The second half of the step, and the reason to choose this format at all. The element map never mentions HTML, so a second component map is all a second target needs. Here it is written with ink's Box and Text. Line 2 shows the one API difference between the two packages: ink components receive the element, React components receive props. Everything else, the catalog, the spec, the state expressions, is shared. The test in the step renders one spec through react-dom/server and through a fake terminal and asserts every text appears in both; that is the one spec, two renderers claim as a test."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Step 05.3 · one spec, two renderers",
+      "title": "One catalog, one spec, two component maps",
+      "lead": "The element map is data about **components and state**, not about a medium; each target supplies its own component map and nothing else changes.",
+      "diagram": {"type": "layers", "nested": true, "height": 3.6, "items": [
+        {"label": "catalog.mjs", "sub": "seven components and two actions with Zod props; the prompt, the schema and the validator come from it", "kind": "catalog"},
+        {"label": "demo_spec.json", "sub": "the spec after generate, refresh_numbers and show_details: root, elements, state, on bindings", "kind": "spec"},
+        {"label": "registry.mjs in the browser  ·  ink_render.mjs in the terminal", "sub": "React functions with htm, or ink Box and Text; the json-render family also has React Native, Vue, Svelte, PDF and email", "kind": "page"}
+      ], "caption": "The same demo_spec.json produced the page screenshot and the terminal render on the next slides."},
+      "takeaway": "Write the catalog once; add a target by writing one component map for it.",
+      "notes": "This is the picture to leave people with for sub-theme 05. The outer layer is the catalog: the contract, from which the prompt, schema and validator are derived. Inside it, one spec, the one the recorded demo ended with after three model turns. Inside that, the two component maps: React with htm for the page, ink Box and Text for the terminal. The json-render family ships renderers for several more targets, and each one asks for exactly this, a component map per target. Nothing in the spec says div or Box. Next, the two renders of the same file."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 05.3 · quick demo, the page",
+      "title": "Three presses: two went to the model as turns, one stayed in the page",
+      "image": "05_json_render/step_03_json_render_actions_and_targets/demo.png",
+      "imageWidth": 4.5, "imageHeight": 4.9,
+      "stats": [
+        {"value": "34", "label": "patches in the first turn, 17.59 s, 1,228 completion tokens"},
+        {"value": "12", "label": "patches for refresh_numbers, 4.48 s, 282 tokens", "color": "green"},
+        {"value": "2", "label": "patches for show_details, 1.91 s; one set /showNotes", "color": "amber"}
+      ],
+      "notice": [
+        "The action log at the bottom: `refresh_numbers {} -> server`, then `show_details {\"metric\": \"This Week's Sales\"}`, then `setState /showNotes = false (handled in the page)`.",
+        "The refresh turn was all `replace` on state paths, one of them a single array cell, `/state/sales/dailySales/0`; the metrics and the chart changed without a new spec.",
+        "The toggle reads \"Show Notes\" because the last press hid the card locally; the server's spec still has `/showNotes` at true."
+      ],
+      "caption": "Twelve patches refreshed a whole dashboard for 282 output tokens, because the first turn put the numbers in state.",
+      "notes": "The page after the recorded demo pressed every button. Read the log at the bottom in order. Refresh Numbers went to the server and came back as twelve replace patches on state paths in 4.48 seconds; the metrics and chart changed on screen with no new spec. Show Details went to the server with the metric's label as a typed parameter; the model wrote a note into state and set showNotes, so a notes card appeared and the toggle's label flipped. The last press was that toggle: setState, handled in the page, no request. The numbers are small because the model edits state, not elements."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 05.3 · quick demo, the terminal",
+      "title": "The same spec in the terminal, and it shows the notes card the page hid",
+      "output": [
+        "╭──────────────────────────────────────────────────────────────╮",
+        "│ Lemonade Stand Dashboard                                     │",
+        "│ THIS WEEK'S SALES    BEST DAY    PRODUCTS SOLD               │",
+        "│ $270                 Saturday    165                         │",
+        "│ +5%                  +20%        +10%                        │",
+        "│ [ Refresh Numbers ]  [ Show Details ]                        │",
+        "│ ╭──────────────────────────────────────────────────────────╮ │",
+        "│ │ Sales Over the Week                                      │ │",
+        "│ │ Monday    ████████                 22                    │ │",
+        "│ │ Saturday  ████████████████████████ 64                    │ │",
+        "│ ╰──────────────────────────────────────────────────────────╯ │",
+        "│ [ Hide Notes ]                                               │",
+        "│ ╭──────────────────────────────────────────────────────────╮ │",
+        "│ │ Notes                                                    │ │",
+        "│ │ Detailed sales analysis:                                 │ │",
+        "│ ╰──────────────────────────────────────────────────────────╯ │",
+        "╰──────────────────────────────────────────────────────────────╯"
+      ],
+      "stats": [
+        {"value": "1", "label": "spec file, demo_spec.json, through both targets"},
+        {"value": "0", "label": "lines skipped by the catalog check", "color": "green"}
+      ],
+      "notice": [
+        "`node ink_render.mjs demo_spec.json`: the same values, $270, Saturday, 165, drawn with Box and Text.",
+        "The button reads \"[ Hide Notes ]\" and the Notes card is present: the server's spec has the model's `/showNotes` = true patch.",
+        "The page hid that card with `setState`, which never reached the server. Built-in actions are local state; if the agent must know, send them."
+      ],
+      "caption": "Cut to its top; the full render in the step README has the whole chart, both tables and the notes text.",
+      "notes": "The same demo_spec.json, rendered by ink_render.mjs in a terminal. The values match the page: $270, Saturday, 165, the chart bars, the buttons as cyan brackets. Now the checkpoint from the README: the terminal shows the Notes card and the page does not. The page's last press was setState showNotes false, and setState is local, so the server's spec, the one the terminal renders, still has the model's own patch that set showNotes to true. That is the practical lesson about built-in actions: they are local state, and if the agent needs to know, the page must send them. One spec, two renderers, and one visible difference that teaches the boundary."
+    }
+  ]
+}

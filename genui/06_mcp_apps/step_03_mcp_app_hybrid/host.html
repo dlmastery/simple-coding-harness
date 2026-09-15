@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Minimal MCP Apps host (step 03)</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; font-size: 14px; color: #1a1a1a; background: #fafafa; }
+  header { padding: 10px 16px; border-bottom: 1px solid #e5e7eb; background: #fff; display: flex; gap: 12px; align-items: center; }
+  header input { flex: 1; font: inherit; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 6px; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+  section { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; min-height: 120px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; margin: 0 0 8px; }
+  #tools li { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
+  .badge { font-size: 11px; padding: 1px 6px; border-radius: 999px; background: #dbeafe; color: #1d4ed8; }
+  #chat { display: flex; flex-direction: column; gap: 6px; min-height: 160px; }
+  .bubble { padding: 6px 10px; border-radius: 8px; max-width: 90%; white-space: pre-wrap; }
+  .user { background: #dcfce7; align-self: flex-end; }
+  .assistant { background: #f3f4f6; }
+  .tool { background: #fef3c7; font-family: ui-monospace, monospace; font-size: 12px; }
+  form { display: flex; gap: 6px; margin-top: 8px; }
+  form input { flex: 1; font: inherit; padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; }
+  button { font: inherit; padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #f9fafb; cursor: pointer; }
+  #app { min-height: 200px; }
+  #app iframe { width: 100%; height: 320px; border: 0; display: block; }
+  #app iframe.bordered { border: 1px solid #e5e7eb; border-radius: 8px; }
+  #log { font-family: ui-monospace, monospace; font-size: 11px; white-space: pre-wrap; margin: 0; max-height: 260px; overflow: auto; color: #374151; }
+  #note { color: #b45309; font-size: 12px; }
+  #context { color: #6b7280; font-size: 12px; margin-top: 6px; font-family: ui-monospace, monospace; white-space: pre-wrap; }
+  .muted { color: #6b7280; font-size: 12px; font-weight: normal; }
+</style>
+</head>
+<body>
+<header>
+  <strong>Minimal MCP Apps host</strong> <span class="muted">step 03: hybrid view</span>
+  <input id="url" value="http://127.0.0.1:8767/mcp">
+  <button id="connect">Connect</button>
+  <span id="server"></span>
+</header>
+<main>
+  <section>
+    <h2>Chat</h2>
+    <div id="chat"></div>
+    <form id="ask"><input id="prompt" placeholder="show me the lemonade stand report for the last week"><button>Send</button></form>
+    <div id="note"></div>
+    <div id="context"></div>
+  </section>
+  <section>
+    <h2>Tools</h2>
+    <ul id="tools"></ul>
+  </section>
+  <section>
+    <h2>App</h2>
+    <div id="app"></div>
+  </section>
+  <section>
+    <h2>Bridge log</h2>
+    <pre id="log"></pre>
+  </section>
+</main>
+<script type="module">
+  import { McpHttpClient, uiResourceUri, toolsForModel, APP_MIME_TYPE } from "./mcp-http.mjs";
+  import { HostBridge, cspFor, withCsp, uiMetaOf } from "./bridge.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const state = { client: null, tools: [], listing: new Map(), messages: [], log: [], modelContext: "" };
+  window.host = state;  // the demo script reads the log from here
+
+  function log(direction, message) {
+    const line = `${direction.padEnd(10)} ${JSON.stringify(message)}`;
+    state.log.push(line);
+    $("log").textContent += (line.length > 220 ? line.slice(0, 220) + "..." : line) + "\n";
+    $("log").scrollTop = $("log").scrollHeight;
+  }
+
+  function bubble(role, text) {
+    const div = document.createElement("div");
+    div.className = `bubble ${role}`;
+    div.textContent = text;
+    $("chat").appendChild(div);
+  }
+
+  // --- 1. connect: the handshake, the tool list, the resource listing ------
+  async function connect() {
+    state.client = new McpHttpClient($("url").value, { onWire: log });
+    const init = await state.client.connect();
+    $("server").textContent = `connected to ${init.serverInfo.name}`;
+    state.tools = await state.client.listTools();
+    try {
+      for (const resource of (await state.client.request("resources/list")).resources) state.listing.set(resource.uri, resource);
+    } catch { /* a server may omit ui:// resources from the listing */ }
+    $("tools").replaceChildren(...state.tools.map((tool) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<code>${tool.name}</code>`;
+      if (uiResourceUri(tool)) li.innerHTML += ` <span class="badge">UI ${uiResourceUri(tool)}</span>`;
+      const button = document.createElement("button");
+      button.textContent = "call with defaults";
+      button.onclick = () => runTool(tool.name, {});
+      li.appendChild(button);
+      return li;
+    }));
+  }
+
+  // --- 2. a tool call: if the tool has a view, mount it while the call runs
+  async function runTool(name, args) {
+    const tool = state.tools.find((t) => t.name === name);
+    const resultPromise = state.client.callTool(name, args);
+    const uri = uiResourceUri(tool);
+    if (uri) await mount(tool, uri, args, resultPromise);
+    return resultPromise;
+  }
+
+  async function mount(tool, uri, args, resultPromise) {
+    const { contents: [content] } = await state.client.readResource(uri);
+    if (content.mimeType !== APP_MIME_TYPE) throw new Error(`not an MCP App resource: ${content.mimeType}`);
+    const html = content.blob ? atob(content.blob) : content.text;
+    const meta = uiMetaOf(content, state.listing.get(uri));
+    const csp = cspFor(meta);
+    log("host", { mount: uri, csp });
+
+    if (state.bridge) await state.bridge.teardown("replaced by a new tool call");  // the spec's MUST before unmounting
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("sandbox", "allow-scripts");  // no allow-same-origin: the view gets an opaque origin
+    iframe.className = meta.prefersBorder ? "bordered" : "";
+    const bridge = state.bridge = new HostBridge({
+      tool,
+      callTool: (n, a) => state.client.callTool(n, a),
+      readResource: (u) => state.client.readResource(u),
+      onMessage: ({ content }) => { chat(content.text); },  // answered at once; the next turn runs on its own
+      onOpenLink: (url) => window.open(url, "_blank", "noopener,noreferrer"),
+      onModelContext: (params) => {  // the view speaks for the generated region; the next turn reads it
+        state.modelContext = (params.content ?? []).filter((c) => c.type === "text").map((c) => c.text).join(" ");
+        $("context").textContent = `model context from the app: ${state.modelContext}`;
+      },
+      onSizeChanged: ({ height }) => { if (height) iframe.style.height = `${Math.min(height, 800)}px`; },
+      onLog: log,
+      hostContext: { containerDimensions: { width: $("app").clientWidth, maxHeight: 800 } },
+    }).attach(iframe);
+    iframe.srcdoc = withCsp(html, csp);
+    $("app").replaceChildren(iframe);
+    bridge.deliver(args, resultPromise);
+  }
+
+  // --- 3. the agent loop: the model picks the tool, the page runs it -------
+  async function chat(text) {
+    state.messages.push({ role: "user", content: text });
+    bubble("user", text);
+    for (let hop = 0; hop < 4; hop++) {
+      const response = await fetch("/chat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: state.messages, tools: toolsForModel(state.tools), context: state.modelContext }),
+      });
+      if (!response.ok) { $("note").textContent = "no model available: call a tool from the list instead"; return; }
+      const reply = await response.json();
+      state.messages.push({
+        role: "assistant", content: reply.content,
+        ...(reply.tool_calls.length && { tool_calls: reply.tool_calls.map((c) => ({ id: c.id, type: "function", function: { name: c.name, arguments: c.arguments } })) }),
+      });
+      if (reply.content) bubble("assistant", reply.content);
+      if (!reply.tool_calls.length) return;
+      for (const call of reply.tool_calls) {
+        const args = JSON.parse(call.arguments || "{}");
+        bubble("tool", `${call.name}(${JSON.stringify(args)})`);
+        const result = await runTool(call.name, args);
+        const summary = result.content.filter((c) => c.type === "text").map((c) => c.text).join("\n");
+        state.messages.push({ role: "tool", tool_call_id: call.id, content: summary });  // the model reads text only
+      }
+    }
+  }
+
+  $("connect").onclick = () => connect().catch((error) => { $("server").textContent = error.message; });
+  $("ask").onsubmit = (event) => { event.preventDefault(); const text = $("prompt").value.trim(); $("prompt").value = ""; if (text) chat(text); };
+
+  // ?server=...&prompt=... runs a turn on load; ?call=<tool> calls a tool with defaults (no model needed)
+  const query = new URLSearchParams(location.search);
+  if (query.get("server")) $("url").value = query.get("server");
+  if (query.has("prompt") || query.has("call")) {
+    connect().then(() => query.has("prompt") ? chat(query.get("prompt")) : runTool(query.get("call"), {}));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "genui-06-step-03-mcp-app-hybrid",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An MCP App whose view is a hybrid: catalog components plus one model-written region in a nested sandbox. No dependencies.",
+  "scripts": {
+    "test": "node --test bridge.test.mjs catalog.test.mjs",
+    "demo": "python demo.py"
+  },
+  "license": "MIT"
+}

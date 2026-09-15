@@ -1,0 +1,437 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 06 · Levels 18-19 of 23",
+      "title": "MCP Apps, UI in a host you do not control",
+      "lead": "The report's second transport. Sub-theme 02 put the agent inside a product you own. Here the agent lives in someone else's chat client, and you ship the interface to it as an MCP resource: a ui:// URI, an HTML document, a tool that points at it, and a JSON-RPC bridge over postMessage between a sandboxed iframe and the host. The spec is SEP-1865. Both steps use FastMCP on the server and no SDK anywhere else. At the end, one server renders in a browser host, in a terminal host, and in Claude Desktop, unchanged.",
+      "steps": [
+        {
+          "id": "06.1",
+          "title": "A tool result that carries its interface"
+        },
+        {
+          "id": "06.2",
+          "title": "The same server in a real host"
+        },
+        {
+          "id": "06.3",
+          "title": "Hybrid inside an MCP App"
+        }
+      ],
+      "notes": "This sub-theme is the other half of the report's transport axis. In sub-theme 02 the reader owned the page, the loop and the renderer. Here the reader owns one MCP server and nothing else: the page belongs to Claude, ChatGPT, VS Code or Goose. The interface therefore has to travel as data the host can fetch: a resource with a ui:// URI, and a tool whose metadata points at it. Step 06.1 builds the server and the smallest host that can mount the view, to show every message on the wire. Step 06.2 plugs the unchanged server into the harness codelab's MCP client, which only speaks text, and gives the configuration for two real iframe hosts."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 06.1 · Level 18 of 23 · a third-party host (MCP Apps)",
+      "title": "The interface travels as a resource; the data arrives later, as a notification",
+      "headline": "A tool result has **two audiences**: `content` for the model and for text-only hosts, `structuredContent` for the view in the iframe.",
+      "bullets": [
+        "The server declares one resource at ui://lemonade/dashboard.html, MIME type text/html;profile=mcp-app.",
+        "The tool's _meta.ui.resourceUri links the tool to that resource; a host without the extension ignores it.",
+        "The host reads the resource, builds a CSP from its metadata, mounts it with sandbox=\"allow-scripts\".",
+        "The view speaks JSON-RPC over postMessage in three functions; no SDK on either side.",
+        "The order is fixed: ui/initialize, initialized, then tool-input and tool-result, then a size report.",
+        "The view never talks to the server. Every tools/call goes through the host, which can log or refuse it."
+      ],
+      "diagram": {
+        "type": "layers",
+        "items": [
+          {
+            "label": "ui/initialize",
+            "sub": "view → host, a request: the host answers with hostContext and hostCapabilities",
+            "kind": "iframe"
+          },
+          {
+            "label": "ui/notifications/initialized",
+            "sub": "view → host: the listener is ready",
+            "kind": "iframe"
+          },
+          {
+            "label": "ui/notifications/tool-input",
+            "sub": "host → view: the arguments the model chose",
+            "kind": "host"
+          },
+          {
+            "label": "ui/notifications/tool-result",
+            "sub": "host → view: structuredContent, never seen by the model",
+            "kind": "host"
+          },
+          {
+            "label": "tools/call",
+            "sub": "view → host → server: the interactive phase, proxied and logged",
+            "kind": "open",
+            "dashed": true
+          },
+          {
+            "label": "ui/notifications/size-changed",
+            "sub": "view → host after every render: 550x458, then 550x665",
+            "kind": "iframe"
+          }
+        ],
+        "caption": "The six messages of the demo, in the order the bridge log printed them."
+      },
+      "takeaway": "The resource is static and declared up front; the data comes as a tool result; every message between them passes through a host that can refuse it.",
+      "notes": "Start with the two audiences. The model reads content, which is text; the view renders structuredContent, which is data the model never sees. Then the diagram: the view opens with ui/initialize and gets the host's context back, theme and container size included. Only after the view says initialized does the host deliver the tool input and the tool result; send them earlier and the listener is not there. The view reports its size after each render so the host can grow the frame. The amber arrow is the interactive phase: the view can call a tool, but only through the host, which forwards it to the server and may ask the user first. That is the security model: a sandboxed iframe, auditable messages, a policy built from what the resource declared."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Step 06.1 · the bridge",
+      "title": "Three parties, two channels: the view never talks to the server",
+      "lead": "MCP over HTTP or stdio between the server and the host; **JSON-RPC over postMessage** between the host and the sandboxed iframe. Every request from the view crosses the host.",
+      "diagram": {
+        "type": "bridge",
+        "left": {
+          "label": "host page",
+          "sub": "host.html + bridge.mjs: MCP client, CSP, proxy",
+          "kind": "host"
+        },
+        "right": {
+          "label": "view (iframe)",
+          "sub": "view.html, sandboxed, opaque origin",
+          "kind": "iframe",
+          "dashed": true
+        },
+        "messages": [
+          {
+            "label": "ui/initialize",
+            "dir": "left"
+          },
+          {
+            "label": "ui/notifications/initialized",
+            "dir": "left"
+          },
+          {
+            "label": "ui/notifications/tool-input",
+            "dir": "right"
+          },
+          {
+            "label": "ui/notifications/tool-result",
+            "dir": "right"
+          },
+          {
+            "label": "tools/call  (proxied to the server)",
+            "dir": "left",
+            "kind": "open"
+          },
+          {
+            "label": "ui/notifications/size-changed",
+            "dir": "left"
+          }
+        ],
+        "caption": "Blue: the lifecycle and the two data notifications. Amber: a request the host proxies to the server.",
+        "height": 3.7
+      },
+      "takeaway": "The host holds tool-input and tool-result until the view says initialized; send them earlier and the listener is not there yet.",
+      "notes": "Walk the arrows top to bottom; this is the bridge log from the demo. The view sends ui/initialize and gets the host's context and capabilities back. It says initialized. Now the host delivers the tool input and the tool result, in that order, from the call the model made. The view renders and reports its size. The amber arrow is the interactive phase: the 14-day button sends tools/call to the host, the host forwards it to the MCP server over HTTP, and the answer comes back as the response to the view's request. The host can log every one of these, refuse one, or ask the user. The iframe has sandbox=allow-scripts and no allow-same-origin, so it has an opaque origin: no cookies, no storage, no access to the host page."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.1 · code walkthrough",
+      "title": "One tool, one resource, and the _meta link between them",
+      "snippet": {
+        "file": "06_mcp_apps/step_01_mcp_app_resource/server.py",
+        "from": "@server.tool(meta=",
+        "count": 15,
+        "to": "return VIEW_FILE.read_text",
+        "maxWidth": 84
+      },
+      "callouts": [
+        {
+          "line": 1,
+          "text": "`meta` becomes `_meta` on the wire. `ui.resourceUri` is the spec's field: it tells a host which resource to mount after this tool runs."
+        },
+        {
+          "line": 7,
+          "text": "Two halves of one result. `content` is prose the model reads. `structuredContent` is the same numbers as data; the view renders it and the model never sees it."
+        },
+        {
+          "line": 12,
+          "text": "The resource: a `ui://` URI, the MIME type `text/html;profile=mcp-app`, and a `meta` with an empty CSP, so the host allows no external connection or script."
+        }
+      ],
+      "caption": "A normal FastMCP server plus three things: a ui:// resource, a tool that points at it, and a result with text and data.",
+      "notes": "This is the whole server. The decorator's meta is what makes the tool an MCP App: the host sees _meta.ui.resourceUri and knows which resource to fetch. The result has two halves on purpose. Keep the text short and complete on its own, because a text-only host shows exactly that; keep the data complete, because the view draws from it. The resource function returns view.html unchanged: it is a static template, and the host can fetch and review it before any tool runs. The empty CSP lists in VIEW_META are a deliberate choice: the view is self-contained, so the host starts from the spec's restrictive default and widens nothing."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.1 · code walkthrough",
+      "title": "The view's lifecycle: initialize, say so, then report the size",
+      "snippet": {
+        "file": "06_mcp_apps/step_01_mcp_app_resource/view.html",
+        "from": "// --- lifecycle: initialize",
+        "count": 13,
+        "to": "})();",
+        "maxWidth": 80
+      },
+      "callouts": [
+        {
+          "line": 3,
+          "text": "`ui/initialize` is a request with an id; the host answers with `hostContext` (theme, CSS variables, container size) and `hostCapabilities`."
+        },
+        {
+          "line": 9,
+          "text": "`ui/notifications/initialized` has no id. Only after it does the host send `tool-input` and `tool-result`; the bridge holds them until then."
+        },
+        {
+          "line": 11,
+          "text": "A `ResizeObserver` sends `size-changed` after every render. In the demo: 550x458 first, 550x665 after the view called the tool for 14 days."
+        }
+      ],
+      "caption": "request() and notify() are two postMessage wrappers; the spec needs no SDK, and this is the proof.",
+      "notes": "The order on this slide is fixed by the spec, and the bridge log in the demo shows it verbatim. The view asks to initialize and applies the host's context, which is how it picks up the host's theme in Claude Desktop later. It then says initialized. The host has been holding the tool input and the tool result, and delivers them now. The size observer closes the loop: the host does not know how tall the view is, so the view tells it after every render. Everything on this slide is plain postMessage; the official ext-apps package wraps the same messages in an App class with typed handlers."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 06.1 · quick demo",
+      "title": "One sentence for the model, a dashboard for the iframe, and a frame that grew",
+      "image": "06_mcp_apps/step_01_mcp_app_resource/demo.png",
+      "imageWidth": 6.5,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "132 cups · $198.00",
+          "label": "the model's answer for lemonade_dashboard({\"days\":5}); best day Tuesday"
+        },
+        {
+          "value": "550x458 → 550x665",
+          "label": "size-changed reports: after mount, then after the view called tools/call for 14 days",
+          "color": "amber"
+        }
+      ],
+      "notice": [
+        "Top left, the chat: the tool call and a one-sentence answer; the model read the text content only.",
+        "Bottom left, the app: the view in a sandboxed iframe, mounted from ui://lemonade/dashboard.html, shown after the 14-day click.",
+        "Right, the bridge log: ui/initialize, initialized, tool-input, tool-result, size-changed, in the fixed order.",
+        "The demo clicked \"14 days\" inside the view; the host proxied tools/call to the server and the frame grew."
+      ],
+      "caption": "Recorded by demo.py: both processes, a headless browser, the bridge log and this screenshot.",
+      "notes": "Point at the two halves of the page. The chat shows the model's turn: it called lemonade_dashboard with five days and answered in one sentence, 132 cups and 198 dollars, best day Tuesday. The view on the right drew the same numbers as cards, bars and a table, from structuredContent the model never saw. The bridge log printed the fixed order of messages, then a size report of 550 by 458. The last five lines of the log are the interactive phase: the demo clicked the 14-day button inside the iframe, the view sent tools/call to the host, the host forwarded it to the server, and the frame grew to 550 by 665. Without a key the demo calls the tool directly and the log is the same."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 06.2 · Level 19 of 23 · a third-party host (MCP Apps)",
+      "title": "Ship both: text that stands alone, and a ui:// view for hosts that can mount it",
+      "headline": "Real hosts are built by other people. The report's rule for this side of the map is to **ship both**: text for any host, a view for hosts that can mount it.",
+      "bullets": [
+        "The server and the browser host are unchanged from step 06.1; only the host changes.",
+        "harness/ is the harness codelab's step 26 MCP client, extended into a text host over stdio.",
+        "Registration remembers which tools carry a ui:// resource, from _meta.ui.resourceUri.",
+        "The resource is read once per session: title, MIME type, size, CSP; the template is static.",
+        "The result's structuredContent is queued as a card and drawn after the tool panel, not inside the call.",
+        "Claude Desktop and Goose mount the same resource in a real iframe; the configuration is one stdio command."
+      ],
+      "diagram": {
+        "type": "flow",
+        "direction": "down",
+        "nodes": [
+          {
+            "label": "register",
+            "sub": "tool.meta.ui.resourceUri → UI_TOOLS",
+            "kind": "host"
+          },
+          {
+            "label": "tools/call",
+            "sub": "text content → the model, unchanged",
+            "kind": "server"
+          },
+          {
+            "label": "resources/read, once",
+            "sub": "title, MIME type, 7,876 bytes, CSP",
+            "kind": "data"
+          },
+          {
+            "label": "structuredContent → text card",
+            "sub": "ui_text: dict as key: value, list as a table",
+            "kind": "page"
+          },
+          {
+            "label": "drawn after the tool panel",
+            "sub": "queued: the call ran on a pool thread",
+            "kind": "page"
+          }
+        ],
+        "caption": "The harness as an MCP Apps host in text. The model's string is the same as in step 26."
+      },
+      "takeaway": "The server did not change between three hosts; the host decides what it can show.",
+      "notes": "Step 06.1 built a host to prove the protocol. This step asks what a host that was not written for the server does with it. The harness codelab's MCP client speaks stdio and shows text, so it becomes a text host: at registration it notes which tools carry a view, on the first call it reads the resource once and keeps four facts about it, and after the tool panel it draws the structuredContent as a card. The card is queued rather than drawn inside the call, because the call runs on a pool thread and the loop owns the terminal. The model's string does not change. Then the same server goes into Claude Desktop or Goose with one stdio command, and those hosts mount the HTML in a real iframe."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.2 · code walkthrough",
+      "title": "The call queues a card; the string the model reads does not change",
+      "snippet": {
+        "file": "06_mcp_apps/step_02_mcp_app_in_a_real_host/harness/mcp_client.py",
+        "from": "uri = UI_TOOLS.get(tool_name(server, tool))",
+        "count": 14,
+        "to": "return False",
+        "maxWidth": 80
+      },
+      "callouts": [
+        {
+          "line": 1,
+          "text": "`UI_TOOLS` was filled at registration from `_meta.ui.resourceUri`. A tool with a view and a non-error result gets its tuple queued in `PENDING_APPS`."
+        },
+        {
+          "line": 4,
+          "text": "The return value is the same as in step 26: capped text. The model never learns that a card was drawn, and the prompt grows by the text lines only."
+        },
+        {
+          "line": 7,
+          "text": "`show_pending` runs from the loop, right after `ui.tool()` drew the panel. The call itself ran on a pool thread and must not write the terminal."
+        }
+      ],
+      "caption": "One added line in harness/agent.py calls show_pending(name) after the tool panel.",
+      "notes": "This is the tail of call_tool and the function the loop calls after it. The first three lines are the whole change to the call path: look up the view for this tool, and if the result is not an error, queue it. The return statement is unchanged from the harness codelab, which is the point: the model reads exactly the text it would have read before, and the recorded run confirms it, 2,093 to 2,227 prompt tokens for a table that never entered the context. show_pending is the other half. It is called by the loop, in order, after the tool panel, so the card lands under the tool that produced it."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.2 · code walkthrough",
+      "title": "What a host learns from resources/read, kept for the session",
+      "snippet": {
+        "file": "06_mcp_apps/step_02_mcp_app_in_a_real_host/harness/mcp_client.py",
+        "from": "def read_ui_resource(server, uri):",
+        "count": 15,
+        "to": "return UI_RESOURCES[(server, uri)]",
+        "maxWidth": 80
+      },
+      "callouts": [
+        {
+          "line": 6,
+          "text": "`resources/read`, once per (server, uri). The resource is a static template; a host may prefetch and cache it at connection time. This one reads it lazily."
+        },
+        {
+          "line": 9,
+          "text": "Four facts go into the card's subtitle: the title from the HTML, the MIME type, the size in bytes and the declared CSP. In the demo: 7,876 bytes, restrictive default."
+        },
+        {
+          "line": 11,
+          "text": "`show_app` checks the MIME type against `text/html;profile=mcp-app` and refuses anything else, which is what the spec asks of every host."
+        }
+      ],
+      "caption": "harness/ui_text.py then turns any structuredContent into lines: a dict as key: value, a list of flat dicts as a table.",
+      "notes": "A host that cannot run HTML still reads the resource, because the resource carries facts the host should show and check. This function reads it once per session and keeps the title, the MIME type, the size and the content security policy. The MIME type check is in show_app: a resource that is not text/html with the mcp-app profile is noted and not rendered. The size and the policy go into the card's subtitle so the reader can see what the sandboxed view would have been. The renderer in ui_text knows nothing about lemonade: a list of flat dicts with the same keys becomes a table with right-aligned numbers, and a dict becomes indented key-value lines."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 06.2 · quick demo",
+      "title": "Two panels: the text the model saw, then the app as this host can show it",
+      "output": [
+        "$ MCP_ALLOW=mcp__lemonade__* python -m harness.agent -p \"Show me the",
+        "  lemonade stand dashboard for the last 5 days. Answer in one sentence.\"",
+        "  2,093 prompt · 23 completion · 1,792 cached",
+        "  ┌ mcp__lemonade__lemonade_dashboard 5 ─────────────────────────",
+        "  │ Lemonade stand, last 5 days: 132 cups, $198.00 revenue, best day Tue.",
+        "  │ Mon: 37 cups at 28 C ($55.50)",
+        "  │ Tue: 51 cups at 30 C ($76.50)",
+        "  │ ...",
+        "  ┌─ app · Lemonade dashboard ────────────────────────────────────",
+        "  │ ui://lemonade/dashboard.html | text/html;profile=mcp-app",
+        "  │ | 7,876 bytes | csp: restrictive default | rendered as text",
+        "  │ days: 5",
+        "  │ rows:",
+        "  │   day  temperature  cups  revenue",
+        "  │   Tue           30    51     76.5",
+        "  │ summary:",
+        "  │   total_cups: 132",
+        "  │   total_revenue: 198",
+        "  │   best_day: Tue",
+        "  2,227 prompt · 46 completion · 2,048 cached"
+      ],
+      "stats": [
+        {
+          "value": "2,093 → 2,227",
+          "label": "prompt tokens across the tool call: the text lines only; the table never reached the model",
+          "color": "amber"
+        },
+        {
+          "value": "7,876 bytes",
+          "label": "the ui:// resource, read once over stdio, restrictive default CSP"
+        }
+      ],
+      "notice": [
+        "The first panel is the tool result as the model saw it: text.",
+        "The second is the MCP App as a terminal can show it: the resource's identity, then the data as a table.",
+        "Claude Desktop and Goose mount the same resource in a real iframe with one stdio command; that run was not recorded."
+      ],
+      "caption": "Recorded by demo.py: the harness in print mode with server.py --stdio as a child process (condensed).",
+      "notes": "Read the run top to bottom. The first model call cost 2,093 prompt tokens and produced one tool call. The tool panel shows the text content: a one-line summary and one line per day. Under it, the app card: the resource's URI, MIME type, size and policy in the subtitle, then the structuredContent as a table and a summary. The second model call cost 2,227 prompt tokens, so the prompt grew by the text lines only; the table came from data the view would have used and never entered the context. The demo leaves out the harness's late-injection panels; everything else is the harness's output as printed. Claude Desktop is installed on the build machine but driving it by hand was not recorded."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Sub-theme 06 · compare with sub-theme 02",
+      "title": "One interface, two transports: same numbers, same picture, different contract",
+      "lead": "The lemonade dashboard could also be an AG-UI state object rendered by a page you own. The report's rule is **not to choose**: keep the interface as data and ship it on both roads.",
+      "diagram": {
+        "type": "grid",
+        "cols": [
+          "AG-UI (sub-theme 02)",
+          "MCP Apps (sub-theme 06)"
+        ],
+        "rows": [
+          "who owns the page",
+          "the wire",
+          "who renders",
+          "who runs the loop",
+          "where it appears"
+        ],
+        "height": 3.9,
+        "cells": [
+          {
+            "label": "you",
+            "sub": "your page, your event stream",
+            "kind": "page"
+          },
+          {
+            "label": "the host's vendor",
+            "sub": "Claude, ChatGPT, VS Code, Goose",
+            "kind": "host"
+          },
+          {
+            "label": "SSE events to your page",
+            "sub": "text, tool calls, state deltas",
+            "kind": "spec"
+          },
+          {
+            "label": "MCP to your server",
+            "sub": "a tool result: text plus structured content; the view speaks JSON-RPC to the host",
+            "kind": "server"
+          },
+          {
+            "label": "your renderer, from state",
+            "sub": "a catalog you drew",
+            "kind": "catalog"
+          },
+          {
+            "label": "your HTML, in the host's sandbox",
+            "sub": "an iframe with a CSP the host built",
+            "kind": "iframe",
+            "dashed": true
+          },
+          {
+            "label": "you",
+            "sub": "your server drives the model",
+            "kind": "page"
+          },
+          {
+            "label": "the host",
+            "sub": "the model picks the tool; the view calls through the host",
+            "kind": "host"
+          },
+          {
+            "label": "your product",
+            "sub": "one surface you control",
+            "kind": "page"
+          },
+          {
+            "label": "any compliant host",
+            "sub": "the same server, unchanged, in three hosts",
+            "kind": "host"
+          }
+        ]
+      },
+      "takeaway": "Sub-theme 07 takes the first road inside the harness; this sub-theme took the second. The server is the same either way.",
+      "notes": "Close the sub-theme with the comparison from the step README. On the left, AG-UI: you own the page, your server streams events over SSE, your renderer draws from state, you run the loop, and the interface appears in your product. On the right, MCP Apps: the host's vendor owns the page, the host calls your MCP server and gets a tool result with text and structured content, your HTML renders inside the host's sandbox, the host runs the loop, and the interface can appear in any compliant host. The report does not ask you to choose. Keep the interface as data, render it with your own page where you own the product, and ship the same data with a ui:// view where you do not. Sub-theme 07 takes the first road inside the harness."
+    }
+  ]
+}

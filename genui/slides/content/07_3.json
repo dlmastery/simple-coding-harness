@@ -1,0 +1,173 @@
+{
+  "slides": [
+    {
+      "type": "theory",
+      "kicker": "Step 07.3 · Level 23 of 23 · the TrueForge SDK",
+      "title": "The hosted harness sets the catalog; the surface adds the one component it lacks",
+      "headline": "TrueForge's generative UI is **catalog-only**. The report's hybrid needs one **open-ended** component, and it can live on the client side of the SDK.",
+      "bullets": [
+        "The agent's instructions allow one HtmlArtifact(title, document) statement inside the openui program.",
+        "Only when the user asks for something interactive; dashboards and reports stay in the catalog.",
+        "TrueForge hands the agent its catalog through a system tool, get_openui_instructions, before every reply.",
+        "The page renders the artifact in a sandboxed iframe with a Content Security Policy injected first in head.",
+        "Every other component goes through step 07.2's catalog renderer, unchanged.",
+        "The TrueForge chat UI does not know the component; this page is where the hybrid exists."
+      ],
+      "diagram": {
+        "type": "hybrid",
+        "left": [
+          "Stack",
+          "Table",
+          "Tag",
+          "TextContent"
+        ],
+        "right": "HtmlArtifact",
+        "rightSub": "sandboxed iframe, CSP first in head: only where the catalog does not reach",
+        "caption": "Catalog primitives from TrueForge's own guide by default; one boxed open-ended component, added by the surface."
+      },
+      "takeaway": "A harness you do not own can still get an escape hatch, as long as the surface that renders its replies owns the box.",
+      "notes": "Step 07.2 showed that TrueForge's generative UI is a program in a language any parser can draw. That catalog is static: a table, a chart, a tag. It cannot give the user a calculator. This step adds the report's other half without touching the server. The agent's instructions describe one extra component, HtmlArtifact, with rules copied from OpenUI's html-artifact example: only for interactive requests, inline CSS and JS only, one statement on one line. The catalog stays the default. Point at the diagram: the left column is TrueForge's own guide, the dashed box on the right is ours. Stress the last bullet: the TrueForge chat UI would show the statement as text; this page is the surface that knows it."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.3 · code walkthrough",
+      "title": "One renderer, two states: raw source while the line is open, an iframe once it closes",
+      "snippet": {
+        "file": "07_harness_genui/step_03_trueforge_hybrid/web/render.mjs",
+        "from": "HtmlArtifact([title = \"Artifact\", document = \"\"], partial) {",
+        "count": 16,
+        "to": "frame.srcdoc = sandboxed(String(document));",
+        "maxWidth": 110
+      },
+      "callouts": [
+        {
+          "line": 1,
+          "text": "The parser marks a statement whose line is still in the buffer as **partial**; the renderer gets that flag."
+        },
+        {
+          "line": 6,
+          "text": "Streaming: a status line and the raw document so far, the way OpenUI's example shows an artifact generating."
+        },
+        {
+          "line": 16,
+          "text": "Complete: srcdoc is the document with the **CSP meta first in head**; sandbox=allow-scripts, no referrer."
+        }
+      ],
+      "caption": "sandboxed() in web/sandbox.mjs removes any CSP the model wrote and injects default-src 'none' with inline style and script allowed.",
+      "notes": "This is the whole open-ended half. An HtmlArtifact statement is one long line, so the parser cannot commit it until the closing quote arrives. Step 07.3 adds partial() to both parsers: a lenient read of the held-back line, so the tree carries a node marked partial with the document decoded as far as it goes. The renderer draws that as a status and the raw source. When the line closes, the same component mounts an iframe. The srcdoc goes through sandboxed(): any Content-Security-Policy meta the model wrote is removed, ours goes first in head, and the policy is default-src none with inline style and script allowed, because that is what the rules told the agent to write."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.3 · code walkthrough",
+      "title": "The instructions frame the surface's catalog as the guide's, minus the interactive parts, plus one",
+      "snippet": {
+        "file": "07_harness_genui/step_03_trueforge_hybrid/client/genui.py",
+        "from": "The surface that renders your reply is not the standard one.",
+        "count": 6,
+        "maxWidth": 240
+      },
+      "callouts": [
+        {
+          "line": 2,
+          "text": "REMOVED: the guide teaches Form, Input and $state; the page does not run them, so the model must not use them."
+        },
+        {
+          "line": 3,
+          "text": "ADDED: HtmlArtifact, the only way to something interactive on this surface."
+        },
+        {
+          "line": 6,
+          "text": "The exact shape of an interactive reply, one intro and one artifact; without it the model split the calculator into four."
+        }
+      ],
+      "caption": "Three additions after live runs: an example, the REMOVED / ADDED framing, and the exact reply shape. Six artifacts in six runs after the third.",
+      "notes": "Say what the live runs taught. TrueForge's harness prompt makes the agent call get_openui_instructions before any openui fence; the guide that comes back is about 4,400 tokens and arrives after the agent's instructions, and it teaches Form and Input. With a plain rule, gpt-4.1-mini answered the calculator prompt with the guide's forms in about half the runs and never wrote HtmlArtifact. Framing the catalog as the guide's minus those components plus HtmlArtifact stopped the forms, but the model invented components or split the calculator into four artifacts. Naming the exact reply shape fixed that. The lesson: on a hosted harness the instructions compete with the harness's own prompt, and the rule that wins is the one that describes the surface, not the one that forbids."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.3 · quick demo",
+      "title": "The report prompt: six catalog statements, no artifact",
+      "image": "07_harness_genui/step_03_trueforge_hybrid/demo_catalog.png",
+      "imageWidth": 7.2,
+      "imageHeight": 2.6,
+      "stats": [
+        {
+          "value": "7,972",
+          "label": "input tokens, two model calls",
+          "color": "amber"
+        },
+        {
+          "value": "124",
+          "label": "output tokens"
+        },
+        {
+          "value": "0",
+          "label": "artifacts on the page"
+        }
+      ],
+      "notice": [
+        "The first model call asks for the catalog through get_openui_instructions; the second carries it and writes the reply.",
+        "Title, table with two columns, status tag: step 07.2's renderers, untouched.",
+        "The instructions describe HtmlArtifact, and the agent did not use it here: the catalog is the default."
+      ],
+      "caption": "Prompt: Show a lemonade stand report with a table of the top three flavours and a status tag.",
+      "notes": "The first prompt is the control. It asks for a report and the agent answers with six catalog statements: a Stack, a TextContent, a Table with two Col statements, a Tag. No HtmlArtifact, although the instructions describe one. The cost is two model calls: about 1,500 input tokens for the agent to ask for the catalog guide, about 6,300 with the guide in context. Step 07.2's 6,954 input tokens were the same two calls. The page is the step 07.2 page, and this screenshot is the same shape as the previous step's."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.3 · quick demo",
+      "title": "The calculator prompt mid-stream: the intro is drawn, the artifact shows its source growing",
+      "image": "07_harness_genui/step_03_trueforge_hybrid/demo_streaming.png",
+      "imageWidth": 7.2,
+      "imageHeight": 3.65,
+      "stats": [
+        {
+          "value": "16",
+          "label": "chunks in"
+        },
+        {
+          "value": "358",
+          "label": "characters of document so far",
+          "color": "amber"
+        },
+        {
+          "value": "1",
+          "label": "artifact, partial"
+        }
+      ],
+      "notice": [
+        "The intro TextContent committed on its own line; the artifact line is still open and shows as raw source.",
+        "The same characters are the tail of the program on the right: the server streams 40-character chunks, not lines.",
+        "The status reads waiting for artifact: the statement is not committed until its closing quote arrives."
+      ],
+      "caption": "Prompt: Build me an interactive lemonade price calculator I can play with, with a short intro.",
+      "notes": "Mid-stream. The first two lines of the program committed, so the intro is drawn. The third line is the artifact, one long string, and the parser's partial() reads it as far as it goes, so the page shows a dashed artifact box with a status line and the raw document. This is what OpenUI's html-artifact example shows while generating. The server streams the program in 40-character chunks instead of one line per event, because a line-per-event server would show nothing of the artifact until it ended. The demo caught this state at 358 characters; the recorded run's mid-stream line says 438 because the screenshot and the print happen a chunk apart."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.3 · quick demo",
+      "title": "The artifact in its sandboxed iframe: two slider moves changed the total from $50.00 to $1000.00",
+      "image": "07_harness_genui/step_03_trueforge_hybrid/demo.png",
+      "imageWidth": 7.2,
+      "imageHeight": 4.6,
+      "stats": [
+        {
+          "value": "85%",
+          "label": "of the reply's tokens is the artifact document",
+          "color": "amber"
+        },
+        {
+          "value": "1,441",
+          "label": "characters of HTML, CSS and JS"
+        }
+      ],
+      "notice": [
+        "sandbox=allow-scripts, referrerpolicy=no-referrer, and the CSP meta first in head: the demo checks all three.",
+        "The headless test set both sliders to their maximum inside the iframe; the document's own script updated the total.",
+        "checkDocument() found nothing to report: no external resource, no network call, no meta refresh."
+      ],
+      "caption": "379 of 447 reply tokens are the document (463 output tokens from turn.done); the catalog reply for the report was 108 tokens.",
+      "notes": "The complete reply. The intro is a catalog TextContent; the artifact is a two-slider calculator in a sandboxed iframe, 1,441 characters of inline HTML, CSS and JavaScript. The demo proves the script ran under the policy: it moved both sliders to their maximum inside the iframe and the total went from $50.00 to $1000.00. The token share is the report's argument for the hybrid: 85 percent of this reply is the open-ended document, and the report reply cost 108 tokens in total. Pay for HTML only where a catalog component cannot do the job. Close on the boundary: default-src none, so a document that loaded a script from a CDN would be listed by checkDocument and blocked by the browser."
+    }
+  ]
+}

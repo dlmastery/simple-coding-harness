@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<title>Lemonade report</title>
+<style>
+  /* The host hands over CSS variables at ui/initialize; each has a fallback. */
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; padding: 12px;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    background: var(--color-background-primary, #ffffff);
+    color: var(--color-text-primary, #1a1a1a);
+  }
+  h1 { font-size: 16px; margin: 0 0 8px; }
+  h2 { font-size: 12px; margin: 14px 0 4px; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-secondary, #6b7280); }
+  .muted { color: var(--color-text-secondary, #6b7280); font-size: 12px; }
+  .cards { display: flex; gap: 8px; margin: 8px 0; }
+  .card {
+    flex: 1; padding: 8px 10px; border-radius: 8px;
+    background: var(--color-background-secondary, #f3f4f6);
+    border: 1px solid var(--color-border-primary, #e5e7eb);
+  }
+  .card .value { font-size: 20px; font-weight: 600; }
+  .card.unknown { border-style: dashed; color: #b45309; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 90px; margin: 10px 0 4px; }
+  .bar { flex: 1; background: var(--color-text-info, #2563eb); border-radius: 3px 3px 0 0; position: relative; min-height: 2px; }
+  .bar span { position: absolute; top: 100%; left: 0; right: 0; text-align: center; font-size: 11px; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: 12px; }
+  th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--color-border-primary, #e5e7eb); }
+  td.num, th.num { text-align: right; }
+  p.text { font-size: 12px; margin: 8px 0 0; }
+  /* The generated region: a second sandbox, drawn with a dashed amber border so the boundary is visible. */
+  iframe.generated { width: 100%; height: 150px; border: 1px dashed #d97706; border-radius: 8px; background: #fffbeb; display: block; }
+  #events { font-family: ui-monospace, monospace; font-size: 11px; color: #b45309; margin-top: 4px; min-height: 14px; }
+  .actions { display: flex; gap: 6px; margin-top: 10px; }
+  button {
+    font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--color-border-primary, #d1d5db);
+    background: var(--color-background-secondary, #f9fafb);
+    color: var(--color-text-primary, #1a1a1a);
+  }
+</style>
+</head>
+<body>
+<h1>Lemonade stand report</h1>
+<div id="status" class="muted">waiting for the host...</div>
+<div id="report" hidden>
+  <div id="components"></div>
+  <h2>generated region <span id="source"></span></h2>
+  <iframe id="generated" class="generated" title="generated region"></iframe>
+  <div id="events"></div>
+  <div class="actions">
+    <button data-days="7">7 days</button>
+    <button data-days="14">14 days</button>
+    <button data-focus="a temperature gauge for the hottest day">Regenerate: a gauge</button>
+  </div>
+</div>
+<script type="module">
+  import { renderComponents } from "./catalog.mjs";
+  import { mount, isEvent } from "./sandbox.mjs";
+
+  // --- the JSON-RPC bridge, view side: unchanged from step 01 --------------
+  const pending = new Map();
+  let nextId = 1;
+
+  function request(method, params) {
+    const id = nextId++;
+    return new Promise((resolve, reject) => {
+      pending.set(id, { resolve, reject });
+      window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+    });
+  }
+
+  function notify(method, params) {
+    window.parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+  }
+
+  function respond(id, result) {
+    window.parent.postMessage({ jsonrpc: "2.0", id, result }, "*");
+  }
+
+  const handlers = {
+    "ui/notifications/tool-input": ({ arguments: args }) => {
+      status.textContent = `loading the last ${args.days ?? 7} days, generating ${args.focus ?? "the region"}...`;
+    },
+    "ui/notifications/tool-result": (result) => show(result),
+    "ui/notifications/tool-cancelled": ({ reason }) => { status.textContent = `cancelled: ${reason}`; },
+    "ui/notifications/host-context-changed": (context) => applyContext(context),
+    "ui/resource-teardown": (params, id) => respond(id, {}),  // a request: the host waits for the answer
+  };
+
+  // --- two listeners, two sources: the host above, the generated region below
+  const generated = document.getElementById("generated");
+  const app = window.app = { latest: null, events: [] };  // the demo script reads these
+
+  function hostMessage(msg) {
+    if (!msg || msg.jsonrpc !== "2.0") return;
+    if (msg.method) {
+      handlers[msg.method]?.(msg.params ?? {}, msg.id);
+    } else if (pending.has(msg.id)) {
+      const { resolve, reject } = pending.get(msg.id);
+      pending.delete(msg.id);
+      msg.error ? reject(new Error(msg.error.message)) : resolve(msg.result);
+    }
+  }
+
+  let contextTimer = null;
+
+  window.addEventListener("message", (event) => {
+    if (event.source === window.parent) return hostMessage(event.data);
+    if (event.source === generated.contentWindow && isEvent(event.data)) return regionEvent(event.data);
+    // anything else, or any other shape, is dropped
+  });
+
+  function regionEvent({ name, payload }) {
+    app.events.push({ name, payload });
+    document.getElementById("events").textContent = `event from the generated region: ${name} ${JSON.stringify(payload ?? {})}`;
+    // The region cannot reach the host. The app can: it hands the event on as model context, coalesced.
+    clearTimeout(contextTimer);
+    contextTimer = setTimeout(() => {
+      const text = `In the report's interactive region the user set ${name}: ${JSON.stringify(payload ?? {})}.`;
+      request("ui/update-model-context", { content: [{ type: "text", text }] });
+    }, 250);
+  }
+
+  // --- rendering: the catalog for `components`, the sandbox for `generated`
+  const status = document.getElementById("status");
+
+  function show(result) {  // not "render": after bundling, the catalog's render() shares this scope
+    const data = result.structuredContent;
+    if (!data) { status.textContent = result.content?.[0]?.text ?? "no data"; return; }
+    app.latest = data;
+    document.getElementById("components").innerHTML = renderComponents(data.components);
+    document.getElementById("source").textContent = `(${data.generated.source}, ${data.generated.bytes} bytes${data.generated.note ? ": " + data.generated.note : ""})`;
+    mount(generated, data.generated.html);
+    document.getElementById("events").textContent = "";
+    status.textContent = `last ${data.days} days · ${data.focus}`;
+    document.getElementById("report").hidden = false;
+  }
+
+  function applyContext(context) {
+    const variables = context?.styles?.variables ?? {};
+    for (const [name, value] of Object.entries(variables)) {
+      if (value) document.documentElement.style.setProperty(name, value);
+    }
+    if (context?.theme) document.documentElement.style.colorScheme = context.theme;
+  }
+
+  // --- the interactive phase: the view calls the tool through the host -----
+  async function recall(args) {
+    status.textContent = `asking the server for ${JSON.stringify(args)}...`;
+    show(await request("tools/call", { name: "lemonade_report", arguments: { days: app.latest?.days ?? 7, focus: app.latest?.focus, ...args } }));
+  }
+  for (const button of document.querySelectorAll("button[data-days]")) {
+    button.addEventListener("click", () => recall({ days: Number(button.dataset.days) }));
+  }
+  for (const button of document.querySelectorAll("button[data-focus]")) {
+    button.addEventListener("click", () => recall({ focus: button.dataset.focus }));
+  }
+
+  // --- lifecycle: initialize, then say so, then report the size ------------
+  (async () => {
+    const init = await request("ui/initialize", {
+      appInfo: { name: "Lemonade Report", version: "0.1.0" },
+      appCapabilities: { availableDisplayModes: ["inline"] },
+      protocolVersion: "2025-06-18",
+    });
+    applyContext(init.hostContext);
+    notify("ui/notifications/initialized", {});
+    new ResizeObserver(() => {
+      notify("ui/notifications/size-changed", { width: document.body.scrollWidth, height: document.body.scrollHeight + 24 });
+    }).observe(document.body);
+  })();
+</script>
+</body>
+</html>

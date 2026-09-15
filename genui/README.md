@@ -66,7 +66,7 @@ implementation.
 └─────────────────────────┴────────────────────────────────────┘
 ```
 
-## The roadmap: 21 steps, seven sub-themes
+## The roadmap: 23 steps, seven sub-themes
 
 Read the sub-themes in order the first time. Each one is self-contained
 after that, so you can come back to the one your product needs.
@@ -92,8 +92,10 @@ after that, so you can come back to the one your product needs.
 | 17 | [05.3](05_json_render/step_03_json_render_actions_and_targets/) actions and targets | buttons that round-trip to the model, the same spec in a terminal | one spec, two renderers | declarative |
 | 18 | [06.1](06_mcp_apps/step_01_mcp_app_resource/) an MCP App | a tool that carries a UI resource, a minimal host with a bridge | the host decides what the iframe may do | third-party host |
 | 19 | [06.2](06_mcp_apps/step_02_mcp_app_in_a_real_host/) in a real host | the harness's MCP client as a text host; Claude Desktop and Goose setup | one interface, two transports, ship both | third-party host |
-| 20 | [07.1](07_harness_genui/step_01_render_ui_tool/) render_ui in the harness | a validated spec tool, a terminal renderer, a web surface | one agent, two surfaces | terminal and your product |
-| 21 | [07.2](07_harness_genui/step_02_trueforge_generative_ui/) TrueForge generative UI | a hosted harness's OpenUI output, parsed and rendered by your page | a UI language is as portable as its parsers | the TrueForge SDK |
+| 20 | [06.3](06_mcp_apps/step_03_mcp_app_hybrid/) hybrid inside an MCP App | catalog components plus a model-generated region in a nested sandbox, the server holding the key | open-ended and static together, two boundaries deep | hybrid, third-party host |
+| 21 | [07.1](07_harness_genui/step_01_render_ui_tool/) render_ui in the harness | a validated spec tool, a terminal renderer, a web surface | one agent, two surfaces | terminal and your product |
+| 22 | [07.2](07_harness_genui/step_02_trueforge_generative_ui/) TrueForge generative UI | a hosted harness's OpenUI output, parsed and rendered by your page | a UI language is as portable as its parsers | the TrueForge SDK |
+| 23 | [07.3](07_harness_genui/step_03_trueforge_hybrid/) hybrid on TrueForge | the hosted harness's catalog plus one `HtmlArtifact` in a sandboxed iframe on your page | the escape hatch a hosted harness does not ship | hybrid, the TrueForge SDK |
 
 ## Before you start
 
@@ -158,7 +160,7 @@ The report separates two choices: **transport** is where the UI appears, **gener
 
 ## Step 01.1: Static components
 
-**Level.** 1 of 21 · static generation · your own product
+**Level.** 1 of 23 · static generation · your own product
 
 **What you learn.** The smallest generative UI there is: components exist before the model runs, and the model only selects one and fills its props.
 
@@ -202,7 +204,7 @@ python demo.py
 
 ## Step 01.2: Declarative tree
 
-**Level.** 2 of 21 · declarative generation · your own product
+**Level.** 2 of 23 · declarative generation · your own product
 
 **What you learn.** The model composes prebuilt components into a layout of its own, as data the page can validate, and the shape of that data decides how well it streams.
 
@@ -247,7 +249,7 @@ python demo.py
 
 ## Step 01.3: Open-ended HTML
 
-**Level.** 3 of 21 · open-ended generation · your own product
+**Level.** 3 of 23 · open-ended generation · your own product
 
 **What you learn.** The model writes the whole page, and what that costs in tokens, time, trust and consistency, with the report's "5 to 10 times" claim checked.
 
@@ -290,7 +292,7 @@ python demo.py
 
 ## Step 01.4: Hybrid escape hatch
 
-**Level.** 4 of 21 · hybrid · your own product
+**Level.** 4 of 23 · hybrid · your own product
 
 **What you learn.** The report's recommendation: declarative by default with one open-ended component as an escape hatch, and a click that becomes the next model turn.
 
@@ -348,7 +350,7 @@ The report separates what the model generates from how it travels to the screen.
 
 ## Step 02.1: An AG-UI server
 
-**Level.** 5 of 21 · static generation · your own product
+**Level.** 5 of 23 · static generation · your own product
 
 **What you learn.** The smallest AG-UI agent there is: a run that starts, streams one text message delta by delta, and finishes. The wire is visible before any client library hides it.
 
@@ -393,7 +395,7 @@ python demo.py
 
 ## Step 02.2: Tool calls and shared state
 
-**Level.** 6 of 21 · static generation · your own product
+**Level.** 6 of 23 · static generation · your own product
 
 **What you learn.** Tool calls as `TOOL_CALL_START`, `TOOL_CALL_ARGS`, `TOOL_CALL_END`, `TOOL_CALL_RESULT`, and shared state as `STATE_SNAPSHOT` plus `STATE_DELTA`. Generative UI becomes a piece of state the model edits.
 
@@ -440,7 +442,7 @@ python demo.py
 
 ## Step 02.3: The harness codelab's loop over AG-UI
 
-**Level.** 7 of 21 · static generation · your own product
+**Level.** 7 of 23 · static generation · your own product
 
 **What you learn.** The harness codelab's coding agent, driven from a browser with no change to its loop. A terminal and AG-UI are two transports for the same functions.
 
@@ -502,7 +504,7 @@ Sub-theme 01 found that a flat element map streams best. A2UI v0.9.1 is that sha
 
 ## Step 03.1: A2UI messages by hand
 
-**Level.** 8 of 21 · declarative generation · your own product
+**Level.** 8 of 23 · declarative generation · your own product
 
 **What you learn.** The server-to-client half of A2UI is four messages, and a client keeps a component map and a data model per surface.
 
@@ -550,7 +552,7 @@ python demo.py
 
 ## Step 03.2: A2UI from a model
 
-**Level.** 9 of 21 · declarative generation · your own product
+**Level.** 9 of 23 · declarative generation · your own product
 
 **What you learn.** A2UI is "prompt-first": the catalog schema rides in the prompt, nothing constrains the output, and a correction loop catches what the model got wrong.
 
@@ -598,7 +600,7 @@ python demo.py
 
 ## Step 03.3: The official renderer, over AG-UI
 
-**Level.** 10 of 21 · declarative generation · your own product
+**Level.** 10 of 23 · declarative generation · your own product
 
 **What you learn.** A2UI is a generation format and AG-UI is a transport; one `CUSTOM` event joins them.
 
@@ -663,7 +665,7 @@ This sub-theme is about generation, not transport. OpenUI Lang is the line-orien
 
 ## Step 04.1: OpenUI Lang, parsed by hand
 
-**Level.** 11 of 21 · declarative generation · your own product
+**Level.** 11 of 23 · declarative generation · your own product
 
 **What you learn.** The language itself, with no library: how a line becomes a statement, a statement becomes a tree, and a missing name becomes a skeleton.
 
@@ -712,7 +714,7 @@ python demo.py
 
 ## Step 04.2: The real thing: lang-core and react-lang
 
-**Level.** 12 of 21 · declarative generation · your own product
+**Level.** 12 of 23 · declarative generation · your own product
 
 **What you learn.** The contract the official packages add: one Zod catalog generates the system prompt, the parser's parameter map and the React renderers.
 
@@ -759,7 +761,7 @@ python demo.py
 
 ## Step 04.3: The token benchmark, reproduced
 
-**Level.** 13 of 21 · declarative generation · your own product
+**Level.** 13 of 23 · declarative generation · your own product
 
 **What you learn.** Where the report's "most token-efficient format" claim comes from, recomputed cell by cell, and which numbers reproduce.
 
@@ -814,7 +816,7 @@ report TOTAL            4800    9122     9948    10180      -
 
 ## Step 04.4: OpenUI's html artifact: catalog by default, open-ended where needed
 
-**Level.** 14 of 21 · hybrid · your own product
+**Level.** 14 of 23 · hybrid · your own product
 
 **What you learn.** The report's hybrid pattern, "catalog primitives by default, open-ended only where the catalog does not reach", as OpenUI ships it: one open-ended component inside the catalog.
 
@@ -880,7 +882,7 @@ json-render is one of the open formats in the declarative middle of the report: 
 
 ## Step 05.1: A catalog and the React Renderer
 
-**Level.** 15 of 21 · declarative generation · your own product
+**Level.** 15 of 23 · declarative generation · your own product
 
 **What you learn.** How one catalog object becomes the prompt, the component map, the validation and the JSON Schema, and what the spec looks like when it arrives whole.
 
@@ -925,7 +927,7 @@ python demo.py
 
 ## Step 05.2: Streaming JSON Patch into the element map
 
-**Level.** 16 of 21 · declarative generation · your own product
+**Level.** 16 of 23 · declarative generation · your own product
 
 **What you learn.** How a flat element map streams as RFC 6902 patches, one per line, and why the page can paint on the second line.
 
@@ -973,7 +975,7 @@ python demo.py
 
 ## Step 05.3: Actions, and a second target
 
-**Level.** 17 of 21 · declarative generation · your own product
+**Level.** 17 of 23 · declarative generation · your own product
 
 **What you learn.** How a button press becomes the next model turn, answered with patches against the spec on screen, and how the same spec renders in a terminal.
 
@@ -1048,7 +1050,7 @@ The report's second transport. Sub-theme 02 put the agent inside a product you o
 
 ## Step 06.1: An MCP App, a tool result that carries its interface
 
-**Level.** 18 of 21 · static generation · a third-party host (MCP Apps)
+**Level.** 18 of 23 · static generation · a third-party host (MCP Apps)
 
 **What you learn.** How a tool ships its interface as a resource, and how a host mounts it in a sandboxed iframe.
 
@@ -1095,7 +1097,7 @@ python demo.py
 
 ## Step 06.2: The same server in a real host
 
-**Level.** 19 of 21 · static generation · a third-party host (MCP Apps)
+**Level.** 19 of 23 · static generation · a third-party host (MCP Apps)
 
 **What you learn.** What a host not written for your server does with it, and why the report says to ship both text and a view.
 
@@ -1155,6 +1157,56 @@ Claude Desktop and Goose mount the same resource in a real iframe; the step READ
 
 **Takeaway.** The server did not change between three hosts: keep the interface as data, render it on your own page where you own the product, and ship a `ui://` view where you do not.
 
+## Step 06.3: Open-ended HTML and static components together, inside an MCP App
+
+**Level.** 20 of 23 · hybrid · a third-party host (MCP Apps)
+
+**What you learn.** How the report's hybrid pattern ships through a host you do not control, one boundary deeper than the app.
+
+**Why now.** Step 01.4 built the hybrid on a page you own. Step 06.1 shipped a view as a resource. This step puts one inside the other.
+
+**Build.** `server.py` keeps step 06.1's resource, link and policy, and changes the tool. `lemonade_report(days, focus)` returns two halves in `structuredContent`: `components`, six catalog items in the shape of step 01.1, and `generated`, one HTML document the model writes for a region the catalog does not cover. `report.py` builds the spec and makes the server's own model call; without a key, a hand-written fallback with the same contract takes its place. `catalog.mjs` renders the components with four escaped renderers. `sandbox.mjs` mounts the generated document in a nested `sandbox="allow-scripts"` iframe with its own policy first in the head. The design decision: the server calls the model, not the host, because MCP Apps keeps credentials on the server side.
+
+`06_mcp_apps/step_03_mcp_app_hybrid/view.html`:
+
+```js
+  window.addEventListener("message", (event) => {
+    if (event.source === window.parent) return hostMessage(event.data);
+    if (event.source === generated.contentWindow && isEvent(event.data)) return regionEvent(event.data);
+    // anything else, or any other shape, is dropped
+  });
+  ...
+  function regionEvent({ name, payload }) {
+    app.events.push({ name, payload });
+    document.getElementById("events").textContent = `event from the generated region: ${name} ${JSON.stringify(payload ?? {})}`;
+    // The region cannot reach the host. The app can: it hands the event on as model context, coalesced.
+    clearTimeout(contextTimer);
+    contextTimer = setTimeout(() => {
+      const text = `In the report's interactive region the user set ${name}: ${JSON.stringify(payload ?? {})}.`;
+      request("ui/update-model-context", { content: [{ type: "text", text }] });
+    }, 250);
+  }
+```
+
+Look at the two `event.source` checks. The region may only send `{type: "event", name, payload}`; a `tools/call` from it fails `isEvent` and is dropped. The app, not the region, speaks to the host.
+
+**Run.**
+
+```bash
+cd genui/06_mcp_apps/step_03_mcp_app_hybrid
+python demo.py
+```
+
+**See.** The server's model call cost 370 prompt and 473 completion tokens for 1,565 bytes of HTML; the six catalog components cost 829 bytes of JSON and no model call. The demo moved the slider two frames down; the region posted `priceChange` with price 2.4, 96 cups and revenue 230.4, and the app forwarded it as `ui/update-model-context`, shown under the chat.
+
+![Step 06.3: the hybrid view in the minimal host, catalog components above, the generated region in a second sandbox below](06_mcp_apps/step_03_mcp_app_hybrid/demo.png)
+
+![Step 06.3: the generated region on its own after the slider moved](06_mcp_apps/step_03_mcp_app_hybrid/demo_generated.png)
+
+**Checkpoint.** Add a `GeneratedView` item to `components` and watch it render as a stub: markup runs only through `generated`, which has its own frame.
+
+**Takeaway.** Two frames, two policies, one accepted message shape: the catalog stays cheap, and the open-ended part runs inside a boundary the app owns.
+
 ---
 
 <!-- SUBTHEME 07 -->
@@ -1171,7 +1223,7 @@ The two codelabs meet here. The harness codelab ends with a coding agent that ta
 
 ## Step 07.1: A render_ui tool for the harness
 
-**Level.** 20 of 21 · declarative generation · a terminal
+**Level.** 21 of 23 · declarative generation · a terminal
 
 **What you learn.** Generative UI as one tool: the model emits a json-render element map, the harness validates it against a catalog, and every surface draws from that data.
 
@@ -1215,7 +1267,7 @@ python demo.py
 
 ## Step 07.2: TrueForge's generative UI, rendered in a page of ours
 
-**Level.** 21 of 21 · declarative generation · the TrueForge SDK
+**Level.** 22 of 23 · declarative generation · the TrueForge SDK
 
 **What you learn.** How to capture a hosted harness that already speaks a UI language over its SDK, and how forward references let a page draw the skeleton before the details arrive.
 
@@ -1262,6 +1314,58 @@ python demo.py
 
 **Takeaway.** A UI language is a string with a grammar: any parser that knows the grammar can draw it, and streaming follows from statements that commit line by line.
 
+## Step 07.3: Open-ended HTML and catalog components together, on TrueForge
+
+**Level.** 23 of 23 · hybrid · the TrueForge SDK
+
+**What you learn.** How to give a hosted harness an open-ended escape hatch without changing it: the catalog stays the default, one sandboxed component takes the rest.
+
+**Why now.** Step 07.2 rendered TrueForge's catalog in a page of ours. That catalog is static: a table, a tag, never a calculator to play with. This step puts the report's hybrid on a harness you do not own.
+
+**Build.** `client/genui.py` keeps step 07.2's session and changes only the `instructions`: the catalog from `get_openui_instructions`, minus `Form`, `Input` and `$state`, plus `HtmlArtifact(title, document)`, allowed only when the user asks for something interactive, with one example. Both parsers gain `partial()`, a lenient read of the line still in the buffer, so a streaming artifact appears in the tree as a partial node. `web/render.mjs` draws that node as raw source, and the complete node as a sandboxed iframe with the policy from `web/sandbox.mjs` injected first in `<head>`. `server.py` streams 40-character chunks instead of lines. The decision that matters: the TrueForge chat UI does not know this component, so this page, not the harness, is where the hybrid exists.
+
+`07_harness_genui/step_03_trueforge_hybrid/web/render.mjs`:
+
+```js
+  HtmlArtifact([title = "Artifact", document = ""], partial) {
+    const box = el("section", "artifact");
+    box.dataset.state = partial ? "streaming" : "ready";
+    const head = el("div", "artifact-head");
+    head.append(el("strong", "", String(title)));
+    if (partial) {
+      head.append(el("span", "artifact-status", `Generating artifact ... ${document.length} characters so far`));
+      box.append(head, el("pre", "artifact-raw", document));
+      return box;
+    }
+    head.append(el("span", "artifact-status", `${document.length} characters, sandboxed iframe`));
+    const frame = el("iframe", "artifact-frame");
+    frame.title = String(title);
+    frame.setAttribute("sandbox", "allow-scripts");
+    frame.setAttribute("referrerpolicy", "no-referrer");
+    frame.srcdoc = sandboxed(String(document));
+```
+
+The same component draws source while its line is open and an iframe once it closes; `sandboxed()` is the only path a document takes into the page.
+
+**Run.**
+
+```bash
+cd genui/07_harness_genui/step_03_trueforge_hybrid
+python demo.py
+```
+
+**See.** The report prompt cost 7,972 input and 124 output tokens over two model calls, the first one loading the catalog; the reply was six catalog statements and no artifact. The calculator prompt cost 7,970 input and 463 output tokens; the reply was one intro and one `HtmlArtifact` of 1,441 characters, 379 of the reply's 447 tokens (85%). The page caught it mid-stream at 438 characters, then mounted it; two slider moves inside the iframe changed the total from $50.00 to $1000.00.
+
+![Step 07.3: the report prompt, catalog components only](07_harness_genui/step_03_trueforge_hybrid/demo_catalog.png)
+
+![Step 07.3: the calculator prompt mid-stream, the artifact document growing](07_harness_genui/step_03_trueforge_hybrid/demo_streaming.png)
+
+![Step 07.3: the calculator in its sandboxed iframe next to the intro, after the keystrokes](07_harness_genui/step_03_trueforge_hybrid/demo.png)
+
+**Checkpoint.** Remove the example from `INSTRUCTIONS` and run the calculator prompt three times. Count how often the reply uses the guide's `Form` and `Input` instead of `HtmlArtifact`.
+
+**Takeaway.** A hosted harness sets the catalog; the surface that renders its replies can still add the one open-ended component the catalog lacks, as long as that component is boxed.
+
 ---
 
 # Choosing for your own product
@@ -1285,7 +1389,7 @@ The report's decision framework, with the step that shows each option.
 | you need the lowest token cost and the earliest first paint | OpenUI Lang | 04.1 to 04.3 |
 | you render on Flutter, Angular or native, or need catalog negotiation | A2UI | 03.1 to 03.3 |
 | you render to PDF, email, a terminal or video as well as the browser | json-render | 05.1 to 05.3 |
-| one-off or creative output is part of the product | the hybrid: a catalog with a sandboxed generated view | 01.4, 04.4 |
+| one-off or creative output is part of the product | the hybrid: a catalog with a sandboxed generated view | 01.4, 04.4, 06.3, 07.3 |
 | you distribute UI to third-party hosts | developer-authored HTML resources over MCP Apps | 06.1 |
 
 **What the measurements in this series say.**
@@ -1297,6 +1401,7 @@ The report's decision framework, with the step that shows each option.
 | does the report's format table hold? | 04.3 | every cell reproduces; OpenUI Lang 4,800 tokens against 9,122 (YAML), 9,948 (C1 JSON), 10,180 (patches) |
 | does patch streaming help a real page? | 05.2 | first paint at 3.5 s against 10.1 s complete; the single-paint version took 5.8 s |
 | what does a hosted harness's UI language look like on the wire? | 07.2 | an OpenUI Lang program of 32 lines and 7 statements inside a normal reply |
+| can the hybrid live inside a host you do not control, or on a hosted harness? | 06.3, 07.3 | yes: a generated region one sandbox deeper inside an MCP App, and one artifact statement in a TrueForge reply rendered by your own page |
 
 # Glossary
 
@@ -1333,7 +1438,7 @@ The report's decision framework, with the step that shows each option.
 
 # Wrap-up
 
-Three rules held across all 21 steps.
+Three rules held across all 23 steps.
 
 1. **Structure before content.** Every format that streams well names the
    layout first and fills it later: flat maps, forward references, patches
@@ -1357,10 +1462,10 @@ for interfaces too.
 | [03 A2UI](03_a2ui/) | messages by hand, from a model, Lit renderer over AG-UI | `a2ui-core`, `a2ui-agent-sdk`, `@a2ui/lit` |
 | [04 OpenUI Lang](04_openui_lang/) | parser, React renderer, format benchmark, html artifact | `@openuidev/lang-core`, `@openuidev/react-lang`, `tiktoken` |
 | [05 json-render](05_json_render/) | catalog, streaming patches, actions and targets | `@json-render/core`, `@json-render/react`, `@json-render/ink` |
-| [06 MCP Apps](06_mcp_apps/) | app resource, in a real host | `mcp` |
-| [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI | `rich`, `trueforge_sdk` |
+| [06 MCP Apps](06_mcp_apps/) | app resource, in a real host, hybrid inside an app | `mcp` |
+| [07 in the harness](07_harness_genui/) | render_ui tool, TrueForge generative UI, hybrid on TrueForge | `rich`, `trueforge_sdk` |
 
-> **Build status.** All seven sub-themes, twenty-one steps, are built and
+> **Build status.** All seven sub-themes, twenty-three steps, are built and
 > tested. Every snippet in this document and in the step READMEs is
 > verified against the code in continuous integration. The specification
 > they were built from is `GENUI_SPEC.md`.

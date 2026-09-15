@@ -273,6 +273,15 @@ page before designing.
   available; say so). Compare with sub-theme 02: the same UI, two
   transports; the report's rule "ship both".
 
+- `step_03_mcp_app_hybrid` (added after the first build): open-ended HTML and
+  static components together inside an MCP App. The tool returns
+  `structuredContent` with `components` (rendered by the view's own
+  catalog) and `generated` (an HTML region the server obtains from its own
+  model call, so the key stays server-side), mounted in a nested
+  `sandbox="allow-scripts"` iframe with a CSP injected first in its head:
+  host -> app iframe -> generated iframe. Events from the inner frame are
+  accepted in one shape and forwarded as `ui/update-model-context`.
+
 ## Sub-theme 07 - Generative UI in the harness (`genui/07_harness_genui`)
 
 Ties the two codelabs together.
@@ -296,3 +305,12 @@ Ties the two codelabs together.
   the screenshot. Tests offline with a fake SSE server (see
   `step_46_trueforge_loop/test_step.py` once it exists for the pattern;
   if it does not exist yet, write your own small fake).
+- `step_03_trueforge_hybrid` (added after the first build): the hybrid on
+  a hosted harness. TrueForge's generative UI emits catalog components in
+  OpenUI Lang; the agent's instructions allow one `HtmlArtifact(title,
+  document)` statement only when the user asks for something interactive.
+  Our page renders the catalog components as in step 02 and the artifact
+  in a sandboxed iframe with an injected CSP; TrueForge's own chat UI stays
+  catalog-only. Demo: a catalog-only report and an interactive calculator,
+  three screenshots, a keystroke inside the iframe, the token share of the
+  artifact.

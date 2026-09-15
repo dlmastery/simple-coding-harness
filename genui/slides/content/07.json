@@ -1,0 +1,351 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 07",
+      "title": "Generative UI in the harness",
+      "lead": "The two codelabs meet here. The harness codelab ends with a coding agent that talks in prose and tool panels, then moves the loop onto TrueForge. This sub-theme gives both harnesses a rendering surface. Both steps are declarative generation in the report's terms; the transports are a terminal, a browser page fed over SSE, and the TrueForge SDK. Sub-theme 06 put an interface into a host the reader does not control; this one lets the reader's own agent answer with one.",
+      "steps": [
+        {
+          "id": "07.1",
+          "title": "A render_ui tool for the harness"
+        },
+        {
+          "id": "07.2",
+          "title": "TrueForge's generative UI, rendered in a page of ours"
+        },
+        {
+          "id": "07.3",
+          "title": "Hybrid on TrueForge"
+        }
+      ],
+      "notes": "The last sub-theme. Everything before it was a format or a transport studied on its own. Here the stage 15 loop from the harness codelab gains one tool and two surfaces, and then the hosted harness, TrueForge, is shown to already speak one of the formats from sub-theme 04. Step 07.1 is the local harness drawing a validated json-render element map on a terminal and a browser page. Step 07.2 captures an OpenUI Lang program over the TrueForge SDK and renders it line by line in a page of the reader's own. Both are declarative generation; only the transport differs."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 07.1 · Level 21 of 23 · declarative generation · a terminal",
+      "title": "The spec is the interface: validate once, draw on any surface",
+      "headline": "Generative UI as **one tool**: the model emits a json-render element map, the harness validates it against a catalog, and every surface draws from that data.",
+      "bullets": [
+        "`harness/` is the stage 15 loop copied whole; nothing in the loop changes.",
+        "`genui.py` holds a six-component catalog with typed props, a required list and a children flag.",
+        "`validate()` returns every problem as a plain sentence; the model reads the list as the tool result.",
+        "`llm.py` writes the catalog into the system prompt from the same dictionary the validator reads.",
+        "`ui.py` draws one `rich` renderable per element; `web.py` pushes the spec to every open tab over SSE.",
+        "The model sees one sentence back. The picture is drawn by the surface, from data."
+      ],
+      "diagram": {
+        "type": "flow",
+        "direction": "down",
+        "nodes": [
+          {
+            "label": "model",
+            "sub": "calls render_ui with an element map",
+            "kind": "model"
+          },
+          {
+            "label": "render_ui tool",
+            "sub": "next to bash and task, same permission check",
+            "kind": "server"
+          },
+          {
+            "label": "validate against the catalog",
+            "sub": "problems go back as text; a good spec is published",
+            "kind": "catalog"
+          },
+          {
+            "label": "two surfaces",
+            "sub": "a rich panel tree in the terminal · a DOM tree over SSE",
+            "kind": "page"
+          }
+        ],
+        "caption": "Add a surface and nothing in the agent changes."
+      },
+      "takeaway": "One agent, one spec, two surfaces: the model composes from a catalog it saw once; a new surface changes nothing.",
+      "notes": "The reader has the stage 15 harness and the flat element map from sub-theme 01. This step joins them without touching the loop. The catalog is one dictionary: the prompt is generated from it, the validator reads it, and each surface has one function per entry. That is the report's second rule, the catalog is the contract, applied to the harness. Point at the last node: the terminal and the browser page are the same shape, a lookup by type and a recursive walk from root. The model never sees either picture. It gets back one sentence, or a list of corrections if the spec was wrong."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.1 · code walkthrough",
+      "title": "Validate, publish, report: a bad spec comes back as corrections, not a crash",
+      "snippet": {
+        "file": "07_harness_genui/step_01_render_ui_tool/harness/tools.py",
+        "from": "def render_ui(",
+        "count": 12,
+        "to": "return f\"Rendered",
+        "maxWidth": 96
+      },
+      "callouts": [
+        {
+          "line": 8,
+          "text": "`validate()` returns a list of sentences. An empty list means the spec is valid."
+        },
+        {
+          "line": 10,
+          "text": "The problems go back to the model as the tool result. The loop continues; the model corrects and calls again."
+        },
+        {
+          "line": 12,
+          "text": "The model only ever sees this line. The picture is drawn by the surfaces, not described to the model."
+        }
+      ],
+      "caption": "The tool sits behind the same `execute()` permission check as `bash`; the subagent does not get it.",
+      "notes": "Two return values, and both are results. If validation finds problems, the tool returns them as text and nothing is rendered; the model reads the list and tries again. If the spec is valid, publish() hands it to every open browser tab and the terminal draws it inside the tool panel. The string the model receives is one sentence with a count and the root id. That is deliberate: the spec is data the surfaces interpret, not something the model has to describe. The subagent from step 15 is not given this tool; an explorer reports, it does not draw."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.1 · code walkthrough",
+      "title": "The prompt is generated from the catalog, so prompt and validator cannot drift",
+      "snippet": {
+        "file": "07_harness_genui/step_01_render_ui_tool/harness/genui.py",
+        "from": "def catalog_prompt():",
+        "count": 8,
+        "maxWidth": 96
+      },
+      "callouts": [
+        {
+          "line": 4,
+          "text": "The same `CATALOG` dictionary that `validate()` checks against. One definition, three uses."
+        },
+        {
+          "line": 7,
+          "text": "One line per component: name, typed props, description, and whether it takes children."
+        }
+      ],
+      "caption": "`llm.py` places this text in the system prompt under the instruction to call `render_ui` for dashboards, tables and charts.",
+      "notes": "This is the smallest function in the step and the one that keeps it honest. The system prompt tells the model which element types exist, and that text is produced from the same dictionary the validator reads and the renderers key on. Add a Gauge entry and the prompt gains a line, the validator accepts it, and the tests fail until both surfaces can draw it. Remove an entry and the model stops being offered it. There is no second list to keep in sync. The checkpoint in the README asks the reader to add exactly that entry and watch the tests tell them what is missing."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.1 · quick demo",
+      "title": "One prompt, a ten-element map, drawn by the terminal and the browser alike",
+      "image": "07_harness_genui/step_01_render_ui_tool/demo.png",
+      "imageWidth": 4.5,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "1,365 · 308",
+          "label": "prompt · completion tokens, first call"
+        },
+        {
+          "value": "10",
+          "label": "elements in the map",
+          "color": "green"
+        },
+        {
+          "value": "1,690 · 43",
+          "label": "prompt · completion tokens, the summary call",
+          "color": "amber"
+        }
+      ],
+      "notice": [
+        "Metrics, a seven-bar chart, an inventory Table inside a nested Card, and a weather card, from one call.",
+        "The terminal drew the same spec inside the `render_ui · 10 elements` tool panel.",
+        "The demo script captured this picture headlessly from the web surface."
+      ],
+      "caption": "The model saw the catalog once, in the system prompt, and produced nested Cards, a Chart and a Table on the first call.",
+      "notes": "The recorded run. The user asked for a lemonade stand dashboard. The first model call cost 1,365 prompt and 308 completion tokens and produced a ten-element map: metrics, a seven-bar chart, an inventory table inside a nested card, and a weather card. The terminal drew it as a rich panel tree; this screenshot is the browser page drawing the identical spec from the same SSE push. The second call, 1,690 prompt and 43 completion tokens, was the model's one-sentence summary after the tool returned. Nothing in the loop changed to make this happen; the tool and the catalog did the work."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 07.2 · Level 22 of 23 · declarative generation · the TrueForge SDK",
+      "title": "A hosted harness already speaks a UI language; any parser that knows the grammar can draw it",
+      "headline": "With `generative_ui` enabled, TrueForge's agent answers with an **OpenUI Lang program inside a fence**. This step renders that program in a page of its own.",
+      "bullets": [
+        "`client/genui.py` opens a session with generative UI on and streams one turn over the SDK.",
+        "`extract_program()` pulls the text out of the first ```openui fence, even one that never closed.",
+        "`openui_parse.py` is streaming-first: statements are `name = expr`; references may point forward.",
+        "A statement commits at the first newline where its brackets balance; a multi-line `Card([` waits.",
+        "`server.py` sends one line per SSE event; `app.js` feeds each line to the parser and redraws from `root`.",
+        "Unknown components become a labelled box, pending references a dashed placeholder."
+      ],
+      "diagram": {
+        "type": "flow",
+        "direction": "down",
+        "nodes": [
+          {
+            "label": "TrueForge SDK stream",
+            "sub": "model.message.delta events on the main thread",
+            "kind": "server"
+          },
+          {
+            "label": "extract the openui fence",
+            "sub": "the prose is for the chat; the fence is the interface",
+            "kind": "spec"
+          },
+          {
+            "label": "streaming parser",
+            "sub": "commit a line when its brackets balance; pending nodes for forward references",
+            "kind": "catalog"
+          },
+          {
+            "label": "DOM renderer",
+            "sub": "one function per component name; dashed box while a reference is pending",
+            "kind": "page"
+          }
+        ],
+        "caption": "The same parser exists in Python and JavaScript, tested against the same program."
+      },
+      "takeaway": "A UI language is a string with a grammar: any parser that knows the grammar can draw it, and streaming follows from statements that commit line by line.",
+      "notes": "Step 07.1 taught the local harness to draw. TrueForge, the hosted harness from Part 7 of the harness codelab, already does this: enable generative_ui and its agent writes an OpenUI Lang program inside a fence, which the TrueForge chat client renders. Nothing about that is tied to the TrueForge UI. The program is a string, the fence marks where it starts, and any parser that knows the grammar can draw it. Two properties of the language carry the page: forward references, so the root line names children before they exist, and line-oriented statements, so a line is drawable the moment it ends. The server exploits the second by sending one line per SSE event."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Step 07.2 · forward references",
+      "title": "The root line names six children on line 1; the page draws the skeleton before their lines arrive",
+      "lead": "The recorded program, 25 lines in: four statements have landed, `kpiStack` is still open, and three children are dashed placeholders.",
+      "diagram": {
+        "type": "skeleton",
+        "height": 3.9,
+        "lines": [
+          "root = Stack([title, topFlavoursTable, revenueLineChartCard, kpiStack, statusTag, closingText], \"column\", \"l\", \"center\")",
+          "title = TextContent(\"Lemonade Stand Report\", \"large-heavy\")",
+          "topFlavoursTable = Card([",
+          "  CardHeader(\"Top 3 Flavours - Cups Sold & Price\"),",
+          "])",
+          "revenueLineChartCard = Card([",
+          "  CardHeader(\"Weekly Revenue Over Four Weeks\"),",
+          "])",
+          "kpiStack = Stack([",
+          "statusTag = Tag(\"Performance\", null, \"md\", \"success\")",
+          "closingText = TextContent(\"Sales are strong and trending upward, keep focusing on the top flavours to maximize revenue.\", \"default\")"
+        ],
+        "arrived": 8,
+        "slots": [
+          {
+            "label": "title"
+          },
+          {
+            "label": "topFlavoursTable"
+          },
+          {
+            "label": "revenueLineChartCard"
+          },
+          {
+            "label": "kpiStack",
+            "pending": true
+          },
+          {
+            "label": "statusTag",
+            "pending": true
+          },
+          {
+            "label": "closingText",
+            "pending": true
+          }
+        ],
+        "caption": "Bright lines have committed; dim lines are still to come. `kpiStack = Stack([` is held back until its closing bracket balances."
+      },
+      "takeaway": "Structure before content: the layout is known from the first line, and each box fills in when its statement lands.",
+      "notes": "The lines on the left are from the recorded reply in sample_reply.md, with the table and chart bodies elided so the shape is visible. Line 1 is the root: a Stack of six named children, none of which exist yet. The parser keeps each reference and resolves it when the statement lands; until then the tree carries a Pending node, which the page draws as a dashed box. The mid-stream screenshot on a later slide is this exact moment, 25 lines in. Note the open Card statements: complete() is a bracket-balance check, so a Card that opens on one line and closes four lines later is committed once, as one statement, and every finished line is drawable at once."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.2 · code walkthrough",
+      "title": "A statement commits at the first newline where its brackets balance",
+      "snippet": {
+        "file": "07_harness_genui/step_02_trueforge_generative_ui/openui_parse.py",
+        "from": "def feed(self, text):",
+        "count": 15,
+        "to": "self.add_line(line.replace",
+        "maxWidth": 96
+      },
+      "callouts": [
+        {
+          "line": 10,
+          "text": "No newline yet: the rest of the buffer is an unfinished line and is held back for the next chunk."
+        },
+        {
+          "line": 11,
+          "text": "`complete()` is a bracket-balance check. The loop walks newline by newline until the text before one balances."
+        },
+        {
+          "line": 15,
+          "text": "A multi-line `Card([` becomes one statement; its inner newlines are folded to spaces before parsing."
+        }
+      ],
+      "caption": "`feed()` takes any chunk; complete statements are parsed at once, an open list waits for its closing bracket.",
+      "notes": "The whole streaming story is this loop. Text arrives in any pieces; the parser appends it to a buffer and looks for the first newline at which everything before it is balanced. If there is no such newline, it returns and waits. If there is, the text up to it is one statement, inner newlines are folded to spaces, and add_line() parses it into the statements table. That is what makes a Card that opens on one line and closes four lines later harmless, in Python and in the JavaScript twin. The server sends one line per SSE event, so the page calls feed() once per line and redraws from root after each call."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 07.2 · code walkthrough",
+      "title": "Enabling generative_ui is the whole configuration; the agent was told nothing about OpenUI Lang",
+      "snippet": {
+        "file": "07_harness_genui/step_02_trueforge_generative_ui/client/genui.py",
+        "from": "def open_session():",
+        "count": 9,
+        "maxWidth": 96
+      },
+      "callouts": [
+        {
+          "line": 6,
+          "text": "The only difference from Part 7's client. The catalog, the grammar and the fence come from TrueForge's own harness prompt."
+        },
+        {
+          "line": 8,
+          "text": "An inline agent spec on a session. `ask()` then streams one turn and collects `model.message.delta` events on the main thread."
+        }
+      ],
+      "caption": "`extract_program()` then returns what is inside the first ```openui fence, and copes with a fence a cut stream never closed.",
+      "notes": "This is the client side. An AgentSpec with a model, one instruction sentence, and a RuntimeConfig with generative UI enabled. That flag is the entire configuration: the instructions say nothing about OpenUI Lang, components or fences. In the recorded turn 1,288 of the 6,954 input tokens are labelled harness in the usage breakdown, which is where TrueForge's catalog and grammar came from. The reply is prose around one fence; extract_program() pulls the program out and, if the stream was cut before the closing fence, still returns what arrived. The tests never touch a real server: they start a fake TrueForge on an ephemeral port and point the real SDK at it."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.2 · quick demo · mid-stream",
+      "title": "Twenty-five lines in: the root named six children, three are still dashed placeholders",
+      "image": "07_harness_genui/step_02_trueforge_generative_ui/demo_stream.png",
+      "imageWidth": 7.2,
+      "imageHeight": 4.7,
+      "stats": [
+        {
+          "value": "25",
+          "label": "lines received of 32"
+        },
+        {
+          "value": "3 of 6",
+          "label": "children still pending",
+          "color": "amber"
+        }
+      ],
+      "notice": [
+        "The title, the flavours table and the revenue chart card have their statements and are drawn.",
+        "`kpiStack`, `statusTag` and `closingText` are named on line 1 and wait as dashed boxes.",
+        "The program text beside the tree highlights the line that just arrived."
+      ],
+      "caption": "One line per SSE event; the tree is redrawn from `root` after every line.",
+      "notes": "The page mid-stream, captured by the demo script 25 lines into the 32-line program. The root line named six children on line 1; the title, the table card and the line chart card have arrived and are drawn; the KPI stack, the status tag and the closing sentence are still dashed placeholders that read waiting for, and the name. This is the forward-reference property doing its work: the layout was known from the first line, and the user sees where each part will go before its statement lands. The step 01 page could not do this; a json-render map arrives whole per tool call."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 07.2 · quick demo · complete",
+      "title": "A 32-line program of 7 statements, drawn by a page that never saw TrueForge's UI",
+      "image": "07_harness_genui/step_02_trueforge_generative_ui/demo.png",
+      "imageWidth": 6.8,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "6,954 · 352",
+          "label": "input · output tokens for the turn"
+        },
+        {
+          "value": "1,288",
+          "label": "input tokens labelled harness: the catalog and grammar",
+          "color": "amber"
+        },
+        {
+          "value": "32 · 7",
+          "label": "lines · statements in the program",
+          "color": "green"
+        }
+      ],
+      "notice": [
+        "A title, a table, a line chart card, two KPI cards, a tag and a sentence: every placeholder filled.",
+        "The renderer's positional args are a reading of what the agent emitted, not a copy of TrueForge's library.",
+        "Anything outside that reading lands in the `unknown` box with its args visible."
+      ],
+      "caption": "The step 01 model wrote 308 tokens of JSON for a comparable dashboard; the argument for OpenUI Lang is streaming, and larger UIs.",
+      "notes": "The same page once the program is complete. The recorded turn cost 6,954 input and 352 output tokens, of which 1,288 input tokens are labelled harness, TrueForge's own prompt with the catalog and the grammar. The reply held a 32-line program with 7 statements: a title, a table, a line chart card, two KPI cards, a tag and a closing sentence. Compare the step 01 run, where the model wrote 308 output tokens of JSON for a comparable dashboard through a tool call. The token argument for OpenUI Lang in the report is about larger interfaces and about streaming: here every line was drawable the moment it ended. The checkpoint swaps two statements in the recorded reply; the tree is the same, only the moment each box fills in moves."
+    }
+  ]
+}

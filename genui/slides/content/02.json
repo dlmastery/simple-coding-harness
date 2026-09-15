@@ -1,0 +1,241 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 02",
+      "title": "AG-UI, the transport",
+      "lead": "The report separates what the model generates from how it travels to the screen. Sub-theme 01 was about generation; this sub-theme is about transport. AG-UI is the transport for a product you own: one RunAgentInput request in, one stream of typed events out. Three steps build the server with ag-ui-protocol, write the client by hand so the wire stays visible, then replace it with @ag-ui/client and put the harness codelab's coding agent behind the protocol.",
+      "steps": [
+        {"id": "02.1", "title": "An AG-UI server: RUN_STARTED, TEXT_MESSAGE_*, RUN_FINISHED over SSE"},
+        {"id": "02.2", "title": "Tool calls and shared state: STATE_SNAPSHOT, STATE_DELTA, a client tool"},
+        {"id": "02.3", "title": "The harness codelab's loop over AG-UI, with HttpAgent in the page"}
+      ],
+      "notes": "Sub-theme 01 sent hand-made JSON over an ad-hoc SSE stream, so only its own page could read it. This sub-theme keeps the SSE and replaces the payload with a fixed vocabulary of events. The order matters: first the smallest possible agent so the wire format is visible, then tool calls and state so generative UI becomes an object the model edits, then a real coding agent behind the same endpoint with the official client library on the page. At the end the harness codelab's loop runs from a browser with no change to its functions."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 02.1 · Level 5 of 23 · your own product",
+      "title": "A run is a request; the reply is a stream of typed events",
+      "headline": "AG-UI fixes the **vocabulary** of what crosses the wire, so any AG-UI client can read any AG-UI agent.",
+      "bullets": [
+        "The request is one object, RunAgentInput: threadId, runId, messages, tools, context, state.",
+        "The reply is text/event-stream: one JSON event per data: line, camelCase keys.",
+        "A text message is three kinds of event joined by one messageId.",
+        "Every run ends with exactly one terminal event: RUN_FINISHED or RUN_ERROR.",
+        "The server is stateless between runs; the client owns the history and sends all of it.",
+        "EventSource only does GET, so the page reads the body with fetch."
+      ],
+      "diagram": {"type": "chips", "items": [
+        {"label": "RUN_STARTED", "note": "threadId and runId: the run has an identity", "kind": "server"},
+        {"label": "TEXT_MESSAGE_START", "note": "a new messageId, role assistant", "kind": "spec"},
+        {"label": "TEXT_MESSAGE_CONTENT", "note": "one delta per model chunk, same messageId", "kind": "spec"},
+        {"label": "TEXT_MESSAGE_END", "note": "the message is complete; the client stores it", "kind": "spec"},
+        {"label": "RUN_FINISHED", "note": "the one terminal event on success", "kind": "page"},
+        {"label": "RUN_ERROR", "note": "the one terminal event on failure", "kind": "open"}
+      ], "caption": "The whole vocabulary of step 02.1. Tool calls and state arrive in step 02.2."},
+      "takeaway": "A transport is a fixed vocabulary of events with a join key; the messageId is that key.",
+      "notes": "This is the smallest AG-UI agent there is: a run that starts, streams one text message delta by delta, and finishes. Point at the chips: five kinds of event, one message id linking start, every delta and end. Two things to stress. First, the request carries the whole history and the state, so the server keeps nothing between runs. Second, there are exactly two ways out of a run, RUN_FINISHED or RUN_ERROR, and the client can rely on seeing one of them. The browser's EventSource cannot POST a JSON body, which is why the page reads the stream with fetch."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.1 · code walkthrough",
+      "title": "The agent is a generator with two exits and one join key",
+      "snippet": {"file": "02_ag_ui/step_01_ag_ui_server/agent.py", "from": "def run(", "count": 13, "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "The run announces itself with the ids from the request. The generator yields pydantic events from **ag_ui.core** and never touches HTTP."},
+        {"line": 4, "text": "One **message_id** for the start, every delta and the end. The client joins them on it."},
+        {"line": 10, "text": "A model failure becomes **RUN_ERROR**, not a broken stream. Success ends with RUN_FINISHED. Exactly one terminal event either way."}
+      ],
+      "caption": "server.py wraps this in EventEncoder and a StreamingResponse, so the first event leaves before the model has finished.",
+      "notes": "Read the function top to bottom. RUN_STARTED with the thread and run ids from the input. A fresh message id. Inside the try, the start event, one content event per delta from the model, the end event. The except turns any model failure into RUN_ERROR and returns, so the client still gets a terminal event. Outside the try, RUN_FINISHED. The generator knows nothing about HTTP; the tests iterate it directly. The endpoint in server.py is ten lines: EventEncoder from ag_ui.encoder encodes each event as a data: line, and a StreamingResponse sends them as they are produced."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.1 · code walkthrough",
+      "title": "The page reads the stream with fetch, because the request has a body",
+      "snippet": {"file": "02_ag_ui/step_01_ag_ui_server/sse.mjs", "from": "export async function* readEvents", "to": "if (event) yield event;", "maxWidth": 96},
+      "callouts": [
+        {"line": 2, "text": "**response.body.getReader()** gives raw bytes. EventSource would parse SSE for free, but it cannot POST a RunAgentInput."},
+        {"line": 8, "text": "A chunk can end in the middle of an event. The buffer holds the remainder until the next blank line."},
+        {"line": 10, "text": "One block is the data: lines up to a blank line; **parseBlock** turns it into one JSON event, and app.js switches on event.type."}
+      ],
+      "caption": "app.js keeps the messages array; a finished assistant message joins it, so the next run sends the whole conversation back.",
+      "notes": "This is the hand-written client, kept deliberately small so the wire stays visible. The reader pulls bytes, the decoder turns them into text, and the loop cuts the buffer at every blank line. Each block becomes one event. In app.js a switch on event.type creates a message element on TEXT_MESSAGE_START, appends the delta on TEXT_MESSAGE_CONTENT, and pushes the finished message into the history on TEXT_MESSAGE_END. The point to make: none of this is specific to this agent. Step 02.3 replaces the whole file with a library that does the same thing."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 02.1 · quick demo",
+      "title": "One request, 22 events, one terminal event",
+      "image": "02_ag_ui/step_01_ag_ui_server/demo.png",
+      "imageWidth": 7.2, "imageHeight": 4.32,
+      "stats": [
+        {"value": "18", "label": "TEXT_MESSAGE_CONTENT events in the recorded run"},
+        {"value": "5", "label": "event kinds on the wire", "color": "green"}
+      ],
+      "notice": [
+        "Left: the answer rendered word by word from the deltas.",
+        "Right: every event as one line, camelCase keys, the same messageId on start, content and end.",
+        "The page ran the prompt as a second request and got a different sentence; the wire looked the same."
+      ],
+      "caption": "Checkpoint: set API_KEY to a wrong value. The stream still ends with one terminal event, now RUN_ERROR, and the page still reaches a final status.",
+      "notes": "The recorded demo posts one RunAgentInput and gets 200 text/event-stream back: RUN_STARTED, TEXT_MESSAGE_START, eighteen TEXT_MESSAGE_CONTENT events, TEXT_MESSAGE_END, RUN_FINISHED. The page then ran the same prompt and rendered a different sentence, which is the model, not the protocol. Show the right panel: each line is one JSON object with a type field. The checkpoint is worth doing live if there is time: break the API key and watch the run end with RUN_ERROR instead of a hung page."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 02.2 · Level 6 of 23 · your own product",
+      "title": "Generative UI as shared state: the model patches an object, the page renders it",
+      "headline": "Nothing on the wire says \"metric card\". A tool returns a **JSON Patch** to a dashboard object; the page re-renders the object.",
+      "bullets": [
+        "Tool calls stream in three parts joined by toolCallId; the result is a fourth event.",
+        "STATE_SNAPSHOT opens the run with the whole object; STATE_DELTA carries a patch.",
+        "Server tools draw nothing: show_metric returns an add on /dashboard/metrics/-.",
+        "The client owns the object and sends it back, so the next run continues from the same dashboard.",
+        "A client tool is declared in RunAgentInput.tools; the server streams the call and ends the run.",
+        "The page answers as a tool message and starts the next run with no user text."
+      ],
+      "diagram": {"type": "chips", "items": [
+        {"label": "STATE_SNAPSHOT", "note": "the state this run starts from, sent or empty", "kind": "data"},
+        {"label": "TOOL_CALL_START", "note": "toolCallId and toolCallName", "kind": "spec"},
+        {"label": "TOOL_CALL_ARGS", "note": "the JSON arguments, in pieces as the model streams", "kind": "spec"},
+        {"label": "TOOL_CALL_END", "note": "the arguments are complete; the server parses them now", "kind": "spec"},
+        {"label": "STATE_DELTA", "note": "a JSON Patch: add, replace or remove at a JSON Pointer", "kind": "data"},
+        {"label": "TOOL_CALL_RESULT", "note": "the tool's answer, role tool; absent for a client tool", "kind": "page"}
+      ], "caption": "The step 02.1 events are still there. These six are new."},
+      "takeaway": "The component vocabulary lives in the state shape and the renderers, not in the protocol.",
+      "notes": "Step 02.1 streamed text only and its state field was empty. This step fills it. The report's static generation mode has the agent pick a component and fill its props; sub-theme 01 sent one JSON message per pick. AG-UI does it as state: the page never receives render a metric, it receives the dashboard now has one more metric, as a patch, and re-renders. Three consequences: the client can send the object back, a patch is small, and everything that reads the state stays in sync. Client tools close the other direction: the model calls confirm_purchase like any tool, the server cannot run it, so it streams the call and finishes the run."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.2 · code walkthrough",
+      "title": "Apply the patch on the server first, then send it; stop the run for a client tool",
+      "snippet": {"file": "02_ag_ui/step_02_ag_ui_tools_and_state/agent.py", "from": "waiting_on_client = False", "count": 13, "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "A tool the page declared gets **no result on the server**. The flag is set and the loop moves on; the answer arrives on the next run."},
+        {"line": 7, "text": "**apply_patch** on the server copy, then the same operations go out as STATE_DELTA. Both copies stay equal."},
+        {"line": 12, "text": "The run ends with the call still open. The page draws the buttons; the click becomes a tool message."}
+      ],
+      "caption": "The run opened with yield StateSnapshotEvent(snapshot=state), where state is the client's copy or initial_state().",
+      "notes": "This is the inner part of the loop, after the model has stopped streaming and the tool calls are assembled. For each call: if its name is one of the client tools, set the flag and continue, no result. Otherwise execute it, which returns a result string and a list of patch operations. Apply the patch to the server's state, then yield it as STATE_DELTA, then yield the result and append it to the history. After the loop, if a client tool was called, break: the run finishes, and the page has the call. Above this snippet the run began with a snapshot of the state the client sent, or of an empty dashboard."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.2 · code walkthrough",
+      "title": "Server tools return patches; not one of them draws anything",
+      "snippet": {"file": "02_ag_ui/step_02_ag_ui_tools_and_state/tools.py", "from": "def show_metric", "count": 13, "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "**/dashboard/metrics/-** is JSON Pointer for append. Three metrics in the recorded run became three add operations."},
+        {"line": 8, "text": "One table, **replaced** each time. The page's renderer decides what a table looks like; the protocol only moves the object."},
+        {"line": 13, "text": "Each tool is a pure function from arguments to operations. json_patch.py and json-patch.mjs apply them identically on both sides."}
+      ],
+      "caption": "render.mjs rebuilds the dashboard from the state object on every STATE_SNAPSHOT and STATE_DELTA.",
+      "notes": "Three tools, three patches. show_metric appends a card object to the metrics array. show_table and show_chart replace one slot each. The model sees these as ordinary function-calling tools with schemas; what it cannot see is that the result is a patch, not a drawing. On the page, render.mjs is the sub-theme 01 idea reduced to what this step needs: one function per component, props in, DOM out, called on every state change. The same three JSON Patch operations exist in Python and in JavaScript, and the tests check both."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 02.2 · quick demo",
+      "title": "Three runs: build the dashboard, ask the page, record the answer",
+      "image": "02_ag_ui/step_02_ag_ui_tools_and_state/demo.png",
+      "imageWidth": 5.99, "imageHeight": 4.9,
+      "stats": [
+        {"value": "64", "label": "TOOL_CALL_ARGS events to stream show_table's arguments", "color": "amber"},
+        {"value": "3", "label": "metrics in the second run's STATE_SNAPSHOT: the page sent the dashboard back", "color": "green"}
+      ],
+      "notice": [
+        "Run 1 opens with STATE_SNAPSHOT at 0 metrics, then show_metric three times, show_table, show_chart, each followed by a STATE_DELTA.",
+        "Run 2: the model calls confirm_purchase and the run finishes with no TOOL_CALL_RESULT; the confirm panel appears on the left.",
+        "Run 3, after the click: record_purchase adds to /dashboard/purchases/-.",
+        "Right: the dashboard rendered from state, never from a component message."
+      ],
+      "caption": "Checkpoint: remove confirm_purchase from CLIENT_TOOLS in app.js and ask to buy something. Why does the run no longer stop early?",
+      "notes": "Walk through the three runs in order. The first builds the dashboard: three metrics, a table streamed in sixty-four argument events, a chart in thirty-four, each followed by a patch. The second run's snapshot says three metrics, which proves the page sent the state back and the server continued from it. The model calls confirm_purchase and the run ends without a result; the result exists only in the page's history, as a tool message. The third run starts from that message with no user text, calls record_purchase, and the purchases list gains one entry. The checkpoint asks why removing the client tool changes the run's shape: the model then only has server tools, so nothing stops the loop."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 02.3 · Level 7 of 23 · your own product",
+      "title": "A terminal and AG-UI are two transports for the same loop",
+      "headline": "The harness codelab's coding agent runs from a browser with **no change to harness/**. A bridge translates its side effects into events.",
+      "bullets": [
+        "harness/ is a verbatim copy of the harness codelab's step 21: call_llm, execute, todos, permissions.",
+        "A text delta from on_delta becomes TEXT_MESSAGE_CONTENT; an assembled tool call becomes three TOOL_CALL_* events.",
+        "The plan is shared state: STATE_SNAPSHOT {todos} at the start, STATE_DELTA replace /todos after every write_todos.",
+        "A permission question becomes a CUSTOM event named permission, because the browser has no prompt.",
+        "Token usage the harness already collects rides on RUN_FINISHED in the TokenUsage shape.",
+        "The page uses HttpAgent from @ag-ui/client: no SSE parsing, no message bookkeeping."
+      ],
+      "diagram": {"type": "chips", "items": [
+        {"label": "STATE_SNAPSHOT", "note": "{\"todos\": [...]}: the harness's plan, module global", "kind": "data"},
+        {"label": "TEXT_MESSAGE_CONTENT", "note": "one per on_delta callback from call_llm", "kind": "spec"},
+        {"label": "TOOL_CALL_ARGS", "note": "one delta: the harness assembles the call first", "kind": "spec"},
+        {"label": "TOOL_CALL_RESULT", "note": "the return of tools.execute, permission layer included", "kind": "spec"},
+        {"label": "CUSTOM permission", "note": "reason and decision; the terminal asked at the prompt", "kind": "open"},
+        {"label": "STATE_DELTA", "note": "replace /todos after write_todos", "kind": "data"},
+        {"label": "RUN_FINISHED", "note": "with usage: input and output tokens", "kind": "page"}
+      ], "caption": "The same vocabulary as steps 02.1 and 02.2, plus one CUSTOM event."},
+      "takeaway": "A second transport costs a bridge and a page, not a new agent.",
+      "notes": "Steps 02.1 and 02.2 wrote the client by hand to show the wire. A product would use the official client and a real agent, and this step does both. The harness codelab built an agent loop for a terminal: call_llm streams text through a callback and assembles tool calls, execute runs one call through the permission rules, write_todos keeps a plan. None of that is about the terminal. The terminal is one transport in the report's word, and AG-UI is another. The bridge calls the same functions and translates their side effects, and never edits harness/. The one thing a terminal has that a browser lacks is a prompt, so a permission question becomes a CUSTOM event."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Step 02.3 · the bridge",
+      "title": "Callbacks push, an event stream pulls; a queue between two threads joins them",
+      "lead": "call_llm blocks and reports text through **on_delta**. A worker thread runs it and puts every callback on a queue; a generator drains the queue and yields events; HttpAgent reads them in the page.",
+      "diagram": {"type": "flow", "direction": "right", "nodes": [
+        {"label": "harness loop", "sub": "call_llm(on_delta), execute, write_todos", "kind": "server"},
+        {"label": "queue", "sub": "(\"delta\", text) then (\"message\", result)", "kind": "data"},
+        {"label": "generator", "sub": "bridge.run(): one harness turn", "kind": "server"},
+        {"label": "AG-UI events", "sub": "TEXT_*, TOOL_CALL_*, STATE_*, CUSTOM", "kind": "spec"},
+        {"label": "HttpAgent", "sub": "@ag-ui/client in the page", "kind": "page"}
+      ], "caption": "server.py moves into the work directory before it imports the harness, which reads the current directory at import time."},
+      "takeaway": "The bridge is 150 lines and the page is 90; harness/ has no diff against the harness codelab.",
+      "notes": "This is the mechanism behind the step. The harness's call_llm is a blocking function that reports text through a callback, and an SSE endpoint needs a generator that yields. The bridge's streamed function runs call_llm in a worker thread, and the callback puts each delta on a queue; the generator side pulls from the queue and yields delta tuples until the message tuple arrives. Around that, run() turns each side effect into an event and streams it through the same EventEncoder endpoint as steps 02.1 and 02.2. On the page, HttpAgent posts the RunAgentInput, verifies the event order, rebuilds the messages and applies the state patches."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.3 · code walkthrough",
+      "title": "Every side effect of one tool call becomes an event; execute is the harness's own",
+      "snippet": {"file": "02_ag_ui/step_03_ag_ui_from_the_harness/bridge.py", "from": "for tool_call in message.tool_calls:", "count": 13, "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "The arguments go out as **one TOOL_CALL_ARGS delta**, because the harness assembles the call before the loop sees it. Step 02.2 streamed them in pieces; both are legal."},
+        {"line": 7, "text": "**execute** is the harness's function, permission layer included. ui.approve is replaced by a stand-in that records the reason, allows, and each reason becomes a CUSTOM event."},
+        {"line": 12, "text": "After **write_todos**, the plan goes out as a replace on /todos. The page's copy of the state is refreshed from the module global."}
+      ],
+      "caption": "The run closes with RunFinishedEvent(..., usage=[token_usage(usage)]): the same dict the terminal prints after every reply.",
+      "notes": "Read it as a translation table. Start, args, end: the three-part tool call shape, from a call the harness already assembled. Then clear the list of asked permissions, run execute, and turn every reason it recorded into a CUSTOM event named permission with decision allow. Then the result event, appended to the history as a tool message. If the tool was write_todos, the plan changed, so a STATE_DELTA replaces /todos. A real product would end the run on a permission question with an interrupt outcome and let the page answer on the next run; the harness codelab's step 35 covers that pattern on the terminal side."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 02.3 · code walkthrough",
+      "title": "The page subscribes instead of parsing: HttpAgent keeps the buffer, the messages and the state",
+      "snippet": {"file": "02_ag_ui/step_03_ag_ui_from_the_harness/app.js", "from": "agent.subscribe({", "count": 13, "maxWidth": 96},
+      "callouts": [
+        {"line": 2, "text": "**onEvent** sees every event, which is how the wire panel is still drawn. The subscriber gets one method per event type."},
+        {"line": 8, "text": "**textMessageBuffer** is the text so far, kept by the client. sse.mjs and the messages array from steps 02.1 and 02.2 are gone."},
+        {"line": 12, "text": "Later handlers draw tool results, the permission line from CUSTOM, and the todo list from **onStateChanged**. After the run, agent.messages and agent.state hold everything the next run sends."}
+      ],
+      "caption": "agent.addMessage(...) then await agent.runAgent() is the whole run. The bundle exists because @ag-ui/client imports rxjs and zod by bare name.",
+      "notes": "Compare this file with app.js from step 02.1. There, the page read bytes, cut blocks, switched on the type and kept the history by hand. Here, HttpAgent does the request, the parsing, the verification that events arrive in a legal order, the message rebuilding from TEXT and TOOL events, and the state patching. The page only subscribes to what it draws. The one build step in this sub-theme, an esbuild call that flattens @ag-ui/client into vendor/ag-ui-client.js, exists because the library under study needs it. An offline test replays the bridge's exact event sequence from a Node http server into the real HttpAgent and checks messages and state."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 02.3 · quick demo",
+      "title": "A coding task from the browser: files written, a command run, a plan as state",
+      "image": "02_ag_ui/step_03_ag_ui_from_the_harness/demo.png",
+      "imageWidth": 5.99, "imageHeight": 4.9,
+      "stats": [
+        {"value": "1,148 / 28", "label": "tokens in / out on the first RUN_FINISHED", "color": "amber"},
+        {"value": "2,053 / 50", "label": "tokens in / out on the second, 46 event lines", "color": "amber"},
+        {"value": "3", "label": "todos in STATE_DELTA replace /todos after the first write_todos", "color": "green"}
+      ],
+      "notice": [
+        "Task 1: write_file hello.py, bash python hello.py, CUSTOM permission: run: python hello.py -> allow, then 27 text deltas.",
+        "Task 2 plans with write_todos first; the page ends with two todos completed and one in progress, drawn from agent.state.",
+        "Right: the todo panel is shared state, not chat."
+      ],
+      "caption": "Checkpoint: set HARNESS_WORKDIR to a project of your own and ask for a change from the browser. Then diff harness/ against the harness codelab's step 21: it is empty.",
+      "notes": "Two tasks in the recorded demo. The first writes hello.py, runs it through bash, reports the permission the harness asked for and the allow the bridge gave, streams twenty-seven text deltas and closes with usage 1148 in, 28 out. The second asks for a plan first, so write_todos runs and a STATE_DELTA with three todos follows the first tool result; it closes with usage 2053 in, 50 out. The second run's snapshot says zero todos because the first task was a single step and the harness skips the plan for those. One caveat worth saying aloud: the client owns the transcript, so the harness's history stripping and compaction do not apply; a product would move that logic to the client or keep a server-side thread store."
+    }
+  ]
+}

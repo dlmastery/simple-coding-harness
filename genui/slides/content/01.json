@@ -1,0 +1,363 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 01 · Levels 1 to 4 of 23",
+      "title": "Foundations: static, declarative and open-ended",
+      "lead": "The report separates two choices: transport is where the UI appears, generation is what the model emits. This sub-theme is about generation. It builds the report's three modes with no framework, so the mechanism stays visible: one FastAPI server, one page with a hand-written renderer, and one prompt, a dashboard for a lemonade stand. Each step copies the previous one and adds one idea, and the last step lands on the report's recommended default with a click that drives the next model turn.",
+      "steps": [
+        {"id": "01.1", "title": "Static components: the model selects, the page draws"},
+        {"id": "01.2", "title": "Declarative tree: the model composes from a catalog"},
+        {"id": "01.3", "title": "Open-ended HTML: the model writes the page, in a box"},
+        {"id": "01.4", "title": "Hybrid escape hatch: the sandbox as a component"}
+      ],
+      "notes": "Four steps, one prompt, one server shape. The point of doing this without a framework is that every later sub-theme is one of these three mechanisms with a package around it. Static: the model picks a component and fills its props. Declarative: the model composes a layout from a catalog, as data. Open-ended: the model writes HTML and the host runs it in a sandbox. The fourth step is the report's recommendation, a catalog with one sandboxed component in it, plus the loop that turns a click into the next turn. Every number on the next slides comes from the recorded demos in the step READMEs."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 01.1 · Level 1 of 23 · static generation · your own product",
+      "title": "The smallest generative UI: components exist first, the model only selects and fills",
+      "headline": "In **static generation** the components are built ahead of time. The model sees each one as a tool and calls it with typed props.",
+      "bullets": [
+        "Three components, `Metric`, `Table`, `Chart`, each a strict function-calling schema with every property required.",
+        "The API enforces the schema before the server sees the call, so the renderer never meets a prop it did not expect.",
+        "Each finished tool call becomes one `{component, props}` message on a server-sent event stream.",
+        "The page holds three pure functions from props to HTML and appends each frame as it arrives.",
+        "The model gives up layout: it cannot nest a metric in a card or put two charts side by side. The page decides that.",
+        "It gains safety and cost: every message is small, every prop is typed, every render is one function call."
+      ],
+      "diagram": {"type": "flow", "direction": "right", "nodes": [
+        {"label": "model", "sub": "calls show_metric, show_table, show_chart", "kind": "model"},
+        {"label": "server", "sub": "one SSE frame per finished call", "kind": "server"},
+        {"label": "page", "sub": "render[component](props)", "kind": "page"},
+        {"label": "the user", "sub": "cards in arrival order", "kind": "user"}
+      ], "caption": "The page never learns that a model exists; it renders messages."},
+      "takeaway": "Static generation trades layout for safety and cost; the model chooses only the order of its calls.",
+      "notes": "Start with the least machinery that can turn a model reply into components. The contract is a JSON Schema per component, and the model sees that schema as a tool. Strict mode means the API rejects any call that does not match, so validation is done before the server sees anything. What crosses the wire is one small JSON object per component. What the model cannot do is layout: no nesting, no grouping. That is deliberate, and it is what the next step gives back. Keep this slide short; the code slides carry the detail."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.1 · code walkthrough",
+      "title": "One model turn becomes a stream of messages: component, note, or done",
+      "snippet": {"file": "01_foundations/step_01_static_components/server.py", "from": "def components(", "count": 12, "to": "\"done\": True"},
+      "callouts": [
+        {"line": 5, "text": "A finished **tool call** becomes a `{component, props}` message. A call that does not fit the catalog becomes `None` and is dropped, never a broken frame."},
+        {"line": 10, "text": "Prose the model wrote instead of calling a tool becomes a **note**, so nothing the model said is lost."},
+        {"line": 12, "text": "The **usage** event closes the stream with `done` and the token counts the demo reports."}
+      ],
+      "caption": "`/api/run` wraps each message as one SSE frame: a `data:` line with the JSON, then a blank line.",
+      "notes": "This generator is the whole server. It runs one streamed chat completion with the three tool schemas attached and switches on the event type. Three branches: a tool call becomes a component message, text becomes a note, usage closes the stream. Point out that the page never sees a tool name or a model; it sees messages with a component field. That shape, one JSON object per component, is the one every later step keeps. The SSE wrapper is two lines: data, JSON, blank line."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.1 · code walkthrough",
+      "title": "The contract is the schema: strict, every prop required, nothing extra allowed",
+      "snippet": {"file": "01_foundations/step_01_static_components/catalog.py", "from": "def tool(", "count": 16},
+      "callouts": [
+        {"line": 8, "text": "`strict: True` makes the API reject any call that does not match the schema, before the server sees it."},
+        {"line": 12, "text": "Every property is **required**: the required list is derived from the properties, so the two cannot drift."},
+        {"line": 13, "text": "`additionalProperties: false` closes the contract. The renderer receives exactly the props it was written for."}
+      ],
+      "caption": "Adding a fourth component is one schema here and one function in `render.mjs`; nothing else changes.",
+      "notes": "Every tool is built by this one helper, so every component has the same contract. Strict mode plus a complete required list plus no additional properties means the model cannot invent a prop, omit one, or misspell one and still get through. The checkpoint in the README is to add a fourth tool. It takes one schema in catalog.py and one renderer in render.mjs, which is the whole cost of a new component in static mode. Note that the renderers escape every prop: the model wrote it, so the page treats it as text, never markup."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.1 · quick demo",
+      "title": "Six SSE frames in 7.9 seconds: three metrics, a table, a chart, then done",
+      "image": "01_foundations/step_01_static_components/demo.png",
+      "imageWidth": 6.8, "imageHeight": 4.9,
+      "stats": [
+        {"value": "6", "label": "SSE messages in 7.9s"},
+        {"value": "249 / 295", "label": "prompt / completion tokens", "color": "amber"}
+      ],
+      "notice": [
+        "Three `Metric` frames, one `Table`, one `Chart`, then `done` with the usage: the wire panel at the bottom lists all six.",
+        "The first metric was drawn while the chart was still streaming: a new tool-call index means every earlier call is complete.",
+        "The model chose only the order of its calls. The page put the metrics in a row; the model could not ask for that."
+      ],
+      "caption": "Prompt: show me a dashboard for a lemonade stand. Recorded with `python demo.py`.",
+      "notes": "The recorded run. Six messages: three metrics, a table, a chart, and the done frame with 249 prompt tokens and 295 completion tokens. The page appended each card as its frame arrived, so the first metric was on screen before the chart finished streaming. Look at the layout: the three metrics sit in a row because the page's stylesheet puts them there, not because the model asked. That is the limit of static generation and the reason for step 01.2. The wire panel at the bottom is the exact stream, one JSON object per line."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 01.2 · Level 2 of 23 · declarative generation · your own product",
+      "title": "The model composes a layout as data, and the shape of that data decides how it streams",
+      "headline": "In **declarative generation** the components stay prebuilt and typed, but the model decides which ones, in what order, nested how. The output is data, not code.",
+      "bullets": [
+        "A catalog of eight components drives three things: the prompt the model reads, the JSON Schema the server checks, the renderer table the page uses.",
+        "The page does not wait for the document: a tolerant partial-JSON parser re-parses after every chunk and re-renders.",
+        "Two shapes of the same document: a nested tree, and a flat element map with ids where the root is written first.",
+        "The tree's root closes last, so its layout is known only at the final chunk.",
+        "The flat map puts the root and its child ids first, so the layout is known before any detail arrives.",
+        "That ordering is why A2UI and json-render chose the flat shape."
+      ],
+      "diagram": {"type": "skeleton", "lines": [
+        "root = \"card\"",
+        "card: Card [metricsRow, dataRow]",
+        "metricsRow: Row [sales, visitors, profit]",
+        "sales: Metric {title, value, delta}",
+        "visitors: Metric {…}",
+        "profit: Metric {…}",
+        "dataRow: Row [table, chart]"
+      ], "arrived": 4, "slots": [
+        {"label": "Card: Lemonade Stand Dashboard"},
+        {"label": "Row: three metrics, one arrived", "pending": true},
+        {"label": "Row: table and chart", "pending": true}
+      ], "caption": "A flat map, part way through the stream: the layout is fixed, the details fill in."},
+      "takeaway": "Declarative generation makes the catalog the single source of truth, and a flat element map puts the layout before the details.",
+      "notes": "Two ideas on this slide. First, the catalog is the single source of truth: one Python dict generates the prompt, the schema and the renderer table, so adding a component in one place updates all three. Second, streaming. The page re-parses the partial JSON on every chunk, which only looks good if the document's shape puts the layout before the details. A nested tree cannot: its root object closes last. A flat element map can: the root and its list of child ids are the first thing written, and a missing child renders as a pending slot. The diagram shows that state: the layout holds still while the details fill in."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.2 · code walkthrough",
+      "title": "The prompt asks for the root first and the elements top-down; that ordering is the trick",
+      "snippet": {"file": "01_foundations/step_02_declarative_tree/catalog.py", "from": "SHAPE_RULES = {", "count": 7},
+      "callouts": [
+        {"line": 2, "text": "The **tree** rule: the answer is the root node, and children are nodes inside it. The root object cannot close until every descendant has."},
+        {"line": 4, "text": "The **flat** rule: `root` is written first, and `elements` maps an id to a node whose children are ids, not nodes."},
+        {"line": 6, "text": "Top-down: the root element, then its children in order, then theirs. The layout is on the wire before any detail."}
+      ],
+      "caption": "The same catalog generates both prompts; only these rules and the child type in the schema differ.",
+      "notes": "Both shapes come from the same catalog and the same prompt builder; the difference is these two rules and, in the schema, whether a child is a node reference or a string id. Read the flat rule aloud: write root first, then the root element, then its children in order, top-down. That is what puts the skeleton at the front of the stream. The schema for the flat shape adds one check the JSON Schema cannot express: every child id must name an element. Validation runs on the finished document; the partial one is rendered on trust with unknown names shown as stubs."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.2 · code walkthrough",
+      "title": "A child id whose element has not arrived renders as a pending slot",
+      "snippet": {"file": "01_foundations/step_02_declarative_tree/page/render.mjs", "from": "export function renderFlat(", "count": 11},
+      "callouts": [
+        {"line": 5, "text": "An id with no element yet, or one already seen, returns **PENDING**: an empty slot at the right place, so the layout holds still."},
+        {"line": 8, "text": "Recursion is by **id**, not by nested object. The child is looked up in the map, which is what lets it arrive later."},
+        {"line": 10, "text": "A node the parser left open is wrapped as pending; a node the model closed renders plain. The parser types tell them apart."}
+      ],
+      "caption": "`renderTree` is the same walk over nested nodes; an open node renders with whatever closed children it already has.",
+      "notes": "This is the flat walker. Start at the root id, look up the element, render its children by id. Two things make streaming work. A missing element returns a pending slot rather than nothing, so the layout does not jump when it arrives. And the parser returns open objects as PartialDict, distinct from a dict the model closed, so the renderer can wrap a half-written node as pending. The seen set guards against a cycle the model might write. The tree walker is the same shape without the lookup, which is why it cannot draw a slot for a child that has not started."
+    },
+    {
+      "type": "chart",
+      "kicker": "Step 01.2 · quick demo · measured",
+      "title": "A flat element map paints and fixes its layout at chunk 33; a tree waits for chunk 408",
+      "chartType": "bar", "horizontal": true,
+      "labels": ["nested tree", "flat element map"],
+      "series": [
+        {"name": "first paint (chunk)", "values": [91, 33]},
+        {"name": "layout known (chunk)", "values": [408, 33]},
+        {"name": "stream length (chunks)", "values": [408, 266]}
+      ],
+      "valueTitle": "chunk of the stream",
+      "bullets": [
+        "Same prompt, same model, same eight components. Only the JSON shape differs.",
+        "**Tree:** first paint at chunk 91 (3.22s), layout known at chunk 408 of 408 (6.10s), the last one.",
+        "**Flat:** first paint and layout known both at chunk 33 of 266 (1.08s); done at 3.41s.",
+        "The flat root element is short and closes early; the tree root closes last because everything is inside it.",
+        "Both documents validated."
+      ],
+      "caption": "Recorded by `progress.py` during `python demo.py`: the chunk at which the first component closed and the root's children became final.",
+      "notes": "The measurement behind the claim. progress.py asks two questions after every chunk: how many catalog components are closed and reachable from the root, and is the root's list of children final. For the tree the answer to the second question is the last chunk, 408 of 408, because the root object is the outermost brace. For the flat map it is chunk 33 of 266, because the root element with its child ids is the first thing the model wrote. First paint is a separate number, 91 against 33, and also favours the flat map because its root is short. This is the reason the declarative protocols in sub-themes 03 and 05 use a flat map with ids."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.2 · quick demo · both streams replayed to chunk 88",
+      "title": "At the same chunk, the tree has one metric in an open card; the flat map has the whole layout",
+      "image": "01_foundations/step_02_declarative_tree/demo_streaming.png",
+      "imageWidth": 8.4, "imageHeight": 2.24,
+      "stats": [
+        {"value": "chunk 88", "label": "of 408 (tree) and of 266 (flat), replayed", "color": "amber"}
+      ],
+      "notice": [
+        "Left, the nested tree: a card with one metric inside, both still open, and no sign of what comes next.",
+        "Right, the flat map: the title, the metric row with two pending slots, and the row below already in place.",
+        "The hatched boxes are ids whose elements have not arrived; they hold the layout still."
+      ],
+      "caption": "The page's replay hook re-plays each recorded delta stream to a chosen chunk; this is what a user would see at that instant.",
+      "notes": "The demo replays both recorded streams to the same chunk, 88, and screenshots them side by side. On the left the tree has produced a card and a first metric, both still open, and nothing about the rest of the page is known. On the right the flat map has the title, a row with one metric and two pending slots, and a second row waiting below. Same information budget, different order. The hatched slots are the PENDING return in renderFlat. Nothing will move when the remaining elements arrive; they fill the slots that already exist."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.2 · quick demo · the finished flat layout",
+      "title": "The finished flat map: a card, a row of three metrics, a table beside a chart, 266 tokens",
+      "image": "01_foundations/step_02_declarative_tree/demo.png",
+      "imageWidth": 6.6, "imageHeight": 4.9,
+      "stats": [
+        {"value": "266", "label": "completion tokens, flat map (330 prompt)"},
+        {"value": "3.41s", "label": "to the last chunk; valid against the schema", "color": "green"}
+      ],
+      "notice": [
+        "The model chose the layout: metrics grouped in a `Row`, table and chart in a second `Row`, all inside one `Card`.",
+        "The wire panel shows the element map: `root` first, then `card` with its child ids, then the children.",
+        "The `done` frame carries `valid: true` and an empty `errors` list from the server's validator."
+      ],
+      "caption": "Same prompt as step 01.1; the difference is that the model, not the page, grouped the components.",
+      "notes": "The finished page in flat mode. Compare it with step 01.1: the metrics are in a row and the table sits beside the chart because the model wrote a Row around them, not because the stylesheet did. Read the JSON at the bottom from the left: root, then the card element with its two child ids, then the metrics row, then the metrics. That order is what the prompt asked for and what made chunk 33 the layout-known point. The done frame reports valid true with no errors, from the schema the server generated out of the catalog."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 01.3 · Level 3 of 23 · open-ended generation · your own product",
+      "title": "The model writes the whole page; the host runs it in a box and accepts one message shape",
+      "headline": "**Open-ended generation** removes the catalog. The model writes HTML, CSS and JavaScript, and can draw any layout at a price on three fronts: tokens, trust and consistency.",
+      "bullets": [
+        "Tokens: a page is text, and the text of a page is long. The report says five to ten times a spec; this step measures it.",
+        "Trust: the code came from a model and may do anything code does, so it must run in a box.",
+        "The box has two layers. `sandbox=\"allow-scripts\"` gives the document a unique origin and denies forms, popups and navigation.",
+        "A Content Security Policy injected as the first tag in `<head>` denies every network request: inline code can compute but cannot phone home.",
+        "The only way back out is `postMessage`, and the host keeps one shape from the one window it mounted.",
+        "Consistency: nothing ties the page to the product's components, so every reply looks different."
+      ],
+      "diagram": {"type": "bridge",
+        "left": {"label": "host page", "sub": "app.js: mounts, listens, filters", "kind": "host"},
+        "right": {"label": "sandboxed iframe", "sub": "the model's document, unique origin", "kind": "iframe", "dashed": true},
+        "messages": [
+          {"label": "srcdoc = sandboxed(html), CSP injected", "dir": "right"},
+          {"label": "sandbox=\"allow-scripts\" (no allow-same-origin)", "dir": "right"},
+          {"label": "postMessage({type: \"event\", name, payload})", "dir": "left", "kind": "open"},
+          {"label": "accepted only if source matches and isEvent(data)", "dir": "left"}
+        ],
+        "caption": "Two arrows in, one shape out. The CSP inside the document blocks every request the code might make."},
+      "takeaway": "Open-ended generation buys any layout at ten times the tokens, no streaming paint, and a page that must run in a box.",
+      "notes": "The third mode gives the model everything and this slide is about what that costs. Tokens and consistency are shown on the next slides; trust is solved here. Two layers of containment. The iframe attribute allow-scripts, and only that, gives the document its own opaque origin so it cannot reach the host's cookies or DOM. The CSP is injected into the document itself, first tag in head, so it governs the inline code that follows: default-src none means no fetch, no image, no font leaves the box. What remains is postMessage, and the host accepts one shape, from one window."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.3 · code walkthrough",
+      "title": "The box: a CSP that denies all network, injected first in the document, behind allow-scripts",
+      "snippet": {"file": "01_foundations/step_03_open_ended_html/page/sandbox.mjs", "from": "export const CSP", "count": 15},
+      "callouts": [
+        {"line": 1, "text": "`default-src 'none'`: no fetch, no image, no font, no script from anywhere. Inline style and script are allowed because that is what the model writes."},
+        {"line": 7, "text": "The meta tag goes **first in `<head>`**, or first in the document, so it applies to every inline block after it."},
+        {"line": 13, "text": "`allow-scripts` **without** `allow-same-origin`. With both, the document would share the host's origin and could read its cookies and DOM."}
+      ],
+      "caption": "`isEvent`, further down the same file, is the one shape the host accepts: `{type: \"event\", name, payload?}`.",
+      "notes": "Walk the file top to bottom. The CSP string denies everything by default and re-allows only inline style and script, plus data-URI images, because that is what a self-contained page needs. sandboxed puts the meta tag at the front of head so it governs everything after it; a document with no head gets it as the first bytes. mount sets exactly one sandbox token and assigns srcdoc. The checkpoint in the README: remove the meta tag and add an image with an https source, and the request now leaves the box. Put it back and it does not."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.3 · code walkthrough",
+      "title": "The bridge back: only the mounted window, only the one shape",
+      "snippet": {"file": "01_foundations/step_03_open_ended_html/page/app.js", "from": "window.addEventListener(\"message\"", "count": 6},
+      "callouts": [
+        {"line": 3, "text": "Two checks before the host believes anything: the **source** must be the iframe the page mounted, and the data must pass `isEvent`."},
+        {"line": 5, "text": "An accepted event lands in the inbox panel. Step 01.4 turns it into the next model turn."}
+      ],
+      "caption": "A sandboxed iframe has an opaque origin, so `event.origin` is the string `\"null\"` and cannot be checked; the source comparison does that job.",
+      "notes": "The listener is six lines and it is the whole contract between the two sides. The iframe can post anything it likes; the host keeps only messages from the one window it mounted whose data is an object with type event and a string name. Mention the origin detail: a sandboxed document has an opaque origin, so event.origin reads as the string null and cannot be used to filter. Comparing event.source with the mounted frame's contentWindow does the same job. In this step an accepted event is only logged; the next step acts on it."
+    },
+    {
+      "type": "chart",
+      "kicker": "Step 01.3 · quick demo · measured",
+      "title": "The same dashboard: 196 tokens as tool calls, 328 as a flat map, 3013 as HTML",
+      "chartType": "bar", "horizontal": false,
+      "labels": ["static (tool calls)", "flat element map", "open-ended HTML"],
+      "series": [{"name": "tokens the model wrote", "values": [196, 328, 3013]}],
+      "valueTitle": "tokens (tiktoken o200k_base)",
+      "bullets": [
+        "Same prompt, same model, three modes in one page. The HTML document is **9.2x** the flat map.",
+        "Time to the last byte: static 4.7s, flat 4.0s, HTML 32.5s.",
+        "Two earlier runs gave 9.8x and 10.4x. The report's range is five to ten.",
+        "The HTML was 8718 characters and 208 tags with one button.",
+        "The HTML mode has no partial paint: a half-written document cannot be mounted, so the user waits for all of it."
+      ],
+      "caption": "`tokens.py` counts what each mode made the model write; for the text modes the count matches the API's `completion_tokens`.",
+      "notes": "The report's five-to-ten-times claim, checked. The demo runs the same prompt in all three modes and counts the raw text of each reply with tiktoken's o200k_base, the vocabulary of the GPT-4.1 family. Static: 196 tokens. Flat map: 328. HTML: 3013, which is 9.2 times the flat map; two earlier runs landed at 9.8 and 10.4. Time follows tokens: 32.5 seconds against 4. And there is a cost the chart does not show: the JSON modes painted their first component after about a second, while the HTML page could not be mounted until the last byte arrived."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.3 · quick demo",
+      "title": "The model's own page in the sandbox: any layout, in yellow, 32 seconds later",
+      "image": "01_foundations/step_03_open_ended_html/demo.png",
+      "imageWidth": 6.45, "imageHeight": 4.9,
+      "stats": [
+        {"value": "3013", "label": "tokens for the HTML document, 9.2x the flat map", "color": "amber"},
+        {"value": "32.5s", "label": "to the last byte; 8718 chars, 208 tags, 1 button"}
+      ],
+      "notice": [
+        "Four headline numbers, a table and a chart, none of them from the catalog: the model drew its own components and chose the colour.",
+        "The page is mounted whole in the iframe; the raw document is in the panel below, starting with `<!doctype html>`.",
+        "The demo clicked the page's one button and the host received `{type: \"event\", name: \"refreshData\", payload: ...}` through the bridge."
+      ],
+      "caption": "The consistency cost is visible: this looks nothing like steps 01.1 and 01.2, and the next reply would look different again.",
+      "notes": "The recorded page. Everything on it was written by the model: the layout, the amber palette, the table styling, the SVG chart further down, and one button. It looks nothing like the two previous steps, which is the consistency cost the report names. The demo clicked that button headlessly and the host's inbox received a refreshData event with a payload, proving the bridge works both ways inside the sandbox. Note the timing in the corner: about 32 seconds, and nothing was on screen until the last byte arrived."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 01.4 · Level 4 of 23 · hybrid · your own product",
+      "title": "The report's default: declarative by default, one sandboxed escape hatch, and a click that becomes the next turn",
+      "headline": "The **hybrid** puts the step 01.3 container inside the step 01.2 catalog. `GeneratedView` is a component like any other, with one string prop; its renderer is the sandbox.",
+      "bullets": [
+        "The catalog gains one entry plus two prompt rules: what the hatch is for, and how small to keep it.",
+        "Nothing in the server knows `GeneratedView` is special; it is a string prop that passes the schema. Only the renderer treats it differently.",
+        "A `Button` carries an `action` name the model chose. The page does not know what it means; it posts it back.",
+        "The server keeps a session transcript. A click becomes a user message on it and the model answers with the next layout.",
+        "The first turn and every later turn share one code path and one stream.",
+        "The catalog stays in charge; the sandbox is rented for one component."
+      ],
+      "diagram": {"type": "hybrid", "left": ["Card", "Metric", "Table", "Chart"], "right": "GeneratedView", "rightSub": "the step 01.3 sandbox as a component: a 481-character gauge, not a 9000-character page", "height": 4.2, "caption": "Catalog primitives everywhere; the dashed box only where the catalog does not reach."},
+      "takeaway": "The hybrid keeps the catalog in charge, rents the sandbox for one component, and makes a click the next user message.",
+      "notes": "Two ideas close the sub-theme. First, the hatch. Step 01.2 showed why declarative should be the default: typed props, a schema, a renderer the product owns, a tenth of the tokens. Step 01.3 showed what open-ended costs and how to contain it. Now the container is a catalog entry whose renderer is the sandbox, and the prompt tells the model to use it at most once and keep it short. Second, the loop. A dashboard that cannot be clicked is a report. A button's action name is opaque to the page and the server; only the model interprets it, on the same transcript, with the same generator that streamed the first layout."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.4 · code walkthrough",
+      "title": "The escape hatch is a renderer: the step 01.3 sandbox, as an entry in the table",
+      "snippet": {"file": "01_foundations/step_04_hybrid_escape_hatch/page/render.mjs", "from": "export function GeneratedView(", "count": 8},
+      "callouts": [
+        {"line": 5, "text": "Same box as step 01.3: `sandbox=\"allow-scripts\"` and the CSP injected by `sandboxed`. The document is escaped because here it is an **attribute value**; the browser unescapes `srcdoc`."},
+        {"line": 8, "text": "`GeneratedView` is one more name in **RENDERERS**. The walker, the schema and the prompt pick it up from the catalog like any other."}
+      ],
+      "caption": "In `catalog.py` the entry is one line, `\"GeneratedView\": ({\"html\": STRING}, False)`, plus two prompt rules that say what it is for and to keep it short.",
+      "notes": "The whole hatch is this function. It takes the one string prop, runs it through sandboxed to inject the CSP, escapes it because it is going into an attribute, and returns an iframe with the allow-scripts token. The last line matters as much as the function: GeneratedView is a plain entry in the renderer table, so renderFlat and renderTree need no special case. The catalog side is one line and two prompt rules. The server never learns that one component is different; the schema sees a string prop and passes it."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 01.4 · code walkthrough",
+      "title": "The loop closes: the click becomes a user message, and the same generator streams the reply",
+      "snippet": {"file": "01_foundations/step_04_hybrid_escape_hatch/server.py", "from": "@app.post(\"/api/action\")", "count": 9},
+      "callouts": [
+        {"line": 8, "text": "The event is appended to the session's transcript as **text**: `EVENT_PROMPT` names the action and its payload and asks for the whole updated dashboard, changing only what the event changes."},
+        {"line": 9, "text": "`declarative_turn` is the generator that streamed turn 1. It appends the model's reply to the transcript, so the next click continues from the layout on screen."}
+      ],
+      "caption": "In `page/app.js`, a click on any catalog `Button` and a `postMessage` from any generated iframe both go through one `act` function that posts here and hands the reply to the same `consume` that rendered turn 1.",
+      "notes": "The action endpoint is nine lines. Look up the session, count the turn, append one user message built from the event prompt, and return the same stream the first run returned. There is no second code path for later turns. On the page side, act collects two sources of events, a click on a catalog button and a postMessage from a generated iframe, posts them here, and feeds the response to the consume function that rendered the first layout. The action name is never in a schema; the page treats it as opaque, the server as text, and only the model interprets it."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.4 · quick demo · turn 1",
+      "title": "Turn 1: ten catalog components and one GeneratedView holding a 481-character gauge",
+      "image": "01_foundations/step_04_hybrid_escape_hatch/demo.png",
+      "imageWidth": 6.0, "imageHeight": 4.9,
+      "stats": [
+        {"value": "11", "label": "elements, valid: 10 from the catalog, 1 GeneratedView"},
+        {"value": "481", "label": "characters of HTML for the gauge; the whole page in 01.3 was about 9000", "color": "amber"}
+      ],
+      "notice": [
+        "The dashed card at the top right is the hatch: an inline SVG gauge for the sales goal, the one thing the catalog cannot show.",
+        "Everything else is catalog: three `Metric`s in a `Row`, a `Table`, a `Chart`, and a `Button` labelled Restock Lemons with action `restock_lemons`.",
+        "The wire panel shows the flat map; `gauge_sales_goal` is a `GeneratedView` whose `html` prop is the SVG."
+      ],
+      "caption": "Prompt: a dashboard for a lemonade stand, with a gauge for today's sales goal and a button to restock lemons.",
+      "notes": "Turn one of the recorded demo. The prompt asked for a gauge, which the catalog does not have, and a restock button. The model answered with a valid flat map of eleven elements: a card, a row of three metrics, the gauge as a GeneratedView, a row with a table and a column holding a chart and the button. The dashed border marks the hatch. Its html prop is 481 characters of inline SVG; the same dashboard as a whole page in step 01.3 was about nine thousand. That is the hybrid's economics: the catalog everywhere, the sandbox for one thing."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 01.4 · quick demo · turn 2, after the click",
+      "title": "After the click, two elements changed and nine are byte-for-byte the first layout",
+      "image": "01_foundations/step_04_hybrid_escape_hatch/demo_after_action.png",
+      "imageWidth": 6.0, "imageHeight": 4.9,
+      "stats": [
+        {"value": "2 / 9", "label": "elements changed / unchanged; none added or removed", "color": "green"},
+        {"value": "20 → 100", "label": "Lemons in Stock; delta -5 became +80, the table row followed"}
+      ],
+      "notice": [
+        "The page sent `{\"source\": \"button\", \"action\": \"restock_lemons\", \"payload\": {\"label\": \"Restock Lemons\"}}`; it is in the yellow inbox panel.",
+        "`metric_inventory` and `table_inventory` changed; the gauge, the chart and the other metrics came back identical.",
+        "The whole layout was re-sent. A patch protocol would send only the two elements; sub-themes 03 and 05 do that."
+      ],
+      "caption": "The action name `restock_lemons` appears in no schema. The page treats it as opaque, the server as text, and only the model interprets it.",
+      "notes": "Turn two. The demo clicked Restock Lemons; the page posted the action with its payload, and the inbox panel shows exactly what went to the server. The model answered with the whole dashboard again: the inventory metric went from 20 to 100 with the delta rewritten, the table row followed, and the other nine elements came back unchanged because the prompt asked for that and the transcript held the previous layout. This step re-sends the whole layout, which is simple and costs a second turn of tokens; the diff-based protocols later in the series send only the changed elements."
+    }
+  ]
+}

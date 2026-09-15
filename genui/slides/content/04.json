@@ -1,0 +1,411 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 04 · Levels 11 to 14 of 23",
+      "title": "OpenUI Lang, the line-oriented format",
+      "lead": "This sub-theme is about generation, not transport. OpenUI Lang is the language the report places in the declarative middle of its spectrum and measures as the most token-efficient open format: one statement per line, id = Component(args), positional arguments, references allowed before their definition. Sub-theme 01 streamed a JSON element map and paid for every key and bracket; this sub-theme replaces the JSON with the language, builds the parser by hand, swaps in the real packages, recomputes the report's token table cell by cell, and builds the report's hybrid on OpenUI's own reference implementation.",
+      "steps": [
+        {"id": "04.1", "title": "OpenUI Lang, parsed by hand"},
+        {"id": "04.2", "title": "lang-core and react-lang"},
+        {"id": "04.3", "title": "The token benchmark, reproduced"},
+        {"id": "04.4", "title": "OpenUI's html artifact"}
+      ],
+      "notes": "Four steps, one language. The first step writes a parser for the core of OpenUI Lang twice, in Python and in JavaScript, with a catalog as plain JSON Schema and a DOM renderer that draws forward references as skeletons. The second step replaces all of that with the official packages: a Zod catalog generates the prompt, the parser's parameter map and the React renderers from one source. The third step has no page at all; it recomputes the report's benchmark on the seven scenarios and says which numbers reproduce. The fourth step adds one open-ended component to the catalog, on OpenUI's html-artifact example, and measures what that escape hatch costs when the model takes it."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 04.1 · Level 11 of 23 · declarative generation · your own product",
+      "title": "One statement per line, positional arguments, forward references: the layout paints first",
+      "headline": "A JSON tree cannot render until its closing bracket arrives. An OpenUI Lang program is **renderable after its first line**.",
+      "bullets": [
+        "A newline outside brackets and strings ends a statement; the parser acts on every complete line.",
+        "Text(\"...\", \"heading\") has no key names; the catalog's property order names the arguments.",
+        "root names chart five lines before chart is defined; the resolver turns a missing name into a placeholder.",
+        "The renderer draws a placeholder as a grey skeleton box, so the layout appears and fills in top-down.",
+        "The resolver is re-run on every pushed line, never patched; a half-written line is held back, not guessed at.",
+        "Two parsers, Python for the tests and JavaScript for the page, produce byte-identical trees."
+      ],
+      "diagram": {"type": "skeleton", "lines": [
+        "root = Stack([title, kpis, chart])",
+        "title = Text(\"Week 37\", \"heading\")",
+        "kpis = Stack([revenue, cups], \"row\")",
+        "revenue = Metric(\"Revenue\", \"$482\")",
+        "cups = Metric(\"Cups sold\", 241)",
+        "chart = BarChart(\"Cups\", days, [..])",
+        "days = [\"Mon\", \"Tue\", \"Wed\"]"
+      ], "arrived": 3, "slots": [
+        {"label": "title"},
+        {"label": "revenue", "pending": true},
+        {"label": "cups", "pending": true},
+        {"label": "chart", "pending": true}
+      ], "caption": "A shortened program after three lines: the Stack and the title are drawn, three names wait for their statements."},
+      "takeaway": "One statement per line, positional arguments and forward references are the whole design; the catalog, not the parser, names the arguments.",
+      "notes": "Level 11. Step 01.2 measured that a flat element map paints before a nested tree does. OpenUI Lang keeps that property and drops the JSON around it. Three rules carry the design. A newline outside brackets ends a statement, so every complete line is actionable. Arguments are positional, so the model never writes a key name; the catalog's property order supplies them. And a reference may appear before its definition: the resolver returns a placeholder for a name with no statement yet, and the renderer draws it as a skeleton. The diagram shows the page after three lines: the layout exists, the title is drawn, and the metrics and the chart are grey boxes waiting for their lines. Nothing is patched; the whole buffer is re-resolved on every push."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.1 · code walkthrough",
+      "title": "A name with no statement yet becomes a placeholder, and the renderer draws that as a skeleton",
+      "snippet": {"file": "04_openui_lang/step_01_openui_lang_parser/openui_parse.py", "from": "def reference(name: str)", "count": 12, "to": "return result"},
+      "callouts": [
+        {"line": 2, "text": "Two reasons to give up: the statement has not arrived, or the name is already on the stack, which is a cycle."},
+        {"line": 4, "text": "The placeholder is a real node in the tree. The page shows it as a grey box; `unresolved` lists its name."},
+        {"line": 10, "text": "An element that came from a statement remembers its id, so the page can find the DOM node it produced."}
+      ],
+      "caption": "The resolver walks from `root`. It runs again on every pushed line, so a placeholder is replaced the moment its statement arrives.",
+      "notes": "This is the forward-reference mechanism in twelve lines. reference is called for every identifier the resolver meets. If the program has no statement for that name, or if the name is already being visited, which would be a cycle, the function records the name in unresolved and returns a placeholder node. Otherwise it resolves the statement's expression and, when the result is an element, stamps the statement id on it. There is no patching and no dependency graph: the streaming parser re-parses the whole buffer on every chunk, so a placeholder simply stops being produced once its line has arrived. The reference implementation caches completed statements; the behaviour is the same."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.1 · code walkthrough",
+      "title": "The parser never knows what \"row\" means; the catalog zips the positional arguments with names",
+      "snippet": {"file": "04_openui_lang/step_01_openui_lang_parser/openui_parse.py", "from": "def element(node: dict)", "count": 11, "to": "return {\"type\": \"element\""},
+      "callouts": [
+        {"line": 3, "text": "The catalog is a map from component name to its parameter names, read from the `properties` order in `catalog.json`."},
+        {"line": 9, "text": "`zip` pairs each positional argument with a parameter name. Change the order in the catalog and the same text renders differently."},
+        {"line": 10, "text": "The element node carries a `typeName` and named `props`; the renderer keys one DOM function on the name."}
+      ],
+      "caption": "Checkpoint: swap `direction` and `gap` under `Stack` in `catalog.json` and render `program.oui` again. The catalog, not the parser, names the arguments.",
+      "notes": "The second return worth reading. A component call is a name and a list of positional arguments. The parser looks the name up in the catalog, which in this step is plain JSON Schema: one entry per component, and the order of its properties is the order of its arguments. Unknown names are errors; too many arguments are errors; then zip pairs what the model wrote with what the catalog expects, and the result is an element node with named props. The point of the checkpoint is that the same program text has no meaning on its own. Swap two properties in the catalog and the Stack that was a row becomes a column. In step 02 the Zod key order is that contract."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.1 · quick demo",
+      "title": "After three lines the title is drawn and six forward references are skeletons",
+      "image": "04_openui_lang/step_01_openui_lang_parser/demo_partial.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "5", "label": "names unresolved after line 1, and the layout already exists"},
+        {"value": "6", "label": "skeleton boxes on the page after three lines", "color": "amber"}
+      ],
+      "notice": [
+        "Line 1 is root = Stack([title, kpis, chart, table, actions], ...): five placeholders, one Stack.",
+        "Line 3 adds kpis with three more names; the count goes up before it comes down.",
+        "Each grey box is a placeholder node the resolver returned for a name with no statement yet.",
+        "Nothing in a JSON tree format is renderable at this point; the root object has not closed."
+      ],
+      "caption": "The recorded run streams program.oui one line per SSE message and re-renders after every push.",
+      "notes": "The first screenshot is the whole argument for the format. Three lines in, the page has a Stack with a heading at the top and six grey boxes below it. The heading is real, the boxes are placeholders. The unresolved list on the right names them. Point at the shape: the reader can already see this is a dashboard with KPIs, a chart, a table and a card of actions, before any number has arrived. In step 01.2 the same moment in a nested JSON tree showed nothing, because the root object had not closed. The count of unresolved names goes up at line 3, when kpis introduces three more references, and then falls line by line."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.1 · quick demo",
+      "title": "After the last line every skeleton has been replaced; both parsers agree byte for byte",
+      "image": "04_openui_lang/step_01_openui_lang_parser/demo.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "12", "label": "statements parsed from program.oui"},
+        {"value": "0", "label": "unresolved references and 0 errors after line 12", "color": "green"}
+      ],
+      "notice": [
+        "Line 7 references days one line before line 8 defines it; the chart is a skeleton for one line, then replaced.",
+        "kpis = Stack([revenue, cups, margin], \"row\", \"m\") has no key names at all; the catalog supplied them.",
+        "The Python and JavaScript parsers produce byte-identical trees for program.oui; test_step.py checks that.",
+        "The reference parser goes one step further and auto-closes the pending line so a half-written statement renders too."
+      ],
+      "caption": "Checkpoint: swap the order of direction and gap under Stack in catalog.json. The same text renders differently.",
+      "notes": "The second screenshot is the finished page: twelve statements, no unresolved names, no errors. Two things to point at. First, line 7 uses days before line 8 defines it, so the chart spends one line as a skeleton and then fills in. That is the whole hoisting mechanism, and it costs nothing because the resolver is re-run rather than patched. Second, the tree that produced this page is the same, byte for byte, whether the Python or the JavaScript parser built it; the offline test diffs them. The checkpoint is about ownership: reorder two properties in the catalog, and the same program draws a column where it drew a row."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 04.2 · Level 12 of 23 · declarative generation · your own product",
+      "title": "One Zod catalog generates the prompt, the parser's parameter map and the renderers",
+      "headline": "Step 04.1 kept the catalog, the parser and the renderer in three files. The official packages derive **all three from one source**.",
+      "bullets": [
+        "defineComponent() takes a name, a description, a Zod props schema and a React function.",
+        "library.prompt() prints one signature line per component, in Zod key order, plus the language rules.",
+        "library.toJSONSchema() is the step 04.1 catalog shape; the streaming parser reads it to name the arguments.",
+        "<Renderer> from @openuidev/react-lang re-parses the accumulated text on every chunk and draws the catalog's components.",
+        "The server forwards every model delta as one SSE message and never parses the program itself.",
+        "React 19 ships CommonJS only, so esbuild bundles the page once; no config file, no dev server."
+      ],
+      "diagram": {"type": "flow", "direction": "down", "nodes": [
+        {"label": "defineComponent()", "sub": "a name, a description, a Zod props schema, a React function", "kind": "catalog"},
+        {"label": "library.prompt()", "sub": "one signature line per component, in Zod key order", "kind": "spec"},
+        {"label": "createStreamingParser()", "sub": "toJSONSchema() maps positional arguments to prop names", "kind": "server"},
+        {"label": "<Renderer>", "sub": "the same React functions draw the element nodes", "kind": "page"}
+      ], "caption": "One definition, three uses. Add a component and the prompt, the parser and the renderer change together."},
+      "takeaway": "In the declarative mode the catalog is code, not prose, and the model can only produce what the catalog allows.",
+      "notes": "Level 12. The mechanism does not change; the contract around it does. In step 04.1 the catalog was a JSON file, the parser a separate module, and the renderer a third. Here all three come from the Zod schemas in library.mjs. defineComponent pairs a schema with a React function; createLibrary collects them with Stack as the root. library.prompt turns the schemas into signature lines, and the key order of each z.object is the positional argument order the model must use. The parser reads the same schemas as JSON Schema. So a ninth component added to library.mjs appears in the prompt, is accepted by the parser and is drawn by the renderer, with no other file touched. The one engineering detail is the bundler: react-lang imports bare specifiers and React 19 is CommonJS on npm, so esbuild runs once."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.2 · code walkthrough",
+      "title": "Three Zod keys become the signature line, the parameter map and the props the renderer receives",
+      "snippet": {"file": "04_openui_lang/step_02_openui_react_lang/library.mjs", "from": "const Metric = defineComponent(", "count": 14},
+      "callouts": [
+        {"line": 3, "text": "The description goes into the prompt after the signature. Text on a prop's `.describe()` does not; put what the model must know here."},
+        {"line": 4, "text": "Key order is argument order: `Metric(label, value, delta?)`. The prompt, the parser and the renderer cannot disagree."},
+        {"line": 9, "text": "The React function receives `{ props }` with names already mapped. It is React without JSX, so `h` is `createElement`."}
+      ],
+      "caption": "The same object produces `Metric(label: string, value: string | number, delta?: string) — One number with a label and an optional change` in the prompt.",
+      "notes": "One component, read three ways. The name and the description are what the model sees after the signature. The props schema is a z.object with three keys, and the order of those keys is the order of the positional arguments; that is the entire contract that keeps the prompt, the parser and the renderer aligned. The component function is plain React with createElement, because the page ships no JSX transform. Notice what is not shown to the model: the describe text on delta appears nowhere in the signature line, so anything an argument needs explained belongs in the component description or in the prompt's additional rules. The next slide shows what this object becomes in the prompt."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.2 · code walkthrough",
+      "title": "The system prompt is generated, not written: eight signature lines in Zod key order",
+      "snippet": {"file": "04_openui_lang/step_02_openui_react_lang/prompt.txt", "from": "## Component Signatures", "count": 12, "maxWidth": 96},
+      "callouts": [
+        {"line": 3, "text": "The library's own streaming advice: prefer references over inline calls, so the layout paints before its contents."},
+        {"line": 7, "text": "The `Metric` line from the previous slide. A `?` marks an optional argument; optional arguments can be omitted from the end."},
+        {"line": 12, "text": "The whole prompt is 48 lines and 3163 characters; `server.py` caches it in `prompt.txt` and sends it as the system message."}
+      ],
+      "caption": "`npm run prompt` regenerates the file. Add a ninth `defineComponent()` and a ninth signature line appears, with no other file touched.",
+      "notes": "This is the output of library.prompt, cached by the server. The signatures section is the part the catalog controls: one line per component, arguments in Zod key order, optional ones marked with a question mark, the description after the dash. Around it the library adds the syntax rules, the hoisting and streaming advice, and a final verification list, all fixed text. The streaming advice matters for step 04.3: the prompt asks the model to write root first and to prefer references over inline calls, because that is the order in which the page can paint. The checkpoint is the point of the step: add a component to library.mjs, run npm run prompt, and the new line is here."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.2 · quick demo",
+      "title": "The model wrote 9 statements with 0 unresolved, and the catalog's React components drew them",
+      "image": "04_openui_lang/step_02_openui_react_lang/demo.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "48", "label": "lines, 3163 characters, in the generated system prompt"},
+        {"value": "9", "label": "statements from gpt-4.1-mini for the lemonade-stand prompt, 0 unresolved", "color": "green"}
+      ],
+      "notice": [
+        "A heading, three metrics in a row, a seven-day bar chart, an inventory table inside a card, and an order form.",
+        "The model wrote an inline Table(...) inside a Card and left blank lines between groups; the parser accepts both.",
+        "parse.meta.errors carries codes such as unknown-component and missing-required; a production app would send them back as a repair turn.",
+        "Every delta is one SSE message; the page accumulates them in one string and hands it to <Renderer>."
+      ],
+      "caption": "Recorded with gpt-4.1-mini. The whole system prompt is in prompt.txt.",
+      "notes": "The recorded run. The prompt asked for a dashboard for a lemonade stand and the model answered in OpenUI Lang: a root Stack, a heading, a row of three metrics, a bar chart with seven labels and seven values, a card with a table, and a card with two inputs and a button. Nine statements, none unresolved. Two things the model did that the prompt did not ask for: it put blank lines between groups, and it wrote the Table inline inside the Card rather than as a reference. The parser accepts both; the prompt only prefers references for better streaming. The page's status line reads the parse result's meta, which also carries error codes the app could send back to the model."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 04.3 · Level 13 of 23 · measurement",
+      "title": "The report's token table, recomputed cell by cell: every one of the 28 numbers reproduces",
+      "headline": "Steps 04.1 and 04.2 asserted that the line-oriented syntax is cheaper than JSON. This step **measures the claim** on the report's own seven scenarios.",
+      "bullets": [
+        "samples/ holds the seven .oui programs the report's benchmark recorded and the 53-component schema.json.",
+        "convert.py projects each parsed tree into Thesys C1 JSON, json-render's element map and patch stream, and YAML.",
+        "All four texts are projections of one parsed tree, so syntax is the only variable.",
+        "Every text is counted with tiktoken's o200k_base; seconds are the token count at 60 tokens per second.",
+        "The projections are byte-identical to the OpenUI repository's committed artifacts; test_step.py checks that.",
+        "Not reproduced: the model run. The .oui samples are the ones the report generated; this step does not regenerate them."
+      ],
+      "diagram": {"type": "tiles", "items": [
+        {"value": "4800", "label": "tokens, OpenUI Lang, seven scenarios"},
+        {"value": "9122", "label": "tokens, YAML, the cheapest JSON-shaped format", "color": "amber"},
+        {"value": "10180", "label": "tokens, json-render patches, the most expensive", "color": "amber"},
+        {"value": "28 of 28", "label": "per-scenario cells that match the report's table", "color": "green"},
+        {"value": "3.04x", "label": "contact form, complete render, patches over OpenUI Lang"},
+        {"value": "23%", "label": "cheaper: the element map without its patch envelope"}
+      ], "caption": "No model call, no browser: python demo.py prints the three tables."},
+      "takeaway": "The ratio is stable near 2x because JSON pays per field; first paint is a different quantity and favours OpenUI Lang only when the program is written root-first.",
+      "notes": "Level 13, and no page this time. The report's claim is that a line-oriented DSL is the most token-efficient declarative format because JSON pays for keys, quotes and brackets on every field. This step makes the sentence checkable. The seven scenario programs are the ones the report's benchmark generated; convert.py parses each one with the step 04.1 parser and writes the same tree out as C1 JSON, as json-render's element map and its patch stream, and as YAML, porting the yaml npm package's quoting and folding rules so the bytes match. tiktoken counts everything with o200k_base. Every total and every per-scenario cell reproduces. Two of the repository's committed files do not count like the table, which is worth a sentence: prettier reformatted the C1 files after the numbers were taken, and formatting alone moves C1 by up to ten percent."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.3 · code walkthrough",
+      "title": "One parsed tree, four texts: the projection is the whole experimental design",
+      "snippet": {"file": "04_openui_lang/step_03_format_benchmark/benchmark.py", "from": "def projections(oui: str)", "count": 13},
+      "callouts": [
+        {"line": 3, "text": "The step 04.1 parser, copied unchanged, with the benchmark's 53-component schema as the catalog."},
+        {"line": 4, "text": "A sample that does not parse cleanly stops the run. Every scenario must be one complete tree before it is projected."},
+        {"line": 7, "text": "The .oui text is the model's own output; the other four are projections of its tree, which is also how the report produced them."}
+      ],
+      "caption": "`map` is the element map as one compact document, a column the report does not have; it sits between OpenUI Lang and YAML.",
+      "notes": "The function that makes the comparison fair. It parses the OpenUI Lang sample with the same parser step 04.1 wrote, using the benchmark's own schema for the argument names, and refuses any sample that leaves references unresolved. Then it returns five texts. The first is the sample itself, the model's actual output. The other four are projections of the tree it produced: YAML through a port of the yaml npm package's emitter, C1 JSON as the raw JSON.stringify text, the json-render patch stream with one add per element, and the element map as a single compact document. Because every text describes the same tree, the token counts differ only by syntax. The map column is extra; it isolates the cost of the patch envelope."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.3 · code walkthrough",
+      "title": "First paint is a different quantity: only OpenUI Lang has a renderable prefix",
+      "snippet": {"file": "04_openui_lang/step_03_format_benchmark/benchmark.py", "from": "def first_paint_tokens(", "count": 11, "to": "\"jsonl\": count(texts[\"jsonl\"])"},
+      "callouts": [
+        {"line": 4, "text": "`root = Stack(...)` is a complete statement on line 1. A renderer can draw the shell after those tokens."},
+        {"line": 5, "text": "The report's patch projection inserts children before parents, so the `/root` patch arrives last and first paint is the whole stream."},
+        {"line": 9, "text": "For C1 and YAML the count is the whole text: a nested document renders nothing before its last bracket."}
+      ],
+      "caption": "The report's 3.04x is a ratio of complete-render times at a constant token rate. First paint favours OpenUI Lang far more, but only root-first.",
+      "notes": "The report's latency figure, 3.04x on the contact form, is a ratio of complete-render times: 893 tokens against 294 at the same rate. This function measures something else, the tokens a renderer must have before it can draw anything. For OpenUI Lang that is the first line, because root = Stack is a complete statement. For C1 JSON and YAML it is the whole document, because a nested tree closes at the end. For the patch stream in the report's projection it is also the whole stream, because the children are added before their parents and the root patch is the last line. Sub-theme 05 shows json-render streaming root-first, where the patch shape pays off. The lesson is that first paint depends on statement order, which is why the step 04.2 prompt insists on root first."
+    },
+    {
+      "type": "chart",
+      "kicker": "Step 04.3 · the report's table",
+      "title": "OpenUI Lang totals 4800 tokens across seven scenarios; every JSON-shaped format is near 2x",
+      "chartType": "bar",
+      "horizontal": false,
+      "labels": ["OpenUI Lang", "YAML", "C1 JSON", "patches"],
+      "series": [{"name": "tokens", "values": [4800, 9122, 9948, 10180]}],
+      "valueTitle": "tokens (o200k_base), seven scenarios",
+      "bullets": [
+        "Every cell of the report's table reproduces: the four totals and all 28 per-scenario numbers.",
+        "The savings column is nearly flat, 42.4% to 61.4% against YAML, because JSON pays per field, not per string.",
+        "YAML is the cheapest JSON-shaped format: it drops quotes and most brackets but still pays for every key name.",
+        "The patch stream is the most expensive: about 11 tokens of envelope per element, over 212 elements."
+      ],
+      "caption": "The committed .c1.json files were reformatted by prettier after the count and come out 10 to 94 tokens lighter than the table; the .oui and patch files count exactly as tabled.",
+      "notes": "The totals, as the report printed them and as this step recomputes them. OpenUI Lang at 4800, YAML at 9122, Thesys C1 JSON at 9948, json-render patches at 10180. The interesting number is not the ratio but its flatness: the smallest scenario saves 53 percent against YAML and the largest 42, because the overhead of JSON is per field and scales with the UI rather than shrinking for big ones. YAML wins among the three JSON-shaped formats by dropping quotes and brackets, and still pays for every key name; OpenUI Lang drops the key names too because the catalog supplies them positionally. The patch stream pays one add envelope per element, about eleven tokens each."
+    },
+    {
+      "type": "chart",
+      "kicker": "Step 04.3 · first paint",
+      "title": "At 60 tokens per second the contact form paints at 0.2 s in OpenUI Lang and after the whole document elsewhere",
+      "chartType": "bar",
+      "horizontal": false,
+      "labels": ["OpenUI Lang", "YAML", "C1 JSON", "patches"],
+      "series": [{"name": "seconds to first paint", "values": [0.2, 12.7, 14.2, 14.9]}],
+      "valueTitle": "seconds to first paint, contact form, 60 tokens/s",
+      "bullets": [
+        "Only OpenUI Lang has a renderable prefix: root = Stack(...) is a complete statement on line 1.",
+        "C1 JSON and YAML are one nested document; nothing renders before the last bracket.",
+        "The report's patch projection inserts children before parents, so its /root patch is the last line.",
+        "Complete render: 4.9 s against 14.9 s for patches, the report's 3.04x.",
+        "First paint favours OpenUI Lang only when the program is written root-first; the generated prompt insists on it."
+      ],
+      "caption": "Seconds are token counts at a constant 60 tokens per second, the report's own convention; no model was timed.",
+      "notes": "The same contact form, measured as time to first paint at the report's constant rate of 60 tokens per second. OpenUI Lang paints its shell after the first line, a fraction of a second in. The three other formats paint nothing until the whole document has arrived: 12.7 seconds for YAML, 14.2 for C1 JSON, 14.9 for the patch stream. Say clearly that this is not the report's 3.04x, which compares complete renders, 4.9 seconds against 14.9. First paint is a stronger claim and a more conditional one: it holds only when the model writes root first, which is exactly what the library's generated prompt asks for, and it does not hold for the patch stream as the report projected it, because that stream adds children before parents."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.3 · quick demo",
+      "title": "The table as printed: four totals, 28 cells, and the report's own numbers underneath",
+      "output": [
+        "tokens (o200k_base)",
+        "scenario            OpenUI   YAML  C1 JSON  patches  vs YAML",
+        "simple-table           148    316      357      340   -53.2%",
+        "chart-with-data        231    464      516      520   -50.2%",
+        "contact-form           294    762      849      893   -61.4%",
+        "dashboard             1226   2128     2261     2247   -42.4%",
+        "pricing-page          1195   2230     2379     2487   -46.4%",
+        "settings-panel         540   1077     1205     1244   -49.9%",
+        "e-commerce-product    1166   2145     2381     2449   -45.6%",
+        "TOTAL                 4800   9122     9948    10180   -47.4%",
+        "report TOTAL          4800   9122     9948    10180",
+        "",
+        "seconds at 60 tokens/s: complete (first paint)",
+        "contact-form        4.9 (0.2)  12.7 (12.7)  14.2 (14.2)  14.9 (14.9)",
+        "e-commerce-product 19.4 (0.2)  35.8 (35.8)  39.7 (39.7)  40.8 (40.8)"
+      ],
+      "stats": [
+        {"value": "28 of 28", "label": "per-scenario cells equal to the report's table", "color": "green"},
+        {"value": "-47.4%", "label": "OpenUI Lang against YAML in total; -51.7% against C1, -52.8% against patches"},
+        {"value": "7873", "label": "tokens for the element map alone, 23% under the patch stream", "color": "amber"}
+      ],
+      "notice": [
+        "The savings column runs from -42.4% (dashboard) to -61.4% (contact form): flat, because the overhead is per field.",
+        "Checkpoint: the map column is not in the report. The difference to patches is the {\"op\":\"add\",\"path\":...} envelope, about 11 tokens per element over 212 elements."
+      ],
+      "caption": "python demo.py; the third table, not shown, counts the repository's committed C1 and YAML files as checked in and marks the cells that differ.",
+      "notes": "The printed output, trimmed to the columns that matter. Read the TOTAL and report TOTAL rows first: they are equal in every column. Then the savings column, which is what the flatness argument rests on: the biggest UI saves the least, 42 percent, and the smallest form saves the most, 61, and neither is far from the total's 47. The seconds rows below show the two quantities side by side for two scenarios: complete render and, in brackets, first paint. The map column in the stats is the extra measurement this step adds: the element map as a plain document is 23 percent cheaper than the same map as a patch stream, and that difference is the envelope alone. The third table, which the slide omits, is where the two committed artifacts that do not match are listed."
+    },
+
+    {
+      "type": "theory",
+      "kicker": "Step 04.4 · Level 14 of 23 · hybrid generation · your own product",
+      "title": "The hybrid is one prompt rule and one component: catalog by default, an HtmlArtifact where the catalog does not reach",
+      "headline": "Step 04.2 gave the model a catalog and nothing else, so an interactive request had nowhere to go. This step builds the escape hatch on **OpenUI's examples/miscellaneous/html-artifact** reference implementation.",
+      "bullets": [
+        "The catalog keeps the eight step 04.2 components and adds Markdown and HtmlArtifact(title, document).",
+        "Two prompt rules from the example: never put a dashboard into an HtmlArtifact; only use one when the user asks for something interactive.",
+        "The document is the second string argument of one statement; it streams like any other string, with no second endpoint and no tool call.",
+        "useIsStreaming() shows the raw source while the document grows, then Raw and Rendered tabs.",
+        "sandbox.mjs injects a Content Security Policy first in <head>, lists external resources, and accepts one message shape from the iframe.",
+        "The example defers the CSP, the document check and the message check to \"before production\"; this step does them."
+      ],
+      "diagram": {"type": "hybrid", "left": ["Text", "Metric", "BarChart", "Table", "Button"], "right": "HtmlArtifact", "rightSub": "sandboxed iframe with an injected CSP, only when the user asks for something interactive", "height": 4.2, "caption": "The report's diagram on OpenUI's reference implementation: catalog primitives by default"},
+      "takeaway": "Open-ended generation took 86% of one reply, so the catalog is the default and the sandbox the exception.",
+      "notes": "Level 14, the last of the sub-theme. The report's recommended default is a catalog with one open-ended component in it, and OpenUI ships a reference implementation of exactly that: the html-artifact example, with a Markdown component for conversation and an HtmlArtifact whose second argument is a whole HTML document. This step puts it on the step 04.2 stack with the real catalog kept, so a dashboard still renders as Metric, BarChart and Table. The mechanism is the same as the example's and there is nothing new on the wire: the document is a string argument inside one OpenUI Lang statement, so it streams like any other string, and the streaming parser exposes the partial value on every chunk. What the example leaves for production, the CSP, a validation pass and a message check, is done here."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.4 · code walkthrough",
+      "title": "useIsStreaming() decides between the raw source and the iframe; sandboxed() adds the CSP before srcDoc",
+      "snippet": {"file": "04_openui_lang/step_04_openui_html_artifact/html-artifact.mjs", "from": "function HtmlArtifactRenderer", "to": "srcDoc: sandboxed(props.document)", "count": 26,
+        "skip": ["// Raw while the document", "// reader can switch back", "const problems = checkDocument", "const tab = (name, label)", "className: `tab ${view", "return h(\"section\"", "className: \"artifact-head\"", "h(\"strong\", null, props.title)", "      isStreaming", "`Generating artifact ...", "className: \"tabs\""]},
+      "callouts": [
+        {"line": 2, "text": "The library's own streaming flag, read through a hook. The renderer needs no prop from the page to know the document is still arriving."},
+        {"line": 8, "text": "While streaming, or on the Raw tab, a `pre` shows the document as it stands: the partial value grows on every chunk, not a spinner."},
+        {"line": 13, "text": "`sandbox=\"allow-scripts\"` gives the document a unique origin and no access to the host; `sandboxed()` takes the network away too."}
+      ],
+      "caption": "The full component is 31 lines; the head, the tabs and the problems list are elided here. The Zod schema underneath is two strings: `title` and `document`.",
+      "notes": "The renderer for the open-ended component, with its head and tabs elided. useIsStreaming comes from react-lang and tells the component whether the Renderer is still receiving text, so it needs no prop from the page. The view state starts as raw while streaming and flips to rendered when the stream ends. The ternary is the whole behaviour: while streaming, or when the reader picks the Raw tab, a pre shows the document as it stands; otherwise an iframe with sandbox allow-scripts, no referrer, and a srcDoc that has been through sandboxed. React renders through srcDoc, so a re-parse that leaves the document unchanged does not reload the frame. The Raw tab unmounts it, so the document's state resets on the way back."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 04.4 · code walkthrough",
+      "title": "The CSP goes first in <head>, and a policy the model wrote itself is removed before it can loosen ours",
+      "snippet": {"file": "04_openui_lang/step_04_openui_html_artifact/sandbox.mjs", "from": "export const CSP =", "count": 15,
+        "skip": ["// Return the document with our CSP", "// tag applies only to what comes after", "// CSP the model wrote itself"]},
+      "callouts": [
+        {"line": 1, "text": "`default-src 'none'`: no fetch, no WebSocket, no external script or stylesheet. Inline style and script stay allowed because the prompt asks for them."},
+        {"line": 8, "text": "Any Content-Security-Policy meta the model wrote is stripped first, so the document cannot loosen the policy it is about to receive."},
+        {"line": 10, "text": "A CSP meta tag applies only to what comes after it: insert right after the opening `<head>`, or prepend when there is none."}
+      ],
+      "caption": "`checkDocument()` lists external resources, network calls and meta refresh next to the artifact; `isEvent()` keeps one message shape from the iframe and drops the rest.",
+      "notes": "The hardening the example's README defers. The example's iframe has sandbox and referrerpolicy only, so an inline fetch or a script src would still reach the network. This module closes that. The policy denies everything by default and allows inline style and script, because that is what the prompt tells the model to write, plus data URIs for images. sandboxed first strips any Content-Security-Policy meta the model produced, so the document cannot relax the policy, then inserts ours immediately after the opening head tag, or at the very start if there is no head. Two more functions in the same file: checkDocument, which reports external resources and network calls for the reader and the logs, and isEvent, the one message shape the page accepts from the iframe."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.4 · quick demo",
+      "title": "The dashboard prompt stays in the catalog: 11 statements, 262 completion tokens, no artifact",
+      "image": "04_openui_lang/step_04_openui_html_artifact/demo_catalog.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "11", "label": "catalog statements for \"show me a dashboard for a lemonade stand\""},
+        {"value": "262", "label": "completion tokens, 1235 prompt tokens"},
+        {"value": "0", "label": "artifacts on the page", "color": "green"}
+      ],
+      "notice": [
+        "Metric, BarChart, a Table inside a Card, and two Buttons in a row: the same components as step 04.2.",
+        "The rule that kept it here: \"Never put a dashboard into an HtmlArtifact.\"",
+        "The completion token count from the API equals the o200k_base count of the program, so the token shares are exact.",
+        "Checkpoint: remove that rule from PROMPT_OPTIONS, ask again, and compare the completion tokens with 262."
+      ],
+      "caption": "Recorded with gpt-4.1-mini. The decision is the model's, steered by two prompt rules.",
+      "notes": "First of the two recorded prompts. Asked for a dashboard, the model answered with eleven catalog statements: a heading, three metrics in a row, a bar chart, an inventory table inside a card, and two buttons. No Markdown, no artifact. 262 completion tokens against 1235 in the prompt. The point of this screenshot is what did not happen: the model had an open-ended component available and did not use it, because the prompt rule says dashboards belong to the catalog. The checkpoint is to delete that one rule and ask again; the completion token count is the measure of what the rule is worth. The API's completion count equals the tiktoken count of the program, which makes the shares on the next slides exact."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.4 · quick demo",
+      "title": "The calculator reply mid-stream: the Markdown intro rendered, the raw document growing",
+      "image": "04_openui_lang/step_04_openui_html_artifact/demo_streaming.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "460", "label": "characters of the document at the moment of the screenshot", "color": "amber"},
+        {"value": "2", "label": "children of root: a Markdown, then one HtmlArtifact"}
+      ],
+      "notice": [
+        "The status line reads \"Generating artifact ... 460 characters so far\"; the pre below it is the partial value the streaming parser exposes.",
+        "parse.meta.incomplete is true for most of the stream, because the document is one string that has not closed.",
+        "The Markdown child arrived first, as the prompt rule asks, and is already rendered above the artifact.",
+        "No iframe exists yet: useIsStreaming() is true, so the renderer shows source, not a sandbox."
+      ],
+      "caption": "The prompt: \"build me an interactive lemonade price calculator I can play with\".",
+      "notes": "Second prompt, caught mid-stream. The model introduced the reply with a Markdown child, which the prompt rule asks for and which is already rendered at the top. Below it the artifact shows its title, a status line with the character count so far, and the raw HTML as it stands. This is the property the step relies on: the document is one long string argument, the streaming parser exposes the partial value of that string on every chunk, and the renderer shows it. There is no spinner; the growing source is the progress indicator. No iframe has been created, because useIsStreaming is true. The Node test pins this behaviour by cutting the program inside the document and checking that the partial value ends where the cut was."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 04.4 · quick demo",
+      "title": "The calculator runs in its sandboxed iframe: typing 9 into the price field changed the total to $90.00",
+      "image": "04_openui_lang/step_04_openui_html_artifact/demo.png",
+      "imageWidth": 6.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {"value": "341", "label": "completion tokens for the calculator reply, 1238 prompt tokens"},
+        {"value": "292", "label": "of those 341 tokens are the document: 86% of the reply", "color": "amber"},
+        {"value": "$90.00", "label": "the total after the headless test typed 9 into the price field, from $10.00", "color": "green"}
+      ],
+      "notice": [
+        "sandbox='allow-scripts', and the CSP meta is first in <head>: the document's script ran under the policy.",
+        "Events accepted from the iframe: none. The document posted nothing, and isEvent() would have dropped anything else.",
+        "The dashboard reply cost 262 tokens; open-ended generation is paid only for the one component that needs it."
+      ],
+      "caption": "The report's cost of open-ended generation, paid once: the catalog is the default and the sandbox the exception.",
+      "notes": "The same reply once complete. The Rendered tab is active and the iframe shows the calculator; the headless test typed 9 into the price field inside the sandbox and the total moved from ten dollars to ninety, so the script ran under the injected policy. The numbers to leave the audience with: 341 completion tokens, of which the document took 292, 86 percent. The dashboard reply on the previous prompt was 262 tokens with no artifact. That is the report's hybrid in one pair of screenshots: open-ended generation is expensive, so the catalog answers by default and the sandbox is used only when the request needs it. Nothing crossed the iframe boundary; had the document posted a message, isEvent would have accepted one shape and dropped the rest."
+    }
+  ]
+}

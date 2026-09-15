@@ -1,0 +1,169 @@
+{
+  "slides": [
+    {
+      "type": "theory",
+      "kicker": "Step 06.3 · Level 20 of 23 · a third-party host",
+      "title": "The hybrid ships as a tool result, and its open-ended part runs one frame deeper",
+      "headline": "One tool result carries a **catalog spec** the view draws itself and one **generated document** the view mounts in a second sandbox.",
+      "bullets": [
+        "Step 01.4 built the report's hybrid on a page you own. This step puts it inside a host you do not control.",
+        "`lemonade_report(days, focus)` returns `components`, six items in the shape of step 01.1, and `generated`, one HTML document.",
+        "The MCP server makes the model call for the region. MCP Apps keeps credentials on the server side; the host never sees the key.",
+        "The view renders the spec with four escaped renderers and mounts the document in a nested `sandbox=\"allow-scripts\"` iframe.",
+        "The app's own iframe and policy from step 06.1 are unchanged. A `srcdoc` frame has no URL for `frame-src` to match, so it inherits the app's policy and adds its own.",
+        "The region can say one thing to the app: `{type: \"event\", name, payload}`. The app, not the region, speaks to the host."
+      ],
+      "diagram": {
+        "type": "layers",
+        "nested": true,
+        "items": [
+          {
+            "label": "host page",
+            "sub": "host.html on its own origin: the chat, the bridge, the MCP client",
+            "kind": "host"
+          },
+          {
+            "label": "app iframe",
+            "sub": "sandbox=\"allow-scripts\" · the spec's CSP from _meta.ui.csp · the catalog",
+            "kind": "iframe"
+          },
+          {
+            "label": "generated iframe",
+            "sub": "sandbox=\"allow-scripts\" · the region's CSP first in <head> · the model's HTML",
+            "kind": "open",
+            "dashed": true
+          }
+        ],
+        "caption": "Two boundaries, two policies: the host trusts the app as far as the resource declared; the app trusts the region not at all."
+      },
+      "takeaway": "Catalog components stay cheap and trusted; the open-ended part pays its way inside a boundary the app owns.",
+      "notes": "This is the report's hybrid pattern again, now on the MCP Apps transport. Point at the three nested boxes. The outer one is the host page from step 06.1, unchanged apart from the ports. The middle one is the app, under the policy the resource declared. The inner one is new: a second sandboxed iframe for the document the model wrote, with a stricter policy injected first in its head. Say who calls the model: the server, not the host, because MCP Apps keeps credentials on the server side. Then the one rule of the inner boundary: the region may post one message shape to the app, nothing else, and it cannot reach the host's bridge at all."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Step 06.3 · the pattern",
+      "title": "Four catalog components the view owns, one generated region the server's model wrote",
+      "lead": "The same picture as step 01.4, now inside a **tool result**: `components` on the left, `generated` on the right.",
+      "diagram": {
+        "type": "hybrid",
+        "left": [
+          "Metric",
+          "Table",
+          "BarChart",
+          "Text"
+        ],
+        "right": "generated",
+        "rightSub": "one HTML document from the server's model call, in a nested sandboxed iframe with its own CSP",
+        "height": 4.0,
+        "caption": "components: 829 bytes of JSON, no model call · generated: 1,565 bytes of HTML, 370 + 473 tokens"
+      },
+      "takeaway": "A `GeneratedView` in the components list renders as a stub: markup runs only through `generated`, which has its own frame.",
+      "notes": "Two halves, two costs. The left side is data the view already knows how to draw: six items, 829 bytes, no model call, and the host's restrictive policy applies to it. The right side is markup the model wrote for this call: about one and a half kilobytes and a few hundred completion tokens, and it needs a place to run. That place is the second iframe. Mention the fallback: without a key on the server, a hand-written region with the same slider takes over, and the view shows a note saying so. The tool never fails because of the model."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.3 · code walkthrough",
+      "title": "One call, two halves: the server's own model call sits inside the tool",
+      "snippet": {
+        "file": "06_mcp_apps/step_03_mcp_app_hybrid/server.py",
+        "from": "@server.tool(meta=",
+        "to": "structuredContent=",
+        "maxWidth": 100
+      },
+      "callouts": [
+        {
+          "line": 6,
+          "text": "`generate_region` calls the model from the server. The host and the view never see this key."
+        },
+        {
+          "line": 7,
+          "text": "The text for the model says a region exists and where it came from, and nothing of its HTML."
+        },
+        {
+          "line": 10,
+          "text": "`components` is the catalog spec; `generated` is the document plus its source, usage and size."
+        }
+      ],
+      "caption": "Step 06.1's resource, link and policy are unchanged; only what the tool returns is new.",
+      "notes": "Read the tool top to bottom. Clamp the days, get the rows, then the one new line: the server's own model call, which returns the HTML, where it came from, the usage and the byte count. The content text stays short and now ends with one sentence about the region. The structured content has two parts. The model that called the tool reads the text only; the generated HTML goes to the iframe and never enters the context window."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 06.3 · code walkthrough",
+      "title": "Two sources, one listener: the host above, the region below, one accepted shape",
+      "snippet": {
+        "file": "06_mcp_apps/step_03_mcp_app_hybrid/view.html",
+        "from": "window.addEventListener(\"message\"",
+        "to": "}, 250);",
+        "maxWidth": 118
+      },
+      "callouts": [
+        {
+          "line": 2,
+          "text": "Messages from the parent are the host's JSON-RPC, as in step 06.1."
+        },
+        {
+          "line": 3,
+          "text": "Messages from the inner frame must pass `isEvent`: `{type: \"event\", name, payload}`. A `tools/call` from the region is dropped."
+        },
+        {
+          "line": 13,
+          "text": "The app forwards one sentence to the host as `ui/update-model-context`, debounced by 250 ms; the region never reaches the host."
+        }
+      ],
+      "caption": "Two source checks, one accepted shape: the region speaks to the app, and the app speaks to the host.",
+      "notes": "Step 06.1's view had one listener for one source. This view has two sources and checks event.source before anything else. The parent is the host; the inner frame is the region. The region may only send an event of one shape, and only from its own window. It cannot use the bridge. The app can, and it forwards a sentence, not the raw payload, to the host with ui/update-model-context, so the next model turn knows what the user did. The debounce keeps a slider from flooding the host."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 06.3 · quick demo",
+      "title": "Catalog above, generated region below, and the region's event reached the host",
+      "image": "06_mcp_apps/step_03_mcp_app_hybrid/demo.png",
+      "imageWidth": 5.0,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "370 + 473",
+          "label": "tokens for the server's model call",
+          "color": "amber"
+        },
+        {
+          "value": "1,565",
+          "label": "bytes of generated HTML"
+        }
+      ],
+      "notice": [
+        "The model called `lemonade_report({\"days\":5,\"focus\":\"a what-if price slider\"})` and answered in two sentences.",
+        "Three metrics, a bar chart, a table and a line of text came from the catalog: 829 bytes of JSON, no model call.",
+        "The amber dashed frame is the generated region, one sandbox inside the other.",
+        "Under the chat: the model context the app forwarded after the slider moved, `priceChange` at price 2.4."
+      ],
+      "notes": "The recorded run. The host page is step 06.1's on new ports. In the app panel the catalog components sit above and the generated region below, in an amber dashed frame that marks the second sandbox. The demo moved the slider two frames down, inside that region; the region posted priceChange, the app drew it under the frame and forwarded it to the host, which shows it under the chat. Read the numbers: the server's model call cost 370 prompt and 473 completion tokens for 1,565 bytes of HTML, while the six catalog components cost 829 bytes of JSON and nothing else."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 06.3 · quick demo",
+      "title": "The inner region on its own: the model's script ran two frames down",
+      "image": "06_mcp_apps/step_03_mcp_app_hybrid/demo_generated.png",
+      "imageWidth": 7.2,
+      "imageHeight": 2.1,
+      "stats": [
+        {
+          "value": "2.4",
+          "label": "price the demo set on the slider"
+        },
+        {
+          "value": "230.4",
+          "label": "revenue in the event payload",
+          "color": "amber"
+        }
+      ],
+      "notice": [
+        "The document is the model's: a range input, a recompute on every input event (96 cups at 2.4), a `parent.postMessage` with the new values.",
+        "Its CSP is the region's own, injected first in the head: no network, inline style and script only.",
+        "The app accepted the event, drew it, and forwarded a sentence as `ui/update-model-context`; the host put it in the next turn."
+      ],
+      "notes": "The second capture is the generated iframe alone, after the headless interaction. Everything in it was written by the model on the server for this call: the slider, the recompute, the message to the parent. The demo set the slider to 2.4 and the region estimated 96 cups and 230.4 in revenue. That payload climbed one frame to the app, which turned it into a sentence for the host. Close with the takeaway: two frames, two policies, one accepted message shape."
+    }
+  ]
+}

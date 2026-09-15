@@ -1,0 +1,89 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Choosing",
+      "title": "Choosing for your own product",
+      "lead": "The report's decision framework, with the step that shows each option. Transport first, because your product decides it. Generation mode second, because it is a cost and control trade you can revisit.",
+      "steps": [
+        {"id": "1", "title": "pick the transport"},
+        {"id": "2", "title": "pick the generation mode"},
+        {"id": "3", "title": "check the measurements"},
+        {"id": "4", "title": "keep the three rules"}
+      ],
+      "notes": "The closing section turns the series into a decision. Two tables from the report, annotated with the steps that demonstrate each row, then the numbers this series measured, then the rules that held."
+    },
+    {
+      "type": "table",
+      "kicker": "Choosing · transport, then generation",
+      "title": "If this is your situation, use this, and this step shows it",
+      "columns": ["If", "Then", "Step"],
+      "colW": [4.6, 5.0, 2.5],
+      "rows": [
+        ["the agent runs inside a product you build", "AG-UI", "02.1 to 02.3"],
+        ["the agent must appear inside Claude, ChatGPT, VS Code or Goose", "MCP Apps", "06.1, 06.2"],
+        ["both", "ship both: the same UI, two transports", "06.2"],
+        ["the answer shapes are few and your design system is strict", "static: prebuilt components, the agent fills props", "01.1"],
+        ["layouts vary and must stay inside your design system", "declarative, from a catalog", "01.2 and one of 03, 04, 05"],
+        ["you need the lowest token cost and the earliest first paint", "OpenUI Lang", "04.1 to 04.3"],
+        ["you render on Flutter, Angular or native, or need catalog negotiation", "A2UI", "03.1 to 03.3"],
+        ["you render to PDF, email, a terminal or video as well as the browser", "json-render", "05.1 to 05.3"],
+        ["one-off or creative output is part of the product", "the hybrid: a catalog with a sandboxed generated view", "01.4, 04.4, 06.3, 07.3"]
+      ],
+      "notes": "Walk the rows top to bottom. The first three are the transport choice. The rest are the generation choice, and each names the sub-theme that demonstrates it. The last row is the hybrid: the answer for products that need both control and freedom."
+    },
+    {
+      "type": "table",
+      "kicker": "Choosing · what the series measured",
+      "title": "Five questions the report raises, answered with recorded runs",
+      "columns": ["Question", "Measured in", "Result"],
+      "colW": [4.3, 1.5, 6.3],
+      "rows": [
+        ["How much does open-ended HTML cost against a flat spec?", "01.3", "nine to ten times the tokens, eight times the wall time, over three runs"],
+        ["Does a flat element map paint earlier than a nested tree?", "01.2", "layout known at chunk 33 of 266, against chunk 408 of 408"],
+        ["Does the report's format table hold?", "04.3", "every cell reproduces: OpenUI Lang 4,800 tokens against 9,122 YAML, 9,948 C1 JSON, 10,180 patches"],
+        ["Does patch streaming help a real page?", "05.2", "first paint at 3.5 s against 10.1 s complete; the single-paint version took 5.8 s"],
+        ["How much of a hybrid reply is the open-ended part?", "04.4", "the artifact document was 292 of 341 completion tokens, 86%"],
+        ["What does a hosted harness's UI language look like on the wire?", "07.2", "an OpenUI Lang program of 32 lines and 7 statements inside a normal reply"],
+        ["Can the hybrid live inside a host you do not control, or on a hosted harness?", "06.3, 07.3", "yes: a generated region one sandbox deeper inside an MCP App; one artifact statement in a TrueForge reply, rendered by your own page"]
+      ],
+      "notes": "These are the numbers to remember. Every one comes from a demo script in the repository, run against a real model on the recording machine. The token multiples for open-ended generation and the first-paint difference for flat maps are the two that change design decisions."
+    },
+    {
+      "type": "theory",
+      "kicker": "Wrap-up",
+      "title": "Three rules that held across all 23 steps",
+      "bullets": [
+        "**Structure before content.** Every format that streams well names the layout first and fills it later: flat maps, forward references, patches against ids. A nested document cannot paint until it closes.",
+        "**The catalog is the contract.** Prompt, validation and rendering come from one definition. Change the definition and all three change. This is what keeps declarative generation safe.",
+        "**Errors are results.** A spec that fails validation goes back to the model as text. A blocked script stays inside its iframe. The loop never ends because the agent drew something wrong.",
+        "The harness codelab ended with the same three rules for tools. They hold for interfaces too."
+      ],
+      "diagram": {"type": "flow", "direction": "down", "nodes": [
+        {"label": "structure before content", "sub": "layout first, holes filled later", "kind": "catalog"},
+        {"label": "the catalog is the contract", "sub": "prompt = validator = registry", "kind": "model"},
+        {"label": "errors are results", "sub": "invalid specs return as text", "kind": "page"}
+      ], "height": 3.6},
+      "takeaway": "Models are commodities. The harness is the product. The interface is where the product meets the user.",
+      "notes": "Close on the rules. They are the same shape as the harness codelab's rules, which is the point: an interface layer is a harness concern. If a reader remembers one slide, it should be this one."
+    },
+    {
+      "type": "theory",
+      "kicker": "Where to go next",
+      "title": "Run it, then change it",
+      "bullets": [
+        "`git clone https://github.com/dlmastery/simple-coding-harness` and open `genui/README.md`: the written codelab with every snippet verified and every screenshot.",
+        "Start with `genui/01_foundations/step_01_static_components`: `python demo.py` records a run and a screenshot in under a minute.",
+        "Each README ends with a checkpoint: change the catalog, watch the prompt change; remove a prompt rule, watch the token count move.",
+        "The harness codelab in the repository root is the other half: the loop, tools, permissions, sandbox, sessions, and the same harness on TrueForge.",
+        "The State of Generative UI report is the map this series follows; the step READMEs cite the specification or library each one uses."
+      ],
+      "diagram": {"type": "layers", "nested": false, "items": [
+        {"label": "harness codelab · stages 1 to 51", "sub": "the loop, tools, guardrails, context, durability, orchestration, TrueForge", "kind": "spec"},
+        {"label": "generative UI series · 23 steps", "sub": "static, declarative, open-ended; AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps", "kind": "catalog"},
+        {"label": "your product", "sub": "the transport your product needs, the generation mode your design system allows", "kind": "page"}
+      ], "height": 3.4},
+      "notes": "End with the call to action. Everything in the deck is runnable. The written codelab is the reference; the deck is the guided tour. The next thing a reader should do is run one step and change one thing."
+    }
+  ]
+}

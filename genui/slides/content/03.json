@@ -1,0 +1,456 @@
+{
+  "slides": [
+    {
+      "type": "section",
+      "kicker": "Sub-theme 03 · Levels 8 to 10 of 23",
+      "title": "A2UI, Google's declarative protocol",
+      "lead": "Sub-theme 01 found that a flat element map streams best. A2UI v0.9.1 is that shape as a published protocol: four envelope messages, a flat component list joined by ids, a data model addressed by JSON Pointer, and a swappable catalog. The report places it in the declarative middle of the generation axis. This sub-theme builds the messages by hand, has the model write them through the official SDK, then renders them with Google's Lit renderer over the AG-UI transport from sub-theme 02.",
+      "steps": [
+        {
+          "id": "03.1",
+          "title": "A2UI messages by hand"
+        },
+        {
+          "id": "03.2",
+          "title": "A2UI from a model"
+        },
+        {
+          "id": "03.3",
+          "title": "The official renderer, over AG-UI"
+        }
+      ],
+      "notes": "Three steps, one protocol. The first step builds the four A2UI messages in Python with no library on either side, validates them against the official schemas, and renders the spec's own contact form with a hand painter. The second step has a model write the same messages through the official a2ui-agent-sdk, with the stream parser painting progressively and a correction loop catching mistakes. The third step swaps in the official Lit renderer and carries the same messages as AG-UI events. At the end the reader has A2UI over AG-UI running, with the cost of prompt-first generation measured in tokens and seconds."
+    },
+    {
+      "type": "diagram",
+      "kicker": "Sub-theme 03 · the shape of the protocol",
+      "title": "Structure and data are two messages; a binding is the only join",
+      "lead": "`updateComponents` says there is a text field bound to `/contact/email`. `updateDataModel` says what is at `/contact/email`. Neither message resends the other.",
+      "diagram": {
+        "type": "flow",
+        "direction": "right",
+        "nodes": [
+          {
+            "label": "updateComponents",
+            "sub": "a flat list; Card -> form_container -> children, all by id",
+            "kind": "catalog"
+          },
+          {
+            "label": "{ \"path\": \"/contact/email\" }",
+            "sub": "a binding: the component names a place, not a value",
+            "kind": "spec"
+          },
+          {
+            "label": "updateDataModel",
+            "sub": "one JSON document per surface, addressed by JSON Pointer",
+            "kind": "data"
+          }
+        ],
+        "caption": "The client keeps a component map and a data model per surface. A tree is never on the wire; it is rebuilt at paint time from the ids."
+      },
+      "takeaway": "A client that keeps a map of components and a pointer-addressed document can render any catalog.",
+      "notes": "This is the picture to hold for the whole sub-theme. On the left, structure: components arrive as a flat list, each with an id, and a parent names its children by id. The client stores them in a map and rebuilds the nested tree only when it paints, so order on the wire does not matter and a child may arrive after its parent. On the right, data: one JSON document per surface, written and read through JSON Pointer paths. The join is a binding: a component property that says path instead of a literal. Later data updates never resend the structure, and an input writes into the same local document a bound Text reads from."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 03.1 · Level 8 of 23 · declarative generation · your own product",
+      "title": "The whole server-to-client protocol is four messages; everything else is the catalog",
+      "headline": "A2UI v0.9.1 is the **flat element map** from sub-theme 01, published as a protocol with a schema.",
+      "bullets": [
+        "Each message is a JSON object with a version and exactly one of four keys.",
+        "createSurface opens a surface and names the catalog it will use.",
+        "updateComponents sends a flat list; one component must have the id root.",
+        "updateDataModel writes a value at a JSON Pointer path, or deletes it.",
+        "deleteSurface drops the surface and every piece of state under it.",
+        "Validation runs against three official schemas; a registry plugs the catalog in."
+      ],
+      "diagram": {
+        "type": "chips",
+        "items": [
+          {
+            "label": "createSurface",
+            "note": "surfaceId, catalogId, optional theme and sendDataModel",
+            "kind": "spec"
+          },
+          {
+            "label": "updateComponents",
+            "note": "a flat list of components joined by ids",
+            "kind": "catalog"
+          },
+          {
+            "label": "updateDataModel",
+            "note": "path (JSON Pointer) and value, or path alone to remove",
+            "kind": "data"
+          },
+          {
+            "label": "deleteSurface",
+            "note": "the client forgets the surface and its state",
+            "kind": "spec"
+          }
+        ],
+        "caption": "The envelope schema. Which components may appear inside updateComponents is the catalog's business, not the envelope's."
+      },
+      "takeaway": "A2UI is a flat map plus a data model; a client that keeps those two things can render any catalog.",
+      "notes": "Level 8. Step 01.2 measured that a flat map with ids paints layout before the leaves arrive. A2UI is that shape standardised. The server-to-client half is only four messages. Say them in order: create a surface, send components, send data, delete the surface. Everything about what a Button or a TextField is lives in a separate catalog schema, which is why the protocol can be rendered by any catalog. This step builds the four messages in Python, validates them against the official schema files, and finds that the spec's own example stream fails its own schema. That is worth a beat: validate before rendering, and expect the validator to disagree with prose."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.1 · code walkthrough",
+      "title": "Three of the four builders fit on one slide; the shape is the lesson",
+      "snippet": {
+        "file": "03_a2ui/step_01_a2ui_messages_by_hand/a2ui.py",
+        "from": "def update_components(",
+        "count": 16,
+        "to": "return {\"version\": VERSION, \"deleteSurface\"",
+        "maxWidth": 112
+      },
+      "callouts": [
+        {
+          "line": 3,
+          "text": "A flat list under `components`. The nested tree never crosses the wire; the client rebuilds it from ids."
+        },
+        {
+          "line": 8,
+          "text": "`path` is a JSON Pointer into the surface's data model. Omitting `value` turns the write into a delete."
+        },
+        {
+          "line": 16,
+          "text": "`deleteSurface` carries only the id. The page keeps nothing else; the server owns the conversation."
+        }
+      ],
+      "caption": "Each builder returns the envelope: a version and exactly one of the four keys. `validate()` checks the result against the official schemas.",
+      "notes": "The builders are small on purpose. updateComponents takes a surface id and a list; the only rule the envelope adds is that one component must be called root. updateDataModel takes a path and a value, and the same message with no value deletes the key at that path. deleteSurface is one id. What is not here matters as much: no tree, no parent pointers, no component definitions. The catalog schema, wired in through a registry under the envelope's placeholder name, decides whether a component is well formed. In the demo, the spec's own updateComponents fails that check because a TextField rule is written without the condition wrapper; a three-rule repair makes it validate."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.1 · code walkthrough",
+      "title": "The client state has no DOM in it: a map for structure, a pointer write for data",
+      "snippet": {
+        "file": "03_a2ui/step_01_a2ui_messages_by_hand/static/surface.mjs",
+        "from": "apply(message) {",
+        "count": 12
+      },
+      "callouts": [
+        {
+          "line": 5,
+          "text": "Components go into a `Map` keyed by id. Any order, any time; a parent may name a child that has not arrived."
+        },
+        {
+          "line": 7,
+          "text": "Data goes through `pointerSet`. A bound `Text` reads the same document at paint time, so typing shows at once."
+        },
+        {
+          "line": 10,
+          "text": "Anything else is not a surface update. `createSurface` and `deleteSurface` are the store's business, not the surface's."
+        }
+      ],
+      "caption": "`tree()` rebuilds the nested view from the map when the page paints, marking ids that have not arrived as `{missing: true}`.",
+      "notes": "This is the class a node test can exercise with no browser. A Surface is two fields: components, a Map, and data, a plain object. apply routes one message to one of them. Notice there is no tree here at all. The painter calls tree(), which walks child ids from root and returns a placeholder for any id the map does not hold yet, so missing refs zero in the demo log is a fact about the map, and a child that arrives later fills its placeholder on the next paint. Typing into a field calls set, which is a pointer write into the same object, which is why a Text bound to that path updates without any message from the server."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 03.1 · quick demo",
+      "title": "The spec's contact form: 4 messages, 25 components, 0 missing refs, one repaired rule set",
+      "image": "03_a2ui/step_01_a2ui_messages_by_hand/demo.png",
+      "imageWidth": 4.65,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "25",
+          "label": "components in the map after updateComponents, missing refs 0"
+        },
+        {
+          "value": "3",
+          "label": "check rules repair_checks rewrote so the spec's own stream validates",
+          "color": "amber"
+        }
+      ],
+      "notice": [
+        "The second message fails the spec's own schema at /updateComponents/components/14/checks/0: condition is required.",
+        "After updateDataModel the page shows 8 inputs, first name John, newsletter box checked.",
+        "Clicking Send Message produces a submitContactForm action with its context resolved at click time.",
+        "deleteSurface leaves 0 surfaces on the page; nothing else was ever stored there."
+      ],
+      "caption": "Checkpoint: reorder contact_form.jsonl so a child precedes its parent. The page renders the same form; the map ignores order.",
+      "notes": "The recorded demo replays the four messages from the A2UI v0.9.1 protocol document, unchanged. The first surprise is that message two does not validate: the TextField checks are written in a shape the CheckRule schema does not accept, and the error path is a JSON Pointer into the message. That path format is what the spec asks a client to send back so a model can correct itself; step 03.2 relies on it. After repair, the map holds 25 components with no missing references. The browser shows eight inputs with the data model's values, and a click yields an action whose context was read from the data model at that moment, including isNewsletterSubscribed true."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 03.2 · Level 9 of 23 · declarative generation · your own product",
+      "title": "Prompt-first: the catalog rides in the prompt, so a loop has to check the output",
+      "headline": "Nothing constrains the model at generation time; the protocol pairs the prompt with a **generate, validate, correct** loop.",
+      "bullets": [
+        "DirectJsonFormat renders the Basic Catalog schema into the system prompt.",
+        "DirectJsonStreamParser yields updateComponents as soon as a component is reachable from root.",
+        "Children not seen yet become empty loading_<id> rows, so the page never has a missing ref.",
+        "The full parser repairs small faults such as trailing commas and validates each block.",
+        "On failure the partial surfaces are deleted and the error becomes the next user turn, once.",
+        "The report calls this the cost of the declarative middle: someone has to check."
+      ],
+      "diagram": {
+        "type": "flow",
+        "direction": "right",
+        "nodes": [
+          {
+            "label": "prompt",
+            "sub": "role + workflow rules + catalog schema",
+            "kind": "spec"
+          },
+          {
+            "label": "stream parser",
+            "sub": "progressive updateComponents",
+            "kind": "server"
+          },
+          {
+            "label": "full parser + repair",
+            "sub": "runs on the finished reply",
+            "kind": "server"
+          },
+          {
+            "label": "validate",
+            "sub": "each block against the catalog",
+            "kind": "catalog"
+          },
+          {
+            "label": "correction turn",
+            "sub": "the validator's text, back to the model",
+            "kind": "model",
+            "dashed": true
+          }
+        ],
+        "caption": "Streaming is an optimisation on top of the validated result, never a replacement for it."
+      },
+      "takeaway": "Prompt-first generation is cheap to build and costs a full catalog schema per request, plus a second request whenever validation fails.",
+      "notes": "Level 9. Step 03.1 replayed messages written by people; now the model writes them. A2UI v0.9 is prompt-first: the whole catalog schema goes into the system prompt and the model writes JSON that should match. Nothing enforces that at generation time, so the protocol pairs the prompt with a loop. Walk the diagram left to right. The stream parser paints while the model is still writing, standing an empty loading row in for children it has not seen. When the reply is complete, the full parser repairs and validates. If that fails, every surface the stream created is withdrawn and the validator's message goes back to the model as a user turn. The recorded run needed one attempt; the tests force the second."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.2 · code walkthrough",
+      "title": "The SDK gives three things: a prompt, a stream parser and a full parser",
+      "snippet": {
+        "file": "03_a2ui/step_02_a2ui_from_a_model/prompt.py",
+        "from": "def system_prompt():",
+        "to": "return DirectJsonStreamParser",
+        "maxWidth": 104
+      },
+      "callouts": [
+        {
+          "line": 3,
+          "text": "`include_schema=True` puts the full Basic Catalog JSON schema in the prompt: 41,083 characters before the user types."
+        },
+        {
+          "line": 8,
+          "text": "The stream parser is fed model chunks and yields messages as soon as they are usable. It does not repair."
+        }
+      ],
+      "caption": "`parse_reply()` is the third piece: it runs the full parser on the finished text and raises with the validator's message when the reply cannot be made valid.",
+      "notes": "prompt.py wraps the a2ui-agent-sdk package. system_prompt builds the role paragraph, the SDK's own workflow rules, root first, parents before children, blocks in a2ui-json tags, and then the JSON schema of the entire catalog. That is where the 41 thousand characters come from, and why the request cost 9,929 prompt tokens before a word of user input. stream_parser returns a fresh DirectJsonStreamParser per attempt. It heals cut strings and re-sends components as they grow, but it does not repair syntax; a trailing comma stops it. The full parser, behind parse_reply, does repair and does validate, which is why the final pass always runs even when the progressive pass gave up."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.2 · code walkthrough",
+      "title": "The correction loop: withdraw what streamed, hand the error back, try once more",
+      "snippet": {
+        "file": "03_a2ui/step_02_a2ui_from_a_model/server.py",
+        "from": "text = \"\".join(reply)",
+        "to": "continue",
+        "maxWidth": 136
+      },
+      "callouts": [
+        {
+          "line": 3,
+          "text": "The full parser runs on the finished reply. This is the validated result the page will keep."
+        },
+        {
+          "line": 7,
+          "text": "Every surface the stream created is deleted first. The page must not keep a half-rendered, invalid form."
+        },
+        {
+          "line": 9,
+          "text": "The validator's message becomes the next user turn, and the loop goes round once more; ATTEMPTS is 2."
+        }
+      ],
+      "caption": "Before this block, the same loop fed each chunk to the stream parser and yielded its `updateComponents` messages straight to the page.",
+      "notes": "This is the except branch of the generate loop, the part the README asks the reader to look at. When the finished reply fails the full parser, three things happen in order. First a note goes to the page with the error text. Then, for every surface the streaming pass created, a deleteSurface is sent, so the user is not left with a partially painted form that the server knows is wrong. Then the failed reply and the validator's message are appended to the conversation as an assistant turn and a user turn, and the for loop continues to attempt two. That second attempt costs another ten thousand prompt tokens, which is the price the report attaches to the declarative middle."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 03.2 · quick demo",
+      "title": "createSurface at 4.86s, 38 progressive updates, the final form at 10.81s, one attempt",
+      "image": "03_a2ui/step_02_a2ui_from_a_model/demo.png",
+      "imageWidth": 4.9,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "9,929",
+          "label": "prompt tokens on gpt-4.1-mini; 600 completion tokens",
+          "color": "amber"
+        },
+        {
+          "value": "38",
+          "label": "progressive updateComponents messages before the final one"
+        },
+        {
+          "value": "41,083",
+          "label": "characters of system prompt before the user types"
+        }
+      ],
+      "notice": [
+        "The POST went out at 0.40s; createSurface arrived at 4.86s; the final updateComponents at 10.81s.",
+        "The click at 11.00s posted {firstName: Ada, email: ada@example.com, newsletter: true}; the status Text showed the server's reply.",
+        "Many of the 38 messages are the same components again: the stream parser re-sends a component each time a cut string heals."
+      ],
+      "caption": "Checkpoint: a custom catalog with fewer components is the usual answer to the 41K-character prompt.",
+      "notes": "The numbers to read out. The system prompt is 41,083 characters, about 9.9 thousand tokens, on every request. The first message reached the page four and a half seconds after the POST, and 38 progressive updateComponents messages painted the form before the final validated one at 10.81 seconds. One attempt was enough; no correction turn ran. Then the round trip: typing changed only the local data model, the click resolved the Button's context from it and posted the action, and the server answered with one updateDataModel into the status path its mirror found. Ask the room why so many of the 38 are duplicates; the answer is that the SDK heals cut strings and re-sends."
+    },
+    {
+      "type": "theory",
+      "kicker": "Step 03.3 · Level 10 of 23 · declarative generation · your own product",
+      "title": "A2UI is a generation format and AG-UI is a transport; one CUSTOM event joins them",
+      "headline": "Each layer stops where its vocabulary ends: **A2A** moves messages between agents, **AG-UI** moves runs to a browser, **A2UI** names components.",
+      "bullets": [
+        "AG-UI does not know what a surface is; A2UI does not know what a run is.",
+        "Every A2UI envelope becomes the value of one CUSTOM event named a2ui.",
+        "Correction attempts become STEP_STARTED and STEP_FINISHED; usage rides in RUN_FINISHED.",
+        "A click is a second run; the action and the client data model travel in forwardedProps.",
+        "The official @a2ui/lit renderer replaces render.mjs: markdown Text and catalog functions run.",
+        "This step has no second agent, so A2A is not on the wire; its slot is where run() reads the last user message."
+      ],
+      "diagram": {
+        "type": "layers",
+        "nested": true,
+        "items": [
+          {
+            "label": "A2A",
+            "sub": "agent to agent: A2UI messages as parts of A2A messages"
+          },
+          {
+            "label": "AG-UI",
+            "sub": "agent to browser: a run, ordered events, forwardedProps"
+          },
+          {
+            "label": "A2UI",
+            "sub": "the four envelope messages and the catalog",
+            "kind": "catalog"
+          }
+        ],
+        "caption": "The report's stack. Nothing in A2UI changes to ride AG-UI, and nothing in AG-UI changes to carry it."
+      },
+      "takeaway": "Transport and generation format are separate choices; one AG-UI event type carries the whole A2UI protocol.",
+      "notes": "Level 10, the top of this sub-theme. The report separates where the UI appears from what the agent emits, and this step shows the two side by side. AG-UI, from sub-theme 02, is the transport: a run with a thread id, ordered events on one stream, and forwardedProps for whatever the application must carry. A2UI is the generation format. The join is a single CUSTOM event whose value is one envelope. The diagram nests the report's full stack; A2A would sit outside when a second agent exists, and here its slot is the point where the server reads the last user message. The other swap is the renderer: the official Lit package, which renders markdown and runs catalog functions."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.3 · code walkthrough",
+      "title": "On the page, the join is one case in the event switch",
+      "snippet": {
+        "file": "03_a2ui/step_03_a2ui_lit_and_ag_ui/src/page.mjs",
+        "from": "function onEvent(event) {",
+        "to": "break;"
+      },
+      "callouts": [
+        {
+          "line": 4,
+          "text": "A CUSTOM event named `a2ui` is the whole join. Its value is one A2UI envelope, handed to the official `MessageProcessor`."
+        },
+        {
+          "line": 5,
+          "text": "`processMessages` is `@a2ui/web_core`'s state machine; `A2uiSurface` elements re-render from signals, nothing is torn down."
+        },
+        {
+          "line": 10,
+          "text": "Other CUSTOM names, such as `a2ui.note`, are logged. AG-UI carries them without knowing what they mean."
+        }
+      ],
+      "caption": "The processor was built once over the Lit Basic Catalog, with an alias so the spec's v0_9_1 catalog id resolves to the v0_9 registration.",
+      "notes": "This is the page side of the join. The AG-UI client in agui.mjs splits SSE frames and calls onEvent for each event. The switch has cases for RUN_STARTED, STEP events, TEXT_MESSAGE_CONTENT for the model's prose, and this one. When a CUSTOM event named a2ui arrives, its value goes straight to the processor from @a2ui/web_core, the same object the official renderer uses. No translation, no wrapper. The rest of the case is logging for the demo. Point out what the official renderer does that step 03.1's painter did not: Text renders markdown through an injected renderer, catalog functions such as required and formatDate run, and typing writes into web_core's own DataModel."
+    },
+    {
+      "type": "code",
+      "kicker": "Step 03.3 · code walkthrough",
+      "title": "On the server, one function maps the loop's (kind, payload) pairs onto AG-UI event classes",
+      "snippet": {
+        "file": "03_a2ui/step_03_a2ui_lit_and_ag_ui/server.py",
+        "from": "def to_events(",
+        "to": "yield step(step_name="
+      },
+      "callouts": [
+        {
+          "line": 6,
+          "text": "`kind is None` is an A2UI envelope: it becomes the value of a `CustomEvent` named `a2ui`."
+        },
+        {
+          "line": 10,
+          "text": "Attempts of the correction loop become AG-UI steps, so a client can show 'attempt 2' without reading A2UI."
+        }
+      ],
+      "caption": "Below this, `text` becomes a TEXT_MESSAGE triple, `error` a RUN_ERROR, and `done` a RUN_FINISHED whose result carries the usage. `EventEncoder` writes the frames.",
+      "notes": "The server side of the join. The generate loop from step 03.2 is unchanged except that it now yields step, text, done and error kinds alongside the envelopes. to_events wraps the whole thing: a RunStartedEvent first, then one AG-UI event per pair. An envelope, kind None, becomes a CustomEvent named a2ui. A step pair becomes StepStarted or StepFinished with the attempt number as the step name. Prose becomes a text message triple, and done becomes RunFinished with the token usage in its result. The endpoint validates the body with RunAgentInput and writes each event with EventEncoder. The ag-ui-protocol package, not hand-written SSE lines, owns the wire."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 03.3 · quick demo",
+      "title": "The same form drawn by @a2ui/lit 0.11.0, fed by 54 CUSTOM a2ui events between RUN_STARTED and RUN_FINISHED",
+      "image": "03_a2ui/step_03_a2ui_lit_and_ag_ui/demo.png",
+      "imageWidth": 4.9,
+      "imageHeight": 4.9,
+      "stats": [
+        {
+          "value": "54",
+          "label": "CUSTOM a2ui updateComponents events before RUN_FINISHED at 15.64s"
+        },
+        {
+          "value": "9,929",
+          "label": "prompt tokens; 686 completion tokens, reported in RUN_FINISHED.result",
+          "color": "amber"
+        },
+        {
+          "value": "92",
+          "label": "bytes of client data model carried in forwardedProps with the click",
+          "color": "green"
+        }
+      ],
+      "notice": [
+        "The run started at 1.63s; createSurface arrived at 7.19s; STEP_STARTED and STEP_FINISHED bracket attempt 1.",
+        "The click at 15.78s sent a second run; RUN_FINISHED for it came at 15.81s with {answered: submit}.",
+        "The Text reading # Contact Us is a heading here; in step 03.1 it was raw text. The official renderer renders markdown."
+      ],
+      "caption": "Checkpoint: compare a Text reading # Contact Us here and in step 03.1. The official renderer renders markdown and runs catalog functions; the hand renderer did neither.",
+      "notes": "The recorded page. Same prompt as step 03.2, same generate loop, two swaps. The renderer is the official Lit package, so the heading is a real heading and the catalog's validation functions run. The transport is AG-UI: the run started at 1.63 seconds, createSurface arrived at 7.19, and 54 CUSTOM updateComponents events followed before RUN_FINISHED at 15.64 with the usage in its result. Over fifty events for one form is the SDK's stream parser re-sending reachable components as strings heal; the Lit renderer absorbs them because MessageProcessor updates a component in place. The click became a second run carrying the action and a 92-byte client data model in forwardedProps."
+    },
+    {
+      "type": "result",
+      "kicker": "Step 03.3 · quick demo · the wire of an action run",
+      "title": "A click's whole answer is three lines: RUN_STARTED, one CUSTOM a2ui event, RUN_FINISHED",
+      "output": [
+        "click -> 15.78s action submit from sendButton",
+        "        {\"firstName\":\"Ada\",\"email\":\"ada@example.com\",\"newsletter\":true}",
+        "        15.81s RUN_FINISHED {\"answered\":\"submit\"}",
+        "",
+        "wire of an action run (POST /agent), one AG-UI event per data: line:",
+        "",
+        "data: {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r2\"}",
+        "",
+        "data: {\"type\":\"CUSTOM\",\"name\":\"a2ui\",\"value\":{\"version\":\"v0.9.1\",",
+        "       \"updateDataModel\":{\"surfaceId\":\"main\",\"path\":\"/form/status\",",
+        "       \"value\":\"Server got 'submit' at 15:04:04 with firstName='Ada', ...",
+        "",
+        "data: {\"type\":\"RUN_FINISHED\",\"threadId\":\"t1\",\"runId\":\"r2\",",
+        "       \"result\":{\"answered\":\"submit\"}}"
+      ],
+      "stats": [
+        {
+          "value": "3",
+          "label": "AG-UI events in the action run, answered in 0.03s"
+        }
+      ],
+      "notice": [
+        "The action and the client data model arrived in forwardedProps; AG-UI has no message type for them.",
+        "The answer is one updateDataModel into /form/status, the path the server's mirror found the status Text bound to.",
+        "One threadId for the page, a new runId per generation or click. A surface lives across runs until deleteSurface."
+      ],
+      "caption": "The status Text read: Server got 'submit' at 15:04:04 with firstName='Ada', email='ada@example.com', newsletter=True; client data model had 92 bytes.",
+      "notes": "End on the wire, because it is the proof of the takeaway. A click on the official renderer resolves the Button's context, and the page starts a second AG-UI run with the action and its client data model in forwardedProps. The server routes that run to answer_action without a model call and replies with three frames: RUN_STARTED, one CUSTOM a2ui event carrying an updateDataModel into the status path, and RUN_FINISHED with the answered action name. Nothing in AG-UI changed to carry A2UI, and nothing in A2UI changed to ride AG-UI. The thread id is the page's; the run id is new per click. That is the AG-UI unit, and an A2UI surface outlives it."
+    }
+  ]
+}

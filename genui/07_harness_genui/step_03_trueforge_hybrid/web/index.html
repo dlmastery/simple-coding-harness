@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TrueForge generative UI, catalog plus one artifact</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 24px; font: 15px/1.4 system-ui, sans-serif; background: #f6f7fb; color: #1f2335; }
+    header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+    header h1 { font-size: 18px; margin: 0; color: #3d59a1; }
+    header small { color: #565f89; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+    pre#program { margin: 0; padding: 12px 14px; background: #1f2335; color: #c0caf5; border-radius: 10px; font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; min-height: 200px; }
+    pre#program .new { color: #9ece6a; }
+    .stack { display: flex; }
+    .stack.column { flex-direction: column; }
+    .stack.row { flex-direction: row; flex-wrap: wrap; width: 100%; box-sizing: border-box; }
+    .stack.row > * { flex: 1 1 140px; }
+    .gap-none { gap: 0; } .gap-xs { gap: 4px; } .gap-s { gap: 8px; } .gap-m { gap: 12px; } .gap-l { gap: 16px; } .gap-xl { gap: 24px; }
+    .card { box-sizing: border-box; background: #fff; border: 1px solid #d5d9e6; border-radius: 10px; padding: 14px 16px; }
+    .card-header h2 { margin: 0; font-size: 15px; color: #3d59a1; }
+    .card-header .subtitle { margin: 2px 0 0; color: #565f89; font-size: 13px; }
+    .text { margin: 0; }
+    .text.small { font-size: 13px; color: #565f89; }
+    .text.large-heavy { font-size: 26px; font-weight: 700; color: #3d59a1; }
+    .text.medium-heavy, .text.heavy { font-weight: 700; }
+    .tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 13px; background: #eef1f8; color: #3d59a1; }
+    .tag.success { background: #e3f3d3; color: #3d6b1f; }
+    .tag.warning { background: #f9ecd3; color: #7a5410; }
+    .tag.error { background: #fbdde3; color: #8f2a3b; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #d5d9e6; padding: 6px 10px; text-align: left; }
+    th { background: #eef1f8; color: #3d59a1; }
+    td.num { text-align: right; }
+    .chart svg { width: 100%; height: 150px; }
+    .chart .caption { margin: 4px 0 0; font-size: 12px; color: #565f89; text-align: center; }
+    .pie-box { display: flex; gap: 16px; align-items: center; }
+    .pie { width: 110px; height: 110px; border-radius: 50%; flex: none; }
+    .pie.donut { mask: radial-gradient(circle, transparent 38%, #000 40%); }
+    .legend { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+    .legend li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--swatch); }
+    .pending { border: 2px dashed #b4bcd6; border-radius: 10px; padding: 12px; color: #565f89; font-size: 13px; background: repeating-linear-gradient(45deg, #fff, #fff 8px, #f0f2f8 8px, #f0f2f8 16px); }
+    .unknown { border: 1px solid #e0af68; border-radius: 8px; padding: 8px; font-size: 13px; }
+    .unknown code { display: block; color: #565f89; white-space: pre-wrap; }
+    .artifact { border: 1px solid #e0af68; border-radius: 10px; background: #fff; overflow: hidden; }
+    .artifact[data-state="streaming"] { border-style: dashed; }
+    .artifact-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 12px; background: #fdf6e6; font-size: 13px; }
+    .artifact-status { color: #7a5410; }
+    .artifact-raw { margin: 0; padding: 10px 12px; max-height: 260px; overflow: auto; font: 11px/1.4 ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; color: #565f89; }
+    .artifact-frame { display: block; width: 100%; height: 520px; border: 0; background: #fff; }
+    .artifact-problems { margin: 0; padding: 8px 12px 8px 28px; font-size: 12px; color: #8f2a3b; background: #fbdde3; }
+  </style>
+</head>
+<body>
+  <header><h1>TrueForge generative UI, catalog plus one artifact</h1><small id="status">connecting...</small></header>
+  <main>
+    <div id="surface"></div>
+    <pre id="program"></pre>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

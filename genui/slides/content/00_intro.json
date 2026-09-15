@@ -1,0 +1,123 @@
+{
+  "slides": [
+    {
+      "type": "title",
+      "kicker": "A codelab in 23 steps · companion deck",
+      "title": "Zero to Hero: Generative UI",
+      "subtitle": "When the agent's answer is an interface, not a paragraph. Seven sub-themes, every step with theory, a code walkthrough and a recorded result.",
+      "footer": "github.com/dlmastery/simple-coding-harness · genui/README.md is the written codelab; this deck follows it step by step",
+      "notes": "This deck accompanies the generative UI codelab in the simple-coding-harness repository. Every step in the deck maps to a directory you can run. The slides give the theory and the walkthrough; the README gives the same material in prose with the full code. The motif at the bottom is the pattern the whole series builds towards: catalog components by default, one sandboxed generated view where the catalog does not reach."
+    },
+    {
+      "type": "theory",
+      "kicker": "Why generative UI",
+      "title": "A chat box is the wrong shape for most answers",
+      "headline": "Ask an agent how sales went this week. The best reply is **three numbers, a chart and a button**, not four paragraphs.",
+      "bullets": [
+        "Generative UI is the layer where an agent's output becomes an interface composed at run time.",
+        "The agent still calls a model in a loop; what changes is what the loop emits and what renders it.",
+        "The harness codelab built the loop. This series builds what the user sees.",
+        "Zero: a page that draws one metric card when the model asks for it.",
+        "Hero: the same agent in a browser, a terminal and a host you do not control, on three open formats, with the costs measured."
+      ],
+      "diagram": {"type": "flow", "direction": "right", "nodes": [
+        {"label": "model", "sub": "decides what to show", "kind": "model"},
+        {"label": "spec or events", "sub": "what crosses the wire", "kind": "spec"},
+        {"label": "renderer", "sub": "your catalog, your rules", "kind": "catalog"},
+        {"label": "the user", "sub": "a card, a chart, a button", "kind": "page"}
+      ], "caption": "The loop did not change. The output did, and so did the thing that renders it."},
+      "takeaway": "Every step is a directory you can run, with an offline test and a recorded demo.",
+      "notes": "Start with the problem. Most agent answers are not prose; they are numbers, lists, choices. A chat transcript forces them into paragraphs. Generative UI lets the agent emit an interface. The important framing: the agent loop is unchanged. We only change what it emits and what renders that. That is why this is a companion to the harness codelab rather than a replacement."
+    },
+    {
+      "type": "diagram",
+      "kicker": "The map",
+      "title": "Two choices, not one: where the UI appears, and what the agent emits",
+      "lead": "The State of Generative UI report (June 2026) separates **transport** from **generation**. Every step in this series sits in one cell.",
+      "diagram": {"type": "grid", "cols": ["static generation", "declarative generation", "open-ended generation"], "rows": ["your own product (AG-UI)", "a third-party host (MCP Apps)"], "height": 3.9, "cells": [
+        {"label": "the agent picks a component", "sub": "you drew it; the agent fills props · 01.1, 02.2", "kind": "catalog"},
+        {"label": "a spec from a catalog", "sub": "JSON tree, element map, or a DSL · 01.2, 03, 04, 05, 07", "kind": "catalog"},
+        {"label": "raw HTML in a sandbox", "sub": "five to ten times the tokens · 01.3, 01.4, 04.4", "kind": "open", "dashed": true},
+        {"label": "a prebuilt HTML resource", "sub": "developer-authored, mounted by the host · 06.1", "kind": "host"},
+        {"label": "structured content into a view", "sub": "the view is yours, the data is the tool's · 06.1, 06.2", "kind": "host"},
+        {"label": "not recommended", "sub": "the host, not you, owns the sandbox", "kind": "user", "dashed": true}
+      ]},
+      "takeaway": "Choose the transport first, then the generation mode. They are independent.",
+      "notes": "This grid is the whole series in one picture. Columns are what the agent emits: static, declarative, open-ended. Rows are where the UI appears: your own product over AG-UI, or a third-party host over MCP Apps. The report's advice is to choose the row first, because it is decided by your product, and then the column, which is a cost and control trade. Point at the cells and name the steps."
+    },
+    {
+      "type": "theory",
+      "kicker": "The map · generation modes",
+      "title": "Static, declarative, open-ended: who decides the layout",
+      "bullets": [
+        "**Static.** Components exist before the model runs. The agent selects one and supplies its props. Lowest cost, safest.",
+        "**Declarative.** The agent composes a spec from a catalog: a JSON tree, a flat element map, or a line-oriented language. The renderer walks the spec.",
+        "**Open-ended.** No catalog. The model writes HTML, CSS and JavaScript; the host runs it in a sandboxed iframe. Five to ten times the tokens.",
+        "**Hybrid.** A catalog with one open-ended component in it. The report's recommended default.",
+        "The declarative middle is where the open formats compete: A2UI, OpenUI Lang, json-render."
+      ],
+      "diagram": {"type": "hybrid", "left": ["Heading", "Card", "BarChart", "Button"], "right": "GeneratedView", "rightSub": "sandboxed iframe: open-ended only where the catalog does not reach", "height": 4.2, "caption": "The report's diagram: catalog primitives by default"},
+      "takeaway": "Sub-theme 01 builds all four by hand; sub-theme 04 builds the hybrid on OpenUI's reference implementation.",
+      "notes": "Three modes, one axis. Static is a menu: the agent orders, you cook. Declarative is a kitchen: the agent cooks with your ingredients and your recipes. Open-ended is a blank cheque: anything, at a price, behind glass. The hybrid on the right is the report's answer: keep the catalog as the default and allow one dashed box for the rest."
+    },
+    {
+      "type": "table",
+      "kicker": "The roadmap",
+      "title": "Seven sub-themes, 23 steps, in the order to read them",
+      "columns": ["Sub-theme", "Steps", "You learn"],
+      "colW": [3.0, 3.6, 5.5],
+      "rows": [
+        ["01 Foundations", "static · declarative tree · open-ended HTML · hybrid", "the three modes with no framework, measured in tokens and first paint"],
+        ["02 AG-UI", "server · tools and state · from the harness", "the transport for your own product: runs, events, state patches, client tools"],
+        ["03 A2UI", "by hand · from a model · Lit over AG-UI", "Google's protocol: surfaces, flat components, a separate data model, actions"],
+        ["04 OpenUI Lang", "parser · React renderer · benchmark · html artifact", "the DSL with forward references; the report's token table reproduced; the hybrid on OpenUI's example"],
+        ["05 json-render", "catalog · streaming patches · actions and targets", "Vercel's element map: one catalog for prompt, validator and registry; one spec, two renderers"],
+        ["06 MCP Apps", "an app resource · in a real host · hybrid inside an app", "UI inside a host you do not control: a tool result that carries HTML, a bridge, a CSP"],
+        ["07 In the harness", "render_ui tool · TrueForge generative UI · hybrid on TrueForge", "one agent with two surfaces; a hosted harness's UI language parsed by your own page"]
+      ],
+      "caption": "Read the sub-themes in order the first time. Each one is self-contained after that.",
+      "notes": "The roadmap. Foundations first, because every later library is one of those three mechanisms with a package around it. Then the transport, AG-UI. Then the three declarative formats, each in its own sub-theme, with the benchmark in the middle. Then the other transport, MCP Apps. Finally the two harnesses meet the UI layer."
+    },
+    {
+      "type": "theory",
+      "kicker": "How to read a step",
+      "title": "Every step has the same shape, in the deck and in the README",
+      "bullets": [
+        "**Theory.** The idea in the report's terms, why it comes now, and a diagram.",
+        "**Code walkthrough.** One or two snippets read from the real source at build time, with numbered callouts.",
+        "**Recorded result.** The demo output, its real numbers, and the screenshot the demo script took headlessly.",
+        "**Checkpoint and takeaway** in the README: one thing to try, one sentence to keep.",
+        "Every step directory has an offline test that needs no key, and a Files section that names every file."
+      ],
+      "diagram": {"type": "flow", "direction": "down", "nodes": [
+        {"label": "theory", "sub": "why, in the report's terms", "kind": "model"},
+        {"label": "code walkthrough", "sub": "real snippets, numbered callouts", "kind": "spec"},
+        {"label": "recorded result", "sub": "numbers and the screenshot", "kind": "page"},
+        {"label": "run it yourself", "sub": "cd genui/<sub-theme>/<step> && python demo.py", "kind": "catalog"}
+      ], "height": 4.2},
+      "takeaway": "Numbers on these slides come from recorded runs, never from estimates.",
+      "notes": "Set expectations for the walkthrough format. Each step is three or four slides: theory, code, result. The code on the slides is extracted from the repository when the deck is built, so it cannot drift from what runs. The numbers are the ones the demo scripts printed. When a step could not run something on the recording machine, the slide says so."
+    },
+    {
+      "type": "theory",
+      "kicker": "Setup",
+      "title": "What you need to run every step",
+      "bullets": [
+        "Python 3.10 or newer and Node 22. `pip install -r requirements.txt` from the repository root.",
+        "A key in `API_KEY`, or `OPENAI_API_KEY=...` in `~/.simple-harness/env`. Every step's `llm.py` reads both; `BASE_URL` and `MODEL` are optional.",
+        "`python -m playwright install chromium` once, for the demo screenshots.",
+        "Steps with a browser part have a `package.json`; `npm install` there fetches one or two packages. A few steps run one `esbuild` command for a library that ships no browser build.",
+        "`python run_tests.py genui` runs every offline test; `python check_snippets.py genui` verifies every README snippet against the code."
+      ],
+      "diagram": {"type": "tiles", "items": [
+        {"value": "23", "label": "steps, each a directory you can run"},
+        {"value": "30", "label": "recorded screenshots", "color": "green"},
+        {"value": "0", "label": "keys needed for the tests", "color": "amber"},
+        {"value": "3", "label": "declarative formats measured side by side"},
+        {"value": "2", "label": "transports: AG-UI and MCP Apps", "color": "green"},
+        {"value": "656", "label": "README snippets verified against the code in CI", "color": "amber"}
+      ], "height": 3.0},
+      "notes": "Practicalities. One requirements file, one key, Node for the browser parts. The tests never touch a model, so a reader can verify every step without spending anything. The screenshot count is there because every result slide in this deck shows one of them."
+    }
+  ]
+}
