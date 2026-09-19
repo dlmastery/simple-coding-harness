@@ -3,6 +3,8 @@ import os
 import sys
 from types import SimpleNamespace
 
+import httpx
+import openai
 import pytest
 
 os.environ.setdefault("API_KEY", "x")
@@ -76,7 +78,7 @@ def test_plan_toolset_is_read_only_plus_submit_plan(monkeypatch):
     assert plan.toolset() is tools.TOOL_SCHEMAS
     monkeypatch.setattr(plan, "MODE", "plan")
     names = [s["function"]["name"] for s in plan.toolset()]
-    assert names == ["bash", "read_file", "read_skill", "task", "submit_plan"]
+    assert names == ["bash", "read_file", "read_skill", "recall", "task", "submit_plan"]
     assert not {"write_file", "str_replace", "write_todos", "remember", "forget"} & set(names)
     assert "submit_plan" not in {s["function"]["name"] for s in tools.TOOL_SCHEMAS}
     assert tools.TOOLS["submit_plan"] is plan.submit_plan
@@ -94,6 +96,25 @@ def test_plan_mode_denies_ask_commands_and_edits(monkeypatch):
     assert permissions.check("submit_plan", {"plan": GOOD_PLAN}) == ("allow", None)
     _, result = tools.execute(call("t1", "bash", {"command": "python setup.py"}))
     assert result.startswith("Blocked by policy: plan mode")
+
+
+def test_plan_mode_denies_writes_that_hide_inside_allowed_commands(monkeypatch):
+    monkeypatch.setattr(plan, "MODE", "plan")
+    for command in ("echo hello > pwned.txt", "find . -name '*.pyc' -delete", "echo $(rm -rf x)", "cat a.txt | tee b.txt"):
+        action, reason = permissions.check("bash", {"command": command})
+        assert action == "deny" and "plan mode" in reason, command
+    assert permissions.check("bash", {"command": "ls\nrm -rf x"})[0] == "deny"  # a newline separates commands too
+    assert permissions.check("bash", {"command": "grep -n 'a > b' file.py"}) == ("allow", "run: grep -n 'a > b' file.py")  # quoted, not a redirection
+    assert permissions.check("bash", {"command": "ls 2>&1"}) == ("allow", "run: ls 2>&1")
+    assert permissions.check("recall", {"name": "x"}) == ("allow", None)  # read-only, so offered and allowed
+
+
+def test_submit_plan_is_an_error_outside_plan_mode_and_an_empty_todo_list_keeps_the_plan(monkeypatch):
+    assert plan.submit_plan(GOOD_PLAN) == "Error: not in plan mode"
+    assert plan.MODE == "act" and plan.PLAN is None and todos.TODOS == []
+    monkeypatch.setattr(plan, "PLAN", GOOD_PLAN)
+    assert not plan.done()  # no todos at all is not "every todo completed"
+    assert "<plan>" in context.reminder()["content"] and plan.PLAN is GOOD_PLAN
 
 
 def test_invalid_plan_is_an_error_result_listing_the_problems(monkeypatch):
@@ -211,3 +232,130 @@ def test_loop_smoke_plan_then_approve(quiet, monkeypatch):
     assert "write_file" in offered[2] and "submit_plan" not in offered[2]
     assert "submit_plan" in systems[0] and "submit_plan" not in systems[2]
     assert plan.MODE == "act" and len(todos.TODOS) == 2
+
+
+# ----------------------------------------------- the error paths of the loop
+
+
+def raw_call(cid, name, arguments):
+    """A tool call whose arguments are exactly this string, valid JSON or not."""
+    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
+
+
+def fake_model(monkeypatch, *replies):
+    """A call_llm that plays the replies in order, for the main loop."""
+    queue = list(replies)
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (queue.pop(0), {"prompt_tokens": 1, "completion_tokens": 1}))
+
+
+def test_bad_arguments_unknown_tool_and_a_raising_tool_each_get_one_tool_message(quiet, monkeypatch, tmp_path):
+    fake_model(
+        monkeypatch,
+        FakeMessage(content=None, tool_calls=[
+            raw_call("c1", "read_file", '{"path": '),                                   # cut off mid-stream
+            raw_call("c2", "no_such_tool", "{}"),                                       # a name the registry lacks
+            raw_call("c3", "read_file", json.dumps({"path": str(tmp_path / "no.txt")})),  # the tool raises
+            raw_call("c4", "bash", "[1, 2]"),                                           # JSON, but not an object
+            raw_call("c5", "bash", "{}"),                                               # a required argument missing
+        ]),
+        FakeMessage(content="None of that worked.", tool_calls=None),
+    )
+    messages = agent.turn([{"role": "system", "content": "s"}], "try a few things")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert list(results) == ["c1", "c2", "c3", "c4", "c5"]  # one tool message per call, in reply order
+    assert results["c1"].startswith("Error: the arguments of read_file are not a JSON object:")
+    assert results["c2"] == "Error: no tool named 'no_such_tool'."
+    assert results["c3"].startswith("Error: FileNotFoundError:")
+    assert results["c4"] == "Error: the arguments of bash are not a JSON object: got list"
+    assert results["c5"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1]["content"] == "None of that worked."  # the loop went on to the next reply
+
+
+def test_a_failed_model_call_is_a_note_and_the_transcript_stays_valid(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+
+    def down(messages, tools=None, on_delta=None):
+        raise openai.APIConnectionError(request=httpx.Request("POST", "https://example.invalid/v1"))
+
+    monkeypatch.setattr(agent, "call_llm", down)
+    messages = agent.turn([{"role": "system", "content": "s"}], "hello?")
+    assert [m["role"] for m in messages] == ["system", "user"]  # the prompt stays, nothing dangles
+    assert notes[-1].startswith("model call failed:")
+
+
+def test_ctrl_c_mid_turn_answers_the_pending_tool_calls(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+    fake_model(monkeypatch, FakeMessage(content=None, tool_calls=[raw_call("c1", "bash", json.dumps({"command": "echo hi"}))]))
+
+    def interrupted(tool_calls, allowed=None):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(agent, "execute_all", interrupted)
+    messages = agent.turn([{"role": "system", "content": "s"}], "run it")
+    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": agent.INTERRUPTED}
+    assert notes[-1] == "interrupted"
+
+
+def test_the_turn_stops_after_max_calls(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+    monkeypatch.setattr(agent, "MAX_CALLS", 3)
+    forever = lambda messages, tools=None, on_delta=None: (FakeMessage(content=None, tool_calls=[raw_call("c", "bash", '{"command": "echo again"}')]), {"prompt_tokens": 1, "completion_tokens": 1})
+    monkeypatch.setattr(agent, "call_llm", forever)
+    messages = agent.turn([{"role": "system", "content": "s"}], "loop")
+    assert sum(1 for m in messages if m["role"] == "assistant") == 3
+    assert messages[-1]["role"] == "tool"  # every call answered before the stop
+    assert notes[-1] == "stopped after 3 model calls in one turn; say 'continue' to go on"
+
+
+def test_session_load_repairs_a_dangling_tool_call(tmp_path, monkeypatch):
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    pending = {"role": "assistant", "content": None, "tool_calls": [{"id": "c1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}
+    (tmp_path / "old.jsonl").write_text("".join(json.dumps(m) + "\n" for m in [{"role": "system", "content": "s"}, {"role": "user", "content": "hi"}, pending]), encoding="utf-8")
+    messages = session.load("old")
+    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.UNANSWERED}
+    assert session.repair([{"role": "user", "content": "hi"}]) == [{"role": "user", "content": "hi"}]  # nothing to repair
+
+
+def test_rewind_offers_only_user_messages_and_leaves_no_orphan(tmp_path, monkeypatch):
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "first"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "c1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "c1", "content": "x"},
+        {"role": "assistant", "content": "done"},
+        {"role": "user", "content": "second"},
+        {"role": "assistant", "content": "ok"},
+    ]
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    kept = commands.handle("/rewind", list(messages))
+    assert len(offered) == 2 and "first" in offered[0] and "second" in offered[1]  # never the tool call
+    assert kept == messages[:5]
+    monkeypatch.setattr(ui, "pick", lambda title, rows: 0)
+    assert commands.handle("/rewind", list(messages)) == messages[:1]
+    assert (tmp_path / f"{session.CURRENT}.jsonl").exists()  # a fresh chat got its file before the marker
+
+
+def test_write_todos_rejects_a_bad_status_and_leaves_the_list_alone(monkeypatch):
+    monkeypatch.setattr(todos, "TODOS", [{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
+    before = list(todos.TODOS)
+    assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
+    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs a non-empty string 'activeForm'"
+    assert todos.write_todos("b").startswith("Error:")
+    assert todos.write_todos([{"content": "b", "activeForm": "b", "status": "in_progress"}, {"content": "c", "activeForm": "c", "status": "in_progress"}]).startswith("Error: 2 tasks are in_progress")
+    assert todos.TODOS == before
+
+
+def test_utf8_survives_write_file_read_file_and_bash(tmp_path):
+    path = tmp_path / "näme.txt"
+    text = "héllo wörld — ünïcode ✓\r\nline two\n"
+    assert tools.write_file(str(path), text).startswith("Wrote")
+    assert tools.read_file(str(path)) == text  # bytes and line endings as written
+    assert tools.str_replace(str(path), "", "x") == "Error: old_str is empty; give the exact text to replace"
+    assert tools.bash(f'"{sys.executable}" -X utf8 -c "print(\'ünïcode ✓\')"').strip() == "ünïcode ✓"
+    assert tools.write_file(str(tmp_path / "deep" / "er" / "file.txt"), "x") == f"Wrote {tmp_path / 'deep' / 'er' / 'file.txt'}"  # parents are created

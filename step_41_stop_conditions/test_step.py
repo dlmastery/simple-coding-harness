@@ -6,6 +6,7 @@ runs for real as a subprocess. Nothing else is launched.
 
 import json
 import os
+import sys
 import threading
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,7 +17,7 @@ os.environ.setdefault("API_KEY", "x")
 
 STEP = Path(__file__).resolve().parent
 
-from harness import agent, checkpoint, commands, context, handoff, hooks, instructions, jobs, llm, memory, modes, permissions, plan, sandbox, session, stop, subagent, todos, tools  # noqa: E402
+from harness import agent, checkpoint, commands, context, handoff, hooks, instructions, jobs, llm, mcp_client, memory, modes, permissions, plan, sandbox, session, stop, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
@@ -55,7 +56,9 @@ def fresh(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "SESSION_DIR", tmp_path / "sessions")
     monkeypatch.setattr(session, "CURRENT", "test-session")
     monkeypatch.setattr(session, "WRITTEN", 0)
+    monkeypatch.setattr(session, "ENABLED", True)
     monkeypatch.setattr(hooks, "CONFIG_PATHS", [tmp_path / "hooks.json"])
+    monkeypatch.setattr(mcp_client, "CONFIG_PATHS", [tmp_path / "mcp.json"])
     monkeypatch.setattr(plan, "MODE", "act")
     monkeypatch.setattr(modes, "CURRENT", "default")
     monkeypatch.setattr(todos, "TODOS", [])
@@ -306,3 +309,167 @@ def test_loop_smoke_edit_blocked_tested_finished(fresh, tmp_path, monkeypatch):
     assert seen[-1] == "finish: the turn ends here"
     assert stop.SPENT == pytest.approx(3 * (7 * 2.00 + 4 * 8.00 + 3 * 0.50) / 1_000_000)
     assert stop.tripped(3) is None
+
+
+# ------------------------------------------------- round 2: every call gets a result
+
+
+def test_bad_tool_calls_each_get_a_result_and_the_loop_goes_on(fresh, monkeypatch):
+    """Malformed arguments, an unknown tool and a raising tool: one tool message each, then the model answers."""
+    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{broken"))
+    Scripted([
+        use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"}), call("b4", "bash", {})),
+        say("all four came back as errors"),
+    ]).install(monkeypatch)
+    messages = agent.turn(start(), "go")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert results["b2"] == "Error: no tool named 'no_such_tool'."
+    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b4"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1] == {"role": "assistant", "content": "all four came back as errors"}
+    assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool", "tool", "tool", "assistant"]
+
+
+def test_utf8_round_trip_through_the_file_tools_and_bash(fresh, monkeypatch):
+    monkeypatch.setattr(ui, "approve", lambda reason: "y")  # python -c is rated ask
+    text = "héllo ✓ — ünïcode\r\nline two\n"
+    assert tools.write_file("u.txt", text) == "Wrote u.txt"
+    assert tools.read_file("u.txt") == text  # newline="" keeps the CRLF as it was
+    assert (fresh / "u.txt").read_bytes() == text.encode("utf-8")
+    out = tools.bash(f'{sys.executable} -c "print(\'h\\u00e9llo \\u2713\')"')
+    assert out.strip() == "héllo ✓"
+    assert tools.write_file("deep/er/new.txt", "x") == "Wrote deep/er/new.txt" and (fresh / "deep" / "er" / "new.txt").exists()
+    assert tools.str_replace("u.txt", "", "y").startswith("Error: old_str is empty")
+
+
+def test_write_todos_rejects_a_bad_list_and_keeps_the_old_one(fresh):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+    assert todos.write_todos([{"content": "x", "activeForm": "y", "status": "sideways"}]).startswith("Error: item 0 has status 'sideways'")
+    assert todos.write_todos("nope") == "Error: todos must be a list of items."
+    assert todos.TODOS == [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+
+
+def test_rewind_offers_user_messages_only_so_no_tool_call_is_orphaned(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "t1", "content": "r"},
+        {"role": "assistant", "content": "done one"},
+        {"role": "user", "content": "two"},
+        {"role": "assistant", "content": "done two"},
+    ]
+    session.save(messages)
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    monkeypatch.setattr(ui, "replay", lambda m: None)
+    monkeypatch.setattr(ui, "resumed", lambda m, label="": None)
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    kept = commands.handle("/rewind", messages)
+    assert offered == ["turn 1    one", "turn 2    two"]  # only user rows
+    assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]
+
+
+def test_recover_turns_a_failure_into_error_results(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "p1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "ls"})}}]},
+    ]
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    assert agent.recover(messages) == 1
+    assert messages[-1] == {"role": "tool", "tool_call_id": "p1", "content": "Error: RuntimeError: boom"}
+    assert agent.recover(messages) == 0  # nothing left unanswered
+
+
+def test_headless_without_a_terminal_denies_every_ask_and_exits_one_without_an_answer(fresh, monkeypatch, capsys):
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(ui, "ask", lambda: pytest.fail("print mode must not open the input loop"))
+    Scripted([use(call("t1", "bash", {"command": "python x.py"})), say("")]).install(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["harness", "--mode", "default", "-p", "run it"])
+    with pytest.raises(SystemExit) as stop_:
+        agent.main()
+    assert stop_.value.code == 1  # no answer text: a script can see the run gave nothing
+    assert not session.path_for(session.CURRENT).exists()  # a one-off question leaves no session file, --mode or not
+    assert "denied (no terminal to ask on)" in capsys.readouterr().err
+
+
+def test_exit_words_and_eof_end_the_chat(fresh, monkeypatch):
+    answers = iter(["", "/exit"])
+    monkeypatch.setattr(ui, "ask", lambda: next(answers))
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    monkeypatch.setattr(ui, "summary", lambda: None)
+    monkeypatch.setattr(agent, "turn", lambda *a, **k: pytest.fail("an empty line must not start a turn"))
+    agent.chat(agent.parser().parse_args([]))
+    monkeypatch.setattr(ui, "ask", lambda: None)  # ctrl-d
+    agent.chat(agent.parser().parse_args([]))
+
+
+# ------------------------------------------------- round 2: the budgets' blind spots
+
+
+def test_a_tripped_cost_cap_leaves_the_transcript_alone(fresh, monkeypatch):
+    seen = notes(monkeypatch)
+    monkeypatch.setattr(stop, "MAX_SESSION_COST", 0.1)
+    stop.SPENT = 0.5
+    Scripted([say("never called")]).install(monkeypatch)
+    messages = agent.turn(start(), "hello?")
+    assert roles(messages) == ["system"] and seen[-1].startswith("stopped: this session has cost $0.5000")
+    assert not session.path_for("test-session").exists()  # nothing was saved either
+
+
+def test_a_subagent_stops_on_the_session_budgets_too(fresh, monkeypatch):
+    monkeypatch.setattr(stop, "MAX_SESSION_COST", 1.0)
+    fake = Scripted([use(call("s1", "bash", {"command": "echo hi"}))], usage=USAGE | {"cost": 0.6}).install(monkeypatch)
+    report = subagent.task("look around")
+    assert len(fake.requests) == 2  # 0.6, 1.2: the third call is not made
+    assert report.startswith("(the subagent stopped: stopped: this session has cost $1.2000, over MAX_SESSION_COST=$1.00")
+    ticks = iter(range(0, 10_000, 100))
+    monkeypatch.setattr(stop, "clock", lambda: next(ticks))
+    monkeypatch.setattr(stop, "MAX_TURN_SECONDS", 150.0)
+    stop.reset()
+    stop.begin_turn()
+    fake = Scripted([use(call("s1", "bash", {"command": "echo hi"}))]).install(monkeypatch)
+    assert subagent.task("look around").startswith("(the subagent stopped: stopped after 200s in one turn")
+    assert len(fake.requests) == 1
+
+
+def test_a_denied_finish_is_not_the_answer(fresh, monkeypatch):
+    permissions.SESSION_RULES[("finish", "")] = "deny"
+    try:
+        Scripted([use(call("f1", "finish", {"summary": "all done"})), say("")]).install(monkeypatch)
+        monkeypatch.setattr(stop, "MAX_TURN_CALLS", 2)
+        messages = agent.turn(start(), "go")
+    finally:
+        permissions.SESSION_RULES.clear()
+    assert messages[3]["content"] == "Blocked by policy: deny for this session: finish"
+    assert agent.last_reply(messages) == ""  # the summary of a finish that never ran is nobody's answer
+    messages.append({"role": "assistant", "content": None, "tool_calls": [{"id": "f2", "type": "function", "function": {"name": "finish", "arguments": json.dumps({"summary": "really done"})}}]})
+    messages.append({"role": "tool", "tool_call_id": "f2", "content": "really done"})
+    assert agent.last_reply(messages) == "really done"
+
+
+def test_a_bad_number_in_the_environment_is_a_note_not_a_crash(monkeypatch, capsys):
+    monkeypatch.setenv("MAX_SESSION_COST", "abc")
+    assert stop.env_number("MAX_SESSION_COST", 5.0) == 5.0
+    assert "MAX_SESSION_COST='abc' is not a number; using 5.0" in capsys.readouterr().err
+    monkeypatch.setenv("MAX_SESSION_COST", "2.5")
+    assert stop.env_number("MAX_SESSION_COST", 5.0) == 2.5
+    monkeypatch.setenv("MAX_TURN_CALLS", "12")
+    assert stop.env_number("MAX_TURN_CALLS", 40) == 12
+
+
+def test_every_eval_task_is_its_own_budget_and_records_its_cost(fresh, tmp_path, monkeypatch):
+    from harness import evaluate
+
+    stop.SPENT = 4.9  # nearly spent before the suite: the tasks must not inherit that
+    usage = {}
+    (tmp_path / "task").mkdir()
+    with evaluate.isolated(tmp_path / "task", tmp_path / "sessions", "eval-1", usage):
+        assert stop.SPENT == 0.0
+        ui.usage(USAGE | {"cost": None}, None, cost=0.0125)
+        ui.usage(USAGE, None, cost=0.0125)
+    assert usage["cost"] == pytest.approx(0.025) and usage["prompt_tokens"] == 20
+    assert stop.SPENT == 4.9  # restored for the chat that follows

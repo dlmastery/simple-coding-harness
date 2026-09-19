@@ -294,7 +294,7 @@ TOOLS = {
     **jobs.JOB_TOOLS,
 }
 
-extensions.load_builtin()  # skills, hooks, agents, MCP: read_skill, the checkpoint hook, one agent_<name> tool per definition
+extensions.load_builtin()  # skills, hooks, agents, MCP: read_skill, /hooks and /mcp, one agent_<name> tool per definition
 extensions.load()          # .agents/extensions/*.py and ~/.simple-harness/extensions/*.py, after the built-in ones
 
 

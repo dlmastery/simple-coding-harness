@@ -45,6 +45,7 @@ MUTED = "#565f89"
 
 MAX_TOOL_OUTPUT_LINES = 12
 STREAM_LINES = 8  # lines of live output a running tool's panel shows
+REFRESH_PER_SECOND = 8  # how often the live display redraws the open panels, whatever the line rate
 
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
 
@@ -66,7 +67,7 @@ class ToolStream:
         self.count = 0  # every line seen, including the ones that scrolled off
 
     def __call__(self, line):
-        self.ui.tool_line(self.name, line, self)
+        self.ui.tool_line(self, line)
 
     def __enter__(self):
         self.ui.stream_open(self)
@@ -147,7 +148,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /agent  /handoff  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /agent  /handoff  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -167,7 +168,7 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], parse_args(call["function"].get("arguments")), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -235,12 +236,13 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
+        """The next line from the user: None when they want out (ctrl-d, ctrl-c), "" for an empty line."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -276,7 +278,9 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
+        result = result if isinstance(result, str) else str(result)
+        args = args if isinstance(args, dict) else {"args": args}
+        if name == "write_todos" and isinstance(args.get("todos"), list) and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -298,13 +302,14 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        todos = [t for t in todos if isinstance(t, dict)]
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -352,8 +357,11 @@ class UI:
 
         One live display at a time: a tool panel that opens while the
         spinner turns stops it, and a spinner started while a panel is
-        open shows nothing. The panel stands in for it either way.
+        open shows nothing. The panel stands in for it either way. Off the
+        main thread (a subagent in a pool) there is no spinner at all.
         """
+        if threading.current_thread() is not threading.main_thread():
+            return Quiet()
         return Spinner(self, self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT))
 
     # ------------------------------------------------------- tool streaming
@@ -362,20 +370,11 @@ class UI:
         """A ToolStream for one call: `with ui.streaming("bash", args) as show:` then show(line) per line."""
         return ToolStream(self, name, args)
 
-    def tool_line(self, name, line, stream=None):
-        """One line of output from a running tool, shown at once.
-
-        stream is the ToolStream the line belongs to. Without one, the line
-        joins the newest open stream of that name, or opens a new one.
-        """
+    def tool_line(self, stream, line):
+        """One line of output from a running tool: it joins the stream's panel, which the live display redraws on its own clock."""
         with self._streams_lock:
-            if stream is None:
-                stream = next((s for s in reversed(self._streams) if s.name == name), None)
-                if stream is None:
-                    stream = self.stream_open(ToolStream(self, name, {}))
             stream.lines.append(line)
             stream.count += 1
-            self._redraw()
 
     def stream_open(self, stream):
         """Put a stream's panel on screen. The live display starts with the first one."""
@@ -396,27 +395,34 @@ class UI:
                 self._redraw()
 
     def _render_streams(self):
-        return Group(*(stream.render() for stream in self._streams))
+        with self._streams_lock:  # a reader thread may be appending
+            return Group(*(stream.render() for stream in self._streams))
 
     def _redraw(self):
-        """Draw every open panel. Starts the live display when none is running and the screen is free."""
+        """Start the live display when none is running and the screen is free, or refresh it now.
+
+        The display pulls _render_streams itself, refresh_per_second times
+        a second: a command that prints a million lines costs the screen
+        eight redraws a second, not a million.
+        """
         if not self.live or not self._streams:
             return
         if self._live is None:
             if self._spinner is not None:
                 self._spinner.stop()  # the panel takes over from the spinner
-            live = Live(self._render_streams(), console=self.console, transient=True, refresh_per_second=8)
+            live = Live(get_renderable=self._render_streams, console=self.console, transient=True, refresh_per_second=REFRESH_PER_SECOND)
             try:
                 live.start()
             except LiveError:
-                return  # another live display has the screen for now; the next line tries again
+                return  # another live display has the screen for now; the next open or close tries again
             self._live = live
-        self._live.update(self._render_streams())
+        self._live.refresh()
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats, estimate=None, cost=None):
         """One line per model call. estimate is the harness's count of the prompt it sent; cost is its dollars."""
+        stats = {k: v for k, v in (stats or {}).items() if k != "cost"}  # the API's own figure, when it sends one, is priced by stop and arrives as `cost`
         for key, value in stats.items():
             self._totals[key] = self._totals.get(key, 0) + (value or 0)
         parts = []
@@ -496,13 +502,35 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)
         if hidden > 0:
             body.append(f"\n… {hidden} more lines", style=f"italic {TOOL}")
         return body
+
+
+class Quiet:
+    """A spinner that draws nothing: what working() returns off the main thread."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
+
+
+def parse_args(arguments):
+    """The arguments of a logged tool call as a dict; the raw text under "raw" when they are not JSON."""
+    try:
+        args = json.loads(arguments or "{}")
+    except (ValueError, TypeError):
+        return {"raw": str(arguments)}
+    return args if isinstance(args, dict) else {"raw": str(arguments)}
 
 
 ui = UI()

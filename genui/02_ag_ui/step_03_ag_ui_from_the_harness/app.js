@@ -36,6 +36,7 @@ function showTodos(state) {
 
 let textElement = null;
 const toolElements = {};
+let running = false; // one run at a time: HttpAgent would happily start a second
 
 agent.subscribe({
   onEvent({ event }) {
@@ -45,7 +46,7 @@ agent.subscribe({
     textElement = addMessage("assistant", "");
   },
   onTextMessageContentEvent({ textMessageBuffer }) {
-    textElement.textContent = textMessageBuffer; // the client keeps the buffer
+    if (textElement) textElement.textContent = textMessageBuffer; // the client keeps the buffer
   },
   onToolCallStartEvent({ event }) {
     toolElements[event.toolCallId] = addMessage("tool", `${event.toolCallName}(`);
@@ -61,7 +62,7 @@ agent.subscribe({
     const result = document.createElement("span");
     result.className = "result";
     result.textContent = event.content;
-    toolElements[event.toolCallId].appendChild(result);
+    toolElements[event.toolCallId]?.appendChild(result);
   },
   onCustomEvent({ event }) {
     if (event.name === "permission") addMessage("permission", `permission: ${event.value.reason} -> ${event.value.decision}`);
@@ -82,13 +83,23 @@ agent.subscribe({
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = promptBox.value.trim();
+  if (!text || running) return;
+  running = true;
   addMessage("user", text);
   agent.addMessage({ id: crypto.randomUUID(), role: "user", content: text });
+  const mark = agent.messages.length; // the history a failed run is rolled back to
   wire.textContent = "";
   status.textContent = "running";
   try {
+    // A 4xx/5xx, a dead server or an illegal event order reject here. A
+    // RUN_ERROR does not: the client resolves and keeps the half-built
+    // assistant message, whose tool calls have no results, so the page cuts
+    // the run's messages itself; the API refuses such a history otherwise.
     await agent.runAgent();
   } catch (error) {
     status.textContent = `error: ${error.message}`;
+  } finally {
+    if (status.textContent !== "finished") agent.messages = agent.messages.slice(0, mark);
+    running = false;
   }
 });

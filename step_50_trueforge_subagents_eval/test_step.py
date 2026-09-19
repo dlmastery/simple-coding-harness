@@ -18,7 +18,8 @@ import demo  # noqa: E402
 from client import evaluate, sessions  # noqa: E402
 from client.common import EventIndex, connect  # noqa: E402
 from client.threads import ThreadPrinter, build_spec, run_threads  # noqa: E402
-from tools_server import ToolsServer, free_port  # noqa: E402
+import tools_server  # noqa: E402
+from tools_server import ToolsServer, free_port, port_in_use  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 
@@ -71,6 +72,25 @@ def two_thread_turn():
     ]
 
 
+def error_turn():
+    """The two-thread turn, but the server gives up at the end: the model is unavailable."""
+    script = two_thread_turn()[:-1]
+    script.append(ev("turn.done", id="e8", state={"status": "error", "message": "model unavailable", "completed_at": T0,
+                                                  "metrics": {"total_input_tokens": 30, "total_output_tokens": 12, "total_tokens": 42}}))
+    return script
+
+
+def paused_turn():
+    """A turn that ends waiting for an approval nobody in this step gives."""
+    pause = ev("tool.approval_required", id="e2", thread_id="main", tool_calls=[{"id": "c9", "source_event_id": "m1"}])
+    return [
+        ev("turn.created", id="e1", turn_id="turn-1", state={"status": "running"}),
+        pause,
+        ev("turn.done", id="e3", state={"status": "done", "completed_at": T0, "output": None, "required_actions": [pause],
+                                        "metrics": {"total_input_tokens": 5, "total_tokens": 5}}),
+    ]
+
+
 def stored_events(script):
     """What the server stores: the same turn with deltas merged, as the events endpoint returns it."""
     index, merged = EventIndex(), []
@@ -98,6 +118,8 @@ class FakeTrueForge:
         self.manifests = []
         self.on_turn = None  # optional callable(body) -> script, for the eval test
         self.page_size = 5
+        self.no_turns = False  # list_turns answers with an empty page
+        self.subscribe_cut = None  # subscribe streams only this many events (the connection "drops")
 
     def start(self):
         fake = self
@@ -139,6 +161,13 @@ class FakeTrueForge:
                     return self.send_sse(script)
                 self.send_json({"error": "no route"}, 404)
 
+            def do_DELETE(self):
+                url = urlparse(self.path)
+                fake.requests.append(("DELETE", url.path, None))
+                if url.path.startswith("/api/v1/sessions/"):
+                    return self.send_json({"data": {"id": url.path.rsplit("/", 1)[-1]}})
+                self.send_json({"error": "no route"}, 404)
+
             def do_PUT(self):
                 url = urlparse(self.path)
                 body = self.body()
@@ -157,8 +186,8 @@ class FakeTrueForge:
                     return self.send_json({"data": [{"id": "sess-1", "created_at": "2026-01-01T00:00:00Z", "agent": {"type": "inline"}, "title": "one"}],
                                            "pagination": {"limit": 25}})
                 if parts[-1] == "turns":
-                    return self.send_json({"data": [{"id": "turn-1", "session_id": parts[3], "created_at": T0, "state": {"status": fake.turn_status}}],
-                                           "pagination": {"limit": 25}})
+                    turns = [] if fake.no_turns else [{"id": "turn-1", "session_id": parts[3], "created_at": T0, "state": {"status": fake.turn_status}}]
+                    return self.send_json({"data": turns, "pagination": {"limit": 25}})
                 if parts[-1] == "events":
                     events = stored_events(fake.script)
                     start = int(query.get("page_token") or 0)
@@ -166,7 +195,7 @@ class FakeTrueForge:
                     next_token = str(start + events_page_size) if start + events_page_size < len(events) else None
                     return self.send_json({"data": page, "pagination": {"limit": events_page_size, "next_page_token": next_token}})
                 if parts[-1] == "subscribe":
-                    return self.send_sse(fake.script[int(query.get("after_sequence_number") or 0):])
+                    return self.send_sse(fake.script[int(query.get("after_sequence_number") or 0):fake.subscribe_cut])
                 if len(parts) == 6 and parts[4] == "turns":
                     return self.send_json({"data": {"id": parts[5], "session_id": parts[3], "created_at": T0, "state": {"status": fake.turn_status}}})
                 self.send_json({"error": "no route"}, 404)
@@ -223,14 +252,37 @@ def test_thread_printer_indents_subagent_threads_and_labels_them_in_order():
 def test_run_threads_streams_from_the_fake_server(fake):
     client = connect(fake.url, timeout=10)
     out = io.StringIO()
-    session_id, text, metrics = run_threads(client, "compare in parallel", out=out)
-    assert session_id == "sess-1" and text == "both done" and metrics["total_tokens"] == 42
+    session_id, text, metrics, status = run_threads(client, "compare in parallel", out=out)
+    assert (session_id, text, status) == ("sess-1", "both done", "done") and metrics["total_tokens"] == 42
     created = next(body for method, path, body in fake.requests if path == "/api/v1/sessions")
     assert created["agent"]["spec"]["config"]["dynamic_sub_agents"]["enabled"] is True
+    assert created["agent"]["spec"]["config"]["ask_user_questions"]["enabled"] is False  # nobody answers one here
     assert created["agent"]["spec"]["model"]["name"].startswith("openai/")
     turn = next(body for method, path, body in fake.requests if path.endswith("/turns") and method == "POST")
     assert turn["input"] == [{"type": "user.message", "content": "compare in parallel"}] and turn["stream"] is True
     assert "    t1   said: alpha report" in out.getvalue().splitlines()
+
+
+def test_run_threads_reports_an_error_turn_and_a_paused_turn(fake):
+    client = connect(fake.url, timeout=10)
+    fake.script = error_turn()
+    out = io.StringIO()
+    _, text, metrics, status = run_threads(client, "compare", out=out)
+    assert status == "error" and text == "" and metrics["total_tokens"] == 42  # the tokens spent are kept
+    assert out.getvalue().splitlines()[-1] == "turn done: error (input_tokens=30, output_tokens=12, tokens=42) model unavailable"
+    fake.script = paused_turn()
+    out = io.StringIO()
+    _, text, metrics, status = run_threads(client, "write", out=out)
+    assert status == "done" and text == ""
+    assert "main paused: tool.approval_required for c9 (this client does not resume it)" in out.getvalue().splitlines()
+
+
+def test_a_stream_without_turn_done_is_incomplete(fake):
+    """A dropped connection must not read as a finished turn."""
+    client = connect(fake.url, timeout=10)
+    fake.script = two_thread_turn()[:4]
+    _, text, metrics, status = run_threads(client, "compare", out=io.StringIO())
+    assert (text, metrics, status) == ("", {}, "incomplete")
 
 
 def test_replay_prints_a_finished_turn_from_its_stored_events(fake):
@@ -265,6 +317,16 @@ def test_reconnect_subscribes_while_running_and_replays_when_done(fake):
     assert [t.id for t in turns] == ["turn-1"] and sessions.list_sessions(client)[0].id == "sess-1"
 
 
+def test_reconnect_replays_when_the_live_stream_ends_before_turn_done(fake):
+    """The turn finished between get_turn and subscribe: the subscribe stream is short, the log is complete."""
+    client = connect(fake.url, timeout=10)
+    fake.turn_status, fake.subscribe_cut = "running", 4
+    out = io.StringIO()
+    printer = sessions.reconnect(client, "sess-1", "turn-1", out=out)
+    assert "the live stream ended before turn.done; replaying the stored events" in out.getvalue().splitlines()
+    assert printer.status == "done" and printer.final_text == "both done"
+
+
 def test_tools_server_annotations_and_project_root():
     pytest.importorskip("mcp")
     workspace = Path(__import__("tempfile").mkdtemp())
@@ -287,6 +349,49 @@ def test_tools_server_annotations_and_project_root():
     assert outside.startswith("Error:") and "outside the project root" in outside
     assert inside == "Wrote a/b.txt" and (workspace / "a" / "b.txt").read_text() == "ok"
     shutil.rmtree(workspace, ignore_errors=True)
+
+
+def test_find_bash_prefers_git_bash_over_the_wsl_launcher(monkeypatch, tmp_path):
+    git_bash = tmp_path / "Git" / "bin" / "bash.exe"
+    git_bash.parent.mkdir(parents=True)
+    git_bash.write_text("")
+    monkeypatch.setattr(tools_server, "GIT_BASH", str(git_bash))
+    monkeypatch.setattr(tools_server.shutil, "which", lambda name: r"C:\Windows\system32\bash.exe")
+    assert tools_server.find_bash() == str(git_bash)  # PowerShell's PATH answer is skipped
+    monkeypatch.setattr(tools_server.shutil, "which", lambda name: None)
+    monkeypatch.setattr(tools_server, "GIT_BASH", str(tmp_path / "missing.exe"))
+    assert tools_server.find_bash() is None  # the OS shell then
+
+
+def test_bash_tool_round_trips_utf8_and_kills_a_stuck_command(monkeypatch, tmp_path):
+    pytest.importorskip("mcp")
+    monkeypatch.setattr(tools_server, "BASH_TIMEOUT", 1)
+    with ToolsServer(tmp_path, port=free_port()) as tools:
+        async def probe():
+            from mcp import ClientSession
+            from mcp.client.streamable_http import streamablehttp_client
+
+            async with streamablehttp_client(tools.url) as (read, write, _):
+                async with ClientSession(read, write) as session:
+                    await session.initialize()
+                    await session.call_tool("write_file", {"path": "greek.txt", "content": "\u03c7\u03b1\u03af\u03c1\u03b5\u03c4\u03b5\n"})
+                    dump = "python -c \"import sys; sys.stdout.buffer.write(open('greek.txt', 'rb').read())\""  # the bytes as written
+                    shown = (await session.call_tool("bash", {"command": dump})).content[0].text
+                    slow = "python -c \"import sys, time; print(1); sys.stdout.flush(); time.sleep(30)\""  # prints, then hangs
+                    stuck = (await session.call_tool("bash", {"command": slow})).content[0].text
+                    return shown, stuck
+
+        shown, stuck = asyncio.run(probe())
+    assert shown == "\u03c7\u03b1\u03af\u03c1\u03b5\u03c4\u03b5\n(exit code 0)"
+    assert stuck == "Timed out after 1s and was killed. Output so far:\n1"
+
+
+def test_tools_server_refuses_a_port_that_is_in_use(fake, tmp_path):
+    pytest.importorskip("mcp")
+    taken = int(fake.url.rsplit(":", 1)[1])  # the fake TrueForge already listens there
+    assert port_in_use("127.0.0.1", taken)
+    with pytest.raises(OSError, match="already in use"):
+        ToolsServer(tmp_path, port=taken).start()
 
 
 def test_load_suite_and_the_two_checkers(tmp_path):
@@ -339,6 +444,9 @@ def test_eval_runner_uses_the_real_tools_server_through_the_fake_agent(fake, tmp
     out = io.StringIO()
     report = evaluate.run_suite(client, suite, free_port(), out=out)
     assert report["passed"] == 2 and report["runs"] == 2 and report["pass_rate"] == 1.0
+    deleted = [path.rsplit("/", 1)[-1] for method, path, _ in fake.requests if method == "DELETE"]
+    assert deleted == [t["session_id"] for t in report["tasks"]]  # every task's session is deleted; the report keeps the id
+    assert all(t["status"] == "done" for t in report["tasks"])
     assert report["metrics"] == {"total_input_tokens": 200, "total_output_tokens": 14, "total_tokens": 214}
     by_name = {t["task"]: t for t in report["tasks"]}
     assert by_name["write_hello"]["detail"].endswith("hello.txt has five lines of hello") and by_name["write_hello"]["answer"] == "done"
@@ -350,11 +458,26 @@ def test_eval_runner_uses_the_real_tools_server_through_the_fake_agent(fake, tmp
     assert "pass rate 100%" in out.getvalue() and "report: eval_report.json" in out.getvalue()
 
 
+def test_eval_run_task_fails_a_task_whose_turn_did_not_finish(fake, tmp_path):
+    """An error turn, a paused turn and a cut stream fail with the reason, never through the checker."""
+    pytest.importorskip("mcp")
+    task = evaluate.load_suite(HERE / "evals")[-1]  # write_hello: a check.py that would say "no hello.txt"
+    client = connect(fake.url, timeout=30)
+    for script, status, detail in ((error_turn(), "error", "turn ended error: model unavailable"),
+                                   (paused_turn(), "paused", "turn paused: tool.approval_required"),
+                                   (two_thread_turn()[:3], "incomplete", "the stream ended without turn.done")):
+        fake.script = script
+        result = evaluate.run_task(client, task, free_port(), keep=True)
+        assert (result.passed, result.status, result.detail) == (False, status, detail)
+    assert not any(method == "DELETE" for method, _, _ in fake.requests)  # --keep keeps the session too
+
+
 def test_eval_spec_and_summary_shapes():
     spec = build_spec().spec
     assert spec.config.dynamic_sub_agents.enabled is True and spec.mcp_servers is None
     eval_spec = evaluate.build_spec().spec
     assert eval_spec.mcp_servers[0].require_approval_for_tools == [] and eval_spec.config.iteration_limit == 40
+    assert eval_spec.config.ask_user_questions.enabled is False  # a question would pause the turn for good
     results = [evaluate.Result("a", True, "", "x", 1.5, {"total_tokens": 3}), evaluate.Result("b", False, "run failed", "", 0.5, {})]
     assert evaluate.summarise(results) == {"runs": 2, "passed": 1, "pass_rate": 0.5, "seconds": 2.0, "metrics": {"total_tokens": 3}}
     assert evaluate.summarise([])["pass_rate"] == 0.0
@@ -366,3 +489,17 @@ def test_demo_threads_mode_prints_the_session(fake, capsys):
     assert "session sess-1" in captured and "final answer (9 chars): both done" in captured
     assert demo.main(["--replay", "sess-1", "--base-url", fake.url]) == 0
     assert "replaying its stored events" in capsys.readouterr().out
+
+
+def test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server(fake, capsys, monkeypatch):
+    fake.script = error_turn()
+    assert demo.main(["--threads", "compare", "--base-url", fake.url]) == 1
+    assert "turn done: error" in capsys.readouterr().out
+    fake.no_turns = True
+    assert demo.main(["--replay", "sess-1", "--base-url", fake.url]) == 1
+    assert capsys.readouterr().out.strip() == "session sess-1 has no turns"
+    from trueforge_sdk import TrueForge
+
+    monkeypatch.setattr(demo, "connect", lambda url: TrueForge(base_url=url, max_retries=0))
+    assert demo.main(["--sessions", "--base-url", "http://127.0.0.1:1"]) == 1
+    assert capsys.readouterr().err.startswith("request failed: http://127.0.0.1:1 is not answering")

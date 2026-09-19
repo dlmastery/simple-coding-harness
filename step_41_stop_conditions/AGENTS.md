@@ -7,10 +7,11 @@ loaded and `/init` writes a fresh one from a survey of the project.
 ## Overview
 
 This directory is one step of a series that builds a coding agent, the
-`harness` command, one feature at a time. This step is the capstone: one
-end-to-end task (a FastAPI todo API) run headless through the harness and
-graded by five checks. The task, the runner, the checks, the reference
-solution and the recorded run live in `capstone/`.
+`harness` command, one feature at a time. This step adds stop conditions: the `finish` tool, the MAX_TURN_CALLS,
+MAX_SESSION_COST and MAX_TURN_SECONDS budgets, and the Stop hook, all in
+`harness/stop.py`. The capstone of step 38 (a FastAPI todo API run headless
+and graded by five checks) is still here, in `capstone/`, and runs on this
+harness.
 
 ## Build system
 
@@ -23,8 +24,8 @@ solution and the recorded run live in `capstone/`.
 
 - Whole suite, offline, no key needed: `python -m pytest -q test_step.py`
 - One test: `python -m pytest -q test_step.py -k <name>`
-- From the repository root: `python run_tests.py 38` and
-  `python check_snippets.py 38`.
+- From the repository root: `python run_tests.py 41` and
+  `python check_snippets.py 41`.
 - The capstone itself, with a real model: `python capstone/run.py` with
   `API_KEY`, `BASE_URL` and `MODEL` set. Needs `pip install -e ".[capstone]"`.
 

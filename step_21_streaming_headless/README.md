@@ -6,39 +6,19 @@ written, not after it is finished. The inner loop moves into a function,
 `harness -p PROMPT`, runs one turn without the chat and prints the answer
 to stdout, so the harness can sit inside a script or a pipe.
 
-## Files
+This step forks from **step 15**, not from step 20. Steps 16 to 20 were
+tours of other people's harnesses and of OpenRouter; the hand-built
+harness continues from where step 15 left it. If you come here from step
+20 looking for `/models` and `/route`, they are not in this tree.
 
-```text
-step_21_streaming_headless/
-├── harness/
-│   ├── llm.py         call_llm streams: text deltas, tool calls assembled chunk by chunk
-│   ├── agent.py       turn() runs one user message; -p PROMPT runs one turn headless
-│   ├── ui.py          stream_start / stream_delta / stream_end; headless() to stderr
-│   ├── tools.py       the registry; execute() is the one permission-checked entry point
-│   ├── commands.py    slash commands, unchanged since stage 14
-│   ├── compact.py     the compaction agent from stage 14
-│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
-│   ├── context.py     the late injection block, unchanged since stage 10
-│   ├── history.py     keeps the transcript small: trims old tool output
-│   ├── permissions.py allow / ask / deny rules; which tool calls need a human
-│   ├── prompt.py      the input line, on prompt_toolkit
-│   ├── sandbox.py     an OS sandbox for bash
-│   ├── session.py     append-only JSONL session log, unchanged since stage 14
-│   ├── skills.py      skills, unchanged since stage 9
-│   ├── subagent.py    exploration subagents with their own context window
-│   └── todos.py       the plan: write_todos and the task list
-├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
-├── test_step.py       offline tests against a fake streaming client
-├── pyproject.toml     package metadata; version 0.21.0
-└── README.md          this file
-```
-
-## Why stream
+## Why stream, and what breaks without it
 
 Up to step 15 the harness sent a request and waited. The spinner turned for
 as long as the model took to write its whole reply, and then the reply
 landed at once. For a short answer that is fine. For a long explanation,
-or a model that thinks for a while first, the wait feels broken.
+or a model that thinks for a while first, the wait feels broken: a minute
+of spinner, then a screenful of text, and no way to tell a slow model from
+a hung one.
 
 The chat completions API can send the reply in pieces. With `stream=True`
 the response is not one object but a sequence of chunks. Each chunk holds a
@@ -53,7 +33,9 @@ returns it. The loop in `agent.py` does not know the reply was streamed.
 
 The same rebuilt loop makes headless mode cheap. Once the inner loop is a
 function that takes a message list and a prompt, calling it once from the
-command line is three lines.
+command line is a few lines. Without it, there is no way to use the
+harness from cron, from a Makefile or from another program: the only
+entry point is an interactive prompt that waits for a keyboard.
 
 ## The code, piece by piece
 
@@ -71,15 +53,17 @@ class StreamedMessage:
     role: str = "assistant"
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and the calls if any.
+
+        Nothing else - a reasoning field or an annotation echoed back would
+        be rejected by the next provider along.
+        """
+        entry = {"role": self.role, "content": self.content}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 ```
 
@@ -88,8 +72,10 @@ reads three things from it: `.content`, `.tool_calls` and
 `model_dump(exclude_none=True)`. This dataclass offers the same three. Each
 tool call is a `StreamedToolCall` with `.id` and `.function.name` and
 `.function.arguments`, which is what `tools.execute()` reads. The dict
-from `model_dump` has the same keys as before, so the session file,
-compaction and replay all keep working.
+from `model_dump` has exactly three keys - `role`, `content` and, when
+there are any, `tool_calls` - so the session file, compaction and replay
+all keep working, and nothing a provider adds to its replies (reasoning
+text, annotations) is ever echoed back in the next request.
 
 ### 2. Reading the stream
 
@@ -97,21 +83,28 @@ compaction and replay all keep working.
 
 ```python
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
+    if EXTRA_BODY:
+        request["extra_body"] = EXTRA_BODY
     schemas = TOOL_SCHEMAS if tools is None else tools
     if schemas:
         request["tools"] = schemas
     stream = client.chat.completions.create(**request)
 
-    parts = []          # text deltas, in order
-    calls = {}          # tool call index -> StreamedToolCall
-    final_usage = None  # arrives with the last chunk, which has no choices
+    parts = []           # text deltas, in order
+    calls = {}           # tool call index -> StreamedToolCall
+    final_usage = None   # arrives with the last chunk, which has no choices
+    finish_reason = None
 
     for chunk in stream:
+        if getattr(chunk, "error", None):  # a gateway can answer an error as a chunk
+            raise RuntimeError(f"model call failed: {chunk.error}")
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
             continue
-        delta = chunk.choices[0].delta
+        choice = chunk.choices[0]
+        finish_reason = getattr(choice, "finish_reason", None) or finish_reason
+        delta = choice.delta
         if delta is None:
             continue
 
@@ -121,7 +114,9 @@ compaction and replay all keep working.
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            # fragments of one call share an index; a provider that sends none gets keyed by id
+            key = piece.index if getattr(piece, "index", None) is not None else piece.id or len(calls)
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -131,12 +126,20 @@ compaction and replay all keep working.
                 call.function.name = function.name
             if function.arguments:
                 call.function.arguments += function.arguments
+
+    if finish_reason == "length" and calls:
+        # the arguments stopped mid-JSON: no call is safe to run, say so instead
+        calls = {}
+        parts.append(f"\n{CUT_OFF}")
+        if on_delta:
+            on_delta(f"\n{CUT_OFF}")
 ```
 
 Two request fields turn streaming on. `stream=True` makes the call return
 an iterator of chunks. `stream_options={"include_usage": True}` asks for
 one extra chunk at the end that carries the token counts and has an empty
-`choices` list.
+`choices` list. `EXTRA_BODY` is only set when the base URL is OpenRouter;
+it asks for the price of the call in the same usage chunk.
 
 Text is simple: each delta's `content` is appended to `parts` and handed
 to `on_delta`. The caller decides what to do with it. The main loop prints
@@ -148,7 +151,18 @@ arrives in fragments. Every fragment carries an `index` that says which
 call it belongs to. The first fragment of a call has its `id` and its
 function name. Later fragments carry a few characters of the JSON
 arguments. So the code keeps a dict keyed by index, and concatenates the
-arguments string. When the stream ends, each entry holds one complete call.
+arguments string. When the stream ends, each entry holds one complete
+call. Some gateways send no `index` at all, or `0` for every call; then
+the `id` is the key, so two calls do not get merged into one.
+
+Two things can go wrong on the way, and both are handled here rather than
+in the loop. A gateway that fails mid-stream sends a chunk with an
+`error` field instead of a delta; that becomes a `RuntimeError`, which the
+loop reports as a failed call. And a reply that hits `max_tokens` has
+`finish_reason == "length"`: its tool-call arguments stop mid-JSON, so
+they are thrown away and the text ends with `(reply cut off by
+max_tokens)`. The model sees that note on its next turn and can try again
+with a shorter reply.
 
 ### 3. The same usage dict
 
@@ -158,7 +172,7 @@ arguments string. When the stream ends, each entry holds one complete call.
 def usage_from(chunk_usage):
     """The same usage dict the non-streaming call produced. All None if no usage came."""
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
     return {
@@ -166,10 +180,13 @@ def usage_from(chunk_usage):
         "completion_tokens": chunk_usage.completion_tokens,
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": getattr(chunk_usage, "cost", None),
     }
 ```
 
-The usage keys do not change. `ui.usage()` prints them, and
+The usage keys do not change, except for one addition: `cost`, which
+OpenRouter fills in dollars when asked and every other provider leaves
+`None`. `ui.usage()` prints the counts and the cost, and
 `compact.needed()` reads `prompt_tokens` to decide when to compact. A
 provider that sends no usage chunk gets a dict of `None` values, which
 both callers already treat as zero.
@@ -204,20 +221,28 @@ with `console.out`, which does no wrapping and no markup, and flushed after
 every piece, so it appears immediately. Markdown cannot be rendered on a
 half-finished reply, so the live view is plain text. `ui.agent()` stays as
 it was and still renders markdown; `replay` uses it when a session is
-resumed.
+resumed, which is why a resumed chat looks tidier than the live one did.
 
 `harness/ui.py`:
 
 ```python
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Only the main thread gets one: a second live display from a worker
+        thread is an error in rich, and a subagent may run on a worker.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            return Idle()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 ```
 
 The spinner used to be a context manager built on a generator. Now it
 returns the `rich` status object itself. That object is still a context
 manager, so `with ui.working(...)` in the subagent and in `/compact`
-keeps working. It also has a `.stop()` method, which the loop needs.
+keeps working. It also has a `.stop()` method, which the loop needs. Off
+the main thread it returns `Idle`, a do-nothing stand-in; nothing in this
+step runs there yet, step 22 does.
 
 ### 5. One turn, as a function
 
@@ -227,42 +252,74 @@ keeps working. It also has a `.stop()` method, which the loop needs.
 def turn(messages, user_input, cli=None):
     """One user message, every model call and tool call it leads to.
 
-    Returns the message list, which compaction may have replaced.
+    Returns the message list, which compaction may have replaced. Returns
+    it early, with every tool call answered, when the model call fails or
+    the turn is interrupted.
     """
     debug = getattr(cli, "debug", False)
     messages.append({"role": "user", "content": user_input})
+    session.save(messages)
+    usage = {}
 
-    while True:
-        injection = reminder()
-        ui.injection(injection["content"])
+    try:
+        for _ in range(MAX_CALLS):
+            injection = reminder()
+            ui.injection(injection["content"])
 
-        if history.fit(messages):
-            ui.note("dropped old tool output to make this request fit")
+            if history.fit(messages):
+                ui.note("dropped old tool output to make this request fit")
 
-        spinner = ui.working(active_form())
-        streamed = False
+            spinner = ui.working(active_form())
+            streamed = False
 
-        def on_delta(text):
-            nonlocal streamed
-            if not streamed:
-                spinner.stop()  # the wait is over: the first words are here
-                ui.stream_start()
-                streamed = True
-            ui.stream_delta(text)
+            def on_delta(text):
+                nonlocal streamed
+                if not streamed:
+                    spinner.stop()  # the wait is over: the first words are here
+                    ui.stream_start()
+                    streamed = True
+                ui.stream_delta(text)
 
-        with spinner:
-            message, usage = call_llm(messages + [injection], on_delta=on_delta)
+            try:
+                with spinner:
+                    message, usage = call_llm(messages + [injection], on_delta=on_delta)
+            except (openai.APIError, RuntimeError) as failed:
+                # the user message stays, nothing dangles: the next turn can retry
+                if streamed:
+                    ui.stream_end()
+                ui.note(f"model call failed: {failed}")
+                break
 
-        messages.append(message.model_dump(exclude_none=True))
-        session.save(messages)
+            messages.append(message.model_dump(exclude_none=True))
+            session.save(messages)
 
-        if streamed:
-            ui.stream_end()
-        elif message.content:
-            ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
-        ui.usage(usage)
+            if streamed:
+                ui.stream_end()
+            elif message.content:
+                ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
+            ui.usage(usage)
 ...
-    if compact.needed(usage):
+            for tool_call in message.tool_calls:
+                args, result = execute(tool_call)
+                ui.tool(tool_call.function.name, args, result)
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": result,
+                })
+                session.save(messages)  # after every message, so a crash loses nothing
+        else:
+            ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
+    except KeyboardInterrupt:
+        answer_pending(messages)  # a call was cut off between the reply and its results
+        session.save(messages)
+        ui.note("interrupted")
+
+    history.sweep()          # the turn is over: bin its temp files...
+    history.strip(messages)  # ...and shrink the tool output it produced
+
+    if compact.needed(usage, messages):
         messages = commands.compact(messages)
     return messages
 ```
@@ -278,7 +335,80 @@ header. After that it just prints text. If the model calls tools without
 saying anything, `on_delta` never fires and the spinner runs to the end of
 the call as before.
 
-### 6. Print mode
+Three things bound the turn, and all three leave the transcript in a state
+the API will accept again:
+
+- `MAX_CALLS = 40` model calls. A model that keeps calling tools is
+  looping, not working; the loop stops, says so, and the user can type
+  `continue`.
+- A failed model call (`openai.APIError` for anything the SDK raises, the
+  `RuntimeError` from an in-stream error chunk) ends the turn with a note.
+  The user message stays, no tool call is left unanswered, and the next
+  turn simply retries.
+- ctrl-c during a call or a tool run. `answer_pending()` gives every tool
+  call of the last reply that has no result yet a tool message,
+  `(interrupted before this tool ran)`, so the assistant message is not
+  orphaned. Then the prompt comes back.
+
+`harness/agent.py`:
+
+```python
+def answer_pending(messages):
+    """Give every unanswered tool call a tool message, so the transcript stays valid."""
+    answered = {m.get("tool_call_id") for m in messages if m["role"] == "tool"}
+    last = messages[-1]
+    if last["role"] != "assistant":
+        return
+    for call in last.get("tool_calls") or []:
+        if call["id"] not in answered:
+            messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
+```
+
+### 6. Tool calls that cannot run are results, not exceptions
+
+`harness/tools.py`:
+
+```python
+def execute(tool_call, allowed=None):
+    """Run one tool call through the permission layer. Returns (args, result).
+
+    Shared by the main loop and by subagents, so a subagent is fenced in by
+    exactly the same rules - it is not a way around them. `allowed` is the
+    set of tool names the caller offered; anything else is refused, so a
+    subagent cannot run a tool by naming it.
+    """
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
+
+    name = tool_call.function.name
+    args, problem = parse_args(tool_call)
+    if problem:
+        return args, problem
+    if allowed is not None and name not in allowed:
+        return args, f"Blocked by policy: {name} is not available to this agent"
+    action, reason = check(name, args)
+    if action == "deny":
+        return args, f"Blocked by policy: {reason}"
+    if action == "ask" and not ui.approve(reason):
+        return args, "The user denied this tool call."
+    tool = TOOLS.get(name)
+    if tool is None:
+        return args, f"Error: no tool named {name!r}."
+    try:
+        return args, as_text(tool(**args))
+    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
+        return args, f"Error: {type(failed).__name__}: {failed}"
+```
+
+`execute()` never raises. Arguments that are not a JSON object, a tool
+name that does not exist, a missing required argument, a file that is not
+there: each comes back as an `Error: ...` string and goes into the
+transcript as that call's result. That is not politeness. The API refuses
+a transcript in which an assistant message has a `tool_calls` entry with
+no matching tool message, so a crash between the two would leave a
+session that cannot be resumed. The `allowed` set is for subagents: what
+they may run is exactly what they were offered.
+
+### 7. Print mode
 
 `harness/agent.py`:
 
@@ -297,16 +427,27 @@ def last_reply(messages):
 
     if cli.print:
         ui.headless()
+        if cli.resume:
+            messages = resume_last(messages)
+        else:
+            session.PERSIST = False  # a one-off run leaves no session behind
         messages = turn(messages, cli.print, cli)
-        print(last_reply(messages))
-        raise SystemExit(0)
+        reply = last_reply(messages)
+        print(reply)
+        raise SystemExit(0 if reply else 1)  # empty answer or a failed turn: tell the caller
 ```
 
 `-p` skips the banner and the input loop. It runs one turn on the prompt
 given on the command line, prints the last assistant message with a plain
-`print`, and exits with status 0. Tool calls inside that turn still go
-through the same permissions. A call rated `ask` still prompts on the
-terminal.
+`print`, and exits. The exit code is 0 when there is an answer and 1 when
+there is none - the model ended with tool calls and no text, or the model
+call failed - so a script can tell the two apart. Tool calls inside that
+turn still go through the same permissions.
+
+A one-off run leaves no session file behind (`session.PERSIST = False`),
+so `harness --resume` afterwards still opens your last interactive chat.
+`-p` together with `--resume` does the opposite on purpose: it opens the
+newest saved chat, runs one more turn in it, and saves that turn.
 
 `harness/ui.py`:
 
@@ -322,11 +463,58 @@ off. Tool panels and token counts still show on stderr, so a person
 watching the terminal sees progress. Stdout receives one thing: the
 answer. That is what makes `harness -p "..." > answer.md` work.
 
+`harness/ui.py`:
+
+```python
+    def approve(self, reason):
+        """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
+
+        In print mode nothing may reach stdout, and without a terminal there
+        is nobody to ask: the call is denied and stderr says so.
+        """
+        with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask on: {reason}")
+                return False
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                if self.live:
+                    answer = prompt.read("  allow? (y/n)> ").strip()
+                else:
+                    sys.stderr.write("  allow? (y/n)> ")
+                    sys.stderr.flush()
+                    answer = input().strip()
+            except (EOFError, KeyboardInterrupt):
+                return False
+            return answer.lower().startswith("y")
+```
+
+The one thing in print mode that could still write to stdout is the
+approval prompt, so it is handled here. With a terminal on stdin the
+question goes to stderr and the answer is read from stdin. Without one -
+cron, CI, `< /dev/null` - there is nobody to ask, so the call is denied
+and stderr says which one and why. The model gets "The user denied this
+tool call." either way.
+
 ## Run it
+
+Bash:
 
 ```bash
 pip install -e .
 harness
+```
+
+PowerShell:
+
+```powershell
+pip install -e .
+harness
+```
+
+Then:
+
+```text
 > explain what history.py does, in three paragraphs
 ```
 
@@ -334,7 +522,7 @@ The spinner turns briefly, then the `agent` header appears and the text
 fills in word by word. The token line prints once the stream ends. Ask
 for something that needs tools:
 
-```bash
+```text
 > list the python files here and count their lines
 ```
 
@@ -342,11 +530,18 @@ The spinner runs for the whole first call, because the model answers with
 tool calls and no text. The tool panels print, then the final reply
 streams in.
 
-Print mode:
+Print mode, bash:
 
 ```bash
 harness -p "what does harness/history.py do? one sentence" > answer.txt
 cat answer.txt
+```
+
+PowerShell:
+
+```powershell
+harness -p "what does harness/history.py do? one sentence" > answer.txt
+Get-Content answer.txt
 ```
 
 Tool panels and token counts go to the terminal through stderr.
@@ -357,6 +552,93 @@ Run the offline tests from the repository root:
 ```bash
 python run_tests.py 21
 ```
+
+### Expected output
+
+```text
+──────────────────────────── coding agent ─────────────────────────────
+  sandbox: none  ·  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> list the python files here and count their lines
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │ bash {"command": "wc -l harness/*.py"}                      │
+  │ ─────────────────────────────────────────────────────────── │
+  │   183 harness/agent.py                                      │
+  │   ...                                                       │
+  └─────────────────────────────────────────────────────────────┘
+
+  agent
+
+  There are 16 Python files under harness/, 1,900 lines in total. The
+  largest is llm.py ...
+
+  1,842 prompt · 96 completion
+```
+
+And in print mode:
+
+```text
+$ harness -p "what does harness/history.py do? one sentence" > answer.txt
+  1,650 prompt · 31 completion            <- stderr
+$ cat answer.txt
+It keeps the transcript small: caps fresh tool output, stubs it once the turn is over, and drops it whole when a request would not fit.
+$ echo $?
+0
+```
+
+## Error handling
+
+- **A bad tool call.** Arguments that are not a JSON object give
+  `Error: the arguments of bash are not a JSON object: ...`; a name the
+  registry does not know gives `Error: no tool named 'nope'.`; a missing
+  required argument gives `Blocked by policy: bash: missing argument
+  'command'` (from `permissions.check`) or `Error: TypeError: ...` (from
+  the tool itself). Each is that call's result; the loop goes on.
+- **A failing command.** `bash` returns the combined output and, on a
+  timeout, `Timed out after 60s and was killed. Output so far: ...`. The
+  command and everything it started are killed, not just the shell.
+- **A dead model call.** Any `openai.APIError` - wrong key, 429, 5xx, a
+  network error - or an error chunk in the stream ends the turn with
+  `model call failed: ...`. Nothing is lost: the user message is in the
+  transcript, and the next turn retries. In print mode this exits 1.
+- **ctrl-c.** During a model call or a tool run, the turn ends with every
+  pending tool call answered `(interrupted before this tool ran)` and the
+  prompt comes back. A second ctrl-c at the empty prompt leaves.
+- **Leaving.** `/exit` or `/quit`, ctrl-d, or on Windows ctrl-z then
+  enter. An empty line does nothing.
+- **A session cut short.** If the process died between a reply and its
+  tool results, `session.load()` appends `(the harness stopped before this
+  tool ran; no result was recorded)` for each missing one, so `--resume`
+  still works.
+
+## Gotchas / What this is not
+
+- **The tool named `bash` runs `cmd.exe` on Windows.** `sandbox.run` uses
+  `shell=True`, and there is no sandbox on Windows: the banner says
+  `sandbox: none`. Only the permission rules stand between the model and
+  the disk.
+- **Print mode is headless, not unattended.** Without a terminal every
+  `ask` is denied; with one, the question appears on stderr. There is no
+  `--yes` flag. If a scripted run needs a command the rules rate `ask`,
+  add the pattern to `BASH_RULES` or give the model a way that is
+  already allowed.
+- **Print mode saves nothing** unless `--resume` is given. A cron job
+  will not fill `~/.simple-harness/sessions` with one file per run.
+- **Reasoning is not shown.** Providers that stream `reasoning` deltas
+  (OpenRouter, DeepSeek) get them dropped: the spinner keeps turning until
+  the first `content` delta, so thinking time looks like latency. The
+  transcript never echoes reasoning back either, which some providers
+  require for multi-step tool use; if a model degrades after the first
+  tool call, that is why.
+- **The live view is plain text; replay is markdown.** A resumed session
+  looks different from the live one. That is a display difference only.
+- **`stream_options={"include_usage": True}`** is an OpenAI extension
+  that most gateways support. When a provider ignores it, the usage dict
+  is all `None`, the token line is empty, and compaction never triggers
+  on its own. `/compact` still works.
+- **Not a retry layer.** A failed call ends the turn; retrying is the
+  user's choice. Step 34 adds retries.
 
 ## What to notice
 
@@ -370,13 +652,37 @@ python run_tests.py 21
 - The subagent and the compaction agent call the same `call_llm` and pass
   no `on_delta`. Their replies are assembled silently. Only the main
   agent's text is worth streaming to the screen.
-- `stream_options={"include_usage": True}` is an OpenAI extension that
-  most gateways support. When a provider ignores it, the usage dict is
-  all `None`, the token line is empty, and compaction never triggers on
-  its own. `/compact` still works.
-- Print mode keeps the permission rules. It is headless, not unattended.
-  A denied command still returns "The user denied this tool call." to
-  the model.
+- Every failure has a place in the transcript. A crash mid-turn used to
+  mean a session file with an orphaned tool call, which the API refused
+  on resume. Now a tool error is a tool result, a dead call ends the turn
+  cleanly, and `session.load` repairs what an older crash left behind.
+
+## Files
+
+```text
+step_21_streaming_headless/
+├── harness/
+│   ├── llm.py         call_llm streams: text deltas, tool calls assembled chunk by chunk
+│   ├── agent.py       turn() runs one user message; -p PROMPT runs one turn headless
+│   ├── ui.py          stream_start / stream_delta / stream_end; headless() to stderr
+│   ├── tools.py       the registry; execute() is the one permission-checked entry point
+│   ├── commands.py    slash commands: /rewind /sessions /compact /exit
+│   ├── compact.py     the compaction agent from stage 14
+│   ├── config.py      settings: real env vars win, ~/.simple-harness/env fills gaps
+│   ├── context.py     the late injection block, unchanged since stage 10
+│   ├── history.py     keeps the transcript small: caps, strips and drops old tool output
+│   ├── permissions.py allow / ask / deny rules; which tool calls need a human
+│   ├── prompt.py      the input line, on prompt_toolkit
+│   ├── sandbox.py     an OS sandbox for bash; kills the whole process tree on timeout
+│   ├── session.py     append-only JSONL session log; load() repairs a cut-off turn
+│   ├── skills.py      skills, unchanged since stage 9
+│   ├── subagent.py    exploration subagents with their own context window
+│   └── todos.py       the plan: write_todos and the task list
+├── .agents/skills/explain-code/SKILL.md   the stage 4 skill
+├── test_step.py       offline tests against a fake streaming client
+├── pyproject.toml     package metadata; version 0.21.0
+└── README.md          this file
+```
 
 ## Diff from step 15
 
@@ -385,6 +691,13 @@ diff -r ../step_15_subagents/harness harness
 ```
 
 Changed: `llm.py` (streaming, `StreamedMessage`, `usage_from`,
-`on_delta`), `ui.py` (`stream_start`, `stream_delta`, `stream_end`,
-`headless`, `working` returns the status object), `agent.py` (`turn`,
-`last_reply`, `-p`). Everything else is unchanged from step 15.
+`on_delta`, `finish_reason`), `ui.py` (`stream_start`, `stream_delta`,
+`stream_end`, `headless`, `working` returns the status object,
+`approve` in print mode), `agent.py` (`turn`, `answer_pending`,
+`last_reply`, `-p`), `session.py` (`PERSIST`, `repair`).
+
+## What the next step adds
+
+Step 22 runs the tool calls of one reply side by side: `execute()` splits
+into `decide()` and `run()`, and a thread pool runs the allowed calls
+together.

@@ -351,6 +351,7 @@ def chat(cli):
         modes.set_mode(cli.mode)  # before the banner and the first check
     if cli.print:
         ui.headless()
+        session.QUIET = not cli.resume  # a one-shot run leaves no session file behind; with --resume it appends to the one it opened
     else:
         ui.banner(sandbox.name(), modes.current())
     if not sys.stdin.isatty():

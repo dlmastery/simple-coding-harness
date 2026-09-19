@@ -13,6 +13,7 @@ is stage 15, unchanged since stage 14.
 """
 
 import json
+import os
 import time
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +22,7 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
+QUIET = False  # True for a -p run without --resume: the answer goes to stdout and no log is left behind
 NL = "\n"
 
 clock = time.time  # the stamp on every entry; a name the tests can replace
@@ -31,7 +33,9 @@ def path_for(session_id):
 
 
 def log(session_id=None):
-    """The log file of a session, opened for appending; the directory is made on the way."""
+    """The log file of a session, opened for appending; the directory is made on the way. Nowhere, when QUIET."""
+    if QUIET and session_id is None:
+        return open(os.devnull, "a", encoding="utf-8")
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     return path_for(CURRENT if session_id is None else session_id).open("a", encoding="utf-8")
 

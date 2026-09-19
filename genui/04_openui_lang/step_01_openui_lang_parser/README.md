@@ -133,7 +133,9 @@ def split_statements(text: str) -> tuple[list[str], str]:
 
     A statement ends at a newline that is outside every bracket and string.
     Text after the last such newline is held back as `pending`: it is a line
-    the model has not finished yet.
+    the model has not finished yet. A string never spans lines: a line with
+    an unclosed string ends at its newline (and is reported as an error), so
+    one bad line cannot swallow the rest of the program.
     """
     complete: list[str] = []
     depth, in_str, esc = 0, False, False
@@ -144,13 +146,29 @@ def split_statements(text: str) -> tuple[list[str], str]:
             depth += 1
         elif c in ")]}":
             depth = max(0, depth - 1)
-        elif c == "\n" and depth == 0:
-            line = text[start:i].strip()
-            if line:
-                complete.append(line)
-            start = i + 1
+        elif c == "\n":
+            if in_str:  # an unclosed string: the line is broken, end it here whatever the brackets say
+                in_str, depth = False, 0
+            if depth == 0:
+                line = text[start:i].strip()
+                if line:
+                    complete.append(line)
+                start = i + 1
     return complete, text[start:]
 ```
+
+A stray `"` used to be the one character that could blank the page: with
+`in_str` carried across newlines, every following line was "inside the
+string" and held back as pending. Now the string ends with its line, that
+line is a parse error, and the next line parses as usual. Brackets are
+still allowed to span lines (a list written over several lines is one
+statement), so a stray `[` does hold back the lines after it until a
+matching `]` arrives; step 07's parser closes that gap too.
+
+The resolver memoises: a statement referenced twice (`Stack([b, b])`) is
+resolved once and the same node is placed twice. Without the `resolved`
+map, ten levels of `a = Stack([b, b])`, `b = Stack([c, c])` cost 2^10
+resolutions per push, and a model can write that by accident.
 
 The tokenizer decides what a word is by its first letter. PascalCase is a
 component, anything else is a reference:
@@ -270,7 +288,29 @@ window.openui = {
 `/stream` sends `program.oui` one line per SSE message, with an optional
 delay so the skeleton is visible to a human.
 
+## Why: what breaks without it
+
+Without a streaming grammar the page waits. A JSON tree of the same
+dashboard is one object whose closing brace is the last token the model
+writes; nothing can be drawn before it, and a parser that is fed half of it
+raises. With one statement per line and hoisted references, the first line
+of the program is already a renderable layout. The demo shows the
+difference in numbers: after three of twelve lines there are six skeleton
+boxes on screen; the JSON equivalent has zero elements until the end.
+
+The parser also has to survive what a model writes. A stray quote, a
+bracket nested past the interpreter's limit, a table row that is a string
+instead of a list: each of these used to stop the page (the parser threw,
+`show()` never ran again). Each is now an error line or a coerced value,
+and the lines after it still render.
+
 ## Run it
+
+No API key and no `npm install`: the program is a fixed file and the page
+has no dependencies. Playwright and its Chromium are needed for `demo.py`
+only (`pip install playwright` then `playwright install chromium`).
+
+bash:
 
 ```
 python server.py            # http://127.0.0.1:8004/  (two buttons on the page)
@@ -278,6 +318,65 @@ python demo.py              # parse, stream, and take the two screenshots
 python -m pytest -q         # the Python suite; it also runs `npm test`
 npm test                    # the JavaScript suite alone (no npm install needed)
 ```
+
+PowerShell: the same four commands, unchanged (`python server.py`,
+`python demo.py`, `python -m pytest -q`, `npm test`).
+
+Expected output: the `Quick demo` transcript above, for `python demo.py`.
+`python server.py` prints one line, `http://127.0.0.1:8004/`, and serves
+until ctrl-c; on the page, `Stream` draws the program one line every 400
+ms and `Render all` draws it at once. The status line under the buttons
+reads `12 statements, 0 unresolved` when the stream is done.
+
+## Error handling
+
+- A line with an unclosed string is a parse error for that line only
+  (`result.errors`; the demo prints `errors: []`), and the page keeps
+  rendering the rest.
+- Brackets nested deeper than Python's recursion limit (thousands of `[`)
+  are a `RecursionError` in `parse_expression`; `parse_program` catches it
+  and records the line as an error instead of crashing `parse()`. The
+  JavaScript parser's `try/catch` already covered it.
+- A table row that is not a list (`Table(["a"], ["x"])`) is drawn as a
+  one-cell row, not thrown from `render()`.
+- `?delay=abc` on `/stream` is 0; `?delay=99999` is clamped to 5 s per
+  line (`clamp_delay`). A tab closed mid-stream is a `ConnectionError`
+  the handler swallows; nothing is printed.
+- If the connection drops before `event: done`, `EventSource` reconnects
+  and the server replays from line 1. `app.js` resets the parser in
+  `onopen` when its buffer is non-empty, so the program is not appended
+  to itself, and `onerror` puts "stream lost, reconnecting" in the status.
+- Leaving: ctrl-c stops `server.py`; the page has nothing to leave.
+
+## Gotchas / What this is not
+
+- This is the core of OpenUI Lang, not the language: no expressions, no
+  `$state`, no `Query`/`Mutation`, no `@builtins`, no keyword arguments.
+  Numbers have no exponent form and there are no object literals. The
+  grammar the parser accepts, in one screen:
+
+  | form | example |
+  | --- | --- |
+  | statement | `name = expression` (one per line; `name` is `[A-Za-z_]\w*`) |
+  | string | `"text"`, JSON string syntax (JSON escapes); never spans a line |
+  | number | `42`, `-1.5` |
+  | bool / null | `true`, `false`, `null` |
+  | list | `[a, "b", 3]`, may span lines |
+  | call | `Component(arg, arg)`; PascalCase names are components |
+  | reference | any other word; may name a later statement |
+  | comment / fence | `# ...` and `// ...` outside strings, and markdown fences, are stripped |
+
+- The resolver is re-run on the whole buffer at every push. Cost grows
+  with program size; the reference implementation caches finished
+  statements. For a twelve-line program it does not matter.
+- The tree the page renders is the *resolved* tree: a statement referenced
+  twice appears twice in the DOM. `resolved` makes that cheap, not shared.
+- A stray `"` ends with its line; a stray `[` does not, so the lines after
+  it are held back until a `]` arrives (step 07 closes that gap by
+  starting a new statement at the next `name =` line).
+- The catalog decides argument names, so reordering `properties` in
+  `catalog.json` changes what a program means. That is the contract, not
+  a bug.
 
 ## What to notice
 
@@ -296,3 +395,8 @@ npm test                    # the JavaScript suite alone (no npm install needed)
   so a half-written statement renders too.
 - The Python and JavaScript parsers produce byte-identical trees for
   `program.oui`; `test_step.py` checks that.
+
+## What the next step adds
+
+Step 02 replaces both hand parsers with `@openuidev/lang-core` and
+`@openuidev/react-lang`, and lets a real model write the program.

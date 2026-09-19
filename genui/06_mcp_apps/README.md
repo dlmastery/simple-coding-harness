@@ -92,3 +92,25 @@ stdio configuration that points it at the server. Step 03 keeps step 01's
 bridge, client and resource policy unchanged and changes what the tool
 returns and what the view does with it: the report's hybrid, with the
 open-ended part in a second sandbox inside the first.
+
+## Who trusts whom
+
+Four parties, and every mechanism in the sub-theme defends one boundary
+between two of them:
+
+| boundary | who is on the far side | what defends it |
+| --- | --- | --- |
+| host page vs view | the MCP server's HTML | `sandbox="allow-scripts"` (opaque origin, no host DOM, no storage), the CSP from `cspFor` in a `<meta>` right after the doctype, `isDomain` on every declared domain, `textContent` for tool names and URIs |
+| view vs host (messages) | anything that can post to the host window | `event.source === iframe.contentWindow` in `attach()`, the JSON-RPC shape check in `handle()`, the tool allowlist (`allowedTool`: listed and app-visible), `ui://` only for reads, `http(s):` only for links |
+| host vs view (messages) | the host, from the view's side | `event.source === window.parent` in `view.html` |
+| model vs server | the tools the model may name | `toolsForModel` offers only tools whose `visibility` includes `"model"`; one `tool` message per `tool_call`, error or not |
+| view vs region (step 03) | model-written HTML inside the view | a second `srcdoc` sandbox with a stricter CSP, `isEvent` and `event.source === generated.contentWindow` |
+| app vs prompt (step 03) | text the view sends the host | `ui/update-model-context` goes in as a labelled, capped **user** note, never a system message |
+
+Known gaps, stated once: a `<meta>` CSP is set by the document that
+carries it and can be evaded by a document that gets ahead of it (the
+injection point closes the two cases the tests pin; the production
+shape is an HTTP header from a second origin); no CSP stops a frame from
+navigating itself; `ui/message` and `ui/update-model-context` are, by
+spec, channels from the app into the chat and the prompt, and a stricter
+host asks the user before forwarding either.

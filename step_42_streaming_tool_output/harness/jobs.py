@@ -31,6 +31,7 @@ from . import sandbox, streaming
 TAIL_LINES = 20     # lines of the log a status report shows
 KILL_GRACE = 2      # seconds a job gets to end on its own before the next, harder step
 DEFAULT_WAIT = 60   # seconds job_wait blocks when the model gives no timeout
+MAX_WAIT = 300      # the most one job_wait may block, whatever the model asks for
 
 JOBS = {}                 # job id -> Job, in start order
 _lock = threading.Lock()  # guards the counter: tool calls can come from a thread pool
@@ -48,21 +49,27 @@ class Job:
     killed: bool = False  # True when job_kill or kill_all ended it
     reader: object = None  # the streaming.Reader that fills the log
     on_line: object = None  # set while job_wait shows the job live: each new line goes here too
+    handle: object = None  # the open log file the reader writes to; closed by settle()
 
     def running(self):
         return self.process.poll() is None
 
     def record(self, line):
-        """The reader's callback: one line to the log, and to the screen when someone is waiting."""
-        with open(self.log, "a", encoding="utf-8") as out:
-            out.write(line + "\n")
+        """The reader's callback: one line to the log, flushed at once, and to the screen when someone is waiting."""
+        if self.handle is None:
+            self.handle = open(self.log, "a", encoding="utf-8")  # noqa: SIM115 - one handle for the job's life, closed by settle()
+        self.handle.write(line + "\n")
+        self.handle.flush()  # job_status reads the file: every line must be in it
         if self.on_line is not None:
             self.on_line(line)
 
     def settle(self):
-        """Wait for the reader's last lines once the process has ended, so the log is complete."""
+        """Wait for the reader's last lines once the process has ended, so the log is complete, and close it."""
         if self.reader is not None and not self.running():
-            self.reader.join()
+            self.reader.join(streaming.JOIN_GRACE)
+            if self.handle is not None:
+                self.handle.close()
+                self.handle = None
 
     def tail(self):
         """The last TAIL_LINES lines of the log, or a note that there are none."""
@@ -189,6 +196,7 @@ def job_wait(job_id: str, timeout: int = DEFAULT_WAIT) -> str:
         return job
     from .ui import ui  # here, not at the top: ui is built on top of the tools
 
+    timeout = max(1, min(int(timeout or DEFAULT_WAIT), MAX_WAIT))  # a wait is bounded, whatever the model asks for
     with ui.streaming(job.id, {"command": job.command}) as show:  # the wait is the one time someone is watching
         job.on_line = show
         try:

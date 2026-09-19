@@ -368,3 +368,85 @@ def test_run_py_parses_its_flags():
     assert capstone.short_args("bash", json.dumps({"command": "dir"})) == "dir"
     assert capstone.short_args("write_file", json.dumps({"path": "a.py", "content": "x"})) == "a.py"
     assert capstone.short_args("bash", "{not json") == "{not json"
+
+
+# ------------------------------------------------------- the fixed checks
+
+
+def test_the_readme_check_accepts_the_uvicorn_command_in_any_run_section(evals, tmp_path, monkeypatch):
+    """A README that documents running the tests before running the server is not penalised."""
+    workspace = tmp_path / "ws"
+    shutil.copytree(REFERENCE, workspace, ignore=shutil.ignore_patterns("__pycache__"))
+    (workspace / "README.md").write_text(
+        "# Todo API\n\n## Run the tests\n\n    python -m pytest -q\n\n## Run the server\n\n    uvicorn app:app --reload\n", encoding="utf-8",
+    )
+    same_manifest(tmp_path, monkeypatch)
+    report = evaluate.run_suite(evals, workspace=workspace)
+    readme = by_name(report)["4_readme"]
+    assert readme["passed"] and "'Run the server'" in readme["detail"]
+
+    (workspace / "README.md").write_text("# Todo API\n\nA small todo service with a SQLite file behind it.\n\n## Run the tests\n\n    python -m pytest -q\n", encoding="utf-8")
+    report = evaluate.run_suite(evals, workspace=workspace)
+    assert not by_name(report)["4_readme"]["passed"] and "no run section names the uvicorn command" in by_name(report)["4_readme"]["detail"]
+
+
+def test_a_missing_workspace_directory_is_an_error_not_an_empty_grade(evals, tmp_path):
+    with pytest.raises(FileNotFoundError):
+        evaluate.run_suite(evals, workspace=tmp_path / "does" / "not" / "exist")
+
+
+def test_error_marks_count_every_kind_of_failed_result():
+    from harness import durability
+
+    for result in ("Error: x", "Timed out after 60s", "Blocked by policy: rm", "Blocked by hook: no", tools.DENIED, tools.INTERRUPTED, durability.REPEATED):
+        assert result.startswith(capstone.ERROR_MARKS), result
+    assert not "7 passed in 1.2s".startswith(capstone.ERROR_MARKS)
+
+
+def test_the_last_line_of_a_capped_result_is_the_output_not_the_notice():
+    from harness import history
+
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "capped-1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "pytest"})}}]},
+        {"role": "tool", "tool_call_id": "capped-1", "content": f"line one\n2 failed, 1 passed\n\n{history.TRIMMED} 8856 more chars. Run the command again if you need them.]"},
+    ]
+    _, step = capstone.summarise_transcript(messages)
+    assert step["calls"][0]["result"] == "2 failed, 1 passed" and step["calls"][0]["error"]
+
+
+def test_the_temp_directories_go_even_when_the_run_is_interrupted(evals, tmp_path, monkeypatch):
+    made = []
+    real = capstone.tempfile.mkdtemp
+
+    def tracked(prefix=""):
+        path = real(prefix=prefix)
+        made.append(Path(path))
+        return path
+
+    monkeypatch.setattr(capstone.tempfile, "mkdtemp", tracked)
+
+    def interrupted(*args, **kwargs):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(evaluate, "run_suite", interrupted)
+    monkeypatch.setattr(agent, "call_llm", scripted(SOLVE)[0])
+    monkeypatch.setattr(llm, "call_llm", scripted(SOLVE)[0])
+    with pytest.raises(KeyboardInterrupt):
+        capstone.run(evals=evals, out=tmp_path / "out")
+    assert len(made) == 2 and not any(path.exists() for path in made)
+
+
+def test_bad_arguments_and_an_unknown_tool_are_error_results_and_the_run_goes_on(evals, tmp_path, monkeypatch):
+    broken = SimpleNamespace(id="x1", function=SimpleNamespace(name="write_file", arguments="{not json"))
+    steps = [use(broken, call("x2", "edit_file", {"path": "a"}))] + SOLVE
+    fake, _ = scripted(steps)
+    monkeypatch.setattr(agent, "call_llm", fake)
+    monkeypatch.setattr(llm, "call_llm", fake)
+    report = capstone.run(evals=evals, out=tmp_path / "out")
+    assert report["notes"] == [] and report["score"]["passed"] == 5
+    first, second = report["steps"][1]["calls"]
+    assert first["result"].startswith("Error: the arguments of write_file are not a JSON object")
+    assert second["result"] == "Error: no tool named 'edit_file'."
+    assert report["tool_errors"] == 2

@@ -2,9 +2,9 @@
 build_system_prompt(cwd) discovers them for its working directory through
 instructions.instructions_prompt(cwd) and places them after the working
 directory line, before the skills index. They sit in the system prompt,
-the stable prefix, not in the late block: they change only when a file on
-disk changes. SYSTEM_PROMPT is the prompt for the directory the harness
-started in. The rest is step 30: PLAN_PROMPT and with_mode() are step 28;
+the stable prefix, not in the late block: the files are read when the
+prompt is built, at start and by /init, and not again until then.
+SYSTEM_PROMPT is the prompt for the directory the harness started in. The rest is step 30: PLAN_PROMPT and with_mode() are step 28;
 call_llm streams.
 
 The loop in agent.py appends `message.model_dump(exclude_none=True)` and reads

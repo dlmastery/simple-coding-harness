@@ -166,7 +166,7 @@ def stream_completion(messages: list[dict]) -> Iterator[str]:
     """Yield the text deltas of one streamed chat completion."""
     from openai import OpenAI
 
-    client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120)  # a hung upstream ends the stream, it does not hang the page
     stream = client.chat.completions.create(model=MODEL, messages=messages, stream=True, temperature=0)
     for chunk in stream:
         if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
@@ -174,7 +174,10 @@ def stream_completion(messages: list[dict]) -> Iterator[str]:
 ```
 
 The server forwards every delta as one SSE message and never parses the
-program itself:
+program itself. The stream always ends with a named event: `done` when the
+model finished, `error` with the reason when the model call failed
+part-way (a bad key, a network error, the 120 s timeout). A body that is
+not JSON is a 400 before any stream starts:
 
 `server.py`:
 
@@ -184,18 +187,35 @@ program itself:
             self.send_error(404)
             return
         length = int(self.headers.get("Content-Length", "0"))
-        body = json.loads(self.rfile.read(length) or b"{}")
+        try:
+            body = json.loads(self.rfile.read(length) or b"{}")
+        except ValueError:
+            self.send_error(400, "the body is not JSON")
+            return
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
         self.send_header("Cache-Control", "no-cache")
         self.send_header("Connection", "close")  # the stream ends when the socket closes
         self.end_headers()
         program = []
-        for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt)):
-            program.append(delta)
-            self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
-            self.wfile.flush()
+        try:
+            for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt)):
+                program.append(delta)
+                self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
+                self.wfile.flush()
+            LAST["program"] = "".join(program)
+            self.wfile.write(b"event: done\ndata: {}\n\n")
+        except (ConnectionError, OSError):
+            return  # the tab closed; nothing to report
+        except Exception as error:  # noqa: BLE001 - the model call failed part-way: the page must hear why, not guess
+            LAST["program"] = "".join(program)
+            self.wfile.write(f"event: error\ndata: {json.dumps(f'{type(error).__name__}: {error}')}\n\n".encode())
+        self.wfile.flush()
 ```
+
+Without the `error` event a failure after the headers were sent just
+closed the socket. The page's reader saw a closed body, returned normally,
+and the user got a silently truncated program that looked complete.
 
 The page accumulates the deltas in one string and hands it to
 `<Renderer>`. Everything about parsing, forward references and partial
@@ -206,10 +226,13 @@ statements happens inside that component:
 ```js
   async function run(text) {
     setResponse("");
+    setError("");
     setStreaming(true);
     let program = "";
     try {
       await generate(text, (delta) => { program += delta; setResponse(program); });
+    } catch (failure) {
+      setError(failure.message);  // the stream ended early: say so next to what did arrive
     } finally {
       setStreaming(false);
       window.openui.lastResponse = program;
@@ -236,18 +259,72 @@ test("<Renderer> renders the catalog components from OpenUI Lang", () => {
 });
 ```
 
+## Why: what breaks without it
+
+Step 01's parser knows eight components and no expressions; the model
+does not know that. Give a real model the step 01 catalog and it writes
+`$state`, `Query(...)` and keyword arguments it saw in the OpenUI docs,
+and the hand parser reports every one as an error. `@openuidev/lang-core`
+is the grammar the model was trained towards, and `library.prompt()` is
+the prompt that names exactly the components the page can draw; the two
+have to come from the same definition or the model writes components that
+do not exist. This step is where the catalog stops being a JSON file and
+becomes the single source of the prompt, the parser's schema and the
+React renderers.
+
 ## Run it
+
+Prerequisites: Node 20+ and npm on `PATH`; an API key in `API_KEY` (or
+`OPENAI_API_KEY`), in the environment or in `~/.simple-harness/env`, for
+`server.py` and `demo.py`. `API_KEY` wins when both are set. Playwright's
+Chromium for `demo.py` only. The tests are offline.
+
+bash:
 
 ```
 npm install                 # once; pinned versions, see package.json
 npm run prompt > prompt.txt # optional: python does this when the file is stale
+export API_KEY=sk-...       # or OPENAI_API_KEY; or put it in ~/.simple-harness/env
 python server.py            # builds static/bundle.js if needed, then http://127.0.0.1:8004/
 python demo.py              # prompt section, live model call, demo.png
 python -m pytest -q         # offline; runs npm install and npm test when needed
 ```
 
+PowerShell:
+
+```
+npm install
+npm run prompt | Out-File -Encoding utf8 prompt.txt   # optional
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest -q
+```
+
+Expected output: the `Quick demo` transcript above (the program differs
+per run; the status line `N statements, 0 unresolved` is the check).
+`python server.py` prints the URL and serves until ctrl-c.
+
 `npm install` runs the package's telemetry postinstall; `nodetools.py` sets
 `OPENUI_TELEMETRY_DISABLED=1` for every npm and node call it makes.
+
+## Error handling
+
+- No key: `server.py` starts, and the first `Generate` ends the stream
+  with `event: error` carrying the SDK's message; the page shows it in
+  red next to the status (`#error`) and what arrived before it stays on
+  screen. Without a key, the test suite still passes: it scripts
+  `llm.stream_completion`.
+- A model call that dies mid-stream (network, rate limit, the 120 s
+  timeout) ends the same way; `LAST["program"]` keeps the partial text
+  for `demo.py`.
+- A non-200 answer from `/generate` (a body that is not JSON is a 400) is
+  thrown by `generate()` and shown the same way; the page never stays in
+  `Streaming`.
+- `node`/`npm` missing from `PATH`: `nodetools.run` raises one sentence
+  naming nodejs.org instead of a `TypeError` on `None`.
+- ctrl-c stops `server.py`. A tab closed mid-stream is a `ConnectionError`
+  the handler returns from silently.
 
 ## What to notice
 
@@ -257,11 +334,34 @@ python -m pytest -q         # offline; runs npm install and npm test when needed
 - The `.describe()` texts on props do not appear in the signature lines;
   the description on the component does. Put anything the model must know
   about an argument into the component description or `additionalRules`.
-- `parse.meta.errors` carries codes (`unknown-component`,
-  `missing-required`, `excess-args`). The page shows the count; a
-  production app would send them back to the model as a repair turn.
+- `parse.meta.errors` carries codes: `unknown-component`,
+  `missing-required`, `excess-args`, `null-required` and `type-mismatch`.
+  The page shows the count; a production app would send them back to the
+  model as a repair turn.
+- What you see while streaming differs from step 01 in one visible way:
+  an element whose *required* argument is a forward reference (a
+  `BarChart` whose `labels` names a later line) is **dropped** with
+  `null-required` until the reference resolves, not shown as a skeleton.
+  A `Table` row that is a component, not a list, is `type-mismatch` and
+  the table is dropped. The library validates prop types and removes the
+  offending element; the renderers can assume the types the Zod schema
+  declares.
 - `library.toJSONSchema()` is the step 01 catalog format. Step 03 uses it
   to parse the benchmark samples with the real `createParser`.
+
+## Gotchas / What this is not
+
+- The server holds one `LAST` program and no sessions: two tabs
+  generating at once overwrite each other's `LAST` (the streams
+  themselves are independent).
+- `Connection: close` is how the stream ends; there is no reconnect
+  logic on the page because `fetch` is used, not `EventSource`. A lost
+  connection is an error in the page, not a silent replay.
+- `static/bundle.js` is built by esbuild on first start and rebuilt when
+  `app.mjs` or `library.mjs` is newer; a stale bundle after editing
+  another file is fixed by deleting it.
+- The model is asked for temperature 0, and still writes a different
+  program every run. The tests do not call it.
 
 ## Diff from the previous step
 
@@ -275,3 +375,8 @@ python -m pytest -q         # offline; runs npm install and npm test when needed
   `static/bundle.js` (gitignored, rebuilt by `nodetools.py`).
 - `package.json` has dependencies now; `test_step.py` installs them when
   `node_modules` is missing.
+
+## What the next step adds
+
+Step 03 takes the same catalog and measures the token cost of the same
+dashboards in OpenUI Lang, YAML, JSONL and C1, with `tiktoken`.

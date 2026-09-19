@@ -65,6 +65,8 @@ def test_validator_reports_wrong_shapes_instead_of_raising():
     assert genui.validate(chart) == ["c: values must be numbers"]
     table = {"root": "t", "elements": {"t": {"type": "Table", "props": {"columns": ["x"], "rows": [1, 2]}}}}
     assert genui.validate(table) == ["t: every row must be a list of cells"]
+    scalars = {"root": "c", "elements": {"c": {"type": "Chart", "props": {"kind": "bar", "labels": 5, "values": 7}}}}
+    assert genui.validate(scalars) == ["c: prop 'labels' must be a list", "c: prop 'values' must be a list"]
 
 
 def test_execute_answers_every_call_even_when_it_cannot_run():

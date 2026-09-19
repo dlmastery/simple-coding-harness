@@ -200,7 +200,7 @@ def test_execute_turns_every_failure_into_a_result(monkeypatch, tmp_path):
     _, missing = tools.execute(call("c4", "bash", "{}"))
     assert missing == "Blocked by policy: bash: missing argument 'command'"
     _, raised = tools.execute(call("c5", "read_file", json.dumps({"path": str(tmp_path / "nope.txt")})))
-    assert raised.startswith("Error: FileNotFoundError")
+    assert raised.startswith("Error:") and "nope.txt" in raised
     _, withheld = tools.execute(call("c6", "write_file", json.dumps({"path": "x", "content": ""})), allowed={"bash"})
     assert withheld == "Blocked by policy: write_file is not available to this agent"
 
@@ -210,7 +210,7 @@ def test_file_tools_round_trip_utf8(tmp_path):
     assert tools.write_file(path, "café → …\r\nline 2\n").startswith("Wrote")   # parent dir created
     assert tools.read_file(path) == "café → …\r\nline 2\n"                       # bytes and line endings kept
     assert tools.str_replace(path, "→", "->") == f"Replaced 1 match(es) in {path}"
-    assert tools.str_replace(path, "", "x") == "Error: old_str is empty"
+    assert tools.str_replace(path, "", "x").startswith("Error: old_str is empty")
     # -X utf8 makes the child write UTF-8 on Windows too; bash() decodes it, and never raises on odd bytes
     assert "café" in tools.bash(f'python -X utf8 -c "print(open(r\'{path}\', encoding=\'utf-8\').read())"')
 
@@ -287,7 +287,7 @@ def test_session_load_repairs_a_dangling_tool_call(monkeypatch, tmp_path):
                 {"role": "assistant", "content": None, "tool_calls": [call("c1", "bash", "{}").model_dump()]}]
     session.save(messages)
     reopened = session.open_session(session.CURRENT)
-    assert reopened[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.INTERRUPTED}
+    assert reopened[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.STOPPED}
     session.save(reopened)  # the repair reaches the file, so the next open needs none
     assert session.load(session.CURRENT)[-1]["role"] == "tool"
 
@@ -298,9 +298,9 @@ def test_compaction_boundary_is_a_user_message():
                 {"role": "assistant", "content": "done"}, {"role": "user", "content": "b"}]
     assert compact.safe_boundary(messages, 2) == 5
     assert compact.needed({"prompt_tokens": 10**9}, messages) is True
-    compact.LAST_SIZE = history.estimate(messages)
+    compact.COMPACTED_AT = len(messages)
     assert compact.needed({"prompt_tokens": 10**9}, messages) is False  # nothing grew since the last try
-    compact.LAST_SIZE = 0
+    compact.COMPACTED_AT = 0
 
 
 # ------------------------------------------------------------- the loop

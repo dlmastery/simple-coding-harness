@@ -80,3 +80,18 @@ Every step has the same shape: a Python server (`server.py`, `llm.py`,
 `registry.mjs`, `app.mjs`, `index.html`), the two exports that feed Python
 (`prompt.mjs`, `catalog_json.mjs`) and their caches; later steps add
 `json_patch.py` and `ink_render.mjs`, and each step has its own tests.
+
+Two things hold for every step and are said once here:
+
+- **The model may produce lines the compiler cannot apply.** On the page
+  json-render's compiler drops such a line silently; on the server
+  `SpecStream` skips it and records `(line, reason)`, and `GET /last`
+  returns that list as `skipped`. When the page and the server disagree,
+  `skipped` is where to look; the demos print it. A model call that fails
+  part-way ends the stream with one `{"error": "..."}` line (steps 02 and
+  03), which both compilers skip and the page reads as the reason.
+- **One session, no concurrency.** Each server keeps one `LAST` result
+  (step 03: one `SESSION` transcript and compiler) at module level. Two
+  browsers on the same server overwrite each other; the pages disable
+  `Generate` and drop presses while a turn runs, and nothing more. The
+  step 01 server also serves its whole directory as static files.

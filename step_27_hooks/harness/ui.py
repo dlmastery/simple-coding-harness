@@ -95,9 +95,13 @@ class UI:
         """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
 
         Under a lock: parallel subagents ask from their own threads, and the
-        terminal can hold one question at a time.
+        terminal can hold one question at a time. Headless with no terminal
+        to ask (-p with piped stdin) the answer is no, and stderr says so.
         """
         with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask: {reason}")
+                return False
             self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
             try:
                 answer = prompt.read("  allow? (y/n)> ").strip()

@@ -112,7 +112,7 @@ never sees.
 | The loop | `agent.turn` in `harness/agent.py` (stage 2.4). One function; a turn ends when a reply has no tool calls. | The loop runs in the server (`packages/trueforge-core`, TypeScript, MIT). A client opens a session with `POST /api/v1/sessions` and a turn with `POST /api/v1/sessions/{id}/turns`. The stream opens with `turn.created` and closes with `turn.done` (step 46). | The loop runs on Anthropic's orchestration layer. `POST /v1/agents` once, then `POST /v1/sessions` per run. A session moves between `running` and `idle`; `idle` carries a `stop_reason`. (docs) | [TF](https://trueforge.dev/api/overview) · [TF repo](https://github.com/truefoundry/trueforge) · [CMA](https://platform.claude.com/docs/en/managed-agents/overview) |
 | Where the model and key live | `llm.call_llm` reads `API_KEY`, `BASE_URL` and `MODEL` from the environment (stage 1). The key is in the process that runs the tools. | `PUT /api/v1/settings/model-providers` stores the provider and key in the server. The agent spec names `model.name` as `provider/model`, here `openai/gpt-4-1-mini`, and never carries a key (step 46, `setup_server.py`). | `model` on the agent object, a Claude model id such as `claude-opus-5`, with optional `effort`, `speed` and `inference_geo`. The API key is the request's `x-api-key` header. (docs) | [TF](https://trueforge.dev/models) · [CMA](https://platform.claude.com/docs/en/managed-agents/agent-setup) |
 | Agent definition | The system prompt is built per call by `llm.build_system_prompt`; agent definitions arrive in step 36 as `.agents/agents/*.md`. | An `AgentSpec`: `model`, `instructions`, `mcp_servers`, `skills`, `config`. Saved with `POST /api/v1/agents` under a unique name, or passed inline when the session is created. Server 0.1.4 takes the inline form as `agent: {spec: ...}` (step 46). | A persisted, versioned agent: `name`, `model`, `system`, `tools`, `mcp_servers`, `skills`, `multiagent`. Every update makes a new version; a session pins one. (docs) | [TF](https://trueforge.dev/create-agent/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/agent-setup) |
-| Headless, one shot | `harness -p PROMPT` runs one turn, prints the final text, exits 0 (step 21). | `POST .../turns` with `stream: false` returns at once with `state.status: running`; poll `GET .../turns/{turn_id}` until `done`. Step 46's `demo.py -p` does the streamed form and prints `state.output`. | `initial_events` on `POST /v1/sessions` starts the loop in the create call; the session is created directly in `running`. Read the result from `GET /v1/sessions/{id}/events`. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/sessions) |
+| Headless, one shot | `harness -p PROMPT` runs one turn, prints the final text, exits 0 (step 21). | `POST .../turns` with `stream: false` returns at once with `state.status: running`; poll `GET .../turns/{turn_id}` until `done`. Step 46's `demo.py -p` does the streamed form: it prints the deltas as they arrive and exits 1 when the turn did not end `done`. | `initial_events` on `POST /v1/sessions` starts the loop in the create call; the session is created directly in `running`. Read the result from `GET /v1/sessions/{id}/events`. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/sessions) |
 | Runaway calls | `stop.MAX_TURN_CALLS` (40 model calls per turn) and `MAX_TURN_SECONDS` in `harness/stop.py` (step 41); `durability.LoopDetector` stops a call repeated three times (step 34). | `config.iteration_limit`, default 100, range 1 to 1024 (step 49). Turns that run too long end with `turn.done` `state.status: cancelled`, reason `server-execution-timeout`. | No iteration cap in the docs. A session `budget` (`max_list_cost` in cents) pauses the session with `stop_reason: budget_reached`; the in-flight request finishes first. (docs) | [TF](https://trueforge.dev/create-agent/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/budgets) |
 | Steering mid-turn | Ctrl-C during a turn reads one line and appends it after the pending tool results (step 35). | `POST /api/v1/sessions/{id}/cancel` stops the running turn; creating a new turn in the session also cancels it. The next `user.message` chains on the cancelled turn's history. | A `user.interrupt` event stops the agent; a `user.message` sent with it redirects. A `system.message` event appends system context for this turn and every later one. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
 
@@ -193,7 +193,7 @@ This codelab writes a file. Both servers own a database.
 |---|---|---|---|---|
 | Storage | One JSONL file per session under `~/.simple-harness/sessions/<project>/` (stage 8). | SQLite in local mode, Postgres in hosted mode. `GET /api/v1/sessions`, `.../turns`, `.../events` read it back (step 50, `client/sessions.py`). | Server-side, per session. `GET /v1/sessions/{id}/events` lists everything; delete removes the events, container and checkpoints. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/session-operations) |
 | Resume | `harness --resume` opens the last session; `/sessions` picks one (stage 8). | Pass the session id back; `previous_turn_id` defaults to `auto`, so the new turn chains on the last one (step 46). | Send another event to an `idle` session; history and sandbox are kept. (docs) | [TF](https://trueforge.dev/api/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/sessions) |
-| Reconnect to a running turn | A session that ends in an unanswered tool call gets a synthetic result on restart (step 34). | `GET .../turns/{turn_id}/subscribe` with `after_sequence_number`; the SDK sends `Last-Event-ID` on a drop (step 50). | Reopen `GET .../events/stream`, then `GET .../events` and dedupe by id; there is no replay on the stream. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
+| Reconnect to a running turn | A session that ends in an unanswered tool call gets a synthetic result on restart (step 34). | `GET .../turns/{turn_id}/subscribe` with `after_sequence_number`, called by the client; the Python SDK (0.1.3) does not reconnect a dropped stream on its own, and step 50's `reconnect` backs `--replay` rather than a drop (step 50). | Reopen `GET .../events/stream`, then `GET .../events` and dedupe by id; there is no replay on the stream. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
 | Replay | `harness replay <id>` draws a saved session again from the stamped log (step 44). | `GET .../turns/{turn_id}/events` returns a finished turn's events with the deltas already merged (step 50, `replay`). | `events.list` with a `types` filter; the Console session viewer shows the transcript and per-tool statistics. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
 | Rewind and checkpoints | `/rewind` truncates the transcript (stage 8); `checkpoint.py` copies a file before an edit and `/undo` puts a turn back (step 33). | None. | None in the docs. Agent versions pin configuration, not conversation. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/agent-setup) |
 | Cancel and end | Ctrl-C; `/exit`. | `POST .../cancel`; `turn.done` reports `cancelled` with a reason: `client-cancelled`, `server-execution-timeout`, `cancelled-for-next-turn` or `abandoned`. `DELETE /api/v1/sessions/{id}` removes a session. | `user.interrupt`; archive makes a session read-only and is permanent; delete removes it. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/session-operations) |
@@ -239,7 +239,7 @@ An eval runs the agent on a fixed task and scores the result.
 |---|---|---|---|---|
 | Harness | `evaluate.py` (step 30): `evals/<task>/task.md` plus `check.py`, `expect.txt` or `judge.md`; the capstone of step 38 grades one workspace. | None in the product. Step 50's `client/evaluate.py` runs the step 30 format through sessions with approvals off. The repository's `benchmark/` runs Enterprise-Bench tasks against Managed Agents and deepagents. | `user.define_outcome` with a rubric starts a graded iterate loop; `span.outcome_evaluation_end` reports `satisfied`, `needs_revision`, `max_iterations_reached` or `failed`. (docs) | [TF](https://trueforge.dev/benchmarking) · [CMA](https://platform.claude.com/docs/en/managed-agents/define-outcomes) |
 | Report | `eval_report.json` with pass rate, tokens and cost per task. | `turn.done` `state.metrics`: `total_input_tokens`, `total_output_tokens`, `total_tokens`, cache counters, `total_cost_in_usd`. Sessions carry `metrics` too. | `session.usage` events and the session's `usage` object: token totals, `list_cost` in cents, `active_seconds`. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/budgets) |
-| Isolation | A fresh temp copy of the workspace, a fresh session, every prompt auto-approved. | A fresh session per task; the workspace is wherever the MCP tools server points (step 50 gives each task a temp directory). | A fresh container per session. (docs) | [TF](https://trueforge.dev/api/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/environments) |
+| Isolation | A fresh temp copy of the workspace, a fresh session, every prompt auto-approved. | A fresh session per task, deleted after the check unless `--keep`; the workspace is wherever the MCP tools server points (step 50 gives each task a temp directory). | A fresh container per session. (docs) | [TF](https://trueforge.dev/api/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/environments) |
 
 ## Streaming
 
@@ -247,7 +247,7 @@ Streaming is how text reaches the screen before the turn ends.
 
 | Aspect | This codelab (step, mechanism) | TrueForge (field, event, endpoint) | Claude Managed Agents (from the docs, not run here) | Sources |
 |---|---|---|---|---|
-| Transport | `llm.call_llm(stream=True)` with an `on_delta` callback (step 21); the spinner stops at the first delta. | Server-Sent Events from `POST .../turns` with `stream: true`. A `model.message` shell arrives first, then `model.message.delta` events that share its `id`; each event has a sequence number (step 46). | `GET /v1/sessions/{id}/events/stream`. Text arrives as a buffered `agent.message` after the model call; `event_deltas[]=agent.message` on the stream URL opts into `event_start` and `event_delta` previews. (docs) | [TF](https://trueforge.dev/api/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
+| Transport | `llm.call_llm(stream=True)` with an `on_delta` callback (step 21); the spinner stops at the first delta. | Server-Sent Events from `POST .../turns` with `stream: true`. A `model.message` shell arrives first, then `model.message.delta` events that share its `id`; each event carries a sequence number as its SSE `id` line, which no step in this part reads (step 46). | `GET /v1/sessions/{id}/events/stream`. Text arrives as a buffered `agent.message` after the model call; `event_deltas[]=agent.message` on the stream URL opts into `event_start` and `event_delta` previews. (docs) | [TF](https://trueforge.dev/api/overview) · [CMA](https://platform.claude.com/docs/en/managed-agents/events-and-streaming) |
 | Tool output | `streaming.py` shows a running command line by line in a panel (step 42). | `tool.response` arrives whole when the tool returns. | `agent.tool_result` arrives whole. (docs) | [TF](https://trueforge.dev/api/use-agent) · [CMA](https://platform.claude.com/docs/en/managed-agents/reference) |
 | Client SDKs | None; the harness is the program. Step 45 ports the loop to TypeScript. | `@truefoundry/trueforge-sdk` (TypeScript) and `trueforge_sdk` (Python): `TrueForge(base_url="http://localhost:8790", timeout=600)`, then `client.sessions.create_turn_stream(...)`. | The `anthropic` SDKs in seven languages under `client.beta.sessions.*`, and the `ant` CLI (`ant beta:sessions connect`). (docs) | [TF](https://trueforge.dev/api/quickstart) · [CMA](https://platform.claude.com/docs/en/managed-agents/quickstart) |
 
@@ -288,9 +288,11 @@ section names what the move gives and what it takes.
 - **Pauses are data.** An approval, a question and an OAuth prompt each
   end the turn with an event and a `required_actions` list. Any client can
   answer later, from anywhere. Stage 11's prompt blocks the process.
-- **Reconnect for free.** A dropped stream resumes at a sequence number;
-  a finished turn replays from the store. Step 34 had to invent a
-  synthetic tool result to recover.
+- **The turn outlives the client.** A finished turn replays from the
+  store, and a running one can be subscribed to at a sequence number, if
+  the client kept it: the Python SDK does not reconnect a dropped stream,
+  and none of steps 46 to 50 does either. Step 34 had to invent a
+  synthetic tool result to recover; here the recovery is a lookup.
 
 ### What you lose
 
@@ -382,15 +384,37 @@ Source: [TF](https://trueforge.dev/benchmarking).
 
 ## Run it
 
+No server, no key, no extra packages: `demo.py` reads this file. From the
+repository root, in bash:
+
 ```bash
 cd step_51_trueforge_comparison
 python demo.py
 python demo.py permissions
 ```
 
-You should see the capability names, then the permissions table printed
+PowerShell:
+
+```powershell
+cd step_51_trueforge_comparison
+python demo.py
+python demo.py permissions
+```
+
+Expected output: the capability names, then the permissions table printed
 as blocks: the aspect, one line per harness, and the source URLs. Pick
 any heading from the tables above in lower case.
+
+```text
+capabilities: loop, tools, permissions, sandbox, skills, context, sessions, subagents, hooks, memory, evals, streaming, ui
+== Permissions ==
+
+* Where the policy lives
+    This codelab (step, mechanism): ...
+    TrueForge (field, event, endpoint): ...
+    Claude Managed Agents (from the docs, not run here): ... (docs)
+    sources: https://trueforge.dev/..., https://platform.claude.com/docs/en/managed-agents/permission-policies
+```
 
 To check the README itself:
 
@@ -400,6 +424,30 @@ python -m pytest -q test_step.py
 
 You should see every test pass. The tests read this file and `demo.py`
 and never touch the network.
+
+## Error handling
+
+- **An unknown capability.** `python demo.py nope` prints
+  `unknown capability 'nope'; pick one of: loop, tools, ...` and exits 1.
+- **A section without a table.** `table()` raises
+  `ValueError: no table 0 under <name>`; the test suite guards every
+  capability section so this cannot happen with the shipped README.
+- **Nothing to interrupt.** The script reads one file and prints; ctrl-c
+  ends it like any Python program. There is no model call, no session and
+  no prompt.
+
+## Gotchas / what this is not
+
+- The Managed Agents column is read from the docs, never run: every cell
+  ends in `(docs)` and the tests enforce the marker. A doc can lag the
+  product; the row's link is the place to check.
+- The TrueForge column describes what steps 46 to 50 do, not everything
+  the API allows. Where the API offers more than the steps use (stream
+  reconnection at a sequence number, for one), the cell says so.
+- The token table is what one run on this machine cost with
+  `openai/gpt-4-1-mini`; another model or another day gives other numbers.
+- `demo.py` is a renderer for this file, not a harness; it has no
+  `TRUEFORGE_BASE_URL` and needs no server.
 
 ## The code, piece by piece
 
@@ -531,3 +579,9 @@ with 1 and the list, so a typo is not a stack trace.
 - `test_step.py`: new. Checks the table shape, the marker on every
   Managed Agents cell, the hosts of every URL, the step numbers, and runs
   the demo.
+
+## What the next step adds
+
+Nothing: this is the last step of the codelab. It closes the harness of
+steps 1 to 45, its server form in steps 46 to 50, and this reading that
+sets the two next to a vendor's.

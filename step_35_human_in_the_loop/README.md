@@ -8,8 +8,9 @@ reads one line at a `steer>` prompt, appends it as a user message after
 the pending tool results, and the turn goes on. A second Ctrl-C within
 two seconds exits. The approve prompt takes four answers: `y`, `n`, `a`
 for always and `never`. The last two are kept in `permissions.SESSION_RULES`
-for the rest of the session, per tool and, for bash, per first word of the
-command.
+for the rest of the session, keyed by what the prompt asked about: the
+tool, for bash the first word of each command part, for a write outside
+the project that fact, for the browser the host.
 
 ## Files
 
@@ -17,21 +18,21 @@ command.
 step_35_human_in_the_loop/
 ├── harness/
 │   ├── __init__.py       package marker
-│   ├── agent.py          the loop; Ctrl-C steers the turn instead of killing it
+│   ├── agent.py          the loop; Ctrl-C anywhere in a turn steers it instead of killing it
 │   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
 │   ├── browse.py         the browse tool set over the step 23 browser subagent
 │   ├── browser.py        browser tools: one Chromium page driven through Playwright
 │   ├── budget.py         the context budget: where the window goes, when to warn
-│   ├── checkpoint.py     workspace checkpoints: file copies taken before each edit
+│   ├── checkpoint.py     workspace checkpoints: file copies taken before each approved edit
 │   ├── commands.py       slash commands: /undo, /rewind, /checkpoints and the rest
 │   ├── compact.py        the compaction agent; its note is kept
 │   ├── computer.py       computer use: the screen as a tool
 │   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py        the late injection block: <env>, <plan>, <jobs>
-│   ├── durability.py     the loop detector and the crash-recovery scan
+│   ├── durability.py     the loop detector, parse_args and the crash-recovery scan
 │   ├── evaluate.py       the evaluation harness; `isolated` auto-answers prompts
 │   ├── history.py        keeps the transcript small enough to send, pictures too
-│   ├── hooks.py          hook events with a built-in list; checkpoint capture is one
+│   ├── hooks.py          hook events from hooks.json; PostToolUse carries `ok`
 │   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
 │   ├── jobs.py           background jobs: commands that run while the chat goes on
 │   ├── llm.py            the model call with retries, and the system prompt
@@ -39,12 +40,12 @@ step_35_human_in_the_loop/
 │   ├── memory.py         persistent memory
 │   ├── permissions.py    which calls need a human; session rules from `a` and `never`
 │   ├── plan.py           plan mode: the read-only tool set, ask_user included
-│   ├── prompt.py         the input line
-│   ├── sandbox.py        an OS sandbox for bash
+│   ├── prompt.py         the input line; prompts go to stderr without a terminal
+│   ├── sandbox.py        an OS sandbox for bash; the process-group timeout
 │   ├── session.py        append-only JSONL session log, load() and --resume
 │   ├── skills.py         skills, unchanged since stage 9
-│   ├── subagent.py       the task subagent loop; ask_user is withheld from it
-│   ├── todos.py          the plan behind write_todos
+│   ├── subagent.py       the task subagent loop; what it is offered is what it may run
+│   ├── todos.py          the plan behind write_todos, validated before it replaces the list
 │   ├── tools.py          the tool registry; settle() reads the four approve answers
 │   └── ui.py             rich panels; four-answer approve, question(), interrupted()
 ├── .agents/
@@ -57,7 +58,7 @@ step_35_human_in_the_loop/
 │   └── skills/explain-code/SKILL.md   the stage 4 skill
 ├── evals/           three step 30 tasks: task.md, check.py or expect.txt, workspace/
 ├── AGENTS.md        project instructions the harness reads into its prompt
-├── test_step.py     offline tests: scripted prompts, a simulated Ctrl-C, no terminal
+├── test_step.py     offline tests: scripted prompts, a real main-thread Ctrl-C, no terminal
 ├── pyproject.toml   package metadata; version 0.35.0
 └── README.md        this file
 ```
@@ -79,11 +80,19 @@ result, a steering message is a user message, and a session rule is a
 verdict the permission layer gives before it reaches the prompt.
 
 The hard part is the interrupt. A `KeyboardInterrupt` can arrive in the
-middle of anything: a streaming reply, a running command, a wait on a
-thread pool. If the loop just stopped there, the transcript would end in
-an assistant message whose tool calls have no results, which the API
-refuses. So the interrupt is caught in two places, and in both the
-transcript is made whole before the user is asked what to do next.
+middle of anything: the `git status` of the late block, a streaming
+reply, a running command, a wait on a thread pool. If the loop just
+stopped there, the transcript would end in an assistant message whose
+tool calls have no results, which the API refuses. So the whole turn body
+sits under one guard, and in both halves of it - the model call and the
+tool calls - the transcript is made whole before the user is asked what
+to do next.
+
+What breaks without it: before this step a Ctrl-C during a long `pytest`
+run ended the process with a traceback and a transcript ending in
+unanswered tool calls; `--resume` then re-ran the same call. A model
+that had to choose between two test runners picked one and the user
+found out after the install.
 
 ## The code, piece by piece
 
@@ -111,14 +120,16 @@ range returns that option's text, so the model reads `pytest` and not
 `2`. Anything else is the answer as typed, so the user can reject every
 option. Ctrl-C or Ctrl-D at the answer prompt returns `NO_ANSWER`, and the
 model learns that the question was not answered rather than reading an
-empty string as consent.
+empty string as consent. A Ctrl-C at this prompt, or at an approve
+prompt, is an answer, not a steer.
 
 The tool is in `plan.READ_ONLY`, so it is offered in plan mode: a
 question changes nothing on disk, and the plan is where questions come
-up. It is withheld from subagents, which cannot see the conversation; a
-subagent's question goes through the lead agent. The system prompt says
-when to call it: when two readings of the request lead to different work,
-and before any choice that cannot be undone.
+up. It is withheld from subagents, which cannot see the conversation, and
+withheld means denied: a subagent that calls it anyway gets
+`Blocked by policy: ask_user is not available to this agent`. The system
+prompt says when to call it: when two readings of the request lead to
+different work, and before any choice that cannot be undone.
 
 ### 2. Reading the steer line and appending it
 
@@ -163,22 +174,28 @@ inside the window, or Ctrl-D.
 plain user message, and saves. It returns `False` when the user wants
 out, and the callers re-raise the interrupt.
 
-### 3. The two places the interrupt is caught
+### 3. One guard around the whole turn
 
 `harness/agent.py`:
 
 ```python
+    while True:
+        if calls >= MAX_CALLS:
+            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
+            break
         try:
-            with spinner:
-                message, usage = call_llm(with_mode(messages) + [injection], tools=active_schemas(plan.toolset()), on_delta=on_delta)
+            calls, message, usage = one_call(messages, submitted.context, calls, debug)
         except KeyboardInterrupt:
-            if streamed:
-                ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
-            calls += 1
-            if not steered(messages, "the model call"):
+            if not steered(messages, "the turn"):  # run_results has answered every call by now
                 raise
             continue  # a new request, with the steering message at the end
-...
+        if message is None or not message.tool_calls:
+            break
+
+        repeated = detector.observe(message.tool_calls)
+        for tool_call, flag in zip(message.tool_calls, repeated):
+            if flag:
+                ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
         try:
             run_results(messages, message.tool_calls, repeated)
         except KeyboardInterrupt:
@@ -186,13 +203,28 @@ out, and the callers re-raise the interrupt.
                 raise
 ```
 
-An interrupted model call has no reply to keep. A partial stream is on
-screen, but a reply is whole or absent in the transcript, so the text is
-dropped and the last message is still the user's. The steering message
-goes after it, and `continue` sends a new request. The interrupted call
-still counts against `MAX_CALLS`.
+`one_call` is everything between two tool phases: the late block (which
+runs `git status`), the context fit, the request and the stream, and the
+reply going into the transcript. A Ctrl-C anywhere in there leaves the
+transcript as it was - the last message is still the user's - and the
+interrupted call still counts against `MAX_CALLS`:
 
-The tool phase is the other place. Here the assistant message with its
+```python
+    except KeyboardInterrupt:
+        if streamed:
+            ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
+        raise
+    finally:
+        calls += 1
+```
+
+A partial stream is on screen, but a reply is whole or absent in the
+transcript, so the text is dropped. The steering message goes after the
+user's message, and `continue` sends a new request. When the model call
+fails for good, `one_call` returns `None` for the message and the turn
+ends with the transcript valid.
+
+The tool phase is the other half. Here the assistant message with its
 tool calls is already in the transcript, so a result is owed for every
 call. `run_results` pays that debt before the exception reaches this
 handler.
@@ -216,14 +248,14 @@ handler.
         raise interrupt  # the transcript is whole; now the user gets to speak
 ```
 
-`execute_all` now takes the list it fills, so `run_results` can see how
-far it got when the interrupt came. A call that finished keeps its
-result. A call that was cut short, or never started, gets `INTERRUPTED`,
-which tells the model that nothing ran and that the user's next message
-comes first. The results are appended in order, the pictures after them,
-and only then is the interrupt raised again for `turn` to handle. The
-model reads the reply, its results and the steering message in that
-order, which is what happened.
+`execute_all` takes the list it fills, so `run_results` can see how far
+it got when the interrupt came. A call that finished keeps its result. A
+call that was cut short, or never started, gets `INTERRUPTED`, which
+tells the model that nothing ran (or that the result is lost) and that
+the user's next message comes first. The results are appended in order,
+the pictures after them, and only then is the interrupt raised again for
+`turn` to handle. The model reads the reply, its results and the
+steering message in that order, which is what happened.
 
 `harness/tools.py`:
 
@@ -235,18 +267,35 @@ order, which is what happened.
                 outcomes[i] = (outcomes[i][0], future.result())
         return done
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
-        for i, future in futures.items():
-            future.add_done_callback(keep(i))
+    pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+    futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
+    for i, future in futures.items():
+        future.add_done_callback(keep(i))
+    try:
+        while not all(future.done() for future in futures.values()):
+            wait(futures.values(), timeout=POLL)  # short waits: Windows delivers a Ctrl-C only between them
         for future in futures.values():
             future.result()  # re-raises the first failure, in call order
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # the queued calls never start; the running ones finish alone
+        raise
+    pool.shutdown(wait=True)
+    return outcomes
 ```
 
 With several calls running at once, the results are filed by a callback
 the moment each call finishes, not when the main thread gets round to
 collecting them. So a Ctrl-C that lands while the main thread waits on
-the second call does not lose the third call's result.
+the second call does not lose the third call's result. The pool is not a
+`with` block: leaving one waits for every running *and queued* call, so
+six one-second commands would hold the steer prompt for two seconds. On
+a Ctrl-C the pool is dropped instead: the calls still in the queue are
+cancelled and get `INTERRUPTED`, the ones already running finish on a
+thread nobody waits for, and their result is lost if it comes in late.
+The wait is a loop of short `wait` calls because Windows delivers the
+interrupt only when the main thread wakes; with `POLL` at 0.2 s it wakes
+soon enough. The same shape is in `subagent.parallel`, so a Ctrl-C during
+a `task` that runs four subagents does not wait for the wave.
 
 ### 5. Four answers at the approve prompt
 
@@ -272,48 +321,93 @@ and Ctrl-D are all `n`.
 
 ```python
     if action == "ask":
-        answer = ui.approve(reason)
-        if answer in ("a", "never") and name is not None:
-            ui.note("remembered: " + permissions.remember(name, args or {}, "allow" if answer == "a" else "deny"))
+        with APPROVE_LOCK:  # subagents on threads ask too; one prompt at a time
+            answer = ui.approve(reason)
+            if answer in ("a", "never") and name is not None:
+                ui.note("remembered: " + permissions.remember(name, args or {}, "allow" if answer == "a" else "deny"))
         if answer not in ("y", "a"):
             return DENIED
     return None
 ```
 
 `settle` reads the answer. `a` runs the call and stores an allow; `never`
-declines it and stores a deny. Both are stored under the tool's name and,
-for bash, under the first word of every part of the command. `y` and `n`
-are not stored: they answer one call.
+declines it and stores a deny. Both are stored under the keys
+`session_keys` computes for the call. `y` and `n` are not stored: they
+answer one call. `APPROVE_LOCK` serialises the prompt: a `task` with four
+subagents runs them on threads, and two of them hitting `ask` at once
+would otherwise write to one input line together.
 
 ### 6. The session rules
 
 `harness/permissions.py`:
 
 ```python
-SESSION_RULES = {}  # (tool, first word) -> "allow" or "deny", from the a and never answers of this session
+SESSION_RULES = {}  # (tool, what was asked) -> "allow" or "deny", from the a and never answers of this session
 ...
+def session_keys(name, args):
+    ...
+    if name in ("bash", "bash_background"):
+        return [("bash", first_word(part)) for part in split_command(args.get("command", ""))]
+    if name in ("write_file", "str_replace"):
+        return [(name, "outside" if not inside_project(args.get("path", "")) else "")]
+    if name == "browser_open":
+        return [(name, (urlparse(args.get("url", "")).hostname or "").lower())]
+    return [(name, "")]
+
+
+def remembered(name, args):
+    """The session rule for this call, or None. Plan mode ignores the rules: its answer is always no."""
+    if plan.MODE == "plan":
+        return None
+    for key in session_keys(name, args):
+        if key in SESSION_RULES:
+            return SESSION_RULES[key], f"{SESSION_RULES[key]} for this session: " + " ".join(part for part in key if part)
+    return None
+```
+
+The key is what the prompt asked about. A bash command is filed under
+the first word of every part, so `a` on `cd build && python setup.py`
+allows `cd` and `python` - every later `python -c "..."` included, which
+is a lot to unlock with one keystroke. A write outside the project is
+filed under `("write_file", "outside")`: `never` there blocks the next
+outside write and says nothing about writes inside the project, which
+were never asked about. A browser page is filed under its host, so `a`
+on `docs.python.org` does not open every site. Any other tool - an MCP
+tool, `computer_act` - is filed under its name, so one `a` covers every
+later call whatever the arguments. Plan mode ignores the rules: its
+answer to an `ask` is always no, and a rule stored in act mode must not
+change that.
+
+```python
 def rate(part):
-    """One command's verdict: a session rule first, then BASH_RULES. A deny in BASH_RULES wins."""
+    ...
     action = "ask"
     for pattern, rule in BASH_RULES.items():
         if fnmatch(part, pattern):
             action = rule
-    remembered = SESSION_RULES.get(("bash", first_word(part)))
+    if action == "allow" and (REDIRECTION.search(part) or FIND_WRITES.match(part)):
+        action = "ask"
+    remembered = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
     if remembered and action != "deny":
         action = remembered
     return action
 ```
 
 A bash command is rated one part at a time, as before. For each part the
-session rule for its first word is consulted before the static rules take
-effect, with one exception: a `deny` in `BASH_RULES` still wins. An `a`
-on `git commit` allows `git log` and `git commit` for the session and
+session rule for its first word is consulted after the static rules,
+with one exception: a `deny` in `BASH_RULES` still wins. An `a` on
+`git commit` allows `git log` and `git commit` for the session and
 leaves `git push` denied, because nothing said at the prompt unlocks the
-deny list. For every other tool the key is the tool name alone, so an `a`
-on one `computer_act` click allows every click until the session ends.
-The eval runner empties the rules for each task and puts them back after.
+deny list. An allowed command that writes through `>` or `tee`, or a
+`find` with `-delete` or `-exec`, is rated `ask` first: `cat x > y` is
+not read-only. The eval runner empties the rules for each task and puts
+them back after.
 
 ## Run it
+
+Prerequisites: Python 3.10+, `API_KEY` in the environment or in
+`~/.simple-harness/env`, and a terminal - the steer prompt and the
+question prompt read from it.
 
 ```bash
 cd step_35_human_in_the_loop
@@ -321,17 +415,41 @@ pip install -e .
 harness
 ```
 
+```powershell
+cd step_35_human_in_the_loop
+pip install -e .
+harness
+```
+
+The offline tests: `python -m pytest -q test_step.py`, or from the
+repository root `python run_tests.py 35` and `python check_snippets.py 35`.
+
+### Expected output
+
 Ask for something with a choice in it:
 
 ```text
 > add a test runner config
+
+  ask_user  Which test runner should the config target?
+    1. unittest
+    2. pytest
+  answer> 2
+
+  bash  pip install pytest
+  run: pip install pytest
+  allow? (y/n/a=always/never)> a
+  remembered: allow for this session: bash pip
+
+  bash  pip install pytest-cov
+  ...
+  Added pytest.ini and a pytest-cov dependency.
 ```
 
-The model calls `ask_user`, the question and the options print with
-numbers, and the `answer>` prompt waits. Type `2` or the text of the
-choice. The answer shows up as the tool result, and the model goes on
-with it. In plan mode the tool is still there, so the question can come
-before the plan.
+The question and the options print with numbers, and the `answer>`
+prompt waits. Type `2` or the text of the choice. The answer shows up as
+the tool result, and the model goes on with it. The second `pip` runs
+without a prompt; `git push` still would not.
 
 Then interrupt a turn. While the spinner runs or a command is running,
 press Ctrl-C once:
@@ -342,29 +460,78 @@ press Ctrl-C once:
 ```
 
 The interrupted call gets `INTERRUPTED` as its result, the steering line
-prints as a user message, and the next model call sees both. Press enter
-with nothing typed to go on as before. Press Ctrl-C twice in quick
-succession to exit; the transcript is saved and `--resume` picks it up.
+prints as a user message, and the next model call sees both. In the
+transcript that is `assistant, tool, ..., user (the steer line)`, and
+when the late block follows it, two user messages in a row; every
+OpenAI-compatible provider tried accepts that, but a strict one may not.
+Press enter with nothing typed to go on as before. Press Ctrl-C twice in
+quick succession to exit; the transcript is saved and `--resume` picks
+it up.
 
-At an approve prompt, answer `a`:
+## Error handling
 
-```text
-  run: git commit -m "add config"
-  allow? (y/n/a=always/never)> a
-  remembered: allow for this session: bash git
-```
+- A tool call with arguments that are not a JSON object gets the result
+  `Error: the arguments of <name> are not a JSON object: <reason>`; a
+  name that is not in the registry gets `Error: no tool named '<name>'.`;
+  a tool that raises gets `Error: <Type>: <message>`; a call without the
+  argument the rules read (`command`, `path`, `url`) gets
+  `Blocked by policy: <name>: missing argument '<key>'`. Every tool call
+  gets exactly one tool message and the turn goes on. Nothing here ends
+  the process.
+- A failing command is a result too: its output, or
+  `Timed out after 60s and was killed. Output so far:` with what it had
+  printed. The timeout kills the whole process tree.
+- A dead model call: `call_llm` retries transport errors, 429 and 5xx
+  with backoff; when every retry fails the note
+  `model call failed 5 times, giving up (...)` prints (or
+  `model call failed and will not be retried (...)` for a 4xx) and the
+  turn ends with the transcript valid - the user's message stays, nothing
+  half-written is appended.
+- Ctrl-C: once during a turn is the steer prompt; twice within two
+  seconds, or Ctrl-D at the steer prompt, leaves the turn and the chat
+  with every tool call answered. Ctrl-C at an approve prompt is `n`, at
+  an `answer>` prompt is `NO_ANSWER`. Ctrl-C inside a `/command`
+  (`/init`, `/compact`) prints `command interrupted` and returns to the
+  input line. Ctrl-C at the input line exits.
+- `--resume` of a session that ended in unanswered tool calls re-runs
+  them through `recover()`; a call that fails there - the same broken
+  arguments that crashed the last run, say - becomes an `Error:` result,
+  so a resume never crashes on the same call twice.
+- `-p` without a terminal on stdin (a pipe, CI): every `ask` is declined
+  with `declined, no terminal to ask on: ...` on stderr, `ask_user`
+  answers `NO_ANSWER`, prompts never reach stdout, the exit code is 1
+  when the reply is empty and 130 on Ctrl-C, and no session file is
+  written unless `--resume` was given.
+- Leaving: `/exit`, `/quit`, Ctrl-D (Ctrl-Z then Enter on Windows) or
+  Ctrl-C at the input line.
 
-The next `git commit` runs without a prompt. `git push` still does not.
+## Gotchas / What this is not
 
-Windows caveat: Ctrl-C is delivered to every process attached to the
-console, so a command that `bash` is running gets it too and dies; the
-harness sees the interrupt once the command has ended, and the result
-recorded is `INTERRUPTED`. A wait on a thread pool cannot be interrupted
-on Windows until the running calls return, so with several calls in
-flight the steer prompt appears when they finish. A streamed reply is
-interrupted at the next chunk. Background jobs from step 29 run in their
-own process group and do not get the Ctrl-C. Ctrl-C at the input line,
-outside a turn, exits as before.
+- The tool named `bash` runs `cmd.exe` on Windows; there is no sandbox
+  there, and the banner says `sandbox: none`.
+- Windows delivers Ctrl-C to every process attached to the console, so a
+  command that `bash` is running gets it too and dies; the harness sees
+  the interrupt once the command has ended, and the result recorded is
+  `INTERRUPTED`. Background jobs from step 29 run in their own process
+  group and do not get it.
+- A running tool call is never killed by the steer: it finishes on its
+  own thread. Only the calls still in the queue are cancelled. A
+  streamed reply is interrupted at the next chunk.
+- `a` on a compound bash line unlocks every first word in it for the
+  session, `python` included. `a` on an MCP tool or on `computer_act`
+  unlocks every later call of that tool whatever its arguments. Session
+  rules do not survive a restart.
+- PreToolUse hooks run inside `decide()`, before the approve prompt, so
+  a call the user then declines has already been logged by
+  `log_tool_use.py`. The checkpoint capture runs in `run()`, after the
+  approval, so a declined edit captures nothing.
+- The loop detector counts calls that are then denied: the third
+  identical denied call reads `REPEATED` instead of `DENIED`.
+- Approve prompts fire inside subagents too, from pool threads; the lock
+  keeps them one at a time, but they interleave with the other
+  subagents' panels.
+- The "nobody is here" answer to `ask_user` exists only under
+  `harness eval` and headless `-p`; in a normal chat the tool waits.
 
 ## What to notice
 
@@ -375,10 +542,10 @@ outside a turn, exits as before.
   message in the transcript, saved with the rest, replayed on `--resume`,
   and moved by compaction. The late block is for the harness; the user's
   words are the user's.
-- Both handlers restore the invariant first and ask second. The API
-  wants a result for every tool call, and `run_results` provides one for
-  every call before the exception is raised again. A second Ctrl-C at the
-  steer prompt leaves a transcript that `--resume` can send as is.
+- Both halves restore the invariant first and ask second. The API wants
+  a result for every tool call, and `run_results` provides one for every
+  call before the exception is raised again. A second Ctrl-C at the steer
+  prompt leaves a transcript that `--resume` can send as is.
 - `execute_all` fills a list the caller owns, so the caller can read it
   after an exception. A return value would be lost with the exception;
   a shared list is not.
@@ -395,16 +562,24 @@ diff -r ../step_34_durability/harness harness
 ```
 
 Added: `ask_user.py` (`ASK_USER_SCHEMA`, `NO_ANSWER`, `ask_user`).
-Changed: `agent.py` (`STEER_WINDOW`, `steer`, `steered`, the two
-`KeyboardInterrupt` handlers in `turn`, `run_results` fills
-`INTERRUPTED` and re-raises, `chat` ends on a `KeyboardInterrupt` from
-`turn`, `-p` exits 130), `tools.py` (`ask_user` in `TOOL_SCHEMAS` and
-`TOOLS`, `INTERRUPTED`, `settle` takes `name` and `args` and reads four
-answers, `execute_all` takes `outcomes` and files results by callback),
-`permissions.py` (`SESSION_RULES`, `first_word`, `session_keys`,
-`remember`, `rate`, the session lookup in `check`), `ui.py` (`ANSWERS`,
-`approve` returns the answer, `question`, `interrupted`, the banner),
-`plan.py` (`ask_user` in `READ_ONLY`), `subagent.py` (`ask_user` in
-`WITHHELD`), `llm.py` (the `ask_user` paragraph in the system prompt),
-`evaluate.py` (`isolated` answers `y`, replaces `ask_user`, and resets
-`SESSION_RULES`). Everything else is unchanged from step 34.
+Changed: `agent.py` (`STEER_WINDOW`, `steer`, `steered`, `one_call` and
+the guard around the turn body, `run_results` fills `INTERRUPTED` and
+re-raises, `chat` catches the interrupt of a `/command` and ends on one
+from `turn`, `headless` declines prompts without a terminal and exits
+130 on Ctrl-C), `tools.py` (`ask_user` in `TOOL_SCHEMAS` and `TOOLS`,
+`INTERRUPTED`, `APPROVE_LOCK`, `settle` takes `name` and `args` and
+reads four answers, `execute_all` takes `outcomes`, files results by
+callback and drops the pool on a Ctrl-C), `permissions.py`
+(`SESSION_RULES`, `first_word`, `session_keys`, `remembered`,
+`remember`, `rate`), `ui.py` (`ANSWERS`, `approve` returns the answer,
+`question`, `interrupted`, the banner), `plan.py` (`ask_user` in
+`READ_ONLY`), `subagent.py` (`ask_user` in `WITHHELD`, `parallel` drops
+its pool on a Ctrl-C), `llm.py` (the `ask_user` paragraph in the system
+prompt), `evaluate.py` (`isolated` answers `y`, replaces `ask_user`, and
+resets `SESSION_RULES`). Everything else is unchanged from step 34.
+
+## What the next step adds
+
+Step 36 turns `.agents/agents/<name>.md` files into `agent_<name>` tools
+and adds `/pipeline`, which runs the planner, worker and reviewer agents
+over a task.

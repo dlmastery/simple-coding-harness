@@ -461,3 +461,22 @@ def test_a_subagent_may_only_run_what_it_was_offered(fresh, monkeypatch):
     assert not (fresh / "a.txt").exists()
     args, result = tools.execute(call("s2", "write_file", {"path": "a.txt", "content": "x"}), allowed={"bash"})
     assert result == "Blocked by policy: write_file is not available to this agent"
+
+
+# ------------------------------------------------- round 2: the mode binds everything
+
+
+def test_read_only_binds_subagents_and_eval_too(fresh, monkeypatch):
+    """A subagent in read-only mode is fenced by the same module global; --mode reaches an eval run."""
+    monkeypatch.setattr(ui, "approve", lambda reason: pytest.fail(f"the approve prompt was opened: {reason}"))
+    modes.set_mode("read-only")
+    scripted_model(monkeypatch, [use(call("s1", "bash", {"command": "echo x > f.txt"}), call("s2", "read_file", {"path": "nope.txt"})), say("denied, then an error")])
+    assert subagent.task("write f.txt") == "denied, then an error"
+    assert not (fresh / "f.txt").exists()
+
+    seen = []
+    monkeypatch.setattr(agent.evaluate, "main", lambda cli: seen.append(modes.CURRENT) or 0)
+    monkeypatch.setattr(agent.hooks, "run_hooks", lambda *a, **k: None)
+    with pytest.raises(SystemExit) as done:
+        agent.main(["--mode", "auto", "eval", "suite"])
+    assert done.value.code == 0 and seen == ["auto"]  # applied before the suite ran

@@ -12,11 +12,13 @@ import threading
 from pathlib import Path
 from types import SimpleNamespace
 
+import httpx
+import openai
 import pytest
 
 os.environ.setdefault("API_KEY", "x")
 
-from harness import agent, context, evaluate, hooks, jobs, llm, permissions, plan, sandbox, session, todos  # noqa: E402
+from harness import agent, commands, context, evaluate, hooks, jobs, llm, memory, permissions, plan, sandbox, session, skills, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 STEP = Path(__file__).parent
@@ -97,6 +99,14 @@ SCRIPTS = {
     "pytest": [say("The tests already pass.")],  # it changed nothing, so check.py fails
     "parse_config": [use(call("t1", "task", {"description": "which file defines parse_config?"})), say("The function is in `settings.py`.")],
 }
+
+
+@pytest.fixture
+def quiet(monkeypatch):
+    """Keep the loop tests off the disk and off the terminal."""
+    monkeypatch.setattr(session, "save", lambda messages: None)
+    monkeypatch.setattr(ui, "approve", lambda reason: True)
+    monkeypatch.setattr(ui, "usage", lambda stats: None)
 
 
 @pytest.fixture
@@ -209,7 +219,47 @@ def test_a_crashing_run_is_a_failed_result_not_a_dead_suite(monkeypatch):
     task = evaluate.load_suite(EVALS)[2]
     result = evaluate.run_task(task)
     assert result.task == "write_hello" and not result.passed
-    assert result.detail == "run failed: RuntimeError: model unreachable" and result.answer == ""
+    # the loop turned the crash into a note and kept the transcript valid; the run is still a failure, not a checker verdict
+    assert result.detail == "run failed: RuntimeError: model call failed: model unreachable" and result.answer == ""
+
+
+def test_a_run_that_hits_the_call_budget_is_a_failed_run(monkeypatch):
+    monkeypatch.setattr(agent, "MAX_CALLS", 2)
+    forever = lambda messages, tools=None, on_delta=None: (use(call("b", "bash", {"command": "echo again"})), USAGE)
+    monkeypatch.setattr(agent, "call_llm", forever)
+    result = evaluate.run_task(evaluate.load_suite(EVALS)[2])
+    assert not result.passed and result.detail == "run failed: RuntimeError: stopped after 2 model calls in one turn; say 'continue' to go on"
+
+
+def test_a_judge_that_cannot_be_reached_fails_the_run_not_the_suite(tmp_path, monkeypatch):
+    (tmp_path / "graded").mkdir()
+    (tmp_path / "graded" / "task.md").write_text("say hello")
+    (tmp_path / "graded" / "judge.md").write_text("PASS if the answer says hello.")
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (say("hello"), USAGE))
+
+    def down(messages, tools=None, on_delta=None):
+        raise RuntimeError("judge unreachable")
+
+    monkeypatch.setattr(llm, "call_llm", down)
+    result = evaluate.run_task(evaluate.load_suite(tmp_path)[0])
+    assert not result.passed and result.detail == "run failed: RuntimeError: judge unreachable" and result.answer == "hello"
+
+
+def test_ctrl_c_still_writes_the_runs_that_finished(model, suite, monkeypatch):
+    real = evaluate.run_task
+    count = []
+
+    def interrupted(task, run=1, suite_name="suite", keep=False):
+        if len(count) == 1:
+            raise KeyboardInterrupt
+        count.append(task.name)
+        return real(task, run, suite_name, keep)
+
+    monkeypatch.setattr(evaluate, "run_task", interrupted)
+    with pytest.raises(KeyboardInterrupt):
+        evaluate.run_suite(suite)
+    written = json.loads((suite / evaluate.REPORT_NAME).read_text(encoding="utf-8"))
+    assert written["summary"]["runs"] == 1 and [t["runs"] for t in written["tasks"]] == [1, 0, 0]
 
 
 # --------------------------------------------------------------- checkers
@@ -295,6 +345,34 @@ def test_isolated_resets_cwd_keyed_state_and_restores_it(tmp_path, monkeypatch):
     todos.TODOS.clear()
 
 
+def test_isolated_gives_the_run_an_empty_memory_store_and_the_workspace_skills(tmp_path, monkeypatch):
+    real = tmp_path / "real-memory"
+    monkeypatch.setattr(memory, "MEMORY_DIRS", [real / "project", real / "_user"])
+    memory.remember("house-style", "how we write", "short lines", scope="user")
+    monkeypatch.setattr(skills, "SKILLS", {"home-skill": {"description": "from ~", "path": tmp_path / "SKILL.md"}})
+    workspace = tmp_path / "ws"
+    (workspace / ".agents" / "skills" / "ws-skill").mkdir(parents=True)
+    (workspace / ".agents" / "skills" / "ws-skill" / "SKILL.md").write_text("---\nname: ws-skill\ndescription: for this task\n---\nbody\n", encoding="utf-8")
+
+    with evaluate.isolated(workspace, tmp_path / "run" / "sessions", "eval-x-3", {}):
+        assert memory.find_memories() == {}  # the user's memories are out of sight...
+        assert "house-style" not in context.reminder()["content"]
+        memory.remember("scratch", "from the run", "nothing lasting")
+        assert list(skills.SKILLS) == ["ws-skill"]  # ...and only the workspace's skills are offered
+    assert list(memory.find_memories()) == ["house-style"]  # ...and untouched by the run's own writes
+    assert not (real / "project" / "scratch.md").exists() and (tmp_path / "run" / "memory" / "project" / "scratch.md").exists()
+    assert list(skills.SKILLS) == ["home-skill"]
+
+
+def test_the_judge_does_not_see_cache_directories(tmp_path):
+    (tmp_path / "__pycache__").mkdir()
+    (tmp_path / "__pycache__" / "x.pyc").write_text("")
+    (tmp_path / ".pytest_cache" / "v").mkdir(parents=True)
+    (tmp_path / ".pytest_cache" / "v" / "n").write_text("")
+    (tmp_path / "app.py").write_text("")
+    assert evaluate.file_list(tmp_path) == "app.py"
+
+
 def test_isolated_restores_everything_after_a_crash_and_kills_jobs(tmp_path):
     workspace = tmp_path / "ws"
     workspace.mkdir()
@@ -335,3 +413,130 @@ def test_plain_harness_and_its_flags_still_parse():
     assert agent.parser().parse_args(["-p", "hi"]).print == "hi"
     cli = agent.parser().parse_args(["eval", "evals", "--repeat", "3", "--keep"])
     assert (cli.command, cli.suite, cli.repeat, cli.keep) == ("eval", "evals", 3, True)
+
+
+# ----------------------------------------------- the error paths of the loop
+
+
+def raw_call(cid, name, arguments):
+    """A tool call whose arguments are exactly this string, valid JSON or not."""
+    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
+
+
+def fake_model(monkeypatch, *replies):
+    """A call_llm that plays the replies in order, for the main loop."""
+    queue = list(replies)
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (queue.pop(0), {"prompt_tokens": 1, "completion_tokens": 1}))
+
+
+def test_bad_arguments_unknown_tool_and_a_raising_tool_each_get_one_tool_message(quiet, monkeypatch, tmp_path):
+    fake_model(
+        monkeypatch,
+        FakeMessage(content=None, tool_calls=[
+            raw_call("c1", "read_file", '{"path": '),                                   # cut off mid-stream
+            raw_call("c2", "no_such_tool", "{}"),                                       # a name the registry lacks
+            raw_call("c3", "read_file", json.dumps({"path": str(tmp_path / "no.txt")})),  # the tool raises
+            raw_call("c4", "bash", "[1, 2]"),                                           # JSON, but not an object
+            raw_call("c5", "bash", "{}"),                                               # a required argument missing
+        ]),
+        FakeMessage(content="None of that worked.", tool_calls=None),
+    )
+    messages = agent.turn([{"role": "system", "content": "s"}], "try a few things")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert list(results) == ["c1", "c2", "c3", "c4", "c5"]  # one tool message per call, in reply order
+    assert results["c1"].startswith("Error: the arguments of read_file are not a JSON object:")
+    assert results["c2"] == "Error: no tool named 'no_such_tool'."
+    assert results["c3"].startswith("Error: FileNotFoundError:")
+    assert results["c4"] == "Error: the arguments of bash are not a JSON object: got list"
+    assert results["c5"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1]["content"] == "None of that worked."  # the loop went on to the next reply
+
+
+def test_a_failed_model_call_is_a_note_and_the_transcript_stays_valid(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+
+    def down(messages, tools=None, on_delta=None):
+        raise openai.APIConnectionError(request=httpx.Request("POST", "https://example.invalid/v1"))
+
+    monkeypatch.setattr(agent, "call_llm", down)
+    messages = agent.turn([{"role": "system", "content": "s"}], "hello?")
+    assert [m["role"] for m in messages] == ["system", "user"]  # the prompt stays, nothing dangles
+    assert notes[-1].startswith("model call failed:")
+
+
+def test_ctrl_c_mid_turn_answers_the_pending_tool_calls(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+    fake_model(monkeypatch, FakeMessage(content=None, tool_calls=[raw_call("c1", "bash", json.dumps({"command": "echo hi"}))]))
+
+    def interrupted(tool_calls, allowed=None):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(agent, "execute_all", interrupted)
+    messages = agent.turn([{"role": "system", "content": "s"}], "run it")
+    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": agent.INTERRUPTED}
+    assert notes[-1] == "interrupted"
+
+
+def test_the_turn_stops_after_max_calls(quiet, monkeypatch):
+    notes = []
+    monkeypatch.setattr(ui, "note", lambda text: notes.append(text))
+    monkeypatch.setattr(agent, "MAX_CALLS", 3)
+    forever = lambda messages, tools=None, on_delta=None: (FakeMessage(content=None, tool_calls=[raw_call("c", "bash", '{"command": "echo again"}')]), {"prompt_tokens": 1, "completion_tokens": 1})
+    monkeypatch.setattr(agent, "call_llm", forever)
+    messages = agent.turn([{"role": "system", "content": "s"}], "loop")
+    assert sum(1 for m in messages if m["role"] == "assistant") == 3
+    assert messages[-1]["role"] == "tool"  # every call answered before the stop
+    assert notes[-1] == "stopped after 3 model calls in one turn; say 'continue' to go on"
+
+
+def test_session_load_repairs_a_dangling_tool_call(tmp_path, monkeypatch):
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    pending = {"role": "assistant", "content": None, "tool_calls": [{"id": "c1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}
+    (tmp_path / "old.jsonl").write_text("".join(json.dumps(m) + "\n" for m in [{"role": "system", "content": "s"}, {"role": "user", "content": "hi"}, pending]), encoding="utf-8")
+    messages = session.load("old")
+    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.UNANSWERED}
+    assert session.repair([{"role": "user", "content": "hi"}]) == [{"role": "user", "content": "hi"}]  # nothing to repair
+
+
+def test_rewind_offers_only_user_messages_and_leaves_no_orphan(tmp_path, monkeypatch):
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "first"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "c1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "c1", "content": "x"},
+        {"role": "assistant", "content": "done"},
+        {"role": "user", "content": "second"},
+        {"role": "assistant", "content": "ok"},
+    ]
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    kept = commands.handle("/rewind", list(messages))
+    assert len(offered) == 2 and "first" in offered[0] and "second" in offered[1]  # never the tool call
+    assert kept == messages[:5]
+    monkeypatch.setattr(ui, "pick", lambda title, rows: 0)
+    assert commands.handle("/rewind", list(messages)) == messages[:1]
+    assert (tmp_path / f"{session.CURRENT}.jsonl").exists()  # a fresh chat got its file before the marker
+
+
+def test_write_todos_rejects_a_bad_status_and_leaves_the_list_alone(monkeypatch):
+    monkeypatch.setattr(todos, "TODOS", [{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
+    before = list(todos.TODOS)
+    assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
+    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs a non-empty string 'activeForm'"
+    assert todos.write_todos("b").startswith("Error:")
+    assert todos.write_todos([{"content": "b", "activeForm": "b", "status": "in_progress"}, {"content": "c", "activeForm": "c", "status": "in_progress"}]).startswith("Error: 2 tasks are in_progress")
+    assert todos.TODOS == before
+
+
+def test_utf8_survives_write_file_read_file_and_bash(tmp_path):
+    path = tmp_path / "näme.txt"
+    text = "héllo wörld — ünïcode ✓\r\nline two\n"
+    assert tools.write_file(str(path), text).startswith("Wrote")
+    assert tools.read_file(str(path)) == text  # bytes and line endings as written
+    assert tools.str_replace(str(path), "", "x") == "Error: old_str is empty; give the exact text to replace"
+    assert tools.bash(f'"{sys.executable}" -X utf8 -c "print(\'ünïcode ✓\')"').strip() == "ünïcode ✓"
+    assert tools.write_file(str(tmp_path / "deep" / "er" / "file.txt"), "x") == f"Wrote {tmp_path / 'deep' / 'er' / 'file.txt'}"  # parents are created

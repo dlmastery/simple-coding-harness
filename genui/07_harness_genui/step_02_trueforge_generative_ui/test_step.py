@@ -77,12 +77,13 @@ def test_one_unbalanced_line_does_not_hold_back_the_rest():
 
 def test_plus_on_anything_but_numbers_is_text():
     parsed = op.parse('root = Stack([x, y])\nx = null + 1\ny = 2 + 3\n')
-    assert parsed.tree()["args"][0] == ["None1", 5]
+    assert parsed.tree()["args"][0] == ["null1", 5]  # the same text the page's JS parser produces
 
 
 def test_a_turn_that_does_not_end_done_is_an_error(fake_trueforge, monkeypatch):
-    monkeypatch.setattr(FakeTrueForge, "status", "failed")
-    with pytest.raises(RuntimeError, match="the turn ended 'failed'"):
+    """A turn that ends `error` (or a stream with no turn.done) raises: a truncated program is never returned as complete."""
+    monkeypatch.setattr(FakeTrueForge, "status", "error")
+    with pytest.raises(RuntimeError, match=r"the turn ended 'error' \(the model provider returned 500\)"):
         genui.ask("show a report", on_delta=None)
 
 
@@ -128,7 +129,7 @@ def event(**fields):
 
 class FakeTrueForge(BaseHTTPRequestHandler):
     requests = []
-    status = "done"  # a test sets "failed" to end the turn without a reply
+    status = "done"  # a test sets "error" to end the turn without a reply
 
     def log_message(self, *args):
         pass
@@ -149,7 +150,9 @@ class FakeTrueForge(BaseHTTPRequestHandler):
         self.wfile.write(event(type="model.message.delta", id="sub-1", thread_id="sub", content="ignored: not the main thread"))
         output = {"type": "model.message", "id": "msg-1", "thread_id": "main", "content": REPLY, "finish_reason": "stop", "created_at": "2026-09-14T10:00:01.000Z"}
         metrics = {"total_input_tokens": 120, "total_output_tokens": 30, "total_tokens": 150}
-        state = {"status": self.status, "completed_at": "2026-09-14T10:00:02.000Z", "output": output, "metrics": metrics, "required_actions": []}
+        state = {"status": "done", "completed_at": "2026-09-14T10:00:02.000Z", "output": output, "metrics": metrics, "required_actions": []}
+        if self.status == "error":  # the SDK's error state: a message, no output
+            state = {"status": "error", "completed_at": state["completed_at"], "message": "the model provider returned 500", "metrics": metrics}
         self.wfile.write(event(type="turn.done", state=state))
         self.wfile.flush()
 

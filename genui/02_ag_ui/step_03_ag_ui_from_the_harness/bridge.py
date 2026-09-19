@@ -6,19 +6,22 @@ tools.execute runs one tool through the permission layer. This module
 re-runs that loop as an event generator:
 
     RUN_STARTED, STATE_SNAPSHOT {"todos": [...]}
-    repeat:
+    repeat, at most MAX_CALLS times:
         TEXT_MESSAGE_START/CONTENT/END       one CONTENT per on_delta call
         TOOL_CALL_START/ARGS/END             per assembled tool call
-        TOOL_CALL_RESULT                     after tools.execute
+        TOOL_CALL_RESULT                     after tools.execute, an "Error: ..." text if it failed
         CUSTOM permission                    when the rules said "ask"
         STATE_DELTA replace /todos           after write_todos
-    RUN_FINISHED with token usage
+    RUN_FINISHED with token usage            (or RUN_ERROR: the model call failed, or the cap)
 
 Nothing in harness/ changes. The harness thinks it is printing to a
 terminal; the bridge catches the callbacks and turns them into events.
+While the model is silent the generator yields KEEPALIVE, an SSE comment
+the server writes raw, so a proxy does not drop the quiet stream.
 """
 
 import copy
+import json
 import queue
 import threading
 from uuid import uuid4
@@ -44,10 +47,14 @@ from ag_ui.core import (
 from harness import history, todos
 from harness.context import reminder
 from harness.llm import MODEL, SYSTEM_PROMPT, call_llm
-from harness.tools import execute
+from harness.tools import TOOLS, execute
 from harness.ui import ui
 
-ASKED = []  # permission questions the harness raised during the current tool call
+MAX_CALLS = 40  # model calls in one run, the harness's own cap: past that the model is looping, not working
+KEEPALIVE = ": keepalive\n\n"  # an SSE comment; server.py writes it raw, clients ignore it
+KEEPALIVE_AFTER = 15  # seconds of model silence before one is sent
+
+ASKED = []  # permission questions the harness raised during the current tool call (one user per process)
 
 
 def approve_for_the_page(reason):
@@ -95,12 +102,32 @@ def streamed(messages):
 
     threading.Thread(target=worker, daemon=True).start()
     while True:
-        kind, payload = items.get()
+        try:
+            kind, payload = items.get(timeout=KEEPALIVE_AFTER)
+        except queue.Empty:
+            yield "keepalive", None  # the model is thinking; say so on the wire
+            continue
         if kind == "error":
             raise payload
         yield kind, payload
         if kind == "message":
             return
+
+
+def run_tool(tool_call):
+    """tools.execute with every failure as a result: the page gets one TOOL_CALL_RESULT per call."""
+    name = tool_call.function.name
+    if name not in TOOLS:
+        return f"Error: no tool named {name!r}."
+    try:
+        _, result = execute(tool_call)
+    except json.JSONDecodeError as error:
+        return f"Error: the arguments of {name} are not a JSON object: {error}"
+    except Exception as error:  # noqa: BLE001 - the tool failed; the model reads why and goes on
+        return f"Error: {type(error).__name__}: {error}"
+    if not isinstance(result, str):
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return result
 
 
 def token_usage(usage):
@@ -117,10 +144,14 @@ def run(input: RunAgentInput):
     messages = to_openai(input.messages)
     usage = {}
     try:
-        while True:
+        for calls in range(MAX_CALLS + 1):
+            if calls == MAX_CALLS:
+                raise RuntimeError(f"stopped after {MAX_CALLS} model calls in one run")
             message_id, started = str(uuid4()), False
             for kind, payload in streamed(messages + [reminder()]):
-                if kind == "delta":
+                if kind == "keepalive":
+                    yield KEEPALIVE
+                elif kind == "delta":
                     if not started:
                         yield TextMessageStartEvent(message_id=message_id, role="assistant")
                         started = True
@@ -134,12 +165,13 @@ def run(input: RunAgentInput):
                 break
 
             for tool_call in message.tool_calls:
-                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id)
+                # the parent is the text message, when there was one
+                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id if started else None)
                 yield ToolCallArgsEvent(tool_call_id=tool_call.id, delta=tool_call.function.arguments)
                 yield ToolCallEndEvent(tool_call_id=tool_call.id)
 
                 ASKED.clear()
-                args, result = execute(tool_call)
+                result = run_tool(tool_call)
                 for reason in ASKED:
                     yield CustomEvent(name="permission", value={"reason": reason, "decision": "allow"})
                 yield ToolCallResultEvent(message_id=str(uuid4()), tool_call_id=tool_call.id, content=result, role="tool")

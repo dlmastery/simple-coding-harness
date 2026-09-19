@@ -6,6 +6,8 @@ from the git root and from every directory down to the working directory.
 Their text goes into the system prompt, one header per file. `/init` sends
 a subagent to survey the project and writes its report to `AGENTS.md`
 after `approve? (y/n)`. `/instructions` lists the files that were loaded.
+The files are read when the system prompt is built: at start, and again
+by `/init`. Editing one mid-session takes effect at the next start.
 
 ## Files
 
@@ -54,7 +56,7 @@ step_31_instruction_files/
 └── README.md                         this file
 ```
 
-## Why a file, and why the system prompt
+## Why a file, and what breaks without one
 
 Every project has facts the model cannot guess: which command runs the
 tests, which directory holds the real code, which style the maintainers
@@ -74,6 +76,17 @@ prompt is the stable prefix of every request: it is the same bytes from
 the first call to the last, so the provider can cache it and the model
 sees the rules before anything else. The late block changes every turn and
 is the wrong place for text that never changes.
+
+### What breaks without it
+
+Start the harness in this directory without an `AGENTS.md` and ask
+`how do I run the tests here?`. The model has no idea. It runs `ls`, reads
+`pyproject.toml`, greps for `pytest`, and after three or four tool calls
+guesses `pytest`, which works here but not in the project next door that
+runs `npm test` from a subdirectory. Every session repeats the search,
+and every session may guess differently. With the file in place the answer
+is one sentence and zero tool calls, the same in every session, and a
+maintainer who changes the test command changes it in one place.
 
 ## The code, piece by piece
 
@@ -96,7 +109,7 @@ def git_root(cwd=None):
     try:
         done = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            cwd=cwd, capture_output=True, text=True, timeout=10,
+            cwd=cwd, capture_output=True, encoding="utf-8", errors="replace", timeout=10,
         )
     except (OSError, subprocess.SubprocessError):
         return cwd
@@ -152,7 +165,7 @@ def find_instructions(cwd=None):
 ```python
 def read_instructions(path):
     """The file's text, cut at MAX_CHARS with a note that says so."""
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = path.read_text(encoding="utf-8-sig", errors="replace")  # -sig: a BOM from a Windows editor is dropped
     if len(text) <= MAX_CHARS:
         return text
     return (
@@ -173,20 +186,35 @@ followed.
 `harness/instructions.py`:
 
 ```python
+def render(paths, cwd=None):
+    """The files as prompt text, each under a header naming it; empty when there are none."""
+    return "\n\n".join(f"# Instructions from {label(path, cwd)}\n\n{read_instructions(path).strip()}" for path in paths)
+
+
 def instructions_prompt(cwd=None):
-    """Every instruction file, each under a header naming it; empty when there are none."""
+    """Discover the files, remember them in LOADED, and render them.
+
+    Only the system prompt builder calls this; anything that just needs the
+    text again reads LOADED through render(), so /instructions describes
+    the prompt the model has, not the disk as it is now.
+    """
     LOADED[:] = find_instructions(cwd)
-    parts = []
-    for path in LOADED:
-        parts.append(f"# Instructions from {label(path, cwd)}\n\n{read_instructions(path).strip()}")
-    return "\n\n".join(parts)
+    return render(LOADED, cwd)
 ```
 
 The header names the file relative to the working directory, so
 `../AGENTS.md` and `AGENTS.md` are two different files and the model can
 say which one a rule came from. The home file is named
-`~/.simple-harness/AGENTS.md`. `LOADED` remembers the paths for
-`/instructions`.
+`~/.simple-harness/AGENTS.md`. Discovery and rendering are two functions
+on purpose: `instructions_prompt` is the only one that touches disk and
+`LOADED`, and only `build_system_prompt` calls it. Everything else that
+wants the text again (`/instructions` here, the context budget in step
+32) renders `LOADED`, so it describes the prompt the model has rather than
+whatever is on disk now.
+
+`read_instructions` opens the file as `utf-8-sig`: a byte-order mark that a
+Windows editor may put at the top of the file is dropped instead of
+landing as an invisible character at the top of the injected header.
 
 ### 4. Into the system prompt
 
@@ -240,15 +268,23 @@ def init(messages):
     target = Path.cwd() / "AGENTS.md"
     report = subagent.task(INIT_QUESTION.strip())
     ui.agent(report)
-    if report.startswith("(") or report.startswith("Error:"):
+    if report.startswith(subagent.STOPPED) or report.startswith("Error:"):
         ui.note("the subagent did not produce a guide; nothing written")
         return messages
-    if not ui.confirm(f"write {target.name}" + (" (it exists; this replaces it)" if target.exists() else "")):
+    if target.exists():
+        what = f"write {target.name} (it exists; this replaces it)"
+    elif (target.parent / "CLAUDE.md").is_file():
+        what = f"write {target.name} (CLAUDE.md is here too; it is read only when AGENTS.md is absent, so it stops being read)"
+    else:
+        what = f"write {target.name}"
+    if not ui.confirm(what):
         ui.note("not written")
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")
     if messages and messages[0].get("role") == "system":
-        messages[0]["content"] = llm.build_system_prompt()  # discovery runs again, so the new file is in the prefix
+        # discovery runs again, so the new file is in the prefix; a handoff note from a compaction stays at its end
+        summary = compaction.previous_summary(messages[0]["content"])
+        messages[0]["content"] = llm.build_system_prompt() + (f"\n\n{summary}" if summary else "")
     ui.note(f"wrote {target}; it is in the system prompt from the next call on")
     return messages
 ```
@@ -258,8 +294,21 @@ project is, how it is built, how the tests run, how the tree is laid out,
 and which conventions the code shows. The subagent explores in its own
 context window, so the survey costs the chat nothing. The report is shown,
 then written only after a yes, because the file changes what every future
-session is told. The system message is rebuilt at once, so the new file
-takes effect in the next call rather than the next session.
+session is told. A report that is not a guide is recognised by its prefix:
+`subagent.STOPPED` is the `(the subagent` that every non-report begins
+with, so a guide that itself starts with a parenthesis is not mistaken for
+one.
+
+The confirm line says what the write will do to the files that are already
+there. An existing `AGENTS.md` is replaced. An existing `CLAUDE.md` stays
+on disk but stops being read, because a directory yields one file and
+`AGENTS.md` is looked for first.
+
+The system message is rebuilt at once, so the new file takes effect in the
+next call rather than the next session. `/compact` (step 14) appends its
+handoff note to the same system message; the rebuild keeps that note at
+the end, so an `/init` after a compaction does not throw away what the
+model knows about the conversation so far.
 
 ### 6. `/instructions` and the approve prompt
 
@@ -272,8 +321,8 @@ def instruction_list(messages):
         ui.note("no instruction files loaded (AGENTS.md or CLAUDE.md in ~/.simple-harness, the git root, or below)")
         return messages
     rows = []
-    for path in instructions.LOADED:
-        size = len(path.read_text(encoding="utf-8", errors="replace"))
+    for path in instructions.LOADED:  # the files the prompt was built from, not what is on disk now
+        size = len(path.read_text(encoding="utf-8-sig", errors="replace"))
         cut = f"  (cut at {instructions.MAX_CHARS:,})" if size > instructions.MAX_CHARS else ""
         rows.append(f"{instructions.label(path):<40} {size:>7,} chars{cut}")
     ui.note("\n".join(rows))
@@ -299,7 +348,20 @@ script the answer and a ctrl-d means no.
 
 ## Run it
 
+Prerequisites: Python 3.10+, `API_KEY` in the environment or in
+`~/.simple-harness/env`, git on the PATH (optional: without it the working
+directory is the root). No extras beyond `pip install -e .`.
+
+bash:
+
 ```bash
+pip install -e .
+harness
+```
+
+PowerShell:
+
+```powershell
 pip install -e .
 harness
 ```
@@ -314,7 +376,8 @@ AGENTS.md                                  1,794 chars
 
 Ask `how do I run the tests here?` and the answer names
 `python -m pytest -q test_step.py` without a single tool call, because the
-file said so. Now put a personal file in place:
+file said so. Now put a personal file in place and start again (the files
+are read at start, so a running harness does not see it):
 
 ```bash
 mkdir -p ~/.simple-harness
@@ -322,12 +385,46 @@ echo "Answer in one short paragraph unless asked for more." > ~/.simple-harness/
 harness
 ```
 
+```powershell
+New-Item -ItemType Directory -Force ~/.simple-harness | Out-Null
+Set-Content -Encoding utf8 ~/.simple-harness/AGENTS.md "Answer in one short paragraph unless asked for more."
+harness
+```
+
 `/instructions` lists two files, the home one first. Start the harness in
-a directory without a file, in any git repository, and type `/init`. The
-subagent's panels show it reading `pyproject.toml`, the test files and the
-tree; then its report appears and the prompt reads `approve? (y/n)`. On
-`y`, `AGENTS.md` is written in the working directory and the next
-`/instructions` lists it.
+a directory without a file, in any git repository, and type `/init`.
+
+### Expected output
+
+```text
+> /init
+
+  subagent: Survey this repository and write AGENTS.md: a short guide ...
+    run: ls
+    read_file: pyproject.toml
+    run: rg -n "pytest|unittest" -g "*.toml" -g "*.cfg" -g "*.py" .
+    ...
+
+  # AGENTS.md
+  ## Overview
+  ...
+
+  write AGENTS.md
+  approve? (y/n)> y
+
+  wrote C:\work\myproject\AGENTS.md; it is in the system prompt from the next call on
+
+> /instructions
+
+  AGENTS.md                                  1,212 chars
+```
+
+The subagent's panels show it reading `pyproject.toml`, the test files and
+the tree; its report is shown in full, then the prompt reads
+`approve? (y/n)`. On `y`, `AGENTS.md` is written in the working directory
+and the next `/instructions` lists it. On a big repository the subagent may
+hit its 12-turn cap first: the report then starts with `(the subagent
+stopped after 12 turns` and nothing is written.
 
 A file over 20,000 characters is cut, the row in `/instructions` says
 `(cut at 20,000)`, and the prompt text ends with a line that says how long
@@ -340,12 +437,83 @@ python run_tests.py 31
 python check_snippets.py 31
 ```
 
+## Error handling
+
+Nothing in this step can take the loop down; the guards below are shared
+with every step from here on.
+
+- **A bad tool call.** Arguments that are not a JSON object come back as
+  `Error: the arguments of bash are not a JSON object: ...`; a name that is
+  not a tool as `Error: no tool named 'x'.`; a tool that raises as
+  `Error: FileNotFoundError: ...` (the class and the message). Every
+  `tool_call` in a reply gets exactly one tool message, so the transcript
+  stays valid and the model reads what went wrong and tries again.
+- **A failing command.** `bash` returns stdout and stderr together, with
+  no exit code: the error text is what the model reads. A command that
+  runs past 60 seconds is killed with its whole process tree and returns
+  `Error: command timed out after 60s`.
+- **A dead model call.** `call_llm` raising an `openai.APIError`
+  (connection refused, 401, 429, 5xx) ends the turn with a note,
+  `model call failed: ...`; the user message stays in the transcript, so
+  `try again` works once the cause is fixed. Retries come in step 34.
+- **ctrl-c during a turn.** The turn stops. Any tool call that had no
+  result yet gets `(interrupted before this tool ran)` as its result, the
+  note says `interrupted`, and the prompt comes back.
+- **Leaving.** `/exit` or `/quit`, ctrl-d (ctrl-z then enter on Windows),
+  or ctrl-c at the prompt. An empty line is ignored, not an exit.
+- **A crashed session.** `session.load` repairs a transcript that ends in
+  tool calls without results by adding
+  `(the harness stopped before this tool ran; no result was recorded)` for
+  each, so `--resume` and `/sessions` always open a transcript the API
+  accepts.
+- **`/init` with no report.** A subagent that stopped or failed leaves the
+  file alone and says `the subagent did not produce a guide; nothing
+  written`. A ctrl-d at `approve? (y/n)` is a no.
+- **A missing file.** A directory without either file contributes nothing
+  and costs nothing; `/instructions` says `no instruction files loaded`.
+
+## Gotchas / What this is not
+
+- **The files are read at start and by `/init` only.** Editing
+  `AGENTS.md` during a session changes nothing until the next start (or the
+  next `/init`, which rebuilds the prompt). `/instructions` lists the files
+  the prompt was built from, and their sizes on disk now.
+- **`/init` is not the only command that changes the system message.**
+  `/compact` appends its handoff note to it. `/init` keeps that note; the
+  prefix changes at those two moments only, and the prompt cache pays
+  again after each.
+- **`/init` shadows `CLAUDE.md`.** A directory yields one file, and
+  `AGENTS.md` is tried first. The confirm prompt says so when a
+  `CLAUDE.md` is present; keep the two identical or delete one.
+- **The size budget is per file, not per session.** Up to five directories
+  (home, root, and the chain between) each contribute up to 20,000
+  characters, so the worst case is roughly 25,000 tokens of instructions
+  in every request. They sit in the cached prefix, but they are still
+  billed on a cache miss.
+- **Encoding.** Files are read as UTF-8; a byte-order mark is dropped and
+  undecodable bytes become `?`-style replacement characters rather than
+  an error.
+- **The subagent's word limit.** The subagent prompt asks every report to
+  stay under 150 words; `INIT_QUESTION` says this one report may run to
+  400. Models follow the later, more specific instruction, but a guide
+  that comes back terse is this conflict, not a bug in your project.
+- **Above the git root is out of scope.** Only `~/.simple-harness` is read
+  from outside the repository. A file in `/tmp` or in your home directory
+  proper is never read.
+- **Not a policy engine.** The file is advice to the model, not a rule the
+  harness enforces. Permissions (step 11), hooks (step 27) and plan mode
+  (step 28) are the enforced parts.
+- **Windows.** The tool named `bash` runs its command through
+  `subprocess` with `shell=True`, which is `cmd.exe` on Windows, and there
+  is no OS sandbox there (`sandbox: none` in the banner); neither changes
+  in this step.
+
 ## What to notice
 
 - **The prefix stays stable.** The instruction text is in the system
   message, so it is the same bytes in every request of a session, and the
-  provider's prompt cache keeps paying for it. `/init` is the one command
-  that changes it, once, on purpose.
+  provider's prompt cache keeps paying for it. Only `/init` and `/compact`
+  change it, on purpose, and each keeps what the other put there.
 - **General to specific.** Home, root, then each directory down to the
   working directory. A rule in a leaf overrides a rule at the root because
   it comes later and the intro says the later one wins.
@@ -370,10 +538,15 @@ diff -r ../step_30_eval/harness harness
 
 Added: `instructions.py` (`NAMES`, `HOME`, `MAX_CHARS`, `LOADED`,
 `git_root`, `same`, `search_dirs`, `find_instructions`, `label`,
-`read_instructions`, `instructions_prompt`). Changed: `llm.py`
+`read_instructions`, `render`, `instructions_prompt`). Changed: `llm.py`
 (`INSTRUCTIONS_INTRO`, `instructions_section`, `build_system_prompt` places
 the section after the working directory line), `commands.py`
 (`INIT_QUESTION`, `init`, `instruction_list`, `/init` and `/instructions`
 in `COMMANDS` and `handle`), `ui.py` (`confirm`, `/init` in the banner).
 Shipped: `AGENTS.md` in this directory. Everything else is unchanged from
 step 30.
+
+## What the next step adds
+
+Step 32 measures what every request carries, category by category, and
+defers the largest tool schemas until the model asks for them.

@@ -216,9 +216,9 @@ def describe(name, args):
 
 
 def missing(name, args, *keys):
-    """The deny verdict for a required argument the call did not carry, or None."""
+    """The deny verdict for a required argument the call did not carry - or carried as something other than text - or None."""
     for key in keys:
-        if args.get(key) is None:
+        if not isinstance(args.get(key), str):
             return "deny", f"{name}: missing argument {key!r}"
     return None
 

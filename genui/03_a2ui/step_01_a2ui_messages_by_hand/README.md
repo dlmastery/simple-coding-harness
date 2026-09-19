@@ -7,6 +7,17 @@ flat component map and a data model per surface. `static/render.mjs` paints
 that state for part of the Basic Catalog. The demo streams the protocol
 document's own contact form and renders it.
 
+## Why: what breaks without it
+
+Sub-theme 01 invented its own layout JSON and sub-theme 02 its own
+`dashboard` state; each page could read exactly one server. A2UI is the
+shared vocabulary for the declarative middle: four envelope messages, a
+catalog of components with published JSON schemas, and a data model with
+JSON Pointer bindings. With it, a renderer written once (step 03 uses the
+official one) draws what any A2UI agent sends, and a message can be
+validated before it is drawn. This step writes the messages by hand, so
+the shapes are learned before a model writes them in step 02.
+
 ## Quick demo
 
 ```
@@ -42,7 +53,7 @@ screenshot: demo.png
 
 ```text
 step_01_a2ui_messages_by_hand/
-├── a2ui.py               the four envelope messages, schema validation, JSON Pointer, SurfaceStore
+├── a2ui.py               the four envelope messages, schema validation, JSON Pointer, SurfaceStore (cycle-safe tree)
 ├── server.py             FastAPI app: GET /stream replays the spec's contact form over SSE
 ├── contact_form.jsonl    the "Example Stream" from the A2UI v0.9.1 protocol document, unchanged
 ├── schema/
@@ -51,9 +62,9 @@ step_01_a2ui_messages_by_hand/
 │   └── catalog.json            the Basic Catalog: every component and function schema
 ├── static/
 │   ├── index.html        the page shell and the styles for the hand renderer
-│   ├── app.mjs           reads the SSE stream, feeds the store, repaints after every message
-│   ├── surface.mjs       the DOM-free client state: JSON Pointer, Surface, SurfaceStore
-│   └── render.mjs        the hand painter for part of the Basic Catalog, keyed by component name
+│   ├── app.mjs           reads the SSE stream, feeds the store, repaints after every message; logs a bad message and a reconnect
+│   ├── surface.mjs       the DOM-free client state: JSON Pointer (prototype keys refused), Surface, SurfaceStore
+│   └── render.mjs        the hand painter for part of the Basic Catalog, keyed by component name; paints a cycle once
 ├── surface.test.mjs      node --test for surface.mjs
 ├── test_step.py          offline pytest: builders, validation, surface state, the SSE endpoint, the node tests
 ├── demo.py               validates the stream, replays it in Python and the browser, saves demo.png
@@ -163,7 +174,9 @@ def validate(message):
 
 The client state, with no DOM in it. A surface is a component map plus a
 data model; `tree()` rebuilds the nested view and marks ids that have not
-arrived.
+arrived, and an id that names itself as a descendant (which a model can
+write in step 02) comes back as `{cycle: true}` instead of a stack
+overflow.
 
 `static/surface.mjs`:
 
@@ -181,12 +194,30 @@ arrived.
     }
   }
 ...
-  tree(id = 'root') {
+  tree(id = 'root', ancestors = new Set()) {
     const component = this.components.get(id);
     if (!component) return { id, missing: true };
-    return { id, component: component.component, children: this.childIds(component).map((c) => this.tree(c)) };
+    if (ancestors.has(id)) return { id, cycle: true };
+    const inner = new Set(ancestors).add(id);
+    return { id, component: component.component, children: this.childIds(component).map((c) => this.tree(c, inner)) };
   }
 ```
+
+The data model is written through JSON Pointer, and the path comes from
+the wire. `pointerTokens` refuses `__proto__`, `constructor` and
+`prototype` (through `pointerSet` they would reach `Object.prototype`),
+`pointerGet` reads own properties only, and a list index must be digits.
+`a2ui.py` gives the same verdicts. One deliberate deviation from RFC
+6902's `remove`: deleting a list element with `updateDataModel` leaves a
+hole (`undefined` / `None`) rather than shifting the rest, so bound paths
+such as `/tags/1` keep pointing at the same item.
+
+The store treats a repeated `createSurface` for an existing id as a
+reset: the old surface goes, a fresh one takes its place. That is what
+makes an `EventSource` reconnect harmless (the server replays from the
+start). The official `MessageProcessor` in step 03 throws on it instead,
+so a server that wants to start over sends `deleteSurface` first; steps
+02 and 03 do.
 
 A bound value is resolved at render time; on a click, the action's context
 is resolved at that moment. Function calls such as `formatDate` are not
@@ -231,7 +262,13 @@ yet paints a placeholder.
       if (id == null) return null;
       const component = surface.components.get(id);
       if (!component) return el('span', 'a2ui-placeholder', `waiting for ${id}`);
+      if (ctx.painting.has(id)) return el('span', 'a2ui-placeholder', `cycle at ${id}`);
 ```
+
+`paint` rebuilds the whole DOM on every message and on every keystroke
+(`onChange`), then restores focus and caret on the input being edited by
+its `data-field`. That is the cost of having no diffing: a checkbox or
+radio loses focus when a bound `Text` elsewhere repaints.
 
 The server replays the spec's stream as server-sent events, one envelope
 per `data:` line. A2UI does not pick a transport; it asks for ordered
@@ -259,7 +296,7 @@ async def stream(all: bool = False):
 
 ## Run it
 
-```
+```bash
 pip install fastapi uvicorn jsonschema playwright   # playwright: also `playwright install chromium`
 python server.py          # then open http://127.0.0.1:8741/
 python demo.py            # validates, replays, screenshots demo.png
@@ -267,10 +304,61 @@ python -m pytest test_step.py
 npm test                  # node --test on static/surface.mjs; no install needed
 ```
 
+PowerShell:
+
+```powershell
+pip install fastapi uvicorn jsonschema playwright
+python -m playwright install chromium
+python server.py
+python demo.py
+python -m pytest test_step.py
+npm test
+```
+
+`jsonschema` 4.18 or newer is needed: the validator imports `referencing`
+(the registry in the snippet above), which ships with it. No model key:
+this step calls no model.
+
+Expected output: the page shows the contact form building up, one
+message every 0.6 s: an empty card ("waiting for root"), then the form,
+then the fields fill with John Doe's details. Typing in a field updates
+the data model line in the log; clicking Send Message logs the action
+with the context resolved. With `?all=1` the surface disappears again
+after the `deleteSurface`. The quick demo above is the same run, driven
+headlessly, with the Python replay first.
+
 `contact_form.jsonl` is the "Example Stream" from the A2UI v0.9.1 protocol
 document, unchanged. `schema/` holds the three schema files the
 `a2ui-agent-sdk` package bundles for v0.9.1 (Apache-2.0); their `$id`s still
 say `v0_9`, and the envelope accepts both `v0.9` and `v0.9.1` as `version`.
+
+## Error handling
+
+- A message in `contact_form.jsonl` that does not validate after
+  `repair_checks`: `/stream` raises before the first frame, so the page
+  gets a 500 and logs `stream error: reconnecting` (EventSource retries;
+  the error is in the server's terminal).
+- A message the store refuses (an update for a surface never created, a
+  path with a prototype key, a component inside itself): the page logs
+  `bad message: ...` or paints `cycle at <id>` and goes on with the next
+  message.
+- The server drops mid-stream: `EventSource` reconnects and the server
+  replays from the first message; the repeated `createSurface` resets the
+  surface, so the page ends up where a fresh load would.
+- `demo.py` with port 8741 in use (a `python server.py` still running):
+  `RuntimeError: the server did not start on port 8741 (in use?)`.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- The renderer covers ten of the Basic Catalog's components and no
+  catalog functions (`formatDate` and friends resolve to `null`); the
+  official renderer in step 03 covers all of it.
+- `deleteSurface` on a list element keeps the list's length (see above).
+- Fixed port 8741; `server.py` and `demo.py` cannot run at the same time.
+- Nothing here talks to a model or to a server beyond the replay; the
+  client-to-server half (`action`, `sendDataModel`) is logged, not sent,
+  until step 02.
 
 ## What to notice
 
@@ -293,3 +381,10 @@ say `v0_9`, and the envelope accepts both `v0.9` and `v0.9.1` as `version`.
   does not run catalog functions.
 - `deleteSurface` removes the surface and its state. The page keeps
   nothing else; the server owns the conversation.
+
+## What the next step adds
+
+A model writes the messages: a prompt built from the catalog schema, the
+reply validated with this step's `validate` and sent back to the model
+when it fails, and the page's `action` posted to a server that answers
+with another surface.

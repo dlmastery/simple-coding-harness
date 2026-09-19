@@ -276,8 +276,6 @@ def test_loop_smoke_the_model_sees_the_instructions_in_the_system_message(tree, 
 
 from harness import commands, permissions, prompt, subagent, tools  # noqa: E402 - the tests below need them whatever the step imports above
 
-USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
-
 
 def _fake_model(replies):
     """A call_llm stand-in that answers with the next reply, whatever keywords the loop passes."""

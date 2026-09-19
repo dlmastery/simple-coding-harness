@@ -23,7 +23,8 @@ import os
 
 MAX_TURNS = 12  # a runaway explorer is worse than a missing answer
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file"}
+# the computer tools too: an explorer reads and reports, it does not click - or write memories
+WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "computer_act", "computer_screenshot", "remember", "forget"}
 
 SYSTEM_PROMPT = f"""
 You are an exploration subagent. You were given one question by a lead agent
@@ -72,6 +73,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
     ]
     ui.subagent(request)
     report = None  # newest thing it has said, kept in case we run out of turns
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
@@ -88,7 +90,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
             return report or "(the subagent came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)

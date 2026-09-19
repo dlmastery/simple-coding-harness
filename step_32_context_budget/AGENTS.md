@@ -7,9 +7,10 @@ loaded and `/init` writes a fresh one from a survey of the project.
 ## Overview
 
 This directory is one step of a series that builds a coding agent, the
-`harness` command, one feature at a time. This step adds project instruction
-files: `AGENTS.md` (or `CLAUDE.md`) discovered from the home directory, the
-git root and every directory down to the working directory.
+`harness` command, one feature at a time. This step adds the context
+budget: `budget.py` estimates what the next request carries, `/context`
+shows it, and tool schemas over `DEFER_OVER` tokens go out as stubs the
+model loads with `load_tool` (`tools.py`).
 
 ## Build system
 
@@ -22,14 +23,15 @@ git root and every directory down to the working directory.
 
 - Whole suite, offline, no key needed: `python -m pytest -q test_step.py`
 - One test: `python -m pytest -q test_step.py -k <name>`
-- From the repository root: `python run_tests.py 31` and
-  `python check_snippets.py 31`.
+- From the repository root: `python run_tests.py 32` and
+  `python check_snippets.py 32`.
 
 ## Layout
 
 - `harness/` - the package. `agent.py` is the loop, `llm.py` builds the
   system prompt and calls the model, `tools.py` is the tool registry,
-  `commands.py` handles `/` commands, `instructions.py` finds these files.
+  `commands.py` handles `/` commands, `budget.py` is the estimate,
+  `instructions.py` finds these files.
 - `.agents/` - project skills, hooks and MCP configuration.
 - `evals/` - the evaluation suite for `harness eval evals`.
 - `test_step.py` - the offline tests for this step.

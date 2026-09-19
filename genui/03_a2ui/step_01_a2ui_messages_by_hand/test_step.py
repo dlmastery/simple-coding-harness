@@ -85,6 +85,17 @@ def test_pointer_get_set_delete():
         a2ui.pointer_tokens("relative/path")
 
 
+def test_pointer_list_indexes_must_be_digits_on_every_operation():
+    doc = {"tags": ["x"]}
+    assert a2ui.pointer_get(doc, "/tags/x") is None
+    assert a2ui.pointer_delete(doc, "/tags/x") == {"tags": ["x"]}  # nothing to delete, no crash
+    assert a2ui.pointer_delete(doc, "/tags/x/y") == {"tags": ["x"]}
+    for path in ("/tags/x", "/tags/x/y"):
+        with pytest.raises(ValueError, match="not a list index"):
+            a2ui.pointer_set(doc, path, 1)
+    assert doc == {"tags": ["x"]}
+
+
 # ------------------------------------------------------------ surface state
 
 
@@ -128,13 +139,25 @@ def test_store_lifecycle():
     with pytest.raises(ValueError, match="never created"):
         store.apply(a2ui.update_data_model("s", "/", {}))
     store.apply(a2ui.create_surface("s"))
-    with pytest.raises(ValueError, match="already exists"):
-        store.apply(a2ui.create_surface("s"))
+    store.apply(a2ui.update_data_model("s", "/stale", True))
+    assert store.apply(a2ui.create_surface("s")).data == {}  # a repeated createSurface is a reset
     store.apply(a2ui.update_data_model("s", "/user", {"name": "Ada", "temp": 1}))
     surface = store.apply(a2ui.update_data_model("s", "/user/temp", remove=True))
     assert surface.data == {"user": {"name": "Ada"}}
     store.apply(a2ui.delete_surface("s"))
     assert store.surfaces == {}
+
+
+def test_a_component_inside_itself_is_a_cycle_not_a_crash():
+    surface = a2ui.Surface("s", a2ui.BASIC_CATALOG_ID)
+    surface.apply(a2ui.update_components("s", [
+        {"id": "root", "component": "Column", "children": ["root", "card"]},
+        {"id": "card", "component": "Card", "child": "root"},
+    ]))
+    tree = surface.tree()
+    assert tree["children"][0] == {"id": "root", "cycle": True}
+    assert tree["children"][1]["children"][0] == {"id": "root", "cycle": True}
+    assert surface.missing_ids() == []
 
 
 def test_spec_stream_through_the_store():

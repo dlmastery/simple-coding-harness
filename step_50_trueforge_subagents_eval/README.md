@@ -13,7 +13,11 @@ the pass rate and the turn metrics per task.
 
 This step is standalone. It needs a running TrueForge server; the setup and
 the Windows note are in step 46's README. Everything it registers on the
-server is named `s50-...`.
+server is named `s50-...`. Three environments take part: TrueForge (in WSL
+on this machine) runs the loop and the subagents; `tools_server.py`, a
+thread of `demo.py` on Windows, runs the file tools and `bash`; `check.py`
+runs in the same Windows process against the temp workspace. Only the
+middle one is the client's shell.
 
 ## Quick demo
 
@@ -69,8 +73,9 @@ report: eval_report.json
 Both outputs were recorded against the local server with
 `openai/gpt-4-1-mini`. The first run of the suite scored 2/3: the
 `find_function` subagent ran `rg 'def parse_config'` through `cmd.exe`,
-where single quotes are not quotes. The tools server now runs `bash` when
-one is on PATH, and every task passes.
+where single quotes are not quotes. The tools server now runs a real
+`bash` (`find_bash` below: Git Bash on Windows, never the WSL launcher in
+`system32`), and every task passes.
 
 ## Files
 
@@ -90,7 +95,7 @@ step_50_trueforge_subagents_eval/
 └── README.md        this file
 ```
 
-## Why these three together
+## Why these three together, and what breaks without a terminal status
 
 Stage 15 built a subagent as a second loop over the same tools. Step 29
 ran several of them on a thread pool and printed their panels with a tag.
@@ -109,7 +114,22 @@ The eval runner gains from the same fact. Step 30 spent most of its code
 restoring module-level state between tasks. Here a task is a session: the
 server holds the state, and the session ends with the task. What remains
 on the client side is the workspace, which the model reaches through an
-MCP server rooted at it.
+MCP server rooted at it. The session is deleted when the task ends
+(unless `--keep`), so the server does not fill up with one session per
+eval run.
+
+What breaks without a terminal status: a turn stream can end three ways
+that are not an answer. The server can report `error` (the model was
+unavailable, the iteration limit tripped), the turn can end `done` but
+paused on a `tool.approval_required` or `ask_user_question` nobody in an
+eval will answer, and the connection can drop before `turn.done` arrives
+at all. A runner that reads only the last main-thread text scores all
+three by running the checker on a half-finished workspace and reports
+`check.py exited 1` with no reason. Here `run_turn` returns a `status`
+that only `turn.done` can set, questions are switched off in the eval
+spec, and a task whose turn did not end `done` fails with the reason in
+its `detail`: `turn ended error: model unavailable`, `turn paused:
+tool.approval_required`, or `the stream ended without turn.done`.
 
 ## The code, piece by piece
 
@@ -203,7 +223,10 @@ def build_spec(instructions: str = INSTRUCTIONS, model: str = MODEL, mcp_servers
     spec = AgentSpec(
         model=Model(name=model),
         instructions=instructions,
-        config=RuntimeConfig(dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True)),
+        config=RuntimeConfig(
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True),
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),  # on by default; nothing here answers one
+        ),
     )
 ```
 
@@ -213,7 +236,11 @@ the root agent a `create_sub_agent` tool; the model writes the
 instructions for each child, the server runs the children in parallel,
 and each child returns only its final message. The rules match stage 15:
 a child gets the same tools and sandbox as the root, cannot ask the user,
-and cannot spawn children of its own.
+and cannot spawn children of its own. `ask_user_questions` is on by
+default too; this printer has no way to answer one, so the spec turns it
+off. A pause that arrives anyway (an approval under the default policy)
+prints as `paused: tool.approval_required for c9 (this client does not
+resume it)`, and `run_threads` returns the status alongside the text.
 
 ### 4. The server keeps the log
 
@@ -262,8 +289,11 @@ def reconnect(client, session_id: str, turn_id: str, after_sequence_number: int 
         stream = client.sessions.subscribe_to_turn(session_id=session_id, turn_id=turn_id, after_sequence_number=after_sequence_number)
         for event in stream:
             printer.handle(event)
-        return printer
-    out.write(f"turn {turn_id} is {turn.state.status}; replaying its stored events\n")
+        if printer.status != "incomplete":
+            return printer
+        out.write("the live stream ended before turn.done; replaying the stored events\n")  # it finished in between
+    else:
+        out.write(f"turn {turn_id} is {turn.state.status}; replaying its stored events\n")
     return replay(list_events(client, session_id, turn_id), out)
 ```
 
@@ -273,7 +303,17 @@ the client goes away. `get_turn` says whether it is still running.
 `subscribe_to_turn` reopens the stream, and `after_sequence_number` skips
 the events the client already saw; the sequence number is the `id` line
 of each server-sent event. A finished turn has no live stream, so the
-function replays the stored log instead.
+function replays the stored log instead. The turn can finish between
+`get_turn` and `subscribe_to_turn`; the subscribe stream is then short or
+empty, the printer's `status` stays `incomplete`, and the function falls
+back to the stored log.
+
+What this is not: drop recovery. Nothing in this step records the `id`
+line of the events it streams (`run_threads` iterates the stream, not
+`with_metadata()`), `demo.py` always passes `after_sequence_number=None`,
+and the Python SDK (0.1.3) never reconnects a dropped stream on its own.
+`reconnect` backs `--replay`: a way to look at a turn again from another
+process, from the start.
 
 ### 6. A task is a workspace, a tools server and a session
 
@@ -287,21 +327,37 @@ def build_spec(model: str = MODEL) -> SessionAgentSpecBody:
         model=Model(name=model),
         instructions=INSTRUCTIONS,
         mcp_servers=[tools],
-        config=RuntimeConfig(dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True), iteration_limit=40),
+        config=RuntimeConfig(
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True),
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),  # nobody answers during an eval; a question would pause the turn for good
+            iteration_limit=40,
+        ),
     ))
 ```
 
 ```python
     started = time.perf_counter()
+    session_id = turn_id = answer = ""
+    metrics, status = {}, "incomplete"
     try:
         with ToolsServer(workspace, port=port) as tools:
             register_tools(client, tools.url)
             session_id = client.sessions.create(agent=spec or build_spec()).data.id
-            turn_id, answer, metrics = run_turn(client, session_id, task.prompt, on_event)
-        passed, detail = check(task, workspace, answer)
+            turn_id, answer, metrics, status = run_turn(client, session_id, task.prompt, on_event)
+        if status == "done":
+            passed, detail = check(task, workspace, answer)
+        else:  # error, cancelled, paused or a cut stream: the checker would only add noise
+            passed, detail = False, answer if status != "incomplete" else "the stream ended without turn.done"
     except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
-        session_id, turn_id, answer, metrics = "", "", "", {}
         passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
+    seconds = round(time.perf_counter() - started, 3)
+    if not keep:
+        shutil.rmtree(root, ignore_errors=True)
+        if session_id:  # the server keeps sessions forever otherwise; the report keeps the id
+            try:
+                client.sessions.delete(session_id=session_id)
+            except Exception as failed:  # noqa: BLE001 - a leftover session is worth one line, not a failed task
+                detail += f" (session {session_id} not deleted: {type(failed).__name__})"
 ```
 
 The task's `workspace/` is copied to a temp directory, as in step 30. The
@@ -312,8 +368,14 @@ copy. `register_tools` points the `s50-tools` entry at it, the session
 attaches that server with `require_approval_for_tools: []` so no call
 pauses for a human (step 30 replaced `ui.approve` for the same reason),
 and `preload: true` loads every tool schema up front. One turn runs, the
-tools server stops, and the checker reads the workspace. The `try` turns
-a crash into a failed result with the exception as its detail.
+tools server stops, and the checker reads the workspace, but only when the
+turn ended `done`: an `error`, a pause or a cut stream is a failed task
+whose `detail` is the reason, and `status` goes into the report. The `try`
+turns a crash into a failed result with the exception as its detail. The
+session is deleted afterwards unless `--keep`; the ids stay in the report
+either way. A `find_function` prompt invites a clarifying question, which
+is why `ask_user_questions` is off: a question would end the turn `done`
+with no output and leave the session pending on the server.
 
 ### 7. The tools, with their annotations
 
@@ -333,15 +395,36 @@ a crash into a failed result with the exception as its detail.
 ```
 
 ```python
+def find_bash() -> str | None:
+    """The bash the tool runs: /bin/bash elsewhere, Git Bash on Windows.
+
+    From PowerShell `shutil.which("bash")` is `system32/bash.exe`,
+    the WSL launcher: a different PATH, a `/mnt/c/...` cwd and no `python`.
+    Git Bash is preferred wherever it is; None means the OS shell.
+    """
+    for candidate in (shutil.which("bash"), GIT_BASH):
+        if candidate and Path(candidate).exists() and "system32" not in candidate.lower():
+            return candidate
+    return None
+```
+
+```python
     @server.tool(annotations=destructive, structured_output=False)
     def bash(command: str) -> str:
         """Run a bash command in the project root and return its combined stdout and stderr."""
+        proc = subprocess.Popen(
+            [BASH, "-c", command] if BASH else command, shell=not BASH, cwd=project,
+            stdin=subprocess.DEVNULL,  # a pipe stdin makes rg and friends read it instead of the tree
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            encoding="utf-8", errors="replace",  # never a UnicodeDecodeError on odd output
+            env=BASH_ENV, **NEW_GROUP,
+        )
         try:
-            completed = subprocess.run(
-                [BASH, "-c", command] if BASH else command, shell=not BASH, cwd=project,
-                stdin=subprocess.DEVNULL,  # a pipe stdin makes rg and friends read it instead of the tree
-                capture_output=True, text=True, timeout=BASH_TIMEOUT,
-            )
+            out, err = proc.communicate(timeout=BASH_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            kill_tree(proc.pid)
+            out, err = proc.communicate()
+            return f"Timed out after {BASH_TIMEOUT}s and was killed. Output so far:\n{(out + err).strip()}"
 ```
 
 The five tools of stage 5 as one FastMCP server over streamable HTTP.
@@ -350,9 +433,24 @@ into an error string, so a wrong path is a tool result and not a crash.
 The annotations are what TrueForge's default approval policy reads:
 `readOnlyHint` on the readers, `destructiveHint` on the writers. The eval
 turns approvals off; a chat session with the default policy would pause
-on every `write_file`, `str_replace` and `bash`. The `bash` tool runs a
-real `bash` when one is on PATH, Git Bash on this machine, and falls back
-to the OS shell.
+on every `write_file`, `str_replace` and `bash`. The `bash` tool runs on
+the *client* machine, in whichever shell `find_bash` resolves: `/bin/bash`
+on Linux and macOS; on Windows, Git Bash from PATH or from its default
+install path, and never `C:\Windows\system32\bash.exe`. That one is the
+WSL launcher, which is what `shutil.which("bash")` returns from a
+PowerShell prompt: it would run every command inside WSL with a
+`/mnt/c/...` cwd and no `python` on PATH, and `fix_test`'s `python -m
+pytest` would fail with `command not found`. With no bash at all the tool
+falls back to the OS shell (`cmd.exe`), where single quotes do not quote.
+The command gets no stdin and no pager, runs in its own process group,
+and a timeout kills the whole group and returns the partial output.
+
+`ToolsServer.start()` refuses a port that already accepts connections
+(`OSError: port 8932 is already in use; pick another with --port`).
+Without that check, a previous task's server still draining a connection
+would keep the port, uvicorn's bind would fail inside its thread, and the
+next task would talk to the old server rooted at a workspace that no
+longer exists.
 
 ### 8. The report
 
@@ -388,9 +486,17 @@ with its answer, its detail, its session and turn ids, so `demo.py
 
 ## Run it
 
-Start the TrueForge server as in step 46. Then, from this directory:
+Prerequisites: the TrueForge server of step 46 (in WSL on Windows) with
+the model registered; `pip install mcp uvicorn` for the tools server (the
+root `requirements.txt` lists both). `TRUEFORGE_BASE_URL` and
+`TRUEFORGE_MODEL` are honoured, and `--base-url` overrides the first. From
+this directory, in bash or PowerShell (the commands are the same):
 
 ```bash
+python demo.py --threads "compare three sorting algorithms in parallel and summarise"
+```
+
+```powershell
 python demo.py --threads "compare three sorting algorithms in parallel and summarise"
 ```
 
@@ -411,11 +517,18 @@ live run. Then:
 python demo.py --eval
 ```
 
-The three tasks from step 30 run one after another, each on port 8932.
+The three tasks from step 30 run one after another, each on port 8932;
+between tasks the previous server must have let go of the port, or the
+next task fails with `run failed: OSError: port 8932 is already in use`.
 The table lists pass or fail, wall time, input and output tokens, and the
 first line of the answer; `evals/eval_report.json` holds the rest. The
 command exits 0 when every task passed. `--keep` leaves the temp
-workspaces in place; `--port` moves the tools server when 8932 is busy.
+workspaces and the sessions in place; without it each session is deleted
+after its check. `--port` moves the tools server when 8932 is busy.
+
+Expected output: the Quick demo above. The API has no delete for MCP
+server settings, so `s50-tools` stays registered after the suite, pointing
+at a port nothing listens on; the next run replaces it in place.
 
 Run the offline tests from the repository root:
 
@@ -428,7 +541,58 @@ The tests start a fake TrueForge server on a free port and point the real
 SDK at it. The eval test goes one step further: the fake server, when it
 receives the turn, connects to the real tools server the runner started
 and writes `hello.txt` through `write_file`, so the checker sees a real
-file.
+file. Other tests end a turn in `error`, pause it, cut the stream before
+`turn.done`, refuse a port in use, resolve `bash` past the WSL launcher,
+round-trip UTF-8 through `write_file` and `bash`, and kill a stuck
+command.
+
+## Error handling
+
+- **Server down or a refused request.** `request failed: http://localhost:8790 is not answering (ConnectError: ...)`
+  on stderr, exit 1, in every mode. Inside `--eval` a failed request is one
+  failed task (`run failed: ConnectError: ...`) and the suite goes on.
+- **A turn that ends in `error` or `cancelled`.** `--threads` prints
+  `turn done: error (...) model unavailable` and exits 1; the tokens spent
+  before the stop are still in the line. `--eval` fails the task with
+  `turn ended error: ...` and never runs the checker.
+- **A paused turn.** `--threads` prints `paused: tool.approval_required
+  for ... (this client does not resume it)` and exits 0 because the turn
+  ended `done`; `--eval` fails the task with `turn paused: ...`.
+- **A dropped stream.** No `turn.done`: the status is `incomplete`,
+  `--threads` exits 1, `--eval` fails the task with `the stream ended
+  without turn.done`. The turn may still be running on the server;
+  `--replay SESSION` shows it once it has finished.
+- **A tool that fails.** Every tool returns `Error: ...` as its result;
+  `bash` returns `Timed out after 120s and was killed. Output so far:`
+  plus the partial output. Nothing raises on the tools server side.
+- **`--replay` on a session with no turns.** `session ... has no turns`,
+  exit 1. An unknown session id is a refused request (404), exit 1.
+- **ctrl-c.** There is no prompt in this step to interrupt. ctrl-c while a
+  turn streams ends the demo with a `KeyboardInterrupt`; the turn keeps
+  running on the server and the session is not deleted.
+
+## Gotchas / what this is not
+
+- **Three environments.** TrueForge (WSL) runs the model loop and the
+  subagents; `tools_server.py` runs the file tools and `bash` in the
+  `demo.py` process on Windows; `check.py` runs in that same process. A
+  path in a task prompt means the workspace on the client, not anything
+  the server can see.
+- **`bash` on Windows** is Git Bash, found by `find_bash`; `python` and
+  `rg` must be on *that* PATH for `fix_test` and `find_function`. Without
+  Git Bash the tool runs `cmd.exe`.
+- **No drop recovery.** `reconnect` is a lookup for `--replay`; no
+  sequence number is recorded while streaming, and the SDK does not
+  reconnect on its own. A dropped stream is `incomplete`, not resumed.
+- **Sessions are deleted after an eval task** (unless `--keep`), not
+  after `--threads`; those stay on the server. `s50-tools` stays
+  registered after every run.
+- **Port reuse.** One port for the whole suite; a server that has not let
+  go of it by the next task fails that task rather than serving a stale
+  workspace.
+- **Questions are off** in both specs; a prompt that needs one gets a
+  plain answer or a refusal. Subagents get no approval prompt either: the
+  eval sets `require_approval_for_tools: []`, and `--threads` has no tools.
 
 ## What to notice
 
@@ -438,11 +602,16 @@ file.
 - A stored turn replays with the same printer. The server keeps the
   events it streamed, deltas merged. Step 44 built that log by hand.
 - Reconnect is a lookup. A turn outlives the client. `get_turn` says
-  whether it is still running; `subscribe_to_turn` resumes from a
-  sequence number; a finished turn replays from the log.
+  whether it is still running; `subscribe_to_turn` can resume from a
+  sequence number (this step passes none); a finished turn replays from
+  the log.
 - The eval needs no state reset. Step 30 saved and restored every
   module global between tasks. Here a task is a session and a fresh
-  tools server; nothing carries over.
+  tools server; nothing carries over, and the session is deleted at the
+  end.
+- A status is not a text. `run_turn`, `run_threads` and `reconnect` all
+  hand back a status that only `turn.done` can set, so a dropped stream,
+  an error and a pause are three outcomes, not an empty answer.
 - The workspace is a service. TrueForge cannot open the client's files.
   The tools server makes one directory reachable and nothing else, and
   `resolve` enforces that boundary inside every tool.
@@ -460,7 +629,13 @@ file.
 | Parallel subagents | Step 29: `task` takes a list, runs them on a thread pool, tags the panels | Several `create_sub_agent` calls in one message; `thread.created` / `thread.done` per child, `thread_id` on every event |
 | Session store | Stage 8: JSONL file per session, `--resume` | Sessions and turns on the server; `sessions.list`, `list_turns`, `previous_turn_id: auto` |
 | Replay | Step 44: `harness replay <id>` from the stamped log | `GET .../turns/{turn}/events`, deltas already merged, through the same printer |
-| Recovery | Step 34: transcript written before every call, resume from disk | `get_turn` then `subscribe_to_turn(after_sequence_number=...)` |
+| Recovery | Step 34: transcript written before every call, resume from disk | `get_turn` then `subscribe_to_turn(after_sequence_number=...)`; the client must record the sequence numbers itself (this step does not) |
 | Usage per turn | Step 44: a usage entry per model call in the log | `turn.done` `state.metrics` aggregates the whole turn, threads included |
 | Eval runner | Step 30: `harness eval SUITE`, real `turn()` in a reset process | One session per task, the workspace served by `tools_server.py` over MCP, `require_approval_for_tools: []` |
 | Tool permissions | Stage 11: rules in `permissions.py` | `readOnlyHint` / `destructiveHint` on each MCP tool, `require_approval_for_tools` per server |
+
+## What the next step adds
+
+Step 51 is a written comparison, not code: the hand-built harness of
+steps 01 to 45 against TrueForge across every capability of steps 46 to
+50, with the token and cost numbers of both.

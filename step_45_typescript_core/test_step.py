@@ -1,10 +1,11 @@
 """Step 45 offline tests. The TypeScript port has its own suite under
 harness-ts/tests, run by node's test runner against a fake client. This
-file runs that suite when node 22.6 or newer is on the PATH, and checks
-that a session log crosses the language line in both directions: written
-by Python, loaded by TypeScript, and the reverse. The Python harness copied
-from step 44 gets an import smoke test only. No model, browser or network
-is launched.
+file runs that suite when node 22.6 or newer is on the PATH, runs `tsc`
+over the port when `npm install` has put it in harness-ts/node_modules,
+and checks that a session log crosses the language line in both
+directions: written by Python, loaded by TypeScript, and the reverse. The
+Python harness copied from step 44 gets an import smoke test only; its own
+tests are step 44's. No model, browser or network is launched.
 """
 
 import inspect
@@ -22,6 +23,7 @@ os.environ.setdefault("API_KEY", "x")
 STEP = Path(__file__).resolve().parent
 NODE = shutil.which("node")
 BRIDGE = "harness-ts/tests/session_bridge.ts"
+TSC = STEP / "harness-ts" / "node_modules" / "typescript" / "bin" / "tsc"  # there after `npm install` in harness-ts
 
 
 def node_version():
@@ -62,6 +64,15 @@ def test_node_suite_passes():
     tail = "\n".join(result.stdout.splitlines()[-12:])
     assert result.returncode == 0, tail + result.stderr[-2000:]
     assert "# fail 0" in result.stdout, tail
+
+
+def test_the_port_type_checks_under_strict():
+    """`npm run typecheck`: the annotations are checked, not just read. Skipped until typescript is installed."""
+    need_node()
+    if not TSC.exists():
+        pytest.skip("typescript is not installed: run `npm install` in harness-ts first")
+    result = subprocess.run([NODE, str(TSC), "-p", "."], cwd=STEP / "harness-ts", capture_output=True, text=True, encoding="utf-8", timeout=300)
+    assert result.returncode == 0, result.stdout[-3000:] + result.stderr[-1000:]
 
 
 def test_typescript_session_loads_in_python(tmp_path, store):

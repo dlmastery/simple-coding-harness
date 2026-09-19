@@ -169,7 +169,6 @@ def test_a_stream_that_breaks_halfway_is_started_over(monkeypatch):
     assert message.content == "whole reply"  # nothing of the broken stream survives in the message
     assert streamed == ["half of a re", "whole reply"]
     assert restarts == [1]  # the caller was told, after the partial text and before the retry
-    assert llm.client.max_retries == 0 if hasattr(llm.client, "max_retries") else True
 
 
 def test_giving_up_after_five_tries_returns_a_failed_message(monkeypatch):
@@ -212,6 +211,7 @@ def test_retryable_says_yes_to_limits_connections_timeouts_and_5xx_only():
     rejected = openai.APIError("bad", request=request(), body={"code": 400, "message": "invalid request"})
     assert llm.retryable(overloaded) and not llm.retryable(rejected)  # an error event inside the stream
     assert llm.MAX_TRIES == 5 and llm.BACKOFF == (0.5, 1.0, 2.0, 4.0)
+    assert llm.client.max_retries == 0  # the SDK's own silent retries are off: this policy is the whole policy
 
 
 def test_the_loop_shows_a_failed_call_and_keeps_the_session(monkeypatch):
@@ -403,8 +403,6 @@ def test_loop_smoke_a_retry_inside_a_turn_then_a_tool_call_then_an_answer(monkey
 # ------------------------------------------------- robustness (shared by every step)
 
 from harness import commands, permissions, prompt, subagent, tools  # noqa: E402 - the tests below need them whatever the step imports above
-
-USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
 
 
 def _fake_model(replies):

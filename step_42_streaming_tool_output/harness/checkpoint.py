@@ -8,9 +8,10 @@ yet is recorded as such, so undoing the turn deletes it. A file is
 captured once per turn: the first copy is the state before the turn, which
 is the one an undo must bring back.
 
-The capture is the built-in PreToolUse hook `pre_tool_use`. The hook
-system runs it before every hook from hooks.json; the tool code does not
-know about checkpoints. `agent.turn` calls `begin_turn` once per user
+The capture is one call in `tools.run`, after the approval and before the
+tool: only an edit that actually runs is captured, and a capture that
+fails is a loud note naming the file. `pre_tool_use` is the same capture
+as a hook, for a hooks.json that wants it earlier. `agent.turn` calls `begin_turn` once per user
 message, which numbers the turn and records where the transcript stood.
 `/undo` and `/rewind` use that record to cut the transcript and to restore
 the files together.
@@ -111,7 +112,7 @@ def capture(path, tool=None):
 
 
 def pre_tool_use(event):
-    """The built-in PreToolUse hook: capture the target of an edit tool. Never blocks."""
+    """The capture as a PreToolUse hook (`"python": "harness.checkpoint:pre_tool_use"`). Never blocks."""
     if event.get("tool_name") not in EDIT_TOOLS:
         return None
     path = (event.get("tool_input") or {}).get("path")

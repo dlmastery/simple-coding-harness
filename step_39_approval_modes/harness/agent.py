@@ -290,6 +290,8 @@ def main(argv=None):
     cli = parser().parse_args(argv)
     try:
         if cli.command == "eval":
+            if cli.mode:
+                modes.set_mode(cli.mode, log=False)  # the tasks run in that mode; an eval keeps no chat log to note it in
             raise SystemExit(evaluate.main(cli))
         chat(cli)
     finally:
@@ -332,12 +334,12 @@ def resume(messages):
 
 
 def chat(cli):
-    if cli.mode:
-        modes.set_mode(cli.mode)  # before the banner and the first check
     if cli.print:
         headless()
         session.ENABLED = bool(cli.resume)  # a one-off question leaves no session behind
-    else:
+    if cli.mode:
+        modes.set_mode(cli.mode)  # before the banner and the first check; logged, so --resume comes back in it
+    if not cli.print:
         ui.banner(sandbox.name(), modes.current())
     mcp_client.connect_all()  # external tools join the registry before the first turn
     hooks.session_start()     # SessionStart hooks; their context stays in the late block

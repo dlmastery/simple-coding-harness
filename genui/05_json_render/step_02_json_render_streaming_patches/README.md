@@ -134,19 +134,26 @@ class Stream:
 
 `json_patch.py`: RFC 6902 with JSON Pointer paths, on plain dicts and lists.
 Two tolerances are copied from the library, so both sides build the same
-spec: `add` creates a missing parent, because the model's first element
-patch is `/elements/card-1` and no `/elements` patch comes before it, and
-`replace` creates a missing target.
+spec for a well-formed stream: `add` creates a missing parent, because the
+model's first element patch is `/elements/card-1` and no `/elements`
+patch comes before it, and `replace` creates a missing target. On
+malformed lines the library is more forgiving (see "When a line does not
+apply"); a bad patch here raises `PatchError` and nothing else, so the
+compiler can skip the line and go on:
 
 ```python
 def apply_patch(doc, patch):
-    """Apply one operation in place. Returns doc."""
+    """Apply one operation in place. Returns doc. A bad patch raises PatchError, nothing else."""
+    if not isinstance(patch, dict):  # a JSON array or string on the line: not a patch
+        raise PatchError(f"a patch must be an object, got {type(patch).__name__}")
     op = patch.get("op")
     if op not in OPS:
         raise PatchError(f"unknown op {op!r}")
     ...
     if op == "add":
         if path == "":
+            if not isinstance(patch["value"], dict):
+                raise PatchError("the whole document must be an object")
             doc.clear()
             doc.update(patch["value"])
         else:
@@ -172,7 +179,9 @@ def apply_patch(doc, patch):
 
 `json_patch.py`: the stream compiler. Chunks arrive at any boundary; only
 complete lines are parsed, and the last line is applied by `finish()` when
-the stream ends without a newline. The same rules as `createSpecStreamCompiler`.
+the stream ends without a newline. The same line rules as
+`createSpecStreamCompiler`; a line that does not apply goes to `skipped`
+with its reason, whatever the reason was:
 
 ```python
 class SpecStream:
@@ -193,22 +202,31 @@ class SpecStream:
 
 `server.py`: the relay. Every chunk goes to the page unchanged, and into a
 `SpecStream` on the way, so the server ends with the complete spec, the
-patch list and the moment the first paint became possible.
+patch list and the moment the first paint became possible. A model call
+that fails part-way cannot change the HTTP status (the headers went out
+with the first chunk), so the stream ends with one more line,
+`{"error": "..."}`: not a patch, both compilers skip it, and the page
+reads it as the terminal state. `/last` records the same `error`:
 
 ```python
 def relay(prompt):
-    """Forward each chunk as it arrives, and compile a copy on the way."""
     started = time.perf_counter()
-    stream = llm.stream_text(system_prompt(), prompt)
     compiler = SpecStream()
     timings = {"first_chunk": None, "first_paint": None, "complete": None}
-    for chunk in stream:
-        if timings["first_chunk"] is None:
-            timings["first_chunk"] = time.perf_counter() - started
-        compiler.push(chunk)
-        if timings["first_paint"] is None and compiler.has_root():
-            timings["first_paint"] = time.perf_counter() - started
-        yield chunk
+    error, usage = None, None
+    try:
+        stream = llm.stream_text(system_prompt(), prompt)
+        for chunk in stream:
+            if timings["first_chunk"] is None:
+                timings["first_chunk"] = time.perf_counter() - started
+            compiler.push(chunk)
+            if timings["first_paint"] is None and compiler.has_root():
+                timings["first_paint"] = time.perf_counter() - started
+            yield chunk
+        usage = stream.usage
+    except Exception as failure:  # noqa: BLE001 - the model call failed: say so on the wire and in /last
+        error = f"{type(failure).__name__}: {failure}"
+        yield "\n" + json.dumps({"error": error}) + "\n"
     compiler.finish()
     timings["complete"] = time.perf_counter() - started
 ```
@@ -216,27 +234,41 @@ def relay(prompt):
 `app.mjs`: the page reads the body with a stream reader and pushes each
 chunk into the library's compiler. `newPatches` is empty while a line is
 still incomplete; `result` is a new object whenever a patch applied, so
-`setSpec` re-renders.
+`setSpec` re-renders. The whole read is one `try/finally`: a non-200
+answer, a lost connection or the server's `{"error"}` line all end in a
+status line that says what happened, and `loading` is cleared either
+way, so `Generate` (disabled while a stream runs) is never stuck.
 
 ```js
     const compiler = createSpecStreamCompiler();
-    const response = await fetch("/stream", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
-    for await (const chunk of chunks(response)) {
-      const { result, newPatches } = compiler.push(chunk);
-      if (newPatches.length === 0) continue;
-      // The first patch sets /root alone; Renderer reads spec.elements[spec.root]
-      // with no guard, so give it an empty map until /elements arrives.
-      setSpec(result.elements ? result : { ...result, elements: {} });
-      if (firstPaint === null && result.root && result.elements?.[result.root]) {
-        firstPaint = seconds();
-        setStatus(`first paint at ${firstPaint} s`);
+    try {
+      const response = await fetch("/stream", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      for await (const chunk of chunks(response)) {
+        text += chunk;
+        const { result, newPatches } = compiler.push(chunk);
+        if (newPatches.length === 0) continue;
+        // The first patch sets /root alone; Renderer reads spec.elements[spec.root]
+        // with no guard, so give it an empty map until /elements arrives.
+        setSpec(result.elements ? result : { ...result, elements: {} });
+        if (firstPaint === null && result.root && result.elements?.[result.root]) {
+          firstPaint = seconds();
+          setStatus(`first paint at ${firstPaint} s`);
+        }
       }
+      setSpec(compiler.getResult()); // applies a last line that had no newline
+      const failed = errorLine(text);
+      setStatus(failed
+        ? `stopped after ${compiler.getPatches().length} patches: ${failed}`
+        : `first paint at ${firstPaint} s, complete at ${seconds()} s, ${compiler.getPatches().length} patches`);
+    } catch (error) {
+      setStatus(`stream failed: ${error.message}`); // a dead server or a lost connection: a terminal state, not "streaming..." forever
+    } finally {
+      setLoading(false);
     }
-    setSpec(compiler.getResult()); // applies a last line that had no newline
 ```
 
 `app.mjs`: state patches mutate `spec.state` in place. `StateProvider`
@@ -247,15 +279,79 @@ what makes `/state/...` patches reach the store.
   const state = useMemo(() => ({ ...(spec?.state ?? {}) }), [spec]);
 ```
 
+## Why: what breaks without it
+
+Step 01 waits 5.8 s for one object and then draws everything. The model
+wrote the first card in the first second; the format hid it. JSON Patch
+lines make every element its own complete line, so the page can apply
+each as it lands. The cost is a stream of lines the model can get wrong
+one at a time: a line wrapped in `[...]`, a bare string, an `add` below a
+scalar, an object where `/root` should hold an id. Before this round
+each of those was an exception out of `relay()` in the middle of a
+`StreamingResponse`: uvicorn dropped the body, the page's reader
+rejected, and the status said `streaming...` forever. Now each is a
+skipped line with a reason, and a failed model call is a terminal line
+the page can read.
+
 ## Run it
+
+Prerequisites as step 01 (Node 20+ and `npm install`, fastapi/uvicorn/
+httpx/jsonschema/openai, a key, Playwright for `demo.py`).
+
+bash:
 
 ```
 npm install
+export API_KEY=sk-...
 python server.py          # http://127.0.0.1:8056, press Generate
 python demo.py            # streams once, saves demo_first_paint.png and demo.png
 python -m pytest -q test_step.py
 npm test
 ```
+
+PowerShell:
+
+```
+npm install
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest -q test_step.py
+npm test
+```
+
+Expected output: the `Quick demo` transcript above; timings vary with
+the model. `catalog check: ok` and an empty `skipped` list (the demo
+prints skipped lines when there are any) are the checks.
+
+## When a line does not apply
+
+- **On the page:** `createSpecStreamCompiler` never throws; a line it
+  cannot apply is dropped and the next one is applied. The page shows no
+  trace of it.
+- **On the server:** `SpecStream` skips the line and records
+  `(line, reason)` in `skipped`; `/last` returns it and `demo.py` prints
+  it. That is where to look when the page and the server disagree.
+- **Where Python and the library differ**, on malformed lines only: the
+  library accepts `path: ""` as a key named `""` while Python replaces
+  the document (object) or skips (anything else); the library counts a
+  `remove` of a missing path as applied, Python skips it; the library
+  overwrites a scalar parent silently, Python skips with
+  `parent is not a container`. `LAST["skipped"]` shows every divergence.
+- **A transport error:** a non-200 answer (`stream failed: server
+  answered 500: ...`), a dead server or a lost connection end in the
+  status line and `Generate` is enabled again.
+- **A model failure part-way:** the stream ends with `{"error": "..."}`;
+  the status reads `stopped after N patches: <reason>` and what arrived
+  stays on screen. `/last` carries `error` and the partial spec.
+
+## Error handling
+
+- `demo.py` gives uvicorn 10 s to bind port 8056 and raises
+  `RuntimeError("the server did not start ...; is the port free?")` when
+  it cannot (a `python server.py` still running holds the port).
+- `check_spec` reports wrong shapes and cycles as sentences (step 01).
+- ctrl-c stops `server.py` and `demo.py`.
 
 ## What to notice
 
@@ -269,9 +365,23 @@ npm test
 - The first paint needs two lines, `/root` and the root element. A parent
   that lists a child that has not arrived renders without it; nothing
   breaks. That is the property the report calls out in favour of flat
-  element maps.
+  element maps. The first-paint numbers depend on the model emitting
+  `/root` and then the root element first, as the library's prompt asks;
+  a model that writes the leaves first shows nothing until the root
+  arrives, and the page's status stays at `streaming...` until then.
 - The prompt is 4,000 tokens and the reply is under 500. Streaming does
   not change the prompt cost, only when the user sees something.
+
+## Gotchas / What this is not
+
+- One `LAST` result on the server, no sessions; two pages streaming at
+  once interleave their `LAST`. The streams themselves are independent.
+- The page and the server compile the same text with different code; on
+  a well-formed stream they agree (the test pins it), on a malformed one
+  `skipped` is the record of where they did not.
+- JSON mode is off (`stream_text` sends no `response_format`): JSONL is
+  not one JSON document, and the model is trusted to write one patch per
+  line because the library's prompt says so.
 
 ## Diff from the previous step
 
@@ -286,3 +396,9 @@ npm test
   guard and the per-version copy of `spec.state`.
 - `tests/`: `patches.jsonl`, `compile.mjs` and `stream.test.mjs` replace
   `render.test.mjs`.
+
+## What the next step adds
+
+Step 03 adds actions (a button press becomes a server turn on the same
+transcript and compiler), a Python-side check of the action params, and
+a second render target: the same spec drawn with Ink in a terminal.

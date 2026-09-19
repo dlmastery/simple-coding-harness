@@ -11,17 +11,28 @@ export function messageType(message) {
 
 // ------------------------------------------------------------ JSON Pointer (RFC 6901)
 
+// A path in a message is data from the wire. These three tokens would reach
+// Object.prototype through pointerSet, so they are refused everywhere.
+const FORBIDDEN = new Set(['__proto__', 'constructor', 'prototype']);
+
 export function pointerTokens(path) {
   if (path === '' || path === '/') return [];
   if (!path.startsWith('/')) throw new Error(`absolute JSON Pointer expected, got ${path}`);
-  return path.slice(1).split('/').map((t) => t.replaceAll('~1', '/').replaceAll('~0', '~'));
+  const tokens = path.slice(1).split('/').map((t) => t.replaceAll('~1', '/').replaceAll('~0', '~'));
+  for (const token of tokens) if (FORBIDDEN.has(token)) throw new Error(`refused JSON Pointer token ${token}`);
+  return tokens;
+}
+
+function index(token) {
+  if (!/^\d+$/.test(token)) throw new Error(`not an array index: ${token}`);
+  return Number(token);
 }
 
 export function pointerGet(doc, path) {
   let node = doc;
   for (const token of pointerTokens(path)) {
     if (Array.isArray(node) && /^\d+$/.test(token) && Number(token) < node.length) node = node[Number(token)];
-    else if (node && typeof node === 'object' && token in node) node = node[token];
+    else if (node && typeof node === 'object' && Object.hasOwn(node, token)) node = node[token];
     else return undefined; // not there yet: progressive rendering treats it as empty
   }
   return node;
@@ -36,11 +47,11 @@ export function pointerSet(doc, path, value) {
   }
   let node = doc;
   for (const token of tokens.slice(0, -1)) {
-    if (Array.isArray(node)) node = node[Number(token)];
+    if (Array.isArray(node)) node = node[index(token)];
     else node = node[token] ??= {};
   }
   const last = tokens.at(-1);
-  if (Array.isArray(node)) node[Number(last)] = value;
+  if (Array.isArray(node)) node[index(last)] = value;
   else node[last] = value;
   return doc;
 }
@@ -57,8 +68,9 @@ export function pointerDelete(doc, path) {
     if (parent == null) return doc;
   }
   const last = tokens.at(-1);
-  if (Array.isArray(parent)) parent[Number(last)] = undefined; // arrays keep their length
-  else delete parent[last];
+  if (Array.isArray(parent)) {
+    if (/^\d+$/.test(last) && Number(last) < parent.length) parent[Number(last)] = undefined; // arrays keep their length
+  } else delete parent[last];
   return doc;
 }
 
@@ -111,11 +123,14 @@ export class Surface {
     return ids;
   }
 
-  // The nested view of the flat map. Unknown ids become {missing: true} placeholders.
-  tree(id = 'root') {
+  // The nested view of the flat map. Unknown ids become {missing: true} placeholders;
+  // an id that is its own ancestor becomes {cycle: true}, so a bad map cannot overflow the stack.
+  tree(id = 'root', ancestors = new Set()) {
     const component = this.components.get(id);
     if (!component) return { id, missing: true };
-    return { id, component: component.component, children: this.childIds(component).map((c) => this.tree(c)) };
+    if (ancestors.has(id)) return { id, cycle: true };
+    const inner = new Set(ancestors).add(id);
+    return { id, component: component.component, children: this.childIds(component).map((c) => this.tree(c, inner)) };
   }
 
   missingIds() {
@@ -143,7 +158,8 @@ export class SurfaceStore {
     const body = message[kind];
     const id = body.surfaceId;
     if (kind === 'createSurface') {
-      if (this.surfaces.has(id)) throw new Error(`surface ${id} already exists`);
+      // A repeated createSurface is a reset: the surface starts over. (The official
+      // MessageProcessor throws here instead, so a server sends deleteSurface first.)
       this.surfaces.set(id, new Surface(id, body.catalogId, body.theme ?? {}, body.sendDataModel ?? false));
     } else if (kind === 'deleteSurface') {
       this.surfaces.delete(id);

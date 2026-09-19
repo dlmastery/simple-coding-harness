@@ -117,8 +117,7 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired:
         kill_tree(proc.pid)
         out, err = proc.communicate()  # what it printed before the kill
-        return f"Timed out after {TIMEOUT}s and was killed. Output so far:
-{out + err}"
+        return f"Timed out after {TIMEOUT}s and was killed. Output so far:\n{out + err}"
     return (out + err) or "(no output)"
 
 

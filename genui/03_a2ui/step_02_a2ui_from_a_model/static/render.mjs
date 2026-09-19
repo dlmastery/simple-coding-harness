@@ -74,7 +74,8 @@ const RENDERERS = {
   ChoicePicker(ctx, c) {
     const single = c.variant === 'mutuallyExclusive';
     const group = el('div', 'a2ui-choices');
-    const selected = ctx.surface.resolve(c.value) ?? [];
+    const resolved = ctx.surface.resolve(c.value);
+    const selected = Array.isArray(resolved) ? resolved : resolved == null ? [] : [resolved]; // a single value still selects
     for (const option of c.options ?? []) {
       const input = el('input');
       input.type = single ? 'radio' : 'checkbox';
@@ -95,15 +96,22 @@ const FLEX = { start: 'flex-start', center: 'center', end: 'flex-end', spaceBetw
 export function paintSurface(surface, { onChange, onAction }) {
   const ctx = {
     surface,
+    painting: new Set(), // the ids on the way down: a component inside itself is painted once
     paint(id) {
       if (id == null) return null;
       const component = surface.components.get(id);
       if (!component) return el('span', 'a2ui-placeholder', `waiting for ${id}`);
-      const renderer = RENDERERS[component.component];
-      const node = renderer ? renderer(ctx, component) : el('div', 'a2ui-unknown', `${component.component} is not in this renderer`);
-      node.dataset.id = id;
-      if (component.weight) node.style.flex = String(component.weight);
-      return node;
+      if (ctx.painting.has(id)) return el('span', 'a2ui-placeholder', `cycle at ${id}`);
+      ctx.painting.add(id);
+      try {
+        const renderer = Object.hasOwn(RENDERERS, component.component) ? RENDERERS[component.component] : null;
+        const node = renderer ? renderer(ctx, component) : el('div', 'a2ui-unknown', `${component.component} is not in this renderer`);
+        node.dataset.id = id;
+        if (component.weight) node.style.flex = String(component.weight);
+        return node;
+      } finally {
+        ctx.painting.delete(id);
+      }
     },
     paintAll(children) {
       if (Array.isArray(children)) return children.map((id) => ctx.paint(id));

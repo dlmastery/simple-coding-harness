@@ -7,7 +7,7 @@ import pytest
 
 os.environ.setdefault("API_KEY", "x")
 
-from harness import agent, browse, browser, llm, permissions, session, subagent, todos, tools  # noqa: E402
+from harness import agent, browse, browser, commands, llm, permissions, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 
@@ -285,6 +285,23 @@ def test_write_todos_rejects_bad_items_and_session_load_repairs(tmp_path, monkey
     lines = [{"role": "user", "content": "go"}, {"role": "assistant", "content": None, "tool_calls": [{"id": "t9", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}]
     (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
     assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+
+
+def test_rewind_cuts_before_a_user_message_never_inside_an_exchange(monkeypatch):
+    monkeypatch.setattr(session, "save", lambda messages: None)
+    cuts = []
+    monkeypatch.setattr(session, "rewind_to", cuts.append)
+    monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "a", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "a", "content": "ok"},
+        {"role": "user", "content": "two"},
+    ]
+    monkeypatch.setattr(ui, "pick", lambda title, rows: 1)
+    out = commands.rewind(messages)
+    assert cuts == [4] and [m["role"] for m in out] == ["system", "user", "assistant", "tool"]
 
 
 def test_utf8_round_trip_and_hardened_permissions(tmp_path):

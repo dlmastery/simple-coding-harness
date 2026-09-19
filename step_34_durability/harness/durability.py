@@ -2,11 +2,12 @@
 
 LoopDetector watches the tool calls of consecutive replies and flags a call
 that repeats with the same name and the same arguments REPEAT_LIMIT times
-in a row; the OBSERVE tools, which repeat on purpose, are never flagged. unanswered(messages) finds the tool calls at the end of a
-transcript that never got a result, which is what a crash between a model
-reply and its tool results leaves behind. The retry of a failed model call
-lives in llm.py, next to the call it protects. Nothing here talks to the
-model or runs a tool.
+in a row; the OBSERVE tools, which repeat on purpose, are never flagged.
+unanswered(messages) finds the tool calls at the end of a transcript that
+never got a result, which is what a crash between a model reply and its
+tool results leaves behind. The retry of a failed model call lives in
+llm.py, next to the call it protects. Nothing here talks to the model or
+runs a tool.
 """
 
 import json

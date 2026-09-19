@@ -8,12 +8,18 @@ The reply streams through the SDK's DirectJsonStreamParser so the page paints
 while the model is still writing. The finished reply then goes through the
 full parser, which repairs small faults and validates against the catalog;
 if that fails, the error goes back to the model once, the spec's loop.
+
+Every generation starts by deleting the surfaces of the previous one, on
+the page and in the mirror: a repeated createSurface is an error for the
+official renderer (step 03), so the reset is explicit. The mirror is one
+per process: this server is a demo for one page at a time.
 """
 
 import asyncio
 import json
 import queue
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,6 +27,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 import envelope
 import llm
@@ -29,9 +36,22 @@ import prompt
 HERE = Path(__file__).parent
 PORT = 8742
 ATTEMPTS = 2  # one generation, one correction
+KEEPALIVE_AFTER = 15  # seconds of silence (the model thinking) before an SSE comment goes out
 
 app = FastAPI()
 STORE = envelope.SurfaceStore()  # the server's mirror of what the page holds
+
+
+class Generate(BaseModel):
+    prompt: str
+
+
+class Action(BaseModel):
+    """The client-to-server action message; the fields the answer reads."""
+
+    name: str
+    surfaceId: str
+    context: dict = {}
 
 
 def sse(payload, event=None):
@@ -55,6 +75,8 @@ def mirror(message):
 
 def generate(user_prompt):
     """Yield (event, payload) pairs: the progressive messages, then the final ones."""
+    for surface_id in list(STORE.surfaces):
+        yield mirror(envelope.delete_surface(surface_id))  # the previous generation goes first
     conversation = [{"role": "system", "content": prompt.system_prompt()}, {"role": "user", "content": user_prompt}]
     for attempt in range(1, ATTEMPTS + 1):
         parser = prompt.stream_parser()
@@ -102,13 +124,13 @@ def generate(user_prompt):
 
 
 @app.post("/generate")
-async def generate_endpoint(body: dict):
+async def generate_endpoint(body: Generate):
     """Run generate() in a thread and forward its events over SSE as they happen."""
     events = queue.Queue()
 
     def work():
         try:
-            for event, payload in generate(body.get("prompt", "")):
+            for event, payload in generate(body.prompt):
                 events.put((event, payload))
         except Exception as error:  # the page sees the failure instead of a hang
             events.put(("note", {"error": f"{type(error).__name__}: {error}"[:300]}))
@@ -117,12 +139,17 @@ async def generate_endpoint(body: dict):
     threading.Thread(target=work, daemon=True).start()
 
     async def stream():
+        quiet_since = time.monotonic()
         while True:
             try:
                 event, payload = events.get_nowait()
             except queue.Empty:
+                if time.monotonic() - quiet_since > KEEPALIVE_AFTER:
+                    yield ": keepalive\n\n"  # an SSE comment: the page ignores it, a proxy keeps the stream
+                    quiet_since = time.monotonic()
                 await asyncio.sleep(0.02)
                 continue
+            quiet_since = time.monotonic()
             yield sse(payload, event)
             if event == "done":
                 return
@@ -151,8 +178,8 @@ def answer_action(action):
 
 
 @app.post("/action")
-async def action_endpoint(action: dict):
-    return answer_action(action)
+async def action_endpoint(action: Action):
+    return answer_action(action.model_dump())
 
 
 app.mount("/", StaticFiles(directory=HERE / "static", html=True), name="static")

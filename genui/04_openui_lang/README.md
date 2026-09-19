@@ -68,3 +68,29 @@ Each step is self-contained: `python demo.py` records the README's demo,
 `python -m pytest -q` runs offline. From the repository root,
 `python run_tests.py genui/04` and `python check_snippets.py genui/04`
 cover the whole sub-theme.
+
+## Streaming caveats, once for the sub-theme
+
+- **A broken line is an error line, not a sink.** In step 01's parser a
+  string ends with its line, so a stray `"` costs one statement; a stray
+  `[` holds back the lines after it until a `]` arrives (the library in
+  step 02 auto-closes the pending line instead; step 07's parser starts a
+  new statement at the next `name =`).
+- **The resolver re-runs on every push.** Cost grows with program size;
+  shared references are resolved once per push (memoised) but appear as
+  many times as they are referenced in the rendered tree.
+- **The stream always ends with a named event.** Steps 02 and 04 send
+  `event: done` on success and `event: error` with the reason when the
+  model call fails part-way; the pages show that reason next to what did
+  arrive and never stay in `Streaming`. A model-side failure is never a
+  silently truncated program.
+- **What the library drops while streaming.** With `@openuidev/lang-core`
+  an element whose required argument is a forward reference is removed
+  (`null-required`) until the reference resolves, not shown as a
+  skeleton; a prop of the wrong type removes the element
+  (`type-mismatch`). Step 01's hand parser shows a skeleton for the same
+  program: that is the most visible difference between the two.
+- **The sandbox of step 04** stops the network and the host page, not
+  the document navigating itself; the CSP meta goes right after the
+  doctype, before any element, because a document that controls its own
+  markup can get ahead of a policy placed "first in `<head>`".

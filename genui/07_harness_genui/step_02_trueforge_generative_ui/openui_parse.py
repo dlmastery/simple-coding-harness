@@ -139,6 +139,19 @@ def parse_list(tokens, i, closer):
             i += 1
 
 
+def as_text(value):
+    """A value as the page's JavaScript would print it in a string: null, true, false, [object Object]."""
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, dict):
+        return "[object Object]"
+    if isinstance(value, list):
+        return ",".join(as_text(v) for v in value)
+    return str(value)
+
+
 class Parser:
     """Feed text in any pieces; read the resolved tree at any time."""
 
@@ -202,12 +215,9 @@ class Parser:
             return [self.resolve(item, path) for item in expr[1]]
         if kind == "add":
             left, right = self.resolve(expr[1], path), self.resolve(expr[2], path)
-            if isinstance(left, str) or isinstance(right, str):
-                return f"{left}{right}"
-            try:
+            if isinstance(left, (int, float)) and isinstance(right, (int, float)) and not isinstance(left, bool) and not isinstance(right, bool):
                 return left + right
-            except TypeError:  # null + 1, or two components: text, as the page's JS would print it
-                return f"{left}{right}"
+            return f"{as_text(left)}{as_text(right)}"  # strings concatenate; anything else (null, a component) is text, as the page's JS prints it
         if kind == "call":
             return {"type": expr[1], "args": [self.resolve(a, path) for a in expr[2]]}
         name = expr[1]

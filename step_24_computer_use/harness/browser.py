@@ -1,4 +1,5 @@
-"""Step 23 - browser tools: one Chromium page, driven through Playwright.
+"""Step 24 - browser tools: one Chromium page, driven through Playwright. A
+screenshot now carries the image marker, so the browse subagent sees it.
 
 The page is created on first use and lives until browser_close() or the end
 of the session. Playwright's sync API is bound to the thread that started it,
@@ -141,7 +142,7 @@ def browser_screenshot(path: str = "screenshot.png") -> str:
         return f"Error: {path} is outside the project. Screenshots stay under {PROJECT}."
     target.parent.mkdir(parents=True, exist_ok=True)
     page().screenshot(path=str(target))
-    return f"Saved screenshot to {target}"
+    return f"[[image:{target}]] Saved screenshot to {target}"  # the marker shows the picture to the model
 
 
 def _forget():
@@ -220,7 +221,7 @@ SCHEMAS = [
     ),
     schema(
         "browser_screenshot",
-        "Save a PNG of the current viewport to a path inside the project.",
+        "Save a PNG of the current viewport to a path inside the project. The picture comes back to you in the next message.",
         {"path": {"type": "string", "description": "Where to save the PNG, relative to the project"}},
         [],
     ),

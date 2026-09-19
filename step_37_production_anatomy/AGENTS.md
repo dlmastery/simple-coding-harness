@@ -7,10 +7,9 @@ loaded and `/init` writes a fresh one from a survey of the project.
 ## Overview
 
 This directory is one step of a series that builds a coding agent, the
-`harness` command, one feature at a time. This step adds agent definitions:
-`.agents/agents/<name>.md` files that become `agent_<name>` tools, and the
-`/pipeline` command that runs the planner, worker and reviewer agents in
-order.
+`harness` command, one feature at a time. This step adds no code: its
+README compares the harness, mechanism by mechanism, with five production
+harnesses. `harness/` is a byte-identical copy of step 36.
 
 ## Build system
 
@@ -23,8 +22,8 @@ order.
 
 - Whole suite, offline, no key needed: `python -m pytest -q test_step.py`
 - One test: `python -m pytest -q test_step.py -k <name>`
-- From the repository root: `python run_tests.py 36` and
-  `python check_snippets.py 36`.
+- From the repository root: `python run_tests.py 37` and
+  `python check_snippets.py 37`.
 
 ## Layout
 

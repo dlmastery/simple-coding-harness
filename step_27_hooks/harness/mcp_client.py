@@ -39,6 +39,7 @@ CONFIG_PATHS = [
 
 CONNECT_TIMEOUT = 30  # seconds a server may take to start and list its tools
 CALL_TIMEOUT = 120    # seconds one tool call may take
+STOP_TIMEOUT = 10     # seconds a server gets to close on its own before its task is cancelled
 
 SERVERS = {}  # name -> {"status": "connected" | "failed: ...", "tools": [names]}
 
@@ -103,6 +104,7 @@ class Client:
         self.thread.start()
         self.sessions = {}  # server name -> ClientSession, while connected
         self.stops = {}     # server name -> the Event that ends its task
+        self.tasks = {}     # server name -> the task, so stop() can cancel one that will not end
 
     def submit(self, coro, timeout):
         """Run a coroutine on the loop thread and wait here for its result.
@@ -136,6 +138,8 @@ class Client:
         except BaseException as error:  # noqa: BLE001 - the caller decides what a failure means
             if not ready.done():
                 ready.set_exception(error)
+            if isinstance(error, asyncio.CancelledError):
+                raise  # a cancelled task must say so, or asyncio thinks it ended on its own
         finally:
             self.sessions.pop(name, None)
 
@@ -144,6 +148,7 @@ class Client:
         stop = asyncio.Event()
         task = self.loop.create_task(self.serve(name, spec, ready, stop))
         self.stops[name] = stop
+        self.tasks[name] = task
         try:
             return await asyncio.wait_for(ready, CONNECT_TIMEOUT)
         except asyncio.TimeoutError:
@@ -162,15 +167,23 @@ class Client:
         return self.submit(session.call_tool(tool, args), CALL_TIMEOUT)
 
     async def stop(self, name):
+        """Ask the server's task to end, and cancel it when it does not.
+
+        A server that ignores the closed stdin would otherwise be left
+        running after the harness exits; cancelling the task makes
+        stdio_client terminate the process on its way out.
+        """
         self.stops[name].set()
-        while name in self.sessions:
-            await asyncio.sleep(0.01)
+        try:
+            await asyncio.wait_for(self.tasks.pop(name), STOP_TIMEOUT)  # cancels the task on timeout
+        except (asyncio.TimeoutError, asyncio.CancelledError, Exception):  # noqa: BLE001 - shutting down
+            pass
 
     def close(self):
         """Stop every server, then the loop and its thread."""
         for name in list(self.stops):
             try:
-                self.submit(self.stop(name), 10)
+                self.submit(self.stop(name), STOP_TIMEOUT + 5)
             except Exception:  # noqa: BLE001 - shutting down; nothing left to report to
                 pass
         self.stops.clear()

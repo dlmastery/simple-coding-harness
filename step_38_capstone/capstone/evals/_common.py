@@ -27,8 +27,10 @@ def load_app():
 
 def client(app):
     """A TestClient whose `with` block runs the app's startup and shutdown."""
-    from fastapi.testclient import TestClient
-
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError as missing:  # the check's own interpreter lacks the [capstone] extra: say so, not a traceback
+        fail(f"the check needs fastapi and httpx in {sys.executable}: {missing}")
     return TestClient(app)
 
 

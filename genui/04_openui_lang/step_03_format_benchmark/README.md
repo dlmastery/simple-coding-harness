@@ -204,15 +204,38 @@ def scalar(value, indent: str, indent_at_start: int | None) -> str:
 ```
 
 Counting and comparing. The encoder is `o200k_base`, which is what
-`encoding_for_model("gpt-5")` resolves to in the report's script:
+`encoding_for_model("gpt-5")` resolves to in the report's script. It is
+loaded on first use, not at import: `tiktoken` downloads the vocabulary
+once (about 4 MB) and caches it, and a machine that is offline before that
+first download must still be able to import the module and run the tests
+that do not count tokens:
 
 `benchmark.py`:
 
 ```python
-ENCODING = tiktoken.get_encoding("o200k_base")
-...
+def encoding():
+    """o200k_base, loaded on first use: tiktoken downloads the vocabulary once and caches it."""
+    global _encoding
+    if _encoding is None:
+        _encoding = tiktoken.get_encoding("o200k_base")
+    return _encoding
+
+
 def count(text: str) -> int:
-    return len(ENCODING.encode(text))
+    return len(encoding().encode(text))
+```
+
+A sample that does not parse cleanly is one `ValueError` naming the
+unresolved references and errors, not a per-scenario message: the samples
+are fixtures, and a broken fixture should stop the table, not print a row
+of zeros:
+
+`benchmark.py`:
+
+```python
+    result = parse(oui if oui.endswith("\n") else oui + "\n", CATALOG)
+    if result.root is None or result.unresolved or result.errors:
+        raise ValueError(f"sample did not parse cleanly: {result.unresolved} {result.errors}")
 ```
 
 First paint is the token count a renderer needs before it can draw
@@ -246,13 +269,48 @@ def test_yaml_projection_matches_the_report_files():
         assert benchmark.projections(sample(scenario))["yaml"] == report(f"{scenario}.yaml").rstrip("\n"), scenario
 ```
 
+## Why: what breaks without it
+
+Step 02 claimed OpenUI Lang is cheaper than JSON. A claim about tokens is
+only worth the script that counts them, and the report's own numbers
+cannot be checked without that script and its exact projections. This
+step re-derives the table from the report's seven sample programs with a
+byte-for-byte reproduction of its converters, so a reader can see which
+numbers reproduce (all of the table's) and which do not (the committed
+files, which were formatted differently, see above). Without this step
+the 2x claim in the series README would rest on a blog post.
+
 ## Run it
+
+Prerequisites: `pip install tiktoken`; the first token count downloads
+the `o200k_base` vocabulary (network once, then cached under
+`TIKTOKEN_CACHE_DIR` or the temp directory). No key, no Node, no page.
+
+bash:
 
 ```
 python demo.py                 # or python benchmark.py: the three tables
 python benchmark.py --write    # also writes generated/<scenario>.{yaml,c1.json,vercel.jsonl,map.json}
-python -m pytest -q            # offline; needs tiktoken's o200k_base (cached after first use)
+python -m pytest -q            # offline after the first download; the token tests skip when the vocabulary is unavailable
 ```
+
+PowerShell: the same three commands, unchanged.
+
+Expected output: the three tables in `Quick demo`; `--write` prints the
+same and leaves 28 files in `generated/`. `python -m pytest -q` ends with
+`15 passed`, or `13 passed, 2 skipped` on a machine that has never
+downloaded `o200k_base` and is offline.
+
+## Error handling
+
+- Offline before the first download: `python benchmark.py` exits with one
+  line, `benchmark failed: <the download error>`, no traceback; the two
+  tests that count tokens `pytest.skip` (`need_encoding()`), the other
+  thirteen run.
+- A sample with a parse error or an unresolved reference:
+  `benchmark failed: ValueError: sample did not parse cleanly: [...]`.
+  `test_a_sample_that_does_not_parse_is_one_clear_error` pins that.
+- There is nothing to leave: every command runs to completion.
 
 Files: `samples/` holds the seven `.oui` programs and `schema.json` from
 the OpenUI repository's `benchmarks/` directory (MIT, commit `8bd2e27`);
@@ -279,6 +337,23 @@ ground truth for the tests; `generated/` holds this step's projections.
   far more, but only when the program is written root-first, which is why
   the generated prompt in step 02 insists on it.
 
+## Gotchas / What this is not
+
+- The counts are for `o200k_base`; another tokenizer gives other absolute
+  numbers and, in practice, similar ratios.
+- Which formatting choices moved the numbers, from the committed-files
+  table above: prettier put short arrays on one line in the committed C1
+  files, which count 10 to 94 tokens *fewer* than the raw
+  `JSON.stringify(x, null, 2)` the report's script counted; the YAML
+  files differ by one token each, a trailing newline. That is the step's
+  real lesson: a token benchmark is a benchmark of one exact
+  serialisation.
+- "First paint" here is a property of the projection, not of a renderer:
+  it counts the tokens of the first complete statement. Steps 05 and 07
+  measure it with a clock on a real page.
+- The seven samples are the report's; they were written by a model for
+  this catalog and are not a corpus.
+
 ## Diff from the previous step
 
 - No page, no server, no model: `benchmark.py`, `convert.py`, `demo.py`
@@ -287,3 +362,8 @@ ground truth for the tests; `generated/` holds this step's projections.
 - `openui_parse.py` returns, copied from step 01 without changes.
 - `package.json` is gone; the step is Python only (`tiktoken` is the one
   dependency beyond the standard library).
+
+## What the next step adds
+
+Step 04 adds `HtmlArtifact` to the catalog: a component whose one argument
+is a whole HTML document, rendered in a sandboxed iframe under a CSP.

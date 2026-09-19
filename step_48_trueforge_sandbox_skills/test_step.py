@@ -344,7 +344,8 @@ def test_demo_runs_downloads_and_deletes_the_session(server, client, capsys, mon
     assert ("DELETE", "/api/v1/sessions/sess-1", None) in FakeTrueForge.requests
 
 
-def test_demo_exits_1_on_an_errored_turn_and_keeps_the_session(server, client, capsys):
+def test_demo_exits_1_on_an_errored_turn_and_keeps_the_session(server, client, capsys, monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)  # the fake still serves the download after an error turn; keep it out of the step
     assert demo.main(["fail", "--keep", "--base-url", server]) == 1
     out = capsys.readouterr().out
     assert "turn error: model unavailable" in out

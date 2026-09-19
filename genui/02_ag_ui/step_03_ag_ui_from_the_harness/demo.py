@@ -44,13 +44,13 @@ def ensure_bundle():
 def start_server():
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=PORT, log_level="warning"))
     threading.Thread(target=server.run, daemon=True).start()
-    for _ in range(50):
+    for _ in range(100):
         try:
             urllib.request.urlopen(URL, timeout=1)
             return server
         except OSError:
             time.sleep(0.1)
-    raise RuntimeError("server did not start")
+    raise RuntimeError(f"server did not start on port {PORT} (in use?)")
 
 
 def folded(events):
@@ -71,8 +71,9 @@ def folded(events):
             "TOOL_CALL_RESULT": lambda: e["content"].strip().replace("\n", " | ")[:60],
             "CUSTOM": lambda: f"{e['name']}: {e['value']['reason']} -> {e['value']['decision']}",
             "STATE_DELTA": lambda: ", ".join(f"{op['op']} {op['path']} ({len(op['value'])} todos)" for op in e["delta"]),
-            "STATE_SNAPSHOT": lambda: f"{len(e['snapshot']['todos'])} todos",
+            "STATE_SNAPSHOT": lambda: f"{len(e['snapshot'].get('todos', []))} todos",
             "RUN_FINISHED": lambda: f"usage {e['usage'][0]['inputTokens']} in, {e['usage'][0]['outputTokens']} out",
+            "RUN_ERROR": lambda: e["message"],
         }.get(e["type"], lambda: "")()
         lines.append([e["type"], 0, detail])
     return [f"{t:<20} {d if not n else f'{n} events: {d[:60]}'}".rstrip() for t, n, d in lines]

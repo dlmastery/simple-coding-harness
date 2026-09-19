@@ -66,6 +66,8 @@ def unanswered(messages):
     tool results. The calls come back as StreamedToolCall objects, the same
     shape the loop hands to execute_all.
     """
+    from .llm import StreamedFunction, StreamedToolCall  # here, not at the top: llm imports tools, which imports this module
+
     index = len(messages) - 1
     while index >= 0 and messages[index].get("role") == "tool":
         index -= 1

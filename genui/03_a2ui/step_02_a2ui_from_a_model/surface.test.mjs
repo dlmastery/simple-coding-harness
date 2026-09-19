@@ -59,3 +59,38 @@ test('updateDataModel without value removes the key; deleteSurface drops the sur
   assert.equal(store.surfaces.size, 0);
   assert.throws(() => store.apply({ version: 'v0.9.1', updateDataModel: { surfaceId: 's', value: {} } }), /never created/);
 });
+
+test('a repeated createSurface is a reset: what EventSource replays after a reconnect', () => {
+  const store = new SurfaceStore();
+  store.apply({ version: 'v0.9.1', createSurface: { surfaceId: 's', catalogId: CATALOG } });
+  store.apply({ version: 'v0.9.1', updateDataModel: { surfaceId: 's', path: '/stale', value: true } });
+  const again = store.apply({ version: 'v0.9.1', createSurface: { surfaceId: 's', catalogId: CATALOG } });
+  assert.deepEqual(again.data, {});
+  assert.equal(store.surfaces.size, 1);
+});
+
+test('a component inside itself is a cycle, not a stack overflow', () => {
+  const surface = new Surface('s', CATALOG);
+  surface.apply({ version: 'v0.9.1', updateComponents: { surfaceId: 's', components: [
+    { id: 'root', component: 'Column', children: ['root', 'card'] },
+    { id: 'card', component: 'Card', child: 'root' },
+  ] } });
+  const tree = surface.tree();
+  assert.deepEqual(tree.children[0], { id: 'root', cycle: true });
+  assert.deepEqual(tree.children[1].children[0], { id: 'root', cycle: true });
+  assert.deepEqual(surface.missingIds(), []);
+});
+
+test('a path cannot reach Object.prototype and a list index must be digits', () => {
+  const doc = { tags: ['x'] };
+  for (const path of ['/__proto__/polluted', '/constructor/prototype/polluted', '/a/__proto__']) {
+    assert.throws(() => pointerSet(doc, path, 1), /refused/);
+    assert.throws(() => pointerGet(doc, path), /refused/);
+  }
+  assert.equal({}.polluted, undefined);
+  assert.equal(pointerGet(doc, '/toString'), undefined); // own properties only
+  assert.equal(pointerGet(doc, '/tags/x'), undefined);
+  assert.throws(() => pointerSet(doc, '/tags/x', 1), /not an array index/);
+  pointerDelete(doc, '/tags/x');
+  assert.deepEqual(doc, { tags: ['x'] });
+});

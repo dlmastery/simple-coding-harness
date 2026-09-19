@@ -131,3 +131,33 @@ def test_copied_harness_matches_the_version():
     assert 'version = "0.37.0"' in pyproject
     assert (HERE / "harness" / "agent.py").exists()
     assert (HERE / ".agents" / "agents").is_dir()
+
+
+def test_the_this_repo_column_quotes_the_constants_the_code_has():
+    """The numbers the tables quote for this repo are read from the harness, not remembered."""
+    import os
+
+    os.environ.setdefault("API_KEY", "x")
+    from harness import agent, budget, hooks, instructions, sandbox, subagent
+
+    assert agent.MAX_CALLS == 40
+    assert subagent.MAX_TURNS == 12 and subagent.MAX_PARALLEL == 4
+    assert hooks.TIMEOUT == 30
+    assert instructions.MAX_CHARS == 20_000
+    assert budget.THRESHOLDS == (0.5, 0.75) and budget.DEFER_OVER == 300
+    assert sandbox.run.__defaults__ == (60,)
+    assert "(deny network*)" in sandbox.PROFILE and "--unshare-net" in text()
+    body = text()
+    for quoted in ("MAX_CALLS", "40 model calls", "12 turns", "20,000", "30 s"):
+        assert quoted in body, quoted
+
+
+def test_the_harness_is_byte_identical_to_step_36():
+    import filecmp
+
+    other = HERE.parent / "step_36_orchestration" / "harness"
+    if not other.is_dir():
+        return
+    names = [p.name for p in (HERE / "harness").glob("*.py")]
+    same, different, missing = filecmp.cmpfiles(HERE / "harness", other, names, shallow=False)
+    assert not different and not missing, (different, missing)

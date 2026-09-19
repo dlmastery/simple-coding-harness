@@ -24,7 +24,7 @@ both, and the MCP tools join both when their servers start.
 import json
 import subprocess
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from pathlib import Path
 
 from . import agents, browser, budget, checkpoint, computer, durability, history, hooks, jobs, memory, permissions, plan, sandbox
@@ -284,6 +284,7 @@ agents.register()  # one agent_<name> tool per definition in .agents/agents, in 
 
 
 MAX_WORKERS = 4  # tool calls of one reply that may run at the same time
+POLL = 0.2       # seconds between looks at the pool, so an interrupt is seen soon on every OS
 
 # calls that must run alone on the calling thread: they prompt, or they drive one browser or one desktop
 SERIAL = {"task", "browse", "submit_plan", "ask_user", "handoff_to", "finish"}
@@ -450,6 +451,8 @@ def execute_all(tool_calls, outcomes=None, allowed=None):
     for i, future in futures.items():
         future.add_done_callback(keep(i))
     try:
+        while not all(future.done() for future in futures.values()):
+            wait(futures.values(), timeout=POLL)  # short waits: Windows delivers a Ctrl-C only between them
         for future in futures.values():
             future.result()  # re-raises the first failure, in call order
     except KeyboardInterrupt:

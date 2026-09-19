@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
+from . import agent, budget, checkpoint, context, handoff, hooks, jobs, llm, permissions, plan, sandbox, session, stop, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -139,6 +139,10 @@ def isolated(workspace, session_dir, session_id, usage):
         "turn": checkpoint.TURN,
         "rules": dict(permissions.SESSION_RULES),
         "ask_user": tools.TOOLS["ask_user"],
+        "warned": set(budget.WARNED),
+        "loaded": set(tools.LOADED),
+        "agent": handoff.ACTIVE,
+        "spent": (stop.SPENT, stop.STARTED),
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -155,11 +159,17 @@ def isolated(workspace, session_dir, session_id, usage):
     ui.approve = lambda reason: "y"
     permissions.SESSION_RULES.clear()
     tools.TOOLS["ask_user"] = lambda question, options=None: "No user is present during an evaluation. Decide yourself and go on."
+    budget.WARNED.clear()  # every task gets its context warnings afresh...
+    tools.LOADED.clear()   # ...and loads its own deferred tools
+    handoff.reset()        # ...as the default agent, whatever the last task handed off to
+    stop.SPENT, stop.STARTED = 0.0, None  # ...and its own session budget: MAX_SESSION_COST is per task here
 
     def record(stats, estimate=None, cost=None):
         for key, value in (stats or {}).items():
-            if isinstance(value, (int, float)):
+            if key != "cost" and isinstance(value, (int, float)):
                 usage[key] = usage.get(key, 0) + value
+        if cost is not None:
+            usage["cost"] = usage.get("cost", 0.0) + cost  # as stop priced it: the API's figure when there is one, the estimate otherwise
         saved["usage"](stats, estimate, cost=cost)
 
     ui.usage = record
@@ -183,6 +193,12 @@ def isolated(workspace, session_dir, session_id, usage):
         permissions.SESSION_RULES.clear()
         permissions.SESSION_RULES.update(saved["rules"])
         tools.TOOLS["ask_user"] = saved["ask_user"]
+        budget.WARNED.clear()
+        budget.WARNED.update(saved["warned"])
+        tools.LOADED.clear()
+        tools.LOADED.update(saved["loaded"])
+        handoff.ACTIVE = saved["agent"]
+        stop.SPENT, stop.STARTED = saved["spent"]
 
 
 def system_prompt_for(workspace):
@@ -204,7 +220,7 @@ def run_check_py(task, workspace):
     try:
         completed = subprocess.run(
             [sys.executable, str(task.path / "check.py")],
-            cwd=workspace, capture_output=True, text=True, timeout=CHECK_TIMEOUT,
+            cwd=workspace, capture_output=True, encoding="utf-8", errors="replace", timeout=CHECK_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"check.py took more than {CHECK_TIMEOUT}s"
@@ -230,6 +246,8 @@ def run_judge(task, workspace, answer):
         f"<workspace>\n{file_list(workspace)}\n</workspace>"
     )
     message, _ = llm.call_llm([{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": request}], tools=[])
+    if getattr(message, "failed", None):
+        return False, f"judge call failed: {message.failed}"  # no verdict is a failed run, not a pass
     verdict = (message.content or "").strip()
     first = verdict.split(None, 1)[0].strip(".:,").upper() if verdict else ""
     return first == "PASS", f"judge said: {verdict[:200] or '(nothing)'}"

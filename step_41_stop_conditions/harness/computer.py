@@ -14,6 +14,9 @@ from pathlib import Path
 
 SHOTS = Path.home() / ".simple-harness" / "shots"  # every screenshot lands here
 
+MAX_WIDTH = 1280  # a screenshot wider than this is scaled down before the model sees it
+SCALE = 1.0       # screen pixels per picture pixel of the last screenshot; computer_act multiplies back
+
 ACTIONS = ("click", "double_click", "right_click", "move", "drag", "type", "key", "scroll")
 
 
@@ -49,11 +52,17 @@ def computer_screenshot() -> str:
     except Exception as failed:
         return f"Error: could not capture the screen: {failed}"
 
+    global SCALE
+    width, height = image.size
+    SCALE = 1.0
+    if width > MAX_WIDTH:  # a 4K screen is a lot of tokens for no more meaning: scale it down, remember by how much
+        SCALE = width / MAX_WIDTH
+        image = image.resize((MAX_WIDTH, round(height / SCALE)))
     SHOTS.mkdir(parents=True, exist_ok=True)
     path = SHOTS / f"shot-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}.png"
     image.save(path, format="PNG")
-    width, height = image.size
-    return f"[[image:{path}]] Screenshot saved to {path} ({width}x{height}). Coordinates below are screen pixels."
+    shown = f"{image.size[0]}x{image.size[1]}"
+    return f"[[image:{path}]] Screenshot saved to {path} ({shown}, the screen is {width}x{height}). Give coordinates in the picture's pixels; they are scaled to the screen."
 
 
 def computer_act(action: str, x: int | None = None, y: int | None = None, text: str | None = None, keys: list[str] | None = None) -> str:
@@ -68,6 +77,8 @@ def computer_act(action: str, x: int | None = None, y: int | None = None, text: 
     needs_point = action in ("click", "double_click", "right_click", "move", "drag")
     if needs_point and (x is None or y is None):
         return f"Error: {action} needs x and y."
+    if x is not None and y is not None:
+        x, y = round(x * SCALE), round(y * SCALE)  # from the picture the model saw back to screen pixels
 
     try:
         if action == "click":

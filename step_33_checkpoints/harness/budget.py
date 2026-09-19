@@ -84,9 +84,9 @@ def breakdown(messages):
             images += IMAGE_TOKENS * sum(1 for part in content if part.get("type") == "image_url")
             text += sum(tokens(part.get("text", "")) for part in content)
         elif message.get("role") == "tool":
-            results += tokens(json.dumps(message))
+            results += tokens(json.dumps(message, ensure_ascii=False))  # as sent: a non-ASCII char is not six
         else:
-            text += tokens(json.dumps(message))
+            text += tokens(json.dumps(message, ensure_ascii=False))
 
     counts = {
         "system prompt": tokens(system) - instructions - skills,

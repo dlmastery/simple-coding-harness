@@ -342,8 +342,6 @@ def test_loop_smoke_a_subagent_cannot_edit_and_the_main_agent_edit_is_undone_wit
 
 from harness import commands, permissions, prompt, subagent, tools  # noqa: E402 - the tests below need them whatever the step imports above
 
-USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
-
 
 def _fake_model(replies):
     """A call_llm stand-in that answers with the next reply, whatever keywords the loop passes."""

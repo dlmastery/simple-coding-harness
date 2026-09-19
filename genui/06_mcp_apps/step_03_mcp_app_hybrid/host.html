@@ -113,6 +113,7 @@
     const tool = state.tools.find((t) => t.name === name);
     if (!tool) throw new Error(`no tool named ${JSON.stringify(name)} on this server`);
     const resultPromise = state.client.callTool(name, args);
+    resultPromise.catch(() => {});  // the caller awaits the returned promise; this keeps a rejection from going unhandled when mount() throws first
     const uri = uiResourceUri(tool);
     if (uri) await mount(tool, uri, args, resultPromise);
     return resultPromise;

@@ -280,8 +280,10 @@ assigned one.
       case "ui/initialize":
         return this.initializeResult();
       case "tools/call":
-        return this.callTool(params.name, params.arguments ?? {});
+        this.allowedTool(params.name);  // the allowlist runs before the call, so a refusal and a failure look the same to the view: an error reply
+        return this.callTool(params.name, params.arguments !== null && typeof params.arguments === "object" ? params.arguments : {});
       case "resources/read":
+        if (typeof params.uri !== "string" || !params.uri.startsWith("ui://")) throw new Error("the view may read ui:// resources only");
         return this.readResource(params.uri);
       case "ui/message":
         await this.onMessage?.(params);
@@ -311,6 +313,32 @@ messages. `dispatch` is the switch behind every request from the view.
 `deliver` sends the two data notifications in order; `notify` holds them
 until the view has said initialized. The class has no DOM in it, so the
 node tests drive it with plain objects.
+
+What the view may ask for is checked before anything is forwarded. The
+message shape first: `handle()` drops anything that is not an object with
+`jsonrpc: "2.0"`, a string-or-number `id`, a string `method` and object
+`params`, without an answer. Then the allowlist: `tools/call` is
+forwarded only for a tool the server listed whose `_meta.ui.visibility`
+includes `"app"`, and `resources/read` only for a `ui://` URI. A
+refusal is thrown *before* `callTool`, so to the view a refused call and
+a failed call look the same, an error reply, and the host never fires a
+request on the view's behalf that it would not have allowed:
+
+`bridge.mjs`:
+
+```js
+  allowedTool(name) {
+    const tool = this.tools.find((t) => t.name === name);
+    if (!tool) throw new Error(`the view may not call ${name}: not a tool of this server`);
+    if (!(tool._meta?.ui?.visibility ?? ["model", "app"]).includes("app")) throw new Error(`the view may not call ${name}: visibility is model-only`);
+    return tool;
+  }
+```
+
+Two smaller boundaries on the same class: `attach()` keeps its `message`
+listener and removes it in `teardown()`, so a replaced view does not
+leave a bridge listening for the rest of the page's life; and the view
+(`view.html`) accepts messages from `window.parent` only.
 
 ### 6. The sandbox and its content security policy
 
@@ -348,16 +376,33 @@ export const RESTRICTIVE_CSP = {
 `cspFor` starts from the spec's restrictive default and widens only the
 directives the resource declared: `connectDomains` opens `connect-src`,
 `resourceDomains` opens the script, style, image, font and media sources.
-`withCsp` puts the policy in a `<meta>` tag at the top of the document,
-and `sandbox="allow-scripts"` without `allow-same-origin` gives the view
-an opaque origin: no cookies, no storage, no access to the host page.
+Each declared entry must be an origin (`isDomain`: no `;`, no space, no
+quote, and it parses as a URL host); anything else is dropped. Without
+that, a declaration such as `https://a; frame-src *` would splice a
+directive into the policy, and since a browser keeps the *first*
+occurrence of a directive, an injection through `resourceDomains` would
+override the host's own `frame-src 'none'` further down. The server can
+declare `*` legitimately; the check is what makes the host's review of
+declarations mean something.
+
+`withCsp` puts the policy in a `<meta>` tag right after the doctype,
+before any element, not "first in `<head>`": the document comes from the
+server, and a `<script>` written before `<head>`, or a `<head>` inside a
+comment, would put a policy that searches for `<head>` after the code it
+should govern. A `<meta>` before `<html>` is legal HTML; the parser opens
+`<html>` and `<head>` for it. `sandbox="allow-scripts"` without
+`allow-same-origin` gives the view an opaque origin: no cookies, no
+storage, no access to the host page.
 
 This is the one place where the step is smaller than the spec. A
 production web host must load the view through a sandbox proxy on a
 second origin, with the policy set as an HTTP header the view cannot
-rewrite. The ext-apps `basic-host` example does that with a
-`sandbox.html` on port 8081. This host collapses the two frames into one
-and accepts a `<meta>` policy. The messages are the same.
+rewrite. A `<meta>` policy can be evaded as well as rewritten by the
+document that carries it (the injection point above closes the two
+evasions the tests pin, not every one a future parser quirk might open).
+The ext-apps `basic-host` example does that with a `sandbox.html` on port
+8081. This host collapses the two frames into one and accepts a `<meta>`
+policy. The messages are the same.
 
 ### 7. The model picks the tool
 
@@ -382,10 +427,18 @@ def chat(request: ChatRequest):
 
 ```js
       for (const call of reply.tool_calls) {
-        const args = JSON.parse(call.arguments || "{}");
-        bubble("tool", `${call.name}(${JSON.stringify(args)})`);
-        const result = await runTool(call.name, args);
-        const summary = result.content.filter((c) => c.type === "text").map((c) => c.text).join("\n");
+        // every tool_call gets exactly one tool message, error or not: a transcript with a call and no
+        // answer is refused by the API on the next turn, and the chat would be dead from then on
+        let summary;
+        try {
+          const args = JSON.parse(call.arguments || "{}");
+          bubble("tool", `${call.name}(${JSON.stringify(args)})`);
+          const result = await runTool(call.name, args);
+          summary = (result.content ?? []).filter((c) => c.type === "text").map((c) => c.text).join("\n") || "(no content)";
+        } catch (error) {
+          summary = `Error: ${error.message}`;
+          bubble("tool", `${call.name}: ${summary}`);
+        }
         state.messages.push({ role: "tool", tool_call_id: call.id, content: summary });  // the model reads text only
       }
 ```
@@ -396,23 +449,110 @@ view, and appends only the `content` text as the tool message. The model
 then writes one sentence. The structured data went to the iframe and
 never entered the context window.
 
+The `try/catch` is the rule of every agent loop in this codelab: one
+tool message per `tool_call`, whatever happened. A model that names a
+tool the server does not have, arguments that are not JSON, a JSON-RPC
+error from the server: each becomes `Error: ...` as the tool's answer,
+and the model reads it on the next hop. Before this round any of those
+threw out of `chat()` with the assistant message already in
+`state.messages` and no reply; every later `/chat` was then refused by
+the API ("tool_call_ids did not have response messages") and the page
+showed the misleading "no model available". The loop is also bounded:
+`MAX_HOPS = 4` model calls per user message, and the note says so when
+the limit stops it.
+
+## Why: what breaks without it
+
+Parts 04 and 05 assume the page and the model belong to the same
+developer, so the catalog is a shared file. An MCP server does not know
+which host will show its tool's result, and the host does not know what
+the server's data looks like. Without a UI resource the host draws a
+text summary; without a sandbox the server's page runs in the host's
+origin; without the bridge the view has no way to ask for more data. The
+three together are the MCP Apps extension, and this step is the smallest
+host that speaks it, so the boundaries are visible one at a time.
+
 ## Run it
+
+Prerequisites: `pip install mcp fastapi uvicorn httpx openai`; Node 20+
+for `node --test`; Playwright's Chromium for `demo.py`; an API key in
+`API_KEY`/`OPENAI_API_KEY` or `~/.simple-harness/env` for the chat (the
+tool list, `call with defaults` and the demo's bridge log work without
+one).
+
+bash:
 
 ```bash
 python server.py            # the MCP server, http://127.0.0.1:8765/mcp
 python host.py              # the host page, http://127.0.0.1:8766/
+export API_KEY=sk-...       # before host.py, for the chat
+python demo.py              # both processes, a headless browser, the bridge log, demo.png
+python -m pytest -q test_step.py
+node --test bridge.test.mjs
 ```
 
-Open the host page, click Connect, then type a prompt or click "call with
-defaults". `python demo.py` starts both, drives a headless browser, prints
-the bridge log and saves `demo.png`. `python server.py --stdio` speaks the
-protocol over stdin and stdout for desktop hosts; step 02 uses that.
+PowerShell:
+
+```
+python server.py
+python host.py
+$env:API_KEY = "sk-..."
+python demo.py
+python -m pytest -q test_step.py
+node --test bridge.test.mjs
+```
+
+Ports: both take `--port N`; when 8765 or 8766 is taken, start the server
+on another port and paste its `/mcp` URL into the host page's address
+field before `Connect` (the field defaults to `http://127.0.0.1:8765/mcp`).
+
+Expected output: the `Quick demo` transcript above. Open the host page,
+click Connect, then type a prompt or click "call with defaults".
+`python server.py --stdio` speaks the protocol over stdin and stdout for
+desktop hosts; step 02 uses that.
 
 Tests: `python -m pytest test_step.py` runs the server in process, the
 streamable HTTP round trip through an in-process ASGI transport with the
 extension capability declared, the `/chat` endpoint with a fake model, and
 `node --test bridge.test.mjs` for the bridge and the browser client. No
-network, no key.
+network, no key. `host.html` itself, where the chat loop lives, has no
+unit test: it is a page, and its logic is exercised by `demo.py` in a
+real browser, not by pytest.
+
+## Error paths
+
+What the transcript must contain in each case is the same: one `tool`
+message per `tool_call`, always.
+
+- **The model names a tool that does not exist:** `runTool` throws
+  `no tool named "x" on this server` before any request goes out; the
+  tool message is `Error: no tool named "x" on this server`.
+- **The arguments are not JSON:** `JSON.parse` throws; tool message
+  `Error: Unexpected token ...`.
+- **The server answers `isError`:** the result's `content` text is the
+  tool message as usual (the server's own error sentence).
+- **The server returns a JSON-RPC error:** `request()` throws; tool
+  message `Error: <the server's message>`; the view, if one was mounted
+  for the call, gets `ui/notifications/tool-cancelled`.
+- **The view calls a tool the model was not shown** (`visibility:
+  ["model"]`), a tool of another name, or reads a non-`ui://` URI: the
+  bridge answers the view with a JSON-RPC error and nothing reaches the
+  server.
+- **The view asks to open a link:** `http(s):` only; other schemes are
+  an error reply.
+- **The resource is missing** or not an MCP App: `resources/read`
+  rejects (or `mount()` throws on the MIME type) inside `runTool`; the
+  tool call had already been sent, its result is discarded, and the tool
+  message carries the mount error.
+- **`/chat` fails** (no key, the 120 s timeout, a 5xx): the note under
+  the chat says `the model call failed (<status>): <body>` and the loop
+  stops; the user message stays in the transcript.
+- **Four hops with tool calls and no final text:** the loop stops with
+  `stopped after 4 tool rounds in one turn; ask again to continue`.
+- **Leaving:** ctrl-c stops `server.py` and `host.py` (uvicorn); the
+  page has nothing to leave. Tool names and resource URIs are the
+  server's strings and are rendered with `textContent`, never
+  `innerHTML`.
 
 ## What to notice
 
@@ -429,8 +569,33 @@ network, no key.
   its own server. The host logged every call in the demo. A real host may
   ask the user first.
 - Teardown is a request, not a notification. The host asks, the view
-  answers, then the frame goes. The demo log shows it when a second tool
-  call replaces the first view.
+  answers, then the frame goes. The recorded demo log does not show it:
+  the second `tools/call` there comes from the view through the bridge,
+  which does not remount. A second prompt in the chat, or a second
+  `call with defaults`, does; `bridge.test.mjs` pins the request/response
+  pair.
 - `visibility: ["app"]` in a tool's `_meta.ui` hides it from the model
   while the view can still call it. `toolsForModel` in `mcp-http.mjs`
   filters on it. A refresh button does not need to be a model tool.
+
+## Gotchas / What this is not
+
+- One `<meta>` CSP inside one iframe is not the spec's two-origin
+  sandbox; see section 6 for what a production host must do instead.
+- The view can navigate itself (`location.href`, a link click); the CSP
+  does not cover a frame's own navigation. The frame is opaque-origin
+  and shows only the server's page, so the damage is a frame that shows
+  someone else's page.
+- The host trusts its own MCP server's `structuredContent` to be the
+  shape the view expects; the view (`view.html`) is written for this
+  server's data and draws nothing for another shape.
+- `ui/message` puts the view's text straight into the chat as the user's
+  turn. That is the spec's behaviour; step 03 says what it means once
+  the view's text can also become model context.
+- Streamable HTTP without sessions or auth; the server is for localhost.
+
+## What the next step adds
+
+Step 02 puts the same server behind a real host: the Python harness of
+Part 1 as an MCP client, drawing the app as a terminal card and keeping
+its screenshot as a message.

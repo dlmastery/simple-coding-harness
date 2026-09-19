@@ -17,6 +17,8 @@ Four rules, and the code below is really just these:
 
 import os
 
+import openai
+
 MAX_TURNS = 12  # a runaway explorer is worse than a missing answer
 
 WITHHELD = {"task", "write_todos", "str_replace", "write_file"}
@@ -76,8 +78,13 @@ def task(description: str) -> str:
     for _ in range(MAX_TURNS):
         fit(messages)  # its context can overflow too, and nobody compacts it
 
-        with ui.working("subagent exploring"):
-            message, usage = call_llm(messages, tools=offered)  # rule 2
+        try:
+            with ui.working("subagent exploring"):
+                message, usage = call_llm(messages, tools=offered)  # rule 2
+        except (openai.APIError, RuntimeError) as failure:
+            # its failure is a result for the main agent, never a crash of the session
+            report = f"(the subagent's model call failed: {failure})" + (f"\n\nPartial findings:\n\n{report}" if report else "")
+            return report
         messages.append(entry(message))
         ui.usage(usage)
         report = message.content or report

@@ -73,7 +73,8 @@ export async function callLlm(messages: Message[], tools?: ToolSchema[] | null):
 
   if (!response.choices?.length) {
     // some servers answer 200 with an error object and no choices: say so instead of reading undefined
-    throw new Error(String((response as { error?: unknown }).error ?? "empty reply: the response carried no choices"));
+    const error = (response as { error?: { message?: string } }).error;
+    throw new Error(error?.message ?? (error ? JSON.stringify(error) : "empty reply: the response carried no choices"));
   }
   const message = response.choices[0].message;
 

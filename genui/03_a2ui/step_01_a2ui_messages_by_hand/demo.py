@@ -47,8 +47,12 @@ def replay_in_browser():
     server.GAP = 0.3
     config = uvicorn.Config(server.app, host="127.0.0.1", port=server.PORT, log_level="warning")
     web = uvicorn.Server(config)
-    threading.Thread(target=web.run, daemon=True).start()
+    thread = threading.Thread(target=web.run, daemon=True)
+    thread.start()
+    deadline = time.monotonic() + 10
     while not web.started:
+        if not thread.is_alive() or time.monotonic() > deadline:  # port in use: the thread just ends
+            raise RuntimeError(f"the server did not start on port {server.PORT} (in use?)")
         time.sleep(0.05)
     url = f"http://127.0.0.1:{server.PORT}/?all=1"
     print(f"browser {url}")

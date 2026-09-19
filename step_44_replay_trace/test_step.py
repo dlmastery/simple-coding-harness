@@ -368,3 +368,83 @@ def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_mess
     seen = drawn(monkeypatch)
     replay.replay("test-session", sleep=lambda s: None)  # and the replay draws it without parsing it
     assert ("tool", "bash", {"raw": "{not json"}, results["b1"]) in seen
+
+
+from harness import durability, tools  # noqa: E402
+
+
+def start():
+    """The message list chat() starts with."""
+    return [{"role": "system", "content": llm.build_system_prompt()}]
+
+
+def notes(monkeypatch):
+    """Capture what ui.note prints."""
+    seen = []
+    monkeypatch.setattr(ui, "note", lambda text: seen.append(text))
+    return seen
+
+
+# ------------------------------------------------- the loop survives what used to kill it
+
+
+def test_a_resumed_transcript_with_a_dangling_tool_call_is_repaired(monkeypatch):
+    seen = notes(monkeypatch)
+    session.SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    dangling = [
+        {"role": "system", "content": "sys"},
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "p1", "type": "function", "function": {"name": "read_file", "arguments": json.dumps({"path": "missing.txt"})}},
+            {"id": "p2", "type": "function", "function": {"name": "bash", "arguments": "{broken"}},
+        ]},
+    ]
+    session.path_for("crashed").write_text("".join(json.dumps(m) + "\n" for m in dangling), encoding="utf-8")
+    messages = agent.reopen(session.open_session("crashed"))
+    assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool"]  # both calls answered
+    assert messages[3]["content"].startswith("Error: FileNotFoundError:")
+    assert messages[4]["content"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert durability.unanswered(messages) == [] and seen[-1] == "recovered 2 tool calls left unanswered by the last run"
+    assert len(session.load("crashed")) == 5  # and saved, so the next --resume does not run them again
+
+
+def test_ctrl_c_during_the_tool_calls_leaves_every_call_answered(monkeypatch):
+    def interrupted(command):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(tools, "bash", interrupted)
+    monkeypatch.setitem(tools.TOOLS, "bash", interrupted)
+    monkeypatch.setattr(agent, "steer", lambda where: None)  # ctrl-c again at the steer prompt: leave
+    Scripted([use(call("i1", "bash", {"command": "echo one"}), call("i2", "bash", {"command": "echo two"})), say("never")]).install(monkeypatch)
+    messages = start()
+    with pytest.raises(KeyboardInterrupt):
+        agent.turn(messages, "run both")
+    results = [m for m in messages if m["role"] == "tool"]
+    assert [m["tool_call_id"] for m in results] == ["i1", "i2"]  # one result per call, in order
+    assert all(m["content"] == tools.INTERRUPTED for m in results)
+    assert durability.unanswered(messages) == [] and len(session.load(session.CURRENT)) == len(messages)  # valid, and on disk
+
+
+def test_a_model_call_that_fails_for_good_ends_the_turn_with_a_valid_transcript(monkeypatch):
+    seen = notes(monkeypatch)
+    monkeypatch.setattr(agent, "call_llm", lambda *a, **k: (llm.StreamedMessage(content=None, failed="model call failed and will not be retried (401 Unauthorized): bad key"), llm.usage_from(None)))
+    messages = agent.turn(start(), "hello")
+    assert [m["role"] for m in messages] == ["system", "user"]  # the question stays; nothing half-written follows it
+    assert seen[-1].startswith("model call failed and will not be retried")
+
+
+def test_a_turn_stops_after_the_model_call_cap(monkeypatch):
+    seen = notes(monkeypatch)
+    monkeypatch.setattr(stop, "MAX_TURN_CALLS", 3)
+    Scripted([use(call("c", "bash", {"command": "echo again"}))]).install(monkeypatch)  # the same call forever
+    messages = agent.turn(start(), "loop")
+    assert sum(1 for m in messages if m["role"] == "assistant") == 3
+    assert seen[-1].startswith("stopped after 3 model calls in one turn")
+    assert durability.unanswered(messages) == []  # the last reply's call was answered before the stop
+
+
+def test_a_print_run_without_resume_writes_no_log(monkeypatch):
+    monkeypatch.setattr(session, "QUIET", True)  # what chat() sets for -p without --resume
+    session.save([{"role": "user", "content": "hi"}])
+    session.rewind_to(0)
+    assert not session.path_for(session.CURRENT).exists() and not session.SESSION_DIR.exists()

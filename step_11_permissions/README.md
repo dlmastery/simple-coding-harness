@@ -180,22 +180,6 @@ policy" or "The user denied this tool call" and adapts, instead of the
 session dying. `ui.approve` is a one-line `allow? (y/n)` prompt; ctrl-d or
 ctrl-c at that prompt counts as "no".
 
-## What this is not
-
-This is not real security. The rules only see the command text:
-
-- `python -c "import shutil; shutil.rmtree('x')"` asks, and if you say
-  yes the file is gone. So does `sh -c 'rm -rf /'`, `xargs rm` and
-  `/bin/rm`. `deny` is a convenience for the obvious cases; `ask` is the
-  real floor.
-- `read_file` may read anything on the machine, `~/.ssh/id_rsa` included.
-  Only writes are checked.
-- On Windows the tool named `bash` runs `cmd.exe`, where the destructive
-  verbs are `del`, `rd /s /q` and `Remove-Item`. They fall to the catch-all
-  and ask, but so do `dir` and `type`.
-
-Stage 12 is the kernel-level answer.
-
 ## Run it
 
 bash / PowerShell:
@@ -239,6 +223,22 @@ The model reaches for `rm -rf`, gets "Blocked by policy", and reaches for
   `/exit` or ctrl-d (ctrl-z then enter on Windows) leaves.
 - `harness < script.txt` works, but the next line of the script is read
   as the answer to an `allow? (y/n)` prompt; end of file counts as "no".
+
+## Gotchas / What this is not
+
+This is not real security. The rules only see the command text:
+
+- `python -c "import shutil; shutil.rmtree('x')"` asks, and if you say
+  yes the file is gone. So does `sh -c 'rm -rf /'`, `xargs rm` and
+  `/bin/rm`. `deny` is a convenience for the obvious cases; `ask` is the
+  real floor.
+- `read_file` may read anything on the machine, `~/.ssh/id_rsa` included.
+  Only writes are checked.
+- On Windows the tool named `bash` runs `cmd.exe`, where the destructive
+  verbs are `del`, `rd /s /q` and `Remove-Item`. They fall to the catch-all
+  and ask, but so do `dir` and `type`.
+
+Stage 12 is the kernel-level answer.
 
 ## What the next stage adds
 

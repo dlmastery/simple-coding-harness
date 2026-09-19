@@ -201,10 +201,21 @@ def guarded(number, description):
 
 
 def gather(functions):
-    """Call every function at the same time, MAX_PARALLEL at once; the results come back in order."""
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
+    """Call every function at the same time, MAX_PARALLEL at once; the results come back in order.
+
+    A Ctrl-C while they run does not wait for the slow ones: the subagents
+    that have not started are dropped, the running ones finish on their own
+    thread, and the interrupt goes up to the turn at once.
+    """
+    pool = ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent")
+    try:
         futures = [pool.submit(function) for function in functions]
-        return [future.result() for future in futures]
+        reports = [future.result() for future in futures]
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # the subagents that have not started never will
+        raise
+    pool.shutdown(wait=True)
+    return reports
 
 
 def parallel(descriptions):

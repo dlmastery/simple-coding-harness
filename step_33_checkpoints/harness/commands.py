@@ -58,8 +58,9 @@ that is new to the project. Use these headings, in this order:
    existing code makes obvious.
 
 Report only what the files show; quote commands and paths exactly. Say
-plainly what you could not find. Markdown, under 400 words, no preamble:
-the report is written to the file as it is.
+plainly what you could not find. Markdown, no preamble: the report is
+written to the file as it is. This guide is the one report that may run
+past your usual length: up to 400 words.
 """
 
 
@@ -236,7 +237,13 @@ def init(messages):
     if report.startswith(subagent.STOPPED) or report.startswith("Error:"):
         ui.note("the subagent did not produce a guide; nothing written")
         return messages
-    if not ui.confirm(f"write {target.name}" + (" (it exists; this replaces it)" if target.exists() else "")):
+    if target.exists():
+        what = f"write {target.name} (it exists; this replaces it)"
+    elif (target.parent / "CLAUDE.md").is_file():
+        what = f"write {target.name} (CLAUDE.md is here too; it is read only when AGENTS.md is absent, so it stops being read)"
+    else:
+        what = f"write {target.name}"
+    if not ui.confirm(what):
         ui.note("not written")
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")

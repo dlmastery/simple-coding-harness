@@ -103,19 +103,19 @@ def computer_act(action: str, x: int | None = None, y: int | None = None, text: 
     needs_point = action in ("click", "double_click", "right_click", "move", "drag")
     if needs_point and (x is None or y is None):
         return f"Error: {action} needs x and y."
-    x, y = to_screen(x, y)  # the model answered in the picture's pixels
+    sx, sy = to_screen(x, y)  # the model answered in the picture's pixels
 
     try:
         if action == "click":
-            pyautogui.click(x, y)
+            pyautogui.click(sx, sy)
         elif action == "double_click":
-            pyautogui.doubleClick(x, y)
+            pyautogui.doubleClick(sx, sy)
         elif action == "right_click":
-            pyautogui.rightClick(x, y)
+            pyautogui.rightClick(sx, sy)
         elif action == "move":
-            pyautogui.moveTo(x, y)
+            pyautogui.moveTo(sx, sy)
         elif action == "drag":
-            pyautogui.dragTo(x, y, duration=0.3, button="left")
+            pyautogui.dragTo(sx, sy, duration=0.3, button="left")
         elif action == "type":
             if text is None:
                 return "Error: type needs text."
@@ -126,7 +126,7 @@ def computer_act(action: str, x: int | None = None, y: int | None = None, text: 
             pyautogui.hotkey(*keys) if len(keys) > 1 else pyautogui.press(keys[0])
         elif action == "scroll":
             amount = int(text) if text not in (None, "") else -5
-            pyautogui.scroll(amount, x=x, y=y) if x is not None and y is not None else pyautogui.scroll(amount)
+            pyautogui.scroll(amount, x=sx, y=sy) if sx is not None and sy is not None else pyautogui.scroll(amount)
     except Exception as failed:  # pyautogui's fail-safe corner, off-screen point, ...
         return f"Error: {action} failed: {failed}"
 

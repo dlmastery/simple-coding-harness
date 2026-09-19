@@ -4,52 +4,11 @@
 configures in `hooks.json`, and the harness runs it at a fixed point in
 the loop: before and after every tool call, when a prompt is submitted,
 before compaction, and at session start and end. A hook can block a tool
-call, replace its result, or add text to the late block. Two example hooks
-ship in `.agents/`: one refuses edits to `.env` files, one logs every tool
-name to a file.
+call, reject or replace its result, or add text to the late block. Two
+example hooks ship in `.agents/`: one refuses edits to `.env` files, one
+logs every tool name to a file.
 
-## Files
-
-```text
-step_27_hooks/
-├── harness/
-│   ├── llm.py                        the model call; the system prompt explains a hook's verdict
-│   ├── tools.py                      the registry; PreToolUse and PostToolUse around every call
-│   ├── agent.py                      the loop; UserPromptSubmit, SessionStart and SessionEnd hooks
-│   ├── hooks.py                      hooks: reads hooks.json, runs commands and functions per event
-│   ├── context.py                    the late injection block, with a <hooks> tag
-│   ├── commands.py                   slash commands; PreCompact runs first, /hooks lists the config
-│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
-│   ├── permissions.py                allow / ask / deny per tool call, MCP tools included
-│   ├── memory.py                     persistent memory: markdown files with front matter
-│   ├── compact.py                    the compaction agent; its handoff note is kept
-│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
-│   ├── subagent.py                   the subagent loop shared by task and browse
-│   ├── browse.py                     the browser subagent
-│   ├── browser.py                    browser tools: one Chromium page through Playwright
-│   ├── computer.py                   computer use: screen size, screenshot, act
-│   ├── todos.py                      the plan: write_todos and the todo list
-│   ├── skills.py                     skills: SKILL.md discovery and index
-│   ├── session.py                    append-only JSONL log, load(), /rewind markers
-│   ├── sandbox.py                    an OS sandbox for bash
-│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
-│   ├── prompt.py                     the input line, through prompt_toolkit
-│   ├── ui.py                         rich panels; streams the reply, headless() sends panels to stderr
-│   └── __init__.py                   package marker
-├── .agents/
-│   ├── hooks.json                    hook config: block .env writes, log every tool name
-│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
-│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
-│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
-│   ├── mcp.json                      MCP config: the echo server, started with python
-│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
-│   └── skills/explain-code/SKILL.md  the stage 4 skill
-├── test_step.py                      offline tests against a fake model
-├── pyproject.toml                    package metadata; version 0.27.0
-└── README.md                         this file
-```
-
-## Why hooks
+## Why hooks, and what breaks without them
 
 Every rule in the harness so far is code. The permission table in
 `permissions.py` decides which commands ask. The sandbox decides which
@@ -59,6 +18,8 @@ Most rules a team wants are small and local. Never write to this file.
 Run the formatter after every edit. Log every tool call for an audit.
 Remind the model of the branch policy on every prompt. None of these
 belong in the harness, because the next project wants different ones.
+Without hooks, the team that wants "never touch `.env`" forks
+`permissions.py`, and the fork drifts from every later step.
 
 A hook is the answer. The harness names a few events. The user writes a
 script for any of them, in any language, and lists it in a JSON file. The
@@ -84,10 +45,40 @@ CONFIG_PATHS = [
 ]
 ```
 
-Two files, one for the user and one for the project, and both are read
-on every event. The lists are merged per event, so the user file runs
-first and the project file after it. Each entry is a hook: an optional
-`matcher`, and either a `command` or a `python` string.
+Two files, one for the user and one for the project. The lists are
+merged per event, so the user file runs first and the project file after
+it. Each entry is a hook: an optional `matcher`, and either a `command`
+or a `python` string. Both files are consulted on every event, but read
+from disk only when their modification time changed:
+
+`harness/hooks.py`:
+
+```python
+def read_config(path):
+    """One hooks.json, parsed; cached by its mtime, so every event does not re-read it.
+
+    A broken file is noted once, when it changed, not on every tool call.
+    """
+    try:
+        mtime = path.stat().st_mtime
+    except OSError:
+        return {}
+    if path in _cache and _cache[path][0] == mtime:
+        return _cache[path][1]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("the top level is not an object")
+    except (OSError, ValueError) as failed:
+        _note(f"hook config {path} skipped: {failed}")
+        data = {}
+    _cache[path] = (mtime, data)
+    return data
+```
+
+So editing `hooks.json` mid-session takes effect on the next event, and
+a file with a syntax error is reported once and treated as empty until
+it is fixed.
 
 `.agents/hooks.json`:
 
@@ -114,8 +105,12 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatch(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())  # case matters on every OS
 ```
+
+`fnmatchcase`, not `fnmatch`: the plain one is case-insensitive on
+Windows, so a matcher of `Bash` would match `bash` on one OS and not the
+other.
 
 ### 2. Running a command hook
 
@@ -127,17 +122,28 @@ def run_command(command, event):
 
     shell=True so `python .agents/check.py` works the same on Windows and
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
-    stderr as the reason; anything else is reported and ignored.
+    stderr as the reason; anything else is reported and ignored. The hook
+    gets a process group of its own, so a timeout kills the script and not
+    just the shell that started it (bash's plumbing, from sandbox.py).
     """
-    completed = subprocess.run(
+    process = subprocess.Popen(
         resolve_python(command),
         shell=True,
-        input=json.dumps(event),
-        capture_output=True,
-        text=True,
-        timeout=TIMEOUT,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
         cwd=event.get("cwd") or None,
+        **sandbox.group_options(),
     )
+    try:
+        stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        sandbox.kill_tree(process)
+        process.communicate()
+        raise
+    completed = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
     if completed.returncode == BLOCK_EXIT_CODE:
         return {"block": completed.stderr.strip() or "blocked by hook"}
     if completed.returncode != 0:
@@ -151,18 +157,26 @@ def run_command(command, event):
 ```
 
 The event goes in as one JSON object on stdin. It always has the same
-keys: `event`, `tool_name`, `tool_input`, `tool_result`, `prompt` and
-`cwd`, with `null` for the ones that do not apply. The answer comes back
-in two channels. The exit code says whether to continue: `0` continues,
-`2` blocks, and stderr is the reason. Stdout, when not empty, is a JSON
-reply: `{"result": ...}` replaces a tool result, `{"context": ...}` adds
-text to the late block, and `{"block": "reason"}` blocks too.
+keys: `event`, `tool_name`, `tool_input`, `tool_result`, `ok`, `prompt`
+and `cwd`, with `null` for the ones that do not apply. The answer comes
+back in two channels. The exit code says whether to continue: `0`
+continues, `2` blocks, and stderr is the reason. Stdout, when not empty,
+is a JSON reply: `{"result": ...}` replaces a tool result, `{"context":
+...}` adds text, and `{"block": "reason"}` blocks too.
 
 The subprocess runs with `shell=True`, so the command is one string, as
 the user wrote it. A command that starts with `python` runs under the
 harness's own interpreter. The shipped hooks depend on that: they are
 Python scripts, so they run on every operating system, and the harness
 already knows one Python that works.
+
+The timeout is real on every OS. With `shell=True` the hook is a
+grandchild of the harness (`cmd.exe` or `sh` in between), and killing
+the shell alone would leave the script running and holding the pipes, so
+the harness would wait on it anyway. The hook gets a process group of
+its own and `kill_tree` ends the whole group: `taskkill /T` on Windows,
+`SIGKILL` to the session elsewhere. Its output is decoded as UTF-8 so a
+non-ASCII reason from a hook is not itself an error.
 
 ### 3. Running a python hook
 
@@ -255,13 +269,14 @@ keep the last. Several contexts are joined.
 `harness/tools.py`:
 
 ```python
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    action, reason = check(name, args)
     if action == "deny":
         return args, action, reason
     outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
     if outcome.blocked:
         return args, "blocked", outcome.reason
+    if outcome.context:
+        PRE_CONTEXT[tool_call.id] = outcome.context
     return args, action, reason
 ```
 
@@ -269,11 +284,18 @@ keep the last. Several contexts are joined.
 call, the `PreToolUse` hooks see its name and arguments. A block becomes
 the verdict `blocked`, and `settle()` turns that into the tool result
 `Blocked by hook: <reason>`. The tool never runs, and the model reads the
-reason. A call the rules already denied is not offered to the hooks.
+reason. A call the rules already denied, or one whose arguments were not
+a JSON object, is not offered to the hooks. Context from a `PreToolUse`
+hook is kept per call id and joins the result once the tool has run.
 
-The hook runs before the `allow? (y/n)` prompt, not after. A hook that
-blocks saves the user a question. A hook that lets the call through
-leaves the question where it was.
+The order of one call is: rules → `PreToolUse` → the `allow? (y/n)`
+prompt → the tool → `PostToolUse`. The hook runs before the prompt, not
+after, so a hook that blocks saves the user a question, and a hook that
+lets the call through leaves the question where it was. It also means an
+audit hook on `PreToolUse` sees calls the user then declines; the event
+does not say what the user answered. `PostToolUse` runs only for a tool
+that actually ran: never after a deny, a block, a decline, or broken
+arguments.
 
 `harness/tools.py`:
 
@@ -281,22 +303,48 @@ leaves the question where it was.
 def run(tool_call, args):
     """Run the tool with already-parsed arguments, then the PostToolUse hooks.
 
-    No permission check here. A hook that answers with a result replaces
-    what the tool returned; the model sees the hook's version.
+    No permission check here. The event says whether the tool succeeded
+    (`ok`: the result is not an Error:). A hook that answers with a result
+    replaces what the tool returned; one that blocks cannot undo the tool,
+    so the model is told the hook rejected the outcome; any context, from
+    the hooks before or after the call, rides along in a <hook> block.
     """
-    result = TOOLS[tool_call.function.name](**args)
-    outcome = hooks.run_hooks("PostToolUse", {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result})
-    if outcome.result is not None:
-        return outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
+    result = call(tool_call.function.name, args)
+    event = {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result, "ok": not result.startswith("Error")}
+    outcome = hooks.run_hooks("PostToolUse", event)
+    if outcome.blocked:
+        result = f"Blocked by hook: {outcome.reason}"
+    elif outcome.result is not None:
+        result = outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
+    context = "\n".join(c for c in (PRE_CONTEXT.pop(tool_call.id, ""), outcome.context) if c)
+    if context:
+        result += f"\n<hook>\n{context}\n</hook>"
     return result
 ```
 
 `run()` calls the tool and then the `PostToolUse` hooks, with the result
-in the event. A hook that answers with `result` replaces it. Both hook
-points sit on the shared path: `execute()`, `execute_all()`, and the
-subagent loop all go through `decide()` and `run()`, so a subagent and a
-parallel batch are hooked the same way as a single call on the main
-thread.
+in the event and `ok` saying whether it is an `Error:`. That prefix is
+the harness's convention for every failed tool (a missing file, a bad
+argument, a server that said no); a `bash` command that exited non-zero
+is still `ok`, its exit code is in the text. A hook that answers with
+`result` replaces it. A hook that blocks after the tool ran cannot undo
+the write or the command; the model gets `Blocked by hook: <reason>`
+instead of the result, which is the hook's way to say "do not build on
+this". Both hook points sit on the shared path: `execute()`,
+`execute_all()`, and the subagent loop all go through `decide()` and
+`run()`, so a subagent and a parallel batch are hooked the same way as a
+single call on the main thread.
+
+What each event honours:
+
+| event              | `block`                              | `result`             | `context`                        |
+|--------------------|--------------------------------------|----------------------|----------------------------------|
+| `PreToolUse`       | the tool does not run                | ignored              | appended to the tool result      |
+| `PostToolUse`      | the result becomes `Blocked by hook` | replaces the result  | appended to the tool result      |
+| `UserPromptSubmit` | the prompt is dropped, with a note   | ignored              | in `<hooks>` for that turn       |
+| `PreCompact`       | the transcript is kept               | ignored              | ignored                          |
+| `SessionStart`     | ignored                              | ignored              | in `<hooks>` for the session     |
+| `SessionEnd`       | ignored                              | ignored              | ignored                          |
 
 ### 6. The turn and the session
 
@@ -308,15 +356,12 @@ thread.
         ui.note(f"prompt blocked by hook: {submitted.reason}")
         return messages
     messages.append({"role": "user", "content": user_input})
-
-    while True:
-        injection = reminder(hook_context=submitted.context)
 ```
 
-The `UserPromptSubmit` hooks see the prompt before it joins the history.
-Their context is handed to `reminder()`, which puts it in a `<hooks>` tag
-in the late block for every model call of that turn. The next turn starts
-clean.
+The `UserPromptSubmit` hooks see the prompt before it joins the history;
+a blocked prompt never enters the transcript. Their context is handed
+to `reminder()`, which puts it in a `<hooks>` tag in the late block for
+every model call of that turn. The next turn starts clean.
 
 `harness/context.py`:
 
@@ -331,7 +376,10 @@ def hooks_note(turn_context=""):
 kept in `SESSION_CONTEXT` for the whole session. `SessionEnd` runs on
 the way out, after the browser and the MCP servers are closed.
 `PreCompact` runs at the top of `commands.compact()`, and a block keeps
-the transcript as it is.
+the transcript as it is. That function is also what the loop calls for
+*automatic* compaction, so a hook that always blocks `PreCompact` turns
+compaction off for the session; the context then grows until `fit()`
+starts discarding old tool results wholesale.
 
 ### 7. The shipped hooks
 
@@ -349,7 +397,10 @@ if name == ".env" or name.startswith(".env."):
 
 A few lines. Read the event, look at the path, exit `2` with a reason
 when the file is a `.env`. The config runs it only for `write_file` and
-`str_replace`, so a `read_file` of the same path is not affected.
+`str_replace`, so a `read_file` of the same path is not affected. It
+guards two tools, not the file: `bash` with `echo KEY=1 > .env` is a
+different tool, and the rules, not this hook, are what ask about that
+redirection.
 
 `.agents/log_tool_use.py`:
 
@@ -367,32 +418,62 @@ so the real result stands.
 
 ## Run it
 
+Prerequisites are those of step 26: Python 3.11+, `API_KEY` in the
+environment or `~/.simple-harness/env`, and `pip install -e .` from this
+directory (add `".[mcp]"` for the echo server). Start from this directory
+so `.agents/hooks.json` is found.
+
+bash:
+
 ```bash
+cd step_27_hooks
+pip install -e .
 harness
-> /hooks
 ```
 
-The list shows the two shipped hooks, their event and their matcher. Ask
-for something the first one refuses:
+PowerShell:
 
-```bash
+```powershell
+cd step_27_hooks
+pip install -e .
+harness
+```
+
+### Expected output
+
+```text
+> /hooks
+
+  PreToolUse    write_file|str_replace   python .agents/block_env_writes.py
+  PostToolUse   *                        python .agents/log_tool_use.py
+
 > create a .env file with API_KEY=test
-```
 
-The tool panel for `write_file` shows `Blocked by hook: .env holds
-secrets; edit it by hand, not through the agent`, and the model tells you
-so instead of retrying. Ask for anything else and then look at the log:
+  ╭──────────────────────────────────────────────────────────────────╮
+  │ write_file {"path": ".env", "content": "API_KEY=test\n"}         │
+  │ ──────────────────────────────────────────────────────────────── │
+  │ Blocked by hook: .env holds secrets; edit it by hand, not        │
+  │ through the agent                                                │
+  ╰──────────────────────────────────────────────────────────────────╯
 
-```bash
+  A hook refuses writes to .env files, so I have not created it. Add the
+  line by hand: API_KEY=test
+
 > list the python files here
-> /hooks
+
+  ╭──────────────────────────────────────────────────────────────────╮
+  │ bash {"command": "ls harness/*.py"}                              │
+  │ ──────────────────────────────────────────────────────────────── │
+  │ harness/agent.py                                                 │
+  │ harness/browse.py                                                │
+  │ ...                                                              │
+  ╰──────────────────────────────────────────────────────────────────╯
 ```
 
-```bash
-cat .agents/tool_log.txt
-```
-
-One line per tool call, with the time and the name.
+Then `cat .agents/tool_log.txt` (`Get-Content .agents\tool_log.txt` in
+PowerShell) shows one line per call that ran, with the time and the
+name: `2026-09-18 21:40:12 bash`. The blocked `write_file` is not in it,
+because `PostToolUse` never ran for it.
 
 Write a hook of your own. Save this as `.agents/remind.py`:
 
@@ -411,6 +492,73 @@ Run the offline tests from the repository root:
 ```bash
 python run_tests.py 27
 ```
+
+## Error handling
+
+- **A hook that crashes, exits non-zero (other than 2), prints something
+  that is not JSON, or names a missing module** prints one dim note
+  (`hook `python x.py` failed and was ignored: ...`) and counts as
+  silent. The tool runs, the prompt goes through.
+- **A hook that hangs** is killed after `TIMEOUT` (30s), whole process
+  tree included, and noted: `hook `...` took more than 30s and was
+  ignored`.
+- **A broken `hooks.json`** is noted once (`hook config ... skipped`) and
+  treated as empty until its mtime changes.
+- **A tool call with broken arguments** (not a JSON object) never reaches
+  the hooks; its result is `Error: the arguments of <tool> are not a JSON
+  object: ...`. An unknown tool name gives `Error: no tool named '...'.`,
+  a tool that raises gives `Error: <Type>: <message>`; the `PostToolUse`
+  hooks see those with `ok: false`.
+- **A failing command** returns its output and exit code as the result;
+  past 60s it is killed with its tree: `Timed out after 60s and was
+  killed. Output so far: ...`.
+- **A dead model call** ends the turn with the note `model call failed:
+  ...`; the user message stays and the transcript is valid.
+- **ctrl-c mid-turn** answers the unfinished tool calls with
+  `(interrupted before this tool ran)` and returns to the prompt; a
+  command hook that was running is killed with the tool it wrapped.
+- **A blocked prompt in `-p` mode** prints the reason on stderr, nothing
+  on stdout, and exits 1, like any empty reply.
+- **A turn of more than 40 model calls** is stopped with a note; say
+  `continue` to go on.
+
+To leave: `/exit`, `/quit`, ctrl-d (ctrl-z then enter on Windows) or
+ctrl-c at the prompt. `SessionEnd` runs last, after the browser, the
+MCP servers and the summary.
+
+## Gotchas / What this is not
+
+- **A project `hooks.json` is code you run.** Starting the harness in a
+  checkout runs that checkout's hooks with your permissions, on every
+  tool call. Read `.agents/hooks.json` in a repository you did not write
+  before you start the harness there.
+- **Python hooks are imported once.** Editing `.agents/x.py` mid-session
+  changes nothing until the harness restarts; `hooks.json` itself is
+  re-read when it changes. The `.agents` folder goes at the *end* of
+  `sys.path`, so a hook module named like a standard or installed module
+  (`test`, `json`) resolves to the wrong one; pick a distinctive name.
+- **`PreToolUse` fires for calls the user then declines**, and the event
+  has no field for the user's answer.
+- **`PostToolUse` cannot undo.** A block after the tool ran tells the
+  model the result was rejected; the file is still written, the command
+  has still run.
+- **`ok` is a prefix test.** It is `false` when the result starts with
+  `Error`, the harness's convention for a failed tool; a non-zero `bash`
+  exit is `ok: true` with the exit code in the text.
+- **The `.env` hook guards `write_file` and `str_replace` only.** Writes
+  through `bash` are the permission rules' business.
+- **`PreCompact` also gates automatic compaction.**
+- **Matchers are case-sensitive** (`fnmatchcase`), on Windows too, and
+  `[...]` is a character class, not literal brackets.
+- **One subprocess per hook per event.** The shipped log hook costs a
+  Python start-up on every tool call; a long run with parallel subagents
+  multiplies that.
+- **Not a sandbox and not a security boundary.** A hook sees what the
+  harness sends it; a command the rules allow, or a model that names a
+  tool differently, is a different event.
+- **Windows:** the tool called `bash` is `cmd.exe`, `sandbox: none`, and
+  command hooks run under `cmd.exe /c` too; `python` at the start of a
+  hook command is rewritten to the running interpreter.
 
 ## What to notice
 
@@ -432,18 +580,66 @@ python run_tests.py 27
   shipped log hook costs a Python start-up each time. That is fine for a
   chat and worth knowing for a long run.
 
+## Files
+
+```text
+step_27_hooks/
+├── harness/
+│   ├── llm.py                        the model call; the system prompt explains a hook's verdict
+│   ├── tools.py                      the registry; PreToolUse and PostToolUse around every call
+│   ├── agent.py                      the loop; UserPromptSubmit, SessionStart and SessionEnd hooks
+│   ├── hooks.py                      hooks: reads hooks.json, runs commands and functions per event
+│   ├── context.py                    the late injection block, with a <hooks> tag
+│   ├── commands.py                   slash commands; PreCompact runs first, /hooks lists the config
+│   ├── mcp_client.py                 MCP client: starts each server over stdio, registers its tools
+│   ├── permissions.py                allow / ask / deny per tool call, MCP tools included
+│   ├── memory.py                     persistent memory: markdown files with front matter
+│   ├── compact.py                    the compaction agent; its handoff note is kept
+│   ├── history.py                    transcript trimming: cap, strip, fit, image messages
+│   ├── subagent.py                   the subagent loop shared by task and browse
+│   ├── browse.py                     the browser subagent
+│   ├── browser.py                    browser tools: one Chromium page through Playwright
+│   ├── computer.py                   computer use: screen size, screenshot, act
+│   ├── todos.py                      the plan: write_todos and the todo list
+│   ├── skills.py                     skills: SKILL.md discovery and index
+│   ├── session.py                    append-only JSONL log, load() with repair, /rewind markers
+│   ├── sandbox.py                    an OS sandbox for bash, and the process-group plumbing
+│   ├── config.py                     settings: environment first, ~/.simple-harness/env fills gaps
+│   ├── prompt.py                     the input line, through prompt_toolkit
+│   ├── ui.py                         rich panels; streams the reply, headless() sends panels to stderr
+│   └── __init__.py                   package marker
+├── .agents/
+│   ├── hooks.json                    hook config: block .env writes, log every tool name
+│   ├── block_env_writes.py           example PreToolUse hook: refuses to write a .env file
+│   ├── log_tool_use.py               example PostToolUse hook: appends every tool name to a log
+│   ├── .gitignore                    ignores tool_log.txt, the log hook's output
+│   ├── mcp.json                      MCP config: the echo server, started with python
+│   ├── mcp_echo_server.py            a tiny MCP server: two tools, stdio transport
+│   └── skills/explain-code/SKILL.md  the stage 4 skill
+├── test_step.py                      offline tests against a fake model
+├── pyproject.toml                    package metadata; version 0.27.0
+└── README.md                         this file
+```
+
+## What the next step adds
+
+Step 28 adds plan mode: a `/plan` command that offers the model only
+read-only tools plus `submit_plan`, shows you the plan, and switches
+back to act mode only once you approve it.
+
 ## Diff from step 26
 
 ```bash
 diff -r ../step_26_mcp_client/harness harness
 ```
 
-Added: `hooks.py` (`load_config`, `matches`, `run_command`, `run_python`,
-`run_hook`, `run_hooks`, `session_start`, `HookOutcome`). Changed:
-`tools.py` (`decide` runs `PreToolUse` and can answer `blocked`; `run`
-runs `PostToolUse` and can replace the result; `settle` knows the new
-verdict), `agent.py` (`UserPromptSubmit` in `turn`, `SessionStart` and
-`SessionEnd` in `main`), `context.py` (`hooks_note`, the `<hooks>` tag,
+Added: `hooks.py` (`read_config`, `load_config`, `matches`,
+`run_command`, `run_python`, `run_hook`, `run_hooks`, `session_start`,
+`HookOutcome`). Changed: `tools.py` (`decide` runs `PreToolUse` and can
+answer `blocked`; `run` runs `PostToolUse` and can replace or reject the
+result and append hook context; `settle` knows the new verdict),
+`agent.py` (`UserPromptSubmit` in `turn`, `SessionStart` and `SessionEnd`
+in `main`), `context.py` (`hooks_note`, the `<hooks>` tag,
 `reminder(hook_context)`), `commands.py` (`PreCompact` in `compact`, the
 `/hooks` command), `llm.py` (system prompt). Added in `.agents/`:
 `hooks.json`, `block_env_writes.py`, `log_tool_use.py`.

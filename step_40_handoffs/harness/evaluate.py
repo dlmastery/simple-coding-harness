@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, budget, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
+from . import agent, budget, checkpoint, context, handoff, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -141,6 +141,7 @@ def isolated(workspace, session_dir, session_id, usage):
         "ask_user": tools.TOOLS["ask_user"],
         "warned": set(budget.WARNED),
         "loaded": set(tools.LOADED),
+        "agent": handoff.ACTIVE,
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -159,6 +160,7 @@ def isolated(workspace, session_dir, session_id, usage):
     tools.TOOLS["ask_user"] = lambda question, options=None: "No user is present during an evaluation. Decide yourself and go on."
     budget.WARNED.clear()  # every task gets its context warnings afresh...
     tools.LOADED.clear()   # ...and loads its own deferred tools
+    handoff.reset()        # ...as the default agent, whatever the last task handed off to
 
     def record(stats, estimate=None, **rest):
         for key, value in (stats or {}).items():
@@ -191,6 +193,7 @@ def isolated(workspace, session_dir, session_id, usage):
         budget.WARNED.update(saved["warned"])
         tools.LOADED.clear()
         tools.LOADED.update(saved["loaded"])
+        handoff.ACTIVE = saved["agent"]
 
 
 def system_prompt_for(workspace):

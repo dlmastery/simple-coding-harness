@@ -207,28 +207,52 @@ existing ids. Output only patches, one per line."""
 ```
 
 `server.py`: the same `SpecStream` compiles every turn, and the reply is
-appended to the transcript once the stream ends.
+appended to the transcript once the stream ends. The action name and its
+params are checked against the catalog before the model hears about the
+press: the exported catalog JSON carries each action's `params` Zod schema
+as JSON Schema (`show_details.metric: string`), so a press with the wrong
+params is a `400` here, not a guess by the model.
 
 ```python
 @app.post("/action")
 def action(request: ActionRequest):
     if SESSION["compiler"] is None:
         raise HTTPException(status_code=409, detail="no spec on screen yet; POST /stream first")
-    known = set(catalog_json()["actions"])
-    if request.action not in known:
-        raise HTTPException(status_code=400, detail=f"unknown action {request.action!r}; the catalog has {sorted(known)}")
+    actions = catalog_json()["actions"]
+    if request.action not in actions:
+        raise HTTPException(status_code=400, detail=f"unknown action {request.action!r}; the catalog has {sorted(actions)}")
+    # the params carry the Zod schema the catalog declared, exported as JSON Schema: check them here
+    # so the model is never asked about a press whose params are not what the catalog promised
+    for problem in jsonschema.Draft202012Validator(actions[request.action]["params"]).iter_errors(request.params):
+        raise HTTPException(status_code=400, detail=f"{request.action} params: {problem.message}")
     SESSION["messages"].append({"role": "user", "content": ACTION_TURN.format(action=request.action, params=json.dumps(request.params))})
     return StreamingResponse(relay(SESSION["messages"], request.action), media_type="application/x-ndjson")
 ```
 
-`spec.py`: the Python check now reads the `on` field too. An action the
-catalog does not declare would be dropped by the page with a console
-warning, so the server reports it first.
+`server.py`: a turn whose model call fails must not leave the transcript
+half-done. The pressed user message is removed when no reply came (the
+next turn would otherwise send two user messages in a row), the stream
+ends with the `{"error": "..."}` line of step 02, and the turn is
+recorded with its `error` so `/last` tells the truth:
 
 ```python
-        for event, binding in (element.get("on") or {}).items():
+    if error is None:
+        messages.append({"role": "assistant", "content": reply})
+    elif messages and messages[-1]["role"] == "user":
+        messages.pop()  # no reply came: the next turn must not start with two user messages
+```
+
+`spec.py`: the Python check now reads the `on` field too. An action the
+catalog does not declare would be dropped by the page with a console
+warning, so the server reports it first. A binding that is a string, or
+an `on` that is not an object, is reported as an unknown action rather
+than raised:
+
+```python
+        bindings = element.get("on") or {}
+        for event, binding in (bindings.items() if isinstance(bindings, dict) else []):
             for one in binding if isinstance(binding, list) else [binding]:
-                action = (one or {}).get("action")
+                action = one.get("action") if isinstance(one, dict) else None
                 if action not in catalog.get("actions", {}) and action not in catalog.get("builtInActions", []):
                     problems.append(f"{element_id}: on.{event}: unknown action {action!r}")
 ```
@@ -274,16 +298,75 @@ export async function renderSpecToText(spec, { columns = 88, onAction } = {}) {
 }
 ```
 
+## Why: what breaks without it
+
+A dashboard the user cannot touch is a picture. json-render's answer is
+the `on` binding: a button names an action, and the action is either a
+built-in the page handles (`setState`) or one the server answers with
+more patches from the same model on the same transcript. Without the
+session the model has no memory of the spec it wrote and answers a press
+with a whole new dashboard; without the params check it is asked about
+`show_details {}` and guesses a metric. The second target (Ink) is the
+proof that the spec is data: nothing in it knows about the DOM.
+
 ## Run it
+
+Prerequisites as steps 01 and 02 (Node 20+ and `npm install`, which now
+brings `ink` and `@json-render/ink`; fastapi/uvicorn/httpx/jsonschema/
+openai; a key; Playwright for `demo.py`).
+
+bash:
 
 ```
 npm install
+export API_KEY=sk-...
 python server.py                     # http://127.0.0.1:8057, press Generate, then the buttons
 python demo.py                       # streams, presses every button, saves demo.png, renders in the terminal
 node ink_render.mjs demo_spec.json   # the terminal render alone
 python -m pytest -q test_step.py
 npm test
 ```
+
+PowerShell:
+
+```
+npm install
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+node ink_render.mjs demo_spec.json
+python -m pytest -q test_step.py
+npm test
+```
+
+Expected output: the `Quick demo` transcript above. The number of
+buttons and the patch counts depend on the model; `catalog check: ok;
+skipped lines: 0` and a box-drawn dashboard at the end are the checks.
+
+## Error handling
+
+- A press with the wrong params (`show_details` without `metric`): `400`
+  with the schema's message; the page logs `show_details: failed:
+  server answered 400: ...`. An unknown action: `400`; a press before
+  any spec: `409`. The page checks `response.ok` on both routes, so a
+  JSON error body is never fed to the compiler as a patch line.
+- A model call that fails during a turn: the stream ends with
+  `{"error": "..."}`, the log says `refresh_numbers: failed: <reason>`,
+  the pressed message is removed from the transcript, and
+  `/last["turns"][-1]["error"]` records it. What arrived before the
+  failure was applied.
+- One turn at a time: `Generate` is disabled while a stream runs, and a
+  button press during a turn is logged as `ignored, a turn is still
+  running` and dropped; two presses cannot interleave on the shared
+  compiler or the server's single session.
+- A `$state` prop that has not arrived yet: `Table` and `Chart` default
+  their arrays, `Metric` defaults `label` and `value` to `""`, so no
+  component is swallowed by the Ink error boundary.
+- `demo.py` gives uvicorn 10 s to bind port 8057 (`RuntimeError` when it
+  cannot) and finds each button by its label, not its index, because a
+  turn may add or remove buttons.
+- ctrl-c stops `server.py` and `demo.py`; `node ink_render.mjs` exits on
+  its own (the fake stdin holds no handle open).
 
 ## What to notice
 
@@ -301,12 +384,35 @@ npm test
   with one bar changed.
 - A `$state` prop can resolve to `undefined` while its state patch is still
   in flight, in the browser and in the terminal alike. The `Table` and
-  `Chart` components default their arrays for that reason; without the
-  default, the element's error boundary swallows the component and it
-  stays blank after the state arrives.
+  `Chart` components default their arrays and `Metric` its `label` and
+  `value` for that reason; without the default, the element's error
+  boundary swallows the component and it stays blank after the state
+  arrives.
+- `renderSpecToText` waits 30 ms and then unmounts. That is a fixed
+  wait, not a poll: Ink's first render is synchronous, so the frame is
+  already in the fake stdout when the timer fires; the wait only lets a
+  second frame land if the providers scheduled one. With `debug: true`
+  Ink writes whole frames, and `unmount()` writes one more, empty frame
+  on a CI runner, which is why the last *non-empty* frame is returned.
 - `tests/targets.test.mjs` renders one spec with both targets and checks
   that every text the page shows, the terminal shows. That is the "one
   spec, two renderers" claim as a test.
+
+## Gotchas / What this is not
+
+- One session: `SESSION` is a module-level transcript and compiler. Two
+  browsers pressing buttons share it, and a `Generate` in one resets the
+  other's. There is no concurrency control beyond the page's own
+  one-turn-at-a-time rule.
+- `setState` stays in the page by design: the server's spec keeps
+  `/showNotes` at the model's last value, which is why the terminal
+  render shows the notes card. A real app that wants the agent to know
+  sends the state change as its own turn or as context on the next one.
+- The params check reads the JSON Schema `catalog_json.mjs` exported
+  from the Zod `params`; a Zod refinement without a JSON Schema form is
+  not checked in Python.
+- The Ink target is a render, not a TUI: no key handling, no focus; the
+  `onAction` hook exists so a terminal host could wire one.
 
 ## Diff from the previous step
 
@@ -326,3 +432,9 @@ npm test
 - `ink_render.mjs`: new, the terminal target and its CLI.
 - `package.json`: `@json-render/ink` and `ink` pinned; `npm run ink`.
 - `tests/targets.test.mjs` replaces `stream.test.mjs`.
+
+## What the next step adds
+
+Sub-theme 06 moves the same idea into MCP Apps: the UI is a resource an
+MCP server ships, and the host mounts it in a sandboxed iframe with a
+bridge instead of a catalog.

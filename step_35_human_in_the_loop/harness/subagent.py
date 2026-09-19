@@ -38,11 +38,12 @@ reports come back joined, one header per subagent, in the order given.
 """
 
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from contextlib import nullcontext
 
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
+POLL = 0.2         # seconds between looks at the pool, so an interrupt is seen soon on every OS
 
 WITHHELD = {
     "task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill",
@@ -166,6 +167,8 @@ def parallel(descriptions):
     pool = ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent")
     futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
     try:
+        while not all(future.done() for future in futures):
+            wait(futures, timeout=POLL)  # short waits: Windows delivers a Ctrl-C only between them
         reports = [future.result() for future in futures]
     except KeyboardInterrupt:
         pool.shutdown(wait=False, cancel_futures=True)  # a queued subagent never starts; a running one finishes alone

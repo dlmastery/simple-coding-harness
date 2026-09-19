@@ -98,14 +98,15 @@ def validate(spec):
                 problems.append(f"{eid}: child '{child}' is not an element id")
         if element["type"] == "Stack" and props.get("direction") not in DIRECTIONS:
             problems.append(f"{eid}: direction must be row or column")
+        lists = {name: value if isinstance(value, list) else [] for name, value in props.items()}  # a scalar where a list belongs was reported above
         if element["type"] == "Chart":
             if props.get("kind") not in CHART_KINDS:
                 problems.append(f"{eid}: chart kind must be bar or line")
-            if len(props.get("labels") or []) != len(props.get("values") or []):
+            if len(lists.get("labels", [])) != len(lists.get("values", [])):
                 problems.append(f"{eid}: labels and values must have the same length")
-            if not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in props.get("values") or []):
+            if not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in lists.get("values", [])):
                 problems.append(f"{eid}: values must be numbers")
-        if element["type"] == "Table" and not all(isinstance(row, list) for row in props.get("rows") or []):
+        if element["type"] == "Table" and not all(isinstance(row, list) for row in lists.get("rows", [])):
             problems.append(f"{eid}: every row must be a list of cells")
 
     if not problems:

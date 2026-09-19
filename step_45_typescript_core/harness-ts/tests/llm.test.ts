@@ -23,12 +23,21 @@ test("callLlm sends the registry by default, nothing for [], and reads usage fro
   setClient(null);
 });
 
-test("entry drops nulls and pins the tool call shape, like model_dump(exclude_none=True)", () => {
-  assert.deepEqual(entry(say("text")), { role: "assistant", content: "text" });
+test("entry pins the reply to role, content and tool_calls, like StreamedMessage.model_dump", () => {
+  assert.deepEqual(entry(say("text")), { role: "assistant", content: "text" }); // say() carries refusal: null - gone
   const reply = use(call("c1", "bash", { command: "ls" }));
   assert.deepEqual(entry(reply), {
     role: "assistant",
+    content: null, // content stays, null included: the shape the API sends
     tool_calls: [{ id: "c1", type: "function", function: { name: "bash", arguments: '{"command":"ls"}' } }],
   });
   assert.deepEqual(entry({ content: "x", tool_calls: [] }), { role: "assistant", content: "x" });
+  // what a reasoning model or the OpenAI server sends along is never echoed back on the next request
+  assert.deepEqual(entry({ content: "x", tool_calls: null, reasoning: "hmm", annotations: [], refusal: null }), { role: "assistant", content: "x" });
+});
+
+test("a reply with no choices is an error the loop can report, not a TypeError", async () => {
+  setClient({ chat: { completions: { async create() { return { choices: [], error: { message: "overloaded" } } as any; } } } });
+  await assert.rejects(callLlm([{ role: "user", content: "q" }]), /overloaded/);
+  setClient(null);
 });

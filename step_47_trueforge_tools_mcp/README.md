@@ -185,8 +185,7 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired:
         kill_tree(proc.pid)
         out, err = proc.communicate()  # what it printed before the kill
-        return f"Timed out after {TIMEOUT}s and was killed. Output so far:
-{out + err}"
+        return f"Timed out after {TIMEOUT}s and was killed. Output so far:\n{out + err}"
     return (out + err) or "(no output)"
 ```
 
@@ -455,8 +454,8 @@ python -m pytest -q test_step.py
   turn may still be running on the server.
 - **A tool that fails.** Every tool returns `Error: ...` as its result;
   `bash` returns `Timed out after 60s and was killed. Output so far:` plus
-  the partial output after killing the command's process group. The model reads the string and adapts; nothing
-  raises on the server side.
+  the partial output after killing the command's process group. The
+  model reads the string and adapts; nothing raises on the server side.
 - **ctrl-c or ctrl-d (ctrl-z then enter on Windows) at the `allow?`
   prompt.** The call is denied with the reason `The user gave no answer.`
   and the turn resumes. ctrl-c while a turn streams ends the demo with a

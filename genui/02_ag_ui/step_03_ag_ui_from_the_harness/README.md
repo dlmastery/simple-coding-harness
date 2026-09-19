@@ -9,6 +9,24 @@ message bookkeeping are gone: `@ag-ui/client`'s `HttpAgent` does the
 request, the parsing, the verification and the state, and the page only
 subscribes to what it draws.
 
+> **Local use only.** This server runs shell commands in its work
+> directory for anyone who can reach the port, and the harness's "ask"
+> permission tier is auto-approved by `bridge.py` (only `deny` still
+> holds). It binds to 127.0.0.1 and has no authentication. Never expose
+> it; a product ends the run with an interrupt and asks the user instead.
+
+## Why: what breaks without it
+
+Steps 01 and 02 wrote small agents for the protocol. The agent worth
+having is the one the harness codelab spent twenty steps on: tools,
+permissions, todos, streaming. Rewriting it for a browser would fork it,
+and every later harness step would need porting twice. The claim of a
+transport is that it needs none of that: the same loop, unchanged, and a
+thin layer that turns its side effects into events. This step is that
+claim tested, including the parts that do not fit (a permission prompt
+with nobody at the terminal, a server-side todo list with one browser per
+process).
+
 ## Quick demo
 
 ```bash
@@ -65,13 +83,13 @@ message are cut here to keep the listing short.
 
 ```text
 step_03_ag_ui_from_the_harness/
-├── server.py               FastAPI app: moves into the work directory, then POST /agent runs one harness turn as events
-├── bridge.py               the harness loop as an event generator: deltas, tool calls, permissions and todos as AG-UI events
+├── server.py               FastAPI app: moves into the work directory, then POST /agent runs one harness turn as events; closes the run when the page leaves
+├── bridge.py               the harness loop as an event generator: deltas, tool calls, permissions and todos as AG-UI events; capped, keepalives, tool errors as results
 ├── llm.py                  settings only; loads API_KEY, BASE_URL and MODEL before any harness module is imported
 ├── sse.py                  SSE reader in Python, used by the tests and demo.py
 ├── harness/                verbatim copy of the harness codelab's step 21 (call_llm, execute, todos, permissions, sandbox)
 ├── index.html              the page shell: prompt, chat, the todo panel
-├── app.js                  HttpAgent from @ag-ui/client; the page subscribes to events and draws them
+├── app.js                  HttpAgent from @ag-ui/client; the page subscribes to events and draws them; rolls a failed run back
 ├── client-entry.mjs        the one line esbuild bundles into vendor/ag-ui-client.js
 ├── http-agent.test.mjs     node --test: the real HttpAgent against a fake server replaying the bridge's stream
 ├── test_step.py            offline pytest: fake model, bridge events, real harness tools in a temp dir, endpoint; runs npm
@@ -133,7 +151,11 @@ def streamed(messages):
 
     threading.Thread(target=worker, daemon=True).start()
     while True:
-        kind, payload = items.get()
+        try:
+            kind, payload = items.get(timeout=KEEPALIVE_AFTER)
+        except queue.Empty:
+            yield "keepalive", None  # the model is thinking; say so on the wire
+            continue
         if kind == "error":
             raise payload
         yield kind, payload
@@ -142,20 +164,29 @@ def streamed(messages):
 ```
 
 `call_llm` pushes; an event stream pulls. A queue between two threads
-joins them without changing the harness.
+joins them without changing the harness. A model that thinks for a while
+sends nothing, and a proxy drops a stream that says nothing for too long:
+after `KEEPALIVE_AFTER` (15 s) of silence the generator yields
+`KEEPALIVE`, the SSE comment `: keepalive`, which `server.py` writes raw
+(there is no AG-UI event for it) and every SSE reader ignores.
 
 ### 2. The loop, event by event
 
 `bridge.py`:
 
 ```python
+        for calls in range(MAX_CALLS + 1):
+            if calls == MAX_CALLS:
+                raise RuntimeError(f"stopped after {MAX_CALLS} model calls in one run")
+...
             for tool_call in message.tool_calls:
-                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id)
+                # the parent is the text message, when there was one
+                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id if started else None)
                 yield ToolCallArgsEvent(tool_call_id=tool_call.id, delta=tool_call.function.arguments)
                 yield ToolCallEndEvent(tool_call_id=tool_call.id)
 
                 ASKED.clear()
-                args, result = execute(tool_call)
+                result = run_tool(tool_call)
                 for reason in ASKED:
                     yield CustomEvent(name="permission", value={"reason": reason, "decision": "allow"})
                 yield ToolCallResultEvent(message_id=str(uuid4()), tool_call_id=tool_call.id, content=result, role="tool")
@@ -166,8 +197,31 @@ joins them without changing the harness.
 
 The harness assembles a tool call before the loop sees it, so the
 arguments go out as one `TOOL_CALL_ARGS` delta. Step 02 streamed them
-piece by piece; both are legal. `execute` is the harness's own function,
-permission layer included.
+piece by piece; both are legal. The loop is capped at `MAX_CALLS` (40)
+model calls, the same cap the harness's own loop has; past it the run
+ends with `RUN_ERROR`, and every call made before that has its result.
+
+`run_tool` is `execute`, the harness's own function with the permission
+layer, wrapped so that nothing it raises can end the run without a
+result for the call:
+
+```python
+def run_tool(tool_call):
+    """tools.execute with every failure as a result: the page gets one TOOL_CALL_RESULT per call."""
+    name = tool_call.function.name
+    if name not in TOOLS:
+        return f"Error: no tool named {name!r}."
+    try:
+        _, result = execute(tool_call)
+    except json.JSONDecodeError as error:
+        return f"Error: the arguments of {name} are not a JSON object: {error}"
+    except Exception as error:  # noqa: BLE001 - the tool failed; the model reads why and goes on
+        return f"Error: {type(error).__name__}: {error}"
+```
+
+A client that received `TOOL_CALL_END` and then `RUN_ERROR` would hold a
+transcript with a call and no result, which the API refuses on every
+later run; this is why the error goes to the model as text instead.
 
 ### 3. Permission without a prompt
 
@@ -187,7 +241,11 @@ The harness asks `ui.approve(reason)` when a bash command is not on the
 allow list. The bridge answers yes and tells the page what was asked. A
 real product would end the run with an interrupt outcome and let the page
 answer on the next run; the harness codelab's step 35 covers that pattern
-on the terminal side.
+on the terminal side. Until then, this is the warning at the top of this
+file: `python -c ...`, `pip install ...` and every other "ask" command
+runs. `ASKED`, like the harness's `todos.TODOS`, is a module global: one
+user per process, and two tabs would interleave their permission reports
+and todo lists.
 
 ### 4. The harness works in a directory
 
@@ -241,6 +299,21 @@ After it, `agent.messages` holds the user message, the assistant messages
 with their tool calls and the tool results, and `agent.state` holds the
 todos; the next run sends all of it.
 
+What `runAgent()` does on failure is worth knowing exactly (checked
+against `@ag-ui/client` 0.0.59). A non-200 answer, a dead server or an
+illegal event order rejects the promise. A `RUN_ERROR` does not: the
+promise resolves, `onRunErrorEvent` fires, and `agent.messages` keeps the
+half-built assistant message, tool calls without results included. So
+the page notes the message count before the run and cuts back to it
+whenever the status did not reach `finished`:
+
+```js
+  } finally {
+    if (status.textContent !== "finished") agent.messages = agent.messages.slice(0, mark);
+    running = false;
+  }
+```
+
 ### 7. The client tested against the bridge's stream
 
 `http-agent.test.mjs`:
@@ -256,9 +329,17 @@ todos; the next run sends all of it.
 ```
 
 A Node `http` server replays the exact event sequence `bridge.py`
-produces. The test runs offline and proves the two ends agree.
+produces, keepalive comment first. The test runs offline and proves the
+two ends agree. A second test replays a run that ends in `RUN_ERROR`
+after a tool call and shows what the client keeps. One thing the replay
+found: the client splits events on `\n\n` only, so the bridge's frames
+must use LF (they do; `EventEncoder` writes `\n`).
 
 ## Run it
+
+Prerequisites: step 02's Python packages plus the harness's
+(`rich`, `pyyaml`; see the harness codelab's `requirements.txt`), Node 22
+and npm for the bundle, `playwright` for `demo.py`.
 
 ```bash
 npm install
@@ -266,8 +347,27 @@ npm run build
 python server.py
 ```
 
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."
+npm install
+npm run build
+python server.py
+```
+
 Open http://127.0.0.1:8023. The agent works in `./workdir`; set
-`HARNESS_WORKDIR` to point it elsewhere. Tests, offline:
+`HARNESS_WORKDIR` to point it elsewhere.
+
+Expected output: `python server.py` prints the work directory and the
+local-use warning, then uvicorn's start line. In the page, a tool call
+appears as `write_file({"path":"hello.py",...})` with its result
+underneath, a `permission: run: python hello.py -> allow` line when bash
+needed one, the todo panel fills after `write_todos`, and the status line
+ends in `finished` with the token usage beside it. The quick demo above
+is the same two prompts, folded.
+
+Tests, offline:
 
 ```bash
 python -m pytest -q test_step.py
@@ -275,12 +375,53 @@ npm test
 ```
 
 `test_step.py` runs `npm install`, `npm test` and `npm run build` itself
-when `node` is on the PATH.
+when `node` is on the PATH. To confirm that `harness/` is the codelab's
+step 21 unchanged:
+
+```bash
+diff -r ../../../step_21_streaming_headless/harness harness -x __pycache__
+```
+
+## Error handling
+
+- The model call fails: `RUN_ERROR` with the exception text; the page
+  shows `error: ...` and cuts its history back to before the run.
+- The model keeps calling tools: after 40 model calls the run ends with
+  `RUN_ERROR stopped after 40 model calls in one run`; every call made
+  has its `TOOL_CALL_RESULT`.
+- A tool call the harness cannot run (arguments that are not JSON, an
+  unknown name, a missing argument, an exception in the tool): the
+  `TOOL_CALL_RESULT` is `Error: ...` and the model reads it on the next
+  round. A `deny` rule is `Blocked by policy: ...` the same way.
+- The model is silent for 15 s: a `: keepalive` comment on the wire, not
+  an event.
+- The server is down or answers 4xx/5xx (a 422 for a body that is not a
+  `RunAgentInput`): `runAgent()` rejects, the page shows the error.
+- A submit while a run streams, or an empty prompt: dropped.
+- The browser leaves mid-run: the endpoint closes the generator at the
+  next event; a tool already running finishes.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- Not safe to expose: see the warning at the top. `deny` rules still
+  apply (`rm -rf`, `git push`, `curl`...), everything else runs.
+- One user per process: `ASKED`, the todo list and the work directory are
+  process globals.
+- The harness's `history.strip` and compaction do not run: the page owns
+  the transcript and sends it whole. Long sessions grow without bound
+  until the page reloads.
+- The harness's tool named `bash` runs the command through `shell=True`,
+  which is `cmd.exe` on Windows, and `sandbox.py` has no sandbox there
+  (seatbelt on macOS, bubblewrap on Linux when installed, none otherwise).
+- `@ag-ui/client` 0.0.59 does not reject on `RUN_ERROR`; the page's
+  rollback is what keeps the history valid.
 
 ## What to notice
 
-- `harness/` has no diff against the harness codelab. The bridge is 150
-  lines and the page is 90; that is the cost of a second transport.
+- `harness/` has no diff against the harness codelab. The bridge is about
+  180 lines and the page about 100; that is the cost of a second
+  transport.
 - The client owns the transcript. The harness's `history.strip` and
   compaction, which edit the server-side list, do not apply: the page
   sends the full history every run. A product would move that logic to
@@ -291,6 +432,12 @@ when `node` is on the PATH.
   global on the server, and the snapshot refreshes the page's copy.
 - The `usage` on `RUN_FINISHED` is the same dict the terminal prints
   after every reply, in the protocol's `TokenUsage` shape.
+
+## What the next sub-theme adds
+
+A2UI: instead of a text reply, the agent's output *is* the UI, as a
+stream of component messages a renderer draws; sub-theme 03 starts with
+those messages written by hand.
 
 ## Diff from the previous step
 

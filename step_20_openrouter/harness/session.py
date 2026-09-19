@@ -9,9 +9,8 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
-NL = "\n"
 
-INTERRUPTED = "(the harness stopped before this tool ran; no result was recorded)"
+STOPPED = "(the harness stopped before this tool ran; no result was recorded)"
 
 
 def path_for(session_id):
@@ -42,18 +41,24 @@ def compacted(messages):
     global WRITTEN
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
-        f.write(json.dumps({"compacted": messages}) + NL)
+        f.write(json.dumps({"compacted": messages}) + "\n")
     WRITTEN = len(messages)
 
 
-def repair(messages):
-    """A transcript that ends mid tool call is invalid to send: give each
-    unanswered tool_call a result saying so, then the chat can go on."""
-    if not messages or messages[-1]["role"] != "assistant":
-        return messages
-    for call in messages[-1].get("tool_calls") or []:
-        messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
-    return messages
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
+
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
+    """
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 
 
 def load(session_id):
@@ -70,6 +75,7 @@ def load(session_id):
             messages = list(entry["compacted"])
         else:
             messages.append(entry)
+    repair(messages, STOPPED)
     return messages
 
 
@@ -78,8 +84,8 @@ def open_session(session_id):
     global CURRENT, WRITTEN
     CURRENT = session_id
     messages = load(session_id)
-    WRITTEN = len(messages)   # the repair below is new: the next save writes it
-    return repair(messages)
+    WRITTEN = len(messages)
+    return messages
 
 
 def title(messages):

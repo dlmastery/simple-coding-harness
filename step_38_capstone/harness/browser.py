@@ -13,6 +13,7 @@ dependency, and the rest of the harness must import without it.
 
 import functools
 import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -25,6 +26,7 @@ _playwright = None
 _browser = None
 _page = None
 _worker = None  # the one thread every Playwright object belongs to
+_worker_lock = threading.Lock()  # two threads must not each start a worker
 
 
 def headless():
@@ -35,8 +37,9 @@ def headless():
 def on_worker(fn, *args):
     """Run fn on the browser thread and wait for its result."""
     global _worker
-    if _worker is None:
-        _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
+    with _worker_lock:
+        if _worker is None:
+            _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
     return _worker.submit(fn, *args).result()
 
 

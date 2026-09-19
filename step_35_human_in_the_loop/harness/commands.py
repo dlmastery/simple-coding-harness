@@ -96,7 +96,9 @@ def rewind(messages):
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
+    session.save(messages)  # a fresh session has nothing on disk yet; the rewind entry needs the messages before it
     session.rewind_to(keep)
+    todos.reload_from(messages[:keep])  # the plan as it stood at the cut
     return redraw(messages[:keep], "rewound")
 
 
@@ -111,7 +113,9 @@ def undo(messages):
     if start is None or start > len(messages):
         ui.note("that turn's place in the transcript is not known; the messages stay")
         return messages
+    session.save(messages)
     session.rewind_to(start)
+    todos.reload_from(messages[:start])
     return redraw(messages[:start], "undone")
 
 

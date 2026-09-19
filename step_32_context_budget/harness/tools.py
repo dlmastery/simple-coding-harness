@@ -175,8 +175,10 @@ def relearn(messages):
 
     LOADED lives in memory, but the transcript still shows the model the
     schema it loaded; without this the first call after --resume would be
-    told to load the tool again.
+    told to load the tool again. Rebuilt, not added to: a tool loaded in a
+    turn that /rewind cut away is deferred again.
     """
+    LOADED.clear()
     results = {m.get("tool_call_id"): m.get("content") or "" for m in messages if m.get("role") == "tool"}
     for message in messages:
         for call in message.get("tool_calls") or []:

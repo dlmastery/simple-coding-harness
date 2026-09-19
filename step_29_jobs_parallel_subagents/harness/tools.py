@@ -171,6 +171,8 @@ MAX_WORKERS = 4  # tool calls of one reply that may run at the same time
 
 DENIED = "The user denied this tool call."
 
+PRE_CONTEXT = {}  # tool call id -> what its PreToolUse hooks added; run() appends it to the result
+
 # tools that must run one at a time on the calling thread: they prompt the
 # user, or drive a browser or desktop whose call order matters
 SERIAL = {"task", "browse", "submit_plan", "ask_user", "handoff_to", "finish"}
@@ -206,6 +208,8 @@ def decide(tool_call, allowed=None):
     outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
     if outcome.blocked:
         return args, "blocked", outcome.reason
+    if outcome.context:
+        PRE_CONTEXT[tool_call.id] = outcome.context
     return args, action, reason
 
 
@@ -230,13 +234,22 @@ def call(name, args):
 def run(tool_call, args):
     """Run the tool with already-parsed arguments, then the PostToolUse hooks.
 
-    No permission check here. A hook that answers with a result replaces
-    what the tool returned; the model sees the hook's version.
+    No permission check here. The event says whether the tool succeeded
+    (`ok`: the result is not an Error:). A hook that answers with a result
+    replaces what the tool returned; one that blocks cannot undo the tool,
+    so the model is told the hook rejected the outcome; any context, from
+    the hooks before or after the call, rides along in a <hook> block.
     """
     result = call(tool_call.function.name, args)
-    outcome = hooks.run_hooks("PostToolUse", {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result})
-    if outcome.result is not None:
-        return outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
+    event = {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result, "ok": not result.startswith("Error")}
+    outcome = hooks.run_hooks("PostToolUse", event)
+    if outcome.blocked:
+        result = f"Blocked by hook: {outcome.reason}"
+    elif outcome.result is not None:
+        result = outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
+    context = "\n".join(c for c in (PRE_CONTEXT.pop(tool_call.id, ""), outcome.context) if c)
+    if context:
+        result += f"\n<hook>\n{context}\n</hook>"
     return result
 
 

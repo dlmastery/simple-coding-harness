@@ -13,6 +13,11 @@ mechanisms, cheapest first. Only the first two live here; the expensive one
           cached prefix in front of it survives.
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
+
+Two markers, because they mean different things: CAPPED says "the rest is
+in a file for this turn", TRIMMED says "the rest is gone". strip and fit
+look for TRIMMED only, so a capped result is still shrunk once its turn is
+over.
 """
 
 import json
@@ -24,8 +29,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-CAPPED = "[output capped:"    # from cap: the rest is on disk for this turn
-TRIMMED = "[output trimmed:"  # from strip / fit: the rest is gone; stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap(): the full text is on disk until the turn ends
+TRIMMED = "[output trimmed:"  # from strip() and fit(): gone for good; stripping twice is a no-op
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
 SPILLS = []                   # temp files belonging to the current turn
 
@@ -71,8 +76,7 @@ def strip(messages):
     """Shrink every tool result from finished turns. Returns how many shrank.
 
     Called after a turn ends, so "everything in the list" and "everything the
-    model no longer needs in full" are the same set. A capped result is the
-    first candidate: its 10,000 chars are the biggest thing in the list.
+    model no longer needs in full" are the same set.
     """
     shrunk = 0
     for message in messages:

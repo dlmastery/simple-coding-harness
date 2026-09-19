@@ -9,6 +9,9 @@ One policy - read anything, write only inside the project, no network - and
 one mechanism per OS. The macOS profile is the shape used by the OpenAI
 Codex CLI (Apache-2.0); the Linux one is bubblewrap.
 Windows has no equivalent here and the banner says so.
+
+Only the bash tool goes through here. read_file, write_file and
+str_replace run in the harness process, guarded by stage 11's rules.
 """
 
 import os
@@ -21,34 +24,38 @@ from pathlib import Path
 
 PROJECT = Path.cwd().resolve()
 
-PROFILE = f"""(version 1)
+PROFILE = """(version 1)
 (deny default)
 (allow process-exec process-fork signal)
 (allow file-read*)
 (allow sysctl-read)
 (deny network*)
-(allow file-write* (subpath "{PROJECT}") (literal "/dev/null"))
-(deny file-write* (subpath "{PROJECT}/.git"))
+(allow file-write* (subpath "{project}") (literal "/dev/null"))
+(deny file-write* (subpath "{project}/.git"))
 """
 
-# no pagers, no credential prompts: the command has no terminal to answer on
-BASH_ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
-# the command starts its own process group, so a timeout can kill all of it
-NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+# No pager may block waiting for a key, and git must never prompt for a password.
+ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
 
 
 def wrap(command):
     """Wrap a shell command in an OS sandbox. None means we have no sandbox."""
     if sys.platform == "darwin":
-        profile = Path(tempfile.gettempdir()) / "simple-harness.sb"
-        profile.write_text(PROFILE, encoding="utf-8")
-        return ["sandbox-exec", "-f", str(profile), "/bin/sh", "-c", command]
+        # one profile file per call: several tool calls may run at the same time
+        with tempfile.NamedTemporaryFile("w", prefix="simple-harness-", suffix=".sb", delete=False) as profile:
+            profile.write(PROFILE.format(project=PROJECT))
+        return ["sandbox-exec", "-f", profile.name, "/bin/sh", "-c", command]
 
     if sys.platform.startswith("linux") and shutil.which("bwrap"):
+        git_dir = PROJECT / ".git"
         return [
             "bwrap",
             "--ro-bind", "/", "/",
             "--bind", str(PROJECT), str(PROJECT),
+            # the same two exceptions as the macOS profile: history is read-only,
+            # and /tmp is writable because pytest, pip and tempfile need it
+            *(["--ro-bind", str(git_dir), str(git_dir)] if git_dir.is_dir() else []),
+            "--tmpfs", "/tmp",
             "--dev", "/dev", "--proc", "/proc",
             "--unshare-net", "--die-with-parent",
             "/bin/sh", "-c", command,
@@ -65,29 +72,44 @@ def name():
     return "none"
 
 
-def kill_tree(pid):
-    """Kill a process and everything it started."""
+def kill_tree(process):
+    """Kill the command and everything it started, not just the shell."""
     if os.name == "nt":
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(process.pid)], capture_output=True)
     else:
-        os.killpg(pid, signal.SIGKILL)
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        except ProcessLookupError:
+            pass
 
 
 def run(command, timeout=60):
-    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired after killing the tree."""
+    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired with the partial output.
+
+    The command gets its own process group so a timeout can kill the whole
+    tree: killing only the shell leaves a child holding the output pipe,
+    and the call would block until that child exits on its own.
+    """
     sandboxed = wrap(command)
-    proc = subprocess.Popen(
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    process = subprocess.Popen(
         sandboxed or command,
         shell=sandboxed is None,
-        stdin=subprocess.DEVNULL,            # no stdin: an interactive command ends, it does not wait
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        encoding="utf-8", errors="replace",  # never a UnicodeDecodeError on odd output
-        env=BASH_ENV, **NEW_GROUP,
+        stdin=subprocess.DEVNULL,  # a command that waits for input would hang the turn
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
+        env=ENV,
+        **group,
     )
     try:
-        out, err = proc.communicate(timeout=timeout)
+        stdout, stderr = process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
-        kill_tree(proc.pid)   # the shell alone would die; its children would live on
-        proc.communicate()
+        kill_tree(process)
+        stdout, stderr = process.communicate()
+        raise subprocess.TimeoutExpired(command, timeout, output=stdout, stderr=stderr)
+    except KeyboardInterrupt:  # ctrl-c: the command dies with the turn
+        kill_tree(process)
         raise
-    return subprocess.CompletedProcess(command, proc.returncode, out, err)
+    return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)

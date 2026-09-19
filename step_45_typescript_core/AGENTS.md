@@ -7,10 +7,12 @@ loaded and `/init` writes a fresh one from a survey of the project.
 ## Overview
 
 This directory is one step of a series that builds a coding agent, the
-`harness` command, one feature at a time. This step is the capstone: one
-end-to-end task (a FastAPI todo API) run headless through the harness and
-graded by five checks. The task, the runner, the checks, the reference
-solution and the recorded run live in `capstone/`.
+`harness` command, one feature at a time. This step ports the
+core of the loop (stage 15: tools, permissions, todos, subagents, compaction
+and sessions) to TypeScript under `harness-ts/`, sharing the session log
+format with the Python harness. The Python package in `harness/` is the
+final one of the series, unchanged from step 44. The capstone of step 38 is
+still here under `capstone/`.
 
 ## Build system
 
@@ -23,8 +25,8 @@ solution and the recorded run live in `capstone/`.
 
 - Whole suite, offline, no key needed: `python -m pytest -q test_step.py`
 - One test: `python -m pytest -q test_step.py -k <name>`
-- From the repository root: `python run_tests.py 38` and
-  `python check_snippets.py 38`.
+- From the repository root: `python run_tests.py 45` and
+  `python check_snippets.py 45`.
 - The capstone itself, with a real model: `python capstone/run.py` with
   `API_KEY`, `BASE_URL` and `MODEL` set. Needs `pip install -e ".[capstone]"`.
 
@@ -33,13 +35,19 @@ solution and the recorded run live in `capstone/`.
 - `harness/` - the package. `agent.py` is the loop, `llm.py` builds the
   system prompt and calls the model, `tools.py` is the tool registry,
   `commands.py` handles `/` commands, `instructions.py` finds these files,
-  `agents.py` reads the agent definitions, `pipeline.py` runs `/pipeline`.
-- `.agents/` - project skills, agent definitions, hooks and MCP configuration.
+  `agents.py` reads the agent definitions, `extensions.py` loads the
+  extensions, `pipeline.py` runs `/pipeline`, `replay.py` and `trace.py` read the log back.
+- `.agents/` - project skills, agent definitions, hooks, MCP configuration
+  and the example extensions in `.agents/extensions/`.
 - `evals/` - the evaluation suite for `harness eval evals`.
 - `capstone/` - `task.md` (the brief), `run.py` (the headless runner),
   `evals/` (five checks, graded with `harness eval capstone/evals
   --workspace DIR`), `reference/` (a hand-written solution), and the
   `report.json`, `SCORECARD.md` and `transcript.md` of the recorded run.
+- `harness-ts/` - the TypeScript port: `agent.ts` is the loop, `tools.ts`
+  the registry and `execute()`, `sandbox.ts` runs commands, `session.ts`
+  writes the same JSONL log. `npm test` runs its suite with node 22.6+
+  (no packages needed); `npm install` then `npm run typecheck` runs `tsc`.
 - `test_step.py` - the offline tests for this step.
 
 ## Conventions

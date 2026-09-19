@@ -98,7 +98,7 @@ If a skill matches what the user wants, call read_skill first and follow it.
 PLAN_PROMPT = """
 
 You are in plan mode. The user wants a plan before any change is made.
-Explore with bash, read_file, read_skill and task until you understand the
+Explore with bash, read_file, read_skill, recall and task until you understand the
 task, then call submit_plan once with a goal, the steps in order (each with
 the files it touches and the actions taken on them) and the risks. Do not
 propose steps you have not checked against the code. If the plan comes back

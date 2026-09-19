@@ -9,9 +9,12 @@ answer -p prints.
 Three budgets guard a turn that does not end by itself. MAX_TURN_CALLS
 is step 34's cap on model calls per turn, moved here. MAX_SESSION_COST
 is a cap in dollars on the whole session: every model call is priced,
-from the cost the API reported when the usage carries one (step 20's
-OpenRouter client asks for it) and from PRICES otherwise, and the total
-is SPENT. MAX_TURN_SECONDS caps the wall-clock time of one turn.
+from the cost the API reported when the usage carries one (OpenRouter
+sends it when llm.USAGE_EXTRA asks; other hosts never do) and from PRICES
+otherwise - an estimate, and FALLBACK_PRICES for a model not in the
+table - and the total is SPENT. MAX_TURN_SECONDS caps the wall-clock
+time of one turn. The caps are checked before a model call: a tool that
+is already running, a job_wait or a subagent's own calls finish first.
 tripped() checks the three before every model call and returns the
 report the loop prints when one has been crossed.
 
@@ -27,13 +30,27 @@ running forever.
 
 import json
 import os
+import sys
 import time
 
 from . import hooks
 
-MAX_TURN_CALLS = int(os.environ.get("MAX_TURN_CALLS", 40))          # model calls one turn may make
-MAX_SESSION_COST = float(os.environ.get("MAX_SESSION_COST", 5.0))   # dollars one session may spend
-MAX_TURN_SECONDS = float(os.environ.get("MAX_TURN_SECONDS", 900))   # wall-clock seconds one turn may take
+
+def env_number(name, default):
+    """A number from the environment, or the default with a note on stderr when the value is not one."""
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return type(default)(raw)
+    except ValueError:
+        print(f"{name}={raw!r} is not a number; using {default}", file=sys.stderr)
+        return default
+
+
+MAX_TURN_CALLS = env_number("MAX_TURN_CALLS", 40)       # model calls one turn may make
+MAX_SESSION_COST = env_number("MAX_SESSION_COST", 5.0)  # dollars one session may spend
+MAX_TURN_SECONDS = env_number("MAX_TURN_SECONDS", 900.0)  # wall-clock seconds one turn may take
 MAX_STOP_BLOCKS = 3      # times the Stop hooks may send the agent back in one turn
 RESULT_CHARS = 4000      # how much of each tool result the Stop event carries
 
@@ -47,9 +64,9 @@ PRICES = {
 }
 # a model not in PRICES is priced with these, or with PRICE_PROMPT, PRICE_COMPLETION and PRICE_CACHED from the environment
 FALLBACK_PRICES = (
-    float(os.environ.get("PRICE_PROMPT", 1.0)),
-    float(os.environ.get("PRICE_COMPLETION", 4.0)),
-    float(os.environ.get("PRICE_CACHED", 0.25)),
+    env_number("PRICE_PROMPT", 1.0),
+    env_number("PRICE_COMPLETION", 4.0),
+    env_number("PRICE_CACHED", 0.25),
 )
 
 SPENT = 0.0       # dollars this session has cost so far, every model call counted
@@ -83,7 +100,11 @@ def finish(summary: str) -> str:
 
 
 def finish_summary(arguments):
-    """The summary inside the JSON arguments of a finish call, as finish() returned it."""
+    """The summary inside the JSON arguments of a finish call, as finish() returned it.
+
+    agent.last_reply accepts it only when the tool's result says the same:
+    a finish that a hook blocked or a rule denied did not end the turn.
+    """
     try:
         args = json.loads(arguments or "{}")
     except (json.JSONDecodeError, TypeError):
@@ -125,9 +146,9 @@ def prices():
 def cost_of(usage):
     """The dollars one model call cost, and where the number came from.
 
-    The cost the usage carries wins: step 20's client reads it from the
-    API. Otherwise the tokens are priced from PRICES, with the cached part
-    of the prompt at its own rate.
+    The cost the usage carries wins: OpenRouter reports one when asked
+    (llm.USAGE_EXTRA). Otherwise the tokens are priced from PRICES, with
+    the cached part of the prompt at its own rate.
     """
     usage = usage or {}
     if usage.get("cost") is not None:
@@ -155,7 +176,8 @@ def tripped(calls):
 
     calls is how many model calls the turn has made. The three checks run
     before every model call, so the call that would cross a line is the
-    one that is not made.
+    one that is not made. A subagent asks with calls=0: the session cost
+    and the turn clock bind it too, the call count is its own.
     """
     if calls >= MAX_TURN_CALLS:
         return f"stopped after {calls} model calls in one turn (MAX_TURN_CALLS={MAX_TURN_CALLS}); say continue to go on"

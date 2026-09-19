@@ -8,9 +8,20 @@ its own mirror of the surface, and answers a `Button` action with an
 `updateDataModel`. The page from step 01 gains a prompt box, an SSE reader
 over `fetch`, and the action round trip.
 
+## Why: what breaks without it
+
+Step 01's messages were typed by hand, which proves the renderer and
+nothing about generation. A model asked for "a contact form" writes
+prose, or JSON in a shape of its own, unless the catalog and the rules are
+in its prompt; and even then it writes `TextInput` for `TextField`, a
+trailing comma, a child it never defines. Without a validator between the
+model and the page, the page draws nothing and nobody knows why. This
+step is the loop the spec asks for: prompt with the schema, parse while
+streaming, validate when finished, send the validator's text back once.
+
 ## Quick demo
 
-```
+```bash
 python demo.py
 ```
 
@@ -42,14 +53,14 @@ step_02_a2ui_from_a_model/
 ├── envelope.py           a2ui.py from step 01, renamed so it does not shadow the SDK's `a2ui` package
 ├── llm.py                model access: API_KEY, BASE_URL, MODEL from the env or ~/.simple-harness/env
 ├── prompt.py             the a2ui-agent-sdk side: system prompt from the catalog, stream parser, full parser
-├── server.py             FastAPI app: POST /generate (the generate loop over SSE), POST /action, the STORE mirror
+├── server.py             FastAPI app: POST /generate (the generate loop over SSE, keepalives), POST /action, the STORE mirror reset per generation
 ├── schema/
 │   ├── server_to_client.json   the envelope schema (the four messages)
 │   ├── common_types.json       shared types: ComponentId, bindings, actions
 │   └── catalog.json            the Basic Catalog: every component and function schema
 ├── static/
 │   ├── index.html        the page shell, the prompt form, a striped style for loading_* rows
-│   ├── app.mjs           sends the prompt, reads the SSE body over fetch, posts Button actions
+│   ├── app.mjs           sends the prompt, reads the SSE body over fetch, posts Button actions; always sets a2uiDone
 │   ├── surface.mjs       the DOM-free client state, unchanged from step 01
 │   └── render.mjs        the hand painter, unchanged from step 01
 ├── surface.test.mjs      node --test for surface.mjs
@@ -170,10 +181,34 @@ def generate(user_prompt):
             continue
 ```
 
+The streaming pass skips `updateDataModel` (a partial value has no path
+yet), so the generated fields stay empty until the final pass sends the
+whole data model; in the recorded run that is the last 10 ms.
+
+Every generation begins by withdrawing the previous one:
+
+`server.py`:
+
+```python
+    for surface_id in list(STORE.surfaces):
+        yield mirror(envelope.delete_surface(surface_id))  # the previous generation goes first
+```
+
+Press Generate twice on one page and the model sends `createSurface main`
+again. Step 01's hand store treats that as a reset, but the official
+renderer in step 03 throws `Surface main already exists`, and without the
+delete the server's own mirror would keep the first form's components
+merged into the second. So the reset is explicit: `deleteSurface` on the
+wire, the mirror cleared, then the new surface.
+
 The server keeps the same `SurfaceStore` the page keeps, fed with every
 message it sends. When a click arrives, the mirror knows which `Text` the
 model bound for confirmations, so the answer lands in the right path even
-when the model chose `/form/status` over `/status`.
+when the model chose `/form/status` over `/status`. The mirror is one
+per process, so this server is for one page at a time; two tabs would
+answer each other's clicks. It is also not authoritative: what the user
+typed lives only in the page's data model until an action carries it (or
+`sendDataModel` does, see "What to notice").
 
 `server.py`:
 
@@ -206,21 +241,43 @@ local data model at that moment) and applies the messages that come back.
 
 ```js
   onAction: async (action) => {
+    if (running) return note('action ignored: a generation is still streaming');
     note(`action -> POST /action ${JSON.stringify(action.context)}`);
-    const response = await fetch('/action', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(action) });
-    for (const message of await response.json()) receive(message);
+    try {
+      const response = await fetch('/action', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(action) });
+      if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+      for (const message of await response.json()) receive(message);
+    } catch (error) {
+      note(`action failed: ${error.message}`);
+    }
   },
 ...
-    while ((end = buffer.indexOf('\n\n')) >= 0) {
-      const frame = buffer.slice(0, end);
-      buffer = buffer.slice(end + 2);
-      const event = frame.match(/^event: (.*)$/m)?.[1];
-      const data = JSON.parse(frame.match(/^data: (.*)$/m)[1]);
-      if (event === 'note') note(`note ${JSON.stringify(data)}`);
-      else if (event === 'done') note('done');
-      else receive(data);
-    }
+      while ((end = buffer.indexOf('\n\n')) >= 0) {
+        const frame = buffer.slice(0, end);
+        buffer = buffer.slice(end + 2);
+        const event = frame.match(/^event: (.*)$/m)?.[1];
+        const line = frame.match(/^data: (.*)$/m)?.[1];
+        if (line === undefined) continue; // a comment, such as the keepalive
+        const data = JSON.parse(line);
+        if (event === 'note') note(`note ${JSON.stringify(data)}`);
+        else if (event === 'done') { note('done'); finished = true; }
+        else receive(data);
+      }
 ```
+
+The framing `/generate` uses, which the page's regex reader depends on:
+
+| frame | meaning |
+|---|---|
+| `data: {"version": ..., "createSurface": ...}` | one A2UI envelope, apply it |
+| `event: note` + `data: {...}` | progress: `streaming_stopped`, a validation `error` or `warning`, the model's `prose`, the `usage` |
+| `event: done` + `data: {}` | the end; the page sets `window.a2uiDone` |
+| `: keepalive` | an SSE comment every 15 s of silence while the model thinks; no data line, skipped |
+
+The read loop sits in a `try`/`finally`: a dead server, a 422, a message
+the store refuses or a stream that ends without `done` is logged as
+`generate failed: ...` or `the stream ended without done`, and
+`a2uiDone` flips either way, so nothing waits forever.
 
 The model reaches the server through the harness convention: `API_KEY`,
 `BASE_URL`, `MODEL`, from the environment or `~/.simple-harness/env`.
@@ -235,18 +292,79 @@ MODEL = os.environ.get("MODEL", "gpt-4.1-mini")
 
 ## Run it
 
-```
-pip install a2ui-agent-sdk fastapi uvicorn openai jsonschema playwright
+```bash
+pip install a2ui-agent-sdk==0.6.0 fastapi uvicorn openai jsonschema playwright
 python server.py          # then open http://127.0.0.1:8742/ and press Generate
 python demo.py            # a live model call; writes demo.png
 python -m pytest test_step.py   # offline: a scripted reply stands in for the model
 npm test
 ```
 
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."     # or API_KEY=... in ~\.simple-harness\env
+pip install a2ui-agent-sdk==0.6.0 fastapi uvicorn openai jsonschema playwright
+python -m playwright install chromium
+python server.py
+python demo.py
+python -m pytest test_step.py
+npm test
+```
+
 `a2ui-agent-sdk` 0.6.0 depends on `a2ui-core` 0.1.1 (the pydantic models,
 validators and bundled schemas), and also pulls `google-adk`, `a2a-sdk` and
-an ANTLR runtime for parts this step does not touch. Tests that need the
-SDK skip when it is absent.
+an ANTLR runtime for parts this step does not touch. The version is
+pinned because `prompt.stream_parser` reaches into the format's
+`_supported_catalogs`, a private attribute with no public accessor in
+0.6.0. Tests that need the SDK skip when it is absent.
+
+Expected output: the page shows a striped card within about five seconds
+(the `loading_*` rows), then the fields, labels and button appear over
+the next few seconds while the log on the right lists one
+`updateComponents` per repaint; the fields fill in with the final
+`updateDataModel`, then `note {... "usage": ...}` and `done`. Typing and
+clicking Send writes `Server got 'submit' at ...` into the status line.
+The quick demo above is the same run, driven headlessly.
+
+## Error handling
+
+- No key or the model call fails: `note {"error": "AuthenticationError: ..."}`
+  then `done`; the page logs it and stops, nothing is drawn.
+- The reply fails validation: `note {"attempt": 1, "error": ...}`, the
+  partial surface is withdrawn with `deleteSurface`, and the error goes
+  back to the model once; a second failure ends with
+  `note {"error": "gave up after the correction attempt"}` and an empty
+  page.
+- The stream parser hits something it cannot heal (a trailing comma):
+  `note {"streaming_stopped": ...}`; the page keeps what it has, and the
+  final pass sends the repaired messages.
+- The model is silent for 15 s: a `: keepalive` comment, skipped by the
+  page.
+- A body that is not `{"prompt": "<string>"}`, or an action without
+  `name`/`surfaceId`: `422` from FastAPI; the page logs
+  `generate failed: 422 ...` / `action failed: 422 ...`.
+- The server is down or the stream is cut: `generate failed: ...` or
+  `the stream ended without done`; `a2uiDone` is set either way, so
+  `demo.py` stops instead of waiting two minutes.
+- A message the store refuses (a prototype key in a path): logged as
+  `generate failed`, the rest of that stream is not read; the next
+  Generate starts clean.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- One page per process: the mirror is a global, not per session. Step 03
+  has a `threadId` on the wire and still uses a global; a product keys
+  the mirror by it.
+- A click during a generation is ignored (logged), and Generate is
+  disabled until `done`.
+- The fields are empty until the final pass (see above); a spinner would
+  be honest there.
+- The correction loop is one round; the second request carries the whole
+  failed reply plus the validator text, about 10K tokens more.
+- Fixed port 8742; no authentication; the prompt goes to the model as
+  typed.
 
 ## What to notice
 
@@ -271,7 +389,16 @@ SDK skip when it is absent.
   unknown component name triggers it; the recorded run needed one attempt.
 - Server and page hold the same state through the same messages. That is
   why `sendDataModel` exists in the spec: when a server does not mirror,
-  the client can send its data model with every action instead.
+  the client can send its data model with every action instead. The
+  mirror here is a convenience, not a source of truth: it knows the
+  structure, never what the user typed until the action's context
+  carries it.
+
+## What the next step adds
+
+The same loop with the SDK's `to_events`, the official Lit renderer in
+the page, and AG-UI as the transport: the A2UI messages ride as `CUSTOM`
+events, the action comes back as `forwardedProps`.
 
 ## Diff from the previous step
 

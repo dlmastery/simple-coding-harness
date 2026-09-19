@@ -1,5 +1,8 @@
 """Stage 15 - tools gain the task subagent and execute(), the one permission-checked
 entry point the main loop and the subagent both use.
+
+Every tool returns a string. execute turns a tool call into (args, result)
+and never raises, so the model always gets a result it can read.
 """
 
 import json
@@ -12,7 +15,6 @@ from .skills import read_skill
 from .subagent import TASK_SCHEMA, task
 from .todos import TODO_SCHEMA, write_todos
 
-
 def bash(command: str) -> str:
     """Run a shell command and return its combined stdout and stderr."""
     try:
@@ -20,21 +22,24 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Error: command timed out after {expired.timeout}s"
+        partial = (expired.stdout or "") + (expired.stderr or "")
+        return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap((result.stdout + result.stderr) or "(no output)")
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    # utf-8 everywhere: Windows would otherwise pick cp1252 and choke on the
-    # first non-ASCII character; newline="" keeps the file's own line endings
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
     with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return history.cap(f.read())
 
 
 def write_file(path: str, content: str) -> str:
     """Create a file, or overwrite it if it already exists."""
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
@@ -43,7 +48,9 @@ def write_file(path: str, content: str) -> str:
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
     if not old_str:
-        return "Error: old_str is empty"
+        return "Error: old_str is empty."
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
     with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
@@ -150,16 +157,13 @@ TOOLS = {
 
 
 def execute(tool_call, allowed=None):
-    """Run one tool call through the permission layer. Returns (args, result).
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. `allowed` is the
     set of tool names the caller offered; a call outside it is denied, so a
     subagent cannot run a withheld tool just by naming it.
-
-    Nothing here raises. Whatever goes wrong - arguments that are not JSON,
-    a tool that does not exist, an exception inside the tool - comes back as
-    an Error: string, so every tool_call still gets its one tool message.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
@@ -168,12 +172,11 @@ def execute(tool_call, allowed=None):
         args = json.loads(tool_call.function.arguments or "{}")
         if not isinstance(args, dict):
             raise ValueError("not an object")
-    except ValueError as failure:  # json.JSONDecodeError is a ValueError
-        return {}, f"Error: the arguments of {name} are not a JSON object: {failure}"
-
-    if allowed is not None and name not in allowed:
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if allowed is not None and name not in allowed:  # offered set == executable set
         action, reason = "deny", f"{name} is not available to this agent"
-    elif name not in TOOLS:
+    elif name not in TOOLS:  # a name that is not in the table
         return args, f"Error: no tool named {name!r}."
     else:
         action, reason = check(name, args)
@@ -181,11 +184,10 @@ def execute(tool_call, allowed=None):
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
-
     try:
-        result = TOOLS[name](**args)
-    except Exception as failure:  # noqa: BLE001 - errors are results, never crashes
-        return args, f"Error: {type(failure).__name__}: {failure}"
-    if not isinstance(result, str):
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
         result = "(no output)" if result is None else json.dumps(result, default=str)
     return args, result

@@ -76,7 +76,7 @@ def ask(prompt, session_id=None, on_delta=print_delta):
         session_id = open_session()
     stream = client().sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
     pieces, text, metrics = [], None, {}
-    status = "incomplete"  # only turn.done can change it: a stream that ends without it is a failure, not a reply
+    status, why = "incomplete", None  # only turn.done can change it: a stream that ends without it is a failure, not a reply
     for event in stream.with_metadata():
         data = event.data
         if data.type == "model.message.delta" and data.thread_id == "main" and data.content:
@@ -85,6 +85,7 @@ def ask(prompt, session_id=None, on_delta=print_delta):
                 on_delta(data.content)
         elif data.type == "turn.done":
             status = data.state.status
+            why = getattr(data.state, "message", None) or getattr(data.state, "reason", None)  # error carries a message, cancelled a reason
             if status == "done":
                 output = data.state.output
                 if output is not None and isinstance(output.content, str):
@@ -92,7 +93,7 @@ def ask(prompt, session_id=None, on_delta=print_delta):
                 if data.state.metrics is not None:
                     metrics = data.state.metrics.dict(exclude_none=True)
     if status != "done":
-        raise RuntimeError(f"the turn ended {status!r} after {len(''.join(pieces))} streamed characters")
+        raise RuntimeError(f"the turn ended {status!r} ({why or 'no detail'}) after {len(''.join(pieces))} streamed characters")
     return session_id, text if text is not None else "".join(pieces), metrics
 
 

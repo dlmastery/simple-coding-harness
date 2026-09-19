@@ -187,6 +187,30 @@ def test_generate_endpoint_and_action_round_trip(scripted):
     assert client.get("/").status_code == 200
 
 
+def test_a_second_generation_deletes_the_first_surface_first(scripted):
+    """Generate twice on one page: the official renderer refuses a repeated createSurface,
+    so the server withdraws the old surface before the new one, and the mirror starts clean."""
+    server, replies = scripted
+    replies.extend([CLEAN_REPLY, CLEAN_REPLY.replace('"id": "email"', '"id": "mail"').replace('["email",', '["mail",')])
+    list(server.generate("a form"))
+    assert "email" in server.STORE.surfaces["main"].components
+    kinds = [envelope.message_type(payload) for event, payload in server.generate("another form") if event is None]
+    assert kinds[:2] == ["deleteSurface", "createSurface"]
+    components = server.STORE.surfaces["main"].components
+    assert "mail" in components and "email" not in components  # no stale components merged in
+
+
+def test_bad_bodies_are_422_not_500(scripted):
+    from fastapi.testclient import TestClient
+
+    server, _ = scripted
+    client = TestClient(server.app)
+    assert client.post("/generate", json={"prompt": 42}).status_code == 422
+    assert client.post("/generate", json={}).status_code == 422
+    assert client.post("/action", json={"surfaceId": "main"}).status_code == 422
+    assert client.post("/action", content=b"not json", headers={"content-type": "application/json"}).status_code == 422
+
+
 def test_action_for_an_unknown_surface_falls_back_to_slash_status(scripted):
     server, _ = scripted
     answer = server.answer_action({"name": "x", "surfaceId": "ghost", "context": {}})
@@ -207,6 +231,10 @@ def test_envelope_validate_and_surface_state():
     assert surface.missing_ids() == ["later"]
     surface.apply(envelope.update_data_model("s", "/form/email", "a@b.c"))
     assert surface.resolve({"path": "/form/email"}) == "a@b.c"
+    # what a model can write: a component inside itself, and a repeated createSurface
+    surface.apply(envelope.update_components("s", [{"id": "later", "component": "Card", "child": "root"}]))
+    assert surface.tree()["children"][0]["children"][0] == {"id": "root", "cycle": True}
+    assert store.apply(envelope.create_surface("s")).components == {}
 
 
 # ------------------------------------------------------------ the page's state module

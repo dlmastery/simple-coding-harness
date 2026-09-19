@@ -6,6 +6,7 @@ system prompt. Nothing is launched.
 
 import json
 import os
+import sys
 import threading
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,7 +17,7 @@ os.environ.setdefault("API_KEY", "x")
 
 STEP = Path(__file__).resolve().parent
 
-from harness import agent, agents, checkpoint, commands, context, handoff, hooks, instructions, jobs, llm, memory, modes, permissions, plan, sandbox, session, subagent, todos, tools  # noqa: E402
+from harness import agent, agents, checkpoint, commands, context, handoff, hooks, instructions, jobs, llm, mcp_client, memory, modes, permissions, plan, sandbox, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
@@ -55,7 +56,9 @@ def fresh(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "SESSION_DIR", tmp_path / "sessions")
     monkeypatch.setattr(session, "CURRENT", "test-session")
     monkeypatch.setattr(session, "WRITTEN", 0)
+    monkeypatch.setattr(session, "ENABLED", True)
     monkeypatch.setattr(hooks, "CONFIG_PATHS", [tmp_path / "hooks.json"])
+    monkeypatch.setattr(mcp_client, "CONFIG_PATHS", [tmp_path / "mcp.json"])
     monkeypatch.setattr(plan, "MODE", "act")
     monkeypatch.setattr(modes, "CURRENT", "default")
     monkeypatch.setattr(todos, "TODOS", [])
@@ -305,3 +308,218 @@ def test_loop_smoke_router_to_coder_to_reviewer(fresh, monkeypatch):
     _, offered, _ = fake.requests[3]
     assert offered == ["bash", "read_file", "read_skill", "handoff_to"]
     assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "assistant", "tool", "assistant", "tool", "assistant", "tool", "assistant"]
+
+
+# ------------------------------------------------- round 2: every call gets a result
+
+
+def test_bad_tool_calls_each_get_a_result_and_the_loop_goes_on(fresh, monkeypatch):
+    """Malformed arguments, an unknown tool and a raising tool: one tool message each, then the model answers."""
+    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{broken"))
+    Scripted(main=[
+        use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"}), call("b4", "bash", {})),
+        say("all four came back as errors"),
+    ]).install(monkeypatch)
+    messages = agent.turn(start(), "go")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert results["b2"] == "Error: no tool named 'no_such_tool'."
+    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b4"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1] == {"role": "assistant", "content": "all four came back as errors"}
+    assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool", "tool", "tool", "assistant"]
+
+
+def test_utf8_round_trip_through_the_file_tools_and_bash(fresh, monkeypatch):
+    monkeypatch.setattr(ui, "approve", lambda reason: "y")  # python -c is rated ask
+    text = "héllo ✓ — ünïcode\r\nline two\n"
+    assert tools.write_file("u.txt", text) == "Wrote u.txt"
+    assert tools.read_file("u.txt") == text  # newline="" keeps the CRLF as it was
+    assert (fresh / "u.txt").read_bytes() == text.encode("utf-8")
+    out = tools.bash(f'{sys.executable} -c "print(\'h\\u00e9llo \\u2713\')"')
+    assert out.strip() == "héllo ✓"
+    assert tools.write_file("deep/er/new.txt", "x") == "Wrote deep/er/new.txt" and (fresh / "deep" / "er" / "new.txt").exists()
+    assert tools.str_replace("u.txt", "", "y").startswith("Error: old_str is empty")
+
+
+def test_write_todos_rejects_a_bad_list_and_keeps_the_old_one(fresh):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+    assert todos.write_todos([{"content": "x", "activeForm": "y", "status": "sideways"}]).startswith("Error: item 0 has status 'sideways'")
+    assert todos.write_todos("nope") == "Error: todos must be a list of items."
+    assert todos.TODOS == [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+
+
+def test_rewind_offers_user_messages_only_so_no_tool_call_is_orphaned(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "t1", "content": "r"},
+        {"role": "assistant", "content": "done one"},
+        {"role": "user", "content": "two"},
+        {"role": "assistant", "content": "done two"},
+    ]
+    session.save(messages)
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    monkeypatch.setattr(ui, "replay", lambda m: None)
+    monkeypatch.setattr(ui, "resumed", lambda m, label="": None)
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    kept = commands.handle("/rewind", messages)
+    assert offered == ["turn 1    one", "turn 2    two"]  # only user rows
+    assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]
+
+
+def test_recover_turns_a_failure_into_error_results(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "p1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "ls"})}}]},
+    ]
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    assert agent.recover(messages) == 1
+    assert messages[-1] == {"role": "tool", "tool_call_id": "p1", "content": "Error: RuntimeError: boom"}
+    assert agent.recover(messages) == 0  # nothing left unanswered
+
+
+def test_headless_without_a_terminal_denies_every_ask_and_exits_one_without_an_answer(fresh, monkeypatch, capsys):
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(ui, "ask", lambda: pytest.fail("print mode must not open the input loop"))
+    Scripted(main=[use(call("t1", "bash", {"command": "python x.py"})), say("")]).install(monkeypatch)
+    monkeypatch.setattr(sys, "argv", ["harness", "-p", "run it"])
+    with pytest.raises(SystemExit) as stop:
+        agent.main()
+    assert stop.value.code == 1  # no answer text: a script can see the run gave nothing
+    assert not session.path_for(session.CURRENT).exists()  # a one-off question leaves no session file
+    assert "denied (no terminal to ask on)" in capsys.readouterr().err
+
+
+def test_exit_words_and_eof_end_the_chat(fresh, monkeypatch):
+    answers = iter(["", "/exit"])
+    monkeypatch.setattr(ui, "ask", lambda: next(answers))
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    monkeypatch.setattr(ui, "summary", lambda: None)
+    monkeypatch.setattr(agent, "turn", lambda *a, **k: pytest.fail("an empty line must not start a turn"))
+    agent.chat(agent.parser().parse_args([]))
+    monkeypatch.setattr(ui, "ask", lambda: None)  # ctrl-d
+    agent.chat(agent.parser().parse_args([]))
+
+
+# ------------------------------------------------- round 2: the handoff holes
+
+
+def test_a_handed_off_agent_can_only_run_its_tool_list(fresh, monkeypatch):
+    """The reviewer is offered three tools; naming write_file or remember does not run them."""
+    handoffs_shown(monkeypatch)
+    handoff.apply("reviewer", messages := start())
+    assert permissions.check("write_file", {"path": "x.txt", "content": "x"}) == ("deny", "reviewer agent: write_file is not in its tool list")
+    assert permissions.check("remember", {"name": "n", "description": "d", "content": "c"})[0] == "deny"
+    assert permissions.check("bash", {"command": "ls"})[0] == "allow"
+    assert permissions.check("handoff_to", {"agent": "coder", "reason": "r"})[0] == "allow"  # never cut from the list
+    Scripted(reviewer=[use(call("w1", "write_file", {"path": "x.txt", "content": "x"})), say("denied")]).install(monkeypatch)
+    messages = agent.turn(messages, "write x.txt")
+    assert messages[3]["content"] == "Blocked by policy: reviewer agent: write_file is not in its tool list"
+    assert not (fresh / "x.txt").exists()
+    handoff.reset()
+    assert permissions.check("write_file", {"path": "x.txt", "content": "x"})[0] == "allow"  # the default agent has every tool
+
+
+def test_handoff_to_is_offered_and_allowed_in_plan_mode(fresh, monkeypatch):
+    monkeypatch.setattr(plan, "MODE", "plan")
+    assert "handoff_to" in names(handoff.toolset())
+    assert permissions.check("handoff_to", {"agent": "coder", "reason": "r"})[0] != "deny"
+    assert permissions.check("write_file", {"path": "x", "content": "y"})[0] == "deny"  # plan mode still fences the rest
+
+
+def test_listing_sessions_does_not_change_the_active_agent(fresh, monkeypatch):
+    handoffs_shown(monkeypatch)
+    messages = start()
+    messages.append({"role": "user", "content": "old chat"})
+    session.save(messages)
+    handoff.switch(messages, "coder", "forced")  # the marker goes into the old chat's log
+    handoff.reset()
+    monkeypatch.setattr(session, "CURRENT", "newer")
+    monkeypatch.setattr(session, "WRITTEN", 0)
+    session.save([{"role": "system", "content": "s"}, {"role": "user", "content": "new chat"}])
+    listed = session.all_sessions()
+    assert sorted(s["title"] for s in listed) == ["new chat", "old chat"]
+    assert handoff.active_name() == "main"  # listing applied nothing
+    session.open_session("test-session")
+    assert handoff.active_name() == "coder"  # opening the old chat did
+    session.open_session("newer")
+    assert handoff.active_name() == "main"  # a chat without a marker is the default agent's again
+
+
+def test_a_marker_for_a_missing_definition_leaves_the_agent_as_it_was(fresh, monkeypatch):
+    handoffs_shown(monkeypatch)
+    handoff.apply("coder", messages := start())
+    with pytest.raises(KeyError):
+        handoff.apply("gone", messages)
+    assert handoff.active_name() == "coder" and messages[0]["content"] == handoff.system_prompt(agents.AGENTS["coder"])
+
+
+def test_init_keeps_the_active_agent_and_the_summary(fresh, monkeypatch):
+    handoffs_shown(monkeypatch)
+    handoff.apply("coder", messages := start())
+    messages[0]["content"] += "\n\n<summary>\nbefore\n</summary>"
+    monkeypatch.setattr(subagent, "task", lambda question: "# Guide\nrun the tests")
+    monkeypatch.setattr(ui, "confirm", lambda question: True)
+    monkeypatch.setattr(ui, "note", lambda text: None)
+    commands.handle("/init", messages)
+    assert (fresh / "AGENTS.md").read_text(encoding="utf-8").startswith("# Guide")
+    assert messages[0]["content"].lstrip().startswith("You are the coder.")
+    assert messages[0]["content"].endswith("<summary>\nbefore\n</summary>")
+    assert "run the tests" in messages[0]["content"]  # the new file is in the prefix
+
+
+def test_handoffs_per_turn_are_capped(fresh, monkeypatch):
+    """coder and reviewer pass the user back and forth; after MAX_HANDOFFS the tool refuses and the active agent answers."""
+    shown = handoffs_shown(monkeypatch)
+    handoff.apply("coder", messages := start())
+    calls = []
+
+    def ping_pong(messages, tools=None, on_delta=None):
+        """Each agent hands the user to the other one, until the tool says no."""
+        calls.append(role_of(messages))
+        last = [m for m in messages if m["role"] == "tool"][-1:]  # messages ends with the <env> injection, not the result
+        if last and last[0]["content"].startswith("Error: handoff limit"):
+            return say(f"{role_of(messages)} answers"), USAGE
+        other = "reviewer" if role_of(messages) == "coder" else "coder"
+        return use(call("h", "handoff_to", {"agent": other, "reason": "yours"})), USAGE
+
+    monkeypatch.setattr(agent, "call_llm", ping_pong)
+    messages = agent.turn(messages, "go")
+    assert len(shown) == handoff.MAX_HANDOFFS
+    errors = [m["content"] for m in messages if m["role"] == "tool" and m["content"].startswith("Error: handoff limit")]
+    assert errors == ["Error: handoff limit reached this turn (4); answer the user yourself."]
+    assert messages[-1]["content"] == "coder answers" and handoff.active_name() == "coder"  # four hops: back where it started
+    assert len(calls) == handoff.MAX_HANDOFFS + 2 < agent.MAX_CALLS  # the loop ended by itself, not on MAX_CALLS
+    handoff.new_turn()
+    assert handoff.handoff_to("reviewer", "again").startswith("Handing off")  # the next turn starts from zero
+
+
+def test_a_subagent_cannot_hand_off_or_write(fresh, monkeypatch):
+    Scripted(main=[use(call("s1", "handoff_to", {"agent": "coder", "reason": "r"}), call("s2", "write_file", {"path": "a.txt", "content": "x"})), say("blocked")]).install(monkeypatch)
+    assert subagent.task("hand off and write") == "blocked"
+    assert handoff.PENDING is None and not (fresh / "a.txt").exists()
+    assert "handoff_to" in subagent.WITHHELD
+
+
+def test_leaving_at_the_steer_prompt_still_applies_the_handoff(fresh, monkeypatch):
+    """A double Ctrl-C right after a handoff_to result: the marker is logged before the chat ends."""
+    handoffs_shown(monkeypatch)
+    Scripted(main=[use(call("h1", "handoff_to", {"agent": "coder", "reason": "code"}))]).install(monkeypatch)
+    run_results = agent.run_results
+
+    def interrupted(messages, tool_calls, repeated=None):
+        run_results(messages, tool_calls, repeated)
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(agent, "run_results", interrupted)
+    monkeypatch.setattr(agent, "steered", lambda messages, where: False)
+    with pytest.raises(agent.LeaveChat):
+        agent.turn(start(), "write it")
+    assert handoff.active_name() == "coder"
+    lines = [json.loads(line) for line in session.path_for("test-session").read_text(encoding="utf-8").splitlines()]
+    assert {"handoff": "coder"} in lines

@@ -91,14 +91,14 @@ def test_screen_reports_the_size(fake_screen):
 def test_a_wide_screen_is_scaled_down_and_clicks_are_scaled_back(monkeypatch, tmp_path, fake_gui):
     monkeypatch.setattr(ImageGrab, "grab", lambda *a, **k: Image.new("RGB", (2560, 1440)))
     monkeypatch.setattr(computer, "SHOTS", tmp_path)
+    monkeypatch.setattr(computer, "SCALE", 1.0)  # put back after the test
     result = computer.computer_screenshot()
     saved = tmp_path / os.path.basename(history.IMAGE.findall(result)[0])
     assert Image.open(saved).size == (1280, 720) and "scaled down from 2560x1440" in result
     assert computer.SCALE == 2.0
     assert "shown at most 1280 wide" in computer.computer_screen()
-    computer.computer_act("click", 100, 50)  # the model saw the 1280-wide picture
-    assert fake_gui.calls == [("click", (200, 100), {})]
-    monkeypatch.setattr(computer, "SCALE", 1.0)
+    assert computer.computer_act("click", 100, 50).startswith("Done: click at (100, 50)")  # the model saw the 1280-wide picture
+    assert fake_gui.calls == [("click", (200, 100), {})]  # the mouse went to the screen pixel
 
 
 def test_screenshot_without_a_display_is_a_result_not_a_crash(monkeypatch):

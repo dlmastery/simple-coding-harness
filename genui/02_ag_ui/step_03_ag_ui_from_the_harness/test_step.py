@@ -181,6 +181,88 @@ def test_wire_omits_empty_optional_fields(fake):
     assert "outcome" not in finished and "result" not in finished
 
 
+def test_tool_failures_are_results_and_the_run_goes_on(fake):
+    """One TOOL_CALL_RESULT per call, error text included, and the model gets to try again."""
+    broken = [
+        call_chunk(0, cid="c1", name="write_file", arguments='{"path": "x.py", '),   # cut JSON
+        call_chunk(1, cid="c2", name="nope", arguments="{}"),                        # no such tool
+        call_chunk(2, cid="c3", name="write_file", arguments='{"path": "x.py"}'),    # missing content
+        usage_chunk(),
+    ]
+    client = fake([broken, DONE])
+    events = list(bridge.run(run_input()))
+    results = [e for e in events if e.type.value == "TOOL_CALL_RESULT"]
+    assert [r.tool_call_id for r in results] == ["c1", "c2", "c3"]
+    assert results[0].content.startswith("Error: the arguments of write_file are not a JSON object")
+    assert results[1].content == "Error: no tool named 'nope'."
+    assert results[2].content.startswith("Error: TypeError")
+    assert types(events)[-1] == "RUN_FINISHED" and not (WORKDIR / "x.py").exists()
+    assert [m["role"] for m in client.requests[1]["messages"][-4:-1]] == ["tool", "tool", "tool"]
+
+
+def test_a_model_that_never_stops_calling_tools_hits_the_cap(fake):
+    forever = [[call_chunk(0, cid=f"c{i}", name="nope", arguments="{}"), usage_chunk()] for i in range(bridge.MAX_CALLS + 5)]
+    client = fake(forever)
+    events = list(bridge.run(run_input()))
+    assert len(client.requests) == bridge.MAX_CALLS
+    assert events[-1].type.value == "RUN_ERROR" and events[-1].message == f"stopped after {bridge.MAX_CALLS} model calls in one run"
+    assert types(events).count("TOOL_CALL_RESULT") == bridge.MAX_CALLS  # every call made got its result
+
+
+def test_a_silent_model_produces_keepalives_on_the_wire(fake, monkeypatch):
+    import time
+
+    from fastapi.testclient import TestClient
+
+    client = fake([DONE])
+    slow = client.create
+
+    def create(**request):
+        time.sleep(0.2)
+        return slow(**request)
+
+    client.chat.completions.create = create
+    monkeypatch.setattr(bridge, "KEEPALIVE_AFTER", 0.05)
+    with TestClient(server.app) as api:
+        body = json.loads(run_input().model_dump_json(by_alias=True))
+        with api.stream("POST", "/agent", json=body, headers={"accept": "text/event-stream"}) as response:
+            text = "".join(response.iter_text())
+    assert text.count(": keepalive\n\n") >= 1
+    assert [e["type"] for e in parse_sse(text)][-1] == "RUN_FINISHED"  # the comments are not events
+
+
+def test_disconnect_closes_the_generator(fake, monkeypatch):
+    """The endpoint pulls one event per step; when the page has gone it closes the run."""
+    import asyncio
+
+    closed = []
+
+    class Run:
+        def __init__(self):
+            self.it = iter(bridge.run(run_input()))
+
+        def __next__(self):
+            return next(self.it)
+
+        def close(self):
+            closed.append(True)
+
+    class Request:
+        headers = {}
+
+        async def is_disconnected(self):
+            return True
+
+    fake([DONE])
+    monkeypatch.setattr(server, "run", lambda input: Run())
+    body = server.agent_endpoint(run_input(), Request()).body_iterator
+
+    async def drain():
+        return [frame async for frame in body]
+
+    assert asyncio.run(drain()) == [] and closed == [True]
+
+
 def test_node_suite_and_bundle():
     node, npm = shutil.which("node"), shutil.which("npm")
     if node is None:

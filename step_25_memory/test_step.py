@@ -6,7 +6,7 @@ import pytest
 
 os.environ.setdefault("API_KEY", "x")
 
-from harness import agent, commands, compact, context, llm, memory, session, tools  # noqa: E402
+from harness import agent, commands, compact, context, llm, memory, permissions, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 
@@ -137,10 +137,103 @@ def test_compaction_saves_the_handoff_note_as_a_memory(memory_dirs, monkeypatch)
 
     out = commands.compact(messages)
     assert len(out) < len(messages)
-    assert "handoff-20260912-101010" in memory.find_memories()
-    assert memory.find_memories()["handoff-20260912-101010"]["type"] == "project"
-    assert memory.recall("handoff-20260912-101010") == note
-    assert "handoff-20260912-101010" in memory.memory_index()
+    found = memory.find_memories()
+    assert list(found) == ["handoff-latest"]  # one note, whatever the session id
+    assert found["handoff-latest"]["type"] == "project"
+    assert memory.recall("handoff-latest") == note
+    assert "- handoff-latest: where session 20260912-101010 left off: Finish the memory step." in memory.memory_index()
+
+    # a later session overwrites it instead of adding a line to the index
+    monkeypatch.setattr(session, "CURRENT", "20260913-090000")
+    commands.compact(list(messages))
+    assert list(memory.find_memories()) == ["handoff-latest"]
+    assert "20260913-090000" in memory.memory_index()
+
+
+def test_names_are_slugs_everywhere(memory_dirs):
+    out = memory.remember("Build Cmd", "how to build", "Run make.")
+    assert "'build-cmd'" in out and (memory_dirs[0] / "build-cmd.md").exists()
+    assert memory.recall("build-cmd") == "Run make." and memory.recall("Build Cmd") == "Run make."
+    assert memory.remember("build cmd", "how to build", "Run ninja.").startswith("Replaced")
+    assert list(memory.find_memories()) == ["build-cmd"]  # one memory, not two
+    assert memory.forget("BUILD CMD") == "Forgot 'build-cmd'."
+
+
+def test_a_non_utf8_file_does_not_break_the_index(memory_dirs):
+    memory_dirs[0].mkdir(parents=True)
+    (memory_dirs[0] / "latin.md").write_bytes(b"---\nname: latin\ndescription: caf\xe9\n---\n\ncaf\xe9\n")
+    memory.remember("fine", "a good one", "ok")
+    assert set(memory.find_memories()) == {"latin", "fine"}
+    assert "caf\ufffd" in memory.recall("latin")  # the bad byte is replaced, the rest is read
+
+
+def test_bodies_are_bounded_on_the_way_in_and_capped_on_the_way_out(memory_dirs, monkeypatch):
+    assert memory.remember("big", "too much", "x" * (memory.MAX_BODY + 1)).startswith("Error: the content is")
+    assert not (memory_dirs[0] / "big.md").exists()
+    monkeypatch.setattr(memory.history, "CAP", 100)
+    monkeypatch.setattr(memory.history, "spill", lambda text: "SPILLED")
+    memory.remember("long", "a long one", "y" * 500)
+    out = memory.recall("long")
+    assert out.startswith("y" * 100) and memory.history.CAPPED in out
+
+
+def test_the_task_subagent_may_recall_but_not_remember_or_forget():
+    offered = {s["function"]["name"] for s in subagent.toolset()}
+    assert "recall" in offered and not {"remember", "forget"} & offered
+
+
+# ------------------------------------------------------- the usual failures
+
+
+def test_every_tool_call_gets_a_tool_message_even_when_it_fails(quiet, monkeypatch):
+    replies = [
+        FakeMessage(content=None, tool_calls=[
+            SimpleNamespace(id="a", function=SimpleNamespace(name="bash", arguments='{"command": "ls')),
+            call("b", "nope", {}),
+            call("c", "read_file", {"path": "missing.txt"}),
+        ]),
+        FakeMessage(content="all failed", tool_calls=None),
+    ]
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (replies.pop(0), {}))
+    out = agent.turn([{"role": "system", "content": "s"}], "go")
+    fed = [(m["tool_call_id"], m["content"]) for m in out if m["role"] == "tool"]
+    assert [i for i, _ in fed] == ["a", "b", "c"] and all(c.startswith("Error") for _, c in fed)
+    assert out[-1]["content"] == "all failed"
+
+
+def test_write_todos_rejects_bad_items_and_session_load_repairs(tmp_path, monkeypatch):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "Old", "status": "pending"}]
+    assert todos.write_todos([{"content": "a", "activeForm": "A", "status": "done"}]).startswith("Error: item 0")
+    assert todos.TODOS[0]["content"] == "old"
+    todos.TODOS.clear()
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    lines = [{"role": "user", "content": "go"}, {"role": "assistant", "content": None, "tool_calls": [{"id": "t9", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}]
+    (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
+    assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+
+
+def test_rewind_cuts_before_a_user_message_never_inside_an_exchange(monkeypatch):
+    monkeypatch.setattr(session, "save", lambda messages: None)
+    cuts = []
+    monkeypatch.setattr(session, "rewind_to", cuts.append)
+    monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "a", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "a", "content": "ok"},
+        {"role": "user", "content": "two"},
+    ]
+    monkeypatch.setattr(ui, "pick", lambda title, rows: 1)
+    out = commands.rewind(messages)
+    assert cuts == [4] and [m["role"] for m in out] == ["system", "user", "assistant", "tool"]
+
+
+def test_utf8_round_trip_and_hardened_permissions(tmp_path):
+    target = tmp_path / "sub" / "n.txt"
+    tools.write_file(str(target), "héllo ✓\r\n")
+    assert tools.read_file(str(target)) == "héllo ✓\r\n"
+    assert permissions.decide("cat a > b") == "ask" and permissions.decide("ls $(x)") == "ask" and permissions.decide("ls 2>&1") == "allow"
 
 
 def test_memory_tools_are_registered_and_allowed():

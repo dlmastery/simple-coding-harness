@@ -217,7 +217,7 @@ providers that report no usage at all both come back as `None`.
 from . import config  # noqa: F401 - imported first so ~/.simple-harness/env is loaded
 from . import openrouter
 from .skills import skills_prompt
-from .tools import TOOLS, TOOL_SCHEMAS
+from .tools import TOOL_SCHEMAS
 
 client = OpenAI(base_url=openrouter.BASE_URL, api_key=openrouter.API_KEY, default_headers=openrouter.HEADERS)
 ```
@@ -230,60 +230,61 @@ def call_llm(messages, tools=None):
     if schemas:
         request["tools"] = schemas
     response = client.chat.completions.create(**request)
-
     if not response.choices:  # some providers answer an error as an empty reply
         raise RuntimeError(getattr(response, "error", None) or "empty reply")
-    message = response.choices[0].message
 
-    return message, usage_from(response)
+    usage = usage_from(response.usage)
+    # OpenRouter sets this to the model that actually answered, so a fallback
+    # shows up here rather than passing silently.
+    usage["model"] = getattr(response, "model", None)
+    return response.choices[0].message, usage
 ```
 
 ```python
-def usage_from(response):
-    """The numbers we keep per call. usage can be missing, and so can its details."""
-    u = response.usage
-    usage = {
-        "prompt_tokens": getattr(u, "prompt_tokens", None),
-        "completion_tokens": getattr(u, "completion_tokens", None),
-        "reasoning_tokens": getattr(getattr(u, "completion_tokens_details", None), "reasoning_tokens", None),
-        "cached_tokens": getattr(getattr(u, "prompt_tokens_details", None), "cached_tokens", None),
-        "cost": openrouter.cost_of(u),
-        # OpenRouter sets this to the model that actually answered, so a
-        # fallback shows up here rather than passing silently.
-        "model": getattr(response, "model", None),
+def usage_from(usage):
+    """Token counts as a plain dict. Some proxies send no usage at all.
+
+    OpenRouter adds the price of the call, in dollars, when the request asked for it.
+    """
+    return {
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None),
+        "cost": openrouter.cost_of(usage),
     }
-    return usage
 ```
 
 The signature is the stage 15 one, `call_llm(messages, tools=None)`, so
 `agent.py`, `compact.py` and `subagent.py` call it as before. The request
 gains `extra_headers` and `extra_body` from `request_extras()`. The usage
-dict gains two keys. `cost` is the dollar figure. `model` is the model that
-answered, which is how you notice that a fallback took over. Every read of
-`usage` goes through `getattr`, because a provider on the route may send no
-usage block at all, and an empty `choices` list raises a `RuntimeError`
-naming the provider's error instead of an `IndexError` a line later.
+dict gains two keys. `cost` is the dollar figure, added in `usage_from`.
+`model` is the model that answered, which is how you notice that a fallback
+took over; it is read off the response, not the usage block. Every read of
+`usage` goes through `getattr` (stage 15 already did that), because a
+provider on the route may send no usage block at all, and an empty
+`choices` list raises a `RuntimeError` naming the provider's error instead
+of an `IndexError` a line later.
 
 `openrouter.primary()` is read on every call rather than once at import.
 That is what lets `/route` take effect mid-chat.
 
-One more thing changes because of the route. The transcript entry for a
-reply is built by hand:
+One thing that stage 15 already does matters more with a route. The
+transcript entry for a reply is built by hand:
 
 `harness/llm.py`:
 
 ```python
 def entry(message):
-    """The transcript entry for a reply: role, content, tool calls - and nothing else.
+    """The transcript entry for a reply: role, content and tool_calls, nothing else.
 
-    `message.model_dump()` would also echo reasoning, annotations and other
-    provider extras back on the next request, and a fallback provider may
-    reject them.
+    Providers attach extras (reasoning, annotations) that must not be sent
+    back on the next call, so the whole message is never dumped as it is.
     """
-    record = {"role": "assistant", "content": message.content}
+    saved = {"role": "assistant", "content": message.content}
     if message.tool_calls:
-        record["tool_calls"] = [c.model_dump(exclude_none=True) for c in message.tool_calls]
-    return record
+        saved["tool_calls"] = [call.model_dump(exclude_none=True) for call in message.tool_calls]
+    return saved
 ```
 
 DeepSeek answers with a `reasoning` field, other providers with
@@ -461,12 +462,12 @@ valid because every `tool_call` still gets its one tool message.
         args = json.loads(tool_call.function.arguments or "{}")
         if not isinstance(args, dict):
             raise ValueError("not an object")
-    except ValueError as failure:  # json.JSONDecodeError is a ValueError
-        return {}, f"Error: the arguments of {name} are not a JSON object: {failure}"
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
 
-    if allowed is not None and name not in allowed:
+    if allowed is not None and name not in allowed:  # offered set == executable set
         action, reason = "deny", f"{name} is not available to this agent"
-    elif name not in TOOLS:
+    elif name not in TOOLS:  # a name that is not in the table
         return args, f"Error: no tool named {name!r}."
     else:
         action, reason = check(name, args)
@@ -474,19 +475,20 @@ valid because every `tool_call` still gets its one tool message.
 
 ```python
     try:
-        result = TOOLS[name](**args)
-    except Exception as failure:  # noqa: BLE001 - errors are results, never crashes
-        return args, f"Error: {type(failure).__name__}: {failure}"
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
 ```
 
 - **Bad tool call.** Arguments that are not a JSON object, a tool name that
   does not exist, a missing argument (`TypeError`), a file that is not
-  there (`FileNotFoundError`): each becomes an `Error:` result the model
-  reads and works around.
+  there (`Error: <path> is not a file.`): each becomes an `Error:` result
+  the model reads and works around.
 - **A failing command.** `bash` returns stdout and stderr whatever the exit
   code. A command that runs past 60 seconds is killed together with every
   process it started (`sandbox.kill_tree`) and the result is
-  `Error: command timed out after 60s`.
+  `Timed out after 60s and was killed. Output so far:` followed by whatever
+  it had printed.
 - **A dead model call.** A rate limit, an exhausted balance, a route where
   every model failed: the `openai` client raises, the loop prints
   `model call failed: ...` and returns to the prompt. Your message is still
@@ -523,13 +525,14 @@ valid because every `tool_call` still gets its one tool message.
 diff -r ../step_15_subagents/harness harness
 ```
 
-New: `openrouter.py`. Changed: `llm.py` (client, `extra_body`, `usage_from`,
-`entry`, `cost` and `model` in usage), `ui.py` (`usage` line, `models`
-table), `commands.py` (`/models`, `/route`), `openrouter.py` reads `MODEL`
-as well as `MODELS`. Everything else - `agent.py`, `tools.py`, `subagent.py`,
-`compact.py`, `history.py`, `session.py` - is stage 15. `config.py` still
-defines `BASE_URL` and `MODEL`, but `openrouter.py` owns the base URL now
-and turns `MODEL` into a route of one.
+New: `openrouter.py`, which reads `MODEL` as well as `MODELS`. Changed:
+`llm.py` (client, `extra_body`, `cost` in `usage_from`, `model` in usage),
+`ui.py` (`usage` line, `models` table, `cost` row in the closing table),
+`commands.py` (`/models`, `/route`). Everything else - `agent.py`,
+`tools.py`, `subagent.py`, `compact.py`, `history.py`, `session.py` and the
+rest - is byte-identical to stage 15, so the error handling above is stage
+15's too. `config.py` still defines `BASE_URL` and `MODEL`, but
+`openrouter.py` owns the base URL now and turns `MODEL` into a route of one.
 
 ## What the next step adds
 

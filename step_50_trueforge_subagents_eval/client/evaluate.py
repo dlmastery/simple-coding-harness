@@ -123,9 +123,9 @@ def run_turn(client, session_id: str, prompt: str, on_event=None):
             answer = output or answer
             if state.get("required_actions"):  # an approval or a question: the eval answers neither
                 status = "paused"
-                answer = answer or "turn paused: " + ", ".join(a.get("type", "?") for a in state["required_actions"])
-            elif status != "done":
-                answer = answer or f"turn ended {status}: {state.get('reason') or state.get('message') or ''}"
+                answer = "turn paused: " + ", ".join(a.get("type", "?") for a in state["required_actions"])
+            elif status != "done":  # the text so far is not an answer; the reason is what the report needs
+                answer = f"turn ended {status}: {state.get('reason') or state.get('message') or ''}"
     return turn_id, answer, metrics, status
 
 
@@ -176,7 +176,7 @@ def run_task(client, task: Task, port: int, keep: bool = False, on_event=None, s
         if status == "done":
             passed, detail = check(task, workspace, answer)
         else:  # error, cancelled, paused or a cut stream: the checker would only add noise
-            passed, detail = False, f"turn {status}: {answer}"
+            passed, detail = False, answer if status != "incomplete" else "the stream ended without turn.done"
     except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
         passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
     seconds = round(time.perf_counter() - started, 3)

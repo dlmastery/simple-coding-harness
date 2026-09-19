@@ -9,7 +9,8 @@ turn back and cuts the transcript to the start of that turn. `/rewind`
 now restores the files as well as the messages. `/checkpoints` lists the
 turns and the files each one changed. The capture is a hook, not a change
 to the tools: `hooks.py` gains a `BUILTIN` list that the harness
-registers itself, and it runs before every hook from `hooks.json`.
+registers itself, and `tools.run` fires it once a call is allowed, so only
+a write that really happens is captured.
 
 ## Files
 
@@ -80,6 +81,17 @@ edit, so a turn that rewrites one file twenty times stores it once. A
 file that did not exist is recorded as absent, so undoing the turn deletes
 it. The manifest is a JSONL file on disk, like the session log, so a
 resumed session can still undo the turn that ran before the restart.
+
+### What breaks without it
+
+Ask for a refactor of three files, watch the model rewrite them, and
+decide it went the wrong way. Up to step 32 the choices were `/rewind`,
+which forgets the messages and leaves the files as the model left them, or
+`git checkout`, if the workspace is a repository and the files were
+committed before the turn. After a `/rewind` alone, the next turn starts
+from a model that thinks the refactor never happened and a workspace that
+says it did; the model reads a file, finds its own edit, and "fixes" it
+back. One `/undo` here puts both back together.
 
 ## The code, piece by piece
 
@@ -182,12 +194,18 @@ def capture(path, tool=None):
 
 
 def pre_tool_use(event):
-    """The built-in PreToolUse hook: capture the target of an edit tool. Never blocks."""
+    ...
     if event.get("tool_name") not in EDIT_TOOLS:
         return None
     path = (event.get("tool_input") or {}).get("path")
-    if path:
+    if not path:
+        return None
+    try:
         capture(path, tool=event["tool_name"])
+    except OSError as failed:
+        from .ui import ui  # here, not at the top: ui imports todos, tools imports this module's hook
+
+        ui.note(f"checkpoint: could not capture {path} ({failed}); /undo will not restore it")
     return None
 ```
 
@@ -200,7 +218,10 @@ would both copy and both append.
 
 `pre_tool_use` is the hook. It takes the event dict every hook takes,
 looks at two keys, and returns `None`, which the hook system reads as
-"carry on".
+"carry on". A copy that fails (a file the process may not read, a full
+disk) is said out loud with the file's name: the edit still goes ahead,
+because a checkpoint is a convenience and the edit is what the user asked
+for, but the note says that `/undo` will not bring this file back.
 
 ### 4. A built-in hook
 
@@ -211,10 +232,23 @@ BUILTIN = {  # the harness's own hooks; same shape as a config entry, run first
     "PreToolUse": [{"matcher": "write_file|str_replace", "python": "harness.checkpoint:pre_tool_use"}],
 }
 ...
-    for hook in BUILTIN.get(event_name, []) + load_config().get(event_name, []):
-        if not matches(hook, event.get("tool_name")):
-            continue
-        reply = run_hook(hook, event)
+def run_builtin(event_name, event=None):
+    ...
+    event = {key: None for key in EVENT_KEYS} | (event or {})
+    event["event"] = event_name
+    event["cwd"] = event["cwd"] or os.getcwd()
+    for hook in BUILTIN.get(event_name, []):
+        if matches(hook, event.get("tool_name")):
+            run_hook(hook, event)
+```
+
+`harness/tools.py`:
+
+```python
+    name = tool_call.function.name
+    hooks.run_builtin("PreToolUse", {"tool_name": name, "tool_input": args})  # the checkpoint capture, once the call is allowed
+    try:
+        result = TOOLS[name](**args)
 ```
 
 The capture could have been two lines at the top of `tools.run`. It is a
@@ -235,11 +269,13 @@ features can be built on it, it is enough for the user's features too.
 `BUILTIN` has the same shape as an entry in `hooks.json`, runs through
 the same `run_hook`, and shows up in `/hooks` with a `(built-in)` tag.
 
-The cost of this choice is order. `decide` runs the hooks before the
-permission prompt, so a call the user then declines still left a
-checkpoint. That checkpoint is harmless: the file it copied is the file
-that is still there. It shows up in `/checkpoints` as a file the turn
-"changed", and it did not.
+Where it runs is the one difference from a configured hook. The hooks
+from `hooks.json` run in `decide`, before the permission prompt, because
+a hook may block a call and the user should not be asked about a call
+that will not happen. The built-in runs in `tools.run`, after the prompt:
+a write the user declines, or a configured hook blocks, is never
+captured, so `/checkpoints` lists only files a turn changed and `/undo`
+never "restores" a file to the content it already has.
 
 ### 5. Undo
 
@@ -333,7 +369,19 @@ def undo_since(message_count, session_id=None):
 `harness/commands.py`:
 
 ```python
-    keep = choice + 1
+def turn_starts(messages):
+    """The indexes of the user messages: the only places a transcript can be cut without orphaning a tool call."""
+    return [i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)]
+
+
+def rewind(messages):
+    ...
+    starts = turn_starts(messages)
+    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(starts)]
+    choice = ui.pick("rewind to before", rows)
+    if choice is None:
+        return messages
+    keep = starts[choice]
     undone = checkpoint.undo_since(keep)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
@@ -342,12 +390,15 @@ def undo_since(message_count, session_id=None):
     return redraw(messages[:keep], "rewound")
 ```
 
-A rewind to message N keeps N messages. Every turn that began at index N
-or later is about to vanish from the transcript, so its files are undone,
-newest first. A turn that began before N and ends after it is cut in the
-middle: its messages before the cut stay, and so do its file changes. The
-checkpoint is per turn, not per tool call, so a rewind into the middle of
-a turn is a rewind of the transcript only.
+The picker offers turns, not messages: one row per user message, and the
+cut lands just before the one chosen. Two things go wrong with a cut
+anywhere else. An assistant message with tool calls that loses its results
+leaves the transcript in a state the API refuses (`tool_calls` without a
+`tool` message each). And a turn that began before the cut but wrote
+files after it would keep its edits while its messages vanish, the
+mismatch this step exists to remove. A cut at a user message is a cut at a
+turn boundary, so `undo_since(keep)` takes back exactly the turns whose
+messages go, newest first.
 
 ### 8. Compaction and /checkpoints
 
@@ -387,7 +438,19 @@ starts move with them. A turn that was summarised away keeps its files,
 but its start becomes unknown: `/undo` on it restores the files and
 leaves the messages, and says so.
 
+The arithmetic, worked once. `compact()` returns `[system] + messages[cut:]`,
+so a transcript of `before = 41` messages compacted to `after = 11` keeps
+the last ten old messages: `cut = 41 - 11 + 1 = 31`, and old index 31 is
+new index 1, just after the system message. A turn that started at 35
+starts at `35 - 31 + 1 = 5` now; one that started at 20 is inside the
+summary and is recorded as `None`.
+
 ## Run it
+
+Prerequisites: as step 31. The copies go under
+`~/.simple-harness/checkpoints/<session>/`; nothing else is needed.
+
+bash:
 
 ```bash
 pip install -e .
@@ -397,21 +460,39 @@ harness
 > /checkpoints
 ```
 
-The list shows two turns. Turn 1 has `hello.py (new)`; turn 2 has
-`hello.py`. Type `/undo`:
+PowerShell:
 
-```text
-turn 2 undone: C:\work\hello.py
-undone · 5 messages · 1 turns
+```powershell
+pip install -e .
+harness
+> create hello.py that prints hello
+> change the greeting to "hi there"
+> /checkpoints
 ```
 
-The screen is redrawn with the first turn only, and `hello.py` prints
-hello again. A second `/undo` deletes the file and empties the chat. A
-third says `nothing to undo`.
+### Expected output
 
-Now try the same with `/rewind`. After three turns, pick the last
-message of turn 1. The note says `2 turn(s) undone, 2 file(s) restored`
-and the files are back to how they were after turn 1.
+```text
+> /checkpoints
+
+  turn 1    from message 1         1 file(s)  hello.py (new)
+  turn 2    from message 5         1 file(s)  hello.py
+
+> /undo
+
+  turn 2 undone: C:\work\hello.py
+  undone · 5 messages · 1 turns
+```
+
+The list shows two turns. Turn 1 has `hello.py (new)`; turn 2 has
+`hello.py`. After `/undo` the screen is redrawn with the first turn only,
+and `hello.py` prints hello again. A second `/undo` deletes the file and
+empties the chat. A third says `nothing to undo`.
+
+Now try the same with `/rewind`. After three turns the picker offers three
+rows, `turn 1`, `turn 2`, `turn 3`, each with the first words of that
+turn's request. Pick `turn 2`: the note says `2 turn(s) undone, 2 file(s)
+restored` and the files are back to how they were after turn 1.
 
 Type `/hooks` and the first row is the capture:
 
@@ -429,19 +510,71 @@ python run_tests.py 33
 python check_snippets.py 33
 ```
 
+## Error handling
+
+The guards of the earlier steps stand: one tool message per call, an
+`Error:` string for a bad tool call, a note for a dead model call, ctrl-c
+fills the missing results with `(interrupted before this tool ran)`, and
+`/exit`, ctrl-d or ctrl-z+enter leave. New in this step:
+
+- **A capture that fails.** `checkpoint: could not capture <path>
+  (<reason>); /undo will not restore it` as a note. The edit goes ahead.
+- **`/undo` with nothing to undo.** `nothing to undo`. A turn whose start
+  is unknown (summarised away by `/compact`) restores its files and says
+  `that turn's place in the transcript is not known; the messages stay`.
+- **`/rewind` on a fresh chat.** The picker has one row per user message;
+  with none it shows nothing to pick and ctrl-d or an out-of-range number
+  leaves the chat as it is.
+- **A declined or blocked write.** Not captured, so it does not appear in
+  `/checkpoints`; the model gets `The user denied this tool call.` or
+  `Blocked by hook: ...` as before.
+- **A crash mid-turn.** `session.load` still repairs the transcript on
+  `--resume` and `/sessions` (step 31); the turn's checkpoints are on
+  disk, and the next `/undo` takes that turn back, files and messages.
+
+## Gotchas / What this is not
+
+- **Only the edit tools are captured.** A `bash` command that runs `rm`,
+  `sed -i` or `git checkout` changes files the checkpoints do not know
+  about. Git is still the safety net for that.
+- **Only files are rolled back.** `/undo` does not touch the todo list,
+  the plan and its mode, the loaded deferred tools, memories written with
+  `remember`, or background jobs. The todo list and the loaded tools are
+  rebuilt from the shortened transcript; the rest survives the undo and
+  the `<plan>` block may describe a turn that no longer exists.
+- **Nothing prunes the store.** Every turn makes a directory and a
+  `turn.json` (headless `-p` runs too), and the first write of a file per
+  turn copies the whole file. Sessions accumulate under
+  `~/.simple-harness/checkpoints/` until you delete them; only an eval run
+  cleans up after itself. A session directory whose `.jsonl` you deleted
+  is safe to delete too.
+- **A rewind is a turn boundary.** The picker offers user messages only.
+  There is no way to keep half a turn, by design (section 7).
+- **Recovery after a crash is not in this step.** On `--resume`, a call the
+  crash left without a result gets a stand-in result, not a re-run, and no
+  turn directory is opened for it. Step 34 re-runs such calls and places
+  them in the turn that crashed.
+- **The copy is whole-file.** A 200 MB file edited by `str_replace` is
+  copied once per turn. There is no diffing.
+- **Windows.** A path is resolved to its on-disk spelling before it is
+  hashed, so `c:/work/a.py` and `C:\work\a.py` are one entry. The tool
+  named `bash` still runs through `cmd.exe` and there is no OS sandbox;
+  neither changes here.
+
 ## What to notice
 
 - A checkpoint is taken before the edit, not after. What is stored is
   the state to go back to, never the state the agent produced.
-- The unit is the turn. A subagent's edits and the parallel tool calls of
-  one reply all land in the turn that was running, and one `/undo` takes
-  them all back.
+- The unit is the turn. The parallel tool calls of one reply all land in
+  the turn that was running, and one `/undo` takes them all back. A
+  subagent is read-only (step 15): its tool set has no edit tool, and from
+  step 31 naming one anyway is refused, so it never contributes an entry.
 - The turn number lives on disk, not in memory. `begin_turn` reads the
   directory to pick the next one, so a resumed session continues the
   numbering and never overwrites an old turn's copies.
-- The capture is a hook. `tools.py` did not change in this step. The
-  matcher `write_file|str_replace` is the only place that says which
-  tools are captured.
+- The capture is a hook. `tools.run` gained one line, the call to
+  `run_builtin`; the matcher `write_file|str_replace` is the only place
+  that says which tools are captured.
 - An undone turn is removed from the store. Undo is not idempotent by
   design: each `/undo` moves one turn further back.
 - Only the edit tools are captured. A `bash` command that runs `rm` or
@@ -458,10 +591,16 @@ Added: `checkpoint.py` (`ROOT`, `EDIT_TOOLS`, `MANIFEST`, `TURN_FILE`,
 `TURN`, `LOCK`, `hashed`, `session_dir`, `turn_dir`, `turns`,
 `begin_turn`, `start_of`, `manifest`, `capture`, `pre_tool_use`,
 `restore`, `undo_turn`, `undo_since`, `compacted`, `summary`).
-Changed: `hooks.py` (`BUILTIN`, run first in `run_hooks`), `agent.py`
+Changed: `hooks.py` (`BUILTIN`, `run_builtin`), `tools.py` (`run` fires the built-ins), `agent.py`
 (`checkpoint.begin_turn` in `turn`), `commands.py` (`/undo`,
 `/checkpoints`, `rewind` restores files, `compact` moves the turn
 starts, `hook_list` shows the built-ins), `ui.py` (`/undo` in the
 banner), `evaluate.py` (`isolated` removes the checkpoints of an eval run
 and restores `checkpoint.TURN`). Everything else is unchanged from step
 32.
+
+## What the next step adds
+
+Step 34 makes the loop survive a bad network, a stuck model and a crash:
+retries with backoff, a repeat detector, a per-turn call cap, and recovery
+of the tool calls a crash left unanswered.

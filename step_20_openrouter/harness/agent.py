@@ -8,28 +8,16 @@ import openai
 
 from . import commands
 from . import compact
-from . import context
 from . import history
 from . import sandbox
 from . import session
-from . import todos
 from .context import reminder
 from .llm import SYSTEM_PROMPT, call_llm, entry
-from .todos import active_form
+from .todos import active_form, restore
 from .tools import execute
 from .ui import ui
 
-MAX_CALLS = 40  # model calls per user turn; a runaway loop stops here, the transcript stays valid
-
-
-def interrupted(messages):
-    """ctrl-c mid-turn: answer every unanswered tool call so the transcript stays sendable."""
-    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
-    last = next((m for m in reversed(messages) if m["role"] == "assistant"), {})
-    for call in last.get("tool_calls") or []:
-        if call["id"] not in answered:
-            messages.append({"role": "tool", "tool_call_id": call["id"], "content": "(interrupted before this tool ran)"})
-    ui.note("interrupted")
+MAX_CALLS = 40  # model calls in one turn before we stop and ask the user
 
 
 def main():
@@ -46,7 +34,7 @@ def main():
         if saved:
             messages = session.open_session(saved[0]["id"])
             history.strip(messages)
-            todos.rebuild(messages)
+            restore(messages)  # the plan lives outside the transcript; rebuild it
             ui.resumed(messages)
             ui.replay(messages)
 
@@ -64,8 +52,8 @@ def main():
 
         messages.append({"role": "user", "content": user_input})
         session.save(messages)
-        usage = {}
 
+        usage = {}
         try:
             for _ in range(MAX_CALLS):
                 injection = reminder()
@@ -77,17 +65,16 @@ def main():
                 try:
                     with ui.working(active_form()):
                         message, usage = call_llm(messages + [injection])
-                except (openai.APIError, RuntimeError) as failure:
-                    ui.note(f"model call failed: {failure}")
-                    break  # the user message stays; ask again or try /route
-                context.mark_seen()
+                except (openai.APIError, RuntimeError) as failed:
+                    ui.note(f"model call failed: {failed}")
+                    break
 
                 messages.append(entry(message))
                 session.save(messages)
                 ui.usage(usage)
 
                 if cli.debug:
-                    ui.debug(entry(message))
+                    ui.debug(message.model_dump(exclude_none=True))
 
                 if message.content:
                     ui.agent(message.content)
@@ -108,9 +95,11 @@ def main():
             else:
                 ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
         except KeyboardInterrupt:
-            interrupted(messages)
+            # ctrl-c mid-turn: answer the tool calls that never ran, so the
+            # transcript stays valid, and go back to the prompt.
+            session.repair(messages, "(interrupted before this tool ran)")
             session.save(messages)
-            continue
+            ui.note("interrupted")
 
         history.sweep()          # the turn is over: bin its temp files...
         history.strip(messages)  # ...and shrink the tool output it produced

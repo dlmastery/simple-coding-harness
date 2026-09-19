@@ -7,10 +7,12 @@ loaded and `/init` writes a fresh one from a survey of the project.
 ## Overview
 
 This directory is one step of a series that builds a coding agent, the
-`harness` command, one feature at a time. This step is the capstone: one
-end-to-end task (a FastAPI todo API) run headless through the harness and
-graded by five checks. The task, the runner, the checks, the reference
-solution and the recorded run live in `capstone/`.
+`harness` command, one feature at a time. This step stamps every
+session log entry with `ts` and writes the usage, seconds and cost of every
+model call next to the reply it produced; `harness replay <id>` draws a
+session again at the recorded pace and `harness trace <id> --html FILE`
+writes it as one HTML page. The capstone of step 38 is still here under
+`capstone/`.
 
 ## Build system
 
@@ -23,8 +25,8 @@ solution and the recorded run live in `capstone/`.
 
 - Whole suite, offline, no key needed: `python -m pytest -q test_step.py`
 - One test: `python -m pytest -q test_step.py -k <name>`
-- From the repository root: `python run_tests.py 38` and
-  `python check_snippets.py 38`.
+- From the repository root: `python run_tests.py 44` and
+  `python check_snippets.py 44`.
 - The capstone itself, with a real model: `python capstone/run.py` with
   `API_KEY`, `BASE_URL` and `MODEL` set. Needs `pip install -e ".[capstone]"`.
 
@@ -33,8 +35,10 @@ solution and the recorded run live in `capstone/`.
 - `harness/` - the package. `agent.py` is the loop, `llm.py` builds the
   system prompt and calls the model, `tools.py` is the tool registry,
   `commands.py` handles `/` commands, `instructions.py` finds these files,
-  `agents.py` reads the agent definitions, `pipeline.py` runs `/pipeline`.
-- `.agents/` - project skills, agent definitions, hooks and MCP configuration.
+  `agents.py` reads the agent definitions, `extensions.py` loads the
+  extensions, `pipeline.py` runs `/pipeline`, `replay.py` and `trace.py` read the log back.
+- `.agents/` - project skills, agent definitions, hooks, MCP configuration
+  and the example extensions in `.agents/extensions/`.
 - `evals/` - the evaluation suite for `harness eval evals`.
 - `capstone/` - `task.md` (the brief), `run.py` (the headless runner),
   `evals/` (five checks, graded with `harness eval capstone/evals

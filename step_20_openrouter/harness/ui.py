@@ -39,8 +39,7 @@ class UI:
     def banner(self, sandbox_name="none"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"sandbox: {sandbox_name}  ·  /sessions  /rewind  /models  /route  ·  alt-enter for a newline", style=MUTED), (0, 0, 0, 2)))
-        self.console.print(Padding(Text("ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"sandbox: {sandbox_name}  ·  /sessions  /rewind  /models  /route  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -54,16 +53,12 @@ class UI:
         results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
         for message in messages:
             if message["role"] == "user":
-                self.user(message["content"])
+                self.user(str(message.get("content") or ""))
             elif message["role"] == "assistant":
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    try:
-                        args = json.loads(call["function"]["arguments"])
-                    except ValueError:  # the model sent broken JSON; show it as it was
-                        args = {"arguments": call["function"]["arguments"]}
-                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -86,7 +81,7 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
-        """The next message; "" for an empty line, None when the user is leaving."""
+        """One line from the user; None when they are leaving (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -105,6 +100,7 @@ class UI:
         )
 
     def tool(self, name, args, result, nested=False):
+        # the one place the UI knows a tool by name - and only when the plan was accepted
         if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
@@ -208,6 +204,14 @@ class UI:
 
     def _per_million(self, price_per_token):
         return f"{price_per_token * 1_000_000:.2f}" if price_per_token is not None else "-"
+
+    def _parse_args(self, arguments):
+        """Stored arguments may be broken JSON (a cut-off reply); show them raw then."""
+        try:
+            args = json.loads(arguments)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw": arguments}
+        return args if isinstance(args, dict) else {"raw": arguments}
 
     def _format_args(self, args):
         if len(args) == 1:

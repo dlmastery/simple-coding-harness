@@ -59,7 +59,7 @@ step_44_replay_trace/
 │   ├── computer.py                   computer use: the screen as a tool
 │   ├── config.py                     settings; real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py                    the late injection block: <env>, <plan>, <jobs>, active agent
-│   ├── durability.py                 the loop detector and the crash-recovery scan
+│   ├── durability.py                 parse_args, the loop detector and the crash-recovery scan
 │   ├── evaluate.py                   the eval runner; run_suite can grade one workspace
 │   ├── extensions.py                 the registry: tool, command, hook, prompt_section, agent
 │   ├── handoff.py                    handoffs: the conversation moves to another agent definition
@@ -118,6 +118,40 @@ handoffs included, and both commands consume it. The replay draws the
 events with the same `ui` calls the live run made. The trace groups
 them into model calls and renders a page.
 
+### What breaks without it
+
+A run that cost $3 more than expected, or edited the wrong file at the
+fourth call, leaves nothing to look at once the terminal is closed.
+The transcript on disk has the messages but not their order in time,
+and `/cost` shows one total. With this step the same `.jsonl` says
+which call took 40 seconds, which one cost the most, and what the tool
+result the model ignored actually contained - and `harness trace last
+--html trace.html` puts that in a page you can attach to a bug report.
+
+### The log format
+
+One JSON object per line, in the order it was written. Every line has
+`ts`, the wall-clock time it was written (seconds since the epoch,
+three decimals).
+
+| Line | Written by | Meaning |
+|---|---|---|
+| `{"role": "system" \| "user" \| "assistant" \| "tool", ..., "ts"}` | `session.save` | a message, exactly as the model saw it (`tool_calls`, `tool_call_id` and image `content` lists included) |
+| `{"usage": {...}, "index": N, "seconds": S, "cost": C, "ts"}` | `session.save` after a reply | the model call that produced message `N`: its token counts (and `cost` when the API reported one, else `null`), the seconds the call took, and the dollars it was priced at |
+| `{"rewind_to": N, "ts"}` | `/rewind`, `/undo` | the transcript was cut to `N` messages; the old lines stay in the file |
+| `{"handoff": "name", "ts"}` | `handoff_to` | from here on `name` answers; `load()` rewrites the system prompt from that definition |
+| `{"compacted": [...], "ts"}` | `/compact`, automatic compaction | the transcript was replaced by this list |
+
+When things are stamped: the user message is saved the moment it is
+appended, before the model is called; the reply and its usage entry
+are saved together when the reply is complete; each tool result is
+saved right after it is appended, which is after *all* the tool calls
+of that reply have finished (they run in parallel, and are appended in
+reply order). So the gap between the user line and the assistant line
+is the model call, and the gap between the assistant line and its
+first tool line is the longest tool call of that reply; the tool lines
+of one reply carry near-identical stamps.
+
 ## The code, piece by piece
 
 ### 1. Stamps and usage entries
@@ -127,6 +161,14 @@ them into model calls and renders a page.
 ```python
 clock = time.time  # the stamp on every entry; a name the tests can replace
 ...
+def log(session_id=None):
+    """The log file of a session, opened for appending; the directory is made on the way. Nowhere, when QUIET."""
+    if QUIET and session_id is None:
+        return open(os.devnull, "a", encoding="utf-8")
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    return path_for(CURRENT if session_id is None else session_id).open("a", encoding="utf-8")
+
+
 def stamped(entry):
     """The entry with `ts` added, as one JSON line. The dict passed in is not touched."""
     return json.dumps({**entry, "ts": round(clock(), 3)}) + NL
@@ -135,8 +177,7 @@ def stamped(entry):
 def save(messages, usage=None, seconds=None, cost=None):
 ...
     global WRITTEN
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+    with log() as f:
         for message in messages[WRITTEN:]:
             f.write(stamped(message))
         if usage is not None:
@@ -149,8 +190,11 @@ def save(messages, usage=None, seconds=None, cost=None):
 `usage` is given, one more line follows the new messages: the usage
 dict as the client returned it, `index`, the position of the assistant
 message it belongs to, `seconds`, how long the call took, and `cost`,
-the dollars step 41 priced it at. The rewind, handoff and compaction
-markers go through `stamped` too, so every line of the log has a time.
+the dollars `stop.record` priced it at. The rewind, handoff and
+compaction markers go through `stamped` too, so every line of the log
+has a time, and every writer opens the file through `log()`, which
+makes the session directory first: a `/rewind` in a chat that has not
+been saved yet does not fail on a missing folder.
 
 ### 2. Loading drops what the model does not read
 
@@ -170,11 +214,22 @@ step 40: rewinds cut, compactions replace, handoffs rewrite the prompt.
 A resumed session sends the model exactly the list it sent before this
 step, and the tests assert that equality.
 
+`load(session_id, apply_handoffs=True)` grew one flag. A handoff marker
+makes that agent the active one, a global. `all_sessions()`, which
+loads every log to title it for `/sessions`, and `replay.main` pass
+`apply_handoffs=False`, so listing or replaying old chats does not
+change which agent answers the live one. Only `open_session` -
+`/sessions` with a pick, `--resume` - applies the markers, after a
+`handoff.reset()`.
+
 ### 3. The loop records the call
 
 `harness/agent.py`:
 
 ```python
+    messages.append({"role": "user", "content": user_input})
+    session.save(messages)  # on disk now, with its own time: a crash during the model call keeps the question
+...
         started = time.monotonic()  # the seconds of the call go in the log next to its usage
 ...
         messages.append(message.model_dump(exclude_none=True))
@@ -182,10 +237,12 @@ step, and the tests assert that equality.
         session.save(messages, usage=usage, seconds=round(time.monotonic() - started, 3), cost=cost)  # the numbers go next to the message
 ```
 
-The clock starts before `call_llm` and stops when the reply is
-appended. The cost is computed once, saved, and then shown on the usage
-line as before. A tool result, a steering message or a Stop block is
-saved without numbers, because no model call produced it.
+The user message is saved the moment it is appended, so its stamp is
+the time the prompt was sent. The clock starts before `call_llm` and
+stops when the reply is appended. The cost is computed once, saved,
+and then shown on the usage line as before. A tool result, a steering
+message or a Stop block is saved without numbers, because no model
+call produced it.
 
 ### 4. The timeline
 
@@ -250,18 +307,27 @@ def replay(session_id, speed=1.0, step=False, sleep=time.sleep, wait=wait_for_en
     previous = None
     turns = 0
     for event in events:
-        if event.kind == "user":
+        prompt_ = event.kind == "user" and not str(event.data.get("content") or "").startswith("Stop blocked:")  # a Stop hook's block is not a turn
+        if prompt_:
             turns += 1
             if step and turns > 1:
                 wait()
         pause = delay(previous, event, speed)
-        if pause and not (step and event.kind == "user"):
+        if pause and not (step and prompt_):
             sleep(pause)
         draw(event, pending)
         previous = event
     for name, args in pending.values():
         ui.tool(name, args, "")
     return events
+...
+def parse_args(arguments):
+    """The JSON arguments of a tool call as a dict; a broken string becomes {"raw": ...}."""
+    try:
+        args = json.loads(arguments or "{}")
+    except (json.JSONDecodeError, TypeError):
+        return {"raw": str(arguments)}
+    return args if isinstance(args, dict) else {"raw": args}
 ```
 
 The pause before an event is the gap between its stamp and the
@@ -272,9 +338,13 @@ from before this step. `draw` makes the same `ui` calls the live run
 made: `ui.user`, `ui.agent`, `ui.tool`, `ui.usage`, `ui.handoff`. A
 tool call is drawn when its result arrives, as it was the first time,
 and the calls of a run that crashed before their results are drawn at
-the end with an empty result. With `--step`, the replay waits for
-enter before every user message after the first; `sleep` and `wait`
-are parameters so the tests replace them.
+the end with an empty result. A tool call whose arguments were not
+JSON - the model does send those - is drawn with `{"raw": ...}`, never
+parsed twice; `ui.replay`, which `--resume` and `/rewind` use, does the
+same. With `--step`, the replay waits for enter before every user
+message after the first, a `Stop blocked:` message from a Stop hook not
+counted; a steering line typed after ctrl-c is a user message and does
+count. `sleep` and `wait` are parameters so the tests replace them.
 
 ### 6. One row per model call
 
@@ -312,6 +382,17 @@ usage event fills in the numbers. A log with usage entries but no
 saved cost, from a run that had the tokens and not the price, is
 priced with step 41's `cost_of`. The user prompts and the markers
 become rows of their own between the calls.
+
+Where the dollars come from: `stop.cost_of` uses the `cost` the API
+reported when there is one - OpenRouter sends it when the request asks
+(`llm.EXTRA_BODY`, on when `BASE_URL` contains `openrouter`), other
+servers do not - and otherwise prices the tokens from `stop.PRICES`
+(three `gpt-4.1` models) or `FALLBACK_PRICES` (1.00, 4.00 and 0.25
+dollars per million prompt, completion and cached tokens, overridable
+with `PRICE_PROMPT`, `PRICE_COMPLETION`, `PRICE_CACHED`). With the
+default model on a server that reports no cost, every dollar figure in
+the trace, in `/cost` and on the usage line is that estimate. `/cost`
+says which (`stop.source()`).
 
 ### 7. The page
 
@@ -370,19 +451,40 @@ Two subcommands next to step 30's `eval`. The session id is the file
 stem `/sessions` lists, or `last` for the newest log. `replay.main`
 prints the resumed line, draws the events, and ends with the summary
 table of step 41, added up from the usage entries. `trace.main` writes
-the page and prints where it went with the totals.
+the page and prints where it went with the totals. A session id that
+has no log ends with `no session <id> in <dir>` and exit code 1.
 
 ## Run it
+
+Prerequisites: Python 3.10+, `API_KEY` (and `BASE_URL`, `MODEL` for a
+server other than the default) in the environment or in
+`~/.simple-harness/env`. The trace page needs nothing but a browser.
+
+bash:
 
 ```bash
 pip install -e .
 harness
-> list the files here, then write hello.txt with the word hello
-> /sessions
 ```
 
-Have a short chat, then end it with ctrl-d. The session id is the
-file stem `/sessions` shows, such as `20260913-101500`. Replay it:
+PowerShell:
+
+```powershell
+pip install -e .
+harness
+```
+
+Have a short chat, then leave with `/exit`:
+
+```text
+> list the files here, then write hello.txt with the word hello
+> /sessions
+> /exit
+```
+
+The session id is the file stem `/sessions` shows, such as
+`20260913-101500`. Replay it (the same commands in bash and
+PowerShell):
 
 ```bash
 harness replay last
@@ -392,10 +494,43 @@ harness replay last --step
 
 The screen redraws the chat: the prompt in green, a usage line per
 model call with its cost, the tool panels with their results, the
-reply. Between entries the replay waits what the run waited, up to
-five seconds, divided by `--speed`. With `--step` it prints `enter for
-the next turn>` before every prompt after the first. The summary table
-at the end adds up the tokens and dollars of the whole session.
+reply. Between entries the replay waits what the log recorded, up to
+five seconds, divided by `--speed`: after the prompt, the model call;
+after the reply, the tool calls; between two tool panels of one reply,
+almost nothing. With `--step` it prints `enter for the next turn>`
+before every prompt after the first. The summary table at the end adds
+up the tokens and dollars of the whole session:
+
+```text
+  replay 20260913-101500 · 6 messages · 1 turns
+
+  list the files here, then write hello.txt with the word hello
+
+  2,104 prompt · 48 completion · 1,920 cached · $0.0013
+
+  ┌ bash ls ────────────────────────────────────────────────────────────
+  │  AGENTS.md
+  │  harness
+  │  ...
+  └────────────────────────────────────────────────────────────────────
+
+  ┌ write_file {"path": "hello.txt", "content": "hello"} ───────────────
+  │  Wrote hello.txt
+  └────────────────────────────────────────────────────────────────────
+
+  agent
+
+  Listed the directory and wrote hello.txt.
+
+  2,231 prompt · 19 completion · 2,048 cached · $0.0009
+
+  replayed 8 entries
+
+  prompt tokens        4,335
+  completion tokens    67
+  cached tokens        3,968
+  cost                 $0.0022
+```
 
 Write the trace:
 
@@ -403,13 +538,13 @@ Write the trace:
 harness trace last --html trace.html
 ```
 
-prints `wrote trace.html · 3 model calls · 2 tool calls · $0.0061`.
+prints `wrote trace.html · 2 model calls · 2 tool calls · $0.0022`.
 Open the file in a browser. Each row is one model call: the number,
 the time of day, the seconds it took, prompt, completion and cached
 tokens, the cost, and the reply with its tool calls folded under it.
 Click a tool call to open its result; the `expand all` button opens
-every one. A screenshot from `computer` or `browse` sits under the
-call that took it. The footer row is the total.
+every one. A screenshot the main agent took with `computer_screenshot`
+sits under the call that took it. The footer row is the total.
 
 A log from a session before this step has no stamps and no usage
 entries. It replays without pauses, and its trace shows dashes in the
@@ -422,34 +557,77 @@ python run_tests.py 44
 python check_snippets.py 44
 ```
 
-## What to notice
+```powershell
+python run_tests.py 44
+python check_snippets.py 44
+```
 
-- The messages on disk are still the messages. The stamp is added on
-  the way out and removed on the way in, and the usage sits in a line
-  of its own. `load()` returns the same list it returned in step 43,
-  and a log from an earlier step still loads.
-- The log is append-only, as it has been since step 8. Recording more
-  did not mean rewriting anything: two new kinds of line, and a key on
-  every line.
-- One reader, two views. `timeline()` is the only code that parses
-  the log for these commands. `replay` draws its events; `trace`
-  groups them. A third viewer would read the same list.
-- Replay does not fold. `load()` applies a rewind; `timeline()`
-  reports it. A replay shows the turn that was taken back and the
-  trace counts its calls, because they happened and were paid for.
-- Replay reuses the `ui`. No second renderer: the same `ui.tool`,
-  `ui.agent` and `ui.usage` the live loop calls draw the replay, so
-  the two look alike and stay alike.
-- The duration is measured, not derived. `seconds` is the clock
-  around `call_llm`, saved next to the usage. The gap between stamps
-  is for the replay's pace; it includes the tool calls and the time
-  the user spent typing.
-- The page trusts nothing. Every string passes through `escape`, and
-  an image is inlined only when it is a base64 PNG or JPEG. A tool
-  result that contains `</pre><script>` shows those characters.
-- The page needs nothing. Inline styles, one inline function, no
-  fetch. It opens from a file, from a mail attachment, from a bug
-  report, years later.
+## Error handling
+
+- **A tool call with broken arguments** (`{not json`, or a JSON array)
+  gets the result `Error: the arguments of <name> are not a JSON object:
+  ...` and never runs; an unknown tool name gets `Error: no tool named
+  'x'.`; a tool that raises gets `Error: <ExceptionType>: <message>`;
+  `bash` without a `command` gets `Blocked by policy: bash: missing
+  argument 'command'`. Each is one tool message, so the log stays a
+  valid transcript, the trace shows the call with its result under it,
+  and the replay draws the broken arguments as `{"raw": "{not json"}`.
+- **A failing command** comes back as its output and exit status in the
+  result; a command that runs past 60 s is killed with its process
+  group and the result starts `Timed out after 60s and was killed.
+  Output so far:`.
+- **Ctrl-C** during a model call or the tool calls reads a steering line;
+  every call that had no result by then gets `INTERRUPTED` as its result
+  first, so the log has one result per call. A second Ctrl-C within two
+  seconds leaves the chat. In a replay, Ctrl-C stops the replay; the
+  log is not touched.
+- **A dead model call** (no network, a bad key, a 5xx that outlasts the
+  four retries) prints `model call failed and will not be retried (...)`
+  and ends the turn. The user message is in the log with its stamp and
+  no usage entry follows it; the trace shows the prompt row with no call
+  under it.
+- **`harness replay` or `trace` on an id that does not exist** prints
+  `no session <id> in <dir>` and exits 1; a half-written last line from
+  a kill mid-save is skipped by `entries()`.
+- **Leaving:** `/exit`, ctrl-d (ctrl-z then enter on Windows), or ctrl-c
+  at the prompt. `harness --resume` opens the newest log; a run that
+  died between a reply and its tool results has those calls run on
+  resume, and their results are stamped then.
+
+## Gotchas / What this is not
+
+- **Only the main loop is in the log.** Subagent calls (`task`,
+  `browse`, the `agent_*` tools), the compaction summariser and the
+  eval judge call the model too; none of those calls has a line in the
+  session log. The trace's totals and the replay's summary are the
+  main loop's; `ui.summary()` at the end of a live session counts all
+  of them, so the two differ on a session that used subagents. A
+  screenshot a `browse` subagent took never reaches the log either.
+- **The cost column is an estimate** unless the API reported a cost
+  (OpenRouter does when asked; see section 6) or `PRICE_*` are set for
+  your model. `/cost` names the source.
+- **Timing is per reply, not per tool.** Tool results are appended
+  after every call of the reply has finished, so the gap between the
+  reply and its first tool line is the slowest call's time and the
+  tool lines of one reply are stamped together. Replay draws a
+  streamed reply at once, not token by token.
+- **The log grows.** A `computer_screenshot` puts its PNG into the log
+  as a base64 data URL every time; `history.strip` shrinks the copy in
+  memory, not the file. `/sessions` parses every log in the directory
+  to title it. Delete old logs from `~/.simple-harness/sessions/<project>/`
+  when it gets slow.
+- **`harness -p "..."` writes no log** unless `--resume` is given: a
+  one-shot run prints its answer and leaves nothing to replay. With
+  `--resume` it appends to the session it opened.
+- **`--step` counts user messages**, which includes a steering line
+  typed after ctrl-c (a `Stop blocked:` message is excluded).
+- **Replay does not re-apply handoffs**, and `--resume` applies them
+  from *today's* definition files: a definition that was renamed since
+  is skipped without a note, and the resumed prompt is the current one.
+- **This is not an observability stack.** One file per session, no
+  server, no query language, no export beyond the HTML page. It is the
+  smallest record that answers "what happened" after the terminal is
+  gone.
 
 ## Diff from step 43
 
@@ -470,3 +648,10 @@ timed, `stop.record` runs before `session.save` and the numbers go to
 it; the `replay` and `trace` subcommands), `pyproject.toml` (version
 0.44.0). Everything else, `capstone/` and `.agents/` included, is
 unchanged from step 43.
+
+## What the next step adds
+
+Step 45 ports the core of the loop - stage 15: tools, permissions,
+todos, subagents, compaction, sessions - to TypeScript under
+`harness-ts/`, and reads and writes this exact log format, so a
+session started in one language resumes in the other.

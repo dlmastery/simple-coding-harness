@@ -6,6 +6,7 @@ stdout carries only the answer.
 
 import json
 import sys
+import threading
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -29,6 +30,21 @@ MAX_TOOL_OUTPUT_LINES = 12
 
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
 
+APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+
+
+class Idle:
+    """A spinner that does nothing: used off the main thread, where rich cannot draw one."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
+
 
 class UI:
     def __init__(self):
@@ -48,7 +64,7 @@ class UI:
     def banner(self, sandbox_name="none"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"sandbox: {sandbox_name}  ·  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"sandbox: {sandbox_name}  ·  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -68,7 +84,12 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    raw = call["function"]["arguments"]
+                    try:
+                        args = json.loads(raw)
+                    except ValueError:  # the model once sent broken JSON; show it as it was
+                        args = {"arguments": raw}
+                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -82,21 +103,35 @@ class UI:
         return int(answer) if answer.isdigit() and int(answer) < len(rows) else None
 
     def approve(self, reason):
-        """Stage 11: stop and ask before a tool call the rules rate as 'ask'."""
-        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-        try:
-            answer = prompt.read("  allow? (y/n)> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            return False
-        return answer.lower().startswith("y")
+        """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
+
+        In print mode nothing may reach stdout, and without a terminal there
+        is nobody to ask: the call is denied and stderr says so.
+        """
+        with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask on: {reason}")
+                return False
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                if self.live:
+                    answer = prompt.read("  allow? (y/n)> ").strip()
+                else:
+                    sys.stderr.write("  allow? (y/n)> ")
+                    sys.stderr.flush()
+                    answer = input().strip()
+            except (EOFError, KeyboardInterrupt):
+                return False
+            return answer.lower().startswith("y")
 
     def ask(self):
+        """The next message; "" for an empty line, None when the input is closed."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -131,7 +166,7 @@ class UI:
         self.console.out("")
 
     def tool(self, name, args, result, nested=False):
-        if name == "write_todos" and args.get("todos"):
+        if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         self.console.print(
@@ -146,13 +181,14 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            status = todo.get("status")
+            style = TODO_STYLES.get(status, MUTED)
+            rows.add_row(Text(MARKS.get(status, "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -178,16 +214,28 @@ class UI:
         )
 
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Only the main thread gets one: a second live display from a worker
+        thread is an error in rich, and a subagent may run on a worker.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            return Idle()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats):
         for key, value in stats.items():
-            self._totals[key] = self._totals.get(key, 0) + (value or 0)
-        parts = " · ".join(f"{value:,} {key.replace('_tokens', '')}" for key, value in stats.items() if value)
-        self.console.print(Padding(Text(parts, style=MUTED), (1, 0, 0, 2)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                self._totals[key] = self._totals.get(key, 0) + value
+        parts = []
+        for key, value in stats.items():
+            if key == "cost" and value is not None:
+                parts.append(f"${value:.4f}")
+            elif isinstance(value, (int, float)) and value:
+                parts.append(f"{value:,} {key.replace('_tokens', '')}")
+        self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
 
     def summary(self):
         if not self._totals:
@@ -196,7 +244,7 @@ class UI:
         table.add_column(style=MUTED)
         table.add_column(style=f"bold {ACCENT}", justify="right")
         for key, value in self._totals.items():
-            table.add_row(key.replace("_", " "), f"{value:,}")
+            table.add_row(key.replace("_", " "), f"${value:.4f}" if key == "cost" else f"{value:,}")
         self.console.print(Padding(table, (1, 2)))
         self.console.print(Rule(style=MUTED))
         self.console.print()
@@ -214,7 +262,7 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

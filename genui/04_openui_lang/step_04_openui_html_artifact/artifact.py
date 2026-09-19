@@ -56,9 +56,10 @@ def find_artifacts(program: str) -> list[Artifact]:
 
 
 def count_tokens(text: str) -> int:
-    """o200k_base tokens with tiktoken; a character estimate when it is not installed."""
+    """o200k_base tokens with tiktoken; a character estimate when it is not installed or its vocabulary cannot be loaded (offline)."""
     try:
         import tiktoken
-    except ImportError:
+
+        return len(tiktoken.get_encoding("o200k_base").encode(text))
+    except Exception:  # noqa: BLE001 - ImportError, or the one-time download failed
         return max(1, len(text) // 4)
-    return len(tiktoken.get_encoding("o200k_base").encode(text))

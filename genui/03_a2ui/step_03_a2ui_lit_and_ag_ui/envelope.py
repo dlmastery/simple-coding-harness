@@ -165,6 +165,13 @@ def pointer_get(doc, path):
     return node
 
 
+def index(token):
+    """A list index: digits only, so '/tags/x' is refused instead of raising deep inside."""
+    if not token.isdigit():
+        raise ValueError(f"not a list index: {token!r}")
+    return int(token)
+
+
 def pointer_set(doc, path, value):
     """Upsert: create missing objects on the way, then replace the value at path."""
     tokens = pointer_tokens(path)
@@ -175,12 +182,12 @@ def pointer_set(doc, path, value):
     node = doc
     for token in tokens[:-1]:
         if isinstance(node, list):
-            node = node[int(token)]
+            node = node[index(token)]
         else:
             node = node.setdefault(token, {})
     last = tokens[-1]
     if isinstance(node, list):
-        node[int(last)] = value
+        node[index(last)] = value
     else:
         node[last] = value
     return doc
@@ -193,7 +200,10 @@ def pointer_delete(doc, path):
         return doc
     parent = doc
     for token in tokens[:-1]:
-        parent = parent[int(token)] if isinstance(parent, list) else parent.get(token)
+        if isinstance(parent, list):
+            parent = parent[int(token)] if token.isdigit() and int(token) < len(parent) else None
+        else:
+            parent = parent.get(token)
         if parent is None:
             return doc
     last = tokens[-1]
@@ -260,15 +270,19 @@ class Surface:
                 ids.extend(r for r in ref if isinstance(r, str))
         return ids
 
-    def tree(self, component_id="root"):
-        """The nested view of the flat map. Unknown ids become {"missing": True} placeholders."""
+    def tree(self, component_id="root", ancestors=frozenset()):
+        """The nested view of the flat map. Unknown ids become {"missing": True} placeholders;
+        an id that is its own ancestor becomes {"cycle": True}, so a bad map cannot recurse forever."""
         component = self.components.get(component_id)
         if component is None:
             return {"id": component_id, "missing": True}
+        if component_id in ancestors:
+            return {"id": component_id, "cycle": True}
+        inner = ancestors | {component_id}
         return {
             "id": component_id,
             "component": component["component"],
-            "children": [self.tree(cid) for cid in self.child_ids(component)],
+            "children": [self.tree(cid, inner) for cid in self.child_ids(component)],
         }
 
     def missing_ids(self):
@@ -294,8 +308,8 @@ class SurfaceStore:
         body = message[kind]
         surface_id = body["surfaceId"]
         if kind == "createSurface":
-            if surface_id in self.surfaces:
-                raise ValueError(f"surface {surface_id} already exists")
+            # A repeated createSurface is a reset: the surface starts over. (The official
+            # MessageProcessor raises here instead, so a server sends deleteSurface first.)
             self.surfaces[surface_id] = Surface(surface_id, body["catalogId"], body.get("theme"), body.get("sendDataModel", False))
         elif kind == "deleteSurface":
             self.surfaces.pop(surface_id, None)

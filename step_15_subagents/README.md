@@ -256,8 +256,9 @@ short summary from that answer.
 
 The question shows in a blue panel, the subagent's tool calls indented
 beneath it, then the `task` result as an ordinary tool panel, then the
-main agent's answer. The token counter in the corner includes the
-subagent's calls - they are real cost, just not real context.
+main agent's answer. The muted `prompt · completion` line under each
+call, and the totals printed when you leave, include the subagent's
+calls - they are real cost, just not context the main agent carries.
 
 ## Error handling
 

@@ -4,9 +4,11 @@ commands.handle("/pipeline ...") and agent.turn with a fake model that
 answers by the role named in the system prompt. Nothing is launched.
 """
 
+import _thread
 import json
 import os
 import threading
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -131,15 +133,33 @@ def test_the_shipped_definitions_load():
     assert {name: a["path"] for name, a in agents.AGENTS.items()} == {name: a["path"] for name, a in found.items()}
 
 
-def test_a_definition_without_front_matter_or_name_is_skipped(tmp_path):
+def test_a_definition_without_front_matter_is_skipped_and_a_nameless_one_takes_the_file_name(tmp_path):
     folder = tmp_path / "defs"
     folder.mkdir()
     (folder / "bare.md").write_text("no front matter here", encoding="utf-8")
     (folder / "nameless.md").write_text("---\ndescription: x\n---\nbody", encoding="utf-8")
-    (folder / "ok.md").write_text("---\nname: ok\ndescription: fine\n---\nbody", encoding="utf-8")
+    (folder / "ok.md").write_bytes(b"---\r\nname: ok\r\ndescription: fine\r\ntools: bash, read_file\r\n---\r\nbody")
     found = agents.find_agents([folder])
-    assert list(found) == ["ok"]
-    assert found["ok"]["tools"] is None and found["ok"]["max_turns"] == agents.DEFAULT_MAX_TURNS
+    assert list(found) == ["nameless", "ok"]
+    assert found["nameless"]["tools"] is None and found["nameless"]["max_turns"] == agents.DEFAULT_MAX_TURNS
+    assert found["ok"]["tools"] == ["bash", "read_file"] and found["ok"]["prompt"] == "body"  # a comma string, and CRLF line ends
+
+
+def test_a_broken_definition_is_skipped_with_a_note_and_the_rest_still_load(tmp_path, monkeypatch):
+    seen = notes(monkeypatch)
+    folder = tmp_path / "defs"
+    folder.mkdir()
+    (folder / "unclosed.md").write_text("---\nname: x\ndescription: never closed\nbody", encoding="utf-8")
+    (folder / "badyaml.md").write_text("---\nname: [\n---\nbody", encoding="utf-8")
+    (folder / "spaced.md").write_text("---\nname: my agent\n---\nbody", encoding="utf-8")
+    (folder / "turns.md").write_text("---\nname: turns\nmax_turns: many\n---\nbody", encoding="utf-8")
+    (folder / "zero.md").write_text("---\nname: zero\nmax_turns: 0\n---\nbody", encoding="utf-8")
+    (folder / "ok.md").write_text("---\nname: ok\n---\nbody", encoding="utf-8")
+    found = agents.find_agents([folder])
+    assert list(found) == ["ok", "zero"]  # unclosed: no front matter at all, skipped without a note
+    assert found["zero"]["max_turns"] == agents.DEFAULT_MAX_TURNS
+    assert len(seen) == 3 and all("skipped" in note for note in seen)
+    assert any("my agent" in note for note in seen) and any("not valid YAML" in note for note in seen) and any("many" in note for note in seen)
 
 
 def test_each_definition_is_a_registered_tool():
@@ -317,3 +337,134 @@ def test_loop_smoke_the_main_agent_delegates_to_a_worker(fresh, monkeypatch):
     assert messages[3] == {"role": "tool", "tool_call_id": "t1", "content": "wrote notes.md"}
     role, offered, request = fake.requests[1]
     assert role == "worker" and "agent_worker" not in offered and "task" not in offered and request == "create notes.md"
+
+
+# --------------------------------------------------- withheld means denied
+
+
+def test_a_withheld_tool_is_denied_at_execution_not_just_left_out_of_the_offer(fresh, monkeypatch):
+    """The planner is offered bash, read_file and read_skill. A call to anything else - an edit, a question, another agent - is denied, not run."""
+    monkeypatch.setitem(tools.TOOLS, "ask_user", lambda question, options=None: "an answer nobody should see")
+    fake = Scripted(
+        planner=[use(
+            call("p1", "write_file", {"path": "plan.txt", "content": "x"}),
+            call("p2", "ask_user", {"question": "which?"}),
+            call("p3", "agent_worker", {"request": "do it"}),
+            call("p4", "task", {"description": "look"}),
+            call("p5", "bash", {"command": "echo hi"}),
+        ), say("1. Step")],
+    ).install(monkeypatch)
+    assert agents.run("planner", "plan it") == "1. Step"
+    assert [role for role, _, _ in fake.requests] == ["planner", "planner"]  # agent_worker never ran: no worker request
+    assert not (fresh / "plan.txt").exists()
+
+    outcomes = tools.execute_all([call("x1", "write_file", {"path": "p.txt", "content": "x"}), call("x2", "bash", {"command": "echo hi"})], allowed={"bash", "read_file"})
+    assert outcomes[0][1] == "Blocked by policy: write_file is not available to this agent"
+    assert outcomes[1][1].strip() == "hi"
+    assert tools.execute(call("x3", "ask_user", {"question": "?"}), allowed={"bash"})[1] == "Blocked by policy: ask_user is not available to this agent"
+
+
+def test_the_verdict_is_read_from_the_first_non_empty_line():
+    assert pipeline.verdict_of("Verdict: PASS") == "PASS"
+    assert pipeline.verdict_of("\n\n**Result** - PASS.\nfine") == "PASS"
+    assert pipeline.verdict_of("PASS.") == "PASS" and pipeline.verdict_of("pass, with notes") == "PASS"
+    assert pipeline.verdict_of("The tests PASS but the docs are missing") == "FAIL"  # PASS is not the verdict word
+    assert pipeline.verdict_of("FAIL\nthe file is missing") == "FAIL"
+
+
+def test_a_missing_definition_stops_the_pipeline_before_any_model_call(monkeypatch):
+    seen = notes(monkeypatch)
+    fake = Scripted(planner=[say("1. x")]).install(monkeypatch)
+    monkeypatch.setattr(agents, "AGENTS", {"planner": agents.AGENTS["planner"]})
+    assert pipeline.missing_agents() == ["worker", "reviewer"]
+    commands.handle("/pipeline do it", [])
+    assert fake.requests == []
+    assert seen[-1] == "the pipeline needs the worker, reviewer definition(s) in .agents/agents; none ran"
+    assert pipeline.run("do it") == ("Error: no agent named 'worker', 'reviewer'.", [])
+
+
+def test_a_ctrl_c_during_a_parallel_wave_does_not_wait_for_the_queued_steps(fresh, monkeypatch):
+    """The wave runs on subagent.gather: a Ctrl-C drops the pool, so the steps still queued never start."""
+    monkeypatch.setattr(subagent, "MAX_PARALLEL", 1)
+    started = []
+
+    def fake(messages, tools=None, on_delta=None):
+        role = role_of(messages)
+        if role == "planner":
+            return say("1. One [parallel]\n2. Two [parallel]\n3. Three [parallel]"), USAGE
+        if role == "worker":
+            started.append(messages[1]["content"])
+            if len(started) == 1:
+                threading.Timer(0.05, _thread.interrupt_main).start()
+            time.sleep(0.5)
+            return say("done"), USAGE
+        return say("PASS"), USAGE
+
+    monkeypatch.setattr(agent, "call_llm", fake)
+    monkeypatch.setattr(llm, "call_llm", fake)
+    began = time.monotonic()
+    with pytest.raises(KeyboardInterrupt):
+        pipeline.run("go")
+    assert time.monotonic() - began < 1.2  # three sequential 0.5 s steps would take 1.5 s
+    time.sleep(0.6)  # the one running worker finishes on its own; the other two never start
+    assert len(started) == 1
+
+
+# --------------------------------------------------- a call never crashes
+
+
+def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_result(monkeypatch):
+    def boom(command):
+        raise RuntimeError("no shell today")
+
+    monkeypatch.setitem(tools.TOOLS, "bash", boom)
+    broken = SimpleNamespace(id="t1", function=SimpleNamespace(name="read_file", arguments="{not json"))
+    reply = use(broken, call("t2", "edit_file", {"path": "x"}), call("t3", "bash", {"command": "ls"}), call("t4", "bash", {"cmd": "ls"}))
+    Scripted(main=[reply, say("noted")]).install(monkeypatch)
+
+    out = agent.turn([{"role": "system", "content": "s"}], "go")
+
+    assert [m["role"] for m in out] == ["system", "user", "assistant", "tool", "tool", "tool", "tool", "assistant"]
+    assert out[3]["content"].startswith("Error: the arguments of read_file are not a JSON object: ")
+    assert out[4]["content"] == "Error: no tool named 'edit_file'."
+    assert out[5]["content"] == "Error: RuntimeError: no shell today"
+    assert out[6]["content"] == "Blocked by policy: bash: missing argument 'command'"
+    assert out[7]["content"] == "noted"
+
+
+def test_utf8_survives_write_file_read_file_and_bash(fresh):
+    text = "héllo wörld — ünïcode ✓\r\nline two\n"
+    assert tools.write_file("deep/u.txt", text) == "Wrote deep/u.txt"  # the parent directory is made
+    assert tools.read_file("deep/u.txt") == text  # the CRLF comes back as written
+    assert tools.execute(call("t1", "read_file", {"path": "missing.txt"}))[1].startswith("Error: FileNotFoundError")
+    assert "llo" in tools.bash("echo héllo") and "Error" not in tools.bash("echo héllo")
+
+
+def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone():
+    todos.TODOS[:] = [{"content": "a", "activeForm": "doing a", "status": "in_progress"}]
+    before = list(todos.TODOS)
+    assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
+    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.TODOS == before
+
+
+def test_rewind_offers_only_user_messages_and_a_resumed_pending_call_that_fails_becomes_an_error(monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "ls"})}}]},
+        {"role": "tool", "tool_call_id": "t1", "content": "ok"},
+        {"role": "user", "content": "two"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t2", "type": "function", "function": {"name": "bash", "arguments": "{not json"}}]},
+    ]
+    notes(monkeypatch)
+    monkeypatch.setattr(agent, "run_results", lambda messages, pending, repeated=None: 1 / 0)  # a crash below run_results
+    assert agent.recover(messages) == 1
+    assert messages[-1] == {"role": "tool", "tool_call_id": "t2", "content": "Error: ZeroDivisionError: division by zero"}
+
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "replay", lambda messages: None)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    out = commands.rewind(messages)
+    assert len(offered) == 2 and [m["role"] for m in out] == ["system", "user", "assistant", "tool"]  # cut before "two": no orphan

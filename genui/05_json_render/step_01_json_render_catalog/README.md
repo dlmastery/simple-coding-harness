@@ -168,7 +168,11 @@ extra rules ask for.
 `spec.py`: the server checks the spec before the page sees it. Unknown
 types, dangling child ids and wrong prop types are the three faults a
 renderer fails on quietly. Props that are expressions (`{"$state": ...}`)
-are skipped, as the renderer resolves them first.
+are skipped, as the renderer resolves them first. The spec is the model's
+text, so every level is shape-checked before it is read: an element that
+is a string, `props` that is a list, a child written as `{"id": "b"}`
+are sentences in the list, never an exception out of the check. A cycle
+(`a` contains `a`) is checked last, once the shapes are right:
 
 ```python
 def check_spec(spec, catalog):
@@ -180,20 +184,51 @@ def check_spec(spec, catalog):
         problems.append(f"root {spec['root']!r} is not in elements")
     components = catalog["components"]
     for element_id, element in elements.items():
+        # the model writes the elements: every shape is checked before it is trusted, and a wrong
+        # shape is a sentence in the list, never an exception out of the check
+        if not isinstance(element, dict):
+            problems.append(f"{element_id}: an element must be an object")
+            continue
         kind = element.get("type")
         if kind not in components:
             problems.append(f"{element_id}: unknown type {kind!r}")
             continue
-        for child in element.get("children", []):
+        children = element.get("children") or []
+        if not isinstance(children, list) or not all(isinstance(c, str) for c in children):
+            problems.append(f"{element_id}: children must be a list of element ids")
+            children = []
+        for child in children:
             if child not in elements:
                 problems.append(f"{element_id}: child {child!r} is not in elements")
+        if not isinstance(element.get("props", {}), dict):
+            problems.append(f"{element_id}: props must be an object")
+            continue
         props = {k: v for k, v in element.get("props", {}).items() if not is_expression(v)}
         expressions = set(element.get("props", {})) - set(props)
         validator = jsonschema.Draft202012Validator(props_schema(components[kind], expressions))
         for error in validator.iter_errors(props):
             where = "/".join(str(p) for p in error.path) or "props"
             problems.append(f"{element_id}: {kind}.{where}: {error.message}")
+    if not problems:
+        problems += cycles(spec)
     return problems
+```
+
+What `check_spec` does **not** check: reachability (an element nobody
+references passes), expression props (skipped, the renderer resolves
+them), and anything inside `state`. Its two failure modes at the
+endpoint: problems in the spec, or a model call that fails, are both a
+`502` with `{"problems": [...]}`; a bug in the server itself is a `500`.
+
+`server.py`: the model call is wrapped so a refusal, a reply that is not
+JSON, an empty `choices` list or a network error are the same shape the
+page already handles for catalog errors:
+
+```python
+    try:
+        spec, usage, seconds = llm.complete_spec(system_prompt(), request.prompt)
+    except Exception as error:  # noqa: BLE001 - the model call failed: the page gets one sentence, not a traceback
+        raise HTTPException(status_code=502, detail={"problems": [f"model call failed: {type(error).__name__}: {error}"], "spec": None})
 ```
 
 One React function per catalog entry. `defineRegistry` types `props` from
@@ -246,19 +281,89 @@ come from esm.sh; `?external=` keeps one copy of `react`, `zod` and
     "@json-render/react": "https://esm.sh/@json-render/react@0.20.0?external=react,react/jsx-runtime,zod,@json-render/core,@json-render/core/store-utils",
 ```
 
+## Why: what breaks without it
+
+Sub-theme 04 showed one format; json-render is the other declarative
+format the report measures, and its argument is validation: a Zod catalog
+is a prompt, a schema, a typed registry and a validator from one
+definition. Without the server-side check, a model that invents a
+component type, references a child it never defined, or writes a prop of
+the wrong type produces a spec the React renderer fails on quietly (a
+blank card, an error boundary). Without the model-call guard, a refusal
+(`content: null`) or a reply that is not JSON was a `500` traceback
+instead of the one-sentence `502` the page shows. This step is the
+complete loop, once, so that step 02 can change only the transport.
+
 ## Run it
+
+Prerequisites: Node 20+ and `npm install` (the Node tests and the
+prompt/schema export; the page itself loads its packages from esm.sh, so
+it needs network access the first time); `pip install fastapi uvicorn
+httpx jsonschema openai`; an API key in `API_KEY`/`OPENAI_API_KEY` or
+`~/.simple-harness/env` for `server.py` and `demo.py`; Playwright's
+Chromium for `demo.py`. The tests are offline.
+
+bash:
 
 ```
 npm install
+export API_KEY=sk-...
 python server.py          # http://127.0.0.1:8055
 python demo.py            # generates once, saves demo_spec.json and demo.png
 python -m pytest -q test_step.py
 npm test
 ```
 
+PowerShell:
+
+```
+npm install
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest -q test_step.py
+npm test
+```
+
+Expected output: the `Quick demo` transcript above (the spec differs per
+run). `?last=1` on the page URL shows the spec the server generated most
+recently with no model call; that is how `demo.py` takes its screenshot
+after generating through `/generate`.
+
 The model settings come from `API_KEY`, `BASE_URL` and `MODEL`, or from
 `~/.simple-harness/env`. Delete `prompt.txt` and `catalog.json` after editing
 `catalog.mjs`; the next start regenerates them.
+
+## Error handling
+
+- A model call that fails (no key, network, the 120 s timeout, a
+  refusal, a reply that is not JSON): `502` with one sentence in
+  `problems`; the page prints it in the status line. The tests script
+  `llm.complete_spec` and never call a model.
+- A spec that fails `check_spec`: `502` with every problem listed and the
+  spec itself in `detail.spec`, so a repair turn could use it.
+- A wrong-shaped spec (element as a string, props as a list, a child
+  that is an object, an element that contains itself) is reported, not
+  raised; `walk()` visits a cycle once instead of recursing forever.
+- A table row that is not a list is drawn as a one-cell row by the
+  registry, not thrown into json-render's error boundary.
+- `demo.py` gives uvicorn 10 s to bind port 8055 and raises
+  `RuntimeError("the server did not start ...; is the port free?")` when
+  it cannot, instead of spinning forever on a thread that already died.
+- ctrl-c stops `server.py` (uvicorn) and `demo.py`.
+
+## Gotchas / What this is not
+
+- One `LAST` spec on the server, no sessions: two pages generating at
+  once overwrite each other's `?last=1`.
+- `StaticFiles(directory=STEP)` serves every file in the step directory,
+  `server.py`, `llm.py` and `node_modules/` included. Fine for a
+  localhost demo; a real server serves an allowlist.
+- The page loads React and json-render from esm.sh; offline, the page is
+  blank while the tests (which use `node_modules`) still pass.
+- The Python check reads the JSON Schema `catalog.mjs` exported; a Zod
+  refinement that has no JSON Schema form is checked by the browser
+  only.
 
 ## What to notice
 
@@ -273,3 +378,8 @@ The model settings come from `API_KEY`, `BASE_URL` and `MODEL`, or from
   Schema the Node script exported. Two runtimes, one catalog.
 - Nothing renders before the whole object arrives: 5.8 s in the demo. Step
   2 changes that number.
+
+## What the next step adds
+
+Step 02 streams the same spec as JSON Patch lines, so the first card is
+on screen while the model is still writing the last one.

@@ -33,6 +33,15 @@ export function receive(message) {
 
 const params = new URLSearchParams(location.search);
 const source = new EventSource(`/stream${params.get('all') ? '?all=1' : ''}`);
-source.onmessage = (event) => receive(JSON.parse(event.data));
+source.onmessage = (event) => {
+  try {
+    receive(JSON.parse(event.data));
+  } catch (error) {
+    note(`bad message: ${error.message}`); // one bad message is logged; the stream goes on
+  }
+};
 source.addEventListener('done', () => source.close());
+// EventSource reconnects by itself and the server replays from the start;
+// the store treats the repeated createSurface as a reset, so that is fine.
+source.onerror = () => note(source.readyState === EventSource.CLOSED ? 'stream closed' : 'stream error: reconnecting');
 window.store = store;

@@ -220,7 +220,7 @@ SCHEMAS = [
     ),
     schema(
         "browser_screenshot",
-        "Save a PNG of the current viewport to a path inside the project.",
+        "Save a PNG of the current viewport to a path inside the project, for the user to look at. You do not see it.",
         {"path": {"type": "string", "description": "Where to save the PNG, relative to the project"}},
         [],
     ),

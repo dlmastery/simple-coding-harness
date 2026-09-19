@@ -305,6 +305,7 @@ contract:
 | what the agent emits | events: text, tool calls, state deltas | a tool result: text content plus structured content |
 | who renders | your renderer, from state | your HTML, inside the host's sandbox |
 | who runs the loop | you | the host |
+| who validates the UI | your renderer, against your catalog | the host: nothing beyond the MIME type and its sandbox; the view is trusted to draw the server's own data |
 | where it can appear | your product | Claude, ChatGPT, VS Code, Goose, any compliant host |
 
 The report's rule is not to choose. Keep the interface as data, render it
@@ -312,20 +313,98 @@ with your own page where you own the product, and ship the same data with
 a `ui://` view where you do not. Sub-theme 07 takes the first road inside
 the harness; this step took the second.
 
+## Why: what breaks without it
+
+Step 01's host is a page written for the demo. The claim of MCP Apps is
+that the *same* server works in a host it never met, including one that
+cannot show HTML at all. Without this step that claim rests on the
+vendors' hosts, which cannot be driven from a test. Putting the server
+behind the codelab's own harness shows the fallback path the extension
+requires: a text host reads `content`, ignores the view, and still
+answers the user; the app card is what a host can add when it wants to
+show that a view exists without running it.
+
 ## Run it
 
+Prerequisites: `pip install mcp openai rich` (the harness) plus the
+step 01 packages for the browser host; an API key in `API_KEY`/
+`OPENAI_API_KEY` or `~/.simple-harness/env` for the agent; no Node, no
+Playwright. Run the harness **from this step's directory**:
+`.agents/mcp.json` names `server.py` relative to the current directory
+(`resolve_arg` makes a relative path absolute only when it exists from
+the cwd), and from anywhere else the server "fails to start".
+
+bash:
+
 ```bash
+export API_KEY=sk-...
 python demo.py                                            # the recorded run above
 MCP_ALLOW=mcp__lemonade__* python -m harness.agent        # interactive; /mcp lists the server
 python server.py                                          # step 01's browser host, unchanged:
 python host.py                                            #   the MCP server, then the page on :8766
+python -m pytest -q test_step.py
 ```
+
+PowerShell:
+
+```
+$env:API_KEY = "sk-..."
+python demo.py
+$env:MCP_ALLOW = "mcp__lemonade__*"; python -m harness.agent
+python server.py
+python host.py
+python -m pytest -q test_step.py
+```
+
+Expected output: the `Quick demo` transcript above (the model's sentence
+differs; the two panels are the check). Leave the interactive agent with
+ctrl-d (ctrl-z then enter on Windows), ctrl-c at the prompt, or an empty
+line: this harness copy has no `/exit` command.
 
 `MCP_ALLOW` lets the tool run without a prompt; without it, the harness
 asks before every MCP call, as step 26 decided. Tests:
 `python -m pytest test_step.py` runs step 01's suite plus the harness as a
 host: a fake session for the card logic, then the real `server.py --stdio`
 as a child process. No network, no key.
+
+## Error handling
+
+The harness copy is step 26's, with this round's rule applied to
+`decide()`, `run()` and `settle()` in `harness/tools.py`: every
+`tool_call` gets exactly one tool message.
+
+- Arguments that are not a JSON object: the tool message is
+  `Error: the arguments of <name> are not a JSON object: <reason>`; the
+  call never reaches a permission check.
+- A tool the model named that does not exist (a server that went away,
+  a typo): `Error: no tool named '<name>'.`
+- An exception inside a tool (an MCP server that raised, a missing file):
+  `Error: <Type>: <message>`; a non-string result is JSON-encoded, `None`
+  is `(no output)`.
+- `bash` without `command`, `write_file` without `path`,
+  `browser_open` without `url`: `Blocked by policy: <name>: missing
+  argument '<key>'` (`permissions.check` reads with `.get`).
+- The lemonade server not starting (wrong cwd, no `mcp` package): the
+  server is listed as failed at start-up and its tools are absent; the
+  agent runs without them.
+- A dead model call and ctrl-c mid-turn behave as in step 26 (the main
+  codelab's README for that step describes them); this copy is not
+  updated with the main codelab's later loop changes.
+
+## Gotchas / What this is not
+
+- `PENDING_APPS` pairs cards with tool panels by tool *name*, in FIFO
+  order: two parallel calls to the same tool in one reply get their
+  cards in call order, which is right only because the loop draws
+  panels in the same order. A subagent's calls never drain the queue, so
+  it is cleared at the end of every turn rather than left to surface
+  under a later call of the same name.
+- The card is text: `ui_text.py` renders any JSON as an outline. It
+  never runs the view's HTML and never will; that is the point of the
+  step, not a limitation to fix.
+- The host does not declare the `io.modelcontextprotocol/ui` extension
+  (see "What to notice"); a server that hides `_meta.ui` from
+  non-declaring hosts shows no card here.
 
 ## What to notice
 
@@ -359,3 +438,9 @@ as a child process. No network, no key.
 - `demo.py`: runs the harness in print mode instead of the browser.
 - `server.py`, `view.html`, `host.py`, `host.html`, `bridge.mjs`,
   `mcp-http.mjs`: unchanged from step 01.
+
+## What the next step adds
+
+Step 03 makes the view itself hybrid: a fixed catalog region drawn from
+`structuredContent`, plus a model-generated HTML region the server
+produces on each call, in a second sandbox inside the view.

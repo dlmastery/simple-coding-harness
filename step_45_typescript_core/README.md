@@ -9,8 +9,11 @@ and the slash commands. Same file names, same environment variables
 directory and the same JSONL log. A session written by the Python
 harness resumes in TypeScript, and the other way round. The tests run
 on node's own test runner against a fake client, so `npm test` needs
-no packages installed and no network. Nothing in the Python `harness/`
-changes; it is the step 44 code, carried forward.
+no packages installed and no network; `npm run typecheck` runs `tsc`
+under `strict` once `npm install` has fetched it. Nothing in the
+Python `harness/` changes; it is the step 44 code, carried forward,
+and it is the final Python harness of the series: every cross-cutting
+fix of the review round is in this copy.
 
 ## Files
 
@@ -44,22 +47,23 @@ step_45_typescript_core/
 │   └── transcript.md                 the recorded run's transcript
 ├── evals/                            one folder per task: task.md, check.py or expect.txt, optional workspace/
 ├── harness-ts/                       the TypeScript port of the stage 15 loop; no build step
-│   ├── package.json                  npm start / npm test; node >= 22.6; version 0.45.0
+│   ├── package.json                  npm start / test / typecheck; node >= 22.6; version 0.45.0
+│   ├── tsconfig.json                 strict, noEmit, nodenext: what `npm run typecheck` checks
 │   ├── types.ts                      the shapes shared by every module; nothing here runs
 │   ├── config.ts                     settings; same env vars and env file as config.py
 │   ├── llm.ts                        one model call and the system prompt; client set lazily
-│   ├── tools.ts                      the seven tools and execute(), the permission-checked entry
+│   ├── tools.ts                      the seven tools, parseArgs and execute(), which never rejects
 │   ├── agent.ts                      the loop: turn() and main(); every await is a Python block
 │   ├── context.ts                    the late injection: env block, todos, files git saw change
 │   ├── session.ts                    the same JSONL log as session.py; resumes Python sessions
 │   ├── permissions.ts                which tool calls need a human; rules as an ordered array
-│   ├── sandbox.ts                    an OS sandbox for bash
+│   ├── sandbox.ts                    an OS sandbox for bash; run() kills the process group on timeout
 │   ├── history.ts                    cap / strip / fit; fit() takes the budget as an argument
 │   ├── compact.ts                    the compaction agent; summarize() and compact() return promises
 │   ├── subagent.ts                   exploration subagents through the task tool
 │   ├── skills.ts                     the same SKILL.md files, read with a small front-matter parser
-│   ├── todos.ts                      the plan: write_todos replaces the whole list
-│   ├── commands.ts                   the slash commands: /rewind, /sessions, /compact
+│   ├── todos.ts                      the plan: write_todos validates, then replaces the whole list
+│   ├── commands.ts                   the slash commands: /rewind, /sessions, /compact, /exit
 │   ├── ui.ts                         the screen in plain console output, ANSI colours on a tty
 │   └── tests/                        node:test suites per module, fake.ts client, session_bridge.ts, fixtures/
 ├── harness/                          the Python harness
@@ -76,7 +80,7 @@ step_45_typescript_core/
 │   ├── computer.py                   computer use: the screen as a tool
 │   ├── config.py                     settings; real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py                    the late injection block: <env>, <plan>, <jobs>, active agent
-│   ├── durability.py                 the loop detector and the crash-recovery scan
+│   ├── durability.py                 parse_args, the loop detector and the crash-recovery scan
 │   ├── evaluate.py                   the eval runner; run_suite can grade one workspace
 │   ├── extensions.py                 the registry: tool, command, hook, prompt_section, agent
 │   ├── handoff.py                    handoffs: the conversation moves to another agent definition
@@ -123,16 +127,28 @@ seeing side by side.
 The port runs without a build step. Node 22.6 and newer strip type
 annotations on load (`node --experimental-strip-types`), so the files
 are plain `.ts`, imported with their `.ts` extension, and there is no
-`tsc`, no bundler and no `dist/`. The type annotations are there for
-the reader and the editor; the runtime ignores them.
+bundler and no `dist/`. The annotations are for the reader, the editor
+and `tsc`: `npm run typecheck` checks them under `strict` without
+emitting anything, and `test_step.py` runs the same check when
+`typescript` is installed.
+
+### What breaks without it
+
+Not the Python harness: nothing there changes. What the port catches
+is the difference between "the harness" and "how Python does it". The
+stage 15 loop ported line for line would have shipped with stage 15's
+holes - a tool call with malformed arguments, an unknown tool name or a
+tool that throws would end the process with an unhandled rejection and
+a log ending in an unanswered call. Steps 38 and later closed those in
+Python; the port ships the closed version, and its tests hold it.
 
 ## Python file to TypeScript file
 
 | Python (`harness/`)  | TypeScript (`harness-ts/`) | What changes in the port |
 |----------------------|----------------------------|--------------------------|
 | `config.py`          | `config.ts`                | `os.environ.setdefault` becomes `process.env[key] ??=` |
-| `llm.py`             | `llm.ts`                   | the client is created on the first call; `entry()` replaces `model_dump(exclude_none=True)` |
-| `tools.py`           | `tools.ts`                 | tools take one args object; `execute()` is `async` |
+| `llm.py`             | `llm.ts`                   | the client is created on the first call; `entry()` replaces `StreamedMessage.model_dump` |
+| `tools.py`           | `tools.ts`                 | tools take one args object; `execute()` is `async` and never rejects |
 | `agent.py`           | `agent.ts`                 | the inner loop is `turn()`; `main()` awaits the prompt |
 | `context.py`         | `context.ts`               | `spawnSync("git ...")` in place of `subprocess.run` |
 | `session.py`         | `session.ts`               | `CURRENT` and `WRITTEN` live on one `state` object |
@@ -203,13 +219,38 @@ export async function turn(messages: Message[], userInput: string, debug = false
 }
 ```
 
-Read it next to the inner `while True` of the Python `main()`. The
+Read it next to the inner `while True` of the Python `turn()`. The
 order of events is the same: the late injection is built and shown,
 `fit` runs, the spinner starts, the model answers, the reply is
 appended and saved, each tool call runs and its result is appended and
 saved. Every `await` marks a place where the Python loop blocks. The
 one structural change is that the inner loop is a function, `turn()`,
 so a test can drive one turn without a keyboard.
+
+`harness-ts/agent.ts`:
+
+```ts
+    if (userInput === null || userInput === "/exit" || userInput === "/quit") {
+      break; // ctrl-d, ctrl-c at the prompt, or the command: the transcript is saved
+    }
+    if (!userInput) {
+      continue; // an empty line is not a message
+    }
+...
+  main().catch((failure) => {
+    // a model call that failed for good, or anything else the loop did not expect:
+    // one line, exit 1, and the transcript on disk is whole - --resume picks it up
+    console.error(`harness: ${failure?.message ?? failure}`);
+    process.exit(1);
+  });
+```
+
+`main()` is the outer loop. `ui.ask()` returns `null` for ctrl-d or
+ctrl-c at the prompt and `""` for an empty line; the first leaves, the
+second asks again. The one `.catch` at the bottom is where every
+rejection the loop does not handle ends: one line on stderr, exit
+code 1, no stack trace. The transcript was saved after every message,
+so `--resume` opens it.
 
 ### 2. One model call, and the fake client
 
@@ -243,60 +284,117 @@ that one method; the real client satisfies it and so does the fake.
 
 ```ts
 export function entry(message: Reply): Message {
-  const out: Message = { role: "assistant" };
-  for (const [key, value] of Object.entries(message)) {
-    if (value !== null && value !== undefined && key !== "role") out[key] = value;
-  }
+  const out: Message = { role: "assistant", content: message.content ?? null };
   if (message.tool_calls?.length) {
     out.tool_calls = message.tool_calls.map((call) => ({
       id: call.id,
       type: "function",
       function: { name: call.function.name, arguments: call.function.arguments },
     }));
-  } else {
-    delete out.tool_calls;
   }
   return out;
 }
 ```
 
-The Python loop appends `message.model_dump(exclude_none=True)`. The JS
-client returns a plain object with explicit nulls and no `model_dump`,
-so `entry()` does the same job by hand: it keeps every field that is
-set, drops the nulls, and pins the tool calls to the three-key shape the
-session log expects. A reply with an empty `tool_calls` array becomes an
-entry with no `tool_calls` key at all, which is what Python writes.
+The Python loop appends `message.model_dump(exclude_none=True)`, which
+step 21's `StreamedMessage` pins to three keys: `role`, `content`, and
+`tool_calls` when there are any. The JS client returns a plain object
+with explicit nulls and extras - `refusal`, `annotations`, a reasoning
+model's `reasoning` - and none of that may go back to the server on the
+next request, so `entry()` builds the same three keys by hand.
+`content` stays, `null` included, because that is the shape the API
+sends; a reply with an empty `tool_calls` array becomes an entry with
+no `tool_calls` key at all, which is what Python writes.
 
 ### 3. The permission-checked executor
 
 `harness-ts/tools.ts`:
 
 ```ts
+export function parseArgs(toolCall: ToolCall): [Args, string | null] {
+  let args: unknown;
+  try {
+    args = JSON.parse(toolCall.function.arguments || "{}");
+  } catch (failure) {
+    return [{}, (failure as Error).message];
+  }
+  if (typeof args !== "object" || args === null || Array.isArray(args)) {
+    return [{}, `got ${Array.isArray(args) ? "array" : typeof args}, not an object`];
+  }
+  return [args as Args, null];
+}
+...
 export async function execute(toolCall: ToolCall): Promise<[Args, string]> {
-  const args: Args = JSON.parse(toolCall.function.arguments);
-  const [action, reason] = check(toolCall.function.name, args);
+  const name = toolCall.function.name;
+  const [args, problem] = parseArgs(toolCall);
+  if (problem !== null) {
+    return [args, `Error: the arguments of ${name} are not a JSON object: ${problem}`];
+  }
+  const fn = TOOLS[name];
+  if (fn === undefined) {
+    return [args, `Error: no tool named '${name}'.`];
+  }
+  const [action, reason] = check(name, args);
   if (action === "deny") {
     return [args, `Blocked by policy: ${reason}`];
   }
   if (action === "ask" && !(await ui.approve(reason))) {
     return [args, "The user denied this tool call."];
   }
-  return [args, await TOOLS[toolCall.function.name](args)];
+  try {
+    return [args, await fn(args)];
+  } catch (failure) {
+    // a missing file or a wrong argument is the model's problem to fix
+    const error = failure as Error;
+    return [args, `Error: ${error?.name ?? "Error"}: ${error?.message ?? String(failure)}`];
+  }
 }
 ```
 
-Four lines of logic, the same four as `tools.execute` in Python: parse,
-check, deny or ask, run. Two awaits appear. `ui.approve` reads a line
-from the keyboard, and in node that is a callback wrapped in a promise.
-The tool itself may be `bash`, which spawns a process and resolves
-later. A tool that runs at once, such as `read_file`, returns a plain
-string; `await` on a string is a no-op, so the registry can hold both.
+The same steps as `tools.execute` in Python, with the same strings:
+parse, look the tool up, check, deny or ask, run. Nothing rejects out
+of `execute`. Arguments that are not a JSON object, a name the
+registry does not have, and an exception inside the tool (a
+`readFileSync` on a missing path is the common one) each come back as
+an `Error:` result, so every tool call gets exactly one tool message
+and the transcript stays one the API accepts. Two awaits appear.
+`ui.approve` reads a line from the keyboard, and in node that is a
+callback wrapped in a promise. The tool itself may be `bash`, which
+spawns a process and resolves later. A tool that runs at once, such as
+`read_file`, returns a plain string; `await` on a string is a no-op,
+so the registry can hold both.
 
 Python spreads the parsed arguments as keyword arguments,
 `TOOLS[name](**args)`. TypeScript has no keyword arguments, so every
 tool takes the object whole and destructures it in its signature:
 `bash({ command })`, `strReplace({ path, old_str, new_str, allow_multi_edit = false })`.
 The registry maps the model-facing names to the functions, as before.
+Its type is `Record<string, Tool>` with `Tool = (args: any) => ...`:
+each tool narrows its own parameter, and under `strictFunctionTypes` a
+narrower parameter does not fit a shared signature, so `any` is the
+honest type there - the model's JSON is untyped, and `execute` catches
+what does not fit at run time.
+
+`harness-ts/permissions.ts`:
+
+```ts
+export function check(name: string, args: Args): [Action, string | null] {
+  if (name === "bash") {
+    if (typeof args.command !== "string") return ["deny", `${name}: missing argument 'command'`];
+    return [decide(args.command), `run: ${args.command}`];
+  }
+  if (name === "write_file" || name === "str_replace") {
+    if (typeof args.path !== "string") return ["deny", `${name}: missing argument 'path'`];
+    if (!insideProject(args.path)) return ["ask", `${name} outside ${PROJECT}: ${args.path}`];
+  }
+  return ["allow", null];
+}
+```
+
+The rules read `command` and `path`. A call without them is denied
+with a reason that names the missing argument, the way the Python
+`permissions.missing` does, instead of `splitCommand(undefined)`
+throwing inside the check.
 
 ### 4. The session log, shared with Python
 
@@ -353,7 +451,7 @@ outside, so the two values sit on one exported `state` object instead.
 
 `load()` replays the log the way the Python one does: messages
 accumulate, a `rewind_to` cuts them back, a `compacted` entry replaces
-them. Two lines look ahead to step 44, where the Python harness stamps
+them. Two lines look back to step 44, where the Python harness stamps
 every entry with `ts` and writes a `usage` entry after each model call.
 The model never saw either, so `load()` drops the stamp and skips the
 usage entry, and a log from any Python step resumes here. For
@@ -377,6 +475,15 @@ the exact output of a Python `session.save`, `rewind_to` and
 runs `tests/session_bridge.ts` to write a log from TypeScript and loads
 it with the Python `session.load`, then writes one with Python and
 loads it with the TypeScript side.
+
+What crosses the line and what does not: a `{"handoff": name}` marker
+from step 40 is skipped, so a Python session that ended in the
+`reviewer` agent resumes here as the plain stage 15 agent with the
+stage 15 prompt; an image message from step 24 (a `user` message whose
+`content` is a list) is passed to the model unchanged, which works
+only if the model accepts image parts; and a log written by the port
+has no `ts` and no usage entries, so `harness replay` of it runs
+without pauses and `harness trace` shows dashes in the number columns.
 
 ### 5. The subagent
 
@@ -415,8 +522,10 @@ top of `subagent.ts` would run while `tools.ts` was still loading, and
 Three places in the port are not a line-for-line translation. Each one
 is about waiting.
 
-**Streams.** The Python `bash` tool calls `subprocess.run`, which
-blocks until the command exits and hands back the whole output:
+**Streams.** The Python `bash` tool of stage 15 called
+`subprocess.run`, which blocks until the command exits and hands back
+the whole output (the function is still in `sandbox.py`, though since
+step 42 `bash` goes through `streaming.run` instead):
 
 `harness/sandbox.py`:
 
@@ -435,9 +544,11 @@ def run(command, timeout=60):
 
 Node has no blocking call that also captures output. `spawn` returns at
 once with two streams, and the output arrives in `data` events. The
-port collects the chunks and resolves on `close`; the timeout is a
-timer that kills the process and makes the promise reject with the
-same `TimedOut` shape `bash` turns into a result:
+port collects the chunks and settles when the process exits; the
+timeout is a timer that kills the process group and makes the promise
+reject with a `TimedOut` that carries the partial output, which `bash`
+turns into the result `Timed out after 60s and was killed. Output so
+far: ...`:
 
 `harness-ts/sandbox.ts`:
 
@@ -446,6 +557,7 @@ same `TimedOut` shape `bash` turns into a result:
     let stdout = "";
     let stderr = "";
     let expired = false;
+    let settled = false;
     child.stdout.setEncoding("utf-8");
     child.stderr.setEncoding("utf-8");
     child.stdout.on("data", (chunk: string) => (stdout += chunk));
@@ -454,17 +566,29 @@ same `TimedOut` shape `bash` turns into a result:
       expired = true;
       kill(child.pid, child);
     }, timeout * 1000);
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (expired) fail(new TimedOut(timeout, stdout + stderr));
+      else done({ stdout, stderr });
+    };
     child.on("error", (failure) => {
       clearTimeout(timer);
+      settled = true;
       fail(failure);
     });
-    child.on("close", () => {
-      clearTimeout(timer);
-      if (expired) fail(new TimedOut(timeout));
-      else done({ stdout, stderr });
-    });
+    child.on("close", settle); // the pipes closed: the output is complete
+    child.on("exit", () => setTimeout(settle, DRAIN_MS)); // or the process is gone and a child still holds the pipe: settle anyway
   });
 ```
+
+Two events end a spawned process: `exit`, when the process is gone,
+and `close`, when its output pipes have closed. They are not the same
+moment: a command that started a child and was killed leaves that
+child holding the pipes, and `close` never fires. Waiting on `close`
+alone would hang the turn. The port settles on `close` when it comes
+and `DRAIN_MS` (200 ms) after `exit` otherwise, whichever is first.
 
 Step 42 added a `Reader` thread to Python so lines could reach the
 screen as they arrived. The TypeScript side has that already: the
@@ -478,12 +602,17 @@ the thread it runs on:
 `harness/tools.py`:
 
 ```python
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+    pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+    try:
         futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
         for i, future in futures.items():
             future.add_done_callback(keep(i))
         for future in futures.values():
             future.result()  # re-raises the first failure, in call order
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # the calls that have not started never will; the running ones finish on their own
+        raise
+    pool.shutdown(wait=True)
 ```
 
 The stage 15 port runs tool calls one after another, which is what
@@ -492,9 +621,11 @@ execute(toolCall) }`. Making them parallel needs no pool and no thread.
 Every tool already returns a promise, so the loop becomes one call:
 `await Promise.all(message.tool_calls.map(execute))`, and node's event
 loop interleaves the spawned processes. What the pool gave Python, the
-runtime gives TypeScript. The cost is on the other side: a CPU-bound
-tool would block the whole process, where Python would have run it on
-its own thread.
+runtime gives TypeScript - including the ctrl-c problem the Python
+version has to handle by hand (`shutdown(wait=False,
+cancel_futures=True)`, so a second ctrl-c does not wait for a 60 s
+command). The cost is on the other side: a CPU-bound tool would block
+the whole process, where Python would have run it on its own thread.
 
 **Sandbox spawning.** Both harnesses ask `wrap(command)` for an argv
 that runs the command inside seatbelt or bubblewrap, or `null` when the
@@ -508,15 +639,27 @@ read:
 
 ```ts
   const sandboxed = wrap(command);
-  const child = sandboxed
-    ? spawn(sandboxed[0], sandboxed.slice(1), { stdio: ["ignore", "pipe", "pipe"] })
-    : spawn(command, { shell: true, stdio: ["ignore", "pipe", "pipe"] });
+  const options = {
+    stdio: ["ignore", "pipe", "pipe"] as ["ignore", "pipe", "pipe"],
+    env: { ...process.env, ...ENV },
+    detached: process.platform !== "win32", // its own process group, so kill() can reach its children
+  };
+  const child = sandboxed ? spawn(sandboxed[0], sandboxed.slice(1), options) : spawn(command, { ...options, shell: true });
 ```
 
-Killing on timeout differs too. `child.kill()` signals one process; a
-shell that started a child leaves that child running. On Windows the
-port runs `taskkill /T /F` on the process id, so the whole tree goes,
-the way step 42's `kill` does in Python.
+Killing on timeout is the same idea as step 42's `streaming.kill` in
+Python. `child.kill()` signals one process; a shell that started a
+child leaves that child running. On POSIX the command is spawned
+`detached`, which puts it in a process group of its own, and
+`process.kill(-pid, "SIGKILL")` signals the whole group - the
+`start_new_session` and `killpg` pair of the Python version. On
+Windows the port runs `taskkill /T /F` on the process id, so the whole
+tree goes. `ENV` adds `PAGER=cat`, `GIT_PAGER=cat` and
+`GIT_TERMINAL_PROMPT=0`, so a `git log` does not wait on a pager and a
+`git push` to a private remote fails instead of waiting for a password
+on a terminal it does not have. The seatbelt profile is the Python one,
+temp directory included, so `pytest` and `npm` can write their caches
+under it on macOS.
 
 ### 7. The tests
 
@@ -542,25 +685,50 @@ The fake is the same pattern as the Python `FakeMessage`: scripted
 replies in order, and every request recorded so a test can check what
 the loop sent. The tests mirror the Python ones for the loop, the
 permissions, cap / strip / fit, compaction and the subagent, plus the
-two session tests. `tests/fake.ts` also builds a temp workspace: it
-points the permission fence, the session store and the working
-directory at one temp directory, and makes `ui.approve` answer yes.
+two session tests, and the ones the review round added: a reply with
+malformed arguments, an unknown tool, a tool that throws and a call
+without its argument each get one tool message; a UTF-8 round trip
+through the file tools; a command that outlives its timeout is killed
+and its partial output comes back; `write_todos` with a bad status is
+an error that leaves the list alone; `entry()` drops what the server
+sent along. `tests/fake.ts` also builds a temp workspace: it points the
+permission fence, the session store and the working directory at one
+temp directory, and makes `ui.approve` answer yes.
 
 `test_step.py` runs the node suite with a subprocess and skips, the way
 `pytest.importorskip` would, when `shutil.which("node")` is `None` or
-the version is below 22.6. The two cross-language tests use
+the version is below 22.6. It runs `tsc -p .` over `harness-ts/` when
+`npm install` has put `typescript` in `harness-ts/node_modules`, and
+skips with a note otherwise. The two cross-language tests use
 `tests/session_bridge.ts`, a small script that writes or loads a
 session with the TypeScript module. The Python `harness/` from step 44
-gets an import smoke test; its own suite is not re-run here.
+gets an import smoke test; its own suite is step 44's.
 
 ## Run it
 
-Run the TypeScript harness (node 22.6 or newer):
+Prerequisites: node 22.6 or newer; `API_KEY` (and `BASE_URL`, `MODEL`)
+in the environment for a real session. `npm test` needs no packages.
+`npm start` needs the `openai` package and `npm run typecheck` needs
+`typescript` and `@types/node`; one `npm install` fetches all three
+into `harness-ts/node_modules/`, which the repository's `.gitignore`
+excludes.
+
+bash:
 
 ```bash
 cd harness-ts
-npm install          # only the openai package, only for a real session
+npm install          # openai for a real session, typescript for the type check
+npm run typecheck    # tsc -p .  - strict, emits nothing
 npm start            # node --experimental-strip-types agent.ts
+```
+
+PowerShell:
+
+```powershell
+cd harness-ts
+npm install
+npm run typecheck
+npm start
 ```
 
 The banner, the prompt and the panels look like the Python ones, drawn
@@ -570,13 +738,45 @@ in plain text. Ask for something:
 > list the files in this directory and count them
 ```
 
+Expected output:
+
+```text
+── coding agent ────────────────────────────────────────
+  sandbox: none  ·  /sessions  /rewind  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> list the files in this directory and count them
+
+  ┌──────────────────────────────────────────────────────────┐
+  │ late injection                                           │
+  │                                                          │
+  │ <env>                                                    │
+  │ time: 2026-09-18 21:40                                   │
+  │ git branch: main                                         │
+  │ </env>                                                   │
+  └──────────────────────────────────────────────────────────┘
+
+  1,912 prompt · 27 completion
+
+  ┌──────────────────────────────────────────────────────────┐
+  │ bash ls | wc -l                                          │
+  │                                                          │
+  │ 19                                                       │
+  └──────────────────────────────────────────────────────────┘
+
+  2,001 prompt · 14 completion · 1,920 cached
+
+  agent
+
+  There are 19 entries in this directory.
+```
+
 The late injection prints first, dimmed, then the `bash` panel with the
 command and the first lines of its output, then the agent's answer and
 the token line. A command the rules rate as `ask` stops at
-`allow? (y/n)>`, as in step 11. `/rewind`, `/sessions` and `/compact`
-work as before. Start the Python harness in the same directory with
-`harness --resume` and it opens the session the TypeScript one just
-wrote; `npm start -- --resume` does the reverse.
+`allow? (y/n)>`, as in step 11. `/rewind`, `/sessions`, `/compact` and
+`/exit` work as before. Start the Python harness in the same directory
+with `harness --resume` and it opens the session the TypeScript one
+just wrote; `npm start -- --resume` does the reverse.
 
 Run the tests from `harness-ts/` (no install needed):
 
@@ -584,37 +784,93 @@ Run the tests from `harness-ts/` (no install needed):
 npm test             # node --experimental-strip-types --test "tests/*.test.ts"
 ```
 
-Twenty-five tests, TAP output, `# fail 0` at the end. Or from the
-repository root, which also runs the cross-language checks:
+Thirty tests, TAP output, `# fail 0` at the end. Or from the
+repository root, which also runs the type check and the cross-language
+checks:
 
 ```bash
 python run_tests.py 45
 python check_snippets.py 45
 ```
 
-## What to notice
+```powershell
+python run_tests.py 45
+python check_snippets.py 45
+```
 
-- The harness is a loop and a file format, not a language. The loop
-  came across line for line; the log format came across byte for byte.
-- Every `await` is a place where Python blocks. Reading the port with
-  that rule makes the two files line up.
-- Nothing is installed to run the tests. The `openai` import is dynamic
-  and lives on the one path the fake client replaces.
-- `entry()` is `model_dump(exclude_none=True)` written by hand. The
-  session log needs the same shape from both sides, and the shape is
-  decided at the moment the reply is appended.
-- The import cycle between `tools` and `subagent` exists in both
-  languages, and both break it the same way: import inside the function.
-- Streams cost nothing here. Python needed a thread to see output as
-  it arrived; node hands it over in `data` events from the start.
-- Promises cost nothing either. Parallel tool calls need a thread pool
-  in Python and a `Promise.all` in TypeScript. The price is a CPU-bound
-  tool, which blocks node's one thread.
-- `spawn` is two calls, not one. A sandboxed argv and a plain shell
-  string do not go through the same signature, and a kill needs
-  `taskkill /T` to reach the tree on Windows.
-- Types are for the reader. Node strips them on load; the tests would
-  pass with every annotation deleted.
+## Error handling
+
+The port, `harness-ts/`:
+
+- **A tool call with broken arguments** gets `Error: the arguments of
+  <name> are not a JSON object: ...`; an unknown tool `Error: no tool
+  named 'x'.`; a tool that throws `Error: <name>: <message>` (a missing
+  file is `Error: Error: ENOENT: no such file or directory, ...`);
+  `bash` without a `command` is `Blocked by policy: bash: missing
+  argument 'command'`. Each is one tool message and the loop goes on.
+- **A failing command** comes back as its stdout and stderr; one that
+  runs past 60 s is killed with its process group and the result starts
+  `Timed out after 60s and was killed. Output so far:`.
+- **Ctrl-C at a prompt** (`>`, `allow?`, `number>`) closes the readline
+  interface: at `>` the chat ends, at `allow?` the call is declined, at
+  `number>` nothing is picked. Ctrl-C during a model call or a tool
+  call is node's default: the process exits with code 130, no summary,
+  no steering prompt. The log is whole up to the last saved message.
+- **A dead model call** (no network, a bad key, a 429 or 5xx) gets only
+  the `openai` client's own two retries; then the rejection reaches
+  `main().catch`, which prints `harness: <message>` and exits 1. A 200 with no `choices` is turned
+  into an error with the server's message instead of a `TypeError`.
+  `--resume` opens the log again.
+- **Leaving:** `/exit`, `/quit`, ctrl-d (ctrl-z then enter on Windows),
+  or ctrl-c at the prompt.
+
+The Python `harness/` here is step 44's, so its behaviour is step 44's
+README: error strings for every bad call, `INTERRUPTED` results on
+ctrl-c, a note and a valid transcript on a dead model call, `recover()`
+on resume.
+
+## Gotchas / What this is not
+
+What the port leaves out, by design - it is stage 15, not step 44:
+
+- no cap on model calls per turn, no retry of its own (the `openai`
+  client retries twice, then the process ends), no loop detector, no
+  stop conditions, no cost;
+- sequential tool calls, no streaming of the reply or of tool output,
+  no background jobs;
+- no checkpoints or `/undo`, no hooks, no MCP, no modes or plan mode,
+  no agent definitions or handoffs, no memory, no extensions;
+- no `-p` headless mode, no `eval`, no `replay` or `trace`, no
+  `recover()` of a dangling tool call on `--resume` (such a log resumes
+  with the call unanswered, and the next model call is refused by the
+  API - `/rewind` to the last user message first);
+- no image messages: a Python log with a screenshot is passed through
+  as is.
+
+What behaves differently from the Python harness:
+
+- **Ctrl-C** is not a steer: at a prompt it ends or declines, elsewhere
+  it ends the process (section above).
+- **The tool named `bash` runs through `cmd.exe` on Windows**, exactly
+  as in Python (`spawn(command, { shell: true })`), and there is no OS
+  sandbox on Windows; the banner says `sandbox: none`.
+- **The deny list is Unix-shaped**: `rm`, `sudo`, `curl`; a `del /s` or
+  `Remove-Item -Recurse` is an `ask`, not a `deny`.
+- **Handoff markers are dropped** on load, image messages are passed
+  through, a TS-written log has no stamps (section 4).
+- **`npm install` is only for a real session or the type check.** The
+  tests and the cross-language checks run on a bare node 22.6+.
+- **Types are for the reader, and now for `tsc`.** Node strips them on
+  load, so `npm test` would pass with every annotation deleted;
+  `npm run typecheck` is what holds them to the code. `Tool` is
+  `(args: any) => ...` on purpose (section 3).
+- **The Python harness in this step is the final one.** It is
+  byte-identical to step 44's, and every fix of the review round -
+  the error path for every tool call, the UTF-8 file tools, the
+  process-group kill, `write_todos` validation, `/rewind` on user
+  messages only, the fenced subagent tool set, extension permissions,
+  the hook `ok` flag, the OpenRouter cost - is in it. Step 44's README
+  describes its behaviour; step 43's, the extensions.
 
 ## Diff from step 44
 
@@ -622,12 +878,20 @@ python check_snippets.py 45
 diff -r ../step_44_replay_trace/harness harness
 ```
 
-No difference. Added: `harness-ts/` (`package.json`, `types.ts`,
-`config.ts`, `llm.ts`, `tools.ts`, `agent.ts`, `context.ts`,
-`session.ts`, `permissions.ts`, `history.ts`, `compact.ts`,
-`subagent.ts`, `ui.ts`, `sandbox.ts`, `todos.ts`, `skills.ts`,
-`commands.ts`, and `tests/` with `fake.ts`, `session_bridge.ts`, seven
-`*.test.ts` files and `fixtures/python_session.jsonl`). Changed:
-`test_step.py` (runs the node suite and the two cross-language session
-tests), `pyproject.toml` (version). Everything else is unchanged from
-step 44.
+No difference. Added: `harness-ts/` (`package.json`, `tsconfig.json`,
+`types.ts`, `config.ts`, `llm.ts`, `tools.ts`, `agent.ts`,
+`context.ts`, `session.ts`, `permissions.ts`, `history.ts`,
+`compact.ts`, `subagent.ts`, `ui.ts`, `sandbox.ts`, `todos.ts`,
+`skills.ts`, `commands.ts`, and `tests/` with `fake.ts`,
+`session_bridge.ts`, seven `*.test.ts` files and
+`fixtures/python_session.jsonl`). Changed: `test_step.py` (runs the
+node suite, the type check and the two cross-language session tests),
+`pyproject.toml` (version). Everything else is unchanged from step 44.
+
+## What the next step adds
+
+Step 46 leaves the hand-built harness behind: the stage 2.4 loop runs
+on TrueForge, an agent server, and the step is the client - a `chat()`
+that streams one turn back as events, a REPL with `--resume` and `-p`,
+and a setup script that registers the model provider. The five steps
+after it map each capability built here onto that server.
