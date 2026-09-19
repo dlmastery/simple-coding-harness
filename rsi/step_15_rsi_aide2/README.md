@@ -102,7 +102,60 @@ def aide_keep(before, after, mad_k=3.0):
         row["suspicious"] = True
 ```
 
-RECORDING_15
+The recorded run (Claude Code 2.1.278, headless, 45 turns, 1198 s; the
+twelve arms' fit calls trimmed to the outer step):
+
+```text
+[Skill aide-outer]
+agent> Task 06 v1: best val 0.8571, test 0.9104, 24 fits, 0 suspicious. Verifier: 10 written, 0 new.
+Version v1 is complete - meter it.
+$ python ../tools/meter.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --of v1
+{"arm": "v1", "fits": 144, "calls": 203, "problems": ["adult_income", "breast_cancer", "digits", "synth_shift_a", "synth_shift_b", "wine"],
+ "note": "cost = fits (the budget) + script calls (trace rows); no token count: no harness sees the agent's transcript"}
+[Write runs/aide-outer/patch/operators.md]
+agent> Land it with patch_pack.py, using v1's best recipe on T (hgb, 0.1, yes, onehot, balanced) as the evidence recipe:
+$ python ../tools/patch_pack.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --files @runs/aide-outer/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "improve: top-1 -> top-3" --visit 1
+{"id": "g1", "decision": null, "landed": "pending", "version": "gen_001",
+ "diff": "--- a/operators.md ... -Improve: expand the best solution - fit its untried neighbours, one field away, nearest first.
++Improve: expand the top three solutions - fit their untried neighbours, one field away, nearest first. ...",
+ "next": "Run the curriculum under the rewrite (a new arm), then: python ../tools/meter.py --decide --proposal g1 --before <old arm> --after <new arm> --tasks ../tasks"}
+agent> (version v2 over the six problems, --arm v2, the verifier after each; the draft roots, then the untried
+neighbours of the top three, until FREEZE)
+$ python ../tools/meter.py ... --of v2 && python ../tools/meter.py ... --decide --proposal g1 --before v1 --after v2 --tasks ../tasks
+{"arm": "v2", "fits": 144, "calls": 211, ...}
+{"proposal": "g1", "keep": true, "decision": "y", "version": "gen_001", "budget": {"v1": 144, "v2": 144},
+ "best_before": {"adult_income": 0.9172, "breast_cancer": 0.9966, "wine": 1.0, "digits": 0.999, "synth_shift_a": 0.9531, "synth_shift_b": 0.8571},
+ "best_after":  {"adult_income": 0.9172, "breast_cancer": 0.9971, "wine": 1.0, "digits": 0.999, "synth_shift_a": 0.9531, "synth_shift_b": 0.8571},
+ "gains": {"adult_income": 0.0, "breast_cancer": 0.0005, "digits": 0.0, "synth_shift_a": 0.0, "synth_shift_b": 0.0, "wine": 0.0},
+ "outliers_discarded": [], "total_gain": 0.0005, "wins": 1, "losses": 0, "median": 0.0, "mad": 0.01}
+agent> meter.py --decide has answered. Outer step complete.
+Meter readings: v1 (improve = expand the best) 144 fits, 203 script calls, 6 problems; v2 (improve = expand
+the top three) 144 fits, 211 script calls, 6 problems. Both arms spent exactly the same fits (24 x 6). The
+cost is metered in fits and script calls only - there is no token count, because no harness sees this transcript.
+Verdict: keep. Proposal g1 ("improve: top-1 -> top-3", version gen_001) is decided y, approved by the
+metered rule: the total gain is positive and the rewrite lost on zero problems. operators.md stays as
+rewritten; every operator kept its guard line word for word.
+Worth knowing about the effect size: the top-3 rewrite changed the search path on every problem, but the
+best-reached recipe only moved on breast_cancer (logreg C=0.25 found by expanding the logreg root, which
+top-1 never got to). On wine every one of the 24 recipes scores 1.0, so each fit was flagged suspicious and
+re-run once as the review operator requires - half the budget there goes to re-runs, in both arms alike.
+Two v1 arms (wine, digits) were reset and rerun before any verifier or meter call touched them: my first
+per-task driver re-ran a suspicious recipe more than once (wine) and mis-parsed a single-recipe fit result
+(digits). Both reruns are the arms now on disk and in the meter; the botched traces were deleted.
+[45 turns, 1198 s]
+```
+
+What to notice, honestly: the rewrite was kept on a total gain of +0.0005
+from one problem (breast cancer) and five ties - the rule's floor is
+"positive and not losing on more than half", and +0.0005 is positive. The
+outlier layer had nothing to discard (median 0, MAD floored at 0.01). The
+suspicious-score guard bit on wine as designed and cost half that
+problem's budget in both versions alike, which is what "matched budget"
+means. The agent wrote itself a per-task driver script (scratch, deleted)
+to walk the operators, and when that driver misbehaved on two arms it
+deleted their traces and re-ran them *before* any meter or verifier saw
+them - a reset the page reports because the meter counts what is on disk.
+AIDE²'s own reported numbers are not reproduced here and are not claimed.
 
 Files:
 

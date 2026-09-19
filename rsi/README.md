@@ -186,7 +186,23 @@ run on the real curriculum (memory arm minus control arm, best validation
 score, per problem; `wasted m/c` is the fits the memory / control arm spent
 before reaching the static grid's answer, summed over the curriculum):
 
-NUMBERS_TABLE
+```text
+  lesson               adult_income  breast_cancer           wine         digits  synth_shift_a  synth_shift_b  wasted m/c
+  07 proof                  +0.0000        +0.0012        +0.0000        +0.0000        +0.0024        +0.0646       20/33
+  09 meta (gate)            +0.0000        +0.0012        +0.0000        +0.0000        +0.0024        +0.0646       20/33
+  10 Dream-RSI              +0.0000        +0.0012        +0.0000        +0.0005        +0.0024        +0.0646       34/33
+  11 RSIAgent               +0.0000        +0.0000        +0.0000        +0.0000        +0.0000        -0.0270       27/33
+  13 Recuris                +0.0000        +0.0000        +0.0000        +0.0000        +0.0024        +0.0646        6/33
+  16 MetaSkill        ROW_16
+```
+
+Three methods are reported on their own pages instead: ModularRSI patched
+one module and the loser's pool score went 0.8847 -> the winner's 0.8945
+path (gate 0.8737 -> 0.879); the DGM lineage's first generation scored
+0.0 held-out by construction and its rewrite was kept on a tie; AIDE²'s
+operator rewrite was kept on a total gain of +0.0005 from one problem.
+Exam wins, memory vs control over five seeds: 07 4/5 (+0.0308), 09 4/5
+(+0.0308), 10 4/5 (+0.0282), 11 4/5 (+0.0006), 13 4/5 (+0.0306).
 
 Every number quoted from a paper anywhere in the series is marked
 *reported*.
@@ -569,7 +585,12 @@ def private_gate(run, target_run, candidate):
 **Run.** The curriculum prompt naming `adult-income-meta-gate`; the human
 variant is a two-turn recording on the lesson page.
 
-**See.** SEE_09
+**See.** Under the gate, 76 turns, 1650 s: one patch fires - `g1`, the
+policy line `static -> obey-memory` after problem 1, kept by the gate on a
+tie (0.8951 = 0.8951) as `gen_001` - and rules (b) and (c) never fire; the
+curve and the exam are lesson 07's to the fourth decimal. The human
+variant, 24 + 1 turns: the diff shown, the question asked, `--approved
+"approve"` landed with the words in the trace.
 
 **What the test proves.** Generation n+1 boots the files generation n wrote
 (the boot checksums); no patch lands without the user's yes, an edit lands
@@ -599,7 +620,11 @@ winner becomes the policy line through the gate.
 
 **Run.** The curriculum prompt naming `adult-income-meta-dream`.
 
-**See.** SEE_10
+**See.** 70 turns, 1495 s: six visits, six flips (`static -> obey-memory ->
+random -> neighbours-of-top-3 -> obey-memory -> neighbours-of-top-3 ->
+random`), every one kept by the gate; the curve is lesson 07's except
+digits (+0.0005) and problem 6's wasted fits (17 vs 3); exam 4 of 5, mean
++0.0282. The log was never saturated.
 
 **What the test proves.** Zero fits (the state is byte-identical); `static`
 replays the log fully, `random` and `neighbours-of-top-3` leave it; the
@@ -628,7 +653,11 @@ after the score.
 
 **Run.** The curriculum prompt on the lesson page.
 
-**See.** SEE_11
+**See.** 48 turns, 1368 s: broad phases round-robin, deep phases all to
+the faultiest family; gaps 0 / 0 / 0 / 0 / 0 / -0.027 (problem 6 lost: the
+deep phase never fitted the control's best recipe), wasted 27 vs 33, exam 4
+of 5 on ties broken by wasted fits (0 / 6 / 9 vs 16 / 17 / 18), mean test
+gap +0.0006.
 
 **What the test proves.** The broad phase is round-robin; the deep phase
 goes to the family with the most faults; the actor fits only the plan and
@@ -657,7 +686,9 @@ text, validated on the pool's private split.
 
 **Run.** `Use the modular-meta skill: run both actors on the pool, contrast them, and patch the losing actor's module if the bug is localised.`
 
-**See.** SEE_12
+**See.** 33 turns, 621 s: pool task 1 a tie (no cards yet), pool task 2 B
+0.8945 vs A 0.8847; `contrast.py` names `modules/context.md`, winner B;
+the patch lands on A after the pool's private gate (0.8737 -> 0.879).
 
 **What the test proves.** Contrast names `modules/context.md` and the
 winner; the patch touches exactly that file, is validated on the pool (no
@@ -690,7 +721,12 @@ update per problem and the horizon counts the problems it was updated on.
 
 **Run.** The curriculum prompt on the lesson page.
 
-**See.** SEE_13
+**See.** 70 turns, 1460 s: five card updates over six problems (wine
+had no decided pair), horizons 1 / 1 / 2 / 1 / 1; gaps 0 / 0 / 0 / 0 /
++0.0024 / +0.0646 with 6 wasted fits vs 33; exam 4 of 5, mean +0.0306. The
+agent caught `exam.py` flagging `working.md` (the actor's own scratch;
+fixed) and named the two cards that did not transfer itself, because the
+transfer check reads `memory.json` cards only.
 
 **What the test proves.** Selection by need, not recency; an update is one
 file, validated, once per visit, by the meta pack only; horizons grow over
@@ -719,7 +755,10 @@ benchmark; the private gate first, then the human.
 
 **Run.** `Use the dgm-meta skill for generation 1: ...` then `--continue "approve"`.
 
-**See.** SEE_14
+**See.** 27 + 3 turns: `gen1-static` archived at held-out 0.0 (a static
+memory arm walks the control's path), parent `gen1-static`, the rewrite to
+`obey-memory` kept by the gate on a tie (0.8737 = 0.8737), then `approve`
+landed `SKILL.md` + `loop.json` as `gen_001`.
 
 **What the test proves.** The archive holds every variant with its
 held-out score; the parent is chosen by score, not recency; a rewrite that
@@ -749,7 +788,9 @@ the same budget after an outlier layer.
 
 **Run.** `Use the aide-outer skill: run version v1 over the curriculum, propose the improve rewrite, run v2 under it, and decide keep-or-rollback across the set.`
 
-**See.** SEE_15
+**See.** 45 turns, 1198 s: v1 144 fits / 203 calls, v2 144 fits / 211
+calls; gains 0 / +0.0005 / 0 / 0 / 0 / 0, no outlier, total +0.0005, kept.
+On wine every fit is flagged suspicious and re-run, in both versions alike.
 
 **What the test proves.** The decision needs every problem under equal
 budgets (144 fits each) and is made once; a rewrite that wins on one
@@ -805,7 +846,8 @@ file-and-approver table, the six terms and every external number marked
 
 **Run.** `Use the rsi-map skill: print the map and tell me which lessons have a recorded curve.`
 
-**See.** SEE_17
+**See.** See the lesson page: the ladder, the six recorded curves side by side,
+the table of files and approvers, the terms, the reported numbers.
 
 **What the test proves.** Every lesson is on a rung (09 on two); the
 side-by-side table reads each lesson's `curve.json` and names the missing;

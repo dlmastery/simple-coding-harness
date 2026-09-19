@@ -23,7 +23,7 @@ The trace log is not yours: the verifier reads it, you do not.
    memory arm: `python ../tools/load_splits.py --pack P --task T`
    control arm: `python ../tools/load_splits.py --pack P --task T --arm control --memory off`
 2. Search policy - the line below is this pack's search-policy line; only a meta pack may change it, and `python ../tools/read_memory.py --pack P --task T [--arm control] --order <policy>` prints `next`, the next eight recipes the named policy gives from the cards and the arm's fits so far:
-   Search policy: static
+   Search policy: obey-memory
    - static: walk `schema.json` -> `recipes` in order, in one call (the control arm always does this):
      `python ../tools/fit_recipe.py --pack P --task T [--arm control] --recipes @P/schema.json`
    - obey-memory: with no applicable card, the static order. Otherwise take, per field, the applicable `prefer` card with the most `evidence` minus `counter` as the preferred value (a tie is no preference); probe one recipe per model (the preferred model first, each with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at its middle hyper value); the probe winner is the model belief; then that family (its static recipes, then its hyper variants, the recipes carrying the most preferred values first - `class_weight` and `encode` count 2, `scale` and `hyper` 1), then the rest of the grid. In calls of up to eight recipes until a result says `FREEZE`; skip a recipe already fitted; a recipe a `forbid` card or `schema.json` -> `forbid` rules out is refused and costs no fit:

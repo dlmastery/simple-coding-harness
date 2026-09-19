@@ -104,7 +104,66 @@ def uncertainty(rows, c, models):
 - write_card, read_traces - the verifier's tools
 ```
 
-RECORDING_11
+The recorded run (Claude Code 2.1.278, headless, 48 turns, 1368 s; fit
+calls trimmed to the agent's notes and the tables):
+
+```text
+[Skill adult-income-curriculum]
+agent> Now the memory arm: open, then the planner's broad phase.
+$ python ../tools/write_plan.py --pack .claude/skills/adult-income-planner --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-actor --uncertainty --c 2.0
+{"phase": "broad", "c": 2.0, "fits_so_far": 0, "families": {"logreg": {"n": 0, "wins": 0, "faults": 0, "success": 0.5, "u": 2.5}, "rf": {...same...}, "hgb": {...same...}}, "tried": []}
+$ python ../tools/write_plan.py ... --plan '{"phase": "broad", "c": 2.0, "experiments": [ ...12 recipes... ]}'
+{"written": ".../adult-income-actor/plan.json", "phase": "broad", "c": 2.0, "experiments": 12, "families": ["logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb"]}
+agent> Broad phase: round-robin logreg/rf/hgb x4, as the rule predicts. Actor fits it.
+$ python ../tools/fit_recipe.py --pack .claude/skills/adult-income-actor --task ../tasks/01_adult_income.json --recipes @.claude/skills/adult-income-actor/plan.json
+agent> Plan ran dry, 12 fits remain. Planner's deep phase (c = 0.25).
+$ python ../tools/write_plan.py ... --uncertainty --c 0.25
+{"phase": "deep", "c": 0.25, "fits_so_far": 12, "families": {"logreg": {"n": 4, "wins": 1, "faults": 3, "success": 0.3333, "u": 0.7167}, "rf": {"n": 4, "wins": 0, "faults": 4, "success": 0.1667, "u": 0.8833}, "hgb": {"n": 4, "wins": 4, "faults": 0, "success": 0.8333, "u": 0.2167}}, ...}
+agent> Deep phase: rf has the most faults (4/4 below baseline), so all 12 go to rf. Actor fits it.
+agent> FREEZE. Best memory-arm val: 0.9172 (hgb 0.1 yes onehot balanced). Score test, scorecard, then the verifier.
+agent> Tally checks out against my own count. Writing the 9 cards as V.
+agent> Problem 02: gap 0 (0.9954 both), wasted 0 vs 0; 5 cards written, 4 active cards applied. On to 03.
+...
+$ python ../tools/curve.py --pack .claude/skills/adult-income-actor --tasks ../tasks
+ # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
+ 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034    2/16      9/0/9
+ 2 breast_cancer            0.9954   0.9954 +0.0000    0.9844    0.9844    0/0       5/0/9
+ 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/9
+ 4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       4/0/9
+ 5 synth_shift_a            0.9507   0.9507 +0.0000    0.9181    0.9181    1/0       0/1/9
+ 6 synth_shift_b            0.7655   0.7925 -0.0270    0.8603     0.834   24/17      2/0/9
+$ python ../tools/exam.py --pack .claude/skills/adult-income-actor --task ../tasks/07_exam.json --seeds 0,1,2,3,4
+exam: memory arm beats control on 4 of 5 seeds (1 on test score, 4 same score; a tie won by fewer wasted fits), mean test gap 0.0006; pack unchanged: True; no card written: True
+  did not transfer: n_classes < 3 -> hyper 8; has_categorical == 1 -> encode onehot (evidence 2, counter 1); n_classes < 3 -> hyper 1
+agent> The claims of eval.md:
+- Curve, gap never negative: did not hold - problem 6 has gap_val = -0.027 (memory best val 0.7655 vs
+control 0.7925). The class_weight: none card (evidence from problems 1 and 4) pushed every none recipe
+ahead in the broad phase, and the deep phase went to the two faultiest families (logreg, rf), so
+hgb/onehot/balanced - the control's best - was never fitted; the memory arm wasted all 24 fits by the
+curve's definition, though its test score was higher (0.8603 vs 0.834).
+- Curve, gap larger on problem 6 than on problem 2: did not hold - -0.027 vs 0.000.
+- Exam, memory beats control on >= 3 of 5 seeds: held - 4 of 5 (one on test score, three ties won on
+fewer wasted fits; seed 1 lost by one wasted fit).
+The planner's greedy rule was applied through a scratch helper (runs/_planner_scratch/build_plan.py,
+gitignored under runs/) that reproduces SKILL.md step 3 from the numbers write_plan.py --uncertainty and
+read_memory.py printed; the deep phase consistently sent all 12 experiments to the faultiest family,
+which is what the small c in the rule produces.
+[48 turns, 1368 s]
+```
+
+What to notice, honestly: RSIAgent's uncertainty rule is the one method
+in this series that *loses* the curve on problem 6 (-0.027 val, all 24
+fits wasted by the curve's definition, though the test score is higher),
+because the deep phase spends its twelve experiments on the faultiest
+family instead of the best one - it goes where the faults are, as the
+paper says, and on a trees-shaped table with a linear-looking profile that
+is the wrong place. The wasted-fits column is where it pays: 2 vs 16 on
+problem 1, 27 vs 33 over the curriculum, and 0 / 6 / 9 vs 16 / 17 / 18 on
+three exam seeds; the exam is won 4 of 5 on ties broken by fewer wasted
+fits, with a mean test gap of +0.0006. The agent wrote itself a helper
+script for the greedy plan (under `runs/`, scratch) rather than
+hand-ranking twelve recipes per phase; the numbers it ranked by were the
+script's.
 
 Files:
 
