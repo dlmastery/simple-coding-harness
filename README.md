@@ -33,6 +33,9 @@ Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop
                           streaming tool output, extensions, replay, TypeScript core
 Part 7   steps 46 - 51    the same harness on TrueForge, an open-source harness server:
                           loop, tools as MCP, sandbox and skills, context, subagents, comparison
+Series   genui/           zero to hero on generative UI: the agent's output becomes an interface
+Series   rsi/             zero to hero on recursive self-improvement, 18 lessons: the agent's
+                          own skill files get better across runs, and a verifier says by how much
 ```
 
 A second series lives in [`genui/`](genui/): **zero to hero on generative
@@ -40,8 +43,8 @@ UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
-A third series, in progress, lives in [`rsi/`](rsi/): **zero to hero on
-recursive self-improvement**, a skills-only hello world where the agent's
+A third series lives in [`rsi/`](rsi/): **zero to hero on
+recursive self-improvement**, 18 lessons in the Claude Academy playbook format, a skills-only hello world where the agent's
 own files get better across runs, measured the way the September 2026
 papers ask for.
 
@@ -179,18 +182,38 @@ function.
 
 ```python
 def bash(command):
-    """The Python behind the schema. subprocess.run executes what the model chose."""
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    return result.stdout + result.stderr
+    """The Python behind the schema. A subprocess executes what the model chose."""
+    proc = subprocess.Popen(
+        command, shell=True, stdin=subprocess.DEVNULL,  # no stdin: an interactive command ends, it does not wait
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace",             # never a UnicodeDecodeError on odd output
+        env=BASH_ENV, **NEW_GROUP,
+    )
+    try:
+        out, err = proc.communicate(timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        kill_tree(proc.pid)
+        proc.communicate()
+        return f"Error: command timed out after {TIMEOUT}s"
+    return (out + err) or "(no output)"
 ```
 
 ```python
 if message.tool_calls:
     tool_call = message.tool_calls[0]
-    command = json.loads(tool_call.function.arguments)["command"]
+    try:
+        command = json.loads(tool_call.function.arguments)["command"]
+    except (ValueError, KeyError, TypeError) as e:  # the model can produce broken JSON
+        sys.exit(f"Error: the arguments of bash are not a JSON object: {e}")
     print("Tool: bash", command)
     print(bash(command), "\n")
 ```
+
+The command runs with no stdin (a program that waits for a key press ends
+instead of hanging), decodes as UTF-8 whatever the console code page, and
+starts its own process group, so the 60 s timeout kills everything the
+command started and comes back as text. On Windows the tool named `bash`
+runs `cmd.exe`.
 
 **Try it.**
 
@@ -216,11 +239,31 @@ every coding agent. The model proposes. Your code disposes.
 dictionary keyed by the same names. The model's function name becomes a
 dictionary lookup. The JSON arguments become keyword arguments.
 
-**The code.** `step_02_2_generic_tools/llm.py`:
+**The code.** `step_02_2_generic_tools/tools.py`:
 
 ```python
-    result = TOOLS[tool_call.function.name](**args)  # name -> function, JSON -> kwargs
+def run_tool(tool_call):
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again."""
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if name not in TOOLS:  # a name that is not in the table
+        return args, f"Error: no tool named {name!r}."
+    try:
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
 ```
+
+The lookup lives in `run_tool`, and `run_tool` never raises. Broken JSON,
+a name that is not in the table and an exception inside the tool each come
+back as an `Error:` string, so the model reads what went wrong instead of
+the process dying with a traceback.
 
 **Try it.** Same as stage 2.1. The behaviour is the same. The structure is
 new.
@@ -239,9 +282,13 @@ subagents, is one entry in each table.
 ```python
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    with open(path) as f:
+    # utf-8 whatever the console code page; newline="" keeps CRLF and LF as they are
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return f.read()
 ```
+
+Every file the harness reads or writes from here on is UTF-8, whatever the
+console's code page, and keeps the line endings it found.
 
 **Try it.**
 
@@ -270,12 +317,16 @@ role `tool`, and send again. If the reply has no tool calls, stop.
 **The code.** `step_02_4_agent_loop/agent.py`:
 
 ```python
-while True:
+for _ in range(MAX_CALLS):
     # 1. the model sees the whole transcript so far
-    message, usage = call_llm(messages)
+    try:
+        message, usage = call_llm(messages)
+    except (openai.APIError, RuntimeError) as e:
+        sys.exit(f"model call failed: {e}")
     # 2. its reply joins the transcript - tool calls included, because every
     #    "tool" message must follow the assistant message that asked for it
-    messages.append(message.model_dump(exclude_none=True))
+    messages.append(entry(message))
+    print(usage)
 
     if message.content:
         print("\nAgent: ", message.content, "\n")
@@ -284,10 +335,10 @@ while True:
     if not message.tool_calls:
         break
 
-    # 4. otherwise run each call and feed the result back, tied to the call by id
+    # 4. otherwise run each call and feed the result back, tied to the call by id.
+    #    run_tool never raises, so every call gets its tool message, error or not
     for tool_call in message.tool_calls:
-        args = json.loads(tool_call.function.arguments)
-        result = TOOLS[tool_call.function.name](**args)
+        args, result = run_tool(tool_call)
         print("Tool: ", tool_call.function.name, args)
         print(result, "\n")
 
@@ -296,12 +347,19 @@ while True:
             "tool_call_id": tool_call.id,
             "content": result,
         })
+else:
+    print(f"stopped after {MAX_CALLS} model calls; the model kept calling tools")
 ```
 
-Two details matter. The assistant message is stored with its tool calls,
+Three details matter. The assistant message is stored with its tool calls,
 because the API rejects a `tool` message that does not follow the assistant
-message that asked for it. Each result carries the `tool_call_id` of the
-call it answers.
+message that asked for it; `entry()` keeps the role, the content and the
+tool calls and nothing else, so provider extras such as reasoning are not
+echoed back. Each result carries the `tool_call_id` of the call it answers,
+and every call gets exactly one result: `run_tool` never raises, so broken
+JSON, an unknown name or an exception inside the tool is an `Error:` result
+the model reads on the next call. And the loop is bounded: `MAX_CALLS`
+model calls per question, then it stops and says so.
 
 **Try it.**
 
@@ -334,15 +392,25 @@ Show a usage line after every call.
 ```python
 while True:
     user_input = ui.ask()
-    if not user_input:
+    if user_input is None or user_input in ("/exit", "/quit"):  # ctrl-d, ctrl-c, or asked to leave
         break
+    if not user_input:  # an empty line is not a message
+        continue
 
     messages.append({"role": "user", "content": user_input})
 
-    while True:
-        with ui.working():
-            message, usage = call_llm(messages)
+    try:
+        for _ in range(MAX_CALLS):
+            with ui.working():
+                message, usage = call_llm(messages)
 ```
+
+`ui.ask()` returns `None` when there is no more input, ctrl-d (ctrl-z then
+enter on Windows) or ctrl-c at the prompt, and `""` on an empty line, which
+does nothing. `/exit` leaves too. Ctrl-c during a turn ends the turn:
+every tool call still waiting for a result gets `(interrupted before this
+tool ran)`, so the transcript stays valid, and the prompt comes back. A
+dead model call prints `model call failed: ...` and your message stays.
 
 **Try it.**
 
@@ -437,8 +505,9 @@ python agent.py
 **You should see** a `write_file` call, then a `read_file` and a
 `str_replace` call, and a file with five `goodbye` lines.
 
-**Takeaway.** Errors are results. Nothing the model does can crash the
-session. It reads the error and adapts.
+**Takeaway.** Errors are results. A missing match, a missing file, an
+empty `old_str`, a tool that raises: each comes back as `Error:` text, and
+the model reads it and adapts.
 
 ---
 
@@ -514,22 +583,39 @@ harness has to tell it when that picture is stale.
 
 **Goal.** Save every chat. Reopen it. Undo it.
 
-**The idea.** Append every message to a JSONL file as it happens. A rewind
-is an entry in the file, not a deletion, so the file is the full history.
-Loading replays the file and applies the markers.
+**The idea.** Append every message to a JSONL file as it happens, your own
+line included, before the model answers it. A rewind is an entry in the
+file, not a deletion, so the file is the full history. Loading replays the
+file, applies the markers, and repairs what a crash left behind: a
+transcript that ends in tool calls without results is refused by the API,
+so each such call gets a placeholder result before the chat reopens.
 
 **The code.** `step_08_sessions_rewind/session.py`:
 
 ```python
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
-    global WRITTEN
+    global WRITTEN, SEEN_SAVED
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         for message in messages[WRITTEN:]:
             f.write(json.dumps(message) + "\n")
+        if context.SEEN != SEEN_SAVED:  # what the agent has read: a state entry, not a message
+            SEEN_SAVED = dict(context.SEEN)
+            f.write(json.dumps({"seen": SEEN_SAVED}) + "\n")
     WRITTEN = len(messages)
 ```
+
+```python
+def load(session_id, seen=None):
+    """The messages of a past chat, valid to send: replayed, then repaired."""
+    return repair(replay(session_id, seen))
+```
+
+Stage 7's table of what the agent has read is saved in the same file as a
+state entry, keyed by content hash, so a resumed chat still knows which
+files are stale. `/rewind` offers only your own messages and cuts just
+before the one you pick, never between a tool call and its result.
 
 **Try it.**
 
@@ -542,8 +628,8 @@ python agent.py
 python agent.py --resume
 ```
 
-**You should see** a numbered list to rewind to, the screen redrawn from the
-transcript, and the last chat reopened with `--resume`.
+**You should see** a list of your own messages to rewind to, the screen
+redrawn from the transcript, and the last chat reopened with `--resume`.
 
 **Takeaway.** Slash commands never reach the model. A command takes the
 message list and returns the list to continue with.
@@ -579,7 +665,7 @@ variables, so you set them once.
 
 **Goal.** Keep the agent on plan through a long task.
 
-**The idea.** A `write_todos` tool replaces the plan on every call. Exactly
+**The idea.** A `write_todos` tool replaces the plan on every call. At most
 one item may be in progress. The plan lives in a variable, not in the
 transcript, and rides in the late block, so it is the last thing the model
 reads before it acts.
@@ -588,14 +674,23 @@ reads before it acts.
 
 ```python
 def write_todos(todos):
-    """Replace the whole list. Exactly one task may be in_progress."""
-    active = [t for t in todos if t["status"] == "in_progress"]
-    if len(active) > 1:
-        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+    """Replace the whole list. At most one task may be in_progress.
 
+    Checked before the assignment: a bad list is refused and the old plan
+    stays, so the block injected every turn can never break.
+    """
+    problem = validate(todos)
+    if problem:
+        return problem
     TODOS[:] = todos
     return todos_prompt() or "Todo list cleared."
 ```
+
+The list is validated before it replaces the old one: a missing field, an
+unknown status or two items in progress is an `Error: item N ...` result
+and the plan stays as it was. Because the plan lives outside the
+transcript, `--resume` and `/rewind` rebuild it from the last `write_todos`
+in the messages they load.
 
 **Try it.**
 
@@ -628,18 +723,31 @@ verdict is returned as the tool result.
 ```python
 def decide(command):
     """Rate every part of a compound command; the strictest verdict wins."""
+    if UNREADABLE.search(command):
+        return "ask"  # we cannot see what runs inside, so a human has to
     verdicts = []
     for part in split_command(command):
         action = "ask"
         for pattern, rule in BASH_RULES.items():
             if fnmatch(part, pattern):
                 action = rule
+        if action == "allow" and WRITES.search(unquoted(part)):
+            action = "ask"  # `cat a > b` is a write, whatever the verb
         verdicts.append(action)
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
             return strictest
     return "allow"
 ```
+
+The rules only see text, so the obvious ways around them are closed in the
+same function. Command and process substitution (`$(...)`, backticks,
+`<(...)`) cannot be read, so they ask. An allow-listed verb with an
+unquoted redirection, a `tee`, or a `find` that deletes or executes is
+downgraded to ask. `&` inside `2>&1` is not a separator; a newline is.
+`env` asks, so a key is not printed into the transcript. A `write_file` or
+`str_replace` into `.git/` asks, and a call that lacks the argument the
+rules read (`command`, `path`) is denied instead of crashing the check.
 
 **Try it.**
 
@@ -662,23 +770,44 @@ still delete a file. This is not real security. The next stage is.
 
 **The idea.** Run `bash` inside an OS sandbox. Read anything, write only
 inside the project, no network. On macOS that is Seatbelt. On Linux it is
-bubblewrap. A script that deletes a file outside the project fails even when
-you approved the command. Every command also has a timeout that comes back
-as a result.
+bubblewrap, which also gives the command a private `/tmp`. A script that deletes a file outside
+the project fails even when you approved the command. Only `bash` is
+sandboxed: `read_file`, `write_file` and `str_replace` run in the harness
+process under the stage 11 rules. Every command also has a timeout that
+comes back as a result, with the output the command had produced.
 
 **The code.** `step_12_sandbox/harness/sandbox.py`:
 
 ```python
-PROFILE = f"""(version 1)
+PROFILE = """(version 1)
 (deny default)
 (allow process-exec process-fork signal)
 (allow file-read*)
 (allow sysctl-read)
 (deny network*)
-(allow file-write* (subpath "{PROJECT}") (literal "/dev/null"))
-(deny file-write* (subpath "{PROJECT}/.git"))
+(allow file-write* (subpath "{project}") (literal "/dev/null"))
+(deny file-write* (subpath "{project}/.git"))
 """
 ```
+
+`step_12_sandbox/harness/tools.py`:
+
+```python
+def bash(command: str) -> str:
+    """Run a shell command and return its combined stdout and stderr."""
+    try:
+        result = sandbox.run(command)
+    except subprocess.TimeoutExpired as expired:
+        # A slow command is the model's problem to work around, not a reason
+        # to take the session down. Hand the failure back as a result.
+        partial = (expired.stdout or "") + (expired.stderr or "")
+        return f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}"
+    return (result.stdout + result.stderr) or "(no output)"
+```
+
+The profile is written to a fresh temp file per call, so parallel calls
+in step 22 do not share one. The command runs with no stdin, in its own
+process group, and a timeout kills the whole tree, not just the shell.
 
 **Try it.** On macOS or Linux, ask the agent to delete a file outside the
 project and say yes at the prompt.
@@ -710,19 +839,25 @@ without touching it.
 
 **The idea.** Tool output is the main reason transcripts explode, so it is
 handled three ways. A fresh result over 10,000 characters is capped and the
-rest goes to a temp file the model can page through. When a turn ends, its
-results shrink to a 300-character stub. If a request is still too big, whole
-results are dropped, oldest first. When the prompt passes 85% of the window,
-a second agent with no tools writes a handoff note about the old messages.
-The note is folded into the system prompt and the transcript is cut back to
-35%.
+rest goes to a temp file the model can page through; the marker reads
+`[output capped: ...]` and the full text is still on disk. When a turn
+ends, its results shrink to a 300-character stub marked
+`[output trimmed: ...]`, which is gone for good. If a request is still too
+big, whole results are dropped, oldest first. When the prompt passes 85% of
+the window, a second agent with no tools writes a handoff note about the
+old messages. The note is folded into the system prompt and the transcript
+is cut back to 35%, always at one of your own messages, never between a
+tool call and its result.
 
 **The code.** `step_14_compaction/harness/compact.py`:
 
 ```python
 def compact(messages):
     """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
-    cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
+    global COMPACTED_AT
+    # the system prompt, handoff note included, is part of every request: budget for it
+    budget = config.CONTEXT_WINDOW * config.COMPACT_TO - estimate(messages[:1])
+    cut = tail_start(messages, budget)
     if cut <= 1:
         return messages
 
@@ -733,8 +868,15 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    COMPACTED_AT = len(kept)
     return kept
 ```
+
+A summariser that fails, or answers with nothing, raises; the transcript
+is kept as it was and the note says so. `COMPACTED_AT` stops compaction
+from firing again until the transcript has grown, so a prompt that is
+still over the line after one compaction does not pay for a summary on
+every turn.
 
 **Try it.**
 
@@ -744,8 +886,9 @@ CONTEXT_WINDOW=6000 harness
 > /compact
 ```
 
-**You should see** `[output trimmed: ...]` markers on long results, then the
-handoff note in a panel and the message count drop.
+**You should see** `[output capped: ...]` on a long result as it arrives
+and `[output trimmed: ...]` once its turn is over, then the handoff note in
+a panel and the message count drop.
 
 **Takeaway.** The prefix is rebuilt once per compaction and then left alone
 until the next one. Cheap mechanisms first, the expensive one rarely.
@@ -758,14 +901,21 @@ until the next one. Cheap mechanisms first, the expensive one rarely.
 
 **The idea.** A `task` tool runs a fresh agent on one question. It starts
 with an empty transcript. It gets every tool except `task`, `write_todos`,
-`write_file` and `str_replace`, so it cannot edit and cannot recurse. It
-runs the same loop through the same permission check and sandbox. Only its
-final answer returns.
+`write_file` and `str_replace`, so it cannot edit and cannot recurse, and
+the set it was shown is the set it may run: `execute` takes the names the
+caller offered and denies any other, so a subagent cannot reach a withheld
+tool by naming it. It runs the same loop through the same permission check
+and sandbox. Only its final answer returns; a model call that fails inside
+it becomes that report.
 
 **The code.** `step_15_subagents/harness/subagent.py`:
 
 ```python
 WITHHELD = {"task", "write_todos", "str_replace", "write_file"}
+```
+
+```python
+    allowed = {s["function"]["name"] for s in offered}  # what it may run == what it was shown
 ```
 
 ```python
@@ -845,7 +995,7 @@ late injection and stripping, and the screen.
 `step_17_openai_agents_sdk/harness.py`:
 
 ```python
-bash = function_tool(_bash, name_override="bash", needs_approval=bash_needs_approval, tool_input_guardrails=[policy_gate], timeout=60)
+bash = function_tool(_bash, name_override="bash", needs_approval=bash_needs_approval, tool_input_guardrails=[policy_gate])
 ```
 
 ```python
@@ -999,15 +1149,25 @@ the answer.
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            # fragments of one call share an index; a provider that sends none gets keyed by id
+            key = piece.index if getattr(piece, "index", None) is not None else piece.id or len(calls)
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
 ```
 
 Text deltas go to the screen through `on_delta` as they arrive. Tool call
-deltas are collected by `index`, because one call's arguments arrive in
-many pieces. The assembled `StreamedMessage` has the same `model_dump()`
-as before, so the loop stores it unchanged.
+deltas are collected by `index`, or by id when a provider sends none,
+because one call's arguments arrive in many pieces. A reply cut off by
+`max_tokens` drops its half-written tool calls and says so in the content.
+The assembled `StreamedMessage` has the same `model_dump()` as `entry()`,
+so the loop stores it unchanged.
+
+Headless mode is a contract, not just a flag. `-p` runs one turn, prints
+the answer on stdout and exits 1 when the answer is empty or the turn
+failed. When stdin is not a terminal every `ask` is denied with a note on
+stderr; nothing but the answer reaches stdout. No session file is written
+unless `--resume` is given, so a cron job does not leave one file per run.
 
 **Try it.**
 
@@ -1036,23 +1196,42 @@ subagent uses the same path.
 **The code.** `step_22_parallel_tools/harness/tools.py`:
 
 ```python
+    if len(tool_calls) == 1 or any(c.function.name in SERIAL for c in tool_calls):
+        return [execute(tool_call, allowed) for tool_call in tool_calls]
+
     outcomes = []  # (args, result) per call; result is None until it has run
     for tool_call in tool_calls:
-        args, action, reason = decide(tool_call)
+        args, action, reason = decide(tool_call, allowed)
         outcomes.append((args, settle(action, reason)))
 
     pending = [i for i, (_, result) in enumerate(outcomes) if result is None]
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+    pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+    try:
         futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
         for i, future in futures.items():
             outcomes[i] = (outcomes[i][0], future.result())
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # do not sit through a 60s command
+        raise
+    pool.shutdown(wait=True)
     return outcomes
 ```
 
-`decide` does the JSON parse and the permission check. `settle` turns a
-deny or a declined prompt into a result string, so those calls never run.
-Only calls whose result is still `None` go to the pool, and the results
-are written back into their original slots.
+`decide` does the JSON parse and the permission check; a call it cannot
+use, broken JSON or an unknown name, gets the verdict `error` with the
+message as its result. `settle` turns a deny, an error or a declined
+prompt into a result string, so those calls never run. Only calls whose
+result is still `None` go to the pool, `run` never raises, and the results
+are written back into their original slots, so every call in the reply
+gets exactly one tool message.
+
+A batch that holds a `SERIAL` tool runs one call at a time on the calling
+thread instead. `task` is the only one here; later steps add `browse`,
+the browser and computer tools, `submit_plan`, `ask_user`, `handoff_to`
+and `finish`, every tool that prompts or whose order matters. Prompts that
+do fire from a worker thread, a subagent's for instance, take turns under
+`APPROVE_LOCK`. The pool is not a `with` block so that ctrl-c cancels the
+queued calls instead of waiting for the slowest worker.
 
 **Try it.**
 
@@ -1085,12 +1264,8 @@ def browser_read() -> str:
     """The page's title, URL and visible text, capped like any tool output."""
     current = page()
     lines = (line.strip() for line in current.inner_text("body").splitlines())
-    text = "
-".join(line for line in lines if line)  # visible text, blank lines dropped
-    return history.cap(f"Title: {current.title()}
-URL: {current.url}
-
-{text}")
+    text = "\n".join(line for line in lines if line)  # visible text, blank lines dropped
+    return history.cap(f"Title: {current.title()}\nURL: {current.url}\n\n{text}")
 ```
 
 `step_23_browser_use/harness/browse.py`:
@@ -1106,7 +1281,10 @@ def browse(task: str) -> str:
 A page read goes through the same `history.cap` as any tool output. The
 `browse` tool is the stage 15 subagent loop with a browser prompt and the
 browser tool set. Playwright's sync API must be called from one thread, so
-`browser.py` owns a worker thread and every tool call is forwarded to it.
+`browser.py` owns a worker thread and every tool call is forwarded to it,
+and the browser tools join `SERIAL`, so a batch that clicks and then reads
+runs in the order the model wrote it. A page that was closed under the
+tool is relaunched on the next call.
 
 **Try it.**
 
@@ -1144,9 +1322,14 @@ you set `COMPUTER_AUTO=1`.
 
 The screenshot tool returns text with an `[[image:path]]` marker. After the
 tool results are appended, the loop turns each marker into a user message
-with a text part and an image part, as a base64 data URL, so the file never
-leaves the machine. Old screenshots are shrunk to their caption by
-`strip()`, like any other tool output.
+with a text part and an image part, as a base64 data URL. The picture goes
+to the model provider with the request, like any other message, so close
+what should not be seen. The screenshot is downscaled to at most 1280
+pixels wide first and the scale factor is remembered, so a click the model
+places on the picture it saw is multiplied back onto the real screen. Old
+screenshots are shrunk to their caption by `strip()`, like any other tool
+output, which is also what rescues the transcript when a text-only model
+rejects the image message.
 
 **Try it.**
 
@@ -1177,34 +1360,30 @@ continue where this one stopped.
 **The code.** `step_25_memory/harness/memory.py`:
 
 ```python
+    name = slug(name)  # the one form the file, the index and recall all use
     directory = MEMORY_DIRS[SCOPES.index(scope)]
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{slug(name)}.md"
+    path = directory / f"{name}.md"
     existed = path.exists()
     front = yaml.safe_dump({"name": name, "description": description, "type": type}, sort_keys=False, allow_unicode=True)
-    path.write_text(f"---
-{front}---
-
-{content.strip()}
-", encoding="utf-8")
+    path.write_text(f"---\n{front}---\n\n{content.strip()}\n", encoding="utf-8")
 ```
 
 `step_25_memory/harness/context.py`:
 
 ```python
 def memory_note():
-```
-
-```python
-    return f"
-<memory>
-{index}
-</memory>" if index else ""
+    index = memory_index()
+    return f"\n<memory>\n{index}\n</memory>" if index else ""
 ```
 
 A memory is written with the same front matter shape as a skill, so the
-same parser reads both. The index rides in the late block after the todo
-list. Nothing about memory touches the stable prefix.
+same parser reads both. The name is slugged once and that slug is the file
+name, the index key and what `recall` looks up, so "Test Runner" and
+`test-runner` are one memory. The index rides in the late block after the
+todo list. Nothing about memory touches the stable prefix. The `task`
+subagent may `recall` but not `remember` or `forget`, and each compaction
+overwrites one `handoff-latest` memory rather than adding another.
 
 **Try it.**
 
@@ -1282,20 +1461,26 @@ result, or add context to the late block.
 **The code.** `step_27_hooks/harness/tools.py`:
 
 ```python
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    action, reason = check(name, args)
     if action == "deny":
         return args, action, reason
-    outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
+    outcome = hooks.run_hooks("PreToolUse", {"tool_name": name, "tool_input": args})
     if outcome.blocked:
         return args, "blocked", outcome.reason
+    if outcome.context:
+        PRE_CONTEXT[tool_call.id] = outcome.context
     return args, action, reason
 ```
 
 The hook runs after the permission rules and before the tool, on the one
 shared path from stage 22, so subagents and parallel calls go through it
 too. A command hook gets the event as JSON on stdin and blocks by exiting
-with code 2; its stderr becomes the reason the model reads.
+with code 2; its stderr becomes the reason the model reads. The
+`PostToolUse` event carries `ok`, whether the result is an `Error:`, and a
+block there cannot undo the tool, so the model reads `Blocked by hook:`
+with the reason. Context a hook returns rides along in a `<hook>` block of
+the result. A hook command runs with the same UTF-8, process-group timeout
+as `bash`.
 
 **Try it.**
 
@@ -1328,11 +1513,11 @@ def submit_plan(plan):
     """Validate the plan, show it, and ask the user. Returns the result for the model."""
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
+    if MODE != "plan":
+        return "Error: not in plan mode"  # a call remembered from an earlier transcript, not offered now
     problems = validate(plan)
     if problems:
-        return "Error: the plan is invalid:
-" + "
-".join(f"- {p}" for p in problems)
+        return "Error: the plan is invalid:\n" + "\n".join(f"- {p}" for p in problems)
     ui.plan(plan)
     approved, feedback = ui.approve_plan()
     if approved:
@@ -1340,9 +1525,12 @@ def submit_plan(plan):
 ```
 
 `submit_plan` is an ordinary tool. Its argument is validated against a
-JSON schema; a bad plan comes back as an error result the model can fix.
-A good plan is drawn, you approve it, and `approve()` turns its steps into
-todos and switches the mode to act.
+JSON schema; a bad plan comes back as an error result the model can fix,
+and a call outside plan mode is an error too. A good plan is drawn, you
+approve it, and `approve()` turns its steps into todos and switches the
+mode to act. It prompts, so it is `SERIAL`. In plan mode the read-only
+fence is the stage 11 rule table itself: an allow-listed command with a
+redirection asks in act mode and is denied here.
 
 **Try it.**
 
@@ -1375,21 +1563,21 @@ question concurrently.
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
         futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
         reports = [future.result() for future in futures]
-    return "
-
-".join(
-        f"## subagent {number}: {title(description)}
-
-{report}"
+    return "\n\n".join(
+        f"## subagent {number}: {title(description)}\n\n{report}"
         for number, (description, report) in enumerate(zip(descriptions, reports), 1)
     )
 ```
 
 Each description gets its own `loop()` run on a worker thread, with its
 own message list, and the reports come back joined under numbered headers
-in the order they were asked. A background job is the same idea for shell
-commands: `Popen` through the sandbox wrapper, output to a temp file, and
-an id the model can poll or kill.
+in the order they were asked; `guarded` turns a crash in one of them into
+that subagent's report. Their approval prompts take turns under the lock
+from step 22, and the usage totals are updated under one of their own. A
+background job is the same idea for shell commands: `Popen` through the
+sandbox wrapper in its own process group, output to a temp file, and an id
+the model can poll or kill; `job_wait` is clamped to five minutes so a
+turn cannot block forever.
 
 **Try it.**
 
@@ -1484,18 +1672,16 @@ def find_instructions(cwd=None):
 ```
 
 ```python
-    for path in LOADED:
-        parts.append(f"# Instructions from {label(path, cwd)}
-
-{read_instructions(path).strip()}")
-    return "
-
-".join(parts)
+def render(paths, cwd=None):
+    """The files as prompt text, each under a header naming it; empty when there are none."""
+    return "\n\n".join(f"# Instructions from {label(path, cwd)}\n\n{read_instructions(path).strip()}" for path in paths)
 ```
 
 The files are read from the most general to the most specific, joined
 under headers, and placed in the system prompt. They change rarely, so
-they belong in the cached prefix, not in the late block.
+they belong in the cached prefix, not in the late block; they are read at
+start and again by `/init`, not on every call. A file with a UTF-8 BOM
+reads cleanly.
 
 **Try it.**
 
@@ -1584,8 +1770,10 @@ change to the tools.
 BUILTIN = {  # the harness's own hooks; same shape as a config entry, run first
 ```
 
-The capture is a built-in `PreToolUse` hook that runs before any
-configured hook, so the harness uses its own extension point. Undo
+The capture is a built-in `PreToolUse` hook, so the harness uses its own
+extension point. It runs from `tools.run()`, once the call is allowed and
+you have answered any prompt, so a declined edit captures nothing; a
+capture that fails is a loud note naming the file, not a silent gap. Undo
 replays the turn's manifest in reverse, deletes files that did not exist
 before, and returns the transcript length at the start of the turn so the
 session can be rewound to match.
@@ -1609,19 +1797,27 @@ workspace match it.
 
 **Goal.** Survive rate limits, network failures, crashes and loops.
 
-**The idea.** Model calls retry with backoff on retryable errors. A turn has
-a call limit. A loop detector replaces the third identical tool call in a
-row with a message asking for a different approach. On `--resume`, a
-session that died with unanswered tool calls is completed before the next
-prompt.
+**The idea.** Model calls retry with backoff on retryable errors: transport
+errors, 429, 5xx, and an error event inside the stream. The per-turn call
+cap from stage 2.4 stays. A loop detector replaces the third identical
+tool call in a row with a message asking for a different approach. On
+`--resume` and `/sessions`, a session that died with unanswered tool calls
+is completed before the next prompt: the calls are run, not stubbed.
 
 **The code.** `step_34_durability/harness/llm.py`:
 
 ```python
     for attempt in range(1, MAX_TRIES + 1):
+        seen = []  # what this try streamed, so a retry can say it starts over
+
+        def deltas(text):
+            seen.append(text)
+            if on_delta:
+                on_delta(text)
+
         try:
-            return stream_once(request, on_delta)
-        except openai.APIError as error:
+            return stream_once(request, deltas)
+        except (openai.APIError, httpx_lib.HTTPError) as error:
             if not retryable(error):
                 reason = f"model call failed and will not be retried ({describe(error)}): {error}"
                 break
@@ -1633,9 +1829,12 @@ prompt.
 ```
 
 The whole stream sits inside the retry, so a connection that drops halfway
-through a reply starts that reply over. A 4xx error is never retried. When
-every try fails, the result is a message with a `failed` reason that the
-loop shows, and the session continues.
+through a reply starts that reply over, and the screen is told the partial
+reply is discarded. The SDK's own silent retries are off, so these five
+tries are the whole policy. A 4xx error is never retried. When every try
+fails, the result is a message with a `failed` reason that the loop shows,
+and the session continues; the summariser and the eval judge raise on the
+same failure instead of passing off an empty answer as a result.
 
 `step_34_durability/harness/agent.py`:
 
@@ -1652,7 +1851,10 @@ def recover(messages):
 On resume, tool calls that never received a result are run through the
 same permissions and hooks, and their results are appended before the
 next prompt, because the API refuses a transcript that ends in an
-unanswered call.
+unanswered call. A call that raises during recovery becomes an `Error:`
+result, so a resume never crashes twice on the same call. This replaces
+stage 8's placeholder: the calls run for real, which means their side
+effects happen, under the same prompts.
 
 **Try it.**
 
@@ -1705,9 +1907,19 @@ def remember(name, args, verdict):
 ```
 
 `ask_user` is an ordinary tool whose result is whatever you typed, so the
-answer enters the transcript like any other tool result. Session rules
-sit in front of the stage 11 table, keyed by tool and the first word of
-the command, and a `deny` in the table still wins over an `always`.
+answer enters the transcript like any other tool result; under `-p`
+without a terminal, or under `eval`, it answers that nobody is here.
+Session rules sit in front of the stage 11 table, keyed by what was asked:
+the first word of each command part, `(write_file, outside)` for a write
+outside the project, the host for `browser_open`. A `deny` in the table
+still wins over an `always`, and plan mode ignores the session rules.
+
+Ctrl-c is the steer: once during a turn pauses the loop and asks for your
+message, twice within two seconds leaves. On Windows the console delivers
+ctrl-c to every attached process, so a command `bash` is running dies with
+it; the harness sees the interrupt once the command has ended, and that
+call's result is `INTERRUPTED`. Background jobs run in their own process
+group and are not affected.
 
 **Try it.**
 
@@ -1781,7 +1993,11 @@ transcript per session on disk, walk the directory tree for `AGENTS.md` or
 `CLAUDE.md`, and ship a headless mode. They disagree on sandboxing (two of
 five have no OS sandbox), on memory (only two ship it), on undo (one has
 removed it), and on evaluation (only one ships a scored eval runner). The
-step's README has the tables, 49 rows with a source link on every row.
+step's README has the tables, 49 rows with a source link on every row, and
+its "This repo" column quotes the constants the code has: no network under
+the macOS profile or `bwrap`, none of it on Windows; the full `WITHHELD`
+list and the per-agent turn caps; session rules keyed on the first word;
+cost only when the provider reports it.
 
 **Takeaway.** After this step, reading any production harness is reading
 something you have already built.
@@ -1998,17 +2214,18 @@ that was answering when the session ended.
 def apply(name, messages):
 ...
     global ACTIVE
-    from . import compact  # here, not at the top: compact imports llm
-
-    ACTIVE = None if name == MAIN else definition(name)
-    if name != MAIN and ACTIVE is None:
-        raise KeyError(name)
-    if messages and messages[0].get("role") == "system":
-        summary = compact.previous_summary(messages[0]["content"])
-        prompt = system_prompt(ACTIVE)
-        messages[0]["content"] = prompt + ("\n\n" + summary if summary else "")
+    found = None if name == MAIN else definition(name)
+    if name != MAIN and found is None:
+        raise KeyError(name)  # before ACTIVE changes: a marker for a definition that is gone leaves the agent as it was
+    ACTIVE = found
+    refresh(messages)
     return ACTIVE
 ```
+
+A handed-off agent may run only the tools on its `tools:` list; the
+permission check denies the rest by name. A turn may hand off four times,
+so two agents cannot pass the user back and forth forever, and a subagent
+cannot hand off at all.
 
 **Try it.**
 
@@ -2109,7 +2326,11 @@ python -m harness.agent
 **You should see** the agent write the function and try to answer, a
 muted "Stop blocked: tests were not run after editing calc.py" line, a
 pytest run, then the answer. Every usage line carries the cost of the
-call, and `/cost` shows the session total against its cap.
+call, reported by OpenRouter when it is asked for it and estimated from a
+price table on every other host, and `/cost` shows the session total
+against its cap and names which of the two it is. Subagents check the
+same session caps before each of their own calls; in `eval` every task
+starts from zero and records its own cost.
 
 **Takeaway.** When the loop stops is a design decision, not an accident.
 
@@ -2138,20 +2359,23 @@ def run(command, timeout=None, on_line=None):
     reader = Reader(process, on_line)
     try:
         process.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as expired:
         kill(process)
-        reader.join()
-        raise
+        reader.join(JOIN_GRACE)
+        raise subprocess.TimeoutExpired(command, timeout, output=reader.text()) from expired
     except BaseException:
         kill(process)
         raise
-    reader.join()
+    reader.join()  # the process has ended: the pipe is closing, the last lines are moments away
     return reader.text()
 ```
 
-The bash tool changed by three lines. It opens a panel, passes the panel
+The bash tool changed by a few lines. It opens a panel, passes the panel
 as the line callback, and caps the joined output exactly as stage 14 did.
-The model reads the same text it read in step 41. Only you see it early.
+The model reads the same text it read in step 41, and on a timeout it
+still gets the lines that arrived before the kill. Only you see it early.
+A callback that raises is dropped and the reader keeps reading, so a
+screen problem never loses the output.
 
 `step_42_streaming_tool_output/harness/tools.py`:
 
@@ -2162,7 +2386,8 @@ The model reads the same text it read in step 41. Only you see it early.
         except subprocess.TimeoutExpired as expired:
             # A slow command is the model's problem to work around, not a reason
             # to take the session down. Hand the failure back as a result.
-            return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+            partial = (expired.stdout or "") + (expired.stderr or "")
+            return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap(output or "(no output)")
 ```
 
@@ -2206,14 +2431,18 @@ def git_diff_summary(staged: bool = False) -> str:
 
 ```python
 def apply(ctx):
-    ctx.tool(git_diff_summary)  # the schema is built from the signature and the docstring
+    ctx.tool(git_diff_summary, permission="allow")  # the schema is built from the signature and the docstring; read-only, so no prompt
     ctx.command("/status", "show the git branch and the changed files", status)
 ```
 
-The loader runs one file's `apply`. Three things can go wrong: the file
-does not import, it has no `apply`, or `apply` raises. All three end the
-same way: what the file registered before it failed is removed, the row
-stays so `/extensions` can show the failure, and the loader moves on.
+A tool an extension registers asks before it runs unless the extension
+says `permission="allow"`, as this read-only one does. The loader runs
+one file's `apply`. Three things can go wrong: the file does not import,
+it has no `apply`, or `apply` raises. All three end the same way: what
+the file registered before it failed is removed, the row stays so
+`/extensions` can show the failure, and the loader moves on. A file whose
+name is a built-in loader's is refused, a broken new file never unloads a
+working one, and an extension command that raises is a note, not a crash.
 
 `step_43_extensions/harness/extensions.py`:
 
@@ -2243,7 +2472,7 @@ smallest: one tool, one prompt section.
 ```python
 def apply(ctx):
     """The skills extension: the read_skill tool, and the skill index in the system prompt."""
-    ctx.tool(read_skill, READ_SKILL_SCHEMA)
+    ctx.tool(read_skill, READ_SKILL_SCHEMA, permission="allow")  # reads a file the project shipped: no prompt
     ctx.prompt_section(skills_section)  # a function: rendered when the prompt is built
 ```
 
@@ -2284,7 +2513,7 @@ message it belongs to. The list sent to the model does not change.
 ```python
 def stamped(entry):
     """The entry with `ts` added, as one JSON line. The dict passed in is not touched."""
-    return json.dumps({**entry, "ts": round(clock(), 3)}) + NL
+    return json.dumps({**entry, "ts": round(clock(), 3)}) + "\n"
 ```
 
 ```python
@@ -2393,15 +2622,28 @@ that for free: the `data` handler is already called per chunk.
 
 ```python
 def run(command, timeout=60):
-    """Run a command, sandboxed when the OS lets us."""
+    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired with the partial output.
+    ...
+    """
     sandboxed = wrap(command)
-    return subprocess.run(
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    process = subprocess.Popen(
         sandboxed or command,
         shell=sandboxed is None,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
+        stdin=subprocess.DEVNULL,  # a command that waits for input would hang the turn
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
+        env=ENV,
+        **group,
     )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        kill_tree(process)
+        stdout, stderr = process.communicate()
+        raise subprocess.TimeoutExpired(command, timeout, output=stdout, stderr=stderr)
 ```
 
 `step_45_typescript_core/harness-ts/sandbox.ts`:
@@ -2411,28 +2653,36 @@ def run(command, timeout=60):
       expired = true;
       kill(child.pid, child);
     }, timeout * 1000);
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (expired) fail(new TimedOut(timeout, stdout + stderr));
+      else done({ stdout, stderr });
+    };
     child.on("error", (failure) => {
       clearTimeout(timer);
+      settled = true;
       fail(failure);
     });
-    child.on("close", () => {
-      clearTimeout(timer);
-      if (expired) fail(new TimedOut(timeout));
-      else done({ stdout, stderr });
-    });
+    child.on("close", settle); // the pipes closed: the output is complete
 ```
 
 The second difference is threads versus promises: step 22 needs a
 thread pool to run tool calls in parallel, and Node needs
 `Promise.all`. The third is sandbox spawning: `spawn(argv)` for the
 wrapped command and `spawn(command, {shell: true})` without a sandbox,
-with `taskkill /T` on Windows to reach the process tree.
+detached into its own process group so a timeout kills the tree, with
+`taskkill /T` on Windows. The port keeps the stage 15 contract: one tool
+message per call with the same `Error:` strings, an empty line that does
+nothing, a partial output on timeout. It has no per-turn cap, retries or
+recovery; those are later steps, and the step's README says so.
 
 **Try it.**
 
 ```bash
 cd step_45_typescript_core/harness-ts
-npm test                     # 25 tests, no install needed
+npm test                     # 30 tests, no install needed; npm run typecheck needs one
 npm install && npm start     # a real session, same env vars as Python
 > list the files in this directory and count them
 > /exit
@@ -2478,18 +2728,20 @@ the loop. Passing the session id back is stage 8's `--resume`.
 
 **The code.** There is no `messages` list and no `while True` on the
 client. One function opens a session when it has none, streams one turn,
-prints each delta on the main thread, and reads the text and the token
-totals out of the terminal event.
+prints each delta on the main thread, and reads the text, the token
+totals and the status out of the terminal event.
 
 `step_46_trueforge_loop/client/loop.py`:
 
 ```python
 def chat(prompt, session_id=None, on_delta=print_delta):
-    """Run one turn. Return (session_id, text, metrics).
+    """Run one turn. Return (session_id, text, metrics, status).
 
     A new session is opened when `session_id` is None. Passing an id back
     continues that conversation: the server chains the new turn onto the last
     one (`previous_turn_id` defaults to "auto"), so no history is resent.
+    `status` is "done", "cancelled" or "error" from `turn.done`, or
+    "incomplete" when the stream ended before that event arrived.
     """
     if session_id is None:
         session_id = open_session()
@@ -2497,24 +2749,30 @@ def chat(prompt, session_id=None, on_delta=print_delta):
     pieces = []
     text = None
     metrics = {}
-    for event in stream.with_metadata():
-        data = event.data
-        if data.type == "model.message.delta" and data.thread_id == "main" and data.content:
-            pieces.append(data.content)
+    status = "incomplete"  # only turn.done can change it
+    for event in stream:
+        if event.type == "model.message.delta" and event.thread_id == "main" and event.content:
+            pieces.append(event.content)
             if on_delta:
-                on_delta(data.content)
-        elif data.type == "turn.done":
-            text, metrics = finish(data.state)
+                on_delta(event.content)
+        elif event.type == "turn.done":
+            text, metrics, status = finish(event.state)
     if text is None:
         text = "".join(pieces)
-    return session_id, text, metrics
+    return session_id, text, metrics, status
 ```
 
 A plain turn streams exactly five events. `turn.created` is the user
 message being appended. `model.message` is the call beginning. The deltas
 are the chunks of content, the last one carrying the usage. `turn.done` is
 the `break` when a reply has no tool calls. A turn that calls tools
-streams more, and step 47 builds those tools.
+streams more, and step 47 builds those tools. The status is the part a
+client must not guess: a stream can end without `turn.done` when the
+connection drops, and the SDK does not reconnect it, so `status` starts
+as `incomplete` and only that event can change it. Every demo in Part 7
+acts on a pending approval or question only when the turn is `done`,
+prints one line naming the base URL when the server cannot be reached,
+and `-p` exits 1 on any turn that did not end `done`.
 
 **Try it.**
 
@@ -2575,15 +2833,23 @@ message with approvals, so the resume carries no text.
 
 ```python
     inputs = [UserMessage(content=prompt)]
-    while True:
+    for _round in range(MAX_ROUNDS):
         result = run_turn(client, session_id, inputs, events, out)
         for key, value in (result.metrics or {}).items():
             totals[key] = totals.get(key, 0) + value
-        if not result.pending:
+        if result.status != "done" or not result.pending:
             result.metrics = totals or None
             return result
         inputs = approvals_for(result.pending, events, approver)
+    result.status = "approval-loop"  # MAX_ROUNDS pauses in one chat: something keeps re-asking
+    result.metrics = totals or None
+    return result
 ```
+
+The approval loop is bounded, and ctrl-c or end of file at the prompt is a
+denial, so a server that keeps pausing cannot hold the client forever.
+The tools server's `bash` has the same shape as stage 12's: no stdin,
+UTF-8, its own process group, and a timeout that returns the output so far.
 
 **Try it.**
 
@@ -2625,12 +2891,21 @@ def agent_spec(skills: typing.Sequence[str] = ()) -> AgentSpec:
     spec = AgentSpec(
         model=Model(name=MODEL),
         instructions=INSTRUCTIONS,
-        config=RuntimeConfig(sandbox=SandboxConfig(enabled=True, file_downloads=True)),
+        config=RuntimeConfig(
+            sandbox=SandboxConfig(enabled=True, file_downloads=True),
+            # on by default; this client answers no questions and labels no subagent threads
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=False),
+        ),
     )
     if skills:  # an explicit `skills: null` is rejected, so the key is set only when needed
         spec.skills = [SkillRef(name=name) for name in skills]
     return spec
 ```
+
+Questions and dynamic subagents are on by default on the server; a client
+that does not handle them turns them off in the spec, or a turn pauses on
+an event nobody answers.
 
 The turn reads as one line per event. The sandbox is created after the
 first `exec` call, not before the turn, which is the "on demand" in
@@ -2707,13 +2982,18 @@ starts a new turn whose input is only the answers.
 
 ```python
     turns = [context.stream_turn(client, session_id, [UserMessage(content=prompt)], on_delta)]
-    while turns[-1].pending:
-        replies = answers(turns[-1], read)
-        if not replies:
-            break  # pending calls that are not questions; nothing this client can answer
-        turns.append(context.stream_turn(client, session_id, replies, on_delta))
+    for _round in range(MAX_ROUNDS):
+        if turns[-1].status != "done" or not turns[-1].pending:
+            return turns
+        turns.append(context.stream_turn(client, session_id, answers(turns[-1], read), on_delta))
+    turns[-1].state = {"status": "error", "message": f"still asking after {MAX_ROUNDS} resume turns"}
     return turns
 ```
+
+A turn is resumed only when it ended `done` with something pending; end
+of file at the prompt answers "(no answer given)", and a pending call that
+is not a question is answered with an error naming the tool this client
+cannot run.
 
 **Try it.**
 
@@ -2761,20 +3041,26 @@ a parallel run reads like step 29's job list.
 The step 30 evaluation format runs unchanged. Each task gets a fresh
 workspace, its own tools server, one session with approvals off, one
 turn, and its check. A crash becomes a failed result, not a stopped
-suite.
+suite, and so does a turn that ended in anything but `done`: the checker
+never runs on a paused, errored or cut-off turn, the reason is the detail,
+and the session is deleted afterwards unless `--keep` is given.
 
 `step_50_trueforge_subagents_eval/client/evaluate.py`:
 
 ```python
     started = time.perf_counter()
+    session_id = turn_id = answer = ""
+    metrics, status = {}, "incomplete"
     try:
         with ToolsServer(workspace, port=port) as tools:
             register_tools(client, tools.url)
             session_id = client.sessions.create(agent=spec or build_spec()).data.id
-            turn_id, answer, metrics = run_turn(client, session_id, task.prompt, on_event)
-        passed, detail = check(task, workspace, answer)
+            turn_id, answer, metrics, status = run_turn(client, session_id, task.prompt, on_event)
+        if status == "done":
+            passed, detail = check(task, workspace, answer)
+        else:  # error, cancelled, paused or a cut stream: the checker would only add noise
+            passed, detail = False, answer if status != "incomplete" else "the stream ended without turn.done"
     except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
-        session_id, turn_id, answer, metrics = "", "", "", {}
         passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
 ```
 
@@ -2791,7 +3077,11 @@ report indented under it, and a summary. Then the three step 30 tasks
 run through the server with a pass rate. The recording scored 3 of 3
 after one real fix: on Windows the tools server's `bash` ran under
 `cmd.exe`, where single quotes are not quotes, and a subagent's `rg`
-call failed. The server now prefers Git Bash when it is on the path.
+call failed. The server now prefers Git Bash when it is on the path, and
+skips the WSL launcher that `system32` puts under the same name. The
+`--replay` option redraws a finished turn from its stored events; it is
+not a recovery from a dropped stream, which the Python SDK does not
+reconnect.
 
 **Takeaway.** The evaluation harness does not care where the loop runs.
 
@@ -2807,8 +3097,9 @@ numbers from the recorded runs.
 link on every row. Three findings stand out. First, both servers turn a
 pause into data: an approval, a question or an OAuth prompt ends the turn
 with a typed event and a list of required actions, and any client resumes
-later with a typed input. Stage 11's terminal prompt blocks the process
-instead. Second, some things do not cross to a server: hooks, memory,
+later with a typed input; the turn outlives the client, though a dropped
+stream is not resumed by the Python SDK. Stage 11's terminal prompt blocks
+the process instead. Second, some things do not cross to a server: hooks, memory,
 rewind and checkpoints, instruction files, and a direct file system. On
 TrueForge every tool is a remote MCP server and the agent edits files in
 a sandbox, not your checkout. Third, cost: a one-line TrueForge turn
@@ -2834,7 +3125,7 @@ runs and who holds the credentials.
 
 # Wrap-up
 
-## Three rules that hold the design together
+## Two rules and a contract that hold the design together
 
 1. **Every tool call goes through one place.** From stage 2.2 the model's
    function name is a dictionary key. From stage 15 that lookup lives in
@@ -2845,9 +3136,51 @@ runs and who holds the credentials.
    facts are appended at send time and thrown away. Old tool output is
    shrunk only after its turn ends. Compaction rebuilds the prefix once and
    then leaves it alone.
-3. **Errors are results.** A refused edit, a blocked command, a declined
-   prompt, a timeout, a failed compaction: each comes back as text the model
-   can read and recover from. Nothing the model does can end the session.
+
+### The robustness contract
+
+Errors are results: a refused edit, a blocked command, a declined prompt,
+a timeout, a failed compaction, each comes back as text the model can read
+and recover from. From stage 2.4 on, every step guarantees the list below,
+with the stage where each guarantee first appears. A reader who diffs two
+consecutive steps sees only that step's idea; the contract is the same on
+both sides.
+
+- **One tool message per tool call**, even for broken JSON, an unknown
+  tool or a tool that raises: `Error: the arguments of X are not a JSON
+  object: ...`, `Error: no tool named 'X'.`, `Error: Type: message`. The
+  loop never raises out of a tool (2.4).
+- **A bounded turn.** `MAX_CALLS` model calls per turn, then a note and a
+  valid transcript (2.4).
+- **Leaving the chat** is `/exit`, ctrl-d, or ctrl-z then enter on
+  Windows; an empty line does nothing (3).
+- **UTF-8 everywhere**, and subprocesses with no stdin, in their own
+  process group, killed as a tree on timeout with the partial output as
+  the result (2.1, 2.3, 12).
+- **A transcript that always resumes.** Every message is saved as it
+  happens; loading repairs a transcript that ends in an unanswered tool
+  call; `/rewind` cuts only before one of your own messages (8). From
+  step 34 the unanswered calls are run instead of stubbed.
+- **Validated todos.** A bad list is an `Error:` and the old plan stays;
+  the plan is rebuilt from the transcript on resume (10).
+- **The permission holes closed.** Substitution asks, redirections and
+  `tee` and `find -delete` downgrade an allow to ask, `env` asks, `.git/`
+  writes ask, a missing argument is a deny, `2>&1` is not a separator (11).
+- **Offered tool set == executable set.** A subagent, and later a
+  handed-off agent, may run only the tools it was shown (15).
+- **Two markers.** `[output capped:` means the full text is on disk until
+  the turn ends; `[output trimmed:` means it is gone. Compaction cuts only
+  at a user message and never fires twice on the same transcript (14).
+- **Headless auto-deny.** `-p` without a terminal denies every `ask` on
+  stderr, exits 1 on an empty or failed turn, and writes no session file
+  unless `--resume` is given (21).
+- **`SERIAL` tools and one prompt at a time.** A batch that prompts or
+  whose order matters runs on the calling thread; prompts from worker
+  threads take turns under a lock; ctrl-c cancels the queued calls (22).
+- **Keep or roll back under a private gate.** Checkpoints capture a file
+  before an edit and `/undo` restores the turn (33); recovery re-runs a
+  crashed turn's calls through the same prompts (34); the steer, session
+  rules and `ask_user` never bypass a `deny` (35).
 
 ## Stage index
 
@@ -2907,24 +3240,39 @@ runs and who holds the credentials.
 | [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
 | [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | [51](step_51_trueforge_comparison/) | TrueForge versus this codelab versus managed agents | `README.md` |
+| [genui](genui/) | a second series: generative UI (AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps) | `genui/` |
+| [rsi](rsi/) | a third series: recursive self-improvement, skills only, 18 lessons on a curriculum of ML problems | `rsi/` |
 
 ## Tests and checks
 
 ```bash
-python run_tests.py              # every stage, against a fake model, no key needed
+python run_tests.py              # every step, root, genui/ and rsi/, against a fake model, no key needed
 python run_tests.py 2 14         # stages 2.x and 14 only
-python check_snippets.py         # every code snippet in every README exists in the code
+python run_tests.py rsi          # one series
+python check_snippets.py         # every snippet in this file, genui/README.md and every step README exists in the code
+python check_snippets.py 14 16   # a subset of the steps
 ```
 
-CI runs both on Linux, macOS and Windows.
+`check_snippets.py` with no arguments checks this file first, so a
+"The code" excerpt above that drifts from the step's source fails CI. CI
+runs both on Linux, macOS and Windows.
 
 ## Platform notes
 
 - **macOS and Linux.** The stage 12 sandbox uses `sandbox-exec` (built in)
   or `bwrap` (`apt install bubblewrap`). The banner shows which is active.
-- **Windows.** There is no OS sandbox. The banner shows `sandbox: none`.
-  `bash` runs through `cmd.exe` unless you run from Git Bash or WSL. The UI
-  forces UTF-8 output so panels draw correctly.
+  Inside it the network is off and writes are limited to the project
+  directory (`bwrap` adds a private `/tmp`; the macOS profile adds the
+  temp directory from step 38); `pip install` fails there by design.
+- **Windows.** There is no OS sandbox; the banner shows `sandbox: none`
+  and the stage 11 rules are the only guard. The tool named `bash` runs
+  through `cmd.exe` (`shell=True`), where single quotes are not quotes
+  and the destructive verbs are `del` and `rd /s /q`; run from Git Bash
+  or WSL for a real shell. End of input is ctrl-z then enter, not ctrl-d.
+  Ctrl-c reaches every process attached to the console, so a running
+  command dies with the turn. Every file is read and written as UTF-8
+  whatever the console code page, and the UI switches stdout to UTF-8 so
+  panels draw correctly.
 
 ## Credits
 
