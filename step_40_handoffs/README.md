@@ -383,7 +383,11 @@ marker is being replayed, not written.
 ```python
 def handoff(name):
     """Record that `name` answers from here on. The system message on disk stays; load() rewrites it."""
-    append({"handoff": name})
+    if not PERSIST:
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"handoff": name}) + "\n")
 ...
         elif "handoff" in entry:
             try:
@@ -411,13 +415,13 @@ without a marker opens as the default agent, whatever the last chat was.
 `harness/agent.py`:
 
 ```python
-                message, usage = call_llm(with_mode(messages) + [injection], tools=active_schemas(handoff.toolset()), on_delta=on_delta)
+        schemas = active_schemas(handoff.toolset())  # the active agent's tools; the stubs stand in for the deferred ones
 ...
         try:
             run_results(messages, message.tool_calls, repeated)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
-                raise LeaveChat()
+                raise
         finally:
             handoff.switch(messages)  # a handoff_to result in this reply: the next call is the new agent's - even when the user leaves
 ```

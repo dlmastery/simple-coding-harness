@@ -16,6 +16,7 @@ foreground path: start, pump, wait with a timeout, kill on expiry, and
 raise subprocess.TimeoutExpired so bash can turn it into a result.
 """
 
+import os
 import subprocess
 import threading
 
@@ -30,12 +31,25 @@ def popen(command):
 
     stderr is merged into stdout so the lines keep their order, which is
     the order the model reads them in. bufsize=1 makes the pipe
-    line-buffered on this side. sandbox.popen supplies the rest: no stdin,
-    utf-8 with errors="replace" so a stray byte cannot end the read, the
-    no-pager environment, and a process group of its own so a kill
-    reaches the children too.
+    line-buffered on this side. The rest is what sandbox.run does for a
+    foreground command: no stdin, utf-8 with errors="replace" so a stray
+    byte cannot end the read, the no-pager environment, and a process
+    group of its own so a kill reaches the children too.
     """
-    return sandbox.popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+    sandboxed = sandbox.wrap(command)  # argv inside the OS sandbox, or None for a plain shell
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    return subprocess.Popen(
+        sandboxed or command,
+        shell=sandboxed is None,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
+        encoding="utf-8",
+        errors="replace",
+        env=sandbox.ENV,
+        **group,
+    )
 
 
 class Reader:

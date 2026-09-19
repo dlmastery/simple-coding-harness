@@ -28,16 +28,21 @@ from harness.ui import ui  # noqa: E402
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 def say(text):
@@ -61,7 +66,7 @@ def fresh(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "SESSION_DIR", tmp_path / "sessions")
     monkeypatch.setattr(session, "CURRENT", "test-session")
     monkeypatch.setattr(session, "WRITTEN", 0)
-    monkeypatch.setattr(session, "ENABLED", True)
+    monkeypatch.setattr(session, "PERSIST", True)
     monkeypatch.setattr(hooks, "CONFIG_PATHS", [tmp_path / "hooks.json"])
     monkeypatch.setattr(mcp_client, "CONFIG_PATHS", [tmp_path / "mcp.json"])
     monkeypatch.setattr(plan, "MODE", "act")
@@ -97,7 +102,7 @@ class Scripted:
         self.requests = []  # (tools offered, user messages) per call
         self.lock = threading.Lock()
 
-    def __call__(self, messages, tools=None, on_delta=None):
+    def __call__(self, messages, tools=None, on_delta=None, on_restart=None):
         with self.lock:
             self.requests.append(([s["function"]["name"] for s in tools or []], [m["content"] for m in messages if m["role"] == "user"]))
             reply = self.replies.pop(0) if len(self.replies) > 1 else self.replies[0]
@@ -230,7 +235,7 @@ def test_a_huge_output_is_complete_under_the_live_panel():
 def test_stderr_is_interleaved_where_it_happened_and_utf8_survives(monkeypatch):
     seen = lines_seen(monkeypatch)
     body = "import sys; print('out 1', flush=True); print('err 1', file=sys.stderr, flush=True); print('out 2 h\\u00e9 \\u2713', flush=True)"
-    result = tools.bash(f'{sys.executable} -c "{body}"')
+    result = tools.bash(f'{sys.executable} -X utf8 -c "{body}"')  # -X utf8: the child prints UTF-8 whatever the console code page
     assert result == "out 1\nerr 1\nout 2 hé ✓\n"  # one pipe: the order the command wrote in, decoded as utf-8
     assert [line for _, line, _ in seen] == ["out 1", "err 1", "out 2 hé ✓"]
 
@@ -299,7 +304,7 @@ def test_loop_smoke_streams_then_records_the_full_result(monkeypatch):
 
 def test_bad_tool_calls_each_get_a_result_and_the_loop_goes_on(monkeypatch):
     """Malformed arguments, an unknown tool and a raising tool: one tool message each, then the model answers."""
-    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{broken"))
+    broken = FakeCall(id="b1", function=SimpleNamespace(name="bash", arguments="{broken"))
     Scripted([
         use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"}), call("b4", "bash", {})),
         say("all four came back as errors"),
@@ -308,7 +313,7 @@ def test_bad_tool_calls_each_get_a_result_and_the_loop_goes_on(monkeypatch):
     results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
     assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
     assert results["b2"] == "Error: no tool named 'no_such_tool'."
-    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b3"] == "Error: missing.txt is not a file."
     assert results["b4"] == "Blocked by policy: bash: missing argument 'command'"
     assert messages[-1] == {"role": "assistant", "content": "all four came back as errors"}
     assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool", "tool", "tool", "assistant"]
@@ -326,7 +331,7 @@ def test_utf8_round_trip_through_the_file_tools(fresh):
 def test_write_todos_rejects_a_bad_list_and_keeps_the_old_one():
     todos.TODOS[:] = [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
     assert todos.write_todos([{"content": "x", "activeForm": "y", "status": "sideways"}]).startswith("Error: item 0 has status 'sideways'")
-    assert todos.write_todos("nope") == "Error: todos must be a list of items."
+    assert todos.write_todos("nope") == "Error: todos must be a list."
     assert todos.TODOS == [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
 
 
@@ -348,7 +353,7 @@ def test_rewind_offers_user_messages_only_so_no_tool_call_is_orphaned(monkeypatc
     monkeypatch.setattr(ui, "resumed", lambda m, label="": None)
     monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
     kept = commands.handle("/rewind", messages)
-    assert offered == ["turn 1    one", "turn 2    two"]  # only user rows
+    assert offered == ["one", "two"]  # only user rows
     assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]
 
 
@@ -373,7 +378,7 @@ def test_headless_without_a_terminal_denies_every_ask_and_exits_one_without_an_a
         agent.main()
     assert stop_.value.code == 1  # no answer text: a script can see the run gave nothing
     assert not session.path_for(session.CURRENT).exists()  # a one-off question leaves no session file
-    assert "denied (no terminal to ask on)" in capsys.readouterr().err
+    assert "declined, no terminal to ask on" in capsys.readouterr().err
 
 
 def test_exit_words_and_eof_end_the_chat(monkeypatch):

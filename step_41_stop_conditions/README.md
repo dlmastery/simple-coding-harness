@@ -43,7 +43,7 @@ step_41_stop_conditions/
 │   ├── hooks.py          hook events; Stop joins them, and an exit 2 blocks the stop
 │   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
 │   ├── jobs.py           background jobs: commands that run while the chat goes on
-│   ├── llm.py            the model call with retries; USAGE_EXTRA asks OpenRouter for the cost
+│   ├── llm.py            the model call with retries; EXTRA_BODY asks OpenRouter for the cost
 │   ├── mcp_client.py     MCP client: tools served by other processes over stdio
 │   ├── memory.py         persistent memory
 │   ├── modes.py          named permission policies, one layer above the rules
@@ -178,7 +178,7 @@ def cost_of(usage):
     """The dollars one model call cost, and where the number came from.
 
     The cost the usage carries wins: OpenRouter reports one when asked
-    (llm.USAGE_EXTRA). Otherwise the tokens are priced from PRICES, with
+    (llm.EXTRA_BODY). Otherwise the tokens are priced from PRICES, with
     the cached part of the prompt at its own rate.
     """
     usage = usage or {}
@@ -202,7 +202,7 @@ def record(usage):
 Only OpenRouter reports a cost, and only when asked. `harness/llm.py`:
 
 ```python
-USAGE_EXTRA = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
+EXTRA_BODY = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
 ```
 
 goes out as `extra_body` on every request, and `usage_from` reads the
@@ -644,7 +644,7 @@ on the usage line, `may_stop` and `send_back` on both ends,
 `subagent.py` (`finish` in `WITHHELD`, `stop.tripped(0)` and
 `stop.record` in the loop), `compact.py` (`stop.record` after the
 summariser call), `plan.py` (`offered` lets `finish` run in plan mode),
-`ui.py` (`usage(cost=)` and the `cost` row of the summary),
+`ui.py` (`usage(cost=)`; the summary's `cost` row is from step 30),
 `evaluate.py` (`stop.SPENT` saved, zeroed and restored per task; the
 usage recorder adds `cost`), `commands.py` (`/cost`),
 `.agents/hooks.json` (the `Stop` entry). Everything else, `capstone/`

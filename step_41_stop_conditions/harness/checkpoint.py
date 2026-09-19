@@ -8,10 +8,10 @@ yet is recorded as such, so undoing the turn deletes it. A file is
 captured once per turn: the first copy is the state before the turn, which
 is the one an undo must bring back.
 
-The capture is one call in `tools.run`, after the approval and before the
-tool: only an edit that actually runs is captured, and a capture that
-fails is a loud note naming the file. `pre_tool_use` is the same capture
-as a hook, for a hooks.json that wants it earlier. `agent.turn` calls `begin_turn` once per user
+The capture is the built-in PreToolUse hook `pre_tool_use`. tools.run()
+runs it through hooks.run_builtin() once a call is allowed, so a write the
+user declined is never captured; the tool functions themselves do not know
+about checkpoints. `agent.turn` calls `begin_turn` once per user
 message, which numbers the turn and records where the transcript stood.
 `/undo` and `/rewind` use that record to cut the transcript and to restore
 the files together.
@@ -112,12 +112,22 @@ def capture(path, tool=None):
 
 
 def pre_tool_use(event):
-    """The capture as a PreToolUse hook (`"python": "harness.checkpoint:pre_tool_use"`). Never blocks."""
+    """The built-in PreToolUse hook: capture the target of an edit tool. Never blocks.
+
+    A capture that fails is said out loud, with the file's name: the edit
+    goes ahead, but /undo will not bring that file back.
+    """
     if event.get("tool_name") not in EDIT_TOOLS:
         return None
     path = (event.get("tool_input") or {}).get("path")
-    if path:
+    if not path:
+        return None
+    try:
         capture(path, tool=event["tool_name"])
+    except OSError as failed:
+        from .ui import ui  # here, not at the top: ui imports todos, tools imports this module's hook
+
+        ui.note(f"checkpoint: could not capture {path} ({failed}); /undo will not restore it")
     return None
 
 

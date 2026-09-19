@@ -4,16 +4,20 @@ Tool call output is the main reason a transcript explodes. Three
 mechanisms, cheapest first. Only the first two live here; the expensive one
 (the compaction agent) is compact.py.
 
-1. cap    a fresh tool result is cut at 10,000 characters and the full
+1. cap    a fresh tool result is trimmed at 10,000 characters and the full
           text parked in a temp file the agent can page through with head,
           tail, sed or grep. The file lives only until the turn ends; then
-          it is deleted. Its marker is CAPPED, so strip and fit still act
-          on a capped result: TRIMMED is theirs, and means gone for good.
+          it is deleted.
 2. strip  once a turn is over, its tool results shrink to a stub. Strip
           touches past turns only. The edit lands at the tail, so the
           cached prefix in front of it survives.
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
+
+Two markers, because they mean different things: CAPPED says "the rest is
+in a file for this turn", TRIMMED says "the rest is gone". strip and fit
+look for TRIMMED only, so a capped result is still shrunk once its turn is
+over.
 
 A fourth piece, images: a tool result that carries a `[[image:PATH]]` marker
 asks the loop to show the model that PNG. image_message() builds the user
@@ -32,8 +36,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-CAPPED = "[output capped:"    # cap() marker: the full text is on disk for the rest of the turn
-TRIMMED = "[output trimmed:"  # strip()/fit() marker: the text is gone for good; stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap(): the full text is on disk until the turn ends
+TRIMMED = "[output trimmed:"  # from strip() and fit(): gone for good; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt

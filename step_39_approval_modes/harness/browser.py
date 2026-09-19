@@ -1,4 +1,5 @@
-"""Step 23 - browser tools: one Chromium page, driven through Playwright.
+"""Step 24 - browser tools: one Chromium page, driven through Playwright. A
+screenshot now carries the image marker, so the browse subagent sees it.
 
 The page is created on first use and lives until browser_close() or the end
 of the session. Playwright's sync API is bound to the thread that started it,
@@ -26,7 +27,7 @@ _playwright = None
 _browser = None
 _page = None
 _worker = None  # the one thread every Playwright object belongs to
-_worker_lock = threading.Lock()  # two parallel browse calls must not each start a worker
+_worker_lock = threading.Lock()  # two first calls at once must not start two threads
 
 
 def headless():
@@ -43,11 +44,25 @@ def on_worker(fn, *args):
     return _worker.submit(fn, *args).result()
 
 
+def dead():
+    """True when the window was closed or the browser process is gone."""
+    try:
+        return _page.is_closed() or not _browser.is_connected()
+    except Exception:  # noqa: BLE001 - even asking failed: treat it as dead
+        return True
+
+
 def page():
-    """The page, launched on first use. Only ever called on the browser thread."""
+    """The page, launched on first use - or again, after the window was closed or the browser died.
+
+    Only ever called on the browser thread.
+    """
     global _playwright, _browser, _page
-    if _page is not None and _page.is_closed():  # the window was closed by hand: start over
-        _page = None
+    if _page is not None and dead():
+        try:
+            _forget()
+        except Exception:  # noqa: BLE001 - it is already gone; start over anyway
+            pass
     if _page is None:
         try:
             from playwright.sync_api import sync_playwright
@@ -127,22 +142,30 @@ def browser_screenshot(path: str = "screenshot.png") -> str:
         return f"Error: {path} is outside the project. Screenshots stay under {PROJECT}."
     target.parent.mkdir(parents=True, exist_ok=True)
     page().screenshot(path=str(target))
-    return f"Saved screenshot to {target}"
+    return f"[[image:{target}]] Saved screenshot to {target}"  # the marker shows the picture to the model
 
 
-@tool
-def browser_close() -> str:
-    """Close the browser. The next browser tool call starts a fresh one."""
+def _forget():
+    """Drop the handles, whatever state they are in. Runs on the browser thread."""
     global _playwright, _browser, _page
-    if _page is None:
-        return "No browser was open."
     try:
         if _browser is not None:
             _browser.close()
         if _playwright is not None:
             _playwright.stop()
     finally:
-        _playwright = _browser = _page = None  # a close that failed halfway must not leave a dead page behind
+        _playwright = _browser = _page = None  # even when close() raised: never keep a dead page
+
+
+def browser_close() -> str:
+    """Close the browser. The next browser tool call starts a fresh one."""
+    if _page is None:
+        return "No browser was open."  # without touching the browser thread, which may not exist
+    return tool(_close)()
+
+
+def _close():
+    _forget()
     return "Browser closed."
 
 
@@ -198,7 +221,7 @@ SCHEMAS = [
     ),
     schema(
         "browser_screenshot",
-        "Save a PNG of the current viewport to a path inside the project.",
+        "Save a PNG of the current viewport to a path inside the project. The picture comes back to you in the next message.",
         {"path": {"type": "string", "description": "Where to save the PNG, relative to the project"}},
         [],
     ),

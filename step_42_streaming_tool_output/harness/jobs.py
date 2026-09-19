@@ -31,7 +31,7 @@ from . import sandbox, streaming
 TAIL_LINES = 20     # lines of the log a status report shows
 KILL_GRACE = 2      # seconds a job gets to end on its own before the next, harder step
 DEFAULT_WAIT = 60   # seconds job_wait blocks when the model gives no timeout
-MAX_WAIT = 300      # the most one job_wait may block, whatever the model asks for
+MAX_WAIT = 300      # the longest one job_wait may block the turn; poll with job_status past that
 
 JOBS = {}                 # job id -> Job, in start order
 _lock = threading.Lock()  # guards the counter: tool calls can come from a thread pool
@@ -48,8 +48,8 @@ class Job:
     seen: bool = False    # True once a report showed the model that the job had ended
     killed: bool = False  # True when job_kill or kill_all ended it
     reader: object = None  # the streaming.Reader that fills the log
-    on_line: object = None  # set while job_wait shows the job live: each new line goes here too
     handle: object = None  # the open log file the reader writes to; closed by settle()
+    on_line: object = None  # set while job_wait shows the job live: each new line goes here too
 
     def running(self):
         return self.process.poll() is None
@@ -114,9 +114,10 @@ def start(command):
 def terminate(process):
     """End a process and the children it started.
 
-    Windows: a CTRL_BREAK to the process group, then taskkill for the tree.
-    Elsewhere: SIGTERM to the session. If the group is gone but the leader
-    is not, terminate() and kill() finish the job the plain way.
+    Windows: a CTRL_BREAK to the process group, then taskkill for the whole
+    tree, always: the shell may have left on the signal while a grandchild
+    ignored it. Elsewhere: SIGTERM to the session, then SIGKILL to the
+    session, which no process can ignore.
     """
     if process.poll() is not None:
         return
@@ -124,23 +125,23 @@ def terminate(process):
         try:
             process.send_signal(signal.CTRL_BREAK_EVENT)  # reaches the whole group
             process.wait(timeout=KILL_GRACE)
-            return
         except (OSError, ValueError, subprocess.TimeoutExpired):
             pass
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(process.pid)], capture_output=True)
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(process.pid)], capture_output=True)  # a no-op once the tree is gone
     else:
         try:
             os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+            process.wait(timeout=KILL_GRACE)
+        except (OSError, AttributeError, subprocess.TimeoutExpired):
+            pass
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
         except (OSError, AttributeError):
             pass
     try:
         process.wait(timeout=KILL_GRACE)
     except subprocess.TimeoutExpired:
-        process.terminate()
-        try:
-            process.wait(timeout=KILL_GRACE)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        process.kill()
 
 
 def find(job_id):
@@ -190,13 +191,21 @@ def job_status(job_id: str) -> str:
 
 
 def job_wait(job_id: str, timeout: int = DEFAULT_WAIT) -> str:
-    """Block until the job ends or the timeout passes, then report."""
+    """Block until the job ends or the timeout passes, then report.
+
+    The wait is capped at MAX_WAIT: the whole turn, and the prompt, block
+    for as long as this runs, and a model that asks for an hour gets five
+    minutes and a report it can act on.
+    """
     job = find(job_id)
     if isinstance(job, str):
         return job
     from .ui import ui  # here, not at the top: ui is built on top of the tools
 
-    timeout = max(1, min(int(timeout or DEFAULT_WAIT), MAX_WAIT))  # a wait is bounded, whatever the model asks for
+    try:
+        timeout = min(int(timeout or DEFAULT_WAIT), MAX_WAIT)
+    except (TypeError, ValueError):
+        return f"Error: timeout must be a number of seconds, got {timeout!r}"
     with ui.streaming(job.id, {"command": job.command}) as show:  # the wait is the one time someone is watching
         job.on_line = show
         try:
@@ -225,7 +234,7 @@ def job_kill(job_id: str) -> str:
 
 def running():
     """The jobs whose process is still alive, in start order."""
-    return [job for job in JOBS.values() if job.running()]
+    return [job for job in list(JOBS.values()) if job.running()]  # a copy: a pool thread may be adding one
 
 
 def jobs_prompt():
@@ -235,7 +244,7 @@ def jobs_prompt():
     report has shown the model that it ended.
     """
     lines = []
-    for job in JOBS.values():
+    for job in list(JOBS.values()):
         if job.running():
             lines.append(f"{job.id}: {job.state()} - {job.command}")
         elif not job.seen:
@@ -245,11 +254,11 @@ def jobs_prompt():
 
 def kill_all():
     """Session end: kill every running job and delete every log."""
-    for job in JOBS.values():
+    for job in list(JOBS.values()):
         job.killed = job.killed or job.running()
         terminate(job.process)
         job.settle()  # the reader has let go of the log before it is deleted
-    for job in JOBS.values():
+    for job in list(JOBS.values()):
         try:
             job.log.unlink(missing_ok=True)
         except OSError:
@@ -290,7 +299,7 @@ JOB_SCHEMAS = [
         "Block until a background job ends or the timeout passes, then report like job_status.",
         {
             "job_id": {"type": "string", "description": "The id bash_background returned"},
-            "timeout": {"type": "integer", "description": f"Seconds to wait, default {DEFAULT_WAIT}"},
+            "timeout": {"type": "integer", "description": f"Seconds to wait, default {DEFAULT_WAIT}, at most {MAX_WAIT}; poll with job_status for longer jobs"},
         },
         ["job_id"],
     ),

@@ -5,6 +5,10 @@ type) and a body. Two directories hold them, both under the harness home,
 never inside the project: one per project and one shared by every project.
 The index (one line per memory) goes into the late block; the body is read
 on demand with the recall tool, the way skills work.
+
+A memory's name is its slug - lower case, dashes - and nothing else: the
+file name, the index line and the name recall takes are all the same string,
+so "Build Cmd" and "build-cmd" are one memory, not two.
 """
 
 import re
@@ -12,10 +16,12 @@ from pathlib import Path
 
 import yaml
 
-from . import config, session
+from . import config, history, session
 
 TYPES = ("user", "project", "feedback", "reference")
 SCOPES = ("project", "user")
+
+MAX_BODY = 8_000  # chars; a memory is a note, not a document
 
 MEMORY_DIRS = [
     config.HOME / "memory" / session.PROJECT,  # this project's memories
@@ -56,7 +62,10 @@ def find_memories():
         if not directory.exists():
             continue
         for path in sorted(directory.glob("*.md")):
-            meta, _ = parse(path.read_text(encoding="utf-8", errors="replace"))
+            try:
+                meta, _ = parse(path.read_text(encoding="utf-8", errors="replace"))
+            except OSError:  # unreadable file: skip it, the rest of the index still works
+                continue
             name = slug(str(meta.get("name") or path.stem))
             if name in memories:
                 continue
@@ -80,7 +89,9 @@ def remember(name: str, description: str, content: str, type: str = "project", s
         return f"Error: type must be one of {', '.join(TYPES)}."
     if scope not in SCOPES:
         return f"Error: scope must be one of {', '.join(SCOPES)}."
-    name = slug(name)  # the file name and the index key are the same thing
+    if len(content) > MAX_BODY:
+        return f"Error: the content is {len(content)} chars; a memory holds at most {MAX_BODY}. Keep the fact, drop the transcript."
+    name = slug(name)  # the one form the file, the index and recall all use
     directory = MEMORY_DIRS[SCOPES.index(scope)]
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / f"{name}.md"
@@ -91,19 +102,19 @@ def remember(name: str, description: str, content: str, type: str = "project", s
 
 
 def recall(name: str) -> str:
-    """Return the body of a memory."""
-    memories = find_memories()
+    """Return the body of a memory, capped like any other tool output."""
     name = slug(name)
+    memories = find_memories()
     if name not in memories:
         return f"No memory named '{name}'."
     _, body = parse(memories[name]["path"].read_text(encoding="utf-8", errors="replace"))
-    return body.strip() or "(empty memory)"
+    return history.cap(body.strip() or "(empty memory)")
 
 
 def forget(name: str) -> str:
     """Delete a memory."""
-    memories = find_memories()
     name = slug(name)
+    memories = find_memories()
     if name not in memories:
         return f"No memory named '{name}'."
     memories[name]["path"].unlink()

@@ -10,7 +10,7 @@ Three budgets guard a turn that does not end by itself. MAX_TURN_CALLS
 is step 34's cap on model calls per turn, moved here. MAX_SESSION_COST
 is a cap in dollars on the whole session: every model call is priced,
 from the cost the API reported when the usage carries one (OpenRouter
-sends it when llm.USAGE_EXTRA asks; other hosts never do) and from PRICES
+sends it when llm.EXTRA_BODY asks; other hosts never do) and from PRICES
 otherwise - an estimate, and FALLBACK_PRICES for a model not in the
 table - and the total is SPENT. MAX_TURN_SECONDS caps the wall-clock
 time of one turn. The caps are checked before a model call: a tool that
@@ -147,7 +147,7 @@ def cost_of(usage):
     """The dollars one model call cost, and where the number came from.
 
     The cost the usage carries wins: OpenRouter reports one when asked
-    (llm.USAGE_EXTRA). Otherwise the tokens are priced from PRICES, with
+    (llm.EXTRA_BODY). Otherwise the tokens are priced from PRICES, with
     the cached part of the prompt at its own rate.
     """
     usage = usage or {}

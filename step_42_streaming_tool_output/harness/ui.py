@@ -1,10 +1,10 @@
 """Step 42 - a running tool has a panel of its own while it runs.
 ToolStream holds the last STREAM_LINES lines of one call; ui.streaming()
 opens one, tool_line() adds a line to it, and a rich Live redraws every
-open panel as lines arrive from the reader threads. The panel is
-transient: when the call ends it disappears, and ui.tool() prints the
-finished panel with the capped result as before. One live display at a
-time: a panel that opens while the spinner turns stops it, and a spinner
+open panel on its own clock as lines arrive from the reader threads. The
+panel is transient: when the call ends it disappears, and ui.tool() prints
+the finished panel with the capped result as before. One live display at
+a time: a panel that opens while the spinner turns stops it, and a spinner
 started while a panel is open shows nothing.
 The rest is step 40: handoff() draws the "handoff -> name" line when the
 conversation moves to another agent. The banner names /agent and /handoff.
@@ -48,6 +48,22 @@ STREAM_LINES = 8  # lines of live output a running tool's panel shows
 REFRESH_PER_SECOND = 8  # how often the live display redraws the open panels, whatever the line rate
 
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
+
+APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+USAGE_LOCK = threading.Lock()    # parallel subagents report usage from their threads; += is not atomic
+
+
+class Idle:
+    """A spinner that does nothing: used off the main thread, where rich cannot draw one."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
 
 
 class ToolStream:
@@ -162,13 +178,13 @@ class UI:
         results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
         for message in messages:
             if message["role"] == "user":
-                content = message["content"]
-                self.user(caption_of(content) if isinstance(content, list) else content)
+                content = message.get("content") or ""
+                self.user(caption_of(content) if isinstance(content, list) else str(content))
             elif message["role"] == "assistant":
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], parse_args(call["function"].get("arguments")), results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -187,14 +203,25 @@ class UI:
         """Stage 11, extended in step 35: stop and ask before a tool call the rules rate as 'ask'.
 
         Returns "y", "n", "a" or "never". Anything else typed, and Ctrl-C or
-        Ctrl-D, is "n": the safe answer is the default.
+        Ctrl-D, is "n": the safe answer is the default. In print mode nothing
+        may reach stdout, and without a terminal there is nobody to ask: the
+        answer is "n" and stderr says so.
         """
-        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-        try:
-            answer = prompt.read("  allow? (y/n/a=always/never)> ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            return "n"
-        return self.ANSWERS.get(answer, "n")
+        with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask on: {reason}")
+                return "n"
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                if self.live:
+                    answer = prompt.read("  allow? (y/n/a=always/never)> ").strip().lower()
+                else:
+                    sys.stderr.write("  allow? (y/n/a=always/never)> ")
+                    sys.stderr.flush()
+                    answer = input().strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                return "n"
+            return self.ANSWERS.get(answer, "n")
 
     def question(self, question, options=()):
         """Step 35: a question from the model, with its options numbered from 1."""
@@ -236,7 +263,7 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
-        """The next line from the user: None when they want out (ctrl-d, ctrl-c), "" for an empty line."""
+        """One line from the user; None when they are leaving (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -278,9 +305,8 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        result = result if isinstance(result, str) else str(result)
-        args = args if isinstance(args, dict) else {"args": args}
-        if name == "write_todos" and isinstance(args.get("todos"), list) and not result.startswith("Error"):
+        # the one place the UI knows a tool by name - and only when the plan was accepted
+        if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -302,7 +328,6 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        todos = [t for t in todos if isinstance(t, dict)]
         done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
@@ -358,10 +383,11 @@ class UI:
         One live display at a time: a tool panel that opens while the
         spinner turns stops it, and a spinner started while a panel is
         open shows nothing. The panel stands in for it either way. Off the
-        main thread (a subagent in a pool) there is no spinner at all.
+        main thread (a subagent in a pool) there is no spinner at all: a
+        second live display from a worker thread is an error in rich.
         """
         if threading.current_thread() is not threading.main_thread():
-            return Quiet()
+            return Idle()
         return Spinner(self, self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT))
 
     # ------------------------------------------------------- tool streaming
@@ -440,6 +466,33 @@ class UI:
         """The context budget: one bar per category, as budget.render draws it."""
         self._panel(text, "context budget", TOOL)
 
+    # ---------------------------------------------------------------- usage
+
+    def usage(self, stats, estimate=None, cost=None):
+        """One line per model call. estimate is the harness's count of the prompt it sent; cost is its dollars, from stop.record."""
+        with USAGE_LOCK:
+            for key, value in stats.items():
+                if key != "cost" or cost is None:  # a priced cost stands in for the reported one
+                    self._totals[key] = self._totals.get(key, 0) + (value or 0)
+            if cost is not None:
+                self._totals["cost"] = self._totals.get("cost", 0.0) + cost
+        parts = []
+        for key, value in stats.items():
+            if key == "prompt_tokens" and estimate is not None:
+                parts.append(f"{value:,} prompt (estimate {estimate:,})" if value else f"estimate {estimate:,} prompt")
+            elif key == "cost":
+                if value and cost is None:
+                    parts.append(f"${value:.4f}")
+            elif value:
+                parts.append(f"{value:,} {key.replace('_tokens', '')}")
+        if cost is not None:
+            parts.append(f"${cost:.4f}")
+        self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
+
+    def context(self, text):
+        """The context budget: one bar per category, as budget.render draws it."""
+        self._panel(text, "context budget", TOOL)
+
     def summary(self):
         if not self._totals:
             return
@@ -496,6 +549,14 @@ class UI:
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
 
+    def _parse_args(self, arguments):
+        """Stored arguments may be broken JSON (a cut-off reply); show them raw then."""
+        try:
+            args = json.loads(arguments)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw": arguments}
+        return args if isinstance(args, dict) else {"raw": arguments}
+
     def _format_args(self, args):
         if len(args) == 1:
             return str(next(iter(args.values())))
@@ -509,28 +570,6 @@ class UI:
         if hidden > 0:
             body.append(f"\n… {hidden} more lines", style=f"italic {TOOL}")
         return body
-
-
-class Quiet:
-    """A spinner that draws nothing: what working() returns off the main thread."""
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return False
-
-    def stop(self):
-        pass
-
-
-def parse_args(arguments):
-    """The arguments of a logged tool call as a dict; the raw text under "raw" when they are not JSON."""
-    try:
-        args = json.loads(arguments or "{}")
-    except (ValueError, TypeError):
-        return {"raw": str(arguments)}
-    return args if isinstance(args, dict) else {"raw": str(arguments)}
 
 
 ui = UI()

@@ -26,9 +26,6 @@ from pathlib import Path
 import yaml
 
 from . import subagent
-from .skills import front_matter
-
-NAME = re.compile(r"^[A-Za-z0-9_-]{1,50}$")  # a definition name becomes a tool name: letters, digits, _ and -
 
 AGENT_DIRS = [
     Path.home() / ".agents" / "agents",  # your agents
@@ -39,54 +36,77 @@ PREFIX = subagent.AGENT_PREFIX  # every agent tool is agent_<name>
 DEFAULT_MAX_TURNS = 12          # the same cap as the exploration subagent
 EDIT_TOOLS = ("write_file", "str_replace")  # withheld from the exploration subagent, but a definition may name them
 
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
+NAME = re.compile(r"[A-Za-z0-9_-]{1,50}")  # agent_<name> has to be a tool name the API accepts
+
 
 def parse(text):
-    """Split a definition file into its front matter dict and its body."""
-    if not text.startswith("---"):
+    """Split a definition file into its front matter dict and its body.
+
+    Returns (None, text) when there is no front matter. Raises ValueError
+    when the front matter is not a YAML mapping; find_agents turns that
+    into a note and skips the file.
+    """
+    match = FRONT_MATTER.match(text)
+    if not match:
         return None, text
-    _, front, body = text.split("---", 2)
-    return yaml.safe_load(front) or {}, body.strip()
+    try:
+        meta = yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError as broken:
+        raise ValueError(f"front matter is not valid YAML: {broken}") from None
+    if not isinstance(meta, dict):
+        raise ValueError("front matter is not a mapping")
+    return meta, text[match.end():].strip()
 
 
-def as_list(value):
-    """A front matter list, or a comma-separated string, as a list of strings; None when absent."""
+def tool_list(value):
+    """The `tools` field as a list of names: a YAML list, or a comma-separated string. None means every tool."""
     if isinstance(value, str):
-        value = [part.strip() for part in value.split(",") if part.strip()]
-    return [str(item) for item in value] if isinstance(value, list) else None
+        value = [part for part in value.split(",") if part.strip()]
+    if not isinstance(value, list):
+        return None
+    return [str(t).strip() for t in value]
 
 
 def find_agents(dirs=None):
     """Read every <name>.md under the agent dirs; name -> definition.
 
     A later directory wins on a clash, so a project agent replaces a
-    personal one of the same name. A file without a name in its front
-    matter is skipped.
+    personal one of the same name. A file without a front matter is
+    skipped; a file with a broken one, a bad name or a bad max_turns is
+    skipped with a note, so one bad definition never stops the harness
+    from starting.
     """
     agents = {}
     for directory in dirs or AGENT_DIRS:
         for path in sorted(directory.glob("*.md")):
-            meta = front_matter(path)  # a broken file is a note, not a crash at import
-            if not meta:
-                continue
-            name = str(meta.get("name") or path.stem)
-            if not NAME.match(name):
-                print(f"skipped {path}: agent name {name!r} is not letters, digits, _ and - (50 at most)")
-                continue
             try:
+                meta, body = parse(path.read_text(encoding="utf-8-sig"))
+                if meta is None:
+                    continue
+                name = str(meta.get("name") or path.stem)
+                if not NAME.fullmatch(name):
+                    raise ValueError(f"name {name!r} must match {NAME.pattern}")
                 max_turns = int(meta.get("max_turns") or DEFAULT_MAX_TURNS)
-            except (TypeError, ValueError):
-                max_turns = DEFAULT_MAX_TURNS
-            _, body = parse(path.read_text(encoding="utf-8-sig", errors="replace"))
+            except (OSError, ValueError) as broken:
+                _note(f"agent definition {path} skipped: {broken}")
+                continue
             agents[name] = {
                 "name": name,
                 "description": " ".join(str(meta.get("description", "")).split()),
-                "tools": as_list(meta.get("tools")),
-                "handoffs": as_list(meta.get("handoffs")),
-                "max_turns": max_turns,
+                "tools": tool_list(meta.get("tools")),
+                "handoffs": tool_list(meta.get("handoffs")),
+                "max_turns": max_turns if max_turns > 0 else DEFAULT_MAX_TURNS,
                 "prompt": body,
                 "path": path,
             }
     return agents
+
+
+def _note(text):
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+    ui.note(text)
 
 
 AGENTS = find_agents()

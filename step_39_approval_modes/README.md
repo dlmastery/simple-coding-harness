@@ -211,7 +211,11 @@ Every switch is one line in the session log. `harness/session.py`:
 ```python
 def mode(name):
     """Record that the approval mode is `name` from here on."""
-    append({"mode": name})
+    if not PERSIST:
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"mode": name}) + "\n")
 ```
 
 and `session.load` replays it with `modes.set_mode(entry["mode"], log=False)`
@@ -285,23 +289,33 @@ a.txt` and knows why nothing was written.
 
 `read-only` is only as read-only as the bash rules are honest. `cat` is
 on the allow list; `cat a.txt > b.txt` writes a file. So `rate()` looks
-at what an allowed command does with its output:
+at what an allowed command does with its output, with the `WRITES`
+pattern the rules have carried since the review of step 11:
 
 ```python
-def writes(part):
-    """Whether an otherwise read-only command would write: a redirection, tee, or find that deletes or execs."""
-    if unquoted(part, ">") or first_word(part) == "tee":
-        return True
-    return first_word(part) == "find" and any(w in ("-delete", "-exec", "-execdir", "-ok", "-okdir") for w in part.split())
+# The rules match a command's first word; these hide another command inside it.
+UNREADABLE = re.compile(r"\$\(|`|<\(|>\(")
+# An allowed command that writes: a redirection into a file, tee, or find that deletes / runs things.
+WRITES = re.compile(r"(?<![0-9&<])>>?(?!&)|\btee\b|\bfind\b.*\s-(delete|exec|execdir|ok|okdir)\b")
+```
+
+```python
+    if action == "allow" and WRITES.search(unquoted(part)):
+        action = "ask"  # `cat a > b` is a write, whatever the verb
+    rule = SESSION_RULES.get(("bash", first_word(part))) if session_rules_apply() else None
+    if rule and action != "deny":
+        action = rule
+    return action
 ```
 
 An allowed part that writes becomes an `ask`, and a command the rules
 cannot read at all - a `$(...)`, a backtick, a `<(...)` - is an `ask`
-whatever its first word (`opaque`). In `default` those ask; in
+whatever its first word (`UNREADABLE`). In `default` those ask; in
 `read-only` and in plan mode the table turns the ask into a deny. The
 session rules of step 35 (`a` = always) are not consulted in those two
-modes either: an `always` given in act mode must not unlock a command
-where the answer is always no.
+modes either - `session_rules_apply()` says so, for `rate` and for
+`remembered` alike: an `always` given in act mode must not unlock a
+command where the answer is always no.
 
 ### 5. The command
 
@@ -336,12 +350,11 @@ the approval mode that is back in force.
     top.add_argument("--mode", choices=modes.NAMES, help="start in this approval mode (default: default)")
 ...
 def chat(cli):
-    if cli.print:
-        headless()
-        session.ENABLED = bool(cli.resume)  # a one-off question leaves no session behind
     if cli.mode:
-        modes.set_mode(cli.mode)  # before the banner and the first check; logged, so --resume comes back in it
-    if not cli.print:
+        modes.set_mode(cli.mode)  # before the banner and the first check
+    if cli.print:
+        ui.headless()
+    else:
         ui.banner(sandbox.name(), modes.current())
 ```
 
@@ -520,7 +533,8 @@ body is `rules`; `describe`; `session_rules_apply` skips plan and
 read-only), `commands.py` (`/mode`, `mode`, the banner in `redraw` and
 `/act` report `modes.current()`), `agent.py` (`--mode`, `chat` and
 `main` set the mode), `session.py` (`mode()` entries, replayed by
-`load`), `context.py` (`<env>` names `modes.current()`), `ui.py`
+`load`; `all_sessions` titles from `raw_messages`, so listing the chats
+applies nothing), `context.py` (`<env>` names `modes.current()`), `ui.py`
 (`/mode` in the banner), `pyproject.toml` (version). The capstone, the
 agents, the evals and everything else are unchanged from step 38.
 

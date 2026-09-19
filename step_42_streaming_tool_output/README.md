@@ -147,24 +147,19 @@ second, and the child never waits on the terminal.
 ```python
 def popen(command):
     ...
-    return sandbox.popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
-```
-
-and in `harness/sandbox.py`, the start every command shares:
-
-```python
-def popen(command, **options):
-    """Start a command through the sandbox wrapper, in a process group of its own."""
-    sandboxed = wrap(command)
+    sandboxed = sandbox.wrap(command)  # argv inside the OS sandbox, or None for a plain shell
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     return subprocess.Popen(
         sandboxed or command,
         shell=sandboxed is None,
         stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
         encoding="utf-8",
         errors="replace",
-        env={**os.environ, **ENV},
-        **NEW_GROUP,
-        **options,
+        env=sandbox.ENV,
+        **group,
     )
 ```
 
@@ -172,14 +167,14 @@ The same wrapper as `sandbox.run`: seatbelt on macOS, bubblewrap on
 Linux, a plain shell - `cmd.exe` - on Windows. stderr is merged into
 stdout so the lines keep their order. `bufsize=1` makes the pipe
 line-buffered on this side; `encoding="utf-8"` with `errors="replace"`
-decodes what a UTF-8 child prints (`PYTHONIOENCODING=utf-8` is in `ENV`,
-so a child Python prints UTF-8 on Windows too) and keeps one stray byte
-from ending the read. stdin is closed, so a command that waits for a
-keyboard gets an end of file instead of hanging the turn. `ENV` also
-turns the pagers off. The process gets a group of its own
-(`CREATE_NEW_PROCESS_GROUP` on Windows, `start_new_session` elsewhere),
-so a kill reaches the children it started. This is the start step 29
-used for jobs; both paths now share it.
+decodes what a UTF-8 child prints and keeps one stray byte from ending
+the read. stdin is closed, so a command that waits for a keyboard gets
+an end of file instead of hanging the turn. `sandbox.ENV` turns the
+pagers off and keeps git from prompting. The process gets a group of its
+own (`CREATE_NEW_PROCESS_GROUP` on Windows, `start_new_session`
+elsewhere), so a kill reaches the children it started. This is the
+start `sandbox.run` uses for a foreground command and step 29 used for
+jobs; both paths now share it.
 
 ### 2. The reader
 
@@ -277,9 +272,9 @@ def bash(command: str) -> str:
             output = streaming.run(command, on_line=show)
         except subprocess.TimeoutExpired as expired:
             # A slow command is the model's problem to work around, not a reason
-            # to take the session down. Hand the failure back as a result, with
-            # what the command printed before the kill.
-            return f"Timed out after {expired.timeout}s and was killed. Output so far:\n{history.cap(expired.output or '(no output)')}"
+            # to take the session down. Hand the failure back as a result.
+            partial = (expired.stdout or "") + (expired.stderr or "")
+            return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap(output or "(no output)")
 ```
 
@@ -571,7 +566,7 @@ diff -r ../step_41_stop_conditions/harness harness
 Added: `streaming.py` (`popen`, `Reader`, `kill`, `run`, `TIMEOUT`,
 `JOIN_GRACE`). Changed: `tools.py` (`bash` runs through
 `streaming.run` inside `ui.streaming`; the timeout result carries the
-partial output), `ui.py` (`ToolStream`, `Spinner`, `STREAM_LINES`,
+partial output, as since step 30), `ui.py` (`ToolStream`, `Spinner`, `STREAM_LINES`,
 `REFRESH_PER_SECOND`, `streaming`, `tool_line`, `stream_open`,
 `stream_close`, `_render_streams`, `_redraw`; `working` returns a
 `Spinner`), `jobs.py` (`start` uses `streaming.popen` and a `Reader`;

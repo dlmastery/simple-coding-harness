@@ -1,10 +1,9 @@
 """Step 39 - the approval mode is an entry in the log: {"mode": name}.
 mode() appends one when the mode changes, and load() applies it, so
---resume comes back in the mode the session ended in.
-The rest is stage 15 - session, unchanged since stage 14.
-
-ENABLED turns the log off: a headless `-p` run writes no session file
-unless it was asked to resume one.
+--resume comes back in the mode the session ended in. The rest is step
+34: load() no longer writes a stand-in result for a tool call the log
+left hanging: agent.recover() runs the call instead, so a resumed chat
+gets the real result. repair() stays for ctrl-c mid-turn.
 """
 
 import json
@@ -15,48 +14,74 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
-ENABLED = True  # False: nothing is written (a headless run that was not asked to resume)
-NL = "\n"
+PERSIST = True  # False in print mode: one-off runs leave no session behind
 
 
 def path_for(session_id):
     return SESSION_DIR / f"{session_id}.jsonl"
 
 
-def append(entry):
-    """One JSON line at the end of the current log."""
-    if not ENABLED:
-        return
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + NL)
-
-
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
     global WRITTEN
-    for message in messages[WRITTEN:]:
-        append(message)
+    if not PERSIST:
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        for message in messages[WRITTEN:]:
+            f.write(json.dumps(message) + "\n")
     WRITTEN = len(messages)
 
 
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
-    append({"rewind_to": count})
+    if not PERSIST:
+        WRITTEN = count
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
 
 
 def mode(name):
     """Record that the approval mode is `name` from here on."""
-    append({"mode": name})
+    if not PERSIST:
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"mode": name}) + "\n")
 
 
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
-    append({"compacted": messages})
+    if not PERSIST:
+        WRITTEN = len(messages)
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+        f.write(json.dumps({"compacted": messages}) + "\n")
     WRITTEN = len(messages)
+
+
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
+
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
+    The loop calls this on ctrl-c. load() does not: agent.recover() runs the
+    hanging calls of a resumed chat instead, so the model gets real results.
+    """
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 
 
 def load(session_id):
@@ -69,8 +94,6 @@ def load(session_id):
             entry = json.loads(line)
         except json.JSONDecodeError:
             continue  # a half-written last line from a kill mid-save
-        if not isinstance(entry, dict):
-            continue
         if "rewind_to" in entry:
             del messages[entry["rewind_to"]:]
         elif "compacted" in entry:
@@ -96,7 +119,7 @@ def open_session(session_id):
 
 def title(messages):
     for message in messages:
-        if message.get("role") == "user":
+        if message["role"] == "user":
             return " ".join(str(message.get("content") or "").split())[:60]
     return "(empty)"
 
