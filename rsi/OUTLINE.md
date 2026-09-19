@@ -1,119 +1,94 @@
-# Zero to Hero: Recursive Self-Improvement — a hello world (outline, v2)
+# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v3)
 
-**The searcher gets smarter. The model weights do not. You can measure both, turn it off, and roll it back.**
+**The skill pack gets smarter. The model weights do not. You can measure both, turn it off, and roll it back.**
 
-Hello world, not a research system. Concept first: every step adds exactly one
-idea, the code stays small (a hundred-odd lines), every step runs offline in
-seconds, and every step has a test that proves its one claim. Same shape as the
-root codelab: a directory you can run, a README that shows the code with the
-reason under each snippet, a test without a key.
+Hello world, concept first, **skills-based from the first step**: the agent is
+configured by files it boots (`SKILL.md` and its siblings), never by Python
+that drives the loop. Python only supplies the *tools* a skill names
+(`fit_recipe`, `write_card`, `score_test` …) and one tiny skills harness that
+boots a pack and runs the model loop — the same shape as the root codelab's
+stage 4 (skills) + stage 15 (`execute()` as the one place every tool call goes
+through). Every step adds one idea by changing the files, so `diff -r` between
+two steps shows exactly what became RSI. Every step runs offline in tests with
+a fake model; `python run.py` needs `BASE_URL` / `API_KEY` / `MODEL` like the
+rest of the repo.
 
 ## The job (real software, no toy factory)
 
 Improve a tabular classifier on **Adult Census Income** under a hard budget of
-**24 `fit()` calls per arm**. Then prove the *searcher* improved, not just the
+**24 `fit()` calls per arm**, then prove the *pack* improved, not just the
 model: freeze the memory and run the same budget on a **shifted synthetic
-table** it never saw. A bundled 6k-row sample of Adult (UCI, public domain)
-keeps everything offline; the loader fills the cache from OpenML when there is
-a network. Models: `LogisticRegression`, `RandomForest`,
-`HistGradientBoosting` (sklearn, CPU). Metric: ROC-AUC on the validation split
-during search; the test split is scored **once**, after freeze, by a gate
-object that raises on a second call.
+table** it never saw. Bundled 6k-row Adult sample (offline), OpenML cache when
+online. Models: `LogisticRegression`, `RandomForest`, `HistGradientBoosting`.
+Metric: ROC-AUC on validation during search; the test split is scored **once**,
+after freeze, by a tool that raises on a second call.
 
-## The definition we use (from the survey, not from a slogan)
+## The definition we use — *The Last AI Built by Humans* (arXiv:2609.11873)
 
-The survey published last week — *The Last AI Built by Humans: Toward Genuine
-Recursive Self-Improvement* (arXiv:2609.11873, 10 Sep 2026, revised 15 Sep) —
-defines RSI as an autonomous, closed-loop process in which a system turns
-experience into **persistent changes to itself across interaction rounds**
-(parameters, harness, or improvement policy) such that those changes **affect
-how later improvements are generated, evaluated, selected or consolidated**.
-It draws three lines the hello world is built to respect:
+RSI: "an autonomous, closed-loop process in which an AI system identifies its
+own limitations, develops and validates improvements, and uses the resulting
+capabilities to improve the improvement process itself." Persistent changes
+across rounds that affect how later improvements are generated, evaluated,
+selected or consolidated. Not RSI: B0 ("output change without persistent
+system change"), AutoML / continual learning with designer-fixed objective,
+search space and acceptance test. **Structural** recursion (a revised mechanism
+governs a later round) vs **effective** recursion (stronger successors under
+comparable budgets and independent evaluation). Three problems every claim
+must answer: **safe inheritance** (transfer tests, version histories,
+rollback), **autonomy attribution** (AI-controlled decisions vs fixed
+procedure vs human acceptance), **reliable verification** (protected
+evaluation, matched budgets). Rungs: L1 execute → L2 choose strategy → L3
+choose experience → L4 revise state under an external acceptance rule → L5
+revise the improver itself. Every step names its rung and what stays human.
 
-- **B0, in-task improvement, is not RSI**: a better answer this turn with no
-  persistent state change. AutoML and continual learning are not RSI either
-  when the search space, objective, budget and acceptance test stay fixed by
-  the designer.
-- **Structural vs effective recursion**: a mechanism that is revised and
-  reused (structural) is only worth something if the successor is stronger
-  *under a comparable budget and an independent evaluation* (effective).
-- **Three problems every claim must answer**: safe inheritance (rollback,
-  version history, transfer tests), autonomy attribution (which decisions the
-  AI took vs which were fixed procedure), reliable verification (protected
-  evaluation, matched budgets — an improver that can query the grader learns
-  to game it).
+## The one harness (built once, in `rsi/common/`, ~200 lines, never a step)
 
-Its five autonomy levels are the ladder the steps climb: L1 execute and retain
-validated improvements; L2 choose the improvement strategy; L3 choose what
-experience to acquire; L4 revise persistent state from deployment feedback
-under an external acceptance rule; L5 revise the improver/verifier/policy
-itself. Every step says which rung it stands on and which parts stay human.
+`harness.py` — `boot(pack_dir)` reads `SKILL.md` (becomes the system prompt),
+`tools.md` (which tools this pack may call — the allowed set), `schema.json`
+(the recipe space, given to the model verbatim) and, when present,
+`memory.json` (cards, appended to the prompt unless `MEMORY_OFF`). Then the
+loop from stage 15: call the model, run every tool call through `execute()`
+(unknown / disallowed / malformed → `Error:` result, never a crash), append,
+repeat, stop when the pack's budget is spent or the model answers in text.
+`tools.py` — the tool table: `load_splits`, `fit_recipe(recipe)`,
+`read_memory`, `write_card(card)` (verifier only), `read_traces`,
+`score_test(recipe)` (once, after `FREEZE`), `rank_policies(names)` (step 03),
+`private_score`, `patch_pack`, `rollback` (step 04). Every tool is a gate:
+`fit_recipe` counts the budget and refuses a recipe a `forbid` card rules out;
+`score_test` refuses before freeze and on a second call; `write_card` refuses a
+card that names test or intent. The skill *says* the rule; the tool *enforces*
+it — that is what makes a skill pack testable. `fake.py` — a scripted /
+rule-driven fake model for the tests (reads the cards in its prompt and
+proposes accordingly), so every claim is provable without a key.
 
-## Steps
+## Steps — each is a skill pack plus at most one new tool
 
-Every step: `rsi/step_NN_<name>/` with the code, `test_step.py` (offline,
-deterministic, seeds fixed, a small synthetic table for speed), `README.md`
-(what it adds, why, code walk-through, run it + expected output, what breaks
-without it, what it is not, what the next step adds). Shared code the steps
-import lives in `rsi/common/` (loader, splits, budget, gate, trace log) so each
-step directory holds only its idea.
+| Step | The pack (what changed on disk) | The one idea | Rung |
+|-----:|-----|------|------|
+| 00 `regular_skill` | `skills/adult-income/`: `SKILL.md` (boot order; run the 24 recipes listed in `schema.json` in order; pick best val; `score_test` once; stop; "do not edit this file"), `tools.md` (`load_splits`, `fit_recipe`, `score_test`), `schema.json` (baseline + a fixed list of 24 recipes) | A repeatable trainer. Same text every run, same waste every Monday. **This is the control arm and it is not RSI** — say so. The harness, the budget, the locked test and the append-only `traces.jsonl` arrive here. | B0 / AutoML (deliberately) |
+| 01 `memory_skill` | + `memory.json` (starts `[]`), `memory.schema.json` (`if` profile predicate → `then` prefer/forbid one field value, `evidence`, `counter`); `SKILL.md` gains "read cards before proposing; propose ONE recipe from the schema, not the fixed list"; `tools.md` gains `read_memory`; a second pack `skills/adult-income-verifier/` (`SKILL.md`: input is `{recipe, val_auc, error, profile}` only; write IF/THEN cards with evidence; never mention test or intent; `tools.md`: `read_traces`, `write_card`); `MEMORY_OFF` | The card is a constraint on the *next* proposal, not a diary, and no one grades their own homework: the verifier pack cannot see the actor's transcript (it boots with only the log). Same 24 fits: quality must rise or waste must fall; set `MEMORY_OFF=true` and the numbers must fall back. | L4: deployment feedback revises persistent state; the acceptance rule (verifier + `write_card`'s refusals) is still ours |
+| 02 `freeze_and_proof` | `SKILL.md` gains the freeze rule ("after 24 fits set FREEZE; one `score_test`"); `eval.md` (24 vs 24, delete-file check, the scorecard fields); `run.py --transfer` boots the same pack with frozen memory on the shifted table | The locked test proves you did not peek; the shifted table proves the *pack* got better — effective recursion. The scorecard is the deliverable. | evidence standard: matched budget, protected evaluation, transfer |
+| 03 `policy_skill` | `SKILL.md` gains a **Search policy** section naming one of four policies from `policies.md` (random, neighbours-of-top-3, broad-then-deep by family uncertainty, obey-memory); `tools.md` gains `rank_policies` — scores every named policy on `traces.jsonl` with zero fits (best-of-first-k over the logged recipes; unvisited picks are "unknown"); the skill switches to the winner for the last 8 fits | History is an exact gym for the recipes you visited and silent elsewhere (Dream-RSI, honestly bounded). Broad-then-deep spends the same fits on higher-information experiments (RSIAgent). The policy line in the file is the thing that improved. | L2 strategy + L3 experience autonomy |
+| 04 `meta_skill` | `skills/adult-income-meta/`: `SKILL.md` (read traces + memory + the inner pack; write **one** patch per visit: cards, a `schema.json` forbid, or the search-policy line; size cap 20 %; never call `score_test`; do not train weights), `tools.md` (`read_traces`, `read_memory`, `read_pack`, `patch_pack`, `private_score`, `rollback`); `versions/` keeps a copy of the inner pack per generation; `run.py` boots inner → meta → inner (generation n+1) | Generation n+1 is RSI only if it boots what generation n wrote — the reboot is the recursion. `private_score` (a split the inner pack never sees) decides keep-or-rollback: reliable verification and safe inheritance made concrete. `META_OFF` turns the outer loop off. | L5 flavour: the improver's policy line is revised by the system; the archive rule and the private gate stay human (say so: autonomy attribution) |
+| 05 `map` | README + `run.py` that prints the ladder with our steps placed | The five real systems and which file they change (RSIAgent/Recuris memory; Dream-RSI search policy; ModularRSI harness modules; ScienceBuddy harness then weights; DGM the agent's source); the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external number marked *reported* with its source. | reading |
 
-| Step | Adds | The one idea | Rung |
-|-----:|------|--------------|------|
-| 00 `contract` | data loader (bundled sample + OpenML cache), locked splits, `Budget(24)` that raises on the 25th fit, `LockedTest` that raises on the second score, an append-only `traces.jsonl` | The off switch and the anti-peek gate are objects that raise, not promises in prose. The log is the world every later step replays. | — |
-| 01 `control_arm` | the fixed baseline recipe; a recipe = one dict (`scale`, `encode`, `model`, one hparam, `class_weight`); `fit_recipe(recipe) -> {val_auc, error}`; random search, 24 fits, paired seeds ×5, mean ± std | Without a control arm you cannot claim RSI; with one seed you cannot claim anything. This is every paper's "without RSI" bar. | B0 / AutoML (deliberately not RSI) |
-| 02 `memory` | `memory.json` of executable cards (`condition` on the dataset profile → `prefer` / `forbid` one recipe field value, `evidence`, `counter`); a rule-based verifier that receives only `{recipe, val_auc, error, profile}` — the type has no field for the actor's reasoning; paired-comparison evidence; a wrong card gets demoted by counterexamples | The card is a constraint on the *next* proposal, not a diary. No one grades their own homework. Delete the file: quality must fall on the same seeds and budget. | L4: deployment feedback revises persistent state; the acceptance rule (the verifier) is still ours |
-| 03 `proof` | `FREEZE`; best-val selection; the single `score_test`; the acceptance scorecard; then the transfer run: frozen memory, same 24-fit budget, on the shifted synthetic table, memory arm vs random arm, per-card report (which cards helped, which were Adult superstitions) | The locked test proves you did not peek. The new table proves the *searcher* got better — that is effective recursion. The scorecard is the deliverable. | evidence standard: matched budget, protected evaluation, transfer |
-| 04 `policy` | policies as small Python functions that *rank the logged recipes* (random, neighbours-of-top-3, broad-then-deep by family uncertainty `u = (1 − success) + c/(n+1)`, obey-memory); scored on `traces.jsonl` with zero fits (best-of-first-k); leaderboard; the winner gets the last 8 real fits | History is an exact gym for the recipes you visited and silent elsewhere (Dream-RSI's idea, honestly bounded). Curriculum spends the same fits on higher-information experiments (RSIAgent's broad-then-deep). | L2 strategy autonomy + L3 experience autonomy |
-| 05 `harness_files` | the inner pack `skills/adult-income/` (`SKILL.md`, `tools.md`, `schema.json`, `memory.schema.json`); a boot loader that reads only those files; `MEMORY_OFF` / `META_OFF`; the meta pack `skills/adult-income-meta/` that reads traces + memory + inner files and writes **one** patch per generation (cards, a `schema.json` forbid, or one search-policy line), size cap 20 %, never scores test; a private validation split the inner loop never sees; a patch is kept only if the private score does not drop, else **rolled back** (git-style version history of the pack) | Generation n+1 is RSI only if it boots what generation n wrote; the reboot is the recursion. The private gate and the rollback are the survey's "reliable verification" and "safe inheritance" made concrete. | L5 flavour: the search policy line of the improver is revised; archive/acceptance rule stay human (say so: autonomy attribution) |
-| 06 `map` | reading only: the ladder with each step placed on it; what the five real systems change (RSIAgent/Recuris memory; Dream-RSI search policy; ModularRSI harness modules; ScienceBuddy harness then weights; DGM the agent's own source); the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external claim marked verified or reported | You recognise the nouns because you built the toy. | — |
-| 07 `llm_actor` (optional, needs a key) | the proposal is one model call that reads the cards; verifier, budget, gate, memory unchanged; a fake model in the test; the same 24-vs-24 comparison | Asymmetric RSI: a bigger model writes the notebook of a smaller loop. The contract survives the move to a model because code enforces it around the call. | same rungs, different actor |
+Five core steps. No step is "code-based": the harness is common, each step's
+directory holds packs, tests and a `run.py` that boots them. "Regular vs RSI"
+is `diff -r step_00 step_04`: three extra files and one extra skill.
 
-Seven small steps (six core). Dropped from v1 on purpose: the modular-harness
-toy (ModularRSI) and running inside the coding harness — both are mentioned in
-step 06 and nothing else depends on them.
+## What each test proves (offline, fake model, no key)
 
-## What each test proves (offline, no key)
+- 00: the fake model follows `SKILL.md` (24 fits in schema order, best-val pick, one `score_test`); the 25th `fit_recipe` returns `Error: budget exhausted` and the second `score_test` returns `Error: test already scored`; an unknown / disallowed / malformed tool call is an `Error:` result and the loop continues; the log is append-only; the same pack twice gives the same log.
+- 01: the verifier pack boots with only the log (its transcript contains no actor text — asserted); `write_card` refuses a card mentioning `test` or intent; a planted wrong card is demoted after k counterexamples; with the rule-driven fake model, same seeds and budget, the memory arm's mean val AUC ≥ the `MEMORY_OFF` arm and its wasted fits are fewer; `MEMORY_OFF` reproduces step 00's numbers exactly.
+- 02: test scored exactly once; all scorecard fields present; on the shifted table the frozen pack beats `MEMORY_OFF` on ≥ 3 of 5 seeds and the report names a card that did not transfer.
+- 03: `rank_policies` makes zero fits (the budget counter proves it); a policy preferring unvisited recipes scores "unknown", never a number; broad-then-deep wastes fewer fits on a solved family than uniform (counted).
+- 04: generation n+1 boots the files generation n wrote (checksums in the trace); a patch that raises val and lowers `private_score` is rejected and `versions/` restores the previous pack; `META_OFF` leaves the pack byte-identical; the meta pack cannot call `score_test` (not in its `tools.md` → `Error:`).
+- All: `python run_tests.py rsi` and `python check_snippets.py rsi` green.
 
-- 00: the 25th fit raises; the second `score_test` raises; the splits are disjoint and byte-stable across runs; the log is append-only.
-- 01: the control arm's numbers are reproducible per seed; the baseline is written to the scorecard and never read by the search.
-- 02: same budget and seeds, the memory arm's mean val AUC ≥ control on 5 seeds and its wasted fits are fewer; deleting `memory.json` restores the control numbers exactly; a planted wrong card is demoted after k counterexamples; a card that mentions `test` or intent is rejected; the verifier type cannot receive the actor's reasoning.
-- 03: test is scored exactly once; all scorecard fields present; on the shifted table the frozen memory beats the random arm on ≥ 3 of 5 seeds and the report names at least one card that did not transfer.
-- 04: dreaming makes zero `fit` calls (counted by the budget object); a policy that prefers unvisited recipes scores "unknown", never a number; broad-then-deep wastes fewer fits on a solved family than uniform sampling (counted).
-- 05: `MEMORY_OFF=true` reproduces step 01 bit-for-bit; generation n+1 boots the files generation n wrote (checksum recorded in the trace); a meta patch that raises val but lowers the private score is rejected and the pack is rolled back to the previous version.
-- 07: with a fake model the loop makes exactly 24 fits; a hallucinated recipe field becomes an `Error:` result, never a crash.
+## Validation of the source tutorial against the papers (18 Sep 2026)
 
-## Validation of the source tutorial against the papers (done, 18 Sep 2026)
-
-Checked on arXiv / GitHub. The tutorial's *descriptions* of the five systems
-match their abstracts; several of its *specifics* do not, and its conceptual
-frame is coarser than the survey's.
-
-| Claim in the tutorial | Status |
-|---|---|
-| RSIAgent (arXiv:2609.15364): curriculum/actor/verifier, broad-then-deep, memory frozen at test time, Kimi-K3 + GLM-5.3 beating GPT-6 on OSWorld-v2 and Agents' Last Exam; repo AetherLabsAI/RSIAgent, Apache-2.0, Python 3.12 + Docker/KVM | **Verified** (abstract and README). The exact numbers 71.97→78.98 / 83.75→84.82 are not in the abstract: *reported, unverified*. |
-| Dream-RSI (arXiv:2609.14858): discovery history as a replay simulator, offline policy refinement, redeploy, pool grows; repo zhengkid/Dream-RSI | **Verified** as described; the repo lists full code and reproduction scripts as "being prepared". "162× fewer agent calls", "1.7–2.4× fewer generations" are not in the abstract: *reported, unverified*. |
-| ModularRSI (arXiv:2609.14857): five modules, contrastive success/fail on the same task, benchmark-disjoint 2,000-task pool, transfer across models; repo IQuestLab/ModularRSI, CC BY-NC 4.0 + Apache-2.0 | **Verified**; the module list in the paper is *Agent Loop, Tool Use, Observation Management, Context Management, Task Completion Detection* — the tutorial's fifth module "verification" is the README's naming, not the paper's. TB2.0 47.57→52.43 is in the README, not the abstract. |
-| ScienceBuddy (arXiv:2609.17523): inner harness loop with frozen model, outer RL loop under the improved harness; repo Gen-Verse/ScienceBuddy with algorithm.md / experiments.md | **Verified**. Qwen3.5-4B, SkyRL/GRPO, 8×A100 and "gpt-6-astra as improver" are repo/tutorial details, not abstract claims: *reported*. |
-| Recuris (arXiv:2608.24876): evolve Skill Memory, agent frozen, gains grow with horizon, +32.2 on longest tasks | **Verified** (abstract: 35 of 37 model-benchmark pairs, +32.2 on the longest tasks). The tutorial's memory formula `M=(E,W,ρ,C)` is not in the abstract. |
-| "Survey arXiv:2609.11873 with an L1–L5 autonomy taxonomy" | **Verified**; it is a framework/roadmap paper (37 authors) with five autonomy levels and the Headroom-Closed Index. |
-| "1,250-paper corpus arXiv:2607.07663" | **Verified** (July 2026 survey, two axes: what improves × loop closure). |
-| "Bounded vs strong RSI" as the only distinction | **Too coarse.** The survey has five rungs plus B0, and separates structural from effective recursion; the hello world uses those. |
-| The locked test split is the "hero test" | **Wrong target.** It proves no peeking; the survey's "effective recursion" needs a stronger successor on an independent evaluation — the transfer table (step 03). |
-| Free-text IF-THEN cards | **Not executable**; cards are typed constraints (step 02). |
-| Verifier sees only `{recipe, val_auc, error}` | **Cannot write the cards the tutorial shows** (cardinality, imbalance); it also gets the dataset profile (step 02). |
-| One seed, "delete the file and quality falls" | **Noise.** Paired seeds, same budget, mean ± std (steps 01–03). |
-| "Replay each policy on the log" | **Under-specified**; policies rank logged recipes, unvisited picks are "unknown" (step 04). |
-| No rollback anywhere | **Missing** what the survey calls safe inheritance; step 05 versions the pack and rolls back on regression. |
-| OpenAI "top priority" essay, Pachocki | Not checked; stays *reported* and out of scope. |
-
-Sources: arXiv 2609.11873, 2609.15364, 2609.14858, 2609.14857, 2609.17523,
-2608.24876, 2607.07663; GitHub AetherLabsAI/RSIAgent, IQuestLab/ModularRSI,
-zhengkid/Dream-RSI, Gen-Verse/ScienceBuddy.
+Repos and abstracts checked: RSIAgent (arXiv:2609.15364, AetherLabsAI/RSIAgent), Dream-RSI (2609.14858, code "being prepared"), ModularRSI (2609.14857; modules are Agent Loop, Tool Use, Observation Management, Context Management, Task Completion Detection — not "verification"), ScienceBuddy (2609.17523, inner harness loop + outer RL loop), Recuris (2608.24876, +32.2 on the longest tasks), the framework paper (2609.11873) and the July corpus survey (2607.07663). The tutorial's descriptions match; its specific numbers (162×, 71.97→78.98, 47.57→52.43, 8×A100, gpt-6-astra as improver) are not in the abstracts and stay *reported*. Conceptual corrections the series makes: "bounded vs strong" is too coarse (use the rungs + structural/effective); the locked test split is the wrong hero test (transfer table); free-text cards are not executable (typed cards + tool enforcement); a verifier that sees only `{recipe, val_auc, error}` cannot write the cards shown (it also gets the profile); single-seed "delete the file" claims are noise (paired seeds, matched budget); "replay each policy on the log" is under-specified (rank logged recipes, unvisited = unknown); no rollback anywhere (versions + private gate).
 
 ## Repo wiring
 
-- `rsi/README.md`: the series codelab, top-down.
-- `run_tests.py` / `check_snippets.py` learn the `rsi/step_*` layout (`python run_tests.py rsi`).
-- `rsi/data/`: the bundled Adult sample with its licence note; `rsi/common/`: loader, splits, budget, gate, log.
-- Dependencies: `scikit-learn`, `pandas`, `numpy` added to `requirements.txt`; step 07 reuses `BASE_URL` / `API_KEY` / `MODEL`.
+`rsi/README.md` (series codelab, top-down); `run_tests.py` / `check_snippets.py` already know `rsi/step_*`; `rsi/data/` bundled sample + licence note; `rsi/common/` harness, tools, fake model, loader, synth; `scikit-learn`, `pandas`, `numpy` in `requirements.txt`.

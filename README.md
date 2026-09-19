@@ -40,6 +40,11 @@ UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
+A third series, in progress, lives in [`rsi/`](rsi/): **zero to hero on
+recursive self-improvement**, a skills-only hello world where the agent's
+own files get better across runs, measured the way the September 2026
+papers ask for.
+
 **What you will learn**
 
 - Why an agent is a loop, and what the loop is made of.
