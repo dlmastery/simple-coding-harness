@@ -69,6 +69,53 @@ papers ask for.
 - About two hours for Parts 1 to 3, and two more for each of Parts 4 to 6.
   Each step takes a few minutes.
 
+## How to navigate this repository
+
+Three series, one idea per step, the same shape everywhere.
+
+```text
+README.md            this file: the harness codelab, stages 1 - 15 and steps 16 - 51, top down
+step_NN_<name>/      one step of the harness codelab
+  README.md          what it adds, why, the code with the reason under each snippet, run it,
+                     expected output, error handling, gotchas, what the next step adds
+  harness/           the code (stages 1 - 8 keep it flat: agent.py, llm.py, tools.py, ui.py ...)
+  test_step.py       the offline test: a fake model, no key, seconds to run
+  .agents/           skills, agent definitions, hooks, MCP config the step reads
+genui/README.md      series 2: generative UI, 23 steps under genui/0N_<theme>/step_NN_<name>/
+rsi/README.md        series 3: recursive self-improvement, 18 lessons under rsi/step_NN_<name>/
+run_tests.py         every step's test, or a subset: python run_tests.py 14 15 / genui/02 / rsi
+check_snippets.py    every README snippet exists verbatim in the code it names
+```
+
+**Where to start**
+
+| You want to | Start at | Then |
+|---|---|---|
+| understand what a coding agent *is* | [Stage 1](#stage-1-one-api-call) and read through [Stage 2.4](#stage-24-the-agent-loop) | Stages 3 - 15, one per sitting |
+| take the harness as a base for your own | [step 45](step_45_typescript_core/) (the final Python harness; TypeScript port beside it) | the [robustness contract](#two-rules-and-a-contract-that-hold-the-design-together) below says what it guarantees |
+| see what an agent SDK gives you | [Step 16](#step-16-claude-agent-sdk) - 19 and [Who owns which mechanism](#who-owns-which-mechanism) | Step 20 for routing and cost |
+| run the harness on a server instead of a laptop | [Step 46](#step-46-the-loop-on-trueforge) - 51 | step 51 is the comparison table |
+| put an interface on the agent's output | [`genui/`](genui/) | it reuses step 21's loop as is |
+| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi/) | it reuses stage 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
+
+**How to read one step.** Open the step's `README.md`. The first paragraph says what the
+step adds and why; the sections that follow quote the code that changed (`check_snippets.py`
+guarantees every quoted line exists) and explain the reason under each snippet. "Run it"
+gives the command for bash and PowerShell and the output you should see. "Error handling"
+and "Gotchas" say what happens when things go wrong and what the step does *not* do.
+In the hand-built chain (stages 2.1 - 15, steps 20 - 45) the step's `Diff from` paragraph names
+the files that changed since the step before, and `diff -r step_N/harness step_N+1/harness`
+shows exactly that and nothing else; the SDK and TrueForge steps are rewrites, not deltas.
+
+**How to run one step.** `cd` into it; from stage 9 on, `pip install -e .` once per step you
+want as the `harness` command (one at a time: every step installs the same command name).
+Tests never need a key: `python -m pytest test_step.py` in the step, or `python run_tests.py
+N` from here. Running the agent itself needs `BASE_URL`, `API_KEY` and `MODEL` (Step 0).
+
+**Reading order.** Stages 1 - 15 in order: each is the previous one plus one idea, and the
+READMEs assume you read the one before. Parts 2 - 7 can be read in any order after Part 1.
+`genui/` assumes stages 1 - 15 and step 21; `rsi/` assumes stages 4, 15, 30 and 35.
+
 ---
 
 ## Step 0: Set up
