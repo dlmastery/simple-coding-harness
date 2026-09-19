@@ -14,11 +14,26 @@ export const MARKS: Record<Todo["status"], string> = { pending: "[ ]", in_progre
 
 export const TODOS: Todo[] = [];
 
-/** Replace the whole list. Exactly one task may be in_progress. */
-export function writeTodos({ todos }: { todos: Todo[] }): string {
+/** What is wrong with a todo list, or null. Checked before the list replaces the old one. */
+export function problem(todos: unknown): string | null {
+  if (!Array.isArray(todos)) return "Error: todos must be a list.";
+  for (const [i, todo] of todos.entries()) {
+    if (typeof todo !== "object" || todo === null) return `Error: item ${i} is not an object.`;
+    for (const key of ["content", "activeForm", "status"] as const) {
+      if (typeof todo[key] !== "string" || !todo[key].trim()) return `Error: item ${i} needs a non-empty '${key}'.`;
+    }
+    if (!(todo.status in MARKS)) return `Error: item ${i} has status '${todo.status}'; use one of ${Object.keys(MARKS).join(", ")}.`;
+  }
   const active = todos.filter((t) => t.status === "in_progress");
-  if (active.length > 1) {
-    return `Error: ${active.length} tasks are in_progress. Only one may be.`;
+  if (active.length > 1) return `Error: ${active.length} tasks are in_progress. At most one may be.`;
+  return null;
+}
+
+/** Replace the whole list. At most one task may be in_progress. A bad list leaves the old one in place. */
+export function writeTodos({ todos }: { todos: Todo[] }): string {
+  const wrong = problem(todos);
+  if (wrong !== null) {
+    return wrong;
   }
   TODOS.splice(0, TODOS.length, ...todos);
   return todosPrompt() || "Todo list cleared.";
@@ -42,7 +57,7 @@ export const TODO_SCHEMA: ToolSchema = {
     name: "write_todos",
     description:
       "Record the plan for a multi-step task. Send the whole list every " +
-      "time. Keep exactly one task in_progress and update it as you go.",
+      "time. Keep at most one task in_progress and update it as you go.",
     parameters: {
       type: "object",
       properties: {

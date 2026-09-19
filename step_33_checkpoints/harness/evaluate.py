@@ -194,7 +194,7 @@ def run_check_py(task, workspace):
     try:
         completed = subprocess.run(
             [sys.executable, str(task.path / "check.py")],
-            cwd=workspace, capture_output=True, text=True, timeout=CHECK_TIMEOUT,
+            cwd=workspace, capture_output=True, encoding="utf-8", errors="replace", timeout=CHECK_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"check.py took more than {CHECK_TIMEOUT}s"

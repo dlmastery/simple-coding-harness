@@ -26,6 +26,7 @@ from ag_ui.core import AssistantMessage, FunctionCall, RunAgentInput, Tool, Tool
 from ag_ui.encoder import EventEncoder  # noqa: E402
 from json_patch import apply_patch, split_pointer  # noqa: E402
 from sse import parse_sse  # noqa: E402
+import tools  # noqa: E402
 from tools import execute, initial_state  # noqa: E402
 
 
@@ -141,10 +142,63 @@ def test_client_tool_schema_reaches_the_model(monkeypatch):
     assert names == ["show_metric", "show_table", "show_chart", "record_purchase", "confirm_purchase"]
 
 
-def test_execute_unknown_tool_and_bad_args():
-    assert execute("nope", {}) == ("Error: no tool named nope", [])
-    result, ops = execute("show_metric", {"bogus": 1})
-    assert result.startswith("Error") and ops == []
+def test_execute_never_raises_every_failure_is_a_result(monkeypatch):
+    assert execute("nope", "{}") == ("Error: no tool named 'nope'.", [])
+    assert execute("show_metric", '{"title": ')[0].startswith("Error: the arguments of show_metric are not a JSON object")
+    assert execute("show_metric", "[1, 2]")[0] == "Error: the arguments of show_metric are not a JSON object: got list"
+    result, ops = execute("show_metric", '{"title": "t", "value": "1", "bogus": 1}')
+    assert result == "Error: got an unexpected keyword argument 'bogus'" and ops == []
+    assert execute("show_metric", '{"value": "1"}')[0] == "Error: missing a required argument: 'title'"
+
+    def boom(**args):
+        raise ValueError("no chart today")
+
+    monkeypatch.setitem(tools.TOOLS, "show_chart", boom)
+    assert execute("show_chart", '{"kind": "bar"}') == ("Error: ValueError: no chart today", [])
+
+
+def test_tool_failures_are_results_and_the_run_goes_on(monkeypatch):
+    """One TOOL_CALL_RESULT per call, error text included; the model gets to try again."""
+    broken = [
+        call_chunk(0, cid="c1", name="show_metric", arguments='{"title": "Cups"'),  # cut JSON
+        call_chunk(1, cid="c2", name="show_gauge", arguments="{}"),                 # no such tool
+        call_chunk(2, cid="c3", name="show_metric", arguments='{"value": "1"}'),    # missing title
+    ]
+    fake = FakeClient([broken, DONE])
+    monkeypatch.setattr(llm, "client", fake)
+    events = list(agent.run(run_input([UserMessage(id="u1", content="go")])))
+    results = [e for e in events if e.type.value == "TOOL_CALL_RESULT"]
+    assert [r.tool_call_id for r in results] == ["c1", "c2", "c3"]
+    assert all(r.content.startswith("Error") for r in results)
+    assert "STATE_DELTA" not in types(events) and types(events)[-1] == "RUN_FINISHED"
+    assert [m["role"] for m in fake.requests[1]["messages"][-3:]] == ["tool", "tool", "tool"]
+
+
+def test_a_model_that_never_stops_calling_tools_hits_the_cap(monkeypatch):
+    forever = [[call_chunk(0, cid=f"c{i}", name="show_metric", arguments='{"title": "t", "value": "1"}')] for i in range(50)]
+    fake = FakeClient(forever)
+    monkeypatch.setattr(llm, "client", fake)
+    events = list(agent.run(run_input([UserMessage(id="u1", content="go")])))
+    assert len(fake.requests) == agent.MAX_TURNS
+    assert events[-1].type.value == "RUN_ERROR" and f"stopped after {agent.MAX_TURNS} tool rounds" in events[-1].message
+    assert types(events).count("TOOL_CALL_RESULT") == agent.MAX_TURNS  # every call that was made got its result
+
+
+def test_text_message_ends_before_the_first_tool_call(monkeypatch):
+    """A text message never stays open across tool events: older clients refuse that order."""
+    fake = FakeClient([[text_chunk("Sure, ")] + CONFIRM])
+    monkeypatch.setattr(llm, "client", fake)
+    events = types(agent.run(run_input([UserMessage(id="u1", content="buy a cooler")])))
+    assert events.index("TEXT_MESSAGE_END") < events.index("TOOL_CALL_START")
+    assert events.count("TEXT_MESSAGE_END") == 1
+
+
+def test_a_call_without_id_or_name_still_gets_an_id(monkeypatch):
+    piece = SimpleNamespace(index=0, id=None, function=SimpleNamespace(name=None, arguments='{"title": "t", "value": "1"}'))
+    chunk = SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(content=None, tool_calls=[piece]))])
+    monkeypatch.setattr(llm, "client", FakeClient([[chunk]]))
+    pieces = list(llm.stream_chat([], []))
+    assert pieces[0] == ("tool_start", "call_0", "") and pieces[-1] == ("tool_end", "call_0")
 
 
 def test_json_patch_python():
@@ -157,8 +211,15 @@ def test_json_patch_python():
         {"op": "remove", "path": "/obj/k"},
     ])
     assert doc == {"list": [1, 2, 3, 4], "obj": {}}
-    with pytest.raises(ValueError):
-        apply_patch(doc, [{"op": "move", "path": "/list/0", "from": "/list/1"}])
+    for bad in (
+        {"op": "move", "path": "/list/0", "from": "/list/1"},   # not one of the three
+        {"op": "add", "path": "/list/x", "value": 1},           # not a list index
+        {"op": "add", "path": "/nowhere/k", "value": 1},        # no such parent
+        {"op": "replace", "path": "", "value": {}},             # the root
+    ):
+        with pytest.raises(ValueError):
+            apply_patch(doc, [bad])
+    assert doc == {"list": [1, 2, 3, 4], "obj": {}}  # nothing half-applied
 
 
 def test_wire_format_of_state_events(monkeypatch):
@@ -186,6 +247,40 @@ def test_endpoint_streams_tool_events(monkeypatch):
         assert client.get("/render.mjs").status_code == 200
     kinds = [e["type"] for e in parse_sse(text)]
     assert "STATE_DELTA" in kinds and kinds[-1] == "RUN_FINISHED"
+
+
+def test_disconnect_closes_the_generator(monkeypatch):
+    """The endpoint pulls one event per step; when the page has gone it closes the run."""
+    import asyncio
+
+    import server
+
+    closed = []
+
+    class Run:
+        def __init__(self):
+            self.it = iter(agent.run(run_input([UserMessage(id="u1", content="go")])))
+
+        def __next__(self):
+            return next(self.it)
+
+        def close(self):
+            closed.append(True)
+
+    class Request:
+        headers = {}
+
+        async def is_disconnected(self):
+            return True
+
+    monkeypatch.setattr(llm, "client", FakeClient([DONE]))
+    monkeypatch.setattr(server, "run", lambda input: Run())
+    body = server.agent_endpoint(run_input([UserMessage(id="u1", content="go")]), Request()).body_iterator
+
+    async def drain():
+        return [frame async for frame in body]
+
+    assert asyncio.run(drain()) == [] and closed == [True]
 
 
 def test_node_suite_passes():

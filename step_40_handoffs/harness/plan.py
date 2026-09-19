@@ -1,5 +1,6 @@
 """Step 35 - ask_user joins the read-only tools: a question changes nothing
-on disk, and a plan is where the questions come up. The rest is step 32,
+on disk, and a plan is where the questions come up. recall is there too:
+reading a memory changes nothing either. The rest is step 32,
 where load_tool joined them, and step 28: read first, propose a plan,
 act only after approval.
 
@@ -14,7 +15,7 @@ from . import todos
 
 MODE = "act"
 
-READ_ONLY = ("bash", "read_file", "read_skill", "task", "load_tool", "ask_user")  # offered in plan mode, in this order
+READ_ONLY = ("bash", "read_file", "read_skill", "task", "load_tool", "ask_user", "recall")  # offered in plan mode, in this order
 
 PLAN = None     # the approved plan, kept until the todos are all completed
 FEEDBACK = []   # what the user said to each rejected plan, newest last
@@ -57,8 +58,8 @@ SUBMIT_PLAN_SCHEMA = {
 
 
 def offered(name):
-    """Whether a tool may run in the current mode."""
-    return MODE == "act" or name in READ_ONLY or name == "submit_plan"
+    """Whether a tool may run in the current mode. A handoff writes nothing, so handoff_to is offered in plan mode too."""
+    return MODE == "act" or name in READ_ONLY or name in ("submit_plan", "handoff_to")
 
 
 def toolset():
@@ -158,6 +159,8 @@ def submit_plan(plan):
     """Validate the plan, show it, and ask the user. Returns the result for the model."""
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
+    if MODE != "plan":
+        return "Error: not in plan mode. The user enters plan mode with /plan; act on the request directly."
     problems = validate(plan)
     if problems:
         return "Error: the plan is invalid:\n" + "\n".join(f"- {p}" for p in problems)

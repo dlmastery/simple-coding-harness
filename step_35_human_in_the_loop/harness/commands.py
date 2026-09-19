@@ -260,10 +260,6 @@ def handle(command, messages):
         return init(messages)
     if command == "/instructions":
         return instruction_list(messages)
-    missing = pipeline.missing_agents()
-    if missing:
-        ui.note(f"the pipeline needs the {', '.join(missing)} definition(s) in .agents/agents; none ran")
-        return messages
     if command == "/plan":
         return set_mode(messages, "plan")
     if command == "/act":

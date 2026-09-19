@@ -105,8 +105,11 @@ export async function main(): Promise<void> {
 
   while (true) {
     const userInput = await ui.ask();
+    if (userInput === null || userInput === "/exit" || userInput === "/quit") {
+      break; // ctrl-d, ctrl-c at the prompt, or the command: the transcript is saved
+    }
     if (!userInput) {
-      break;
+      continue; // an empty line is not a message
     }
 
     if (userInput.startsWith("/")) {
@@ -122,5 +125,10 @@ export async function main(): Promise<void> {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main();
+  main().catch((failure) => {
+    // a model call that failed for good, or anything else the loop did not expect:
+    // one line, exit 1, and the transcript on disk is whole - --resume picks it up
+    console.error(`harness: ${failure?.message ?? failure}`);
+    process.exit(1);
+  });
 }

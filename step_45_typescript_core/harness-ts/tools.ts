@@ -28,8 +28,7 @@ export async function bash({ command }: { command: string }): Promise<string> {
       // A slow command is the model's problem to work around, not a reason
       // to take the session down. Hand the failure back as a result, with
       // what the command printed before it was killed.
-      return history.cap(`Timed out after ${failure.timeout}s and was killed. Output so far:
-${failure.output}`);
+      return history.cap(`Timed out after ${failure.timeout}s and was killed. Output so far:\n${failure.output}`);
     }
     throw failure;
   }

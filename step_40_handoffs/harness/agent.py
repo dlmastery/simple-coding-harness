@@ -22,6 +22,7 @@ results.
 """
 
 import argparse
+import sys
 import time
 
 from . import browser
@@ -42,12 +43,18 @@ from . import sandbox
 from . import session
 from .context import reminder
 from .llm import build_system_prompt, call_llm, with_mode
-from .todos import active_form
-from .tools import INTERRUPTED, active_schemas, execute_all
+from .todos import active_form, rebuild as rebuild_todos
+from .tools import INTERRUPTED, active_schemas, execute_all, rebuild_loaded
 from .ui import ui
 
 MAX_CALLS = 40      # model calls one turn may make before the loop stops and asks
 STEER_WINDOW = 2.0  # seconds: a second Ctrl-C within this many after the first exits
+
+EXIT_WORDS = ("/exit", "/quit")  # typed at the prompt, they end the chat like ctrl-d
+
+
+class LeaveChat(KeyboardInterrupt):
+    """The user asked to leave at the steer prompt: a second Ctrl-C, or Ctrl-D. The chat loop ends on it."""
 
 
 def steer(where):
@@ -85,7 +92,9 @@ def turn(messages, user_input, cli=None):
         ui.note(f"prompt blocked by hook: {submitted.reason}")
         return messages
     checkpoint.begin_turn(len(messages))  # where /undo cuts back to, and what the captures are keyed by
+    handoff.new_turn()  # the handoff count is per turn
     messages.append({"role": "user", "content": user_input})
+    session.save(messages)  # the question is on disk before the first call, whatever happens next
     detector = durability.LoopDetector()
     calls = 0  # model calls so far in this turn
     usage = {}
@@ -120,7 +129,7 @@ def turn(messages, user_input, cli=None):
                 ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
             calls += 1
             if not steered(messages, "the model call"):
-                raise
+                raise LeaveChat()
             continue  # a new request, with the steering message at the end
         calls += 1
 
@@ -156,13 +165,14 @@ def turn(messages, user_input, cli=None):
             run_results(messages, message.tool_calls, repeated)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
-                raise
-        handoff.switch(messages)  # a handoff_to result in this reply: the next call is the new agent's
+                raise LeaveChat()
+        finally:
+            handoff.switch(messages)  # a handoff_to result in this reply: the next call is the new agent's - even when the user leaves
 
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
 
-    if compact.needed(usage):
+    if compact.needed(usage, len(messages)):
         messages = commands.compact(messages)
     return messages
 
@@ -238,14 +248,24 @@ def recover(messages):
     or in some but not all of their results, cannot be sent back: the API
     wants a result for every call. The missing calls run here, through the
     same permissions and hooks as in a turn, and their results are appended
-    and saved. A transcript that ends anywhere else is left alone.
+    and saved. Whatever goes wrong on the way, every call ends up with a
+    result: the transcript is valid when this returns. A transcript that
+    ends anywhere else is left alone.
     """
     pending = durability.unanswered(messages)
     if not pending:
         return 0
     # the edits belong to the turn that crashed, so /undo takes them back with it
-    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(len(messages))
-    run_results(messages, pending)
+    start = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=len(messages))
+    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(start)
+    try:
+        run_results(messages, pending)
+    except Exception as failed:  # noqa: BLE001 - the calls that got no result get the failure as one
+        answered = {m.get("tool_call_id") for m in messages if m.get("role") == "tool"}
+        for call in pending:
+            if call.id not in answered:
+                messages.append({"role": "tool", "tool_call_id": call.id, "content": f"Error: {type(failed).__name__}: {failed}"})
+        session.save(messages)
     handoff.switch(messages)  # one of them may have been a handoff_to
     count = len(pending)
     ui.note(f"recovered {count} tool call{'s' if count != 1 else ''} left unanswered by the last run")
@@ -289,11 +309,44 @@ def main(argv=None):
         hooks.run_hooks("SessionEnd")
 
 
+def headless():
+    """Print mode without a terminal: nothing may wait for a keyboard.
+
+    Every approve prompt is answered n with a note on stderr, and ask_user
+    tells the model that nobody is there. With a terminal on stdin the
+    prompts still work, so `harness -p` at a shell can still say yes.
+    """
+    from . import tools
+    from .ask_user import NO_ANSWER
+
+    ui.headless()
+    if sys.stdin.isatty():
+        return
+    ui.approve = lambda reason: (ui.note(f"denied (no terminal to ask on): {reason}"), "n")[1]
+    tools.TOOLS["ask_user"] = lambda question, options=None: NO_ANSWER
+
+
+def resume(messages):
+    """Open the newest session and put the state it implies back: todos, loaded tools, unanswered calls."""
+    saved = session.all_sessions()
+    if not saved:
+        return messages
+    messages = session.open_session(saved[0]["id"])
+    history.strip(messages)
+    rebuild_todos(messages)                        # the todo list the transcript last wrote
+    rebuild_loaded(messages)                       # the deferred tools it loaded
+    ui.resumed(messages)
+    ui.replay(messages)
+    recover(messages)  # a crash mid-turn left tool calls without results: run them now
+    return messages
+
+
 def chat(cli):
     if cli.mode:
         modes.set_mode(cli.mode)  # before the banner and the first check
     if cli.print:
-        ui.headless()
+        headless()
+        session.ENABLED = bool(cli.resume)  # a one-off question leaves no session behind
     else:
         ui.banner(sandbox.name(), modes.current())
     mcp_client.connect_all()  # external tools join the registry before the first turn
@@ -301,37 +354,36 @@ def chat(cli):
 
     messages = [{"role": "system", "content": build_system_prompt()}]  # after connect_all: the deferred list is complete
 
+    if cli.resume:
+        messages = resume(messages)
+
     if cli.print:
         try:
             messages = turn(messages, cli.print, cli)
         except KeyboardInterrupt:
             raise SystemExit(130)  # the exit code a shell gives an interrupted command
-        print(last_reply(messages))
-        raise SystemExit(0)
-
-    if cli.resume:
-        saved = session.all_sessions()
-        if saved:
-            messages = session.open_session(saved[0]["id"])
-            history.strip(messages)
-            ui.resumed(messages)
-            ui.replay(messages)
-            recover(messages)  # a crash mid-turn left tool calls without results: run them now
+        answer = last_reply(messages)
+        print(answer)
+        raise SystemExit(0 if answer.strip() else 1)  # no answer is a failure a script can see
 
     while True:
         user_input = ui.ask()
+        if user_input is None or user_input in EXIT_WORDS:
+            break  # ctrl-d, ctrl-c at the prompt, /exit
         if not user_input:
-            break
-
-        if user_input.startswith("/"):
-            messages = commands.handle(user_input, messages)
-            session.save(messages)
-            continue
+            continue  # an empty line is not a message
 
         try:
-            messages = turn(messages, user_input, cli)
-        except KeyboardInterrupt:
+            if user_input.startswith("/"):
+                messages = commands.handle(user_input, messages)
+                session.save(messages)
+            else:
+                messages = turn(messages, user_input, cli)
+        except LeaveChat:
             break  # a second Ctrl-C, or Ctrl-D at the steer prompt: the transcript is saved
+        except KeyboardInterrupt:
+            ui.note("interrupted; the transcript is saved")  # a Ctrl-C outside the steer prompts: the chat goes on
+            session.save(messages)
 
     ui.summary()
 

@@ -15,7 +15,7 @@ os.environ.setdefault("API_KEY", "x")
 
 from PIL import Image, ImageGrab  # noqa: E402
 
-from harness import agent, computer, history, llm, permissions, session, subagent, tools  # noqa: E402
+from harness import agent, commands, computer, history, llm, permissions, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 
@@ -86,6 +86,19 @@ def test_screenshot_writes_a_png_and_returns_the_marker(fake_screen):
 
 def test_screen_reports_the_size(fake_screen):
     assert computer.computer_screen().startswith("Screen size: 2x2")
+
+
+def test_a_wide_screen_is_scaled_down_and_clicks_are_scaled_back(monkeypatch, tmp_path, fake_gui):
+    monkeypatch.setattr(ImageGrab, "grab", lambda *a, **k: Image.new("RGB", (2560, 1440)))
+    monkeypatch.setattr(computer, "SHOTS", tmp_path)
+    result = computer.computer_screenshot()
+    saved = tmp_path / os.path.basename(history.IMAGE.findall(result)[0])
+    assert Image.open(saved).size == (1280, 720) and "scaled down from 2560x1440" in result
+    assert computer.SCALE == 2.0
+    assert "shown at most 1280 wide" in computer.computer_screen()
+    computer.computer_act("click", 100, 50)  # the model saw the 1280-wide picture
+    assert fake_gui.calls == [("click", (200, 100), {})]
+    monkeypatch.setattr(computer, "SCALE", 1.0)
 
 
 def test_screenshot_without_a_display_is_a_result_not_a_crash(monkeypatch):
@@ -209,7 +222,8 @@ def test_subagent_expands_the_marker_too(quiet, fake_screen, monkeypatch):
         return replies.pop(0), {"prompt_tokens": 1, "completion_tokens": 1}
 
     monkeypatch.setattr(llm, "call_llm", fake)
-    assert subagent.task("look at the screen") == "report: 2x2"
+    offered = [s for s in computer.COMPUTER_SCHEMAS if s["function"]["name"] == "computer_screenshot"]
+    assert subagent.loop("look", "look at the screen", offered, 3) == "report: 2x2"
     roles = [m["role"] for m in requests[1]]
     assert roles == ["system", "user", "assistant", "tool", "user"]
     assert requests[1][4]["content"][1]["image_url"]["url"].startswith("data:image/png;base64,")
@@ -229,3 +243,80 @@ def test_computer_tools_are_registered():
     names = {s["function"]["name"] for s in tools.TOOL_SCHEMAS}
     assert {"computer_screen", "computer_screenshot", "computer_act"} <= names
     assert all(name in tools.TOOLS for name in ("computer_screen", "computer_screenshot", "computer_act"))
+
+
+def test_the_task_subagent_is_not_given_the_screen(quiet, monkeypatch):
+    offered = {s["function"]["name"] for s in subagent.toolset()}
+    assert not {"computer_act", "computer_screenshot"} & offered
+    replies = [FakeMessage(content=None, tool_calls=[call("s1", "computer_act", '{"action": "click", "x": 1, "y": 1}')]),
+               FakeMessage(content="refused", tool_calls=None)]
+    requests = []
+
+    def fake(messages, tools=None, on_delta=None):
+        requests.append([dict(m) for m in messages])
+        return replies.pop(0), {}
+
+    monkeypatch.setattr(llm, "call_llm", fake)
+    subagent.task("click something")
+    assert [m["content"] for m in requests[1] if m["role"] == "tool"] == ["Blocked by policy: computer_act is not available to this agent"]
+
+
+def test_act_and_screenshot_in_one_reply_run_in_order(quiet, fake_screen, fake_gui, monkeypatch):
+    monkeypatch.setenv("COMPUTER_AUTO", "1")
+    order = []
+    monkeypatch.setitem(tools.TOOLS, "computer_act", lambda **a: order.append("act") or "Done")
+    monkeypatch.setitem(tools.TOOLS, "computer_screenshot", lambda: order.append("shot") or "Screenshot saved")
+    tools.execute_all([call("a", "computer_act", '{"action": "click", "x": 1, "y": 1}'), call("b", "computer_screenshot")])
+    assert order == ["act", "shot"]
+
+
+# ------------------------------------------------------- the usual failures
+
+
+def test_every_tool_call_gets_a_tool_message_even_when_it_fails(quiet, monkeypatch):
+    replies = [
+        FakeMessage(content=None, tool_calls=[call("a", "bash", '{"command": "ls'), call("b", "nope", "{}"), call("c", "read_file", '{"path": "missing.txt"}')]),
+        FakeMessage(content="all failed", tool_calls=None),
+    ]
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (replies.pop(0), {}))
+    monkeypatch.setattr(ui, "injection", lambda text: None)
+    monkeypatch.setattr(ui, "usage", lambda stats: None)
+    out = agent.turn([{"role": "system", "content": "s"}], "go")
+    fed = [(m["tool_call_id"], m["content"]) for m in out if m["role"] == "tool"]
+    assert [i for i, _ in fed] == ["a", "b", "c"] and all(c.startswith("Error") for _, c in fed)
+    assert out[-1]["content"] == "all failed"
+
+
+def test_write_todos_rejects_bad_items_and_session_load_repairs(tmp_path, monkeypatch):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "Old", "status": "pending"}]
+    assert todos.write_todos([{"content": "a", "activeForm": "A", "status": "done"}]).startswith("Error: item 0")
+    assert todos.TODOS[0]["content"] == "old"
+    todos.TODOS.clear()
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    lines = [{"role": "user", "content": "go"}, {"role": "assistant", "content": None, "tool_calls": [{"id": "t9", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}]
+    (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
+    assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+
+
+def test_rewind_cuts_before_a_user_message_never_inside_an_exchange(monkeypatch):
+    monkeypatch.setattr(session, "save", lambda messages: None)
+    cuts = []
+    monkeypatch.setattr(session, "rewind_to", cuts.append)
+    monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "a", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "a", "content": "ok"},
+        {"role": "user", "content": "two"},
+    ]
+    monkeypatch.setattr(ui, "pick", lambda title, rows: 1)
+    out = commands.rewind(messages)
+    assert cuts == [4] and [m["role"] for m in out] == ["system", "user", "assistant", "tool"]
+
+
+def test_utf8_round_trip_and_hardened_permissions(tmp_path):
+    target = tmp_path / "sub" / "n.txt"
+    tools.write_file(str(target), "héllo ✓\r\n")
+    assert tools.read_file(str(target)) == "héllo ✓\r\n"
+    assert permissions.decide("cat a > b") == "ask" and permissions.decide("ls $(x)") == "ask" and permissions.decide("ls 2>&1") == "allow"

@@ -26,7 +26,7 @@ def git_root(cwd=None):
     try:
         done = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            cwd=cwd, capture_output=True, text=True, timeout=10,
+            cwd=cwd, capture_output=True, encoding="utf-8", errors="replace", timeout=10,
         )
     except (OSError, subprocess.SubprocessError):
         return cwd

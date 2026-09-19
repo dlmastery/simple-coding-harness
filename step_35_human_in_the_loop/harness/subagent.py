@@ -163,9 +163,14 @@ def guarded(number, description):
 
 def parallel(descriptions):
     """Run one subagent per description at the same time; join the reports in order."""
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
-        futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
+    pool = ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent")
+    futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
+    try:
         reports = [future.result() for future in futures]
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # a queued subagent never starts; a running one finishes alone
+        raise
+    pool.shutdown(wait=True)
     return "\n\n".join(
         f"## subagent {number}: {title(description)}\n\n{report}"
         for number, (description, report) in enumerate(zip(descriptions, reports), 1)

@@ -26,8 +26,10 @@ Four rules, and the code below is really just these:
   1. it starts from an empty history           - none of the chat context
      the user had with the main agent is shared with the subagent
   2. it holds every tool but a few             - task, browse, write_todos,
-     str_replace, write_file and the job tools are withheld; no recursion,
-     one subagent deep, and no process that outlives the report
+     str_replace, write_file, the job tools, the desktop and the memory are
+     withheld; no recursion, one subagent deep, and no process that
+     outlives the report. What it was offered is all it may run: a call
+     to any other name is denied by execute_all
   3. it runs the same loop as the main agent   - call_llm, append, execute_all,
      and a tool result that carries an image marker becomes an image message
   4. only its final message.content comes back - none of the subagent's
@@ -51,7 +53,11 @@ from functools import partial
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "ask_user"}
+WITHHELD = {
+    "task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "ask_user",
+    "computer_act", "computer_screenshot", "remember", "forget",  # the desktop and the memory belong to the lead agent
+    "handoff_to",  # the conversation is the lead agent's to hand off
+}
 AGENT_PREFIX = "agent_"  # the tools built from agent definitions; withheld like task, so agents do not nest
 
 
@@ -118,6 +124,8 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
 
+    allowed = {s["function"]["name"] for s in tools} | {"load_tool"}  # what it was offered is all it may run
+
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
         fit(messages)  # its context can overflow too, and nobody compacts it
@@ -134,8 +142,9 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         if not message.tool_calls:
             return report or "(the subagent came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        # the same executor as the main loop: same permissions, same sandbox, same pool;
+        # a call to a tool it was not offered is denied, whatever the name
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)

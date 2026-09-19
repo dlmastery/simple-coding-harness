@@ -158,8 +158,9 @@ def chat():
 
     if cli.print:
         messages = turn(messages, cli.print, cli)
-        print(last_reply(messages))
-        raise SystemExit(0)
+        reply = last_reply(messages)
+        print(reply)
+        raise SystemExit(0 if reply else 1)  # no answer (a failed model call, a denied tool) is a failure to the caller
 
     if cli.resume:
         saved = session.all_sessions()

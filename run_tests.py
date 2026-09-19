@@ -3,6 +3,7 @@
     python run_tests.py            # all steps, root and genui/
     python run_tests.py 13 14      # just these root steps (2 selects every 2.x stage)
     python run_tests.py genui/02   # every step under genui/02_*
+    python run_tests.py rsi        # every step of the rsi/ series
 """
 
 import subprocess
@@ -20,7 +21,7 @@ for step in sorted(ROOT.glob("step_*/")):
     if numbers and int(step.name.split("_")[1]) not in numbers:
         continue
     steps.append(step)
-for step in sorted(ROOT.glob("genui/*/step_*/")):
+for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/step_*/"))):
     rel = step.relative_to(ROOT).as_posix()
     if numbers and not prefixes:
         continue

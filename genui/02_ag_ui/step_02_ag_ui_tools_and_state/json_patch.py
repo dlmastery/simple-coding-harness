@@ -1,6 +1,7 @@
-"""JSON Patch (RFC 6902), the three operations AG-UI state deltas use:
-add, replace and remove, with JSON Pointer paths such as
-/dashboard/metrics/- (append) or /dashboard/table.
+"""JSON Patch (RFC 6902), the three operations this step's state deltas
+use: add, replace and remove, with JSON Pointer paths such as
+/dashboard/metrics/- (append) or /dashboard/table. An unknown op, a path
+into nothing or a list index that is not a number raises ValueError.
 
 The server applies each patch to its own copy of the state before sending
 it, so server and page hold the same object after every STATE_DELTA.
@@ -15,18 +16,33 @@ def split_pointer(path):
     return [part.replace("~1", "/").replace("~0", "~") for part in path[1:].split("/")]
 
 
+OPS = ("add", "replace", "remove")
+
+
+def index(part):
+    """A list index: digits only, so 'x' is refused instead of being coerced."""
+    if not part.isdigit():
+        raise ValueError(f"not a list index: {part!r}")
+    return int(part)
+
+
 def walk(document, parts):
     """The container the last part points into, and that last part."""
     target = document
     for part in parts[:-1]:
-        target = target[int(part)] if isinstance(target, list) else target[part]
+        try:
+            target = target[index(part)] if isinstance(target, list) else target[part]
+        except (KeyError, IndexError, TypeError):
+            raise ValueError(f"no such path: {part!r}") from None
     return target, parts[-1]
 
 
 def apply_patch(document, operations):
     """Apply the operations in order, in place. Returns the document."""
     for operation in operations:
-        op, parts = operation["op"], split_pointer(operation["path"])
+        op, parts = operation.get("op"), split_pointer(operation.get("path", ""))
+        if op not in OPS:
+            raise ValueError(f"unsupported op {op}")
         if not parts:
             raise ValueError("the root cannot be patched in place")
         parent, key = walk(document, parts)
@@ -35,18 +51,16 @@ def apply_patch(document, operations):
                 if key == "-":
                     parent.append(operation["value"])
                 else:
-                    parent.insert(int(key), operation["value"])
+                    parent.insert(index(key), operation["value"])
             elif op == "replace":
-                parent[int(key)] = operation["value"]
-            elif op == "remove":
-                del parent[int(key)]
+                parent[index(key)] = operation["value"]
             else:
-                raise ValueError(f"unsupported op {op}")
-        else:
-            if op in ("add", "replace"):
+                del parent[index(key)]
+        elif isinstance(parent, dict):
+            if op == "remove":
+                parent.pop(key, None)
+            else:
                 parent[key] = operation["value"]
-            elif op == "remove":
-                del parent[key]
-            else:
-                raise ValueError(f"unsupported op {op}")
+        else:
+            raise ValueError(f"no such path: {operation.get('path')!r}")
     return document

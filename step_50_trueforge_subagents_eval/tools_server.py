@@ -13,7 +13,9 @@ reach it over the network, and it can run in a thread of the calling process
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
+import signal
 import socket
 import subprocess
 import sys
@@ -24,7 +26,35 @@ from pathlib import Path
 DEFAULT_PORT = 8932
 BASH_TIMEOUT = 120
 MAX_OUTPUT = 20_000
-BASH = shutil.which("bash")  # Git Bash on Windows, /bin/bash elsewhere; None falls back to the OS shell
+# no pagers, no credential prompts: the command has no terminal to answer on
+BASH_ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
+# the command starts its own process group, so a timeout can kill all of it
+NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+GIT_BASH = r"C:\Program Files\Git\bin\bash.exe"
+
+
+def find_bash() -> str | None:
+    """The bash the tool runs: /bin/bash elsewhere, Git Bash on Windows.
+
+    From PowerShell `shutil.which("bash")` is `system32/bash.exe`,
+    the WSL launcher: a different PATH, a `/mnt/c/...` cwd and no `python`.
+    Git Bash is preferred wherever it is; None means the OS shell.
+    """
+    for candidate in (shutil.which("bash"), GIT_BASH):
+        if candidate and Path(candidate).exists() and "system32" not in candidate.lower():
+            return candidate
+    return None
+
+
+BASH = find_bash()
+
+
+def kill_tree(pid: int) -> None:
+    """Kill a process and everything it started."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+    else:
+        os.killpg(pid, signal.SIGKILL)
 
 
 def resolve(project: Path, path: str) -> Path:
@@ -95,18 +125,23 @@ def build_server(project: Path, host: str = "127.0.0.1", port: int = DEFAULT_POR
     @server.tool(annotations=destructive, structured_output=False)
     def bash(command: str) -> str:
         """Run a bash command in the project root and return its combined stdout and stderr."""
+        proc = subprocess.Popen(
+            [BASH, "-c", command] if BASH else command, shell=not BASH, cwd=project,
+            stdin=subprocess.DEVNULL,  # a pipe stdin makes rg and friends read it instead of the tree
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            encoding="utf-8", errors="replace",  # never a UnicodeDecodeError on odd output
+            env=BASH_ENV, **NEW_GROUP,
+        )
         try:
-            completed = subprocess.run(
-                [BASH, "-c", command] if BASH else command, shell=not BASH, cwd=project,
-                stdin=subprocess.DEVNULL,  # a pipe stdin makes rg and friends read it instead of the tree
-                capture_output=True, text=True, timeout=BASH_TIMEOUT,
-            )
+            out, err = proc.communicate(timeout=BASH_TIMEOUT)
         except subprocess.TimeoutExpired:
-            return f"Error: command took more than {BASH_TIMEOUT}s"
-        output = (completed.stdout + completed.stderr).strip() or "(no output)"
+            kill_tree(proc.pid)
+            out, err = proc.communicate()
+            return f"Timed out after {BASH_TIMEOUT}s and was killed. Output so far:\n{(out + err).strip()}"
+        output = (out + err).strip() or "(no output)"
         if len(output) > MAX_OUTPUT:
             output = output[:MAX_OUTPUT] + f"\n... ({len(output) - MAX_OUTPUT} more characters)"
-        return f"{output}\n(exit code {completed.returncode})"
+        return f"{output}\n(exit code {proc.returncode})"
 
     return server
 
@@ -118,15 +153,28 @@ def free_port() -> int:
         return probe.getsockname()[1]
 
 
-def wait_for_port(host: str, port: int, timeout: float = 15.0) -> None:
-    """Block until something accepts connections on host:port, or raise TimeoutError."""
+def port_in_use(host: str, port: int) -> bool:
+    """True when something already accepts connections on host:port."""
+    try:
+        with socket.create_connection((host, port), timeout=0.5):
+            return True
+    except OSError:
+        return False
+
+
+def wait_for_port(host: str, port: int, timeout: float = 15.0, alive=None) -> None:
+    """Block until something accepts connections on host:port, or raise TimeoutError.
+
+    `alive()` is polled too: when the server thread has died (the bind
+    failed, say) this raises RuntimeError at once instead of waiting.
+    """
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        try:
-            with socket.create_connection((host, port), timeout=0.5):
-                return
-        except OSError:
-            time.sleep(0.1)
+        if port_in_use(host, port):
+            return
+        if alive is not None and not alive():
+            raise RuntimeError(f"the tools server thread exited before listening on {host}:{port}")
+        time.sleep(0.1)
     raise TimeoutError(f"nothing is listening on {host}:{port}")
 
 
@@ -143,17 +191,21 @@ class ToolsServer:
     def start(self) -> "ToolsServer":
         import uvicorn
 
+        if port_in_use("127.0.0.1", self.port):  # a previous server, or a stranger: never serve on top of it
+            raise OSError(f"port {self.port} is already in use; pick another with --port")
         app = build_server(self.project, self.host, self.port).streamable_http_app()
         self._server = uvicorn.Server(uvicorn.Config(app, host=self.host, port=self.port, log_level="warning"))
         self._thread = threading.Thread(target=self._server.run, name=f"s50-tools:{self.port}", daemon=True)
         self._thread.start()
-        wait_for_port("127.0.0.1", self.port)
+        wait_for_port("127.0.0.1", self.port, alive=self._thread.is_alive)
         return self
 
     def stop(self) -> None:
         if self._server is not None:
             self._server.should_exit = True
             self._thread.join(timeout=10)
+            if self._thread.is_alive():  # still draining a connection; the next start() on this port refuses
+                print(f"s50-tools on port {self.port} did not stop within 10s", file=sys.stderr)
             self._server = self._thread = None
 
     def __enter__(self):

@@ -377,7 +377,8 @@ Offline tests: `python -m pytest test_step.py`.
 - **A dead runtime.** `turn()` catches the SDK's connection and execution
   errors, prints `error: <type>: <message>` and returns to the prompt.
 - **ctrl-c at the approval prompt** answers no. **ctrl-c while the runtime
-  works** ends the process; `--resume <id>` continues the conversation.
+  works** ends the harness with `interrupted`; `--resume <id>` continues
+  the conversation.
 - **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
   the prompt. An empty line does nothing.
 

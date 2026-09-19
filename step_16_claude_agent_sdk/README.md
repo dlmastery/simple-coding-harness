@@ -133,6 +133,7 @@ async def can_use_tool(tool_name, tool_input, context):
     if tool_name == "Bash":
         verdict, reason = rules.check_bash(tool_input.get("command", ""))
     elif tool_name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
+        # the CLI sends absolute paths; rules.PROJECT is the directory the harness started in
         verdict, reason = rules.check_edit(tool_input.get("file_path", ""))
     else:
         verdict, reason = "allow", None
@@ -374,7 +375,8 @@ launching Claude.
   open. If the CLI itself is gone, the next prompt fails the same way -
   restart with `--resume` to continue the session.
 - **ctrl-c at the approval prompt** answers no. **ctrl-c at the main prompt**
-  leaves.
+  leaves; **ctrl-c while a turn runs** leaves too, printing `interrupted`
+  instead of a traceback, and `--resume` picks the session up.
 - **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
   the prompt. An empty line does nothing.
 

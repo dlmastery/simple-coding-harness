@@ -121,13 +121,20 @@ export function insideProject(path: string): boolean {
   return resolved === project || resolved.startsWith(project + sep);
 }
 
-/** Return [action, reason]. Action is allow, ask or deny. */
+/** Return [action, reason]. Action is allow, ask or deny.
+ *
+ * A call without the argument the rules read - bash without a command,
+ * an edit without a path - is denied with a reason that names it, so the
+ * model fixes the call instead of the harness crashing on it.
+ */
 export function check(name: string, args: Args): [Action, string | null] {
   if (name === "bash") {
+    if (typeof args.command !== "string") return ["deny", `${name}: missing argument 'command'`];
     return [decide(args.command), `run: ${args.command}`];
   }
-  if ((name === "write_file" || name === "str_replace") && !insideProject(args.path)) {
-    return ["ask", `${name} outside ${PROJECT}: ${args.path}`];
+  if (name === "write_file" || name === "str_replace") {
+    if (typeof args.path !== "string") return ["deny", `${name}: missing argument 'path'`];
+    if (!insideProject(args.path)) return ["ask", `${name} outside ${PROJECT}: ${args.path}`];
   }
   return ["allow", null];
 }

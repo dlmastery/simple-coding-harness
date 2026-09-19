@@ -400,8 +400,8 @@ plugin syntax-checked plus unit-tested with `node`).
   start again with `--resume`.
 - **A slow acknowledgement** raises `TimeoutError` after `REQUEST_TIMEOUT`
   seconds, printed the same way. A turn that the runtime never finishes is
-  not bounded on the Python side; ctrl-c ends the process and closes the
-  runtime.
+  not bounded on the Python side; ctrl-c ends the harness with
+  `interrupted` (the `with` block closes the runtime on the way out).
 - **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
   the prompt. An empty line does nothing.
 

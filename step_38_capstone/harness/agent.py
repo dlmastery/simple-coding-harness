@@ -5,11 +5,12 @@ loop: turn() catches the KeyboardInterrupt, run_results() first gives
 every call without a result INTERRUPTED so the transcript stays valid,
 then steer() reads one line at the steer prompt and turn() appends it as a
 user message. The loop goes on from there. A second Ctrl-C within
-STEER_WINDOW seconds, or Ctrl-D, ends the turn and the chat. The rest is
-step 34: the loop survives a bad model, a bad network and a bad crash;
-MAX_CALLS caps the model calls of one turn; recover() finishes a resumed
-transcript that ends in tool calls without results, and a call that fails
-there becomes an Error: result instead of a crash at start-up.
+STEER_WINDOW seconds, or Ctrl-D, ends the turn and the chat. A Ctrl-C
+inside a /command is caught by chat(). The rest is step 34: the loop
+survives a bad model, a bad network and a bad crash; MAX_CALLS caps the
+model calls of one turn; recover() finishes a resumed transcript that ends
+in tool calls without results, and a call that fails there becomes an
+Error: result instead of a crash at start-up.
 """
 
 import argparse

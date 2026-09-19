@@ -71,6 +71,10 @@ export async function callLlm(messages: Message[], tools?: ToolSchema[] | null):
   }
   const response = await (await getClient()).chat.completions.create(request);
 
+  if (!response.choices?.length) {
+    // some servers answer 200 with an error object and no choices: say so instead of reading undefined
+    throw new Error(String((response as { error?: unknown }).error ?? "empty reply: the response carried no choices"));
+  }
   const message = response.choices[0].message;
 
   const usage: Usage = {
@@ -83,25 +87,23 @@ export async function callLlm(messages: Message[], tools?: ToolSchema[] | null):
   return { message, usage };
 }
 
-/** The transcript entry for a reply: every field that is set, nulls dropped.
+/** The transcript entry for a reply: role, content, and the tool calls when there are any.
  *
- * The Python loop appends message.model_dump(exclude_none=True). The JS
- * client returns a plain object with explicit nulls, so this does the same
- * by hand, and pins the tool calls to the shape the session log expects.
+ * Three keys and nothing else, whatever the server sent along. The client
+ * returns a plain object with explicit nulls and extras - `refusal`,
+ * `annotations`, a reasoning model's `reasoning` - and none of that may be
+ * echoed back on the next request, so the shape is pinned here, the way
+ * the Python StreamedMessage.model_dump pins it. `content` stays, null
+ * included: the entry on disk has the shape the API sends.
  */
 export function entry(message: Reply): Message {
-  const out: Message = { role: "assistant" };
-  for (const [key, value] of Object.entries(message)) {
-    if (value !== null && value !== undefined && key !== "role") out[key] = value;
-  }
+  const out: Message = { role: "assistant", content: message.content ?? null };
   if (message.tool_calls?.length) {
     out.tool_calls = message.tool_calls.map((call) => ({
       id: call.id,
       type: "function",
       function: { name: call.function.name, arguments: call.function.arguments },
     }));
-  } else {
-    delete out.tool_calls;
   }
   return out;
 }

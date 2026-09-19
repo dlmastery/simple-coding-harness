@@ -23,13 +23,13 @@ PROMPTS = ["Show me a dashboard for a lemonade stand.", "Buy a new cooler for $4
 def start_server():
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=PORT, log_level="warning"))
     threading.Thread(target=server.run, daemon=True).start()
-    for _ in range(50):
+    for _ in range(100):
         try:
             urllib.request.urlopen(URL, timeout=1)
             return server
         except OSError:
             time.sleep(0.1)
-    raise RuntimeError("server did not start")
+    raise RuntimeError(f"server did not start on port {PORT} (in use?)")
 
 
 def folded(events):
@@ -49,8 +49,9 @@ def folded(events):
             "TOOL_CALL_START": lambda: e["toolCallName"],
             "TOOL_CALL_RESULT": lambda: e["content"],
             "STATE_DELTA": lambda: ", ".join(f"{op['op']} {op['path']}" for op in e["delta"]),
-            "STATE_SNAPSHOT": lambda: f"{len(e['snapshot']['dashboard']['metrics'])} metrics, "
-                                      f"{len(e['snapshot']['dashboard']['purchases'])} purchases",
+            "STATE_SNAPSHOT": lambda: f"{len(e['snapshot'].get('dashboard', {}).get('metrics', []))} metrics, "
+                                      f"{len(e['snapshot'].get('dashboard', {}).get('purchases', []))} purchases",
+            "RUN_ERROR": lambda: e["message"],
         }.get(e["type"], lambda: "")()
         lines.append([e["type"], 0, detail])
     return [f"{t:<20} {d if not n else f'{n} events: {d[:60]}'}".rstrip() for t, n, d in lines]

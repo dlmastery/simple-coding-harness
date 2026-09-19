@@ -23,6 +23,7 @@ from . import sandbox
 from . import session
 from . import subagent
 from . import todos
+from . import tools
 from .ui import ui
 
 COMMANDS = {
@@ -71,10 +72,11 @@ def preview(message):
 def redraw(messages, label):
     """The screen no longer matches the history, so wipe it and draw again.
 
-    The todo list lives outside the transcript; it is rebuilt from the
-    last write_todos call that the transcript still holds.
+    The todo list and the set of loaded tools live outside the transcript;
+    both are rebuilt from the calls the transcript still holds.
     """
     todos.from_transcript(messages)
+    tools.relearn(messages)
     ui.clear()
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)

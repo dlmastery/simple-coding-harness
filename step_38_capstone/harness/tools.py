@@ -1,11 +1,4 @@
-"""Step 38 - decide() and run() never raise: broken arguments, an unknown
-tool name and an exception inside a tool all come back as an "Error: ..."
-result, so every tool call gets exactly one tool message and the loop goes
-on. execute() and execute_all() take the `allowed` set of a subagent, so a
-tool that was not offered cannot run by being named. SERIAL calls run one at
-a time on the calling thread; APPROVE_LOCK keeps two prompts apart. The
-rest is step 36: the agent tools join the
-registry at import: agents.register()
+"""Step 36 - the agent tools join the registry at import: agents.register()
 runs after TOOLS and TOOL_SCHEMAS are built and adds one agent_<name> per
 definition, the way the MCP tools join when their servers start. The rest
 is step 35: ask_user joins the registry, and settle() reads the four

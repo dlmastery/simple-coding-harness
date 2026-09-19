@@ -194,7 +194,7 @@ def run_check_py(task, workspace):
     try:
         completed = subprocess.run(
             [sys.executable, str(task.path / "check.py")],
-            cwd=workspace, capture_output=True, text=True, timeout=CHECK_TIMEOUT,
+            cwd=workspace, capture_output=True, encoding="utf-8", errors="replace", timeout=CHECK_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"check.py took more than {CHECK_TIMEOUT}s"
@@ -259,7 +259,10 @@ def run_task(task, run=1, suite_name="suite", keep=False):
         except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
             answer, error = "", f"run failed: {type(failed).__name__}: {failed}"
         seconds = time.perf_counter() - started
-        passed, detail = (False, error) if error else check(task, cwd, answer)
+        try:
+            passed, detail = (False, error) if error else check(task, cwd, answer)
+        except Exception as failed:  # noqa: BLE001 - a judge whose model call failed is a broken run, not a FAIL
+            passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
 
     if not keep:
         shutil.rmtree(root, ignore_errors=True)

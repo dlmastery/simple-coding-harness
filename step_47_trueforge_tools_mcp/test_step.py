@@ -77,7 +77,8 @@ def test_utf8_round_trip_and_bash_timeout(project, monkeypatch):
     raw = "python -c \"import sys; sys.stdout.buffer.write(open('greek.txt', 'rb').read())\""  # the bytes as written
     assert "χαίρετε" in tools_server.bash(raw)
     monkeypatch.setattr(tools_server, "TIMEOUT", 1)
-    assert tools_server.bash('python -c "import time; time.sleep(30)"') == "Error: command timed out after 1s"
+    slow = 'python -c "import sys, time; print(1); sys.stdout.flush(); time.sleep(30)"'  # prints, then hangs
+    assert tools_server.bash(slow) == "Timed out after 1s and was killed. Output so far:\n1\n"
 
 
 # --- a fake TrueForge server -------------------------------------------------

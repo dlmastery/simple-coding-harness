@@ -2,13 +2,13 @@
 rule: every name in WITHHELD, and every tool that starts with AGENT_PREFIX,
 so a subagent built from a definition cannot start another one. A caller
 may let some withheld names through; the worker definition does that for
-the edit tools. Withheld means denied: loop() hands execute_all the names
-it offered, and a call to any other name comes back as Blocked by policy.
-gather(functions) is the thread pool that has run parallel
+the edit tools. gather(functions) is the thread pool that has run parallel
 subagents since step 29, made generic so the pipeline can run its parallel
 steps on it. The rest is unchanged. Step 35: ask_user is withheld from
 subagents: a subagent cannot see the conversation, so a question to the
-user goes through the lead agent. Step 34: a subagent whose model call fails after every
+user goes through the lead agent. Withheld means denied: loop() hands
+execute_all the names it offered, and a call to any other name comes back
+as Blocked by policy. Step 34: a subagent whose model call fails after every
 retry returns the reason as its report, so the main agent reads what
 happened. Step 32: the subagent tool set goes through active_schemas(), so
 a deferred tool is a stub for a subagent too, and load_tool comes with it.
@@ -176,9 +176,15 @@ def guarded(number, description):
 
 def gather(functions):
     """Call every function at the same time, MAX_PARALLEL at once; the results come back in order."""
-    with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
-        futures = [pool.submit(function) for function in functions]
-        return [future.result() for future in futures]
+    pool = ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent")
+    futures = [pool.submit(function) for function in functions]
+    try:
+        results = [future.result() for future in futures]
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # a queued subagent never starts; a running one finishes alone
+        raise
+    pool.shutdown(wait=True)
+    return results
 
 
 def parallel(descriptions):

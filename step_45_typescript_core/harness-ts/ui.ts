@@ -10,7 +10,7 @@
 import { createInterface } from "node:readline";
 
 import { MARKS } from "./todos.ts";
-import type { Args, Message, Todo, Usage } from "./types.ts";
+import type { Args, Message, Todo, ToolCall, Usage } from "./types.ts";
 
 const TTY = process.stdout.isTTY === true;
 
@@ -64,7 +64,7 @@ export class UI {
   banner(sandboxName = "none"): void {
     console.log();
     console.log(paint("── coding agent ", BOLD, ACCENT) + paint("─".repeat(40), MUTED));
-    console.log(indent(paint(`sandbox: ${sandboxName}  ·  /sessions  /rewind  ·  ctrl-d to exit`, MUTED)));
+    console.log(indent(paint(`sandbox: ${sandboxName}  ·  /sessions  /rewind  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave`, MUTED)));
   }
 
   clear(): void {
@@ -74,6 +74,17 @@ export class UI {
   resumed(messages: Message[], label = "resumed"): void {
     const turns = messages.filter((m) => m.role === "user").length;
     console.log(indent(paint(`${label} · ${messages.length} messages · ${turns} turns`, MUTED)));
+  }
+
+  /** The arguments of a logged call, for drawing: broken JSON is shown as it is, never parsed twice. */
+  static argsOf(call: ToolCall): Args {
+    try {
+      const args = JSON.parse(call.function.arguments || "{}");
+      if (typeof args === "object" && args !== null && !Array.isArray(args)) return args;
+    } catch {
+      // fall through: the raw string is the best picture of what the model sent
+    }
+    return { raw: call.function.arguments };
   }
 
   /** Redraw a loaded transcript so the screen matches the history. */
@@ -88,7 +99,7 @@ export class UI {
       } else if (message.role === "assistant") {
         if (message.content) this.agent(message.content);
         for (const call of message.tool_calls ?? []) {
-          this.tool(call.function.name, JSON.parse(call.function.arguments), results[call.id] ?? "");
+          this.tool(call.function.name, UI.argsOf(call), results[call.id] ?? "");
         }
       }
     }
@@ -113,12 +124,13 @@ export class UI {
     return answer !== null && answer.trim().toLowerCase().startsWith("y");
   }
 
-  async ask(): Promise<string> {
+  /** The next line from the user: "" for an empty line, null when they want out (ctrl-d, ctrl-c). */
+  async ask(): Promise<string | null> {
     console.log();
     const answer = await this.read("> ");
     if (answer === null) {
       console.log();
-      return "";
+      return null;
     }
     return answer.trim();
   }
@@ -138,8 +150,8 @@ export class UI {
   }
 
   tool(name: string, args: Args, result: string, nested = false): void {
-    if (name === "write_todos" && args.todos) {
-      this.todos(args.todos);
+    if (name === "write_todos" && Array.isArray(args.todos) && !result.startsWith("Error")) {
+      this.todos(args.todos); // a list the tool accepted is drawn as the checklist; a refused one shows the error
       return;
     }
     const header = `${name} ${this.formatArgs(args)}`;
@@ -156,7 +168,7 @@ export class UI {
   /** The plan as a checklist. The raw tool output is never worth showing. */
   todos(todos: Todo[]): void {
     const done = todos.filter((t) => t.status === "completed").length;
-    const rows = todos.map((t) => `${MARKS[t.status]} ${t.content}`);
+    const rows = todos.map((t) => `${MARKS[t.status] ?? "[?]"} ${t.content}`);
     console.log();
     console.log(box([`todos ${done}/${todos.length}`, "", ...rows]));
   }

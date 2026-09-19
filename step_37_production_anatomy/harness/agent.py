@@ -1,16 +1,18 @@
-"""Step 35 - the user can steer a running turn. Ctrl-C during a model call
-or during the tool calls does not kill the loop: turn() catches the
-KeyboardInterrupt, run_results() first gives every call without a result
-INTERRUPTED so the transcript stays valid, then steer() reads one line at
-the steer prompt and turn() appends it as a user message. The loop goes on
-from there. A second Ctrl-C within STEER_WINDOW seconds, or Ctrl-D, ends
-the turn and the chat. The rest is step 34: the loop survives a bad model,
-a bad network and a bad crash; MAX_CALLS caps the model calls of one turn;
-recover() finishes a resumed transcript that ends in tool calls without
-results.
+"""Step 35 - the user can steer a running turn. Ctrl-C anywhere in a turn
+does not kill the loop: turn() catches the KeyboardInterrupt, run_results()
+first gives every call without a result INTERRUPTED so the transcript stays
+valid, then steer() reads one line at the steer prompt and turn() appends
+it as a user message. The loop goes on from there. A second Ctrl-C within
+STEER_WINDOW seconds, or Ctrl-D, ends the turn and the chat. A Ctrl-C
+inside a /command is caught by chat(). The rest is step 34: the loop
+survives a bad model, a bad network and a bad crash; MAX_CALLS caps the
+model calls of one turn; recover() finishes a resumed transcript that ends
+in tool calls without results, and a call that fails there becomes an
+Error: result instead of a crash at start-up.
 """
 
 import argparse
+import sys
 import time
 
 from . import browser
@@ -28,9 +30,12 @@ from . import plan
 from . import prompt
 from . import sandbox
 from . import session
+from . import todos
+from . import tools
 from .context import reminder
 from .llm import build_system_prompt, call_llm, with_mode
 from .todos import active_form
+from .ask_user import NO_ANSWER
 from .tools import INTERRUPTED, active_schemas, execute_all
 from .ui import ui
 
@@ -62,9 +67,9 @@ def turn(messages, user_input, cli=None):
     Returns the message list, which compaction may have replaced. The turn
     ends when the model answers without tool calls, when a model call
     fails for good, or when MAX_CALLS calls have been made. A Ctrl-C
-    during the model call or the tool calls reads a steering message and
-    goes on; a second one within STEER_WINDOW seconds raises
-    KeyboardInterrupt out of the turn, with the transcript valid and saved.
+    anywhere in the turn reads a steering message and goes on; a second
+    one within STEER_WINDOW seconds raises KeyboardInterrupt out of the
+    turn, with the transcript valid and saved.
     """
     debug = getattr(cli, "debug", False)
 
@@ -74,66 +79,22 @@ def turn(messages, user_input, cli=None):
         return messages
     checkpoint.begin_turn(len(messages))  # where /undo cuts back to, and what the captures are keyed by
     messages.append({"role": "user", "content": user_input})
+    session.save(messages)  # the question is on disk before the first model call
     detector = durability.LoopDetector()
     calls = 0  # model calls so far in this turn
     usage = {}
 
     while True:
         if calls >= MAX_CALLS:
-            ui.note(f"stopped after {calls} model calls in one turn; say continue to go on")
+            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
             break
-        injection = reminder(hook_context=submitted.context)
-        ui.injection(injection["content"])
-
-        if history.fit(messages):
-            ui.note("dropped old tool output to make this request fit")
-
-        spinner = ui.working(active_form())
-        streamed = False
-
-        def on_delta(text):
-            nonlocal streamed
-            if not streamed:
-                spinner.stop()  # the wait is over: the first words are here
-                ui.stream_start()
-                streamed = True
-            ui.stream_delta(text)
-
-        estimate = budget.breakdown(messages)["total"]  # what this request should cost
         try:
-            with spinner:
-                message, usage = call_llm(with_mode(messages) + [injection], tools=active_schemas(plan.toolset()), on_delta=on_delta)
+            calls, message, usage = one_call(messages, submitted.context, calls, debug)
         except KeyboardInterrupt:
-            if streamed:
-                ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
-            calls += 1
-            if not steered(messages, "the model call"):
+            if not steered(messages, "the turn"):  # run_results has answered every call by now
                 raise
             continue  # a new request, with the steering message at the end
-        calls += 1
-
-        if getattr(message, "failed", None):
-            if streamed:
-                ui.stream_end()  # a stream that broke may have shown part of a reply
-            ui.note(message.failed)  # the model never answered; nothing goes in the transcript
-            break
-
-        messages.append(message.model_dump(exclude_none=True))
-        session.save(messages)
-
-        if streamed:
-            ui.stream_end()
-        elif message.content:
-            ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
-        ui.usage(usage, estimate)
-        warning = budget.check(usage.get("prompt_tokens") or estimate)
-        if warning:
-            ui.note(warning)
-
-        if debug:
-            ui.debug(message.model_dump(exclude_none=True))
-
-        if not message.tool_calls:
+        if message is None or not message.tool_calls:
             break
 
         repeated = detector.observe(message.tool_calls)
@@ -149,9 +110,69 @@ def turn(messages, user_input, cli=None):
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
 
-    if compact.needed(usage):
+    if compact.needed(usage, len(messages)):
         messages = commands.compact(messages)
     return messages
+
+
+def one_call(messages, hook_context, calls, debug):
+    """One model call: the late block, the request, the reply into the transcript.
+
+    Returns (calls, message, usage); message is None when the call failed
+    for good and nothing went in the transcript. A KeyboardInterrupt from
+    anywhere in here - the git status in the late block, the request, the
+    stream - leaves the transcript as it was, with the interrupted call
+    counted.
+    """
+    streamed = False
+    try:
+        injection = reminder(hook_context=hook_context)
+        ui.injection(injection["content"])
+
+        if history.fit(messages):
+            ui.note("dropped old tool output to make this request fit")
+
+        spinner = ui.working(active_form())
+
+        def on_delta(text):
+            nonlocal streamed
+            if not streamed:
+                spinner.stop()  # the wait is over: the first words are here
+                ui.stream_start()
+                streamed = True
+            ui.stream_delta(text)
+
+        estimate = budget.breakdown(messages)["total"]  # what this request should cost
+        with spinner:
+            message, usage = call_llm(with_mode(messages) + [injection], tools=active_schemas(plan.toolset()), on_delta=on_delta)
+    except KeyboardInterrupt:
+        if streamed:
+            ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
+        raise
+    finally:
+        calls += 1
+
+    if getattr(message, "failed", None):
+        if streamed:
+            ui.stream_end()  # a stream that broke may have shown part of a reply
+        ui.note(message.failed)  # the model never answered; nothing goes in the transcript
+        return calls, None, usage
+
+    messages.append(message.model_dump(exclude_none=True))
+    session.save(messages)
+
+    if streamed:
+        ui.stream_end()
+    elif message.content:
+        ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
+    ui.usage(usage, estimate)
+    warning = budget.check(usage.get("prompt_tokens") or estimate)
+    if warning:
+        ui.note(warning)
+
+    if debug:
+        ui.debug(message.model_dump(exclude_none=True))
+    return calls, message, usage
 
 
 def steered(messages, where):
@@ -225,17 +246,39 @@ def recover(messages):
     or in some but not all of their results, cannot be sent back: the API
     wants a result for every call. The missing calls run here, through the
     same permissions and hooks as in a turn, and their results are appended
-    and saved. A transcript that ends anywhere else is left alone.
+    and saved. A call that fails to run - the very thing that may have
+    crashed the last run - becomes an Error: result, so a resume never
+    crashes on the same call twice. A transcript that ends anywhere else is
+    left alone.
     """
     pending = durability.unanswered(messages)
     if not pending:
         return 0
-    # the edits belong to the turn that crashed, so /undo takes them back with it
-    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(len(messages))
-    run_results(messages, pending)
+    # the edits belong to the turn that crashed: the one that began at the last user message
+    start = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=len(messages))
+    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(start)
+    try:
+        run_results(messages, pending)
+    except Exception as failed:  # noqa: BLE001 - whatever broke, the transcript must end whole
+        answered = {m.get("tool_call_id") for m in messages if m.get("role") == "tool"}
+        for call in pending:
+            if call.id not in answered:
+                messages.append({"role": "tool", "tool_call_id": call.id, "content": f"Error: {type(failed).__name__}: {failed}"})
+        session.save(messages)
     count = len(pending)
     ui.note(f"recovered {count} tool call{'s' if count != 1 else ''} left unanswered by the last run")
     return count
+
+
+def resume(messages):
+    """Point the module state at a loaded transcript: strip it, rebuild todos and loaded tools, recover."""
+    history.strip(messages)
+    todos.reload_from(messages)
+    tools.reload_from(messages)
+    ui.resumed(messages)
+    ui.replay(messages)
+    recover(messages)  # a crash mid-turn left tool calls without results: run them now
+    return messages
 
 
 def last_reply(messages):
@@ -273,6 +316,31 @@ def main(argv=None):
         hooks.run_hooks("SessionEnd")
 
 
+def headless(messages, cli):
+    """`-p`: one turn, the answer on stdout, exit 1 when there is none.
+
+    Without a terminal on stdin nobody can answer a prompt, so every ask
+    is declined with a note and ask_user gets NO_ANSWER; the session is
+    not written unless --resume asked for one.
+    """
+    if not sys.stdin.isatty():
+        def decline(reason):
+            ui.note(f"declined, no terminal to ask on: {reason}")
+            return "n"
+
+        ui.approve = decline
+        tools.TOOLS["ask_user"] = lambda question, options=None: NO_ANSWER
+    if not cli.resume:
+        session.save = lambda messages: None  # a one-shot answer is not a chat to resume
+    try:
+        messages = turn(messages, cli.print, cli)
+    except KeyboardInterrupt:
+        raise SystemExit(130)  # the exit code a shell gives an interrupted command
+    answer = last_reply(messages)
+    print(answer)
+    raise SystemExit(0 if answer else 1)
+
+
 def chat(cli):
     if cli.print:
         ui.headless()
@@ -283,35 +351,30 @@ def chat(cli):
 
     messages = [{"role": "system", "content": build_system_prompt()}]  # after connect_all: the deferred list is complete
 
-    if cli.print:
-        try:
-            messages = turn(messages, cli.print, cli)
-        except KeyboardInterrupt:
-            raise SystemExit(130)  # the exit code a shell gives an interrupted command
-        print(last_reply(messages))
-        raise SystemExit(0)
-
     if cli.resume:
         saved = session.all_sessions()
         if saved:
-            messages = session.open_session(saved[0]["id"])
-            history.strip(messages)
-            ui.resumed(messages)
-            ui.replay(messages)
-            recover(messages)  # a crash mid-turn left tool calls without results: run them now
+            messages = resume(session.open_session(saved[0]["id"]))
+
+    if cli.print:
+        headless(messages, cli)
 
     while True:
         user_input = ui.ask()
-        if not user_input:
+        if user_input is None or user_input in ("/exit", "/quit"):
             break
-
-        if user_input.startswith("/"):
-            messages = commands.handle(user_input, messages)
-            session.save(messages)
+        if not user_input:
             continue
 
         try:
-            messages = turn(messages, user_input, cli)
+            if user_input.startswith("/"):
+                try:
+                    messages = commands.handle(user_input, messages)
+                except KeyboardInterrupt:
+                    ui.note("command interrupted")  # a /pipeline or /init cut short; the files it wrote stay
+                session.save(messages)
+            else:
+                messages = turn(messages, user_input, cli)
         except KeyboardInterrupt:
             break  # a second Ctrl-C, or Ctrl-D at the steer prompt: the transcript is saved
 

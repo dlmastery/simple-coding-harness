@@ -11,6 +11,7 @@ export const COMMANDS: Record<string, string> = {
   "/rewind": "jump back to an earlier point in this chat",
   "/sessions": "open a past chat",
   "/compact": "summarise the history so far and free up the context window",
+  "/exit": "leave the chat (so do ctrl-d, or ctrl-z then enter on Windows, and ctrl-c at the prompt)",
 };
 
 export function preview(message: Message): string {
@@ -29,12 +30,23 @@ export function redraw(messages: Message[], label: string): Message[] {
   return messages;
 }
 
+/** Cut the transcript before the chosen user message.
+ *
+ * Only user messages are offered: a cut anywhere else could leave a tool
+ * call without its result, and the API refuses such a transcript.
+ */
 export async function rewind(messages: Message[]): Promise<Message[]> {
-  const rows = messages.map((m) => `${m.role.padEnd(9)} ${preview(m)}`);
-  const choice = await ui.pick("rewind to", rows);
+  const turns = messages.map((m, i) => (m.role === "user" ? i : -1)).filter((i) => i >= 0);
+  if (!turns.length) {
+    ui.note("nothing to rewind to yet");
+    return messages;
+  }
+  const choice = await ui.pick("rewind to before", turns.map((i) => `${String(i).padEnd(4)} ${preview(messages[i])}`));
   if (choice === null) return messages;
-  session.rewindTo(choice + 1);
-  return redraw(messages.slice(0, choice + 1), "rewound");
+  const keep = turns[choice];
+  session.save(messages); // a chat that has not been saved yet gets its file before the marker goes in
+  session.rewindTo(keep);
+  return redraw(messages.slice(0, keep), "rewound");
 }
 
 export async function sessions(messages: Message[]): Promise<Message[]> {

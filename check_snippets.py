@@ -10,6 +10,7 @@ goes in ```text blocks, which are not checked.
     python check_snippets.py            # all steps, root and genui/
     python check_snippets.py 14 16      # a subset of the root steps
     python check_snippets.py genui/03   # every step under genui/03_*
+    python check_snippets.py rsi        # every step of the rsi/ series
 """
 
 import re
@@ -81,7 +82,7 @@ def step_dirs(args):
         if numbers and int(step.name.split("_")[1]) not in numbers:
             continue
         yield step, step.name
-    for step in sorted(ROOT.glob("genui/*/step_*/")):
+    for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/step_*/"))):
         rel = step.relative_to(ROOT).as_posix()
         if numbers and not prefixes:
             continue

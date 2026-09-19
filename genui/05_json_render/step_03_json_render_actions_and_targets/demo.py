@@ -45,12 +45,11 @@ def press_every_button(url):
         page.wait_for_function("document.querySelector('#status').textContent.includes('complete')", timeout=120_000)
         print(f"page: {page.text_content('#status')}")
         buttons = page.locator("#surface button.button")
-        count = buttons.count()
-        print(f"{count} buttons, {page.locator('#surface .card').count()} cards visible")
-        for i in range(count):
-            label = buttons.nth(i).text_content()
+        labels = buttons.all_text_contents()  # a turn may add or remove buttons: find each press by its label, not its index
+        print(f"{len(labels)} buttons, {page.locator('#surface .card').count()} cards visible")
+        for label in labels:
             lines_before = len([l for l in page.text_content("#log").splitlines() if l])
-            buttons.nth(i).click()
+            page.locator("#surface button.button", has_text=label).first.click()
             page.wait_for_function(
                 "n => document.querySelector('#log').textContent.split('\\n').filter(Boolean).length >= n"
                 " && !document.querySelector('#log').textContent.trim().endsWith('-> server')",

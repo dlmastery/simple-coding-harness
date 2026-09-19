@@ -44,7 +44,9 @@ def stream_chat(messages, tools=None):
         ("tool_end", call_id)
 
     The model streams tool calls one at a time, keyed by index. A new index
-    ends the previous call; the end of the stream ends the last one.
+    ends the previous call; the end of the stream ends the last one. The
+    first fragment of a call should carry its id and name; when an endpoint
+    leaves them out, the index stands in, so every call still has an id.
     """
     request = {"model": MODEL, "messages": messages, "stream": True}
     if tools:
@@ -65,8 +67,9 @@ def stream_chat(messages, tools=None):
                 yield ("tool_end", open_call[1])
                 open_call = None
             if open_call is None:
-                open_call = (piece.index, piece.id)
-                yield ("tool_start", piece.id, piece.function.name)
+                function = getattr(piece, "function", None)
+                open_call = (piece.index, piece.id or f"call_{piece.index}")
+                yield ("tool_start", open_call[1], (function and function.name) or "")
             if piece.function and piece.function.arguments:
                 yield ("tool_args", open_call[1], piece.function.arguments)
     if open_call:

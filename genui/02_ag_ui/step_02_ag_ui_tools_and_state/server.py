@@ -9,6 +9,7 @@ from pathlib import Path
 from ag_ui.core import RunAgentInput
 from ag_ui.encoder import EventEncoder
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, StreamingResponse
 
 from agent import run
@@ -24,10 +25,18 @@ app = FastAPI(title="AG-UI step 02")
 def agent_endpoint(input: RunAgentInput, request: Request):
     """Encode every event of the run and stream it as text/event-stream."""
     encoder = EventEncoder(accept=request.headers.get("accept"))
+    events = run(input)
 
-    def stream():
-        for event in run(input):
-            yield encoder.encode(event)
+    async def stream():
+        # The generator runs in a worker thread, one event per pull; when the
+        # page has gone it is closed, and the model stream with it.
+        try:
+            while (event := await run_in_threadpool(next, events, None)) is not None:
+                if await request.is_disconnected():
+                    break
+                yield encoder.encode(event)
+        finally:
+            events.close()
 
     return StreamingResponse(stream(), media_type=encoder.get_content_type())
 

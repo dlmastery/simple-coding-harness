@@ -438,8 +438,9 @@ and UTF-8 round trip, policy, the two filters, the change-note baseline,
   the prompt is back. The SDK drops unanswered tool calls from the stored
   session on the next run, so the transcript stays valid.
 - **ctrl-c at the approval prompt** answers no. **ctrl-c while the model
-  runs** ends the process (the SDK's loop does not catch it); start again
-  with `--resume` and the session picks up.
+  runs** ends the harness with `interrupted` (the SDK's loop does not catch
+  it, the entry point does); start again with `--resume` and the session
+  picks up.
 - **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
   the prompt. An empty line does nothing.
 
