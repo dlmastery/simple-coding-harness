@@ -526,7 +526,9 @@ it up.
   `log_tool_use.py`. The checkpoint capture runs in `run()`, after the
   approval, so a declined edit captures nothing.
 - The loop detector counts calls that are then denied: the third
-  identical denied call reads `REPEATED` instead of `DENIED`.
+  identical denied call reads `REPEATED` instead of `DENIED`. The polling
+  tools in `durability.OBSERVE` (`job_status`, `job_wait`, the screenshot
+  and page reads) repeat on purpose and are never flagged.
 - Approve prompts fire inside subagents too, from pool threads; the lock
   keeps them one at a time, but they interleave with the other
   subagents' panels.

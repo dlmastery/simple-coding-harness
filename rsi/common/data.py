@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common.recipe import TARGET
+from common.recipe import TARGET, categorical_columns
 
 # plain-Python strings: pandas 3 otherwise backs text with pyarrow, whose DLLs crash
 # on some Windows machines when scikit-learn was imported first
@@ -73,7 +73,7 @@ def profile(df):
         "n_features": int(df.shape[1] - 1),
         "n_classes": int(df[TARGET].nunique()),
         "imbalance": round(float(counts.min()), 3),          # share of the rarest class
-        "has_categorical": int(any(df[c].dtype == object for c in df.columns if c != TARGET)),
+        "has_categorical": int(bool(categorical_columns(df))),
     }
 
 

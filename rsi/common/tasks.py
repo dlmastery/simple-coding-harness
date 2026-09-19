@@ -32,8 +32,10 @@ def validate_task(task):
 
 def load_task(name_or_path):
     path = Path(name_or_path)
-    if not path.exists():
-        path = TASK_DIR / f"{name_or_path}.json"
+    if not path.exists():   # a bare name: the file under rsi/tasks/ whose name ends with it
+        path = next(iter(sorted(TASK_DIR.glob(f"*_{name_or_path}.json")) + sorted(TASK_DIR.glob(f"{name_or_path}.json"))), None)
+        if path is None:
+            raise FileNotFoundError(f"no task named {name_or_path!r} under {TASK_DIR}")
     return validate_task(json.loads(path.read_text(encoding="utf-8")))
 
 

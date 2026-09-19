@@ -29,7 +29,7 @@ sys.path.insert(0, str(CAPSTONE))
 
 import run as capstone  # noqa: E402 - capstone/run.py
 
-from harness import agent, budget, checkpoint, context, evaluate, hooks, instructions, llm, memory, permissions, plan, session, todos, tools  # noqa: E402
+from harness import agent, budget, checkpoint, commands, context, evaluate, hooks, instructions, llm, memory, permissions, plan, sandbox, session, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 USAGE = {"prompt_tokens": 100, "completion_tokens": 20, "reasoning_tokens": None, "cached_tokens": 40}
@@ -450,3 +450,45 @@ def test_bad_arguments_and_an_unknown_tool_are_error_results_and_the_run_goes_on
     assert first["result"].startswith("Error: the arguments of write_file are not a JSON object")
     assert second["result"] == "Error: no tool named 'edit_file'."
     assert report["tool_errors"] == 2
+
+
+def test_utf8_survives_write_file_read_file_and_bash(tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    monkeypatch.chdir(workspace)
+    monkeypatch.setattr(permissions, "PROJECT", workspace.resolve())
+    monkeypatch.setattr(sandbox, "PROJECT", workspace.resolve())
+    text = "héllo wörld — ünïcode ✓\r\nline two\n"
+    assert tools.write_file("deep/u.txt", text) == "Wrote deep/u.txt"  # the parent directory is made
+    assert tools.read_file("deep/u.txt") == text  # the CRLF comes back as written
+    assert tools.execute(call("t1", "read_file", {"path": "missing.txt"}))[1].startswith("Error: FileNotFoundError")
+    assert "llo" in tools.bash("echo héllo") and "Error" not in tools.bash("echo héllo")
+
+
+def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone():
+    todos.TODOS[:] = [{"content": "a", "activeForm": "doing a", "status": "in_progress"}]
+    before = list(todos.TODOS)
+    assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
+    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.TODOS == before
+
+
+def test_rewind_offers_only_user_messages_and_a_resumed_pending_call_that_fails_becomes_an_error(monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "ls"})}}]},
+        {"role": "tool", "tool_call_id": "t1", "content": "ok"},
+        {"role": "user", "content": "two"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t2", "type": "function", "function": {"name": "bash", "arguments": "{not json"}}]},
+    ]
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: 1 / 0)  # a crash below run_results
+    assert agent.recover(messages) == 1
+    assert messages[-1] == {"role": "tool", "tool_call_id": "t2", "content": "Error: ZeroDivisionError: division by zero"}
+
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "replay", lambda messages: None)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    out = commands.rewind(messages)
+    assert len(offered) == 2 and [m["role"] for m in out] == ["system", "user", "assistant", "tool"]  # cut before "two": no orphan

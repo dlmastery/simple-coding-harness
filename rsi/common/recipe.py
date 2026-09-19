@@ -11,6 +11,8 @@ apply to the next: experience transfers only across a shared vocabulary.
 import json
 import warnings
 
+import pandas as pd
+
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -37,9 +39,10 @@ FIELDS = ("model", "hyper", "scale", "encode", "class_weight")
 
 BASELINE = {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
 
-# small ensembles keep a fit under a second on the bundled tables; the search is the point, not the model
-N_TREES = 60
-N_ROUNDS = 60
+# small ensembles keep a fit well under a second on the bundled tables; the search is the point, not the model
+N_TREES = 40
+N_ROUNDS = 40
+N_BINS = 64
 
 
 def key(recipe):
@@ -90,8 +93,12 @@ def neighbours(recipe):
     return out
 
 
+def categorical_columns(df):
+    return [c for c in df.columns if c != TARGET and not pd.api.types.is_numeric_dtype(df[c])]
+
+
 def build(recipe, df):
-    categorical = [c for c in df.columns if c != TARGET and df[c].dtype == object]
+    categorical = categorical_columns(df)
     numeric = [c for c in df.columns if c != TARGET and c not in categorical]
     scaler = StandardScaler() if recipe["scale"] == "yes" else "passthrough"
     encoder = {
@@ -103,7 +110,7 @@ def build(recipe, df):
     model = {
         "logreg": lambda: LogisticRegression(C=recipe["hyper"], max_iter=2000, class_weight=cw),
         "rf": lambda: RandomForestClassifier(n_estimators=N_TREES, max_depth=recipe["hyper"], random_state=0, class_weight=cw),
-        "hgb": lambda: HistGradientBoostingClassifier(learning_rate=recipe["hyper"], max_iter=N_ROUNDS, random_state=0, class_weight=cw),
+        "hgb": lambda: HistGradientBoostingClassifier(learning_rate=recipe["hyper"], max_iter=N_ROUNDS, max_bins=N_BINS, random_state=0, class_weight=cw),
     }[recipe["model"]]()
     return Pipeline([("columns", columns), ("model", model)])
 

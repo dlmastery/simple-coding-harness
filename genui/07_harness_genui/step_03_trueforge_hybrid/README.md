@@ -13,9 +13,9 @@ the openui program, and only when the user asks for something interactive.
 The parser learns to read a statement that is still streaming
 (`partial()`), so the page can show the document growing. `web/render.mjs`
 gains an `HtmlArtifact` renderer: the raw source while the line is open, a
-sandboxed iframe with a Content Security Policy injected first in `<head>`
-once it closes (`web/sandbox.mjs`, mirrored by `artifact.py` for the
-tests). `server.py` streams chunks instead of lines, because the artifact
+sandboxed iframe with a Content Security Policy injected before any element
+of the document once it closes (`web/sandbox.mjs`, mirrored by `artifact.py`
+for the tests). `server.py` streams chunks instead of lines, because the artifact
 is one long line. Every other component is step 02's catalog renderer.
 
 ## Quick demo
@@ -146,9 +146,9 @@ one long line, so the page cannot wait for the line to end before it shows
 anything: the parser gains a lenient read of the line in progress. And the
 document is model-written HTML, so it never touches the page's DOM: it
 runs in `<iframe sandbox="allow-scripts" referrerpolicy="no-referrer">`
-with a Content Security Policy injected as the first element of its
-`<head>`, which allows the inline style and script the rules ask for and
-nothing from the network.
+with a Content Security Policy injected right after the doctype, before any
+element the model wrote, which allows the inline style and script the rules
+ask for and nothing from the network.
 
 ## The code, piece by piece
 
@@ -233,8 +233,15 @@ front, and the findings of `checkDocument()` if any:
 ```
 
 `web/sandbox.mjs` is the policy. A CSP meta tag governs only what follows
-it, so it goes first in `<head>`, and any CSP the model wrote is removed
-first so the document cannot loosen it:
+it, so it has to come before anything that could run. Searching for the
+document's own `<head>` is not enough, because the model writes the
+document: a `<script src=...>` placed before `<head>` opens the head
+implicitly and runs with no policy, and a `<head>` inside a comment puts the
+tag where it is ignored. So the tag goes right after an optional doctype,
+before any element - a `<meta>` before `<html>` is legal HTML, the parser
+opens `<html>` and `<head>` for it. Any CSP the model wrote is removed first
+so the document cannot loosen ours, and so is any `<meta http-equiv=refresh>`,
+a navigation the policy cannot block:
 
 ```js
 export const CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:";
@@ -242,12 +249,16 @@ export const CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'u
 
 ```js
 export function sandboxed(html) {
-  const cleaned = html.replace(CSP_META_RE, "");
-  const head = /<head[^>]*>/i.exec(cleaned);
-  if (head) return cleaned.slice(0, head.index + head[0].length) + META + cleaned.slice(head.index + head[0].length);
-  return META + cleaned;
+  const cleaned = html.replace(CSP_META_RE, "").replace(REFRESH_META_RE, "");
+  const doctype = DOCTYPE_RE.exec(cleaned);
+  const at = doctype ? doctype[0].length : 0;
+  return cleaned.slice(0, at) + META + cleaned.slice(at);
 }
 ```
+
+`artifact.py` has the same function in Python, and `sandbox.test.mjs` and
+`test_step.py` pin the two to each other on the same documents, the
+before-`<head>` script and the meta refresh included.
 
 `web/app.js` redraws only when something on screen can change: a
 statement committed, or the artifact document grew. A chunk that only
@@ -272,13 +283,43 @@ def chunks(text, size):
     return [text[i:i + size] for i in range(0, len(text), size)]
 ```
 
+## Why: what breaks without it
+
+Ask step 02's agent for "a calculator I can play with" and it has two bad
+answers. It can use the catalog, which has no inputs on this surface, so
+it writes `Form` and `$state` from TrueForge's guide and the page renders
+nothing. Or, told it may write HTML, it writes HTML for everything - the
+report, the table, the tag - and the token count triples while the catalog
+components lose their consistent look. And once the model writes HTML, a
+page that puts it in the DOM runs whatever it wrote with the page's own
+origin and network. The hybrid is the answer to all three: the catalog
+stays the default, one boxed component covers the interactive case, and
+the box is an iframe with a policy that takes the network away. The
+instructions took three rounds of live runs to get right; the "What to
+notice" section records what each round fixed.
+
 ## Run it
 
-```
+Prerequisites: a TrueForge server (Part 7, stage 46 sets one up on
+`http://localhost:8790`), `pip install trueforge_sdk httpx tiktoken`
+(`tiktoken` for the token counts; the first run downloads the `o200k_base`
+encoding), Node 18+ for `npm test`, and Playwright with Chromium only for
+the screenshots. `--offline` needs only Python.
+
+```bash
+cd genui/07_harness_genui/step_03_trueforge_hybrid
 python demo.py                    # two live turns on TrueForge, the page, three screenshots
 python demo.py --offline          # the recorded replies, same page
-python -m pytest test_step.py     # offline: fake TrueForge over SSE, parser and CSP tests, node --test
+python demo.py --no-screenshot    # skip Playwright; the page URLs are still printed
+python -m pytest test_step.py -q  # offline: fake TrueForge over SSE, parser and CSP tests, node --test
 npm test                          # the JS parser and sandbox tests on their own
+```
+
+```powershell
+cd genui\07_harness_genui\step_03_trueforge_hybrid
+$env:TRUEFORGE_BASE_URL = "http://localhost:8790"   # the default; TRUEFORGE_MODEL picks the model
+python demo.py --offline
+python -m pytest test_step.py -q
 ```
 
 `TRUEFORGE_BASE_URL` (default `http://localhost:8790`) and `TRUEFORGE_MODEL`
@@ -288,7 +329,73 @@ they start a fake TrueForge on an ephemeral port and point the real
 `trueforge_sdk` at it. Live, `demo.py` accepts a reply only when it has
 the expected number of artifacts (none for the report, one for the
 calculator) and otherwise asks a new session again, up to three times,
-printing each attempt.
+printing each attempt; the recorded `sample_*.md` is replaced only by a
+reply that passed the check.
+
+Expected output: the transcript under "Quick demo" is a real run - per
+prompt, the streamed reply, the outline, the token line, the artifact
+line, then `page: http://127.0.0.1:<port>` and the screenshot lines, the
+last of which reports what a keystroke inside the iframe changed. With
+`--offline` the recorded replies are printed instead of streamed.
+`python -m pytest test_step.py -q` ends in `15 passed`; `npm test` ends in
+`# fail 0`.
+
+## Error handling
+
+- TrueForge down or refusing the turn: one line,
+  `request failed: http://localhost:8790 is not answering (...)` or
+  `... answered 404: ...`, exit 1. A turn that ends in any state but `done`
+  raises inside `genui.ask()` and the demo prints `turn failed: the turn
+  ended 'error' (...)` and exits 1: a truncated program, and in particular
+  a truncated artifact, is never rendered as if complete.
+- No fence in the reply: `no ```openui block in the reply; nothing to
+  render`, exit 1. The wrong number of artifacts after three attempts:
+  `unexpected: N artifact(s) for the ... prompt; no screenshot`, and the
+  demo moves on to the next prompt.
+- A document that breaks a rule is still rendered, boxed, with the findings
+  of `checkDocument()` listed under the iframe: an external `src`/`href`, a
+  `fetch`/`XMLHttpRequest`/`WebSocket`/`import()` in a script, a meta
+  refresh (removed before rendering), or a document over 200,000
+  characters. The CSP blocks the external load and the network call at
+  runtime whether or not the check caught it.
+- A statement that never balances is closed by the next `name = ...` line
+  and becomes one parse error; an `HtmlArtifact` whose document string is
+  a reference or a number renders as an empty document rather than
+  `[object Object]`.
+- The page reconnects after a dropped connection and the server replays
+  from the first chunk; `onopen` resets the parser, the counters and the
+  program pane, so the artifact is not drawn twice.
+- ctrl-c while a reply streams stops the demo with Python's usual
+  `KeyboardInterrupt`; the turn keeps running on the server.
+
+## Gotchas / What this is not
+
+- `partial()` reads the line in progress leniently: an unquoted scalar
+  becomes a *string* (`null` is `"null"`, `true` is `"true"`) until the
+  line closes and the full parser gives it its real type. A renderer that
+  reads a partial component's args sees a different type before and after
+  the line ends; the tests document it (`["a", "null", 3, -1.5]`).
+- The page's redraw key is `statements.size : artifact buffer length`. A
+  statement that commits *after* the artifact line (the instructions say
+  there are none, but the model decides) rebuilds the tree and re-creates
+  the iframe, which resets whatever the user typed into it.
+- What the CSP stops and does not stop: no script, style, image, font or
+  connection from the network (`default-src 'none'`); inline style and
+  script allowed; `data:` images allowed. The `sandbox` attribute blocks
+  popups, forms, modals and navigation of the *top* page. Neither stops the
+  document navigating *itself* (`location.href = ...` or a plain link):
+  the frame holds only the model's own document with an opaque origin, so
+  the harm is small, but it is the one exit the box leaves open. A meta
+  refresh is stripped; a script that sets `location` is not.
+- The policy is a `<meta>` tag inside the document, the only place a page
+  can put it for a `srcdoc` frame; a real host should send it as an HTTP
+  header on a served document instead.
+- The parser reads the same subset as step 02 (no exponents, no objects,
+  no `$state` or `@functions`); one program per server, no concurrency,
+  only `web/` files served (a path with `..` is a 404), localhost only.
+- The token counts use `tiktoken`'s `o200k_base` encoding, downloaded on
+  first use; without `tiktoken`, or offline before it is cached, the demo
+  falls back to a `len(text) // 4` estimate and says nothing about it.
 
 ## What to notice
 
@@ -339,3 +446,9 @@ printing each attempt.
   and proves the script ran with keystrokes inside the iframe; the tests
   gain the partial state, the CSP, and a fake TrueForge that calls the
   system tool and splits the document across deltas.
+
+## What the next step adds
+
+This is the last step of the sub-theme. The three steps together are the
+report's map on two harnesses: a tool that draws (01), a hosted harness's
+own generative UI rendered elsewhere (02), and the hybrid on top of it (03).

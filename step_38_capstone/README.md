@@ -21,36 +21,36 @@ step_38_capstone/
 ├── harness/
 │   ├── __init__.py       package marker
 │   ├── agent.py          the loop; `harness eval --workspace DIR` grades one workspace
-│   ├── agents.py         agent definitions: subagents described in Markdown files
+│   ├── agents.py         agent definitions: subagents described in Markdown files; a bad file is a note
 │   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
 │   ├── browse.py         the browse tool set over the step 23 browser subagent
 │   ├── browser.py        browser tools: one Chromium page driven through Playwright
 │   ├── budget.py         the context budget: where the window goes, when to warn
-│   ├── checkpoint.py     workspace checkpoints: file copies taken before each edit
+│   ├── checkpoint.py     workspace checkpoints: file copies taken before each approved edit
 │   ├── commands.py       slash commands: /pipeline joins /undo, /rewind, /checkpoints
 │   ├── compact.py        the compaction agent; its note is kept
 │   ├── computer.py       computer use: the screen as a tool
 │   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py        the late injection block: <env>, <plan>, <jobs>
-│   ├── durability.py     the loop detector and the crash-recovery scan
+│   ├── durability.py     the loop detector, parse_args and the crash-recovery scan
 │   ├── evaluate.py       the evaluation harness; run_suite(workspace=DIR) grades a copy
 │   ├── history.py        keeps the transcript small enough to send, pictures too
-│   ├── hooks.py          hook events with a built-in list; checkpoint capture is one
+│   ├── hooks.py          hook events from hooks.json; PostToolUse carries `ok`
 │   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
 │   ├── jobs.py           background jobs: commands that run while the chat goes on
 │   ├── llm.py            the model call with retries; the prompt lists the agent definitions
 │   ├── mcp_client.py     MCP client: tools served by other processes over stdio
 │   ├── memory.py         persistent memory
 │   ├── permissions.py    which calls need a human; session rules from `a` and `never`
-│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
+│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline; verdict_of, missing_agents
 │   ├── plan.py           plan mode: the read-only tool set, ask_user included
-│   ├── prompt.py         the input line
-│   ├── sandbox.py        an OS sandbox for bash
+│   ├── prompt.py         the input line; prompts go to stderr without a terminal
+│   ├── sandbox.py        an OS sandbox for bash; the profile is written per call, the temp dir is writable
 │   ├── session.py        append-only JSONL session log, load() and --resume
 │   ├── skills.py         skills, unchanged since stage 9
 │   ├── subagent.py       the subagent loop; TASK_SCHEMA has no top-level anyOf
-│   ├── todos.py          the plan behind write_todos
-│   ├── tools.py          the tool registry; run() turns a raised exception into Error:
+│   ├── todos.py          the plan behind write_todos, validated before it replaces the list
+│   ├── tools.py          the tool registry; run() turns a raised exception or an unknown name into Error:
 │   └── ui.py             rich panels; pipeline() draws the summary table
 ├── .agents/
 │   ├── .gitignore                     ignores tool_log.txt, the PostToolUse hook's log
@@ -67,7 +67,7 @@ step_38_capstone/
 ├── capstone/        the end-to-end task
 │   ├── task.md         the brief: a FastAPI todo API with SQLite, tests and a README
 │   ├── run.py          the runner: one headless harness run, then the eval suite
-│   ├── evals/          five checks, one folder each: task.md, check.py; _common.py helpers
+│   ├── evals/          five checks, one folder each: task.md, check.py; _common.py helpers (load_app, client)
 │   ├── reference/      hand-written solution that proves the checks are passable
 │   │   ├── app.py        the todo API: FastAPI on top of a SQLite file
 │   │   ├── test_app.py   its tests; every test gets an empty database
@@ -76,7 +76,7 @@ step_38_capstone/
 │   ├── SCORECARD.md    the recorded run as a markdown scorecard, 4/5
 │   └── transcript.md   the recorded run's messages, readable
 ├── AGENTS.md        project instructions the harness reads into its prompt
-├── test_step.py     offline tests: a scripted fake writes the reference solution
+├── test_step.py     offline tests: a scripted fake writes the reference solution; the checks on their own
 ├── pyproject.toml   package metadata; version 0.38.0
 └── README.md        this file
 ```
@@ -138,7 +138,19 @@ Every task still gets its own fresh copy, so a check that leaves files
 behind, such as pytest with its caches, cannot affect the next one. The
 model turn is skipped, and the `task.md` of each task describes what the
 check looks for rather than prompting an agent. The `harness eval`
-subcommand exposes the same thing as `--workspace DIR`.
+subcommand exposes the same thing as `--workspace DIR`. A `DIR` that does
+not exist is a `FileNotFoundError` before anything runs, not an empty
+copy graded 0 of 5 with no hint why. `harness/evaluate.py`:
+
+```python
+    if workspace is not None and not Path(workspace).is_dir():
+        raise FileNotFoundError(f"workspace directory not found: {workspace}")  # grading an empty copy would fail every check for the wrong reason
+```
+
+Grading suits `check.py` tasks only. A task graded by `expect.txt`
+compares an answer that is empty in this mode, so it always fails, and a
+`judge.md` task spends a model call judging that empty answer. The
+capstone's five tasks are all `check.py`.
 
 ### 2. The checks
 
@@ -183,10 +195,50 @@ with client(app) as http:
 ```
 
 Every `expect` names the rule it checks, so a failure reads as a sentence
-in the scorecard. The tests check runs `python -m pytest -q` and fails on
-exit code 5 as well, because a suite that collects nothing is not a
-passing suite. The README check finds a heading that contains "run" and
-requires the word `uvicorn` under it.
+in the scorecard. What makes each check fail:
+
+1. `1_server_starts`: no `app.py`, an `app.py` that does not import, no
+   module-level `app`, an app whose startup raises, or `GET /health` that
+   is not `200` with the body `{"status": "ok"}` exactly.
+2. `2_crud`: any step of the walk: `GET /todos` on an empty database must
+   be `[]`; `POST` returns `201` and a body with exactly the keys `id`,
+   `title`, `done`; a `POST` without a title is `422`; `GET /todos` lists
+   in creation order; `PUT` updates the fields given and keeps the rest;
+   `DELETE` is `204` with an empty body; a missing id is `404` on `GET`,
+   `PUT` and `DELETE`.
+3. `3_tests_pass`: no `test_*.py` or `*_test.py` in the workspace, or
+   `python -m pytest -q -p no:cacheprovider` in a copy of the workspace
+   exits non-zero - exit code 5 included, because a suite that collects
+   nothing is not a passing suite - or runs over 240 s. It passes on
+   `1 passed`: the brief asks for a test per endpoint, and this check
+   does not count them.
+4. `4_readme`: no `README.md`, one under 80 characters, no heading whose
+   text contains "run", or no such section that names `uvicorn`. Any run
+   section will do, so `## Run the tests` before `## Run the server` is
+   fine. `capstone/evals/4_readme/check.py`:
+
+```python
+for start, title in run_headings:  # any run section will do: "Run the tests" may come before "Run the server"
+    following = [pos for pos, _ in headings if pos > start]
+    section = text[start:following[0] if following else len(text)]
+    if "uvicorn" in section:
+        ok(f"README.md has a {title!r} section with the uvicorn command")
+fail(f"no run section names the uvicorn command; run headings are {[title for _, title in run_headings]}")
+```
+
+5. `5_no_outside_changes`: a file added, removed or changed in the parent
+   of the workspace, or no `CAPSTONE_MANIFEST` in the environment.
+
+The first three checks run under `sys.executable`, the interpreter that
+runs `run.py` or `harness eval`. A check that cannot import `fastapi` or
+`httpx` says so in one line instead of a traceback. `capstone/evals/_common.py`:
+
+```python
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError as missing:  # the check's own interpreter lacks the [capstone] extra: say so, not a traceback
+        fail(f"the check needs fastapi and httpx in {sys.executable}: {missing}")
+```
 
 ### 3. Nothing changed outside
 
@@ -228,6 +280,16 @@ if added or removed or changed:
 Without the variable the check fails. A check that cannot compare must
 not pass by default; silence is not evidence.
 
+The check's reach is the parent directory and its two planted files, no
+more. A write to the home directory - the `remember` tool's
+`~/.simple-harness/memory/`, the checkpoints - or to the system temp
+directory is invisible to it. And the harness's own guard is off during
+the run: `evaluate.isolated` answers every approve prompt with `y`, a
+write outside the workspace included, so check 5 grades the model's
+obedience to the brief, not the permission layer. The test
+`test_a_write_outside_the_workspace_fails_the_last_check` shows exactly
+that: the outside write is approved, and the check catches it.
+
 ### 4. The headless run
 
 The runner reuses the step 30 isolation instead of a subprocess, so the
@@ -266,11 +328,19 @@ def why_continue(messages):
 ```
 
 A turn can end three ways short of an answer. It stops at `MAX_CALLS`
-and the transcript ends in a tool result. The model call fails for good
-and the transcript ends in the user message. Or the model answers with a
+and the transcript ends in a tool result - or the model call failed for
+good right after the tool results, which leaves the same shape and the
+same label. The model call fails for good before any tool call and the
+transcript ends in the user message. Or the model answers with a
 question, which in a chat would wait for the user and here waits for
-nobody. The runner sends a follow-up for each, at most twice, and records
-why. The second live run below is the reason the question case exists.
+nobody; any answer whose last character is `?` counts, "Anything else?"
+included. The runner sends a follow-up for each, at most twice, and
+records why. The second live run below is the reason the question case
+exists.
+
+`run()` takes the two temp directories away in a `finally`, so a Ctrl-C
+at the steer prompt or a crash in the suite leaves nothing behind unless
+`--keep` asked for it.
 
 ### 5. The report
 
@@ -293,11 +363,21 @@ why. The second live run below is the reason the question case exists.
 The report holds the run's numbers, the summed usage, a cost, the notes
 the loop printed, the follow-ups sent, a step list built from the
 transcript with one line per tool call, the eval report from step 30,
-and the score. The cost comes from the usage dict when the API reports
-one, as OpenRouter does, and otherwise from a small price table for the
-OpenAI models, and the report says which. The scorecard is the same data
-as markdown. The transcript file keeps every message with tool results
-cut to forty lines.
+and the score. The cost comes from the usage dict when the provider
+reports one - `llm.usage_from` reads a `cost` field, and OpenRouter sends
+one when the request asks with `usage.include` - else from `PRICES`, a
+table of three OpenAI models, else it is `unknown`; `cost_note` says
+which. The recorded run went through the OpenAI API, so its cost is an
+estimate. The scorecard is the same data as markdown. The transcript
+file keeps every message with tool results cut to forty lines.
+
+The step list's `error` flag is true for a result that starts with an
+`ERROR_MARKS` prefix (`Error`, `Timed out`, `Blocked by`, the denied,
+interrupted and repeated-call messages) or that matches `PROBLEM_RE`,
+which recognises a traceback, a pytest failure line or a shell's
+"command not found". The last line of a result is taken before any
+`[output capped:` or `[output trimmed:` notice, so a long pytest output
+reports its own last line, not the notice.
 
 ### 6. A tool that raises
 
@@ -310,48 +390,173 @@ the run was over.
 `harness/tools.py`:
 
 ```python
-    try:
-        result = TOOLS[tool_call.function.name](**args)
-    except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
-        result = f"Error: {type(failed).__name__}: {failed}"
+    name = tool_call.function.name
+    tool = TOOLS.get(name)
+    if tool is None:
+        result = f"Error: no tool named {name!r}."
+    else:
+        checkpoint.pre_tool_use({"tool_name": name, "tool_input": args})  # capture before the edit, after the approval
+        try:
+            result = tool(**args)
+        except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
+            result = f"Error: {type(failed).__name__}: {failed}"
 ```
 
 The result reaches the model as text, the same way a failed command or a
 denied call does, and the model reads it and tries something else. The
 change sits in `run`, so it covers the main loop, the explorer subagent
-and the step 36 definitions alike.
+and the step 36 definitions alike. A name that is not in the registry
+takes the same road, and so do arguments that are not a JSON object,
+which `decide` answers before anything runs. The fix was made here first
+and then carried back through the earlier steps, so every step's `run`
+now reads like this.
 
 ## Run it
 
-Install the harness and the capstone extras, then run the tests:
+Prerequisites: Python 3.10+ and the `[capstone]` extra (fastapi, httpx,
+uvicorn, pytest) installed in the interpreter that is `python` on the
+agent's PATH. The checks run under the interpreter that runs `run.py`,
+but the model's `python -m pytest` runs whatever `python` the shell
+finds - `cmd.exe` on Windows, `/bin/sh` elsewhere - so a virtualenv that
+holds the extra but is not activated makes the model's tests fail on
+`ModuleNotFoundError: fastapi` while the checks pass, or the reverse.
+Activate it, or install the extra where `python` points.
 
 ```bash
+cd step_38_capstone
 pip install -e ".[capstone]"
+cd ..
 python run_tests.py 38
 python check_snippets.py 38
 ```
 
-Grade the reference solution without a model:
+```powershell
+cd step_38_capstone
+pip install -e ".[capstone]"
+cd ..
+python run_tests.py 38
+python check_snippets.py 38
+```
+
+Grade the reference solution without a model, from `step_38_capstone`:
 
 ```bash
 harness eval capstone/evals --workspace capstone/reference
 ```
 
-Four checks pass and the fifth reports that `CAPSTONE_MANIFEST` is not
-set, because nothing ran that could have changed anything.
+```powershell
+harness eval capstone/evals --workspace capstone/reference
+```
 
 Run the capstone for real. It needs a model that follows a long system
-prompt and calls tools well; a small chat model will not do:
+prompt and calls tools well; a small chat model will not do. `API_KEY`,
+`BASE_URL` and `MODEL` come from the environment or from
+`~/.simple-harness/env`:
 
 ```bash
+cd step_38_capstone
 BASE_URL=https://api.openai.com/v1 API_KEY=... MODEL=gpt-4.1-mini python capstone/run.py
 ```
 
-Progress goes to stderr: the late injection, every tool panel, the
-usage line per call, then one `eval` note per check. Stdout ends with
-one line of numbers and the report path, and the exit code is 0 only
-when every check passed. Then read `capstone/SCORECARD.md`. Add `--keep`
-to keep the temp workspace and its path is printed last.
+```powershell
+cd step_38_capstone
+$env:BASE_URL = "https://api.openai.com/v1"; $env:API_KEY = "..."; $env:MODEL = "gpt-4.1-mini"
+python capstone/run.py
+```
+
+`run.py` imports `truststore`, when it is installed, so a machine behind
+a TLS interceptor uses the OS trust store; `harness eval` does not.
+
+### Expected output
+
+Grading the reference prints one `eval <task> run 1/1` note per task on
+stderr, then the step 30 table on stdout:
+
+```text
+                     eval evals · gpt-4.1-mini
+  ┌──────────────────────┬──────┬───────┬────────┬───────┬────────┬──────┬────────┐
+  │ task                 │ pass │  time │ prompt │ compl │ cached │ cost │ answer │
+  ├──────────────────────┼──────┼───────┼────────┼───────┼────────┼──────┼────────┤
+  │ 1_server_starts      │  1/1 │  1.1s │      0 │     0 │      0 │    - │        │
+  │ 2_crud               │  1/1 │  1.2s │      0 │     0 │      0 │    - │        │
+  │ 3_tests_pass         │  1/1 │  2.9s │      0 │     0 │      0 │    - │        │
+  │ 4_readme             │  1/1 │  0.1s │      0 │     0 │      0 │    - │        │
+  │ 5_no_outside_changes │  0/1 │  0.1s │      0 │     0 │      0 │    - │        │
+  │ evals                │  4/5 │  5.4s │      0 │     0 │      0 │    - │        │
+  └──────────────────────┴──────┴───────┴────────┴───────┴────────┴──────┴────────┘
+report: capstone/evals/eval_report.json
+```
+
+Four pass and the fifth fails with `CAPSTONE_MANIFEST is not set`,
+because nothing ran that could have made a manifest; `run.py` is what
+sets it. The tokens are zero and the cost `-` because no model ran, and
+the exit code is 1 because one check failed.
+
+The real run: progress goes to stderr - the late injection, every tool
+panel, the usage line per call, then one `eval` line per check. Stdout
+carries two lines, and the exit code is 0 only when every check passed:
+
+```text
+score 4/5 · 11 model calls · 10 tool calls · 120,237 prompt tokens · cost 0.025941
+report: C:\Users\you\simple-coding-harness\step_38_capstone\capstone\report.json
+```
+
+`--out DIR` puts the three files elsewhere; the path printed is absolute.
+
+`report.json` has the keys `brief`, `model`, `started`, `seconds`,
+`turns`, `continuations`, `model_calls`, `tool_calls`, `tool_call_total`,
+`tool_errors`, `usage`, `cost`, `cost_note`, `notes`, `answer`,
+`workspace_files`, `outside_changed`, `steps`, `evals` and `score`. Then
+read `capstone/SCORECARD.md`. Add `--keep` to keep the temp workspace;
+its path is printed last.
+
+## Error handling
+
+- A tool call with arguments that are not a JSON object, a name that is
+  not a tool, or a tool that raises, gets one `Error: ...` tool message
+  and the loop goes on - in the main agent and in `agent_planner`,
+  which is what run 3 needed. A failing command is its output; a command
+  over 60 s is killed with its process tree and the model reads the
+  output so far.
+- A dead model call: `call_llm` retries transport errors, 429 and 5xx
+  five times with backoff; a 4xx is not retried. The turn then ends with
+  the transcript valid, the runner sees a last message that is the
+  user's and sends `CONTINUE`, at most twice. Run 1 is what that looks
+  like: 400 on every call, score 1 of 5, exit code 1.
+- A crash anywhere in the run (`run failed: <Type>: <message>` in the
+  notes) still gets a report and a scorecard; the temp directories are
+  removed either way unless `--keep`.
+- Ctrl-C during the run: once is the step 35 steer prompt, which reads a
+  line from the terminal even here; twice within two seconds ends the
+  run with no report and the temp directories removed.
+- Exit code: `0` when every check passed, `1` otherwise, including a run
+  that never answered.
+- `harness eval capstone/evals --workspace DIR` with a `DIR` that does
+  not exist stops with `FileNotFoundError: workspace directory not found`.
+
+## Gotchas / What this is not
+
+- Windows has no OS sandbox, so a real run there relies on the model
+  reading the brief and on check 5; the harness's write-outside guard is
+  auto-approved for the run (section 3).
+- Check 5 sees the parent temp directory only. Memory writes, checkpoints
+  and the system temp directory are outside its view.
+- The agent tools the model had - `agent_planner`, `agent_worker`,
+  `agent_reviewer` - come from this step's `.agents/agents/`, read at
+  import from the directory `run.py` was started in, not from the
+  workspace. The shipped hooks do not run: `isolated` points the hook
+  config at the workspace, which has none.
+- The score is a model score. The reference solution passes 5 of 5 under
+  `run.py` (the test replays it through a scripted fake); a real model's
+  number moves with the model, the prompt and the day.
+- `tool results with an error: 2` in the recorded run counts the two
+  failed pytest outputs, matched by `PROBLEM_RE`, not two `Error:`
+  results; there are none in that transcript.
+- The tests check passes on any green suite, however small; the brief's
+  "a test per endpoint" is not enforced.
+- The tool named `bash` runs `cmd.exe` on Windows, so the model's
+  commands are Windows commands there, and the recorded run's bugs are
+  Windows bugs.
 
 ## The recorded run
 
@@ -506,8 +711,12 @@ directory:
 ```
 
 ```python
-        profile.write_text(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
+        with tempfile.NamedTemporaryFile("w", prefix="simple-harness-", suffix=".sb", delete=False, encoding="utf-8") as profile:
+            profile.write(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
 ```
+
+The profile goes to a fresh temp file per call rather than one shared
+path, because two parallel tool calls writing one file would race.
 
 The same run on macOS exposed one more: pytest printed more than the
 300 characters stage 14 keeps once a turn is over, so the report's last
@@ -563,3 +772,9 @@ path), `agent.py`
 `Error:` result), `subagent.py` (`TASK_SCHEMA` has no top-level
 `anyOf`), `pyproject.toml` (the `capstone` extra: fastapi, httpx,
 uvicorn, pytest). Everything else is unchanged from step 37.
+
+## What the next step adds
+
+Step 39 adds named approval modes: `default`, `accept-edits`,
+`read-only`, `auto` and `plan`, a table that rewrites the verdict of the
+rules before anyone is asked, switched with `/mode` or `--mode`.

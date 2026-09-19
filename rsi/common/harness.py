@@ -25,7 +25,7 @@ from common.trace import TraceLog
 MAX_CALLS = 400   # model calls per boot; a pack that never answers in text stops here
 
 
-def memory_off():
+def memory_off_env():
     return os.environ.get("MEMORY_OFF", "").lower() in ("1", "true", "yes")
 
 
@@ -45,7 +45,7 @@ class Run:
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.target = Path(target) if target else self.pack_dir   # the pack a verifier / meta pack writes to
         self.memory_path = self.target / "memory.json"
-        self.memory_off = memory_off() if memory_off is None else bool(memory_off)
+        self.memory_off = memory_off_env() if memory_off is None else bool(memory_off)
         self.memory_frozen = False
         self.budget = Budget(json.loads(self.files["schema.json"])["n_fits"] if "schema.json" in self.files else 0)
         self.trace = TraceLog(self.run_dir / "traces.jsonl")

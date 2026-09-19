@@ -124,8 +124,9 @@ def run_command(command, event):
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
     stderr as the reason; anything else is reported and ignored. The hook
     gets a process group of its own, so a timeout kills the script and not
-    just the shell that started it (bash's plumbing, from sandbox.py).
+    just the shell that started it (the same plumbing as bash in sandbox.py).
     """
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     process = subprocess.Popen(
         resolve_python(command),
         shell=True,
@@ -135,7 +136,7 @@ def run_command(command, event):
         encoding="utf-8",
         errors="replace",
         cwd=event.get("cwd") or None,
-        **sandbox.group_options(),
+        **group,
     )
     try:
         stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
@@ -272,7 +273,7 @@ keep the last. Several contexts are joined.
     action, reason = check(name, args)
     if action == "deny":
         return args, action, reason
-    outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
+    outcome = hooks.run_hooks("PreToolUse", {"tool_name": name, "tool_input": args})
     if outcome.blocked:
         return args, "blocked", outcome.reason
     if outcome.context:
@@ -309,21 +310,23 @@ def run(tool_call, args):
     so the model is told the hook rejected the outcome; any context, from
     the hooks before or after the call, rides along in a <hook> block.
     """
-    result = call(tool_call.function.name, args)
+    result = call(tool_call, args)
     event = {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result, "ok": not result.startswith("Error")}
     outcome = hooks.run_hooks("PostToolUse", event)
     if outcome.blocked:
         result = f"Blocked by hook: {outcome.reason}"
     elif outcome.result is not None:
-        result = outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
+        result = as_text(outcome.result)
     context = "\n".join(c for c in (PRE_CONTEXT.pop(tool_call.id, ""), outcome.context) if c)
     if context:
         result += f"\n<hook>\n{context}\n</hook>"
     return result
 ```
 
-`run()` calls the tool and then the `PostToolUse` hooks, with the result
-in the event and `ok` saying whether it is an `Error:`. That prefix is
+`run()` calls the tool through `call()`, the step 25 helper that turns an
+unknown name or an exception inside the tool into an `Error:` string,
+and then the `PostToolUse` hooks, with the result in the event and `ok`
+saying whether it is an `Error:`. That prefix is
 the harness's convention for every failed tool (a missing file, a bad
 argument, a server that said no); a `bash` command that exited non-zero
 is still `ok`, its exit code is in the text. A hook that answers with
@@ -374,7 +377,8 @@ def hooks_note(turn_context=""):
 
 `SessionStart` runs once, before the first prompt, and its context is
 kept in `SESSION_CONTEXT` for the whole session. `SessionEnd` runs on
-the way out, after the browser and the MCP servers are closed.
+the way out, after the browser and the MCP servers are closed, whether
+the chat ended at the prompt or on an exception.
 `PreCompact` runs at the top of `commands.compact()`, and a block keeps
 the transcript as it is. That function is also what the loop calls for
 *automatic* compaction, so a hook that always blocks `PreCompact` turns
@@ -523,8 +527,8 @@ python run_tests.py 27
   `continue` to go on.
 
 To leave: `/exit`, `/quit`, ctrl-d (ctrl-z then enter on Windows) or
-ctrl-c at the prompt. `SessionEnd` runs last, after the browser, the
-MCP servers and the summary.
+ctrl-c at the prompt. The usage summary prints, then `main()` closes the
+browser, stops the MCP servers, and runs `SessionEnd` last.
 
 ## Gotchas / What this is not
 

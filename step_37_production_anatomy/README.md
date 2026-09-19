@@ -29,36 +29,36 @@ something already built here.
 step_37_production_anatomy/
 ├── harness/
 │   ├── __init__.py       package marker
-│   ├── agent.py          the loop; Ctrl-C steers the turn instead of killing it
-│   ├── agents.py         agent definitions: subagents described in Markdown files
+│   ├── agent.py          the loop; Ctrl-C anywhere in a turn steers it instead of killing it
+│   ├── agents.py         agent definitions: subagents described in Markdown files; a bad file is a note
 │   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
 │   ├── browse.py         the browse tool set over the step 23 browser subagent
 │   ├── browser.py        browser tools: one Chromium page driven through Playwright
 │   ├── budget.py         the context budget: where the window goes, when to warn
-│   ├── checkpoint.py     workspace checkpoints: file copies taken before each edit
+│   ├── checkpoint.py     workspace checkpoints: file copies taken before each approved edit
 │   ├── commands.py       slash commands: /pipeline joins /undo, /rewind, /checkpoints
 │   ├── compact.py        the compaction agent; its note is kept
 │   ├── computer.py       computer use: the screen as a tool
 │   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py        the late injection block: <env>, <plan>, <jobs>
-│   ├── durability.py     the loop detector and the crash-recovery scan
+│   ├── durability.py     the loop detector, parse_args and the crash-recovery scan
 │   ├── evaluate.py       the evaluation harness; `isolated` auto-answers prompts
 │   ├── history.py        keeps the transcript small enough to send, pictures too
-│   ├── hooks.py          hook events with a built-in list; checkpoint capture is one
+│   ├── hooks.py          hook events from hooks.json; PostToolUse carries `ok`
 │   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
 │   ├── jobs.py           background jobs: commands that run while the chat goes on
 │   ├── llm.py            the model call with retries; the prompt lists the agent definitions
 │   ├── mcp_client.py     MCP client: tools served by other processes over stdio
 │   ├── memory.py         persistent memory
 │   ├── permissions.py    which calls need a human; session rules from `a` and `never`
-│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
+│   ├── pipeline.py       the plan, work, review pipeline behind /pipeline; verdict_of, missing_agents
 │   ├── plan.py           plan mode: the read-only tool set, ask_user included
-│   ├── prompt.py         the input line
-│   ├── sandbox.py        an OS sandbox for bash
+│   ├── prompt.py         the input line; prompts go to stderr without a terminal
+│   ├── sandbox.py        an OS sandbox for bash; the process-group timeout
 │   ├── session.py        append-only JSONL session log, load() and --resume
 │   ├── skills.py         skills, unchanged since stage 9
 │   ├── subagent.py       the subagent loop; withheld() and the gather() thread pool
-│   ├── todos.py          the plan behind write_todos
+│   ├── todos.py          the plan behind write_todos, validated before it replaces the list
 │   ├── tools.py          the tool registry; agents.register() adds agent_<name> at import
 │   └── ui.py             rich panels; pipeline() draws the summary table
 ├── .agents/
@@ -74,7 +74,7 @@ step_37_production_anatomy/
 │   └── agents/reviewer.md             definition: checks one step, answers PASS or FAIL
 ├── evals/           three step 30 tasks: task.md, check.py or expect.txt, workspace/
 ├── AGENTS.md        project instructions the harness reads into its prompt
-├── test_step.py     offline checks of this README: headings, tables, one link per row
+├── test_step.py     offline checks of this README: headings, tables, one link per row, the quoted constants
 ├── pyproject.toml   package metadata; version 0.37.0
 └── README.md        this file
 ```
@@ -93,6 +93,12 @@ step_37_production_anatomy/
   canonical address is cited. The pi repository moved from
   `badlogic/pi-mono` to `earendil-works/pi`; the new address is cited.
 - A quoted setting or command is written as that harness writes it.
+- The **This repo** cells were checked against the code in `harness/`, and
+  `test_step.py` imports the harness and asserts the numbers they quote:
+  `agent.MAX_CALLS == 40`, `subagent.MAX_TURNS == 12`, `subagent.MAX_PARALLEL == 4`,
+  `hooks.TIMEOUT == 30`, `instructions.MAX_CHARS == 20_000`,
+  `budget.THRESHOLDS == (0.5, 0.75)`, `budget.DEFER_OVER == 300`, the
+  60 s default of `sandbox.run`, and `(deny network*)` in `sandbox.PROFILE`.
 
 ## Loop
 
@@ -101,11 +107,11 @@ again. This repo has it in one function, `agent.turn`.
 
 | Aspect | This repo (stage/step) | Claude Code | Codex CLI | OpenCode | pi | Hermes | Sources |
 |---|---|---|---|---|---|---|---|
-| The loop | `agent.turn` in `harness/agent.py` (stage 2.4). One function; a turn ends when a reply has no tool calls or after 40 model calls (step 34). | "The agentic loop": gather context, take action, verify, repeat. Closed source; the loop is not readable. | The `codex-core` crate in `codex-rs/core` (Rust, open source). The same core serves the TUI, `codex exec` and `codex app-server`. | A client/server split: `opencode serve` runs the loop behind an OpenAPI server and the TUI is one client of it. | The `Agent` class in the `pi-agent-core` package: prompt, response, tools, repeat. Tool calls run in parallel by default. | `AIAgent` in `run_agent.py`, a synchronous engine; the loop body sits in `agent/conversation_loop.py`. The same engine serves the CLI and a gateway to chat platforms. | [CC](https://code.claude.com/docs/en/how-claude-code-works) · [CX](https://github.com/openai/codex/tree/main/codex-rs/core/src) · [OC](https://opencode.ai/docs/server/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/agent/README.md) · [HM](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) |
+| The loop | `agent.turn` in `harness/agent.py` (stage 2.4). One function; a turn ends when a reply has no tool calls, when a model call fails for good, or after 40 model calls (`MAX_CALLS`, step 33). | "The agentic loop": gather context, take action, verify, repeat. Closed source; the loop is not readable. | The `codex-core` crate in `codex-rs/core` (Rust, open source). The same core serves the TUI, `codex exec` and `codex app-server`. | A client/server split: `opencode serve` runs the loop behind an OpenAPI server and the TUI is one client of it. | The `Agent` class in the `pi-agent-core` package: prompt, response, tools, repeat. Tool calls run in parallel by default. | `AIAgent` in `run_agent.py`, a synchronous engine; the loop body sits in `agent/conversation_loop.py`. The same engine serves the CLI and a gateway to chat platforms. | [CC](https://code.claude.com/docs/en/how-claude-code-works) · [CX](https://github.com/openai/codex/tree/main/codex-rs/core/src) · [OC](https://opencode.ai/docs/server/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/agent/README.md) · [HM](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) |
 | Streaming | `llm.call_llm(stream=True)` with an `on_delta` callback (step 21). The spinner stops at the first delta. | `--output-format stream-json` with `--include-partial-messages` emits token deltas as NDJSON. | The app server sends JSON-RPC notifications such as `item/agentMessage/delta`; `codex exec --json` emits JSONL events. | Server-sent events at `GET /event`; `opencode run --format json` prints raw events. | `--mode json` prints every session event as a JSON line; `message_update` carries only the delta. | A `stream_delta_callback` in the engine; the gateway edits a chat message in place as text arrives. | [CC](https://code.claude.com/docs/en/headless) · [CX](https://developers.openai.com/codex/app-server) · [OC](https://opencode.ai/docs/server/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/json.md) · [HM](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) |
 | Headless mode | `harness -p PROMPT` runs one turn, prints the final text, exits 0 (step 21). | `claude -p "<prompt>"`; `--bare` also skips hooks, CLAUDE.md and memory for reproducible runs. | `codex exec "<prompt>"` streams progress to stderr and the final message to stdout; `--output-schema` forces JSON. | `opencode run [message]`; `--attach` reuses a running server. | `pi -p` reads piped stdin into the prompt; `--mode rpc` is a JSONL protocol over stdin and stdout. | `hermes chat --oneshot -q "<prompt>"` answers and exits; `hermes -z` prints only the answer. | [CC](https://code.claude.com/docs/en/headless) · [CX](https://developers.openai.com/codex/non-interactive-mode) · [OC](https://opencode.ai/docs/cli/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/rpc.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/cli) |
 | Steering mid-turn | Ctrl-C during a turn reads one line and appends it after the pending tool results (step 35). | Messages typed during a turn are queued; Esc interrupts. | `turn/steer` and `turn/interrupt` are app-server methods. | Not verified. | `steer()` interrupts the run; `followUp()` queues after it. RPC prompts choose one with `streamingBehavior`. | Not verified for the user. Child agents accept `steer` through `delegate_task`. | [CC](https://code.claude.com/docs/en/interactive-mode) · [CX](https://developers.openai.com/codex/app-server) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/rpc.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
-| Retries and runaway calls | `llm.py` retries with `BACKOFF` waits; `durability.LoopDetector` stops a call repeated three times (step 34). | Not verified. | Not verified. | Not verified. | A `retry` block in `settings.json`. | The engine owns "retries, fallback"; `agent.max_turns` bounds a run through an `IterationBudget`. | [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md) · [HM](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) |
+| Retries and runaway calls | `llm.py` retries a rate limit, a transport error, a 5xx or a stream that drops, with `BACKOFF` waits, five tries in all; `durability.LoopDetector` answers the third identical call in a row with `REPEATED` instead of running it, except for the polling tools in `OBSERVE` (step 34). | Not verified. | Not verified. | Not verified. | A `retry` block in `settings.json`. | The engine owns "retries, fallback"; `agent.max_turns` bounds a run through an `IterationBudget`. | [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/settings.md) · [HM](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) |
 
 ## Tools
 
@@ -127,11 +133,11 @@ This repo decides in `permissions.check` and asks in the terminal.
 
 | Aspect | This repo (stage/step) | Claude Code | Codex CLI | OpenCode | pi | Hermes | Sources |
 |---|---|---|---|---|---|---|---|
-| Rule model | `permissions.check` (stage 11) rates a bash command by its first word with `BASH_RULES`; edits outside the project ask. | `permissions.allow`, `ask` and `deny` lists in `settings.json`; evaluated deny, then ask, then allow; first match wins. | `approval_policy` (`on-request`, `never` or a granular table) plus Starlark `prefix_rule(...)` files with decisions `allow`, `prompt`, `forbidden`; the most restrictive rule wins. | The `permission` config key: `allow`, `ask` or `deny` per tool, with pattern objects for `bash` and `edit`; the last matching rule wins. | None in the core: "No permission popups." A `tool_call` extension handler can return `{ block: true }`. | `approvals.mode`: `smart` (an auxiliary model scores risk), `manual` or `off`; `approvals.deny` globs always block. | [CC](https://code.claude.com/docs/en/permissions) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/README.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
+| Rule model | `permissions.check` (stage 11) splits a bash command at pipes, `;`, `&&` and newlines and rates every part against the `BASH_RULES` globs (`git status*`, `cd *`, `rm -rf*`); the strictest verdict wins, a substitution such as `$(...)` is `ask`, and an allowed part that writes through `>` or `tee` is `ask` too. Edits outside the project, or into `.git/`, ask. The step 35 session rules are the ones keyed by a command's first word. | `permissions.allow`, `ask` and `deny` lists in `settings.json`; evaluated deny, then ask, then allow; first match wins. | `approval_policy` (`on-request`, `never` or a granular table) plus Starlark `prefix_rule(...)` files with decisions `allow`, `prompt`, `forbidden`; the most restrictive rule wins. | The `permission` config key: `allow`, `ask` or `deny` per tool, with pattern objects for `bash` and `edit`; the last matching rule wins. | None in the core: "No permission popups." A `tool_call` extension handler can return `{ block: true }`. | `approvals.mode`: `smart` (an auxiliary model scores risk), `manual` or `off`; `approvals.deny` globs always block. | [CC](https://code.claude.com/docs/en/permissions) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/README.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
 | Where rules live | In code: `harness/permissions.py`. | `~/.claude/settings.json`, `.claude/settings.json`, `.claude/settings.local.json`, managed settings. | `~/.codex/config.toml`, `~/.codex/rules/default.rules`, `<repo>/.codex/rules/`; project files load only for trusted projects. | `opencode.json` globally and `agent.<name>.permission` per agent. | `~/.pi/agent/trust.json` holds project trust only. | `approvals:` in `~/.hermes/config.yaml`. | [CC](https://code.claude.com/docs/en/settings) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
 | Modes | Plan mode (`/plan`, step 28) offers only the `READ_ONLY` tools until a plan is approved. Named modes arrive in step 39. | `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`; `Shift+Tab` cycles them. | `--yolo` (`--dangerously-bypass-approvals-and-sandbox`) skips approvals; `/approvals` in the TUI. | `--auto` or the palette entry "Enable auto-approve permissions". | None. | `--yolo`, `/yolo` or `HERMES_YOLO_MODE=1`; a hardline blocklist still applies. | [CC](https://code.claude.com/docs/en/permission-modes) · [CX](https://developers.openai.com/codex/developer-commands) · [OC](https://opencode.ai/docs/cli/) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
-| Remembered answers | The approve prompt accepts `y`, `n`, `a` and `never`; `a` and `never` fill `SESSION_RULES` for this session (step 35). | Hook output `permissionDecision` can allow, deny or ask; `/permissions` edits the rule lists. | The TUI "always allow" writes a rule to `default.rules`; the app server accepts `acceptForSession`. | Prompt answers are `once`, `always` (this session) or `reject`. | None. | `command_allowlist` persists "always" approvals across sessions. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
-| Who enforces | The harness, before `tools.run`; the model never sees the rules. | The harness: "Permission rules are enforced by Claude Code, not by the model." | The harness; `codex execpolicy check` tests a rule file offline. | The harness, before the tool runs. | An extension, if one is installed; otherwise nobody. | The harness; checks are skipped inside container backends because the container is the boundary. | [CC](https://code.claude.com/docs/en/permissions) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
+| Remembered answers | The approve prompt accepts `y`, `n`, `a` and `never`; `a` and `never` fill `SESSION_RULES` for this session, keyed by what was asked: the first word of each bash part, `(write_file, outside)` for a write outside the project, the host for `browser_open`, the tool name otherwise. Plan mode ignores them (step 35). | Hook output `permissionDecision` can allow, deny or ask; `/permissions` edits the rule lists. | The TUI "always allow" writes a rule to `default.rules`; the app server accepts `acceptForSession`. | Prompt answers are `once`, `always` (this session) or `reject`. | None. | `command_allowlist` persists "always" approvals across sessions. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
+| Who enforces | The harness, in `tools.decide` before `tools.run`; the model never sees the rules. A call to a tool the model was not offered is denied by name (`is not available to this agent`), so the offered set is the runnable set. | The harness: "Permission rules are enforced by Claude Code, not by the model." | The harness; `codex execpolicy check` tests a rule file offline. | The harness, before the tool runs. | An extension, if one is installed; otherwise nobody. | The harness; checks are skipped inside container backends because the container is the boundary. | [CC](https://code.claude.com/docs/en/permissions) · [CX](https://developers.openai.com/codex/agent-configuration/rules) · [OC](https://opencode.ai/docs/permissions/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
 
 ## Sandbox
 
@@ -140,10 +146,10 @@ when the permission layer says yes.
 
 | Aspect | This repo (stage/step) | Claude Code | Codex CLI | OpenCode | pi | Hermes | Sources |
 |---|---|---|---|---|---|---|---|
-| Mechanism | `sandbox.wrap` (stage 12): a `sandbox-exec` profile on macOS, `bwrap` on Linux, nothing on Windows. | "Sandboxed Bash tool": Seatbelt on macOS, `bubblewrap` and `socat` on Linux and WSL2; native Windows is not supported. | `sandbox_mode`: `read-only`, `workspace-write`, `danger-full-access`; Seatbelt on macOS, Landlock, seccomp and `bwrap` on Linux, a native sandbox on Windows. | None built in. A third-party plugin wraps `bash` through the `tool.execute.before` hook. | None built in, by design; the docs say a partial sandbox would be mistaken for a security boundary. | "Terminal backends": `local`, `docker`, `ssh`, `modal`, `daytona`, `vercel_sandbox`, `singularity`, chosen by `terminal.backend`. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/sandboxing) · [OC](https://github.com/isanchez31/opencode-sandbox-plugin) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
-| Filesystem | Writes are limited to the project directory. | `sandbox.filesystem.allowWrite`, `denyWrite`, `allowRead`, `denyRead`; writes default to the working directory and `--add-dir` paths. | `writable_roots` and `--add-dir` under `workspace-write`; `.git/` may stay read-only. | None. | None; the recommended Docker run mounts only the workspace. | Docker containers drop all capabilities, set `no-new-privileges` and a PID limit; `HERMES_WRITE_SAFE_ROOT` confines file tools. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/sandboxing) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/containerization.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
-| Network | Not restricted. | A proxy outside the sandbox with `network.allowedDomains`; no domain is allowed until asked. | `sandbox_workspace_write.network_access` is off by default; `features.network_proxy` adds a domain list. | None. | None. | `docker_network` per container; SSH is a network boundary only. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/config-file/config-reference) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
-| Timeouts | `sandbox.run(command, timeout=60)`; the timeout is the same for all commands. | Not verified. | Not verified. | Not verified. | Not verified. | `terminal.timeout` (default 180 s). | [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
+| Mechanism | `sandbox.wrap` (stage 12): a `sandbox-exec` profile on macOS (written to a fresh temp file per call), `bwrap --unshare-net` on Linux when `bwrap` is installed, nothing on Windows or on Linux without `bwrap`; the banner says which. | "Sandboxed Bash tool": Seatbelt on macOS, `bubblewrap` and `socat` on Linux and WSL2; native Windows is not supported. | `sandbox_mode`: `read-only`, `workspace-write`, `danger-full-access`; Seatbelt on macOS, Landlock, seccomp and `bwrap` on Linux, a native sandbox on Windows. | None built in. A third-party plugin wraps `bash` through the `tool.execute.before` hook. | None built in, by design; the docs say a partial sandbox would be mistaken for a security boundary. | "Terminal backends": `local`, `docker`, `ssh`, `modal`, `daytona`, `vercel_sandbox`, `singularity`, chosen by `terminal.backend`. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/sandboxing) · [OC](https://github.com/isanchez31/opencode-sandbox-plugin) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/security.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
+| Filesystem | Under the macOS profile and `bwrap`, writes are limited to the project directory and the temp directory, and `.git/` under the project is read-only; `.git/` writes through `write_file` ask in the permission layer too. None on Windows. | `sandbox.filesystem.allowWrite`, `denyWrite`, `allowRead`, `denyRead`; writes default to the working directory and `--add-dir` paths. | `writable_roots` and `--add-dir` under `workspace-write`; `.git/` may stay read-only. | None. | None; the recommended Docker run mounts only the workspace. | Docker containers drop all capabilities, set `no-new-privileges` and a PID limit; `HERMES_WRITE_SAFE_ROOT` confines file tools. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/sandboxing) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/containerization.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
+| Network | None inside `bash` under the macOS profile (`(deny network*)`) or `bwrap` (`--unshare-net`). Unrestricted on Windows and on Linux without `bwrap`. The harness's own model calls run outside the sandbox. | A proxy outside the sandbox with `network.allowedDomains`; no domain is allowed until asked. | `sandbox_workspace_write.network_access` is off by default; `features.network_proxy` adds a domain list. | None. | None. | `docker_network` per container; SSH is a network boundary only. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/config-file/config-reference) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
+| Timeouts | `sandbox.run(command, timeout=60)`; the same for every command. The command runs in its own process group, a timeout kills the whole tree (`taskkill /T` on Windows, `killpg` elsewhere), and the model reads `Timed out after 60s and was killed. Output so far:` with the partial output. Hooks get 30 s the same way. | Not verified. | Not verified. | Not verified. | Not verified. | `terminal.timeout` (default 180 s). | [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
 | Escape hatch | None; a denied command is denied. | A retry with `dangerouslyDisableSandbox` goes through the normal permission flow. | `--dangerously-bypass-approvals-and-sandbox`. | Not applicable. | Not applicable. | `--yolo` skips prompts but not the blocklist. | [CC](https://code.claude.com/docs/en/sandboxing) · [CX](https://developers.openai.com/codex/developer-commands) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/security) |
 
 ## Context
@@ -154,8 +160,8 @@ instruction files, the transcript and the reminders added late.
 | Aspect | This repo (stage/step) | Claude Code | Codex CLI | OpenCode | pi | Hermes | Sources |
 |---|---|---|---|---|---|---|---|
 | System prompt | `llm.build_system_prompt` (stage 1) assembles the base text, the skills list (stage 4), the instruction files (step 31) and the deferred tool names (step 32). | A fixed core prompt; `--append-system-prompt` and `--system-prompt` change it. CLAUDE.md content arrives as a user message after it. | Not verified beyond the AGENTS.md chain below. | `experimental.chat.system.transform` in a plugin can rewrite it. | `.pi/SYSTEM.md` replaces it; `APPEND_SYSTEM.md` appends; `--system-prompt` and `--append-system-prompt` on the CLI. | A stack: `SOUL.md` first, then tool guidance, memory, skills, context files, timestamp, platform hints and a `/personality` overlay. | [CC](https://code.claude.com/docs/en/memory) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/usage.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/personality) |
-| Instruction files | `instructions.py` (step 31): `AGENTS.md` or `CLAUDE.md` from `~/.simple-harness`, then the git root down to the working directory; 20 000 characters at most. | Managed policy file, `~/.claude/CLAUDE.md`, every ancestor `CLAUDE.md`, `CLAUDE.local.md`; `@path` imports; `.claude/rules/*.md`; subdirectory files load when a file there is read. | `~/.codex/AGENTS.md`, then git root down to the working directory, one file per directory, `AGENTS.override.md` first; `project_doc_max_bytes` (32 KiB) caps the chain. | `AGENTS.md` found walking up, a global `~/.config/opencode/AGENTS.md`, `CLAUDE.md` as fallback; `instructions` config adds globs and URLs. | `AGENTS.md` or `CLAUDE.md`, never both, from `~/.pi/agent`, parent directories and the working directory; `--no-context-files` disables. | `.hermes.md`, `AGENTS.override.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`; first match wins per directory; content is scanned for prompt injection. | [CC](https://code.claude.com/docs/en/memory) · [CX](https://developers.openai.com/codex/agent-configuration/agents-md) · [OC](https://opencode.ai/docs/rules/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/usage.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) |
-| Late injection | `context.reminder` (stage 6) appends a block to each user turn: changed files (stage 7), todos, memory index, jobs and hook context. | Hook output `additionalContext` and `UserPromptSubmit` hooks add text per turn. | `UserPromptSubmit` hooks may return `additionalContext`. | `experimental.chat.messages.transform` in a plugin edits the messages. | The `context` extension event fires before each model call and may modify the messages. | Context files are re-checked as the agent touches new directories. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) |
+| Instruction files | `instructions.py` (step 31): `AGENTS.md` or `CLAUDE.md` from `~/.simple-harness`, then the git root down to the working directory; each file cut at `MAX_CHARS` (20,000 characters) with a note; a BOM is dropped. | Managed policy file, `~/.claude/CLAUDE.md`, every ancestor `CLAUDE.md`, `CLAUDE.local.md`; `@path` imports; `.claude/rules/*.md`; subdirectory files load when a file there is read. | `~/.codex/AGENTS.md`, then git root down to the working directory, one file per directory, `AGENTS.override.md` first; `project_doc_max_bytes` (32 KiB) caps the chain. | `AGENTS.md` found walking up, a global `~/.config/opencode/AGENTS.md`, `CLAUDE.md` as fallback; `instructions` config adds globs and URLs. | `AGENTS.md` or `CLAUDE.md`, never both, from `~/.pi/agent`, parent directories and the working directory; `--no-context-files` disables. | `.hermes.md`, `AGENTS.override.md`, `AGENTS.md`, `CLAUDE.md`, `.cursorrules`; first match wins per directory; content is scanned for prompt injection. | [CC](https://code.claude.com/docs/en/memory) · [CX](https://developers.openai.com/codex/agent-configuration/agents-md) · [OC](https://opencode.ai/docs/rules/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/usage.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) |
+| Late injection | `context.reminder` (stage 6) appends a block before each model call: changed files (stage 7), todos, memory index, jobs and hook context. It is built per call and never enters the transcript. | Hook output `additionalContext` and `UserPromptSubmit` hooks add text per turn. | `UserPromptSubmit` hooks may return `additionalContext`. | `experimental.chat.messages.transform` in a plugin edits the messages. | The `context` extension event fires before each model call and may modify the messages. | Context files are re-checked as the agent touches new directories. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/context-files) |
 | Compaction | `history.fit` caps and strips old tool output, then `compact.compact` (stage 14) asks the model for a `<summary>` and keeps a recent tail. `/compact` runs it by hand. | Auto-compact near the limit clears old tool output first, then summarises; `/compact [focus]`; CLAUDE.md, memory and recent files are re-injected afterwards. | `/compact` and `model_auto_compact_token_limit`; `PreCompact` and `PostCompact` hooks; a `get_context_remaining` tool. | `compaction: { auto, prune, reserved }`; `prune` drops old tool output; `/compact` in the TUI. | Auto-compaction when tokens exceed the window minus `reserveTokens` (16 384); keeps `keepRecentTokens` (20 000); the full history stays in the JSONL file. | `compression.threshold` (0.50), `target_ratio` (0.20), `protect_last_n` (20); `/compress`; a pluggable context engine. | [CC](https://code.claude.com/docs/en/context-window) · [CX](https://developers.openai.com/codex/config-file/config-reference) · [OC](https://opencode.ai/docs/config/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/compaction.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
 | Budget view | `budget.breakdown` and `/context` (step 32) show the window by category and warn at 50 % and 75 %. | `/context` shows usage; `/autocompact` sets the threshold. | The TUI shows "context left"; a `get_context_remaining` tool reports it to the model. | Not verified. | Not verified. | `/usage`, `/context` and `hermes prompt-size`. | [CC](https://code.claude.com/docs/en/context-window) · [CX](https://developers.openai.com/codex/config-file/config-reference) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) |
 
@@ -170,7 +176,7 @@ to an earlier point.
 | Resume | `harness --resume` opens the last session; `/sessions` picks one. | `--continue`, `--resume [id]`, `/resume`; `--fork-session` and `/branch` copy history to a new id. | `codex resume`, `--last`, `codex exec resume --last`; `codex fork` branches. | `opencode run --continue`, `--session <id>`, `--fork`; `/sessions` in the TUI. | `-c` continues the most recent; `-r` browses; `--session <file or partial id>`. | `hermes chat --resume <id>` or `--continue`; `hermes sessions list`. | [CC](https://code.claude.com/docs/en/sessions) · [CX](https://developers.openai.com/codex/developer-commands) · [OC](https://opencode.ai/docs/cli/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sessions.md) · [HM](https://hermes-agent.nousresearch.com/docs/reference/cli-commands) |
 | Rewind | `/rewind` truncates the transcript to an earlier message (stage 8). | `/rewind` or `Esc Esc` restores conversation, code or both. | `/undo` is listed but became a no-op when ghost snapshots were removed. | `/undo` and `/redo` revert the last message. | `/tree` moves to any earlier point in place; the abandoned branch is summarised; `/fork` and `/clone` make new files. | Not verified. | [CC](https://code.claude.com/docs/en/checkpointing) · [CX](https://github.com/openai/codex/pull/19481) · [OC](https://opencode.ai/docs/tui/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sessions.md) |
 | File checkpoints | `checkpoint.py` (step 33) copies a file before `write_file` or `str_replace` touches it; `/undo` puts a turn back. | "Checkpointing": a snapshot before each user turn; files changed by bash or by subagents are not tracked. | None today (see the pull request above). | Git-based snapshots (`snapshot` config) revert files with `/undo`; the project must be a git repository. | Not verified. | Not verified. | [CC](https://code.claude.com/docs/en/checkpointing) · [CX](https://github.com/openai/codex/pull/19481) · [OC](https://opencode.ai/docs/tui/) |
-| Crash recovery | A session that ends in an unanswered tool call gets a synthetic result on restart (step 34). | Not verified. | `[history] persistence` and `--ephemeral` control writing; recovery not verified. | Not verified. | Not verified. | Compression splits sessions through `parent_session_id` chains, so lineage survives. | [CX](https://developers.openai.com/codex/config-file/config-reference) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory) |
+| Crash recovery | `agent.recover()` (step 34): a resumed session that ends in unanswered tool calls re-runs them through the same permissions and hooks and appends the results; a call that fails there becomes an `Error:` result, so the resume never crashes on it twice. `/sessions` does the same. | Not verified. | `[history] persistence` and `--ephemeral` control writing; recovery not verified. | Not verified. | Not verified. | Compression splits sessions through `parent_session_id` chains, so lineage survives. | [CX](https://developers.openai.com/codex/config-file/config-reference) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/memory) |
 
 ## Subagents
 
@@ -181,8 +187,8 @@ set. Only its final report enters the parent's context.
 |---|---|---|---|---|---|---|---|
 | Definition | Built in: `subagent.task` (stage 15). Since step 36, `.agents/agents/*.md` with front matter `name`, `description`, `tools`, `max_turns`; each becomes a tool `agent_<name>`. | `.claude/agents/*.md` with `name`, `description`, `tools`, `model`, `maxTurns`, `permissionMode`, `memory` and more; built-ins Explore, Plan, general-purpose, fork. | TOML files in `~/.codex/agents/` or `.codex/agents/` with `name`, `description`, `developer_instructions`; built-ins `default`, `worker`, `explorer`. | `agent.<name>` in `opencode.json` or `.opencode/agents/*.md` with `mode: primary`, `subagent` or `all`; built-ins `general`, `explore`, `scout`. | None in the core: "No sub-agents." The `pi-subagents` package adds a `subagent` tool. | `delegate_task` in `tools/delegate_tool.py`; no definition files. | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://developers.openai.com/codex/agent-configuration/subagents) · [OC](https://opencode.ai/docs/agents/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
 | Invocation | The `task` tool, or `agent_<name>` tools; `/pipeline <task>` runs planner, workers and reviewer (step 36). | The Agent tool; `@"name (agent)"`; `claude --agent name`. | Model tools `spawn_agent`, `send_input`, `wait_agent`, `close_agent`; `/agents` switches threads. | `@general <text>` by hand, or a primary agent calls it through the `task` permission. | The `subagent` tool from the package. | `delegate_task` with `goal`, `context` and an optional `tasks[]` batch; `action: spawn`, `list`, `steer`, `stop`. | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://github.com/openai/codex/blob/main/codex-rs/core/src/tools/handlers/multi_agents_spec.rs) · [OC](https://opencode.ai/docs/agents/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
-| Isolation | A fresh message list; `WITHHELD` removes `task`, edits, jobs and `ask_user`; `MAX_TURNS` is 12. | Its own context window; background subagents get a reduced tool set. | Inherits the parent's permission and sandbox; per-agent `sandbox_mode` override. | A child session; per-agent `permission` and `tools`. | Foreground children run in the parent process; background children run in a detached runner. | A fresh `AIAgent` with its own terminal session and filtered toolsets; only the final summary returns. | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://developers.openai.com/codex/agent-configuration/subagents) · [OC](https://opencode.ai/docs/agents/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
-| Parallelism and depth | `descriptions` runs up to `MAX_PARALLEL` (4) at once (step 29); a subagent cannot call `task`. | Background by default when the result is not needed at once; `SendMessage` continues one. | `agents.max_concurrent_threads_per_session`. | `subagent_depth` (default 1). | Chains such as "implement, then review" in the package. | `tasks[]` fan out on a thread pool; `delegation.max_spawn_depth` (default 1). | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://developers.openai.com/codex/config-file/config-sample) · [OC](https://opencode.ai/docs/config/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
+| Isolation | A fresh message list. `WITHHELD` keeps `task`, `browse`, `write_todos`, the two edit tools, the job tools, `ask_user`, `computer_act`, `computer_screenshot`, `remember` and `forget` from every subagent, and `agent_*` tools from every definition; a definition may name the edit tools back. It is enforced at execution: `subagent.loop` hands `execute_all` the names it offered and any other name is denied. Turn caps: `MAX_TURNS` (12 turns) for `task`, 20 for `browse`, and per definition `max_turns` (10 for the planner and reviewer, 20 for the worker). Approve prompts still reach the user from inside a subagent, from its thread, one at a time under `APPROVE_LOCK`. | Its own context window; background subagents get a reduced tool set. | Inherits the parent's permission and sandbox; per-agent `sandbox_mode` override. | A child session; per-agent `permission` and `tools`. | Foreground children run in the parent process; background children run in a detached runner. | A fresh `AIAgent` with its own terminal session and filtered toolsets; only the final summary returns. | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://developers.openai.com/codex/agent-configuration/subagents) · [OC](https://opencode.ai/docs/agents/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
+| Parallelism and depth | `descriptions` runs up to `MAX_PARALLEL` (4) at once (step 29). Depth is one: a subagent that names `task` or an `agent_*` tool gets `Blocked by policy: task is not available to this agent`. | Background by default when the result is not needed at once; `SendMessage` continues one. | `agents.max_concurrent_threads_per_session`. | `subagent_depth` (default 1). | Chains such as "implement, then review" in the package. | `tasks[]` fan out on a thread pool; `delegation.max_spawn_depth` (default 1). | [CC](https://code.claude.com/docs/en/sub-agents) · [CX](https://developers.openai.com/codex/config-file/config-sample) · [OC](https://opencode.ai/docs/config/) · [pi](https://pi.dev/packages/pi-subagents) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
 | Background jobs | `bash_background`, `job_status`, `job_wait`, `job_kill` in `harness/jobs.py` (step 29). | Background subagents and the Monitor tool. | A PTY-backed `unified_exec` tool. | Not verified. | None: "No background bash", the docs suggest tmux. | `/bg` and a live monitor on `Ctrl+T`. | [CC](https://code.claude.com/docs/en/tools-reference) · [CX](https://github.com/openai/codex/tree/main/codex-rs/core/src/tools/handlers) · [pi](https://pi.dev) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
 
 ## Hooks
@@ -192,11 +198,11 @@ replace or add to what the loop does.
 
 | Aspect | This repo (stage/step) | Claude Code | Codex CLI | OpenCode | pi | Hermes | Sources |
 |---|---|---|---|---|---|---|---|
-| Form | `hooks.py` (step 27): a `command` (JSON event on stdin) or a `python` entry `module:function`. | Handler types `command`, `http`, `mcp_tool`, `prompt`, `agent`; a `matcher` regex per group. | Types `command` and `mcp_tool`; `prompt` and `agent` are parsed but skipped; `async` hooks run in the background. | TypeScript plugins only; no shell-command hooks. | TypeScript extensions only; `pi.on(event, handler)`. | Three kinds: Python plugin hooks, gateway hooks (`HOOK.yaml` plus `handler.py`) and shell hooks under `hooks:` in `config.yaml`. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks) |
+| Form | `hooks.py` (step 27): a `command` (JSON event on stdin) or a `python` entry `module:function`. `PreToolUse` hooks run inside `tools.decide`, before the approve prompt, so a call the user then declines has already been seen by them; the checkpoint capture runs in `tools.run`, after the approval. | Handler types `command`, `http`, `mcp_tool`, `prompt`, `agent`; a `matcher` regex per group. | Types `command` and `mcp_tool`; `prompt` and `agent` are parsed but skipped; `async` hooks run in the background. | TypeScript plugins only; no shell-command hooks. | TypeScript extensions only; `pi.on(event, handler)`. | Three kinds: Python plugin hooks, gateway hooks (`HOOK.yaml` plus `handler.py`) and shell hooks under `hooks:` in `config.yaml`. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks) |
 | Where | `~/.simple-harness/hooks.json` and `./.agents/hooks.json`, merged per event. | `hooks` in the settings files, plugin `hooks/hooks.json`, skill and subagent front matter. | `~/.codex/hooks.json`, `.codex/hooks.json`, `[[hooks.<Event>]]` in `config.toml`; `/hooks` trusts or disables them. | `.opencode/plugins/*.ts` or an npm package in the `plugin` config key. | `~/.pi/agent/extensions/` and `.pi/extensions/` (after project trust). | `~/.hermes/plugins/<name>/`, `~/.hermes/hooks/<name>/`, `~/.hermes/agent-hooks/`. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks) |
 | Events | Six: `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `PreCompact`, `SessionStart`, `SessionEnd`. | Thirty or more, including `PermissionRequest`, `Stop`, `SubagentStart`, `PostCompact`, `FileChanged`. | Twelve, including `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PreCompact`, `Stop`, `SubagentStart`. | `tool.execute.before`, `tool.execute.after`, `permission.ask`, `chat.message`, `event` for any bus event. | `tool_call`, `tool_result`, `turn_start`, `turn_end`, `context`, `before_provider_request`, `session_before_compact` and more. | Twenty-seven plugin hooks such as `pre_tool_call`, `post_tool_call`, `pre_llm_call`, `transform_tool_result`, `subagent_start`. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks) |
 | Blocking | Exit code 2 with stderr as the reason, or JSON `{"block": "reason"}`. | Exit code 2 blocks; JSON `permissionDecision: deny`. | Exit code 2 blocks; JSON `decision: "block"`. | Throw from `tool.execute.before`. | Return `{ block: true, reason }` from `tool_call`. | `pre_tool_call` can block or modify. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [OC](https://opencode.ai/docs/plugins/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/hooks) |
-| Failure policy | A hook that crashes, times out (30 s) or prints non-JSON is noted and ignored. | Non-zero exit codes other than 2 are non-blocking. | Other exit codes are non-fatal; `timeout` is 600 s by default. | Not verified. | Extensions run with full system permissions; a crash is not verified. | Not verified. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) |
+| Failure policy | A hook that crashes, times out (30 s, `hooks.TIMEOUT`, then its process group is killed) or prints non-JSON is noted and ignored. A `PostToolUse` event carries `ok`, false for an `Error:` result; a hook that replaces the result replaces an error too. | Non-zero exit codes other than 2 are non-blocking. | Other exit codes are non-fatal; `timeout` is 600 s by default. | Not verified. | Extensions run with full system permissions; a crash is not verified. | Not verified. | [CC](https://code.claude.com/docs/en/hooks) · [CX](https://developers.openai.com/codex/hooks) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md) |
 
 ## Memory
 
@@ -220,8 +226,8 @@ result.
 |---|---|---|---|---|---|---|---|
 | Harness | `evaluate.py` (step 30): `harness eval <suite> --repeat N --keep`. | `claude plugin eval` for plugins. | None built in; an external harness parses `codex exec --json`. | None. | None. | No scored harness; `batch_runner.py` records trajectories with per-tool statistics. | [CC](https://code.claude.com/docs/en/plugin-evals) · [CX](https://developers.openai.com/blog/eval-skills) · [OC](https://opencode.ai/docs/cli/) · [pi](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/README.md) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/batch-processing) |
 | Task format | A directory with `task.md`, an optional `workspace/` and one checker: `check.py`, `expect.txt` or `judge.md`. | `evals/<case>/prompt.md` plus `graders/*.md` of type `regex`, `tool_used`, `tool_order`, `file_exists`, `llm` or `baseline`. | `--output-schema` gives structured output for a rubric. | Not applicable. | Not applicable. | A JSONL prompt file; output is ShareGPT-style conversations. | [CC](https://code.claude.com/docs/en/plugin-evals) · [CX](https://developers.openai.com/codex/non-interactive-mode) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/batch-processing) |
-| Isolation | A fresh temp copy of the workspace, a fresh session, every prompt auto-approved. | Non-interactive sessions under the OS sandbox; refuses to run unsandboxed with Bash. | The normal sandbox of `codex exec`. | Not applicable. | Not applicable. | Not verified. | [CC](https://code.claude.com/docs/en/plugin-evals) · [CX](https://developers.openai.com/codex/non-interactive-mode) |
-| Report | `eval_report.json` with pass rate, tokens and cost per task. | With and without the plugin, three runs each, `--json` for CI, an HTML report. | Not applicable. | Not applicable. | Not applicable. | Per-tool success and failure counts. | [CC](https://code.claude.com/docs/en/plugin-evals) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/batch-processing) |
+| Isolation | A fresh temp copy of the workspace, a fresh session, every approve prompt answered `y` - writes outside the workspace included - and `ask_user` answered with "nobody is here". | Non-interactive sessions under the OS sandbox; refuses to run unsandboxed with Bash. | The normal sandbox of `codex exec`. | Not applicable. | Not applicable. | Not verified. | [CC](https://code.claude.com/docs/en/plugin-evals) · [CX](https://developers.openai.com/codex/non-interactive-mode) |
+| Report | `eval_report.json` with pass rate and tokens per task; cost only when the provider reports one in the usage (OpenRouter does, when asked with `usage.include`), `-` otherwise. | With and without the plugin, three runs each, `--json` for CI, an HTML report. | Not applicable. | Not applicable. | Not applicable. | Per-tool success and failure counts. | [CC](https://code.claude.com/docs/en/plugin-evals) · [HM](https://hermes-agent.nousresearch.com/docs/user-guide/features/batch-processing) |
 
 ## What they all agree on
 
@@ -300,6 +306,8 @@ result.
 ## Run it
 
 This step has no new commands. The copied harness runs as in step 36.
+Prerequisites: Python 3.10+, `API_KEY` in the environment or in
+`~/.simple-harness/env`.
 
 ```bash
 cd step_37_production_anatomy
@@ -307,17 +315,72 @@ pip install -e .
 harness
 ```
 
-You should see the step 36 banner. `/help` lists `/pipeline`, and the
-system prompt names the planner, worker and reviewer definitions.
-
-To check the README itself:
-
-```bash
-python -m pytest -q test_step.py
+```powershell
+cd step_37_production_anatomy
+pip install -e .
+harness
 ```
 
-You should see every test pass. The tests read this file and never touch
-the network.
+To check the README itself, from the repository root:
+
+```bash
+python run_tests.py 37
+python check_snippets.py 37
+```
+
+### Expected output
+
+The step 36 banner, with the sandbox of this machine named:
+
+```text
+──────────────────────────── coding agent ────────────────────────────
+  mode: act  ·  sandbox: none  ·  /plan  /act  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+>
+```
+
+There is no `/help`: any `/word` that is not a command prints the command
+list with one line of help each. The system prompt names the planner,
+worker and reviewer definitions under "The agents are:", and `/pipeline`
+runs them as in step 36. The tests read this file and the harness and
+never touch the network:
+
+```text
+14 passed in 5.02s
+```
+
+## Error handling
+
+The behaviour is step 36's, since the code is. In one place:
+
+- A tool call with arguments that are not a JSON object, a name that is
+  not a tool, or a tool that raises, gets one `Error: ...` tool message
+  and the turn goes on; a call without the argument the rules read gets
+  `Blocked by policy: <name>: missing argument '<key>'`.
+- A failing command is its output; a command over 60 s is killed with
+  its process tree and the model reads the output so far.
+- A dead model call is retried up to five times with backoff, then the
+  turn ends with a note and a valid transcript.
+- Ctrl-C once during a turn is the step 35 steer prompt; twice within
+  two seconds, or Ctrl-D there, leaves the chat with every tool call
+  answered. Ctrl-C inside `/pipeline`, `/init` or `/compact` prints
+  `command interrupted`.
+- Leaving: `/exit`, `/quit`, Ctrl-D (Ctrl-Z then Enter on Windows) or
+  Ctrl-C at the input line.
+
+## Gotchas / What this is not
+
+- The tables are a snapshot. The five harnesses change weekly; the fetch
+  dates above are the claim, not "today". A cell marked "not verified"
+  was not found on a public page, and nothing here guesses.
+- "This repo" cells describe the code in this directory, which is step
+  36's. Steps 39 to 45 add named modes, handoffs, a TypeScript port and
+  more, so a later step's README supersedes a cell here.
+- The tool named `bash` runs `cmd.exe` on Windows, and there is no
+  sandbox there; the Sandbox table's "none on Windows" is the whole
+  story, not a caveat.
+- The comparison covers what a mechanism does, not how well. A harness
+  with a bigger tool set or more hook events is not thereby better; the
+  loop and the transcript are what carry the work.
 
 ## What to notice
 
@@ -338,7 +401,15 @@ the network.
 - `README.md`: new. The ten comparison tables, the agreement and
   disagreement sections.
 - `test_step.py`: new. Checks that the README exists, has the ten mechanism
-  headings, and that every citation URL has a scheme and a host.
+  headings, that every citation URL has a scheme and a host, that the
+  constants the "This repo" cells quote are the ones in the code, and that
+  `harness/` is byte-identical to step 36's.
 - `pyproject.toml`: version `0.36.0` to `0.37.0`.
 - `harness/`, `.agents/`, `evals/`, `AGENTS.md`: copied from step 36
   without change.
+
+## What the next step adds
+
+Step 38 runs the capstone: a headless run of this harness on a small
+FastAPI task, graded by five checkers, with the recorded run and its
+scorecard in the README.

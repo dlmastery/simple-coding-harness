@@ -444,8 +444,10 @@ traceback:
   retries.
 - **A tool name the registry lacks** (the model invents `mcp__echo__mul`):
   `Error: no tool named 'mcp__echo__mul'.`
-- **A tool that raises** (wrong argument types, a missing file):
-  `Error: TypeError: ...` or `Error: FileNotFoundError: ...`.
+- **A tool that raises** (an argument the function does not take, a
+  server wrapper that trips): `Error: TypeError: ...`, the exception's
+  name and message. A missing file does not get that far: `read_file`
+  answers `Error: <path> is not a file.` itself.
 - **A server that says no** (`isError`, e.g. `add(a="x")`): `Error: Error
   executing tool add: ...`, the server's own message.
 - **A server that hangs**: `Error: TimeoutError: no answer within 120s`
@@ -500,8 +502,9 @@ stopped on the way out, after the browser and before the summary.
   usage summary.
 - **`-p` mode with piped stdin never prompts.** Every `ask` verdict is
   denied with a note on stderr, so an un-allow-listed MCP tool in a script
-  needs `MCP_ALLOW`. `-p` exits 1 when the reply is empty. `-p` writes a
-  session file like a chat does, and ignores `--resume`.
+  needs `MCP_ALLOW`. `-p` exits 1 when the reply is empty. `-p` leaves no
+  session file behind unless `--resume` is given, in which case it
+  continues the last session and saves to it.
 - **Windows:** the tool called `bash` runs `cmd.exe` (there is no OS
   sandbox and the banner says `sandbox: none`); `python` in `mcp.json` is
   rewritten to the running interpreter because the Store alias would

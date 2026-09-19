@@ -10,8 +10,9 @@ is folded into the system prompt. The transcript then has to fill from 35%
 back to 85% before the next compaction, so the system prompt stays the same
 in between and the cached prefix survives.
 
-The same note is saved as a memory named handoff-<session id>, so the next
-session can recall where this one left off.
+The same note is saved as one project memory, handoff-latest, so the next
+session can recall where the last one left off. One memory, not one per
+session: the index goes to the model on every call, and it must stay short.
 """
 
 import re
@@ -62,9 +63,18 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
-    return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+LAST_SIZE = 0  # how long the transcript was when compaction last ran (or found nothing to do)
+
+
+def needed(usage, messages):
+    """Has the last request grown past the point where we rebuild?
+
+    Once compaction has run - or found nothing old enough - it does not fire
+    again until the transcript has grown, so one big prompt does not trigger
+    it on every turn.
+    """
+    full = (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+    return full and len(messages) > LAST_SIZE
 
 
 def previous_summary(system_content):
@@ -109,13 +119,11 @@ def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
     A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    only safe cut points are user messages: they open a fresh exchange.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user":
+            return index
     return len(messages)
 
 
@@ -129,11 +137,15 @@ def tail_start(messages, budget):
     return safe_boundary(messages, 1)
 
 
+HANDOFF_MEMORY = "handoff-latest"  # one note, overwritten: the index must not grow by one per session
+
+
 def remember_handoff(summary):
-    """Save the handoff note as a project memory, keyed by the session id."""
+    """Save the handoff note as the project's handoff-latest memory."""
+    goal = next((line.strip() for line in summary.splitlines() if line.strip() and not line.startswith("#")), "")
     return memory.remember(
-        f"handoff-{session.CURRENT}",
-        f"handoff note from session {session.CURRENT}",
+        HANDOFF_MEMORY,
+        f"where session {session.CURRENT} left off: {goal[:80]}" if goal else f"where session {session.CURRENT} left off",
         summary,
         type="project",
     )
@@ -141,8 +153,10 @@ def remember_handoff(summary):
 
 def compact(messages):
     """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
+    global LAST_SIZE
     cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
     if cut <= 1:
+        LAST_SIZE = len(messages)  # nothing to do yet: do not ask again until it grows
         return messages
 
     system = messages[0]["content"]
@@ -153,4 +167,5 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    LAST_SIZE = len(kept)
     return kept

@@ -369,9 +369,10 @@ as a child process. No network, no key.
 
 ## Error handling
 
-The harness copy is step 26's, with this round's rule applied to
-`decide()`, `run()` and `settle()` in `harness/tools.py`: every
-`tool_call` gets exactly one tool message.
+The harness copy is step 26's as fixed in this round (`diff -r` against
+`step_26_mcp_client/harness` shows only this step's additions), so every
+`tool_call` gets exactly one tool message, from `decide()`, `run()` and
+`settle()` in `harness/tools.py`:
 
 - Arguments that are not a JSON object: the tool message is
   `Error: the arguments of <name> are not a JSON object: <reason>`; the
@@ -387,9 +388,15 @@ The harness copy is step 26's, with this round's rule applied to
 - The lemonade server not starting (wrong cwd, no `mcp` package): the
   server is listed as failed at start-up and its tools are absent; the
   agent runs without them.
-- A dead model call and ctrl-c mid-turn behave as in step 26 (the main
-  codelab's README for that step describes them); this copy is not
-  updated with the main codelab's later loop changes.
+- A model call that fails ends the turn with `model call failed: ...`;
+  your message stays in the transcript. ctrl-c mid-turn cancels the queued
+  tool calls, answers each one with `(interrupted before this tool ran)`,
+  saves and prints `interrupted`; a turn stops after 40 model calls with
+  `stopped after 40 model calls in one turn; say 'continue' to go on`.
+  Leave with `/exit`, `/quit`, ctrl-d (ctrl-z then enter on Windows) or
+  ctrl-c at the prompt.
+- A card queued by a tool nobody drew (a subagent's call) is dropped at
+  the end of the turn, never shown under a later call of the same tool.
 
 ## Gotchas / What this is not
 

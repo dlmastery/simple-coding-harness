@@ -86,9 +86,11 @@ def check_document(html):
 
 
 def count_tokens(text):
-    """o200k_base tokens with tiktoken; a character estimate when it is not installed."""
+    """o200k_base tokens with tiktoken; a character estimate when it is not installed or its data cannot be fetched."""
     try:
         import tiktoken
-    except ImportError:
+
+        encoding = tiktoken.get_encoding("o200k_base")  # downloads the vocabulary on first use
+    except Exception:  # noqa: BLE001 - not installed, or offline without the cached data
         return max(1, len(text) // 4)
-    return len(tiktoken.get_encoding("o200k_base").encode(text))
+    return len(encoding.encode(text))

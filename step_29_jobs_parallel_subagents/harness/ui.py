@@ -31,6 +31,7 @@ MAX_TOOL_OUTPUT_LINES = 12
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
 
 APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+USAGE_LOCK = threading.Lock()    # parallel subagents report usage from their threads; += is not atomic
 
 
 class Idle:
@@ -264,9 +265,10 @@ class UI:
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats):
-        for key, value in stats.items():
-            if isinstance(value, (int, float)) and not isinstance(value, bool):
-                self._totals[key] = self._totals.get(key, 0) + value
+        with USAGE_LOCK:
+            for key, value in stats.items():
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    self._totals[key] = self._totals.get(key, 0) + value
         parts = []
         for key, value in stats.items():
             if key == "cost" and value is not None:

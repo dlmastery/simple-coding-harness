@@ -14,6 +14,10 @@ mechanisms, cheapest first. Only the first two live here; the expensive one
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
 
+Two markers tell them apart: a capped result still has its full text on
+disk for the rest of the turn; a trimmed one is gone for good, and strip
+and fit leave it alone.
+
 A fourth piece, images: a tool result that carries a `[[image:PATH]]` marker
 asks the loop to show the model that PNG. image_message() builds the user
 message that does it. strip() shrinks those messages to a line of text once
@@ -31,7 +35,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap: the rest is in a temp file until the turn ends
+TRIMMED = "[output trimmed:"  # from strip and fit: the rest is gone; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
@@ -57,9 +62,9 @@ def cap(text):
     try:
         path = spill(text)
     except OSError:
-        return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
+        return text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )

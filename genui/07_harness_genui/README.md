@@ -72,6 +72,26 @@ event instead of a whole spec, and step 03 keeps step 02's files and adds
 the artifact half (`artifact.py`, `web/sandbox.mjs`, the `partial()` read
 in both parsers).
 
+The shared handler serves only the files under `web/` with an allowed
+suffix (`.html`, `.js`, and `.mjs` from step 02 on); a path that resolves
+outside `web/` is a 404, so `/../server.py` never leaves the directory.
+Step 01's page keeps its `EventSource` open - it is a live channel that
+redraws on every `render_ui` call. Steps 02 and 03 close theirs on the
+terminating event (the `null` line or chunk) so a finished stream never
+replays, and a reconnect after a dropped connection resets the page's
+parser before the server replays from the start. The servers listen on 127.0.0.1 only, hold one program (or one
+last spec) at a time and have no authentication.
+
+What can go wrong, and what each step does about it: a bad `render_ui`
+spec, a malformed tool call or a raising tool is one `Error:` tool message
+and the loop continues (step 01); a TrueForge turn that ends in any state
+but `done`, or a server that is down, is one line and exit code 1, never a
+truncated program rendered as complete (steps 02 and 03); one unbalanced
+line in a program is one parse error, not a blank page (02 and 03); and the
+model's HTML never touches the page's DOM - it runs in a sandboxed iframe
+under a CSP injected before any element it wrote (03). Each step README has
+an "Error handling" section with the exact strings.
+
 Read them in order. Step 01 is the harness drawing from a spec it
 validated; step 02 is a hosted harness that already speaks a UI language,
 with the parser and renderer written here so the language is understood
@@ -81,7 +101,11 @@ server.
 
 From the repository root:
 
-```
+```bash
 python run_tests.py genui/07          # offline tests for the three steps
 python check_snippets.py genui/07     # every README snippet exists in its file
 ```
+
+The same two commands work unchanged in PowerShell. Steps 02 and 03 also
+run `node --test` from `test_step.py` when `node` is on the PATH, and skip
+those tests with a note when it is not.
