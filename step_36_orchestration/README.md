@@ -219,11 +219,11 @@ can call a tool it was not offered by naming it - the API does not stop
 that - so `loop` hands `execute_all` the names it offered:
 
 ```python
-    allowed = {schema["function"]["name"] for schema in tools} | {"load_tool"}  # rule 2, enforced: what was offered is what may run
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was shown
 ```
 
 ```python
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        outcomes = execute_all(message.tool_calls, allowed)
 ```
 
 `decide()` answers any other name with the verdict

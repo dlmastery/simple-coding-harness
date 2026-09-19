@@ -4,11 +4,11 @@ first gives every call without a result INTERRUPTED so the transcript stays
 valid, then steer() reads one line at the steer prompt and turn() appends
 it as a user message. The loop goes on from there. A second Ctrl-C within
 STEER_WINDOW seconds, or Ctrl-D, ends the turn and the chat. A Ctrl-C
-inside a /command is caught by chat(). The rest is step 34: the loop
-survives a bad model, a bad network and a bad crash; MAX_CALLS caps the
-model calls of one turn; recover() finishes a resumed transcript that ends
-in tool calls without results, and a call that fails there becomes an
-Error: result instead of a crash at start-up.
+inside a /command is caught by chat(). headless() is the -p path: without
+a terminal every approve prompt is declined and ask_user gets NO_ANSWER.
+The rest is step 34: the loop survives a bad model, a bad network and a
+bad crash; MAX_CALLS caps the model calls of one turn; recover() finishes
+a resumed transcript that ends in tool calls without results.
 """
 
 import argparse
@@ -30,16 +30,15 @@ from . import plan
 from . import prompt
 from . import sandbox
 from . import session
-from . import todos
 from . import tools
-from .context import reminder
-from .llm import build_system_prompt, call_llm, with_mode
-from .todos import active_form
 from .ask_user import NO_ANSWER
-from .tools import INTERRUPTED, active_schemas, execute_all
+from .context import reminder
+from .llm import build_system_prompt, call_llm, entry, with_mode
+from .todos import active_form, restore
+from .tools import INTERRUPTED, active_schemas, execute_all, relearn
 from .ui import ui
 
-MAX_CALLS = 40      # model calls one turn may make before the loop stops and asks
+MAX_CALLS = 40      # model calls in one turn before we stop and ask the user
 STEER_WINDOW = 2.0  # seconds: a second Ctrl-C within this many after the first exits
 
 
@@ -64,12 +63,11 @@ def steer(where):
 def turn(messages, user_input, cli=None):
     """One user message, every model call and tool call it leads to.
 
-    Returns the message list, which compaction may have replaced. The turn
-    ends when the model answers without tool calls, when a model call
-    fails for good, or when MAX_CALLS calls have been made. A Ctrl-C
-    anywhere in the turn reads a steering message and goes on; a second
-    one within STEER_WINDOW seconds raises KeyboardInterrupt out of the
-    turn, with the transcript valid and saved.
+    Returns the message list, which compaction may have replaced. Returns
+    it early, with every tool call answered, when the model call fails for
+    good. A Ctrl-C anywhere in the turn reads a steering message and goes
+    on; a second one within STEER_WINDOW seconds raises KeyboardInterrupt
+    out of the turn, with the transcript valid and saved.
     """
     debug = getattr(cli, "debug", False)
 
@@ -79,19 +77,15 @@ def turn(messages, user_input, cli=None):
         return messages
     checkpoint.begin_turn(len(messages))  # where /undo cuts back to, and what the captures are keyed by
     messages.append({"role": "user", "content": user_input})
-    session.save(messages)  # the question is on disk before the first model call
-    detector = durability.LoopDetector()
-    calls = 0  # model calls so far in this turn
+    session.save(messages)
     usage = {}
+    detector = durability.LoopDetector()
 
-    while True:
-        if calls >= MAX_CALLS:
-            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
-            break
+    for _ in range(MAX_CALLS):
         try:
-            calls, message, usage, allowed = one_call(messages, submitted.context, calls, debug)
+            message, usage = one_call(messages, submitted.context, debug)
         except KeyboardInterrupt:
-            if not steered(messages, "the turn"):  # run_results has answered every call by now
+            if not steered(messages, "the model call"):  # nothing dangles: the reply never went in
                 raise
             continue  # a new request, with the steering message at the end
         if message is None or not message.tool_calls:
@@ -102,28 +96,28 @@ def turn(messages, user_input, cli=None):
             if flag:
                 ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
         try:
-            run_results(messages, message.tool_calls, repeated, allowed)
+            run_results(messages, message.tool_calls, repeated)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
                 raise
+    else:
+        ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
 
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
 
-    if compact.needed(usage, len(messages)):
+    if compact.needed(usage, messages):
         messages = commands.compact(messages)
     return messages
 
 
-def one_call(messages, hook_context, calls, debug):
+def one_call(messages, hook_context, debug):
     """One model call: the late block, the request, the reply into the transcript.
 
-    Returns (calls, message, usage, allowed); message is None when the call
-    failed for good and nothing went in the transcript, and allowed is the
-    set of tool names the model was offered. A KeyboardInterrupt from
-    anywhere in here - the git status in the late block, the request, the
-    stream - leaves the transcript as it was, with the interrupted call
-    counted.
+    Returns (message, usage); message is None when the call failed for good
+    and nothing went in the transcript. A KeyboardInterrupt from anywhere
+    in here - the git status in the late block, the request, the stream -
+    leaves the transcript as it was.
     """
     streamed = False
     try:
@@ -149,8 +143,7 @@ def one_call(messages, hook_context, calls, debug):
             ui.note("that reply broke off and is discarded; the retry starts it over")
             streamed = False  # the next words open a fresh reply on screen
 
-        schemas = active_schemas(plan.toolset())
-        allowed = {s["function"]["name"] for s in schemas}  # what the model was offered is all it may run
+        schemas = active_schemas(plan.toolset())  # the stubs stand in for the deferred tools
         estimate = budget.breakdown(messages)["total"]  # what this request should cost
         with spinner:
             message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta, on_restart=on_restart)
@@ -158,16 +151,15 @@ def one_call(messages, hook_context, calls, debug):
         if streamed:
             ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
         raise
-    finally:
-        calls += 1
 
     if getattr(message, "failed", None):
+        # every retry failed: the user message stays, nothing dangles, so 'try again' works
         if streamed:
             ui.stream_end()  # a stream that broke may have shown part of a reply
-        ui.note(message.failed)  # the model never answered; nothing goes in the transcript
-        return calls, None, usage, allowed
+        ui.note(message.failed)
+        return None, usage
 
-    messages.append(message.model_dump(exclude_none=True))
+    messages.append(entry(message))
     session.save(messages)
 
     if streamed:
@@ -181,7 +173,7 @@ def one_call(messages, hook_context, calls, debug):
 
     if debug:
         ui.debug(message.model_dump(exclude_none=True))
-    return calls, message, usage, allowed
+    return message, usage
 
 
 def steered(messages, where):
@@ -202,14 +194,13 @@ def steered(messages, where):
     return True
 
 
-def run_results(messages, tool_calls, repeated=None, allowed=None):
-    """Run the tool calls of one reply and append their results in order.
+def run_results(messages, tool_calls, repeated=None):
+    """Run the tool calls of one reply and append a tool message for each, in order.
 
-    A call flagged in `repeated` does not run: its result is REPEATED, so
-    the model reads why nothing new came back. The rest are decided first,
-    run together, then reported in order, as before. `allowed` is the set
-    of tool names the model was offered; a call to any other name is
-    denied, so the offered set is the runnable set.
+    Every call is decided first, the allowed ones run together, and the
+    results are reported in reply order. A call flagged in `repeated` does
+    not run: its result is REPEATED, so the model reads why nothing new came
+    back. Shared by turn() and by recover().
 
     A Ctrl-C while the calls run does not lose the reply: every call that
     has no result by then gets INTERRUPTED, the results are appended in
@@ -222,7 +213,7 @@ def run_results(messages, tool_calls, repeated=None, allowed=None):
     interrupt = None
     try:
         if fresh:
-            execute_all(fresh, outcomes, allowed)
+            execute_all(fresh, outcomes=outcomes)
     except KeyboardInterrupt as stop:
         interrupt = stop
     outcomes += [(durability.parse_args(call), None) for call in fresh[len(outcomes):]]  # never started
@@ -257,39 +248,26 @@ def recover(messages):
     or in some but not all of their results, cannot be sent back: the API
     wants a result for every call. The missing calls run here, through the
     same permissions and hooks as in a turn, and their results are appended
-    and saved. A call that fails to run - the very thing that may have
-    crashed the last run - becomes an Error: result, so a resume never
-    crashes on the same call twice. A transcript that ends anywhere else is
+    and saved. A call that raises anyway gets an Error: result, so the
+    session can always be resumed. A transcript that ends anywhere else is
     left alone.
     """
     pending = durability.unanswered(messages)
     if not pending:
         return 0
-    # the edits belong to the turn that crashed: the one that began at the last user message
-    start = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=len(messages))
+    # the edits belong to the turn that crashed, so /undo takes them back with it: its start is
+    # the user message before the reply, not where the transcript stands now
+    start = max((i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)), default=len(messages))
     checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(start)
     try:
         run_results(messages, pending)
-    except Exception as failed:  # noqa: BLE001 - whatever broke, the transcript must end whole
-        answered = {m.get("tool_call_id") for m in messages if m.get("role") == "tool"}
-        for call in pending:
-            if call.id not in answered:
-                messages.append({"role": "tool", "tool_call_id": call.id, "content": f"Error: {type(failed).__name__}: {failed}"})
+    except Exception as failed:  # noqa: BLE001 - a recovery that crashes would crash every resume after it
+        for call in durability.unanswered(messages):
+            messages.append({"role": "tool", "tool_call_id": call.id, "content": f"Error: {type(failed).__name__}: {failed}"})
         session.save(messages)
     count = len(pending)
     ui.note(f"recovered {count} tool call{'s' if count != 1 else ''} left unanswered by the last run")
     return count
-
-
-def resume(messages):
-    """Point the module state at a loaded transcript: strip it, rebuild todos and loaded tools, recover."""
-    history.strip(messages)
-    todos.from_transcript(messages)
-    tools.relearn(messages)
-    ui.resumed(messages)
-    ui.replay(messages)
-    recover(messages)  # a crash mid-turn left tool calls without results: run them now
-    return messages
 
 
 def last_reply(messages):
@@ -298,6 +276,18 @@ def last_reply(messages):
         if message["role"] == "assistant" and message.get("content"):
             return message["content"]
     return ""
+
+
+def resume_last(messages):
+    """Open the newest saved chat, if there is one; else keep the fresh transcript."""
+    saved = session.all_sessions()
+    if not saved:
+        return messages
+    messages = session.open_session(saved[0]["id"])
+    history.strip(messages)
+    restore(messages)  # the plan lives outside the transcript; rebuild it
+    relearn(messages)  # and so do the deferred tools the model loaded
+    return messages
 
 
 def parser():
@@ -341,15 +331,18 @@ def headless(messages, cli):
 
         ui.approve = decline
         tools.TOOLS["ask_user"] = lambda question, options=None: NO_ANSWER
-    if not cli.resume:
-        session.save = lambda messages: None  # a one-shot answer is not a chat to resume
+    if cli.resume:
+        messages = resume_last(messages)
+        recover(messages)  # a crash mid-turn left tool calls without results: run them now
+    else:
+        session.PERSIST = False  # a one-off run leaves no session behind
     try:
         messages = turn(messages, cli.print, cli)
     except KeyboardInterrupt:
         raise SystemExit(130)  # the exit code a shell gives an interrupted command
-    answer = last_reply(messages)
-    print(answer)
-    raise SystemExit(0 if answer else 1)
+    reply = last_reply(messages)
+    print(reply)
+    raise SystemExit(0 if reply else 1)  # empty answer or a failed turn: tell the caller
 
 
 def chat(cli):
@@ -362,13 +355,14 @@ def chat(cli):
 
     messages = [{"role": "system", "content": build_system_prompt()}]  # after connect_all: the deferred list is complete
 
-    if cli.resume:
-        saved = session.all_sessions()
-        if saved:
-            messages = resume(session.open_session(saved[0]["id"]))
-
     if cli.print:
         headless(messages, cli)
+
+    if cli.resume:
+        messages = resume_last(messages)
+        ui.resumed(messages)
+        ui.replay(messages)
+        recover(messages)  # a crash mid-turn left tool calls without results: run them now
 
     while True:
         user_input = ui.ask()
@@ -382,10 +376,11 @@ def chat(cli):
                 try:
                     messages = commands.handle(user_input, messages)
                 except KeyboardInterrupt:
-                    ui.note("command interrupted")  # a /pipeline or /init cut short; the files it wrote stay
+                    ui.note("command interrupted")  # a /compact or /init cut short; the files it wrote stay
                 session.save(messages)
-            else:
-                messages = turn(messages, user_input, cli)
+                continue
+
+            messages = turn(messages, user_input, cli)
         except KeyboardInterrupt:
             break  # a second Ctrl-C, or Ctrl-D at the steer prompt: the transcript is saved
 

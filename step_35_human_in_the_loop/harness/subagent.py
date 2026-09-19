@@ -1,14 +1,13 @@
 """Step 35 - ask_user is withheld from subagents: a subagent cannot see the
-conversation, so a question to the user goes through the lead agent.
-Withheld means denied: loop() hands execute_all the names it offered, and
-a call to any other name comes back as Blocked by policy. The rest is
-unchanged. Step 34: a subagent whose model call fails after every
+conversation, so a question to the user goes through the lead agent; and
+parallel() drops its pool on a Ctrl-C instead of waiting for the wave.
+The rest is unchanged. Step 34: a subagent whose model call fails after every
 retry returns the reason as its report, so the main agent reads what
 happened. Step 32: the subagent tool set goes through active_schemas(), so
 a deferred tool is a stub for a subagent too, and load_tool comes with it.
-Step 30: the subagent prompt names the working directory of the call, not
-of the import, so a subagent started by the eval runner searches the task
-workspace, and the task tool can run several subagents at once.
+Step 31: every report that is not findings starts with STOPPED. Step 30:
+the subagent prompt names the working directory of the call, not of the
+import, and the task tool can run several subagents at once.
 
 A task tool hands a self-contained exploration question to a fresh agent
 that has its own context window. The subagent reuses call_llm: it takes a
@@ -19,9 +18,8 @@ Four rules, and the code below is really just these:
   1. it starts from an empty history           - none of the chat context
      the user had with the main agent is shared with the subagent
   2. it holds every tool but a few             - task, browse, write_todos,
-     str_replace, write_file, ask_user, the job, memory and computer tools
-     are withheld; no recursion, one subagent deep, and no process that
-     outlives the report. Withheld means denied, not just not offered.
+     str_replace, write_file and the job tools are withheld; no recursion,
+     one subagent deep, and no process that outlives the report
   3. it runs the same loop as the main agent   - call_llm, append, execute_all,
      and a tool result that carries an image marker becomes an image message
   4. only its final message.content comes back - none of the subagent's
@@ -41,14 +39,15 @@ import os
 from concurrent.futures import ThreadPoolExecutor, wait
 from contextlib import nullcontext
 
+import openai
+
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
-POLL = 0.2         # seconds between looks at the pool, so an interrupt is seen soon on every OS
+POLL = 0.2         # seconds between looks at the pool, so a Ctrl-C is seen soon on every OS
 
-WITHHELD = {
-    "task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill",
-    "ask_user", "computer_act", "computer_screenshot", "remember", "forget", "handoff_to", "finish",
-}
+# the computer tools too: an explorer reads and reports, it does not click - or write memories -
+# and it cannot ask the user: it cannot see the conversation, so a question goes through the lead agent
+WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "computer_act", "computer_screenshot", "remember", "forget", "ask_user"}
 
 STOPPED = "(the subagent"  # every report that is not findings starts like this, so a caller can tell
 
@@ -84,10 +83,11 @@ SYSTEM_PROMPT = build_system_prompt()
 
 
 def toolset():
-    """Every tool schema except the withheld ones, with the deferred ones as stubs."""
+    """Every tool schema except the withheld ones, and only what the mode allows, with the deferred ones as stubs."""
+    from . import plan
     from .tools import TOOL_SCHEMAS, active_schemas
 
-    return active_schemas([s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD])
+    return active_schemas([s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD and plan.offered(s["function"]["name"])])
 
 
 def loop(system_prompt, request, tools, max_turns, label="subagent exploring", tag=None):
@@ -99,16 +99,17 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     """
     # Imported here, not at the top: tools imports us, and we need tools.
     from .history import fit, image_message, split_images
-    from .llm import call_llm
+    from .llm import call_llm, entry
     from .tools import execute_all
     from .ui import ui
+
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was shown
 
     # rule 1: two messages, born here, dead at the return
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": request},
     ]
-    allowed = {schema["function"]["name"] for schema in tools} | {"load_tool"}  # rule 2, enforced: what was offered is what may run
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
 
@@ -116,11 +117,16 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     for _ in range(max_turns):
         fit(messages)  # its context can overflow too, and nobody compacts it
 
-        with ui.working(label) if tag is None else nullcontext():
-            message, usage = call_llm(messages, tools=tools)  # rule 2
+        try:
+            with ui.working(label) if tag is None else nullcontext():
+                message, usage = call_llm(messages, tools=tools)  # rule 2
+        except (openai.APIError, RuntimeError) as failure:
+            # its failure is a result for the main agent, never a crash of the session
+            report = f"(the subagent's model call failed: {failure})" + (f"\n\nPartial findings:\n\n{report}" if report else "")
+            return report
         if getattr(message, "failed", None):
             return f"{STOPPED} stopped: {message.failed})"  # every retry failed; say so instead of "nothing"
-        messages.append(message.model_dump(exclude_none=True))
+        messages.append(entry(message))
         ui.usage(usage)
         report = message.content or report
 
@@ -128,9 +134,8 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         if not message.tool_calls:
             return report or f"{STOPPED} came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same pool;
-        # a call to a tool that was not offered - task, write_file, an agent - is denied, not run
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        # the same executor as the main loop: same permissions, same sandbox, same pool
+        outcomes = execute_all(message.tool_calls, allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
@@ -161,7 +166,8 @@ def guarded(number, description):
     try:
         return explore(description, tag=number)
     except Exception as failure:  # noqa: BLE001
-        return f"Error: subagent {number} failed with {type(failure).__name__}: {failure}"
+        who = f"subagent {number}" if number is not None else "the subagent"
+        return f"Error: {who} failed with {type(failure).__name__}: {failure}"
 
 
 def parallel(descriptions):
@@ -192,7 +198,7 @@ def task(description: str = None, descriptions: list = None) -> str:
     if descriptions:
         return parallel([str(d) for d in descriptions])
     if description:
-        return explore(description)
+        return guarded(None, str(description))  # a crash is a report here too
     return "Error: give a description, or a list of descriptions to run several subagents at once."
 
 
@@ -233,7 +239,6 @@ TASK_SCHEMA = {
                     ),
                 },
             },
-            # no top-level anyOf: the OpenAI API rejects one, and task() checks that one of the two came
         },
     },
 }

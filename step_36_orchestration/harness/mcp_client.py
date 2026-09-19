@@ -19,6 +19,7 @@ optional dependency, and the rest of the harness must import without it.
 
 import asyncio
 import json
+import os
 import re
 import sys
 import threading
@@ -38,10 +39,12 @@ CONFIG_PATHS = [
 
 CONNECT_TIMEOUT = 30  # seconds a server may take to start and list its tools
 CALL_TIMEOUT = 120    # seconds one tool call may take
+STOP_TIMEOUT = 10     # seconds a server gets to close on its own before its task is cancelled
 
 SERVERS = {}  # name -> {"status": "connected" | "failed: ...", "tools": [names]}
 
 _client = None
+_client_lock = threading.Lock()  # tool calls come from a pool: one client, not two
 
 
 # --- configuration -----------------------------------------------------------
@@ -53,36 +56,32 @@ def load_config(paths=None):
     A later file overrides an earlier one, server by server. The command
     `python` becomes this interpreter, and a relative argument that names an
     existing file becomes its absolute path, so a shipped server starts
-    from any working directory and on Windows.
+    from any working directory and on Windows. The table may be called
+    `servers` or, as in other clients' files, `mcpServers`. A file that is
+    not JSON is noted and skipped; the session goes on without it.
     """
+    from .ui import ui
+
     servers = {}
     for path in paths or CONFIG_PATHS:
         if not path.exists():
             continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as failed:  # a broken config is a note, not a crash at start-up
-            _note(f"mcp config {path} skipped: {failed}")
+            table = data.get("servers") or data.get("mcpServers") or {}
+        except (OSError, ValueError, AttributeError) as failed:
+            ui.note(f"mcp config {path} skipped: {type(failed).__name__}: {failed}")
             continue
-        table = data.get("servers") or data.get("mcpServers") or {}  # both spellings are in use
         for name, spec in table.items():
-            if not isinstance(spec, dict) or not SAFE_NAME.match(name):
-                _note(f"mcp server {name!r} skipped: bad entry or name")
+            if not isinstance(spec, dict):
                 continue
             command = spec.get("command", "")
             if command in ("python", "python3"):
                 command = sys.executable
-            args = [resolve_arg(arg) for arg in spec.get("args", [])]
-            # only the entries the config names go to the server; the harness's own key stays here
-            env = dict(spec["env"]) if spec.get("env") else None
+            args = [resolve_arg(str(arg)) for arg in spec.get("args", [])]
+            env = {str(k): os.path.expandvars(str(v)) for k, v in (spec.get("env") or {}).items()}
             servers[name] = {"command": command, "args": args, "env": env}
     return servers
-
-
-def _note(text):
-    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
-
-    ui.note(text)
 
 
 def resolve_arg(arg):
@@ -105,21 +104,30 @@ class Client:
         self.thread.start()
         self.sessions = {}  # server name -> ClientSession, while connected
         self.stops = {}     # server name -> the Event that ends its task
+        self.tasks = {}     # server name -> the task, so stop() can cancel one that will not end
 
     def submit(self, coro, timeout):
-        """Run a coroutine on the loop thread and wait here for its result."""
-        return asyncio.run_coroutine_threadsafe(coro, self.loop).result(timeout)
+        """Run a coroutine on the loop thread and wait here for its result.
+
+        A call that outlives the timeout is cancelled, so it does not keep
+        running on the loop and hold up the next call to the same server.
+        """
+        future = asyncio.run_coroutine_threadsafe(coro, self.loop)
+        try:
+            return future.result(timeout)
+        except TimeoutError:
+            future.cancel()
+            raise TimeoutError(f"no answer within {timeout}s")
 
     async def serve(self, name, spec, ready, stop):
         """The one task that owns a server: connect, report the tools, wait, close."""
         from mcp import ClientSession
-        from mcp.client.stdio import StdioServerParameters, stdio_client
+        from mcp.client.stdio import StdioServerParameters, get_default_environment, stdio_client
 
         try:
-            from mcp.client.stdio import get_default_environment
-
-            env = {**get_default_environment(), **spec["env"]} if spec.get("env") else None  # None: the library's safe default
-            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=env)
+            # the server sees a minimal environment plus what the config names,
+            # never the harness's own keys: ${VAR} in a value is expanded from ours
+            params = StdioServerParameters(command=spec["command"], args=spec["args"], env={**get_default_environment(), **(spec.get("env") or {})})
             async with stdio_client(params) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
@@ -130,6 +138,8 @@ class Client:
         except BaseException as error:  # noqa: BLE001 - the caller decides what a failure means
             if not ready.done():
                 ready.set_exception(error)
+            if isinstance(error, asyncio.CancelledError):
+                raise  # a cancelled task must say so, or asyncio thinks it ended on its own
         finally:
             self.sessions.pop(name, None)
 
@@ -138,6 +148,7 @@ class Client:
         stop = asyncio.Event()
         task = self.loop.create_task(self.serve(name, spec, ready, stop))
         self.stops[name] = stop
+        self.tasks[name] = task
         try:
             return await asyncio.wait_for(ready, CONNECT_TIMEOUT)
         except asyncio.TimeoutError:
@@ -156,15 +167,23 @@ class Client:
         return self.submit(session.call_tool(tool, args), CALL_TIMEOUT)
 
     async def stop(self, name):
+        """Ask the server's task to end, and cancel it when it does not.
+
+        A server that ignores the closed stdin would otherwise be left
+        running after the harness exits; cancelling the task makes
+        stdio_client terminate the process on its way out.
+        """
         self.stops[name].set()
-        while name in self.sessions:
-            await asyncio.sleep(0.01)
+        try:
+            await asyncio.wait_for(self.tasks.pop(name), STOP_TIMEOUT)  # cancels the task on timeout
+        except (asyncio.TimeoutError, asyncio.CancelledError, Exception):  # noqa: BLE001 - shutting down
+            pass
 
     def close(self):
         """Stop every server, then the loop and its thread."""
         for name in list(self.stops):
             try:
-                self.submit(self.stop(name), 10)
+                self.submit(self.stop(name), STOP_TIMEOUT + 5)
             except Exception:  # noqa: BLE001 - shutting down; nothing left to report to
                 pass
         self.stops.clear()
@@ -174,19 +193,23 @@ class Client:
 
 def client():
     global _client
-    if _client is None:
-        _client = Client()
+    with _client_lock:
+        if _client is None:
+            _client = Client()
     return _client
 
 
 # --- registration ------------------------------------------------------------
 
 
-SAFE_NAME = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")  # what the API accepts as a function name
-
-
 def tool_name(server, tool):
-    return f"mcp__{server}__{re.sub(r'[^a-zA-Z0-9_-]', '_', tool)[:64]}"
+    """mcp__<server>__<tool>, made of the characters a function name may hold.
+
+    The API accepts ^[a-zA-Z0-9_-]{1,64}$; a server name with a space or a
+    tool name with a dot would fail every request of the session.
+    """
+    name = re.sub(r"[^a-zA-Z0-9_-]", "_", f"mcp__{server}__{tool}")
+    return name[:64]
 
 
 def describe(error):
@@ -225,6 +248,8 @@ def register(server, tools):
     names = []
     for tool in tools:
         name = tool_name(server, tool.name)
+        if name in registry.TOOLS:  # two tools that sanitise to the same name
+            name = f"{name[:60]}_{len(names) + 1}"
 
         def wrapper(_tool=tool.name, **args):
             return call_tool(server, _tool, args)

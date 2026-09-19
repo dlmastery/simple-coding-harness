@@ -7,6 +7,7 @@ the text is longer than the screen. It also gives persistent history and
 alt-enter for a newline.
 """
 
+import html
 import sys
 from pathlib import Path
 
@@ -41,7 +42,7 @@ def read(prompt="> "):
     """
     global SESSION
     if not sys.stdin.isatty():
-        return plain(prompt)
+        return input(prompt)
     if SESSION is None:
         HISTORY.parent.mkdir(parents=True, exist_ok=True)
         try:
@@ -49,12 +50,5 @@ def read(prompt="> "):
         except Exception:  # noqa: BLE001 - e.g. NoConsoleScreenBufferError on Windows
             SESSION = False
     if not SESSION:
-        return plain(prompt)
-    return SESSION.prompt(HTML(f"<prompt>{prompt}</prompt>"))
-
-
-def plain(prompt):
-    """input() with the prompt on stderr: in -p mode stdout carries only the answer."""
-    sys.stderr.write(prompt)
-    sys.stderr.flush()
-    return input()
+        return input(prompt)
+    return SESSION.prompt(HTML(f"<prompt>{html.escape(prompt)}</prompt>"))

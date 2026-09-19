@@ -1,4 +1,6 @@
-"""Stage 15 - session, unchanged since stage 14.
+"""Step 34 - load() no longer writes a stand-in result for a tool call the
+log left hanging: agent.recover() runs the call instead, so a resumed chat
+gets the real result. repair() stays for ctrl-c mid-turn. The rest is step 21.
 """
 
 import json
@@ -9,7 +11,7 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
-NL = "\n"
+PERSIST = True  # False in print mode: one-off runs leave no session behind
 
 
 def path_for(session_id):
@@ -19,6 +21,8 @@ def path_for(session_id):
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
     global WRITTEN
+    if not PERSIST:
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         for message in messages[WRITTEN:]:
@@ -29,7 +33,10 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)  # a fresh session may rewind before its first save
+    if not PERSIST:
+        WRITTEN = count
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
@@ -38,10 +45,31 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    if not PERSIST:
+        WRITTEN = len(messages)
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
-        f.write(json.dumps({"compacted": messages}) + NL)
+        f.write(json.dumps({"compacted": messages}) + "\n")
     WRITTEN = len(messages)
+
+
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
+
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
+    The loop calls this on ctrl-c. load() does not: agent.recover() runs the
+    hanging calls of a resumed chat instead, so the model gets real results.
+    """
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 
 
 def load(session_id):

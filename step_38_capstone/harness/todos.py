@@ -11,30 +11,35 @@ the model on every call, so the plan is always in front of the model.
 import json
 
 MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}
+FIELDS = ("content", "activeForm", "status")
 
 TODOS = []  # [{"content": ..., "activeForm": ..., "status": ...}]
+
+
+def validate(todos):
+    """The first thing wrong with a list, as an error string, or None."""
+    if not isinstance(todos, list):
+        return "Error: todos must be a list."
+    for i, todo in enumerate(todos):
+        if not isinstance(todo, dict) or any(field not in todo for field in FIELDS):
+            return f"Error: item {i} needs content, activeForm and status."
+        if todo["status"] not in MARKS:
+            return f"Error: item {i} has status {todo['status']!r}; use pending, in_progress or completed."
+    active = [t for t in todos if t["status"] == "in_progress"]
+    if len(active) > 1:
+        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+    return None
 
 
 def write_todos(todos):
     """Replace the whole list. At most one task may be in_progress.
 
-    The list is checked before it replaces the old one, so a bad call
-    leaves the plan as it was and tells the model what was wrong.
+    Checked before the assignment: a bad list is refused and the old plan
+    stays, so the block injected every turn can never break.
     """
-    if not isinstance(todos, list):
-        return "Error: todos must be a list"
-    for i, todo in enumerate(todos):
-        if not isinstance(todo, dict):
-            return f"Error: item {i} is not an object"
-        for key in ("content", "activeForm", "status"):
-            if not isinstance(todo.get(key), str):
-                return f"Error: item {i} needs a string {key!r}"
-        if todo["status"] not in MARKS:
-            return f"Error: item {i} has status {todo['status']!r}; use one of {', '.join(MARKS)}"
-    active = [t for t in todos if t["status"] == "in_progress"]
-    if len(active) > 1:
-        return f"Error: {len(active)} tasks are in_progress. Only one may be."
-
+    problem = validate(todos)
+    if problem:
+        return problem
     TODOS[:] = todos
     return todos_prompt() or "Todo list cleared."
 
@@ -51,22 +56,19 @@ def active_form():
     return "thinking"
 
 
-def from_transcript(messages):
-    """Rebuild TODOS from the last write_todos call of a resumed transcript. Empty when there is none."""
-    latest = None
-    for message in messages:
+def restore(messages):
+    """Rebuild the list from the last write_todos in a transcript (resume, rewind, /sessions)."""
+    TODOS.clear()
+    for message in reversed(messages):
         for call in message.get("tool_calls") or []:
             if call["function"]["name"] == "write_todos":
-                latest = call
-    TODOS.clear()
-    if latest is None:
-        return
-    try:
-        todos = json.loads(latest["function"]["arguments"]).get("todos")
-    except (ValueError, AttributeError):
-        return
-    if not isinstance(todos, list) or write_todos(todos).startswith("Error"):
-        TODOS.clear()
+                try:
+                    todos = json.loads(call["function"]["arguments"]).get("todos")
+                except (ValueError, AttributeError):
+                    return
+                if validate(todos) is None:
+                    TODOS[:] = todos
+                return
 
 
 TODO_SCHEMA = {

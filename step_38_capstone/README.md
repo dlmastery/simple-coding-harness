@@ -126,12 +126,12 @@ def run_task(task, run=1, suite_name="suite", keep=False, workspace=None):
         (root / "workspace").mkdir()
     workspace, grading = root / "workspace", workspace is not None
     ...
-    with isolated(workspace, root / "sessions", session_id, usage) as cwd:
+    with isolated(workspace, root / "sessions", session_id, usage, notes) as cwd:
         messages = [{"role": "system", "content": system_prompt_for(cwd)}]
         try:
             if not grading:
                 messages = agent.turn(messages, task.prompt)
-            answer, error = agent.last_reply(messages), None
+            answer = agent.last_reply(messages)
 ```
 
 Every task still gets its own fresh copy, so a check that leaves files
@@ -382,34 +382,34 @@ reports its own last line, not the notice.
 ### 6. A tool that raises
 
 The third live run ended in a `FileNotFoundError` from a subagent's
-`read_file` call. Nothing between the tool function and the loop caught
-it, so in a chat the harness would have exited, with the transcript saved
-for `--resume` and step 34's `recover`. Headless there is no resume, so
-the run was over.
+`read_file` call. At the time nothing between the tool function and the
+loop caught it, so in a chat the harness would have exited, with the
+transcript saved for `--resume` and step 34's `recover`. Headless there
+is no resume, so the run was over. The guard the capstone asked for is
+`call`, which every step since the review carries:
 
 `harness/tools.py`:
 
 ```python
+def call(tool_call, args):
+    """Call the tool itself. Never raises: a broken tool is a result, not a crash."""
     name = tool_call.function.name
-    tool = TOOLS.get(name)
-    if tool is None:
-        result = f"Error: no tool named {name!r}."
-    else:
-        checkpoint.pre_tool_use({"tool_name": name, "tool_input": args})  # capture before the edit, after the approval
-        try:
-            result = tool(**args)
-        except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
-            result = f"Error: {type(failed).__name__}: {failed}"
+    if name not in TOOLS:  # decide() refuses these first; call() alone must not raise either
+        return f"Error: no tool named {name!r}."
+    try:
+        return as_text(TOOLS[name](**args))  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return f"Error: {type(e).__name__}: {e}"
 ```
 
 The result reaches the model as text, the same way a failed command or a
 denied call does, and the model reads it and tries something else. The
-change sits in `run`, so it covers the main loop, the explorer subagent
-and the step 36 definitions alike. A name that is not in the registry
-takes the same road, and so do arguments that are not a JSON object,
-which `decide` answers before anything runs. The fix was made here first
-and then carried back through the earlier steps, so every step's `run`
-now reads like this.
+guard sits in `call`, under `run`, so it covers the main loop, the
+explorer subagent and the step 36 definitions alike. A name that is not
+in the registry takes the same road, and so do arguments that are not a
+JSON object, which `decide` answers before anything runs. The fix was
+found here first and then carried back through the earlier steps, so
+every step's `call` now reads like this.
 
 ## Run it
 
@@ -698,11 +698,12 @@ and on macOS the pytest call inside the workspace failed. Two things
 were wrong in `harness/sandbox.py`, both since step 12. The Seatbelt
 profile was an f-string built once at import, with the project directory
 of that moment, so under step 30's isolation the temp workspace was
-still read-only. And pytest's `tmp_path` fixture, which the model's tests
-used for the database, lives in the system temp directory, which the
-profile never allowed. The profile is now a template filled in per
-command from the current project, and both sandboxes allow the temp
-directory:
+still read-only; the review of the earlier steps made it a template
+filled in per command. And pytest's `tmp_path` fixture, which the
+model's tests used for the database, lives in the system temp directory,
+which the profile never allowed; the Linux sandbox mounts a writable
+`/tmp` since step 30, and the macOS profile now allows the temp
+directory too, so both sandboxes agree:
 
 `harness/sandbox.py`:
 
@@ -711,8 +712,8 @@ directory:
 ```
 
 ```python
-        with tempfile.NamedTemporaryFile("w", prefix="simple-harness-", suffix=".sb", delete=False, encoding="utf-8") as profile:
-            profile.write(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
+        with tempfile.NamedTemporaryFile("w", prefix="simple-harness-", suffix=".sb", delete=False) as profile:
+            profile.write(PROFILE.format(project=PROJECT, tmp=temp_dir()))
 ```
 
 The profile goes to a fresh temp file per call rather than one shared
@@ -767,11 +768,10 @@ the five check tasks, `capstone/reference/` (`app.py`, `test_app.py`,
 `capstone/transcript.md`. Changed: `evaluate.py` (`run_task` and
 `run_suite` take `workspace`; the report carries it; `load_suite`
 resolves the suite path, so `harness eval evals` works with a relative
-path), `agent.py`
-(`eval --workspace`), `tools.py` (`run` turns an exception into an
-`Error:` result), `subagent.py` (`TASK_SCHEMA` has no top-level
-`anyOf`), `pyproject.toml` (the `capstone` extra: fastapi, httpx,
-uvicorn, pytest). Everything else is unchanged from step 37.
+path), `agent.py` (`eval --workspace`), `sandbox.py` (`temp_dir`, the
+macOS profile allows the temp directory), `pyproject.toml` (the
+`capstone` extra: fastapi, httpx, uvicorn, pytest). Everything else is
+unchanged from step 37.
 
 ## What the next step adds
 

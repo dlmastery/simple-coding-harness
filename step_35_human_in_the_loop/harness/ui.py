@@ -9,7 +9,6 @@ draws the breakdown /context asks for.
 import json
 import sys
 import threading
-from contextlib import nullcontext
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -32,6 +31,22 @@ MUTED = "#565f89"
 MAX_TOOL_OUTPUT_LINES = 12
 
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
+
+APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+USAGE_LOCK = threading.Lock()    # parallel subagents report usage from their threads; += is not atomic
+
+
+class Idle:
+    """A spinner that does nothing: used off the main thread, where rich cannot draw one."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
 
 
 class UI:
@@ -63,21 +78,16 @@ class UI:
 
     def replay(self, messages):
         """Redraw a loaded transcript so the screen matches the history."""
-        results = {m.get("tool_call_id"): str(m.get("content") or "") for m in messages if m.get("role") == "tool"}
+        results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
         for message in messages:
-            if message.get("role") == "user":
+            if message["role"] == "user":
                 content = message.get("content") or ""
                 self.user(caption_of(content) if isinstance(content, list) else str(content))
-            elif message.get("role") == "assistant":
+            elif message["role"] == "assistant":
                 if message.get("content"):
-                    self.agent(str(message["content"]))
+                    self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    try:
-                        args = json.loads(call["function"]["arguments"] or "{}")
-                        args = args if isinstance(args, dict) else {"arguments": args}
-                    except (ValueError, KeyError):
-                        args = {"arguments": str(call.get("function", {}).get("arguments", ""))}  # broken JSON: show it raw
-                    self.tool(call["function"]["name"], args, results.get(call.get("id"), ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -96,14 +106,25 @@ class UI:
         """Stage 11, extended in step 35: stop and ask before a tool call the rules rate as 'ask'.
 
         Returns "y", "n", "a" or "never". Anything else typed, and Ctrl-C or
-        Ctrl-D, is "n": the safe answer is the default.
+        Ctrl-D, is "n": the safe answer is the default. In print mode nothing
+        may reach stdout, and without a terminal there is nobody to ask: the
+        answer is "n" and stderr says so.
         """
-        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-        try:
-            answer = prompt.read("  allow? (y/n/a=always/never)> ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            return "n"
-        return self.ANSWERS.get(answer, "n")
+        with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask on: {reason}")
+                return "n"
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                if self.live:
+                    answer = prompt.read("  allow? (y/n/a=always/never)> ").strip().lower()
+                else:
+                    sys.stderr.write("  allow? (y/n/a=always/never)> ")
+                    sys.stderr.flush()
+                    answer = input().strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                return "n"
+            return self.ANSWERS.get(answer, "n")
 
     def question(self, question, options=()):
         """Step 35: a question from the model, with its options numbered from 1."""
@@ -145,7 +166,7 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
-        """The input line: the text typed, "" for an empty line, None when the user wants out (ctrl-d, ctrl-c)."""
+        """One line from the user; None when they are leaving (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -187,8 +208,8 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        result = str(result)
-        if name == "write_todos" and isinstance(args.get("todos"), list) and not result.startswith("Error"):
+        # the one place the UI knows a tool by name - and only when the plan was accepted
+        if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -257,25 +278,26 @@ class UI:
     def working(self, label="thinking"):
         """The spinner. Use it as a context manager; call .stop() to end it early.
 
-        Off the main thread - a subagent on the pool - it is a no-op: rich
-        allows one live display per console, and two would raise.
+        Only the main thread gets one: a second live display from a worker
+        thread is an error in rich, and a subagent may run on a worker.
         """
         if threading.current_thread() is not threading.main_thread():
-            spinner = nullcontext()
-            spinner.stop = lambda: None
-            return spinner
+            return Idle()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats, estimate=None):
         """One line per model call. estimate is the harness's count of the prompt it sent."""
-        for key, value in stats.items():
-            self._totals[key] = self._totals.get(key, 0) + (value or 0)
+        with USAGE_LOCK:
+            for key, value in stats.items():
+                self._totals[key] = self._totals.get(key, 0) + (value or 0)
         parts = []
         for key, value in stats.items():
             if key == "prompt_tokens" and estimate is not None:
                 parts.append(f"{value:,} prompt (estimate {estimate:,})" if value else f"estimate {estimate:,} prompt")
+            elif key == "cost" and value:
+                parts.append(f"${value:.4f}")
             elif value:
                 parts.append(f"{value:,} {key.replace('_tokens', '')}")
         self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
@@ -291,7 +313,7 @@ class UI:
         table.add_column(style=MUTED)
         table.add_column(style=f"bold {ACCENT}", justify="right")
         for key, value in self._totals.items():
-            table.add_row(key.replace("_", " "), f"{value:,}")
+            table.add_row(key.replace("_", " "), f"${value:.4f}" if key == "cost" else f"{value:,}")
         self.console.print(Padding(table, (1, 2)))
         self.console.print(Rule(style=MUTED))
         self.console.print()
@@ -326,6 +348,14 @@ class UI:
         self.console.print(
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
+
+    def _parse_args(self, arguments):
+        """Stored arguments may be broken JSON (a cut-off reply); show them raw then."""
+        try:
+            args = json.loads(arguments)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw": arguments}
+        return args if isinstance(args, dict) else {"raw": arguments}
 
     def _format_args(self, args):
         if len(args) == 1:

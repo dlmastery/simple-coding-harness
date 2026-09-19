@@ -2,33 +2,40 @@
 """
 
 import re
+import sys
 from pathlib import Path
 
 import yaml
-
-FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
 
 SKILL_DIRS = [
     Path.home() / ".agents" / "skills",  # your skills
     Path.cwd() / ".agents" / "skills",   # this project's skills
 ]
 
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
+
 
 def find_skills():
-    """Glob SKILL.md under every skill dir; name -> {description, path}."""
+    """Glob SKILL.md under every skill dir; name -> {description, path}.
+
+    One broken skill file must not stop the harness from starting, so a
+    file without front matter or with bad YAML is skipped with a note.
+    """
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
+            match = FRONT_MATTER.match(path.read_text(encoding="utf-8", errors="replace"))
+            if not match:
+                continue
             try:
-                match = FRONT_MATTER.match(path.read_text(encoding="utf-8", errors="replace"))
-                meta = yaml.safe_load(match.group(1)) if match else None
-            except (OSError, yaml.YAMLError, ValueError) as failed:  # one broken skill must not stop the start-up
-                print(f"skill {path} skipped: {type(failed).__name__}: {failed}")
+                meta = yaml.safe_load(match.group(1)) or {}
+            except yaml.YAMLError as bad:
+                print(f"skipping {path}: {bad}", file=sys.stderr)
                 continue
             if not isinstance(meta, dict):
                 continue
             name = str(meta.get("name") or path.parent.name)
-            description = " ".join(str(meta.get("description") or "").split())
+            description = " ".join(str(meta.get("description", "")).split())
             skills[name] = {"description": description, "path": path}
     return skills
 

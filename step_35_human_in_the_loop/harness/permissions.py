@@ -4,14 +4,18 @@ background job is rated by the same bash rules as a foreground command;
 the job tools that only look at a job, wait for it or stop it are allowed.
 
 An allow list names the commands the agent may run on its own: ls, pwd,
-echo and other read-only commands it uses to gather information. Every
-other command stops and asks the user. If the user approves, the tool call
+echo and other commands it uses to gather information. Every other
+command stops and asks the user. If the user approves, the tool call
 runs.
 
 The allow / ask design comes from OpenCode. A third verdict, deny, covers
 the handful of commands no answer at the prompt should unlock: rm, sudo,
 chmod, chown, curl and the like. The last matching rule wins, so the
 catch-all goes first.
+
+The rules only see the command text, so anything they cannot read - a
+`$(...)` substitution, a backtick, a redirection into a file - is treated
+as a reason to ask, never as a reason to allow.
 
 The browser follows the same shape. Opening a URL asks, unless the host is
 on the BROWSER_ALLOW list. Reading, clicking and typing on a page that is
@@ -32,14 +36,9 @@ Step 35 adds the session rules. An `a` at the approve prompt means always:
 what was asked - the tool, for bash the first word of each command part,
 for a write outside the project that fact, for the browser the host - is
 allowed for the rest of the session. A `never` denies it the same way.
-SESSION_RULES holds these answers and is consulted before BASH_RULES, one
+SESSION_RULES holds these answers and is consulted after BASH_RULES, one
 command part at a time, and never in plan mode. A deny in BASH_RULES still
 wins: no answer at the prompt unlocks rm.
-
-The rules read text, so text that hides a command is rated ask: a
-substitution ($(...), backticks, <(...)), a redirection on an allowed
-command (`cat x > y` writes), `find` with -delete or -exec, and `env`,
-which prints every secret in the environment.
 """
 
 import json
@@ -74,18 +73,21 @@ BASH_RULES = {
     "find *": "allow", "tree*": "allow",
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
     "pytest*": "allow", "python -m pytest*": "allow",
+    # env prints every variable, API_KEY included, straight into the transcript
+    "env": "ask",
     # risky: never, even if the user says yes
     "rm *": "deny", "sudo *": "deny", "chmod *": "deny", "chown *": "deny",
     "curl *": "deny", "wget *": "deny",
     "git push*": "deny", "git reset*": "deny", "git clean*": "deny",
 }
 
+# The rules match a command's first word; these hide another command inside it.
+UNREADABLE = re.compile(r"\$\(|`|<\(|>\(")
+# An allowed command that writes: a redirection into a file, tee, or find that deletes / runs things.
+WRITES = re.compile(r"(?<![0-9&<])>>?(?!&)|\btee\b|\bfind\b.*\s-(delete|exec|execdir|ok|okdir)\b")
+
 
 SESSION_RULES = {}  # (tool, what was asked) -> "allow" or "deny", from the a and never answers of this session
-
-SUBSTITUTION = ("$(", "`", "<(", ">(")  # a command inside a command: the rules cannot see it
-REDIRECTION = re.compile(r"(^|[^\\])(>{1,2}(?![&])|\|\s*tee\b)")  # an allowed command that writes a file is no longer read-only; 2>&1 is not a write
-FIND_WRITES = re.compile(r"^find\b.*\s-(delete|exec|execdir|ok|okdir)\b")
 
 
 def first_word(command):
@@ -112,7 +114,7 @@ def session_keys(name, args):
 
 
 def remembered(name, args):
-    """The session rule for this call, or None. Plan mode ignores the rules: its answer is always no."""
+    """The session rule for this call as (verdict, reason), or None. Plan mode ignores the rules: its answer is always no."""
     if plan.MODE == "plan":
         return None
     for key in session_keys(name, args):
@@ -131,7 +133,11 @@ def remember(name, args, verdict):
 
 
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, &&, newline - but not inside quotes, and not the & of 2>&1."""
+    """Split a compound command on |, ||, ;, &, &&, newlines - but not inside quotes.
+
+    `2>&1` and `>&2` are redirections, not separators, so an & right after
+    a > or a digit stays with its command.
+    """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
         ch = command[i]
@@ -144,8 +150,8 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch == "&" and i > 0 and command[i - 1] == ">":
-            current.append(ch)  # 2>&1 and >&2 redirect; they do not start a new command
+        elif ch == "&" and current and current[-1] in ">0123456789":
+            current.append(ch)
         elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
@@ -158,28 +164,34 @@ def split_command(command):
     return [p.strip() for p in parts if p.strip()]
 
 
+def unquoted(part):
+    """The command with its quoted strings blanked, so a > inside quotes is not a redirection."""
+    return re.sub(r"\"[^\"]*\"|'[^']*'", "", part)
+
+
 def rate(part):
-    """One command's verdict: a session rule first, then BASH_RULES. A deny in BASH_RULES wins.
+    """One command's verdict: BASH_RULES, then the session rule for its first word. A deny in BASH_RULES wins.
 
     An allowed command that writes through a redirection or `tee`, or a
-    `find` that deletes or executes, is not read-only any more: ask.
+    `find` that deletes or executes, is not read-only any more: ask. The
+    session rules are never read in plan mode: its answer is always no.
     """
     action = "ask"
     for pattern, rule in BASH_RULES.items():
         if fnmatch(part, pattern):
             action = rule
-    if action == "allow" and (REDIRECTION.search(part) or FIND_WRITES.match(part)):
-        action = "ask"
-    remembered = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
-    if remembered and action != "deny":
-        action = remembered
+    if action == "allow" and WRITES.search(unquoted(part)):
+        action = "ask"  # `cat a > b` is a write, whatever the verb
+    rule = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
+    if rule and action != "deny":
+        action = rule
     return action
 
 
 def decide(command):
     """Rate every part of a compound command; the strictest verdict wins."""
-    if any(mark in command for mark in SUBSTITUTION):
-        return "ask"  # a command inside a command: the parts cannot be rated
+    if UNREADABLE.search(command):
+        return "ask"  # we cannot see what runs inside, so a human has to
     verdicts = [rate(part) for part in split_command(command)]
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
@@ -187,15 +199,15 @@ def decide(command):
     return "allow"
 
 
-ARGUMENT_OF = {  # the argument each rule reads
-    "bash": ("command",), "bash_background": ("command",),
-    "write_file": ("path",), "str_replace": ("path",), "browser_open": ("url",),
-}
-
-
 def inside_project(path):
     resolved = Path(path).resolve()
     return resolved == PROJECT or PROJECT in resolved.parents
+
+
+def in_git_dir(path):
+    """.git is inside the project, but a hook written there runs on the next git command."""
+    resolved = Path(path).resolve()
+    return inside_project(path) and ".git" in resolved.relative_to(PROJECT).parts
 
 
 def check(name, args):
@@ -203,32 +215,37 @@ def check(name, args):
     if plan.MODE == "plan" and not plan.offered(name):
         return "deny", f"plan mode: {name} is not available until the plan is approved"
 
-    for key in ("command", "path", "url"):  # the argument the rules read; without it there is nothing to rate
-        if key in ARGUMENT_OF.get(name, ()) and not isinstance(args.get(key), str):
-            return "deny", f"{name}: missing argument {key!r}"
-
     if name in ("bash", "bash_background"):
-        action = decide(args["command"])
+        command = args.get("command", "")
+        if not command:
+            return "deny", "bash: missing argument 'command'"
+        action = decide(command)
         if plan.MODE == "plan" and action == "ask":
-            return "deny", f"plan mode: only read-only commands run before the plan is approved: {args['command']}"
+            return "deny", f"plan mode: only read-only commands run before the plan is approved: {command}"
         how = "run in background" if name == "bash_background" else "run"
-        return action, f"{how}: {args['command']}"
+        return action, f"{how}: {command}"
 
     answer = remembered(name, args)
     if answer:
         return answer
 
     if name in ("write_file", "str_replace"):
-        if not inside_project(args["path"]):
-            return "ask", f"{name} outside {PROJECT}: {args['path']}"
-        if ".git" in Path(args["path"]).resolve().relative_to(PROJECT).parts:
-            return "ask", f"{name} inside .git: {args['path']}"
+        path = args.get("path", "")
+        if not path:
+            return "deny", f"{name}: missing argument 'path'"
+        if not inside_project(path):
+            return "ask", f"{name} outside {PROJECT}: {path}"
+        if in_git_dir(path):
+            return "ask", f"{name} inside .git: {path}"
 
     if name == "browser_open":
-        host = (urlparse(args["url"]).hostname or "").lower()
+        url = args.get("url", "")
+        if not url:
+            return "deny", f"{name}: missing argument 'url'"
+        host = (urlparse(url).hostname or "").lower()
         if host in BROWSER_ALLOW:
             return "allow", None
-        return "ask", f"open in the browser: {args['url']}"
+        return "ask", f"open in the browser: {url}"
 
     if name == "computer_act" and not computer_auto():
         where = f" at ({args.get('x')}, {args.get('y')})" if args.get("x") is not None else ""

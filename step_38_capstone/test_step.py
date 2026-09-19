@@ -36,16 +36,21 @@ USAGE = {"prompt_tokens": 100, "completion_tokens": 20, "reasoning_tokens": None
 CHECKS = ["1_server_starts", "2_crud", "3_tests_pass", "4_readme", "5_no_outside_changes"]
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 def say(text):
@@ -326,8 +331,8 @@ def test_a_tool_that_raises_is_an_error_result_not_a_crash(evals, tmp_path, monk
     report = capstone.run(evals=evals, out=tmp_path / "out")
     assert report["notes"] == [] and report["score"]["passed"] == 5  # the run went on to the solution
     first, second = report["steps"][1]["calls"]
-    assert first["result"].startswith("Error: FileNotFoundError:") and first["error"]
-    assert second["result"].startswith("Error: FileNotFoundError:") and second["error"]
+    assert first["result"] == "Error: cli.py is not a file." and first["error"]
+    assert second["result"] == "Error: nowhere.py is not a file." and second["error"]
     assert report["tool_errors"] == 2
 
 
@@ -439,7 +444,7 @@ def test_the_temp_directories_go_even_when_the_run_is_interrupted(evals, tmp_pat
 
 
 def test_bad_arguments_and_an_unknown_tool_are_error_results_and_the_run_goes_on(evals, tmp_path, monkeypatch):
-    broken = SimpleNamespace(id="x1", function=SimpleNamespace(name="write_file", arguments="{not json"))
+    broken = FakeCall(id="x1", function=SimpleNamespace(name="write_file", arguments="{not json"))
     steps = [use(broken, call("x2", "edit_file", {"path": "a"}))] + SOLVE
     fake, _ = scripted(steps)
     monkeypatch.setattr(agent, "call_llm", fake)
@@ -461,7 +466,7 @@ def test_utf8_survives_write_file_read_file_and_bash(tmp_path, monkeypatch):
     text = "héllo wörld — ünïcode ✓\r\nline two\n"
     assert tools.write_file("deep/u.txt", text) == "Wrote deep/u.txt"  # the parent directory is made
     assert tools.read_file("deep/u.txt") == text  # the CRLF comes back as written
-    assert tools.execute(call("t1", "read_file", {"path": "missing.txt"}))[1].startswith("Error: FileNotFoundError")
+    assert tools.execute(call("t1", "read_file", {"path": "missing.txt"}))[1] == "Error: missing.txt is not a file."
     assert "llo" in tools.bash("echo héllo") and "Error" not in tools.bash("echo héllo")
 
 
@@ -469,7 +474,7 @@ def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone():
     todos.TODOS[:] = [{"content": "a", "activeForm": "doing a", "status": "in_progress"}]
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.write_todos("not a list") == "Error: todos must be a list."
     assert todos.TODOS == before
 
 

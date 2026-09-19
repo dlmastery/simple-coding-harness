@@ -2,15 +2,22 @@
 under the guidance on when to delegate to one. agents_section() builds the
 list. The rest is step 35: the system prompt tells the model when to ask the user with
 ask_user: when a requirement is ambiguous, and before a choice that
-cannot be undone, never by guessing. The rest is step 34: call_llm retries. A rate limit, a connection failure, a
-timeout or a 5xx answer is tried again after a wait from BACKOFF, up to
-MAX_TRIES times, with a note per retry. The request and the whole read of
-its stream sit inside the retry in stream_once(), so a stream that breaks
-halfway starts over. retryable(error) draws the line: a 4xx is never
-retried. When the tries run out, call_llm returns a StreamedMessage whose
-`failed` field carries the reason instead of raising, so the loop can show
-it and go on. The rest is step 32: build_system_prompt lists the deferred
-tools; PLAN_PROMPT and with_mode() are step 28; call_llm streams.
+cannot be undone, never by guessing. The rest is step 34: call_llm retries.
+A rate limit, a connection failure, a timeout, a 5xx answer or a
+connection that drops mid-stream is tried again after a wait from BACKOFF,
+up to MAX_TRIES times, with a note per retry. The client is made with
+max_retries=0, so these are the only retries there are. The request and
+the whole read of its stream sit inside the retry in stream_once(), so a
+stream that breaks halfway starts over. retryable(error) draws the line: a
+4xx is never retried. When the tries run out, call_llm returns a
+StreamedMessage whose `failed` field carries the reason instead of
+raising, so the loop can show it and go on. The rest is step 32:
+build_system_prompt lists the deferred tools; PLAN_PROMPT and with_mode()
+are step 28; call_llm streams.
+
+The loop in agent.py appends `entry(message)` and reads `message.content` and
+`message.tool_calls`. The StreamedMessage dataclass below keeps that exact
+surface, so nothing downstream knows the reply was streamed.
 """
 
 import json
@@ -34,9 +41,11 @@ from .skills import skills_prompt
 from .tools import TOOLS, active_schemas, deferred_names
 from .ui import ui
 
-client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY, max_retries=0)  # the retries below are the only ones, and they are visible
+client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY, max_retries=0)  # the retry policy is ours, below
 MODEL = config.MODEL
-OPENROUTER = "openrouter.ai" in (config.BASE_URL or "")  # OpenRouter reports the cost of a call when asked to
+
+# OpenRouter reports the price of a call when asked; other gateways ignore the field.
+EXTRA_BODY = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
 
 BACKOFF = (0.5, 1.0, 2.0, 4.0)  # seconds to wait before retry 1, 2, 3 and 4
 MAX_TRIES = len(BACKOFF) + 1    # the first try plus one per wait
@@ -112,19 +121,17 @@ Answer back to the user once exploration is done.
 
 For any task that takes more than one step, call write_todos first and plan it
 out. Send the whole list every time you call it - it replaces the old one.
-Keep exactly one task in_progress, mark it completed the moment it is finished,
+Keep at most one task in_progress, mark it completed the moment it is finished,
 and move the next one to in_progress in the same call. Skip the tool entirely
 for single-step tasks; it is noise there.
 
 The current list is injected back to you every turn inside <todos> tags, so
 that block - not the transcript - is the truth about where you are.
 
-When you need to understand how something works - where a feature lives, how
-data flows, what calls what - send a task subagent instead of grepping your
-way there yourself. It explores in its own context window and hands you back
-just the findings, so the search does not fill yours. It cannot see this
-conversation, so write the question so it stands alone. Do all editing
-yourself; the subagent only reads.
+When several tool calls do not depend on each other - reading three files,
+running two greps - put them all in one reply. They run at the same time and
+the results come back together, in order. A call that needs the result of
+another one goes in the next reply.
 
 When a task needs a web page - reading documentation, checking a page,
 filling a form - call browse with the URL and the steps. It drives a real
@@ -146,20 +153,6 @@ and run, a correction the user made, a link or ticket worth keeping. Do not
 store what the code or git history already records. Before asking the user
 something you may already know, look at the <memory> block and call recall
 on the matching entry. Call forget when a memory turns out to be wrong.
-
-Tools named mcp__<server>__<tool> come from MCP servers the user configured.
-They run in another process; call them like any other tool and read the
-result as text. If one returns Error:, say so and do not retry blindly.
-
-The user may have configured hooks: small programs that run around tool
-calls. A result that starts with "Blocked by hook:" means a hook refused the
-call; read the reason, tell the user, and do not retry the same call. The
-<hooks> block, when present, carries text a hook added for this turn.
-
-When several tool calls do not depend on each other - reading three files,
-running two greps - put them all in one reply. They run at the same time and
-the results come back together, in order. A call that needs the result of
-another one goes in the next reply.
 
 When you have several independent questions about the code, send them to
 task as a list of descriptions. One subagent runs per item, all at the same
@@ -185,6 +178,22 @@ Long tool output is cut short, and the whole thing is written to a temp file
 whose path is given at the cut. Page through it with head, tail, sed -n or
 grep rather than asking for it again. That file only exists for the current
 turn, so read it now or re-run the command later.
+
+When you need to understand how something works - where a feature lives, how
+data flows, what calls what - send a task subagent instead of grepping your
+way there yourself. It explores in its own context window and hands you back
+just the findings, so the search does not fill yours. It cannot see this
+conversation, so write the question so it stands alone. Do all editing
+yourself; the subagent only reads.
+
+Tools named mcp__<server>__<tool> come from MCP servers the user configured.
+They run in another process; call them like any other tool and read the
+result as text. If one returns Error:, say so and do not retry blindly.
+
+The user may have configured hooks: small programs that run around tool
+calls. A result that starts with "Blocked by hook:" means a hook refused the
+call; read the reason, tell the user, and do not retry the same call. The
+<hooks> block, when present, carries text a hook added for this turn.
 {agents_section()}{deferred_section(schemas)}
 Your current working directory is: {cwd}
 {instructions_section(cwd)}
@@ -218,6 +227,18 @@ def with_mode(messages):
     return [first] + messages[1:]
 
 
+def entry(message):
+    """The transcript entry for a reply: role, content and tool_calls, nothing else.
+
+    Providers attach extras (reasoning, annotations) that must not be sent
+    back on the next call, so the whole message is never dumped as it is.
+    """
+    saved = {"role": "assistant", "content": message.content}
+    if message.tool_calls:
+        saved["tool_calls"] = [call.model_dump(exclude_none=True) for call in message.tool_calls]
+    return saved
+
+
 @dataclass
 class StreamedFunction:
     """The name and the JSON arguments of one tool call, built up from deltas."""
@@ -234,6 +255,10 @@ class StreamedToolCall:
     type: str = "function"
     function: StreamedFunction = field(default_factory=StreamedFunction)
 
+    def model_dump(self, exclude_none=True):
+        """The dict entry() stores for this call: id, type and the function."""
+        return {"id": self.id, "type": self.type, "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
 
 @dataclass
 class StreamedMessage:
@@ -245,36 +270,22 @@ class StreamedMessage:
     failed: str | None = None  # why no reply came, when every try failed; never part of the transcript
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
-        if self.tool_calls:
-            entry["tool_calls"] = [
-                {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
-                for c in self.tool_calls
-            ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
-        return entry
+        """The same three keys entry() keeps - there is nothing else to drop."""
+        return entry(self)
 
 
-def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came.
-
-    `cost` is the dollars OpenRouter reports when the request asks for it;
-    None from every other provider.
-    """
-    if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
-    completion_details = getattr(chunk_usage, "completion_tokens_details", None)
-    prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
+def usage_from(usage):
+    """Token counts as a plain dict. Some proxies send no usage at all."""
     return {
-        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
-        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
-        "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-        "cached_tokens": getattr(prompt_details, "cached_tokens", None),
-        "cost": getattr(chunk_usage, "cost", None),
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None),
+        "cost": getattr(usage, "cost", None),  # OpenRouter, in dollars; None everywhere else
     }
 
+
+CUT_OFF = "(reply cut off by max_tokens)"
 
 TRANSIENT_CODES = {408, 409, 429, 500, 502, 503, 504, 529}  # from an error event inside a stream
 
@@ -320,21 +331,20 @@ def stream_once(request, on_delta=None):
     """
     stream = client.chat.completions.create(**request)
 
-    parts = []          # text deltas, in order
-    calls = {}          # tool call index -> StreamedToolCall
-    order = []          # the indexes in the order they first appeared
-    final_usage = None  # arrives with the last chunk, which has no choices
-    finish = None       # the finish_reason of the last chunk that carried one
+    parts = []           # text deltas, in order
+    calls = {}           # tool call index -> StreamedToolCall
+    final_usage = None   # arrives with the last chunk, which has no choices
+    finish_reason = None
 
     for chunk in stream:
+        if getattr(chunk, "error", None):  # a gateway can answer an error as a chunk: an APIError, so retryable() rates it
+            raise openai.APIError(f"model call failed: {chunk.error}", None, body=chunk.error if isinstance(chunk.error, dict) else None)
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
-            if getattr(chunk, "error", None):  # some providers stream an error as a chunk without choices
-                raise openai.APIError(str(chunk.error), request=None, body=chunk.error)
             continue
         choice = chunk.choices[0]
-        finish = getattr(choice, "finish_reason", None) or finish
+        finish_reason = getattr(choice, "finish_reason", None) or finish_reason
         delta = choice.delta
         if delta is None:
             continue
@@ -345,9 +355,8 @@ def stream_once(request, on_delta=None):
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            key = piece.index if getattr(piece, "index", None) is not None else piece.id  # some providers send no index
-            if key not in calls:
-                order.append(key)
+            # fragments of one call share an index; a provider that sends none gets keyed by id
+            key = piece.index if getattr(piece, "index", None) is not None else piece.id or len(calls)
             call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
@@ -359,14 +368,16 @@ def stream_once(request, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
-    tool_calls = [calls[key] for key in order]
-    if finish == "length" and tool_calls:
-        # the reply hit max_tokens: a half-written tool call is not one to run
-        parts.append("\n(reply cut off by max_tokens)")
-        tool_calls = []
+    if finish_reason == "length" and calls:
+        # the arguments stopped mid-JSON: no call is safe to run, say so instead
+        calls = {}
+        parts.append(f"\n{CUT_OFF}")
+        if on_delta:
+            on_delta(f"\n{CUT_OFF}")
+
     message = StreamedMessage(
         content="".join(parts) or None,
-        tool_calls=tool_calls or None,
+        tool_calls=[calls[key] for key in sorted(calls, key=str)] or None,
     )
     return message, usage_from(final_usage)
 
@@ -389,8 +400,8 @@ def call_llm(messages, tools=None, on_delta=None, on_restart=None):
     the session goes on.
     """
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
-    if OPENROUTER:
-        request["extra_body"] = {"usage": {"include": True}}  # the cost rides in the usage of the last chunk
+    if EXTRA_BODY:
+        request["extra_body"] = EXTRA_BODY
     schemas = active_schemas() if tools is None else tools
     if schemas:
         request["tools"] = schemas
@@ -438,4 +449,5 @@ if __name__ == "__main__":
         print("Tool: ", tool_call.function.name, args)
         print(result, "\n")
 
+    print(entry(message))
     print(usage)

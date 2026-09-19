@@ -22,16 +22,21 @@ from harness.ui import ui  # noqa: E402
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 def say(text):
@@ -375,7 +380,7 @@ def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_result(mo
         raise RuntimeError("no shell today")
 
     monkeypatch.setitem(tools.TOOLS, "bash", boom)
-    broken = SimpleNamespace(id="t1", function=SimpleNamespace(name="read_file", arguments="{not json"))
+    broken = FakeCall(id="t1", function=SimpleNamespace(name="read_file", arguments="{not json"))
     reply = FakeMessage(content=None, tool_calls=[broken, call("t2", "edit_file", {"path": "x"}), call("t3", "bash", {"command": "ls"}), call("t4", "bash", {"cmd": "ls"})])
     fake_model(monkeypatch, [reply, say("noted")])
 
@@ -412,7 +417,7 @@ def test_utf8_survives_write_file_read_file_and_bash(tmp_path, monkeypatch):
     assert tools.read_file(str(tmp_path / "deep" / "u.txt")) == text  # newline="" keeps the CRLF as written
     assert tools.str_replace(str(tmp_path / "deep" / "u.txt"), "", "x").startswith("Error: old_str is empty")
     assert tools.read_file(str(tmp_path / "missing.txt")).startswith("Error:") if False else True  # a missing file raises in the tool; run() turns it into Error:
-    assert tools.execute(call("t1", "read_file", {"path": str(tmp_path / "missing.txt")}))[1].startswith("Error: FileNotFoundError")
+    assert tools.execute(call("t1", "read_file", {"path": str(tmp_path / "missing.txt")}))[1].endswith("missing.txt is not a file.")
     out = tools.bash("echo héllo")
     assert "h" in out and "llo" in out and "Error" not in out
 
@@ -421,8 +426,8 @@ def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone():
     todos.TODOS[:] = [{"content": "a", "activeForm": "doing a", "status": "in_progress"}]
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos([{"content": "b", "activeForm": "doing b"}]).startswith("Error: item 0 needs a string 'status'")
-    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.write_todos([{"content": "b", "activeForm": "doing b"}]) == "Error: item 0 needs content, activeForm and status."
+    assert todos.write_todos("not a list") == "Error: todos must be a list."
     assert todos.TODOS == before
     assert "at most one" in todos.TODO_SCHEMA["function"]["description"]
 

@@ -179,14 +179,11 @@ out, and the callers re-raise the interrupt.
 `harness/agent.py`:
 
 ```python
-    while True:
-        if calls >= MAX_CALLS:
-            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
-            break
+    for _ in range(MAX_CALLS):
         try:
-            calls, message, usage, allowed = one_call(messages, submitted.context, calls, debug)
+            message, usage = one_call(messages, submitted.context, debug)
         except KeyboardInterrupt:
-            if not steered(messages, "the turn"):  # run_results has answered every call by now
+            if not steered(messages, "the model call"):  # nothing dangles: the reply never went in
                 raise
             continue  # a new request, with the steering message at the end
         if message is None or not message.tool_calls:
@@ -197,25 +194,26 @@ out, and the callers re-raise the interrupt.
             if flag:
                 ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
         try:
-            run_results(messages, message.tool_calls, repeated, allowed)
+            run_results(messages, message.tool_calls, repeated)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
                 raise
+    else:
+        ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
 ```
 
 `one_call` is everything between two tool phases: the late block (which
 runs `git status`), the context fit, the request and the stream, and the
 reply going into the transcript. A Ctrl-C anywhere in there leaves the
 transcript as it was - the last message is still the user's - and the
-interrupted call still counts against `MAX_CALLS`:
+interrupted call still counts against `MAX_CALLS`, because `continue`
+uses up one pass of the `for`:
 
 ```python
     except KeyboardInterrupt:
         if streamed:
             ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
         raise
-    finally:
-        calls += 1
 ```
 
 A partial stream is on screen, but a reply is whole or absent in the
@@ -238,7 +236,7 @@ handler.
     interrupt = None
     try:
         if fresh:
-            execute_all(fresh, outcomes, allowed)
+            execute_all(fresh, outcomes=outcomes)
     except KeyboardInterrupt as stop:
         interrupt = stop
     outcomes += [(durability.parse_args(call), None) for call in fresh[len(outcomes):]]  # never started
@@ -321,10 +319,9 @@ and Ctrl-D are all `n`.
 
 ```python
     if action == "ask":
-        with APPROVE_LOCK:  # subagents on threads ask too; one prompt at a time
-            answer = ui.approve(reason)
-            if answer in ("a", "never") and name is not None:
-                ui.note("remembered: " + permissions.remember(name, args or {}, "allow" if answer == "a" else "deny"))
+        answer = ui.approve(reason)
+        if answer in ("a", "never") and name is not None:
+            ui.note("remembered: " + permissions.remember(name, args or {}, "allow" if answer == "a" else "deny"))
         if answer not in ("y", "a"):
             return DENIED
     return None
@@ -333,9 +330,10 @@ and Ctrl-D are all `n`.
 `settle` reads the answer. `a` runs the call and stores an allow; `never`
 declines it and stores a deny. Both are stored under the keys
 `session_keys` computes for the call. `y` and `n` are not stored: they
-answer one call. `APPROVE_LOCK` serialises the prompt: a `task` with four
-subagents runs them on threads, and two of them hitting `ask` at once
-would otherwise write to one input line together.
+answer one call. `ui.approve` still holds `APPROVE_LOCK` while it asks, as
+since step 29: a `task` with four subagents runs them on threads, and two
+of them hitting `ask` at once would otherwise write to one input line
+together.
 
 ### 6. The session rules
 
@@ -356,7 +354,7 @@ def session_keys(name, args):
 
 
 def remembered(name, args):
-    """The session rule for this call, or None. Plan mode ignores the rules: its answer is always no."""
+    """The session rule for this call as (verdict, reason), or None. Plan mode ignores the rules: its answer is always no."""
     if plan.MODE == "plan":
         return None
     for key in session_keys(name, args):
@@ -385,11 +383,11 @@ def rate(part):
     for pattern, rule in BASH_RULES.items():
         if fnmatch(part, pattern):
             action = rule
-    if action == "allow" and (REDIRECTION.search(part) or FIND_WRITES.match(part)):
-        action = "ask"
-    remembered = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
-    if remembered and action != "deny":
-        action = remembered
+    if action == "allow" and WRITES.search(unquoted(part)):
+        action = "ask"  # `cat a > b` is a write, whatever the verb
+    rule = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
+    if rule and action != "deny":
+        action = rule
     return action
 ```
 
@@ -569,16 +567,17 @@ the guard around the turn body, `run_results` fills `INTERRUPTED` and
 re-raises, `chat` catches the interrupt of a `/command` and ends on one
 from `turn`, `headless` declines prompts without a terminal and exits
 130 on Ctrl-C), `tools.py` (`ask_user` in `TOOL_SCHEMAS` and `TOOLS`,
-`INTERRUPTED`, `APPROVE_LOCK`, `settle` takes `name` and `args` and
-reads four answers, `execute_all` takes `outcomes`, files results by
-callback and drops the pool on a Ctrl-C), `permissions.py`
+`INTERRUPTED`, `POLL`, `settle` takes `name` and `args` and reads four
+answers, `execute_all` takes `outcomes`, files results by callback and
+polls the pool so a Ctrl-C is seen on Windows too), `permissions.py`
 (`SESSION_RULES`, `first_word`, `session_keys`, `remembered`,
-`remember`, `rate`), `ui.py` (`ANSWERS`, `approve` returns the answer,
-`question`, `interrupted`, the banner), `plan.py` (`ask_user` in
-`READ_ONLY`), `subagent.py` (`ask_user` in `WITHHELD`, `parallel` drops
-its pool on a Ctrl-C), `llm.py` (the `ask_user` paragraph in the system
-prompt), `evaluate.py` (`isolated` answers `y`, replaces `ask_user`, and
-resets `SESSION_RULES`). Everything else is unchanged from step 34.
+`remember`, `rate`, `check` consults the session rules), `ui.py`
+(`ANSWERS`, `approve` returns the answer, `question`, `interrupted`, the
+banner), `plan.py` (`ask_user` in `READ_ONLY`), `subagent.py` (`ask_user`
+in `WITHHELD`, `parallel` polls its pool and drops it on a Ctrl-C),
+`llm.py` (the `ask_user` paragraph in the system prompt), `evaluate.py`
+(`isolated` answers `y`, replaces `ask_user`, and resets
+`SESSION_RULES`). Everything else is unchanged from step 34.
 
 ## What the next step adds
 
