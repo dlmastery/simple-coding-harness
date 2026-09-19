@@ -3,7 +3,7 @@
 A card is a constraint on the *next* proposal: when the profile satisfies
 `if`, `then` prefers or forbids one field value. `evidence` counts the paired
 comparisons that support it, `counter` the ones that contradict it; a card
-with counter >= evidence is demoted and no longer applies. There is no
+whose counters reach half its evidence is demoted and no longer applies. There is no
 free-text field, so there is no place for a reason, an intent or a diary
 entry - and no way for the word "test" to get in.
 
@@ -22,7 +22,7 @@ from pathlib import Path
 import jsonschema
 
 from common.data import PROFILE_KEYS
-from common.recipe import FIELDS
+from common.recipe import FIELDS, SCHEMA
 
 MIN_EVIDENCE = 2     # one comparison is a coincidence; two is a card
 OPS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le, "==": operator.eq}
@@ -82,7 +82,8 @@ def card_id(card):
 
 
 def active(card):
-    return card["evidence"] >= MIN_EVIDENCE and card["counter"] < card["evidence"]
+    """Enough evidence, and at most half as many counterexamples: two counters demote a two-evidence card."""
+    return card["evidence"] >= MIN_EVIDENCE and card["evidence"] >= 2 * card["counter"]
 
 
 def matches(card, profile):
@@ -102,9 +103,26 @@ def forbidden(recipe, cards, profile):
     return None
 
 
+def preferred(cards, profile):
+    """The pack's current belief, one value per field: the applicable prefer card with the most net evidence.
+    `hyper` values belong to one model each, so the belief is per model: key ("hyper", model)."""
+    best = {}
+    for c in applicable(cards, profile):
+        if "prefer" not in c["then"]:
+            continue
+        field, value = c["then"]["field"], c["then"]["prefer"]
+        k = ("hyper", next(m for m, vs in SCHEMA["hyper"].items() if value in vs)) if field == "hyper" else field
+        net = c["evidence"] - c["counter"]
+        if k not in best or net > best[k][0]:
+            best[k] = (net, value)
+    return {k: v for k, (_, v) in best.items()}
+
+
 def agreement(recipe, cards, profile):
-    """How many applicable prefer cards this recipe satisfies: the sort key a memory-shaped search uses."""
-    return sum(1 for c in applicable(cards, profile) if "prefer" in c["then"] and recipe[c["then"]["field"]] == c["then"]["prefer"])
+    """How many fields of this recipe carry the pack's preferred value: the sort key a memory-shaped search uses."""
+    want = preferred(cards, profile)
+    return sum(1 for k, v in want.items()
+               if (recipe["hyper"] == v if isinstance(k, tuple) and k[1] == recipe["model"] else not isinstance(k, tuple) and recipe[k] == v))
 
 
 def condition_for(field, profile):
@@ -117,8 +135,11 @@ def condition_for(field, profile):
 
 
 def differing_field(a, b):
-    """The one field two recipes differ in, or None when they differ in zero or several."""
+    """The one field two recipes differ in, or None when they differ in zero or several. Two models at their
+    default hyper value differ in `model` only: the hyper value is the model's, not a second difference."""
     diff = [f for f in FIELDS if a[f] != b[f]]
+    if diff == ["model", "hyper"] and all(r["hyper"] == SCHEMA["hyper"][r["model"]][1] for r in (a, b)):
+        return "model"
     return diff[0] if len(diff) == 1 else None
 
 

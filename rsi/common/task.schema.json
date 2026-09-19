@@ -18,7 +18,8 @@
         "seed": {"type": "integer"},
         "shift": {"enum": [0, 1]},
         "imbalance": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
-        "n_classes": {"type": "integer", "minimum": 2}
+        "n_classes": {"type": "integer", "minimum": 2},
+        "noise": {"type": "number", "minimum": 0}
       }
     },
     "target": {"const": "target"},

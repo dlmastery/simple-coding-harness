@@ -18,7 +18,7 @@ You never see the actor's transcript, its reasoning or its intent. Your input is
    - both scored: the value of the higher `val_score` gets `evidence` +1 on its `prefer` card, the other value gets `counter` +1 on its `prefer` card;
    - one errored: the erroring value gets `evidence` +1 on its `forbid` card.
    A card's `if` is the side of the field's threshold this profile is on (`class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical`; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3).
-3. Call `write_card` once per card with the counts you found. The tool merges them into `memory.json`; a card with `counter` >= `evidence` is demoted by the counts themselves.
+3. Call `write_card` once per card with the counts you found. The tool merges them into `memory.json`; a card whose `counter` reaches half its `evidence` is demoted by the counts themselves.
 4. Answer in text with how many cards you wrote. Stop.
 
 ## Rules

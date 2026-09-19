@@ -17,7 +17,7 @@ The trace log is not in your prompt; the verifier reads it, you do not.
 1. Call `load_splits` once and keep the profile it returns.
 2. For t in 1..24: read the cards that apply (an `if` the profile satisfies, `evidence` >= 2, `counter` < `evidence`), propose ONE recipe from `schema.json` -> `fields`, and call `fit_recipe`. A recipe a forbid card rules out is refused by the tool and costs no fit; do not propose it again.
    Search policy: obey-memory
-   (obey-memory: order the grid by how many applicable prefer cards a recipe satisfies; ties in the order of `schema.json` -> `recipes`, then the rest of the grid. With no applicable card that is the static order.)
+   (obey-memory: with no applicable card, walk `schema.json` -> `recipes` in order. Otherwise start from the recipe that carries the most preferred values - per field, the applicable prefer card with the most evidence minus counter - then, at each step, fit an untried neighbour of the best recipe so far, one field away, trying `model`, `class_weight`, `encode`, `scale`, `hyper` in that order; when the best has no untried neighbour, take the next untried recipe by number of preferred values.)
 3. When a fit result says `FREEZE`, pick the recipe with the highest `val_score`. Call `score_test` once with it, after FREEZE, then `save_model`.
 4. Answer in text with the best val_score, the test score and the fits used. Stop.
 

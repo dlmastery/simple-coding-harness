@@ -17,7 +17,7 @@ from common.recipe import TARGET
 COLOUR_EFFECT = {"red": 1.0, "green": 0.0, "blue": -1.0, "grey": 0.3}
 
 
-def make_table(n=600, seed=0, shift=0, imbalance=0.25, n_classes=2):
+def make_table(n=600, seed=0, shift=0, imbalance=0.25, n_classes=2, noise=1.0):
     rng = np.random.default_rng(seed)
     x = rng.normal(size=(n, 4))
     colour = rng.choice(list(COLOUR_EFFECT), size=n)
@@ -27,7 +27,7 @@ def make_table(n=600, seed=0, shift=0, imbalance=0.25, n_classes=2):
         logit = 2.0 * np.sign(x[:, 0] * x[:, 1]) + 1.5 * (np.abs(x[:, 2]) - 0.8) + effect
     else:            # the same columns, one straight line
         logit = 1.5 * x[:, 0] - 1.0 * x[:, 1] + 0.5 * x[:, 2] + effect
-    logit += rng.normal(scale=0.7, size=n)
+    logit += rng.normal(scale=noise, size=n)   # 1.0 leaves the best recipe short of a perfect score
     df = pd.DataFrame({f"x{i}": x[:, i] for i in range(4)})
     df["colour"] = colour.astype(object)
     df["size"] = size.astype(object)

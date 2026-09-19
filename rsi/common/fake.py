@@ -315,7 +315,17 @@ def policy_order(policy, static, cards, profile, fits, seed=0, forbid=()):
     if policy == "static":
         return static
     if policy == "obey-memory":
-        return sorted(full, key=lambda r: (-memory.agreement(r, cards, profile), recipe.key(r) not in static_keys, full.index(r)))
+        # no applicable card: nothing to obey, the static order (so MEMORY_OFF and an empty memory agree)
+        if not memory.preferred(cards, profile):
+            return static
+        by_cards = sorted(full, key=lambda r: (-memory.agreement(r, cards, profile), recipe.key(r) not in static_keys, full.index(r)))
+        if not scored:
+            return by_cards
+        # then climb: an untried neighbour of the best so far, fields in order of how much they usually matter
+        best = max(scored, key=lambda x: x[0])[1]
+        near = [n for f in ("model", "class_weight", "encode", "scale", "hyper") for n in recipe.neighbours(best)
+                if n in full and n not in tried and memory.differing_field(best, n) == f]
+        return near + by_cards
     if policy == "random":
         order = list(full)
         random.Random(seed).shuffle(order)
