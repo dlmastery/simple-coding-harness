@@ -1,0 +1,19 @@
+{
+ "kind": "counted_while",
+ "N": 24,
+ "counter": "t",
+ "error_still_counts": true,
+ "body": [
+  "recipe = recipes[t]",
+  "fit_recipe(recipe)",
+  "write_loop_log({t, recipe, val_score})"
+ ],
+ "exit": ["FREEZE", "score_test", "save_model"],
+ "illegal": [
+  "change N",
+  "reorder recipes",
+  "a second while",
+  "score_test before FREEZE",
+  "write memory.json"
+ ]
+}

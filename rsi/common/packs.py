@@ -26,6 +26,10 @@ PROMPT_FILES = ("tools.md", "schema.json", "loop.json", "recipes.json", "graph.j
                 "template", "modules", "skill-memory", "working.md", "operators.md", "roles")
 IGNORED = ("__pycache__",)
 
+# the acceptance rule every verifier pack must state verbatim: what it may see, and therefore what it may not
+VERIFIER_CONTRACT = ("Contract: the verifier sees only {recipe, val_score, error, profile}; "
+                     "it never sees the actor's transcript, the test split or the intent.")
+
 
 def parse_front_matter(text):
     match = FRONT_MATTER.match(text)
@@ -73,12 +77,18 @@ def allowed_tools(tools_md):
 
 
 def lint_pack(pack_dir, task):
-    """Every reason this pack may not run for this task, as a list of strings. Empty = it may."""
+    """Every reason this pack may not run for this task, as a list of strings. Empty = it may.
+    A directory of packs (no SKILL.md at the top, one per subdirectory) is linted pack by pack."""
     pack_dir = Path(pack_dir)
     problems = []
     files = read_pack(pack_dir)
     if "SKILL.md" not in files:
-        return ["no SKILL.md"]
+        subs = sorted({name.split("/")[0] for name in files if "/" in name and name.endswith("SKILL.md")})
+        if not subs:
+            return ["no SKILL.md"]
+        for sub in subs:
+            problems += [f"{sub}: {p}" for p in lint_pack(pack_dir / sub, task)]
+        return problems
     try:
         meta, body = parse_front_matter(files["SKILL.md"])
     except ValueError as e:
@@ -101,7 +111,7 @@ def lint_pack(pack_dir, task):
             problems.append(f"schema.json n_fits {n_fits} != task budget {task['budget']['n_fits']}")
         if schema.get("test_rule") != task["test_rule"]:
             problems.append("schema.json test_rule differs from the task's")
-        if schema.get("metric") != task["metric"]:
+        if "metric" in schema and schema["metric"] != task["metric"]:   # a curriculum pack names no metric
             problems.append(f"schema.json metric {schema.get('metric')!r} != task metric {task['metric']!r}")
         if not set(schema.get("models", [])) <= set(task["allowed_models"]):
             problems.append("schema.json names a model the task does not allow")
@@ -122,6 +132,10 @@ def lint_pack(pack_dir, task):
         problems += lint_graph(json.loads(files["graph.json"]), json.loads(files.get("paths.json", "[]")), task)
     if "write_card" in allowed and "memory.schema.json" not in files:
         problems.append("a verifier pack needs memory.schema.json")
+    if "write_card" in allowed and VERIFIER_CONTRACT not in body:
+        problems.append("a verifier pack must state the verifier contract verbatim")
+    if "write_card" in allowed and any(t in allowed for t in ("fit_recipe", "score_test", "walk_path")):
+        problems.append("a verifier pack may not fit or score: no one grades their own homework")
     if md.get("rsi") == "on" and "memory.schema.json" not in files and "memory.json" not in files:
         problems.append("rsi: on without a memory file")
     return problems
@@ -138,6 +152,8 @@ def lint_loop(loop, task, files):
     exit_steps = loop.get("exit", [])
     if exit_steps[:2] != ["FREEZE", "score_test"]:
         problems.append("loop.json exit must be FREEZE then score_test")
+    if "paths.json" in files and len(json.loads(files["paths.json"])) != loop["N"]:
+        problems.append(f"paths.json has {len(json.loads(files['paths.json']))} paths for N={loop['N']}")
     if "recipes.json" in files and "paths.json" not in files:
         recipes = json.loads(files["recipes.json"])
         if len(recipes) != loop["N"]:

@@ -80,15 +80,19 @@ def run_exam(pack_dir, exam_task, model, run_dir, *, seeds=(0, 1, 2, 3, 4), quie
     for seed in seeds:
         control, _, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="control", memory_off=True, memory_frozen=True, quiet=quiet)
         mem, inner, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="memory", memory_frozen=True, quiet=quiet)
-        results.append({"seed": seed, "memory": mem, "control": control,
-                        "gap_test": round(mem["test_score"] - control["test_score"], 4), "gap_val": round(mem["best_val_score"] - control["best_val_score"], 4)})
+        gap = round(mem["test_score"] - control["test_score"], 4)
+        results.append({"seed": seed, "memory": mem, "control": control, "gap_test": gap,
+                        "gap_val": round(mem["best_val_score"] - control["best_val_score"], 4),
+                        # a win: a higher test score, or the same score reached with fewer wasted fits (same budget)
+                        "win": gap > 0 or (gap == 0 and mem["wasted_fits"] < control["wasted_fits"])})
     profile = tasks.profile(exam_task)
     applicable = memory.applicable(cards, profile)
     best = [r["memory"]["best_recipe"] for r in results]
     did_not_transfer = [c for c in applicable if "prefer" in c["then"]
                         and sum(1 for b in best if b and b[c["then"]["field"]] == c["then"]["prefer"]) <= len(best) // 2]
     report = {"problem": exam_task["name"], "seeds": list(seeds), "results": results,
-              "wins": sum(1 for r in results if r["gap_test"] > 0), "ties": sum(1 for r in results if r["gap_test"] == 0),
+              "wins": sum(1 for r in results if r["win"]), "wins_on_score": sum(1 for r in results if r["gap_test"] > 0),
+              "ties": sum(1 for r in results if r["gap_test"] == 0),
               "mean_gap_test": round(sum(r["gap_test"] for r in results) / len(results), 4),
               "cards_applicable": applicable, "did_not_transfer": did_not_transfer,
               "pack_unchanged": checksums(pack_dir) == before}
@@ -109,9 +113,11 @@ def print_curve(curve, out=print):
 
 def print_exam(report, out=print):
     out(f"exam {report['problem']}: memory arm beats MEMORY_OFF on {report['wins']} of {len(report['seeds'])} seeds "
-        f"(ties {report['ties']}), mean test gap {report['mean_gap_test']:+.4f}; pack unchanged: {report['pack_unchanged']}")
+        f"({report['wins_on_score']} on test score, {report['ties']} same score; a tie won by fewer wasted fits), "
+        f"mean test gap {report['mean_gap_test']:+.4f}; pack unchanged: {report['pack_unchanged']}")
     for r in report["results"]:
-        out(f"  seed {r['seed']}: memory test {r['memory']['test_score']} val {r['memory']['best_val_score']} | "
-            f"control test {r['control']['test_score']} val {r['control']['best_val_score']} | gap {r['gap_test']:+.4f}")
+        out(f"  seed {r['seed']}: memory test {r['memory']['test_score']} val {r['memory']['best_val_score']} wasted {r['memory']['wasted_fits']} | "
+            f"control test {r['control']['test_score']} val {r['control']['best_val_score']} wasted {r['control']['wasted_fits']} | "
+            f"gap {r['gap_test']:+.4f} {'win' if r['win'] else 'loss'}")
     for c in report["did_not_transfer"]:
         out(f"  did not transfer: {json.dumps(c['if'])} -> {json.dumps(c['then'])} (evidence {c['evidence']}, counter {c['counter']})")

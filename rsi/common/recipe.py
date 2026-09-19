@@ -80,17 +80,28 @@ def static_list():
 
 
 def neighbours(recipe):
-    """The recipes one field away from this one, in field order: the local moves a search policy makes."""
+    """The recipes one field away from this one as (field, recipe) pairs, in field order: the local moves a
+    search policy makes. A model change takes the new model's middle hyper value with it."""
     out = []
     for field in FIELDS:
         values = SCHEMA["hyper"][recipe["model"]] if field == "hyper" else SCHEMA[field]
         for value in values:
             if value != recipe[field]:
                 other = dict(recipe, **{field: value})
-                if field == "model":   # a new model needs its own middle hyper value
+                if field == "model":
                     other["hyper"] = SCHEMA["hyper"][value][1]
-                out.append(other)
+                out.append((field, other))
     return out
+
+
+def distance(a, b):
+    """How many moves apart two recipes are. A model change carries the new model's default hyper for free."""
+    d = sum(1 for f in ("model", "scale", "encode", "class_weight") if a[f] != b[f])
+    if a["model"] == b["model"]:
+        d += a["hyper"] != b["hyper"]
+    else:
+        d += b["hyper"] != SCHEMA["hyper"][b["model"]][1]
+    return d
 
 
 def categorical_columns(df):

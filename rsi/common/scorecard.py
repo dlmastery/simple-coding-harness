@@ -16,14 +16,17 @@ SCORECARD_FIELDS = (
 )
 
 
+GOOD = 0.01   # a recipe within 1 % of the arm's best is a good one; the fits before the first good one were the price
+
+
 def wasted_fits(rows):
-    """Fits spent before the one that turned out best, plus every fit that errored: the price of not knowing."""
+    """Fits spent before the first good recipe (within 1 % of the arm's best), plus every fit that errored."""
     scored = [r for r in rows if r["val_score"] is not None]
     if not scored:
         return len(rows)
     best = max(r["val_score"] for r in scored)
-    first_best = next(i for i, r in enumerate(rows) if r["val_score"] == best)
-    return first_best + sum(1 for r in rows[first_best:] if r["val_score"] is None)
+    first_good = next(i for i, r in enumerate(rows) if r["val_score"] is not None and r["val_score"] >= best * (1 - GOOD))
+    return first_good + sum(1 for r in rows[first_good:] if r["val_score"] is None)
 
 
 def best_of(rows):

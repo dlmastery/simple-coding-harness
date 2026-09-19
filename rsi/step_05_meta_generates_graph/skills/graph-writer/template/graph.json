@@ -1,0 +1,23 @@
+{
+ "mutable": false,
+ "nodes": {
+  "load": {"op": "load_splits"},
+  "scale": {"op": "scale", "values": ["yes", "no"]},
+  "encode": {"op": "encode", "values": ["onehot", "ordinal"]},
+  "model": {"op": "model", "values": ["logreg", "rf", "hgb"], "binds": ["hyper", "class_weight"]},
+  "fit": {"op": "fit_recipe"},
+  "score_test": {"op": "score_test", "gate": "freeze_only", "sink": true}
+ },
+ "edges": [
+  ["load", "scale"],
+  ["scale", "encode"],
+  ["encode", "model"],
+  ["model", "fit"],
+  ["fit", "score_test"]
+ ],
+ "constraints": {
+  "one_of": ["scale", "encode", "model"],
+  "no_cycles": true,
+  "sink_after_freeze": "score_test"
+ }
+}

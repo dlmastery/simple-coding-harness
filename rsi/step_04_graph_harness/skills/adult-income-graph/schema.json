@@ -1,0 +1,58 @@
+{
+ "task": "adult_income",
+ "target": "target",
+ "metric": "roc_auc",
+ "n_fits": 24,
+ "test_rule": {
+  "scores": 1,
+  "after": "FREEZE"
+ },
+ "models": [
+  "logreg",
+  "rf",
+  "hgb"
+ ],
+ "fields": {
+  "model": [
+   "logreg",
+   "rf",
+   "hgb"
+  ],
+  "hyper": {
+   "logreg": [
+    0.25,
+    1,
+    4
+   ],
+   "rf": [
+    8,
+    16,
+    null
+   ],
+   "hgb": [
+    0.05,
+    0.1,
+    0.3
+   ]
+  },
+  "scale": [
+   "yes",
+   "no"
+  ],
+  "encode": [
+   "onehot",
+   "ordinal"
+  ],
+  "class_weight": [
+   "none",
+   "balanced"
+  ]
+ },
+ "baseline": {
+  "model": "logreg",
+  "hyper": 1,
+  "scale": "yes",
+  "encode": "onehot",
+  "class_weight": "none"
+ }
+}

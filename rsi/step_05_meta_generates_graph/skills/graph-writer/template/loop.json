@@ -1,0 +1,18 @@
+{
+ "kind": "counted_while",
+ "N": {{n_fits}},
+ "counter": "t",
+ "error_still_counts": true,
+ "body": [
+  "path = paths[t]",
+  "walk_path(path.id)"
+ ],
+ "exit": ["FREEZE", "score_test", "save_model"],
+ "illegal": [
+  "change N",
+  "reorder paths",
+  "add or repair a path",
+  "a second while",
+  "score_test before FREEZE"
+ ]
+}

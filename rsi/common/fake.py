@@ -45,7 +45,7 @@ class Transcript:
     def parse_files(system):
         files, blocks = {}, FILE_RE.split(system)
         for name, body in zip(blocks[1::2], blocks[2::2]):
-            files[name.strip()] = body.strip()
+            files[name.strip()] = body.split("### PROBLEM")[0].strip()   # the problem block follows the last file
         return files
 
     @staticmethod
@@ -200,7 +200,7 @@ class FakeModel:
         if not t.called("lint_pack"):
             return self.reply(self.call("lint_pack", files=self.render(t, task)))
         lint = t.results("lint_pack")[-1][1]
-        if lint != "ok" and not isinstance(lint, str):
+        if lint != {"text": "ok"}:
             return self.reply(text=f"My pack does not lint: {lint}. Stopping.")
         if not t.called("propose"):
             return self.reply(self.call("propose", kind="pack", payload=self.render(t, task), summary=f"a pack for {task['name']} from the template"))
@@ -316,16 +316,21 @@ def policy_order(policy, static, cards, profile, fits, seed=0, forbid=()):
         return static
     if policy == "obey-memory":
         # no applicable card: nothing to obey, the static order (so MEMORY_OFF and an empty memory agree)
-        if not memory.preferred(cards, profile):
-            return static
-        by_cards = sorted(full, key=lambda r: (-memory.agreement(r, cards, profile), recipe.key(r) not in static_keys, full.index(r)))
-        if not scored:
-            return by_cards
-        # then climb: an untried neighbour of the best so far, fields in order of how much they usually matter
-        best = max(scored, key=lambda x: x[0])[1]
-        near = [n for f in ("model", "class_weight", "encode", "scale", "hyper") for n in recipe.neighbours(best)
-                if n in full and n not in tried and memory.differing_field(best, n) == f]
-        return near + by_cards
+        want = memory.preferred(cards, profile)
+        if not want:
+            return static + [r for r in full if r not in static]   # a forbid card shortens the list; the grid fills the budget
+        # probe: one fit per model with the preferred preprocessing at the default hyper, believed model first
+        base = {"scale": want.get("scale", "yes"), "encode": want.get("encode", "onehot"), "class_weight": want.get("class_weight", "none")}
+        models = sorted(allowed, key=lambda m: (m != want.get("model"), recipe.SCHEMA["model"].index(m)))
+        probes = [dict(model=m, hyper=recipe.SCHEMA["hyper"][m][1], **base) for m in models]
+        probes = [p for p in probes if p in full]
+        probed = [(v, r) for v, r in scored if r in probes]
+        if len(probed) < len(probes):
+            return probes
+        # then obey: the grid ranked by the cards, with the probe winner as the model belief
+        want["model"] = max(probed, key=lambda x: x[0])[1]["model"]
+        ranked = sorted(full, key=lambda r: (-memory.agreement(r, cards, profile, want), recipe.key(r) not in static_keys, full.index(r)))
+        return probes + ranked
     if policy == "random":
         order = list(full)
         random.Random(seed).shuffle(order)
@@ -334,7 +339,7 @@ def policy_order(policy, static, cards, profile, fits, seed=0, forbid=()):
         if len(tried) < 6:
             return static
         top = [r for _, r in sorted(scored, key=lambda x: -x[0])[:3]]
-        near = [n for r in top for n in recipe.neighbours(r) if n in full and n not in tried]
+        near = [n for r in top for _, n in recipe.neighbours(r) if n in full and n not in tried]
         return near + static
     if policy == "prefer-untried-family":
         counts = {m: sum(1 for r in tried if r["model"] == m) for m in sorted(allowed)}

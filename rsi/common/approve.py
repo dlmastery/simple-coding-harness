@@ -60,12 +60,17 @@ class Human:
                     return "n", None
 
 
-def show(proposal, out=sys.stdout):
+def show(proposal, out=None):
     """What the human sees before answering: the kind, the summary, and every file or the diff."""
+    out = out or sys.stdout
     print(f"--- proposal {proposal['id']}: {proposal['kind']} - {proposal.get('summary', '')}", file=out)
     payload = proposal["payload"]
     if proposal["kind"] == "pack":
         for name, text in payload.items():
+            if name.endswith("graph.json"):      # the graph as the human reads it: nodes, then edges
+                g = json.loads(text)
+                print(f"### {name} as a graph\nnodes: {', '.join(g['nodes'])}", file=out)
+                print("edges: " + "; ".join(f"{a} -> {b}" for a, b in g["edges"]), file=out)
             print(f"### {name}\n{text.rstrip()}", file=out)
     elif proposal["kind"] == "patch":
         for name, change in payload["files"].items():

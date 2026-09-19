@@ -72,6 +72,9 @@ class Run:
                 parts.append("### FILE: memory.json\n(MEMORY_OFF: the cards are not loaded this run)")
                 continue
             parts.append(f"### FILE: {name}\n{self.files[name].strip()}")
+        if self.target != self.pack_dir and self.memory_path.exists() and not self.memory_off:
+            # a verifier or meta pack reads the pack it writes to: its cards are in the prompt, its transcript is not
+            parts.append(f"### FILE: memory.json\n{self.memory_path.read_text(encoding='utf-8').strip()}")
         parts.append(f"### PROBLEM\n{json.dumps({k: self.task[k] for k in ('name', 'title', 'metric', 'budget')})}")
         return "\n\n".join(parts)
 

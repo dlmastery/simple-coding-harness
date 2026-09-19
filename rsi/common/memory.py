@@ -9,10 +9,12 @@ entry - and no way for the word "test" to get in.
 
 `memory.schema.json` in a pack is the JSON Schema below; `write_card`
 validates against the pack's copy, so a pack that loosens it is a diff you
-can see. `compare` is the verifier's rule: two recipes one field apart, the
-better value gets evidence, the worse one a counter - the same rule the
-verifier pack states in its SKILL.md, so the fake model and a real one write
-the same cards from the same log.
+can see. `compare` is the verifier's rule: over one problem's log, the value of a
+field that won the most comparisons one field apart gets one evidence, the
+values that lost more than they won get one counter - the rule the verifier
+pack states in its SKILL.md, so the fake model and a real one write the same
+cards from the same log. One problem is one piece of evidence: a pack that
+saw trees win on one table has an anecdote, not a card.
 """
 
 import json
@@ -103,9 +105,12 @@ def forbidden(recipe, cards, profile):
     return None
 
 
+WEIGHT = {"model": 4, "class_weight": 2, "encode": 2, "scale": 1, "hyper": 1}   # how much a preferred value moves a recipe up
+
+
 def preferred(cards, profile):
     """The pack's current belief, one value per field: the applicable prefer card with the most net evidence.
-    `hyper` values belong to one model each, so the belief is per model: key ("hyper", model)."""
+    A tie is no belief. `hyper` values belong to one model each, so the belief is per model: key ("hyper", model)."""
     best = {}
     for c in applicable(cards, profile):
         if "prefer" not in c["then"]:
@@ -114,15 +119,23 @@ def preferred(cards, profile):
         k = ("hyper", next(m for m, vs in SCHEMA["hyper"].items() if value in vs)) if field == "hyper" else field
         net = c["evidence"] - c["counter"]
         if k not in best or net > best[k][0]:
-            best[k] = (net, value)
-    return {k: v for k, (_, v) in best.items()}
+            best[k] = (net, value, False)
+        elif net == best[k][0]:
+            best[k] = (net, value, True)      # tied: nothing to prefer
+    return {k: v for k, (_, v, tied) in best.items() if not tied}
 
 
-def agreement(recipe, cards, profile):
-    """How many fields of this recipe carry the pack's preferred value: the sort key a memory-shaped search uses."""
-    want = preferred(cards, profile)
-    return sum(1 for k, v in want.items()
-               if (recipe["hyper"] == v if isinstance(k, tuple) and k[1] == recipe["model"] else not isinstance(k, tuple) and recipe[k] == v))
+def agreement(recipe, cards, profile, want=None):
+    """The weighted number of fields of this recipe that carry the pack's preferred value: the sort key of the
+    obey-memory order. The model weighs most, so a model belief ranks that whole family first."""
+    want = preferred(cards, profile) if want is None else want
+    total = 0
+    for k, v in want.items():
+        if isinstance(k, tuple):
+            total += WEIGHT["hyper"] * (k[1] == recipe["model"] and recipe["hyper"] == v)
+        else:
+            total += WEIGHT[k] * (recipe[k] == v)
+    return total
 
 
 def condition_for(field, profile):
@@ -143,17 +156,9 @@ def differing_field(a, b):
     return diff[0] if len(diff) == 1 else None
 
 
-def compare(rows, profile):
-    """The verifier's rule over a list of {recipe, val_score, error} rows: every pair one field apart
-    gives evidence to the winning value's prefer card and a counter to the losing value's. Returns card
-    deltas keyed by card id; the tool merges them into the memory file."""
-    deltas = {}
-
-    def bump(field, kind, value, count):
-        card = {"if": condition_for(field, profile), "then": {"field": field, kind: value}, "evidence": 0, "counter": 0}
-        card = deltas.setdefault(card_id(card), card)
-        card[count] += 1
-
+def tally(rows):
+    """Wins and losses per (field, value) over every pair of rows one field apart, and the values that errored."""
+    wins, losses, errors = {}, {}, set()
     for i, a in enumerate(rows):
         for b in rows[i + 1:]:
             field = differing_field(a["recipe"], b["recipe"])
@@ -163,12 +168,35 @@ def compare(rows, profile):
                 if a["val_score"] == b["val_score"]:
                     continue
                 win, lose = (a, b) if a["val_score"] > b["val_score"] else (b, a)
-                bump(field, "prefer", win["recipe"][field], "evidence")
-                bump(field, "prefer", lose["recipe"][field], "counter")
+                wins[(field, win["recipe"][field])] = wins.get((field, win["recipe"][field]), 0) + 1
+                losses[(field, lose["recipe"][field])] = losses.get((field, lose["recipe"][field]), 0) + 1
             elif (a["error"] is None) != (b["error"] is None):
                 bad = a if a["error"] is not None else b
-                bump(field, "forbid", bad["recipe"][field], "evidence")
-    return list(deltas.values())
+                errors.add((field, bad["recipe"][field]))
+    return wins, losses, errors
+
+
+def compare(rows, profile):
+    """The verifier's rule for one problem: per field, the value that won the most pairwise comparisons net of
+    its losses gets evidence 1 on its prefer card; every value that lost more than it won gets counter 1; a value
+    that errored gets evidence 1 on its forbid card. One problem is one piece of evidence, however many pairs it
+    had: a card needs two problems to become active, and two problems against it to be demoted."""
+    wins, losses, errors = tally(rows)
+    deltas = []
+    for field in FIELDS:
+        values = {v for f, v in list(wins) + list(losses) if f == field}
+        net = {v: wins.get((field, v), 0) - losses.get((field, v), 0) for v in values}
+        if not net:
+            continue
+        best = max(sorted(values, key=str), key=lambda v: net[v])
+        if net[best] > 0:
+            deltas.append({"if": condition_for(field, profile), "then": {"field": field, "prefer": best}, "evidence": 1, "counter": 0})
+        for v in sorted(values, key=str):
+            if net[v] < 0:
+                deltas.append({"if": condition_for(field, profile), "then": {"field": field, "prefer": v}, "evidence": 0, "counter": 1})
+    for field, v in sorted(errors, key=str):
+        deltas.append({"if": condition_for(field, profile), "then": {"field": field, "forbid": v}, "evidence": 1, "counter": 0})
+    return deltas
 
 
 def merge(cards, card):
