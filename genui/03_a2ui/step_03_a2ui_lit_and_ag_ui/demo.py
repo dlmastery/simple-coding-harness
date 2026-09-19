@@ -20,8 +20,14 @@ HERE = Path(__file__).parent
 PROMPT = "Make a contact form with first name, email, a newsletter checkbox and a send button."
 
 
+def bundle_is_stale():
+    """No bundle yet, or src/ changed since it was built."""
+    bundle = HERE / "static" / "bundle.js"
+    return not bundle.exists() or any(f.stat().st_mtime > bundle.stat().st_mtime for f in (HERE / "src").glob("*.mjs"))
+
+
 def build_bundle():
-    if not (HERE / "static" / "bundle.js").exists():
+    if bundle_is_stale():
         subprocess.run([shutil.which("npm"), "run", "build"], cwd=HERE, check=True)
 
 
@@ -31,8 +37,12 @@ def main():
     build_bundle()
     config = uvicorn.Config(server.app, host="127.0.0.1", port=server.PORT, log_level="warning")
     web = uvicorn.Server(config)
-    threading.Thread(target=web.run, daemon=True).start()
+    thread = threading.Thread(target=web.run, daemon=True)
+    thread.start()
+    deadline = time.monotonic() + 10
     while not web.started:
+        if not thread.is_alive() or time.monotonic() > deadline:  # port in use: the thread just ends
+            raise RuntimeError(f"the server did not start on port {server.PORT} (in use?)")
         time.sleep(0.05)
     url = f"http://127.0.0.1:{server.PORT}/"
     print(f"browser {url}  (renderer: @a2ui/lit 0.11.0 over @a2ui/web_core; transport: AG-UI CUSTOM events named a2ui)")
@@ -44,6 +54,8 @@ def main():
         page.click("#prompt-form button")
         page.wait_for_function("window.a2uiDone === true", timeout=120_000)
         log = page.evaluate("window.a2uiLog")
+        if not any("RUN_FINISHED" in line for line in log):  # RUN_ERROR, or the run failed before any event
+            raise SystemExit("the run did not finish:\n  " + "\n  ".join(log[-3:]))
         updates = [line for line in log if "updateComponents" in line]
         for line in log:
             if "updateComponents" in line and line not in updates[:2] + updates[-1:]:
@@ -62,7 +74,9 @@ def main():
             checkbox.nth(0).check()
         print(f"typed: data model = {json.dumps(page.evaluate('window.dataModel(\"main\")'))[:150]}")
 
-        # the action: a second AG-UI run with forwardedProps.a2ui
+        # the action: a second AG-UI run with forwardedProps.a2ui. The renderer
+        # dispatches the action after the click returns, so the flag is lowered first.
+        page.evaluate("window.a2uiDone = false")
         page.click("#app button")
         page.wait_for_function("window.a2uiDone === true")
         status = page.locator("a2ui-basic-text", has_text="Server got")  # Playwright pierces the shadow roots

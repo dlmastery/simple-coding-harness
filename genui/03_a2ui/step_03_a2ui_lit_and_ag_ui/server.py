@@ -9,12 +9,19 @@ the A2UI action and the client data model; the answer is a CUSTOM a2ui event.
 
 The generate loop is step 02's. Only the wire changed: the ag-ui-protocol
 package's event classes and EventEncoder, instead of hand-written SSE lines.
+
+As in step 02, every generation starts by deleting the surfaces of the
+previous one: the official renderer refuses a repeated createSurface, so
+the reset is explicit on the wire and in the mirror. The mirror is one per
+process, keyed by nothing: one page at a time, even though every run
+carries a threadId.
 """
 
 import asyncio
 import json
 import queue
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -43,6 +50,7 @@ import prompt
 HERE = Path(__file__).parent
 PORT = 8743
 ATTEMPTS = 2  # one generation, one correction
+KEEPALIVE_AFTER = 15  # seconds of silence (the model thinking) before an SSE comment goes out
 
 app = FastAPI()
 STORE = envelope.SurfaceStore()  # the server's mirror of what the page holds
@@ -66,6 +74,8 @@ def mirror(message):
 
 def generate(user_prompt):
     """Yield (event, payload) pairs: the progressive messages, then the final ones."""
+    for surface_id in list(STORE.surfaces):
+        yield mirror(envelope.delete_surface(surface_id))  # the previous generation goes first
     conversation = [{"role": "system", "content": prompt.system_prompt()}, {"role": "user", "content": user_prompt}]
     for attempt in range(1, ATTEMPTS + 1):
         yield "step", {"attempt": attempt, "started": True}
@@ -132,13 +142,15 @@ def answer_action(action, client_data_model):
     typed = (client_data_model or {}).get("surfaces", {}).get(action["surfaceId"], {})
     fields = ", ".join(f"{key}={value!r}" for key, value in action.get("context", {}).items())
     when = datetime.now(timezone.utc).strftime("%H:%M:%S")
-    text = f"Server got '{action['name']}' at {when} with {fields}; client data model had {len(json.dumps(typed))} bytes"
+    # the context carries what the Button bound; the data model carries every field the user typed
+    text = f"Server got '{action['name']}' at {when} with {fields}; the client data model says {json.dumps(typed)[:200]}"
     yield mirror(envelope.update_data_model(action["surfaceId"], path, text))
     yield "done", {"answered": action["name"]}
 
 
 def run(agent_input: RunAgentInput):
-    """One AG-UI run: route to the action answer or the generate loop."""
+    """One AG-UI run: route to the action answer or the generate loop.
+    The page sends the whole thread; the loop reads only the last user message."""
     a2ui_props = (agent_input.forwarded_props or {}).get("a2ui") if isinstance(agent_input.forwarded_props, dict) else None
     if a2ui_props and a2ui_props.get("action"):
         return answer_action(a2ui_props["action"], a2ui_props.get("a2uiClientDataModel"))
@@ -173,9 +185,10 @@ def to_events(agent_input, pairs):
 
 
 @app.post("/agent")
-async def agent_endpoint(request: Request):
-    agent_input = RunAgentInput.model_validate(await request.json())
+async def agent_endpoint(agent_input: RunAgentInput, request: Request):
+    """The body is validated by FastAPI (a bad one is a 422, not a 500); the events stream as SSE."""
     encoder = EventEncoder(accept=request.headers.get("accept"))
+    sse = encoder.get_content_type() == "text/event-stream"  # a comment line means nothing in protobuf
     events = queue.Queue()
 
     def work():
@@ -189,12 +202,17 @@ async def agent_endpoint(request: Request):
     threading.Thread(target=work, daemon=True).start()
 
     async def stream():
+        quiet_since = time.monotonic()
         while True:
             try:
                 frame = events.get_nowait()
             except queue.Empty:
+                if sse and time.monotonic() - quiet_since > KEEPALIVE_AFTER:
+                    yield ": keepalive\n\n"  # an SSE comment: the client skips it, a proxy keeps the stream
+                    quiet_since = time.monotonic()
                 await asyncio.sleep(0.02)
                 continue
+            quiet_since = time.monotonic()
             if frame is None:
                 return
             yield frame

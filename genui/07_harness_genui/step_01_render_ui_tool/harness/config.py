@@ -22,7 +22,7 @@ if ENV_FILE.exists():
     for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
         if "=" in line and not line.lstrip().startswith("#"):
             key, value = line.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip())
+            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
 
 BASE_URL = os.environ.get("BASE_URL", "https://api.openai.com/v1")
 API_KEY = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "")

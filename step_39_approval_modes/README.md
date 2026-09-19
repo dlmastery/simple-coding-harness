@@ -9,7 +9,10 @@ the rules, then applies the table. `/mode` shows or switches the mode,
 the late injection show which one is in force. Plan mode is one of the
 five: it delegates to step 28, and leaving it brings back the mode the
 user had before. A `deny` rule and a session `never` from step 35 hold
-in every mode, `auto` included.
+in every mode, `auto` included. The mode is written to the session log,
+so `--resume` comes back in it. With the shipped rules, `default` and
+`accept-edits` give the same verdicts: `accept-edits` is a promise that
+holds when a stricter rule is added, not a change you can see today.
 
 ## Files
 
@@ -17,7 +20,7 @@ in every mode, `auto` included.
 step_39_approval_modes/
 ├── harness/
 │   ├── __init__.py       package marker
-│   ├── agent.py          the loop; --mode starts the chat in an approval mode
+│   ├── agent.py          the loop; --mode starts the chat (or an eval) in an approval mode
 │   ├── agents.py         agent definitions: subagents described in Markdown files
 │   ├── ask_user.py       the ask_user tool: a question to the user, answer as result
 │   ├── browse.py         the browse tool set over the step 23 browser subagent
@@ -43,12 +46,12 @@ step_39_approval_modes/
 │   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
 │   ├── plan.py           plan mode: the read-only tool set, ask_user included
 │   ├── prompt.py         the input line
-│   ├── sandbox.py        an OS sandbox for bash
-│   ├── session.py        append-only JSONL session log, load() and --resume
+│   ├── sandbox.py        an OS sandbox for bash; popen() and kill_tree() for a timeout
+│   ├── session.py        append-only JSONL session log; {"mode": name} entries, load() and --resume
 │   ├── skills.py         skills, unchanged since stage 9
 │   ├── subagent.py       the subagent loop; TASK_SCHEMA has no top-level anyOf
 │   ├── todos.py          the plan behind write_todos
-│   ├── tools.py          the tool registry; run() turns a raised exception into Error:
+│   ├── tools.py          the tool registry; decide() and run() never raise
 │   └── ui.py             rich panels; pipeline() draws the summary table
 ├── .agents/
 │   ├── .gitignore                     ignores tool_log.txt, the PostToolUse hook's log
@@ -74,7 +77,7 @@ step_39_approval_modes/
 │   ├── SCORECARD.md    the recorded run as a markdown scorecard, 4/5
 │   └── transcript.md   the recorded run's messages, readable
 ├── AGENTS.md        project instructions the harness reads into its prompt
-├── test_step.py     offline tests: every mode through permissions.check and the loop
+├── test_step.py     offline tests: every mode through permissions.check, the loop, the log, headless
 ├── pyproject.toml   package metadata; version 0.39.0
 └── README.md        this file
 ```
@@ -101,6 +104,18 @@ table: `auto` runs everything the rules would ask about, and still stops
 at `rm`, `sudo` and `git push`. The OS sandbox of step 12 wraps the
 command after the verdict and enforces on its own, whatever the mode.
 
+### What breaks without it
+
+Without a mode, "review this repository without touching it" is a
+sentence the user has to enforce by hand. Step 38's rules allow an edit
+inside the project, so the first `write_file` lands before the user can
+say no; the only defence is to watch every prompt and answer `n`, and
+an `allow`-rated call never prompts at all. The other direction is as
+bad: a batch run with `-p` stops at the first `python` command and, with
+no terminal to answer on, that call is denied and the run ends with half
+the work done. `--mode read-only` and `--mode auto` are the two
+sentences a user could not say before.
+
 ## The code, piece by piece
 
 ### 1. The modes and their tables
@@ -111,7 +126,7 @@ command after the verdict and enforces on its own, whatever the mode.
 MODES = {
     "default": "the rules as they are: read-only commands run, edits inside the project run, the rest asks",
     "accept-edits": "edits inside the project never ask; the bash rules are unchanged",
-    "read-only": "edits and every call the rules would ask about are denied; exploration runs",
+    "read-only": "edits, memory writes and every call the rules would ask about are denied; exploration runs",
     "auto": "nothing asks; deny rules, session nevers and the sandbox still apply",
     "plan": "read-only tools until a plan is approved (step 28)",
 }
@@ -154,9 +169,11 @@ With the shipped rules, an edit inside the project is already an
 `allow`, so `default` and `accept-edits` give the same verdicts. The
 `accept-edits` row is the promise that holds when the rules change: a
 rule that rates an in-project edit `ask` is overruled by the mode and
-stays in force in `default`.
+stays in force in `default`. The test
+`test_accept_edits_keeps_its_promise_when_the_rules_would_ask` adds such
+a rule and shows the two rows part ways.
 
-### 2. Which mode is in force
+### 2. Which mode is in force, and the log
 
 `harness/modes.py`:
 
@@ -166,7 +183,7 @@ def current():
     return "plan" if plan.MODE == "plan" else CURRENT
 
 
-def set_mode(name):
+def set_mode(name, log=True):
     ...
     global CURRENT
     if name not in MODES:
@@ -177,6 +194,8 @@ def set_mode(name):
     CURRENT = name
     if plan.MODE == "plan":
         plan.set_mode("act")
+    if log:
+        session.mode(name)
     return name
 ```
 
@@ -187,17 +206,36 @@ mode leaves `CURRENT` alone, and when `plan.approve` flips `plan.MODE`
 back to `act`, the mode the user had before is in force again. Picking
 any other mode while in plan mode leaves plan mode.
 
+Every switch is one line in the session log. `harness/session.py`:
+
+```python
+def mode(name):
+    """Record that the approval mode is `name` from here on."""
+    append({"mode": name})
+```
+
+and `session.load` replays it with `modes.set_mode(entry["mode"], log=False)`
+(a name this version does not know is skipped), so `--resume` opens the
+chat in the mode it was in when it ended. Plan mode is not logged: a plan
+that was never approved does not survive the session either.
+
 ### 3. Category and rewrite
 
 `harness/modes.py`:
 
 ```python
 def category(name, args, inside_project):
-    """Which row of the table a call falls under."""
+    """Which row of the table a call falls under.
+
+    remember and forget write files too - under the harness home, not the
+    project - so they count as an edit inside: read-only denies them.
+    """
     if name in ("bash", "bash_background"):
         return "bash"
     if name in ("write_file", "str_replace"):
         return "edit-inside" if inside_project(args.get("path", "")) else "edit-outside"
+    if name in ("remember", "forget"):
+        return "edit-inside"
     return "other"
 
 
@@ -210,9 +248,11 @@ def apply(mode, kind, action):
 
 Four categories cover every tool: a bash command, an edit inside the
 project, an edit outside it, and anything else, which is where
-`browser_open`, `computer_act` and the MCP tools land. `apply` is two
-dictionary lookups with a guard in front: a `deny` returns before the
-table is read, so no mode can rewrite one.
+`browser_open`, `computer_act` and the MCP tools land. The memory
+tools `remember` and `forget` write files under `~/.simple-harness`, so
+they are filed as edits: `read-only` denies them, `recall` still runs.
+`apply` is two dictionary lookups with a guard in front: a `deny`
+returns before the table is read, so no mode can rewrite one.
 
 ### 4. The rules, then the mode
 
@@ -242,6 +282,26 @@ the tool set as in step 28, the rules rate the call, and the table has
 the last word. When the mode changed the verdict, the reason names the
 mode, so the model reads `Blocked by policy: read-only mode: write_file
 a.txt` and knows why nothing was written.
+
+`read-only` is only as read-only as the bash rules are honest. `cat` is
+on the allow list; `cat a.txt > b.txt` writes a file. So `rate()` looks
+at what an allowed command does with its output:
+
+```python
+def writes(part):
+    """Whether an otherwise read-only command would write: a redirection, tee, or find that deletes or execs."""
+    if unquoted(part, ">") or first_word(part) == "tee":
+        return True
+    return first_word(part) == "find" and any(w in ("-delete", "-exec", "-execdir", "-ok", "-okdir") for w in part.split())
+```
+
+An allowed part that writes becomes an `ask`, and a command the rules
+cannot read at all - a `$(...)`, a backtick, a `<(...)` - is an `ask`
+whatever its first word (`opaque`). In `default` those ask; in
+`read-only` and in plan mode the table turns the ask into a deny. The
+session rules of step 35 (`a` = always) are not consulted in those two
+modes either: an `always` given in act mode must not unlock a command
+where the answer is always no.
 
 ### 5. The command
 
@@ -276,11 +336,12 @@ the approval mode that is back in force.
     top.add_argument("--mode", choices=modes.NAMES, help="start in this approval mode (default: default)")
 ...
 def chat(cli):
-    if cli.mode:
-        modes.set_mode(cli.mode)  # before the banner and the first check
     if cli.print:
-        ui.headless()
-    else:
+        headless()
+        session.ENABLED = bool(cli.resume)  # a one-off question leaves no session behind
+    if cli.mode:
+        modes.set_mode(cli.mode)  # before the banner and the first check; logged, so --resume comes back in it
+    if not cli.print:
         ui.banner(sandbox.name(), modes.current())
 ```
 
@@ -288,7 +349,9 @@ def chat(cli):
 mode is set before the banner is drawn and before the first tool call is
 checked, so `harness --mode auto -p "..."` runs a headless turn that
 never prompts and `harness --mode read-only` opens a chat that cannot
-write.
+write. `harness --mode read-only eval evals` applies the mode too:
+`main()` sets it before the suite runs, without a log entry, since an
+eval keeps no chat log.
 
 ### 7. The late block
 
@@ -304,26 +367,51 @@ explain a blocked edit or skip asking whether it may run a command.
 
 ## Run it
 
+Prerequisites: Python 3.10+, `API_KEY` (and optionally `BASE_URL`,
+`MODEL`) in the environment or in `~/.simple-harness/env`.
+
 ```bash
 pip install -e .
 harness --mode read-only
 ```
 
-The banner reads `mode: read-only`. Ask for a change and the model's
-`write_file` comes back as `Blocked by policy: read-only mode:
-write_file ...`; nothing on disk moves. Type `/mode`:
+```powershell
+pip install -e .
+harness --mode read-only
+```
+
+### Expected output
+
+The banner reads `mode: read-only`. Ask for a change:
+
+```text
+> add a hello() function to app.py
+
+  ╭──────────────────────────────────────────────────────╮
+  │ write_file path=app.py                               │
+  │ ──────────────────────────────────────────────────── │
+  │ Blocked by policy: read-only mode: write_file app.py │
+  ╰──────────────────────────────────────────────────────╯
+
+  2,143 prompt (estimate 2,101) · 96 completion
+
+I cannot write in read-only mode. Here is the function to add: ...
+```
+
+Nothing on disk moves. Type `/mode`:
 
 ```text
   default       the rules as they are: read-only commands run, edits inside the project run, the rest asks
   accept-edits  edits inside the project never ask; the bash rules are unchanged
-* read-only     edits and every call the rules would ask about are denied; exploration runs
+* read-only     edits, memory writes and every call the rules would ask about are denied; exploration runs
   auto          nothing asks; deny rules, session nevers and the sandbox still apply
   plan          read-only tools until a plan is approved (step 28)
 ```
 
 Type `/mode accept-edits` and ask for the same change: the edit lands
-without a prompt, and a `python` command still asks. Type `/mode auto`
-and nothing asks, but `rm -rf build` is still `Blocked by policy`.
+without a prompt, and a `python app.py` command still asks. Type `/mode
+auto` and nothing asks, but `rm -rf build` is still `Blocked by policy`.
+Leave with `/exit`, and `harness --resume` opens the chat in `auto`.
 
 A headless batch that must not stop for a prompt:
 
@@ -337,6 +425,65 @@ Run the offline tests from the repository root:
 python run_tests.py 39
 python check_snippets.py 39
 ```
+
+```powershell
+python run_tests.py 39
+python check_snippets.py 39
+```
+
+## Error handling
+
+- **A bad tool call.** `tools.decide` parses the arguments itself:
+  `{broken` or `[1, 2]` becomes the result `Error: the arguments of bash
+  are not a JSON object: ...`, a name that is not a tool becomes `Error:
+  no tool named 'foo'.`, a missing `command`/`path`/`url` is a deny
+  `bash: missing argument 'command'`, and a tool that raises hands back
+  `Error: FileNotFoundError: ...`. Every tool call gets exactly one tool
+  message, so the transcript is always valid and the loop goes on.
+- **A failing command.** Its output and exit text come back as the
+  result. A command that runs past 60 s is killed with its whole process
+  tree (`taskkill /T` on Windows, the process group on POSIX) and the
+  result is `Timed out after 60s and was killed. Output so far:` with what
+  it printed.
+- **Ctrl-C.** During a model call or a tool batch, the steer prompt
+  opens: type to steer, enter to go on, ctrl-c again to leave. Every
+  tool call already has a result (`INTERRUPTED` for the ones that did
+  not run), and the transcript is saved.
+- **A dead model call.** `call_llm` retries a transport error, a 5xx
+  and a 429 with a note per try; when it gives up, the reply comes back
+  with a `failed` reason, the turn ends on `model call failed ... giving
+  up` and nothing half-made goes in the transcript. The user message
+  stays, so `--resume` can ask again.
+- **A crash mid-turn.** `--resume` runs `recover()`: the tool calls left
+  without a result run again, and if that fails they get an `Error:`
+  result, so the transcript can always be sent.
+- **Leaving.** `/exit`, `/quit`, ctrl-d, or ctrl-z then enter on
+  Windows. An empty line is ignored.
+
+## Gotchas / What this is not
+
+- `default` and `accept-edits` are the same today. The difference only
+  shows once a rule rates an in-project edit `ask`.
+- `read-only` means no project edits, no memory writes, and no asks. It
+  does not mean no side effects: `pytest` is on the allow list and runs
+  the tests, which may write caches and temp files, and an MCP tool
+  matched by `MCP_ALLOW` or `computer_act` with `COMPUTER_AUTO=1` is an
+  `allow` in the `other` row, which read-only leaves alone. On Windows
+  there is no OS sandbox (`sandbox.name()` says `none`), so the rules
+  are the only fence.
+- `/mode read-only`, then `/plan`, then approve the plan: you are back
+  in `read-only`, and the approved plan's edits are denied. Switch with
+  `/mode default` first, or approve from `default`.
+- `-p` without a terminal on stdin (a pipe, a CI job) answers every ask
+  with `n` and a note on stderr, and the run exits 1 when there is no
+  answer. `--mode auto` or `--mode read-only` is the sane headless
+  choice; `default -p` works only when a person is at the keyboard.
+- `-p` writes no session file unless `--resume` is given: a one-off
+  question leaves nothing behind.
+- The mode is per session, not per project: there is no config file for
+  a default mode. `--mode` or `/mode` each time, or `--resume`.
+- The tool named `bash` runs `cmd.exe` on Windows: the rules match the
+  command text, not the shell.
 
 ## What to notice
 
@@ -356,9 +503,9 @@ python check_snippets.py 39
   user had, not `default`.
 - `read-only` denies what would have asked. Nobody is there to say no,
   so the safe answer is given for them, and the reason names the mode.
-- With the shipped rules, `default` and `accept-edits` agree. The mode
-  is the guarantee that survives a stricter rule, and the tests show the
-  two rows part ways when one is added.
+- The mode is a module global, so it binds subagents and `/pipeline`
+  too: a worker agent in `read-only` has its `write_file` denied by the
+  same table.
 
 ## Diff from step 38
 
@@ -369,9 +516,16 @@ diff -r ../step_38_capstone/harness harness
 Added: `modes.py` (`MODES`, `NAMES`, `TABLE`, `CURRENT`, `current`,
 `set_mode`, `category`, `apply`, `describe`). Changed: `permissions.py`
 (`check` consults the mode, then `rules`, then `modes.apply`; the old
-body is `rules`; `describe`), `commands.py` (`/mode`, `mode`, the
-banner in `redraw` and `/act` report `modes.current()`), `agent.py`
-(`--mode`, `chat` sets the mode and draws the banner from it),
-`context.py` (`<env>` names `modes.current()`), `ui.py` (`/mode` in the
-banner), `pyproject.toml` (version). The capstone, the agents, the evals
-and everything else are unchanged from step 38.
+body is `rules`; `describe`; `session_rules_apply` skips plan and
+read-only), `commands.py` (`/mode`, `mode`, the banner in `redraw` and
+`/act` report `modes.current()`), `agent.py` (`--mode`, `chat` and
+`main` set the mode), `session.py` (`mode()` entries, replayed by
+`load`), `context.py` (`<env>` names `modes.current()`), `ui.py`
+(`/mode` in the banner), `pyproject.toml` (version). The capstone, the
+agents, the evals and everything else are unchanged from step 38.
+
+## What the next step adds
+
+Step 40 lets an agent definition hand the whole conversation to another
+one: `handoff_to`, `/handoff`, and a `{"handoff": name}` log entry next
+to this step's `{"mode": name}`.

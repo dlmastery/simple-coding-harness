@@ -8,9 +8,21 @@ the `value` of a `CUSTOM` event named `a2ui`, encoded by the
 `RUN_FINISHED`. A click becomes a second AG-UI run whose `forwardedProps`
 carry the action and the client's data model.
 
+## Why: what breaks without it
+
+Step 02 proved the loop against a hand-written renderer for part of the
+catalog and a hand-written SSE reader. Neither is the thing a product
+ships: the official renderer runs the catalog functions, renders markdown
+and keeps a data model that typing writes into; and a product already has
+a transport with runs, threads and a terminal event. Bolting A2UI onto
+that transport by hand (a second endpoint, a second reader) is how the
+two protocols drift apart. This step shows the join is one event type,
+so that neither side has to change: an A2UI server that speaks AG-UI is
+the same generate loop with a different encoder.
+
 ## Quick demo
 
-```
+```bash
 npm install && npm run build
 python demo.py
 ```
@@ -31,7 +43,7 @@ browser http://127.0.0.1:8743/  (renderer: @a2ui/lit 0.11.0 over @a2ui/web_core;
 typed: data model = {"form": {"firstName": "Ada", "email": "ada@example.com", "newsletter": true, "status": ""}}
 click -> 15.78s action submit from sendButton {"firstName":"Ada","email":"ada@example.com","newsletter":true}
         15.81s RUN_FINISHED {"answered":"submit"}
-the status Text now reads: Server got 'submit' at 15:04:04 with firstName='Ada', email='ada@example.com', newsletter=True; client data model had 92 bytes
+the status Text now reads: Server got 'submit' at 15:04:04 with firstName='Ada', email='ada@example.com', newsletter=True; the client data model says {"form": {"firstName": "Ada", "email": "ada@example.com", "newsletter": true, "status": ""}}
 wire of an action run (POST /agent), one AG-UI event per data: line:
   data: {"type":"RUN_STARTED","threadId":"t1","runId":"r2"}
   data: {"type":"CUSTOM","name":"a2ui","value":{"version":"v0.9.1","updateDataModel":{"surfaceId":"main","path":"/form/status","value":"Server
@@ -48,19 +60,19 @@ step_03_a2ui_lit_and_ag_ui/
 ├── envelope.py           the four messages, validation, SurfaceStore; unchanged from step 02
 ├── llm.py                model access; unchanged from step 02
 ├── prompt.py             the a2ui-agent-sdk prompt and parsers; unchanged from step 02
-├── server.py             FastAPI app: POST /agent takes a RunAgentInput and streams AG-UI events via EventEncoder
+├── server.py             FastAPI app: POST /agent takes a RunAgentInput and streams AG-UI events via EventEncoder; keepalives; the mirror reset per generation
 ├── schema/
 │   ├── server_to_client.json   the envelope schema (the four messages)
 │   ├── common_types.json       shared types: ComponentId, bindings, actions
 │   └── catalog.json            the Basic Catalog: every component and function schema
 ├── src/
-│   ├── page.mjs          the official @a2ui/lit renderer fed by AG-UI events; the CUSTOM a2ui join
-│   └── agui.mjs          a small AG-UI client: SSE frame parser, RunAgentInput shape, reader loop
+│   ├── page.mjs          the official @a2ui/lit renderer fed by AG-UI events; the CUSTOM a2ui join; one run at a time
+│   └── agui.mjs          a small AG-UI client: SSE frame parser (LF or CRLF, comments skipped), RunAgentInput shape, reader loop
 ├── static/
 │   └── index.html        the page shell; loads bundle.js, which npm run build writes here
 ├── agui.test.mjs         node --test for agui.mjs and @a2ui/web_core's MessageProcessor without a DOM
 ├── test_step.py          offline pytest: scripted reply, AG-UI wire decoded with the event classes, npm tests and build
-├── demo.py               builds if needed, a live model call, typing, a click, the raw wire; saves demo.png
+├── demo.py               builds if the bundle is missing or older than src/, a live model call, typing, a click, the raw wire; saves demo.png
 ├── demo.png              the recorded page
 ├── package.json          @a2ui/lit, @a2ui/web_core, @a2ui/markdown-it, @lit/context; esbuild for the build
 ├── package-lock.json     pinned npm dependency tree
@@ -148,11 +160,38 @@ function onAction(action) {
 }
 ```
 
+One run at a time, and a run always ends. The button is disabled and a
+click on the surface is ignored (logged) while a run is open; whatever
+the run does, `window.a2uiDone` flips in a `finally`, so the demo and a
+test never wait on a page that broke.
+
+`src/page.mjs`:
+
+```js
+let running = false;
+async function run(messages, forwardedProps = {}) {
+  window.a2uiDone = false;
+  running = true;
+  form.elements.go.disabled = true;
+  try {
+    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), onEvent);
+  } catch (error) {
+    note(`run failed: ${error.message}`);
+  } finally {
+    running = false;
+    form.elements.go.disabled = false;
+    window.a2uiDone = true;
+  }
+}
+```
+
 The server side of the join: the loop from step 02 yields
 `(kind, payload)` pairs, and one function maps them onto AG-UI event
 classes. Attempts of the correction loop become `STEP_STARTED` and
-`STEP_FINISHED`; the model's prose becomes a text message; the usage rides
-in `RUN_FINISHED.result`.
+`STEP_FINISHED`; the model's prose becomes one text message, sent after
+the reply is complete (the loop only knows the prose once the full parser
+has separated it from the `<a2ui-json>` blocks, so it is not streamed);
+the usage rides in `RUN_FINISHED.result`.
 
 `server.py`:
 
@@ -185,14 +224,18 @@ def to_events(agent_input, pairs):
 
 Routing a run: an action in `forwardedProps` is answered without a model
 call; anything else is the last user message through the generate loop.
-The `RunAgentInput` class validates the body; `EventEncoder` writes the
-frames.
+The page sends the whole thread (`history` grows with every prompt), and
+the server carries it but reads only the last user message: a chat
+history is AG-UI's unit, and this loop generates from one prompt. FastAPI
+validates the body against the `RunAgentInput` class, so a bad body is a
+`422` with the field named, never a run; `EventEncoder` writes the frames.
 
 `server.py`:
 
 ```python
 def run(agent_input: RunAgentInput):
-    """One AG-UI run: route to the action answer or the generate loop."""
+    """One AG-UI run: route to the action answer or the generate loop.
+    The page sends the whole thread; the loop reads only the last user message."""
     a2ui_props = (agent_input.forwarded_props or {}).get("a2ui") if isinstance(agent_input.forwarded_props, dict) else None
     if a2ui_props and a2ui_props.get("action"):
         return answer_action(a2ui_props["action"], a2ui_props.get("a2uiClientDataModel"))
@@ -200,19 +243,80 @@ def run(agent_input: RunAgentInput):
     return generate(user_turns[-1].content if user_turns else "")
 ...
 @app.post("/agent")
-async def agent_endpoint(request: Request):
-    agent_input = RunAgentInput.model_validate(await request.json())
+async def agent_endpoint(agent_input: RunAgentInput, request: Request):
+    """The body is validated by FastAPI (a bad one is a 422, not a 500); the events stream as SSE."""
     encoder = EventEncoder(accept=request.headers.get("accept"))
 ```
 
+A second run on the same page. The official `MessageProcessor` throws
+`Surface main already exists.` on a repeated `createSurface` (step 01's
+hand store treated it as a reset), so every generation withdraws the
+previous surfaces first, on the wire and in the mirror; the page's
+`onSurfaceDeleted` removes the old element. A generate run's events, in
+order:
+
+```text
+RUN_STARTED
+CUSTOM a2ui deleteSurface            (only when a surface from an earlier run exists)
+STEP_STARTED "attempt 1"
+CUSTOM a2ui createSurface            (sendDataModel: true, set by the server)
+CUSTOM a2ui updateComponents  x N    (one per repaint of the stream parser)
+CUSTOM a2ui.note {...}               (streaming_stopped, a validation warning; only when there is one)
+CUSTOM a2ui updateComponents         (the final, validated structure)
+CUSTOM a2ui updateDataModel          (the data model, sent by the final pass only)
+TEXT_MESSAGE_START / CONTENT / END   (the prose, after the reply)
+STEP_FINISHED "attempt 1"
+RUN_FINISHED {"attempt": 1, "usage": {...}, "reply_chars": ...}
+```
+
+A failed attempt ends its step with `CUSTOM a2ui.note {"error": ...}`,
+a `deleteSurface` for what it created, `STEP_FINISHED`, then
+`STEP_STARTED "attempt 2"`; two failures end in `RUN_ERROR`. An action
+run is three events: `RUN_STARTED`, one `CUSTOM a2ui` with an
+`updateDataModel`, `RUN_FINISHED {"answered": "submit"}`.
+
+`server.py`:
+
+```python
+def generate(user_prompt):
+    """Yield (event, payload) pairs: the progressive messages, then the final ones."""
+    for surface_id in list(STORE.surfaces):
+        yield mirror(envelope.delete_surface(surface_id))  # the previous generation goes first
+```
+
+The answer to a click reads two things: the `context` the model bound on
+the `Button` (what step 02 already had) and the client data model that
+`sendDataModel` made the page send, which holds every field the user
+typed, bound or not. The status line echoes both, so the second source is
+demonstrated rather than measured.
+
+`server.py`:
+
+```python
+    typed = (client_data_model or {}).get("surfaces", {}).get(action["surfaceId"], {})
+    fields = ", ".join(f"{key}={value!r}" for key, value in action.get("context", {}).items())
+    when = datetime.now(timezone.utc).strftime("%H:%M:%S")
+    # the context carries what the Button bound; the data model carries every field the user typed
+    text = f"Server got '{action['name']}' at {when} with {fields}; the client data model says {json.dumps(typed)[:200]}"
+```
+
+While the model thinks (five to ten seconds of silence in the recorded
+run) the stream carries an SSE comment, `: keepalive`, every 15 s, so a
+proxy does not drop it; the client skips frames without a `data:` line,
+and the comment is only written when the client asked for
+`text/event-stream` (it means nothing in protobuf).
+
 The AG-UI client is forty lines with no DOM in them: a frame splitter, the
-input shape, and a reader loop. `node --test` covers it with a fake `fetch`.
+input shape, and a reader loop that rejects on a non-2xx answer (a `422`
+has no frames, so its body is the only explanation). `node --test` covers
+it with a fake `fetch`.
 
 `src/agui.mjs`:
 
 ```js
 export function parseSse(buffer) {
   const events = [];
+  buffer = buffer.replaceAll('\r\n', '\n');
   let end;
   while ((end = buffer.indexOf('\n\n')) >= 0) {
     const frame = buffer.slice(0, end);

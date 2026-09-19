@@ -20,6 +20,16 @@ test('parseSse splits complete frames and keeps the remainder', () => {
   assert.deepEqual(parseSse(rest + 'ISHED"}\n\n').events[0].type, 'RUN_FINISHED');
 });
 
+test('parseSse folds CRLF framing, skips keepalive comments and passes RUN_ERROR through', () => {
+  const wire = 'data: {"type":"RUN_STARTED","threadId":"t","runId":"r"}\r\n\r\n'
+    + ': keepalive\r\n\r\n'
+    + 'data: {"type":"RUN_ERROR","message":"RuntimeError: no key"}\r\n\r\n';
+  const { events, rest } = parseSse(wire);
+  assert.deepEqual(events.map((e) => e.type), ['RUN_STARTED', 'RUN_ERROR']);
+  assert.equal(events[1].message, 'RuntimeError: no key');
+  assert.equal(rest, '');
+});
+
 test('runAgentInput carries the thread, a fresh run id and forwardedProps', () => {
   const messages = [{ id: 'm1', role: 'user', content: 'a form' }];
   const a = runAgentInput({ threadId: 't1', messages, forwardedProps: { a2ui: { action: { name: 'submit' } } } });
@@ -47,6 +57,11 @@ test('runAgent posts the input and hands every event to the handler', async () =
   assert.deepEqual(seen, ['RUN_STARTED', 'CUSTOM']);
   assert.equal(calls[0].init.method, 'POST');
   assert.equal(JSON.parse(calls[0].init.body).threadId, 't');
+});
+
+test('runAgent rejects on a non-2xx answer instead of reading an empty stream', async () => {
+  const fakeFetch = async () => ({ ok: false, status: 422, text: async () => '{"detail":"messages: field required"}' });
+  await assert.rejects(runAgent('/agent', runAgentInput({ threadId: 't', messages: [] }), () => {}, fakeFetch), /422 .*field required/);
 });
 
 test('web_core MessageProcessor keeps the surface state and dispatches actions', async () => {

@@ -132,10 +132,45 @@ def test_an_action_run_answers_with_one_custom_a2ui_event(scripted):
     assert events[1]["name"] == "a2ui"
     body = events[1]["value"]["updateDataModel"]
     assert body["path"] == "/form/status"
-    assert "ada@example.com" in body["value"] and "client data model had" in body["value"]
+    assert "email='ada@example.com'" in body["value"]  # the Button's context
+    assert 'the client data model says {"form": {"email": "ada@example.com", "status": ""}}' in body["value"]  # sendDataModel
     assert events[-1]["result"] == {"answered": "submit"}
     assert envelope.pointer_get(server.STORE.surfaces["main"].data, "/form/status") == body["value"]
     assert not replies  # no model call for an action
+
+
+def test_a_second_generation_deletes_the_first_surface_first(scripted):
+    """Generate twice on one page: the official renderer throws on a repeated createSurface,
+    so the run withdraws the old surface first, and the mirror does not keep stale components."""
+    from fastapi.testclient import TestClient
+
+    server, replies = scripted
+    replies.extend([REPLY, REPLY.replace('"id": "email"', '"id": "mail"').replace('["email",', '["mail",')])
+    client = TestClient(server.app)
+    client.post("/agent", json=run_input([{"id": "m1", "role": "user", "content": "a form"}]))
+    assert "email" in server.STORE.surfaces["main"].components
+    events = decode(client.post("/agent", json=run_input([{"id": "m2", "role": "user", "content": "another"}], run_id="r2")).text)
+    kinds = [envelope.message_type(e["value"]) for e in events if e["type"] == "CUSTOM" and e["name"] == "a2ui"]
+    assert kinds[:2] == ["deleteSurface", "createSurface"]
+    components = server.STORE.surfaces["main"].components
+    assert "mail" in components and "email" not in components
+
+
+def test_a_bad_body_is_422_and_a_failing_model_is_run_error(scripted):
+    from fastapi.testclient import TestClient
+
+    server, replies = scripted
+    client = TestClient(server.app)
+    assert client.post("/agent", json={"threadId": "t1"}).status_code == 422  # RunAgentInput validates
+    assert client.post("/agent", content=b"not json", headers={"content-type": "application/json"}).status_code == 422
+
+    def boom(messages):
+        raise RuntimeError("no key")
+
+    server.stream_model = boom
+    events = decode(client.post("/agent", json=run_input([{"id": "m1", "role": "user", "content": "x"}])).text)
+    assert [e["type"] for e in events] == ["RUN_STARTED", "STEP_STARTED", "RUN_ERROR"]
+    assert events[-1]["message"] == "RuntimeError: no key"  # the page logs it and a2uiDone still flips
 
 
 def test_events_are_built_with_the_ag_ui_classes():
@@ -163,7 +198,10 @@ def test_node_client_processor_and_bundle():
     result = subprocess.run(["node", "--test", "agui.test.mjs"], cwd=HERE, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout
-    if npm is not None:
+    bundle = HERE / "static" / "bundle.js"
+    stale = not bundle.exists() or any(f.stat().st_mtime > bundle.stat().st_mtime for f in (HERE / "src").glob("*.mjs"))
+    if npm is not None and stale:  # build once (as demo.py does), not on every test run
         build = subprocess.run([npm, "run", "build"], cwd=HERE, capture_output=True, text=True)
         assert build.returncode == 0, build.stdout + build.stderr
-        assert (HERE / "static" / "bundle.js").stat().st_size > 100_000  # the whole renderer rides in one file
+    if bundle.exists():
+        assert bundle.stat().st_size > 100_000  # the whole renderer rides in one file

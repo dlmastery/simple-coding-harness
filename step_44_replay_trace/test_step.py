@@ -8,6 +8,7 @@ model, browser or network is launched.
 
 import json
 import os
+import sys
 import threading
 from pathlib import Path
 from types import SimpleNamespace
@@ -370,7 +371,7 @@ def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_mess
     assert ("tool", "bash", {"raw": "{not json"}, results["b1"]) in seen
 
 
-from harness import durability, tools  # noqa: E402
+from harness import commands, durability, tools  # noqa: E402
 
 
 def start():
@@ -448,3 +449,38 @@ def test_a_print_run_without_resume_writes_no_log(monkeypatch):
     session.save([{"role": "user", "content": "hi"}])
     session.rewind_to(0)
     assert not session.path_for(session.CURRENT).exists() and not session.SESSION_DIR.exists()
+
+
+def test_utf8_round_trip_through_the_file_tools_and_bash(monkeypatch):
+    text = "héllo — ünïcode ✓\r\nsecond line\n"
+    assert tools.write_file("u.txt", text) == "Wrote u.txt"
+    assert Path("u.txt").read_bytes() == text.encode("utf-8")  # utf-8 whatever the locale, line endings untouched
+    assert tools.read_file("u.txt") == text
+    assert tools.str_replace("u.txt", "ünïcode", "unicode") == "Replaced 1 match(es) in u.txt"
+    assert tools.str_replace("u.txt", "", "x").startswith("Error: old_str is empty")
+    assert tools.bash(f'{sys.executable} -c "print(chr(0x2713))"').strip() == "✓"
+
+
+def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone(monkeypatch):
+    todos.write_todos([{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
+    result = todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}])
+    assert result == "Error: item 0 has status 'done'; use one of pending, in_progress, completed."
+    assert [t["content"] for t in todos.TODOS] == ["a"]  # unchanged
+    Scripted([use(call("t1", "write_todos", {"todos": [{"content": "b", "activeForm": "b", "status": "done"}]})), say("ok")]).install(monkeypatch)
+    messages = agent.turn(start(), "plan")  # the loop survives it, and the next reminder still renders
+    assert messages[3]["content"].startswith("Error: item 0 has status")
+    assert "[~] a" in context.reminder()["content"]
+
+
+def test_rewind_offers_user_messages_only_and_leaves_no_orphan_call(monkeypatch):
+    Scripted([use(call("r1", "bash", {"command": "echo hi"})), say("done")]).install(monkeypatch)
+    messages = agent.turn(agent.turn(start(), "first"), "second")
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    for name in ("clear", "banner", "resumed", "replay"):
+        monkeypatch.setattr(ui, name, lambda *a, **k: None)
+    kept = commands.handle("/rewind", messages)
+    assert [row.split()[0] for row in offered] == ["1", "5"]  # the two user messages, by index
+    assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]  # cut before "second": no orphan
+    assert durability.unanswered(kept) == []
+    assert lines()[-1]["rewind_to"] == 5  # the cut is in the log too, stamped like every entry, so --resume lands at the same place

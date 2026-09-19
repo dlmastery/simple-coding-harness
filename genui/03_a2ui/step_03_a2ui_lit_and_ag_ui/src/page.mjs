@@ -66,16 +66,30 @@ function onEvent(event) {
   }
 }
 
+// One run at a time: the button is disabled and actions are ignored while a
+// run is open, and a2uiDone flips whatever happens (a dead server, a 422, a
+// message the processor refuses), so nothing waits forever.
+let running = false;
 async function run(messages, forwardedProps = {}) {
   window.a2uiDone = false;
-  await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), onEvent);
-  window.a2uiDone = true;
+  running = true;
+  form.elements.go.disabled = true;
+  try {
+    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), onEvent);
+  } catch (error) {
+    note(`run failed: ${error.message}`);
+  } finally {
+    running = false;
+    form.elements.go.disabled = false;
+    window.a2uiDone = true;
+  }
 }
 
 // The renderer resolved the action's context from its data model; AG-UI has
 // no message type for it, so it travels in forwardedProps, with the data
 // model alongside, the way the spec's sendDataModel describes.
 function onAction(action) {
+  if (running) return note(`action ${action.name} ignored: a run is still open`);
   note(`action ${action.name} from ${action.sourceComponentId} ${JSON.stringify(action.context)}`);
   const dataModel = processor.getClientDataModel('v0.9.1') ?? { version: 'v0.9.1', surfaces: {} };
   run(history, { a2ui: { action, a2uiClientDataModel: dataModel } });
@@ -83,6 +97,7 @@ function onAction(action) {
 
 form.onsubmit = (event) => {
   event.preventDefault();
+  if (running) return;
   prose.textContent = '';
   history.push({ id: newId('msg'), role: 'user', content: form.elements.prompt.value });
   note(`POST /agent run with ${history.length} message(s)`);

@@ -1,8 +1,12 @@
 """Generative UI step 01 - tools gain render_ui: a spec in, a picture out on
 every surface that is listening.
+
+Every tool returns a string. execute turns a tool call into (args, result)
+and never raises, so the model always gets a result it can read.
 """
 
 import json
+import os
 import subprocess
 
 from . import history, sandbox, web
@@ -12,7 +16,6 @@ from .skills import read_skill
 from .subagent import TASK_SCHEMA, task
 from .todos import TODO_SCHEMA, write_todos
 
-
 def bash(command: str) -> str:
     """Run a shell command and return its combined stdout and stderr."""
     try:
@@ -20,26 +23,36 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+        partial = (expired.stdout or "") + (expired.stderr or "")
+        return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap((result.stdout + result.stderr) or "(no output)")
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    with open(path) as f:
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return history.cap(f.read())
 
 
 def write_file(path: str, content: str) -> str:
     """Create a file, or overwrite it if it already exists."""
-    with open(path, "w") as f:
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
 
 
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
-    with open(path) as f:
+    if not old_str:
+        return "Error: old_str is empty."
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
     count = content.count(old_str)
@@ -52,7 +65,7 @@ def str_replace(path, old_str, new_str, allow_multi_edit=False):
             "or set allow_multi_edit to replace them all."
         )
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content.replace(old_str, new_str))
     return f"Replaced {count} match(es) in {path}"
 
@@ -160,11 +173,14 @@ TOOLS = {
 }
 
 
-def execute(tool_call):
-    """Run one tool call through the permission layer. Returns (args, result).
+def execute(tool_call, allowed=None):
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
-    exactly the same rules - it is not a way around them.
+    exactly the same rules - it is not a way around them. `allowed` is the
+    set of tool names the caller offered; a call outside it is denied, so a
+    subagent cannot run a withheld tool just by naming it.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
@@ -173,20 +189,22 @@ def execute(tool_call):
         args = json.loads(tool_call.function.arguments or "{}")
         if not isinstance(args, dict):
             raise ValueError("not an object")
-    except ValueError as e:  # the model wrote broken JSON: an error result, not a crash
+    except ValueError as e:  # the model wrote broken JSON
         return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
-    if name not in TOOLS:
+    if allowed is not None and name not in allowed:  # offered set == executable set
+        action, reason = "deny", f"{name} is not available to this agent"
+    elif name not in TOOLS:  # a name that is not in the table
         return args, f"Error: no tool named {name!r}."
-    action, reason = check(name, args)
+    else:
+        action, reason = check(name, args)
     if action == "deny":
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
     try:
-        result = TOOLS[name](**args)
-    except Exception as e:  # noqa: BLE001 - wrong arguments, a missing file, anything the tool raises
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
         return args, f"Error: {type(e).__name__}: {e}"
     if not isinstance(result, str):  # a tool message must be text
         result = "(no output)" if result is None else json.dumps(result, default=str)
     return args, result
-
