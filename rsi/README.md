@@ -1,7 +1,7 @@
 # Zero to Hero: Recursive Self-Improvement — a hello world, skills only
 
 **Status: in progress.** The plan of record is [`OUTLINE.md`](OUTLINE.md)
-(v4, 19 Sep 2026). Steps land here one at a time; each is a skill pack booted
+(v5, 19 Sep 2026). Steps land here one at a time; each is a skill pack booted
 by one tiny skills harness in [`common/`](common/), with a test that runs
 without a key (`python run_tests.py rsi` from the repo root).
 
@@ -27,14 +27,24 @@ that can be scored once, a private gate, and a rollback.
 
 ```text
 rsi/
-  OUTLINE.md                 the plan: definitions, steps, tests, tutorial validation
-  common/                    the one skills harness + the tools every skill names
-  data/                      bundled Adult sample (6k rows) and how it was made
-  step_00_regular_skill/     a repeatable trainer: same SKILL.md every run - not RSI
-  step_01_loop_skill/        loop engineering: loop.json, a counted while with a freeze - not RSI
-  step_02_graph_skill/       graph engineering: graph.json + paths.json, a recipe is a path - not RSI
-  step_03_memory_skill/      the first RSI file: memory cards + a verifier pack; MEMORY_OFF
-  step_04_proof/             freeze, one test score, transfer to a shifted table, the scorecard
-  step_05_meta_skill/        a meta pack patches the inner pack: cards, schema or policy; private gate; rollback
-  step_06_map/               the ladder, the papers, regular vs loop vs graph vs RSI, the acceptance test
+  OUTLINE.md                      the plan: definitions, steps, tests, tutorial validation
+  common/                         the one skills harness + the tools every skill names
+  data/                           bundled Adult sample (6k rows) and how it was made
+  Part 1 - harness engineering, not RSI
+  step_00_regular_harness/        a repeatable trainer: same SKILL.md every run
+  step_01_loop_harness/           loop engineering: loop.json, a counted while with a freeze
+  step_02_graph_harness/          graph engineering with loops: graph.json + paths.json
+  step_03_meta_generates_harness/ a meta harness whose output is a harness (one shot, no feedback)
+  Part 2 - the first RSI, its proof, the meta harness that makes it
+  step_04_rsi_harness/            memory cards + a verifier pack; MEMORY_OFF
+  step_05_proof/                  freeze, one test score, transfer to a shifted table, the scorecard
+  step_06_meta_generates_rsi_harness/  writer + meta pack: one patch per generation, private gate, rollback
+  Part 3 - RSI by method, same job
+  step_07_rsi_dream/              Dream-RSI: rank search policies on the trace log, zero fits
+  step_08_rsi_agent/              RSIAgent: curriculum / actor / verifier, broad-then-deep, frozen memory
+  step_09_rsi_modular/            ModularRSI: five module files, contrastive pairs, benchmark-disjoint pool
+  step_10_rsi_skill_memory/       Recuris: memory as a skill package + working memory
+  step_11_rsi_self_modifying/     DGM lineage: the meta pack rewrites SKILL.md/loop.json, an archive of variants
+  Part 4
+  step_12_map/                    the ladder, the papers, file-by-file table, terminology, acceptance test
 ```
