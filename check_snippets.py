@@ -76,6 +76,8 @@ def step_dirs(args):
         yield ROOT, "README.md (root)"
         if (ROOT / "genui" / "README.md").exists():
             yield ROOT / "genui", "genui/README.md"
+        if (ROOT / "rsi" / "README.md").exists():
+            yield ROOT / "rsi", "rsi/README.md"
     for step in sorted(ROOT.glob("step_*/")):
         if prefixes and not numbers:
             continue
