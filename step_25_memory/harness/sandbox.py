@@ -9,6 +9,9 @@ One policy - read anything, write only inside the project, no network - and
 one mechanism per OS. The macOS profile is the shape used by the OpenAI
 Codex CLI (Apache-2.0); the Linux one is bubblewrap.
 Windows has no equivalent here and the banner says so.
+
+Only the bash tool goes through here. read_file, write_file and
+str_replace run in the harness process, guarded by stage 11's rules.
 """
 
 import os
@@ -31,9 +34,8 @@ PROFILE = """(version 1)
 (deny file-write* (subpath "{project}/.git"))
 """
 
-# No pager may block waiting for a key, git must never prompt for a password,
-# and a Python child prints UTF-8 whatever the console code page is.
-ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0", "PYTHONIOENCODING": "utf-8"}
+# No pager may block waiting for a key, and git must never prompt for a password.
+ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
 
 
 def wrap(command):
@@ -45,10 +47,15 @@ def wrap(command):
         return ["sandbox-exec", "-f", profile.name, "/bin/sh", "-c", command]
 
     if sys.platform.startswith("linux") and shutil.which("bwrap"):
+        git_dir = PROJECT / ".git"
         return [
             "bwrap",
             "--ro-bind", "/", "/",
             "--bind", str(PROJECT), str(PROJECT),
+            # the same two exceptions as the macOS profile: history is read-only,
+            # and /tmp is writable because pytest, pip and tempfile need it
+            *(["--ro-bind", str(git_dir), str(git_dir)] if git_dir.is_dir() else []),
+            "--tmpfs", "/tmp",
             "--dev", "/dev", "--proc", "/proc",
             "--unshare-net", "--die-with-parent",
             "/bin/sh", "-c", command,
@@ -77,7 +84,12 @@ def kill_tree(process):
 
 
 def run(command, timeout=60):
-    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired with the partial output."""
+    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired with the partial output.
+
+    The command gets its own process group so a timeout can kill the whole
+    tree: killing only the shell leaves a child holding the output pipe,
+    and the call would block until that child exits on its own.
+    """
     sandboxed = wrap(command)
     group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     process = subprocess.Popen(
@@ -97,4 +109,7 @@ def run(command, timeout=60):
         kill_tree(process)
         stdout, stderr = process.communicate()
         raise subprocess.TimeoutExpired(command, timeout, output=stdout, stderr=stderr)
+    except KeyboardInterrupt:  # ctrl-c: the command dies with the turn
+        kill_tree(process)
+        raise
     return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)

@@ -10,7 +10,7 @@ LABELS = {"M": "modified", "D": "deleted", "A": "added", "??": "new"}
 
 
 def git(command):
-    result = subprocess.run(f"git {command}", shell=True, capture_output=True, encoding="utf-8", errors="replace")
+    result = subprocess.run(f"git {command}", shell=True, capture_output=True, text=True)
     return result.stdout
 
 

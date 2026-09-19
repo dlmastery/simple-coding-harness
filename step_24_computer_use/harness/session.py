@@ -1,4 +1,4 @@
-"""Stage 15 - session, unchanged since stage 14.
+"""Step 21 - PERSIST: print mode runs one turn and leaves no session file behind.
 """
 
 import json
@@ -10,9 +10,8 @@ SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
 PERSIST = True  # False in print mode: one-off runs leave no session behind
-NL = "\n"
 
-UNANSWERED = "(the harness stopped before this tool ran; no result was recorded)"
+STOPPED = "(the harness stopped before this tool ran; no result was recorded)"
 
 
 def path_for(session_id):
@@ -51,24 +50,24 @@ def compacted(messages):
         return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
-        f.write(json.dumps({"compacted": messages}) + NL)
+        f.write(json.dumps({"compacted": messages}) + "\n")
     WRITTEN = len(messages)
 
 
-def repair(messages):
-    """Answer any tool call the log left hanging, so the transcript can be sent again.
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
 
-    A crash between a reply and its tool results leaves an assistant message
-    whose tool_calls have no tool messages; the API refuses such a transcript.
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
     """
-    answered = {m.get("tool_call_id") for m in messages if m.get("role") == "tool"}
-    repaired = []
-    for message in messages:
-        repaired.append(message)
-        for call in message.get("tool_calls") or []:
-            if call.get("id") not in answered:
-                repaired.append({"role": "tool", "tool_call_id": call.get("id"), "content": UNANSWERED})
-    return repaired
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 
 
 def load(session_id):
@@ -85,7 +84,8 @@ def load(session_id):
             messages = list(entry["compacted"])
         else:
             messages.append(entry)
-    return repair(messages)
+    repair(messages, STOPPED)
+    return messages
 
 
 def open_session(session_id):

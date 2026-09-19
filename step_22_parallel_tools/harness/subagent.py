@@ -17,6 +17,8 @@ Four rules, and the code below is really just these:
 
 import os
 
+import openai
+
 MAX_TURNS = 12  # a runaway explorer is worse than a missing answer
 
 WITHHELD = {"task", "write_todos", "str_replace", "write_file"}
@@ -57,9 +59,12 @@ def task(description: str) -> str:
     """Run a fresh agent on one question and return only its final answer."""
     # Imported here, not at the top: tools imports us, and we need tools.
     from .history import fit
-    from .llm import call_llm
+    from .llm import call_llm, entry
     from .tools import execute_all
     from .ui import ui
+
+    offered = toolset()
+    allowed = {s["function"]["name"] for s in offered}  # what it may run == what it was shown
 
     # rule 1: two messages, born here, dead at the return
     messages = [
@@ -68,16 +73,19 @@ def task(description: str) -> str:
     ]
     ui.subagent(description)
     report = None  # newest thing it has said, kept in case we run out of turns
-    tools = toolset()
-    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(MAX_TURNS):
         fit(messages)  # its context can overflow too, and nobody compacts it
 
-        with ui.working("subagent exploring"):
-            message, usage = call_llm(messages, tools=tools)  # rule 2
-        messages.append(message.model_dump(exclude_none=True))
+        try:
+            with ui.working("subagent exploring"):
+                message, usage = call_llm(messages, tools=offered)  # rule 2
+        except (openai.APIError, RuntimeError) as failure:
+            # its failure is a result for the main agent, never a crash of the session
+            report = f"(the subagent's model call failed: {failure})" + (f"\n\nPartial findings:\n\n{report}" if report else "")
+            return report
+        messages.append(entry(message))
         ui.usage(usage)
         report = message.content or report
 
@@ -86,7 +94,7 @@ def task(description: str) -> str:
             return report or "(the subagent came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        outcomes = execute_all(message.tool_calls, allowed)
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             ui.tool(tool_call.function.name, args, result, nested=True)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})

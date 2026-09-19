@@ -10,16 +10,21 @@ from harness import agent, commands, compact, context, llm, memory, permissions,
 from harness.ui import ui  # noqa: E402
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 @pytest.fixture
@@ -188,7 +193,7 @@ def test_the_task_subagent_may_recall_but_not_remember_or_forget():
 def test_every_tool_call_gets_a_tool_message_even_when_it_fails(quiet, monkeypatch):
     replies = [
         FakeMessage(content=None, tool_calls=[
-            SimpleNamespace(id="a", function=SimpleNamespace(name="bash", arguments='{"command": "ls')),
+            FakeCall(id="a", function=SimpleNamespace(name="bash", arguments='{"command": "ls')),  # broken JSON, so not through call()
             call("b", "nope", {}),
             call("c", "read_file", {"path": "missing.txt"}),
         ]),
@@ -209,7 +214,7 @@ def test_write_todos_rejects_bad_items_and_session_load_repairs(tmp_path, monkey
     monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
     lines = [{"role": "user", "content": "go"}, {"role": "assistant", "content": None, "tool_calls": [{"id": "t9", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}]
     (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
-    assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+    assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.STOPPED}
 
 
 def test_rewind_cuts_before_a_user_message_never_inside_an_exchange(monkeypatch):

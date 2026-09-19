@@ -270,7 +270,7 @@ loses the marker.
 `harness/subagent.py`:
 
 ```python
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        outcomes = execute_all(message.tool_calls, allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)

@@ -45,14 +45,20 @@ def decide(tool_call, allowed=None):
 
     Nothing runs here. This is the half of execute() that must stay on the
     main thread, because an `ask` verdict turns into a prompt. A fourth
-    verdict, `error`, carries the message for arguments that cannot be used.
+    verdict, `error`, carries the message for a call that cannot be used:
+    arguments that are not a JSON object, or a name not in the table.
     """
     name = tool_call.function.name
-    args, problem = parse_args(tool_call)
-    if problem:
-        return args, "error", problem
-    if allowed is not None and name not in allowed:
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, "error", f"Error: the arguments of {name} are not a JSON object: {e}"
+    if allowed is not None and name not in allowed:  # offered set == executable set
         return args, "deny", f"{name} is not available to this agent"
+    if name not in TOOLS:  # a name that is not in the table
+        return args, "error", f"Error: no tool named {name!r}."
     action, reason = check(name, args)
     return args, action, reason
 ```
@@ -63,9 +69,10 @@ parsed arguments too, so nothing parses them twice. It never touches a
 tool, and it never prompts. It is cheap and safe to call for every tool
 call in a reply before any of them runs.
 
-There are four verdicts, not three. `error` is for arguments that cannot
-be used at all - not JSON, or JSON that is not an object - and it carries
-the message the model will get as the result. Without it, one broken call
+There are four verdicts, not three. `error` is for a call that cannot be
+used at all - arguments that are not JSON, or not an object, or a tool
+name the table does not know - and it carries the message the model will
+get as the result. Without it, one broken call
 in a batch of four would raise before any of the four had a result, and
 the transcript would be left with an assistant message the API refuses to
 see again. `allowed` is the set of tool names the caller offered; a
@@ -78,13 +85,16 @@ subagent that names a tool it was not given gets a `deny`.
 ```python
 def run(tool_call, args):
     """Run the tool with already-parsed arguments. No permission check here."""
-    tool = TOOLS.get(tool_call.function.name)
-    if tool is None:
-        return f"Error: no tool named {tool_call.function.name!r}."
+    name = tool_call.function.name
+    if name not in TOOLS:  # decide() refuses these first; run() alone must not raise either
+        return f"Error: no tool named {name!r}."
     try:
-        return as_text(tool(**args))
-    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
-        return f"Error: {type(failed).__name__}: {failed}"
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return result
 ```
 
 `run()` is the second half. It takes the arguments `decide()` produced
@@ -132,12 +142,13 @@ produced, so the model sees no difference.
 
 ```python
 def execute(tool_call, allowed=None):
-    """Run one tool call through the permission layer. Returns (args, result).
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. `allowed` is the
-    set of tool names the caller offered; anything else is refused. This is
-    decide, settle and run in one step, for callers that want the direct path.
+    set of tool names the caller offered; a call outside it is denied. This
+    is decide, settle and run in one step, for callers that want the direct path.
     """
     args, action, reason = decide(tool_call, allowed)
     result = settle(action, reason)
@@ -251,7 +262,7 @@ browser tools, step 24 the computer tools.
 
 ```python
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        outcomes = execute_all(message.tool_calls, allowed)
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             ui.tool(tool_call.function.name, args, result, nested=True)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
@@ -475,8 +486,9 @@ diff -r ../step_21_streaming_headless/harness harness
 Changed: `tools.py` (`decide`, `run`, `settle`, `execute_all`,
 `MAX_WORKERS`, `SERIAL`, `execute` rebuilt on them), `agent.py` and
 `subagent.py` (one `execute_all` call, then a loop over the outcomes),
-`llm.py` (a paragraph in the system prompt). Everything else is
-unchanged from step 21.
+`llm.py` (a paragraph in the system prompt), `ui.py` (`APPROVE_LOCK`,
+`Idle`, the thread check in `working`). Everything else is unchanged
+from step 21.
 
 ## What the next step adds
 
