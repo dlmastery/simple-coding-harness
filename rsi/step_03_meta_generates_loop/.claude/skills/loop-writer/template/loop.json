@@ -1,19 +1,25 @@
 {
  "kind": "counted_while",
- "N": {{n_fits}},
+ "N": {{budget_fits}},
  "counter": "t",
  "error_still_counts": true,
  "body": [
-  "recipe = recipes[t]",
-  "fit_recipe.py --recipe recipe  (or --recipes @recipes.json --range t:t+6)",
-  "write_loop_log.py {t, recipe, val_score}"
+  "recipe = recipes.json[t - 1]",
+  "fit_recipe(recipe)  # one fit; fits_used in state.json is t",
+  "write_loop_log(t, recipe, val_score)  # audit only"
  ],
- "exit": ["FREEZE", "score_test", "save_model", "scorecard"],
+ "exit": [
+  "FREEZE",
+  "score_test once, with the best val recipe",
+  "save_model",
+  "scorecard"
+ ],
  "illegal": [
   "change N",
-  "reorder recipes",
+  "reorder recipes.json",
   "a second while",
   "score_test before FREEZE",
-  "write memory.json"
+  "write memory.json",
+  "read loop.log back"
  ]
 }

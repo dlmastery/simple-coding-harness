@@ -1,98 +1,228 @@
-"""Lesson 02 - loop engineering: loop.json is honoured by the scripts (N = 24, the 25th fit refused, score_test
-before FREEZE refused); the audit log is written and never read back (no script reads it); the pack is byte-
-identical after a run; the loop's order is recipes.json's order; lint_pack refuses a loop that changes N.
+"""Lesson 02 - the loop harness: loop.json declares the counted while (N 24, the counter, the exit, the illegal moves);\nthe helpers honour it; the audit log is never read back; the pack is byte-identical after a run.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
-import sys
+import os
+import re
+import shutil
+import subprocess
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
-
-from _lib import packs, testing  # noqa: E402
-
-PACK = "adult-income-loop"
-TASK = testing.task("adult_income")
-
-
-def run_loop(tmp_path):
-    """The procedure of SKILL.md: four slices of six, each followed by its audit lines."""
-    pack = testing.workspace(HERE, tmp_path / "w", PACK)
-    testing.tool("load_splits", "--pack", pack, "--task", TASK)
-    rows = []
-    for t0 in range(0, 24, 6):
-        out = testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", f"{t0}:{t0 + 6}")
-        rows += out["results"]
-        entries = [{"t": r["t"], "recipe": r["recipe"], "val_score": r["val_score"]} for r in out["results"]]
-        logged = testing.tool("write_loop_log", "--pack", pack, "--task", TASK, "--entries", json.dumps(entries))
-        assert logged["logged"] == 6
-    assert out["FREEZE"] is True
-    best = max((r for r in rows if r.get("val_score") is not None), key=lambda r: r["val_score"])
-    test = testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))
-    testing.tool("save_model", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))
-    card = testing.tool("scorecard", "--pack", pack, "--task", TASK)
-    return pack, rows, best, test, card
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['adult-income-loop']
+INTENTS = ['../tasks/01_adult_income/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
-def test_loop_json_is_honoured(tmp_path):
-    pack, rows, best, test, card = run_loop(tmp_path)
-    loop = json.loads((pack / "loop.json").read_text(encoding="utf-8"))
-    recipes = json.loads((pack / "recipes.json").read_text(encoding="utf-8"))
-    assert loop["kind"] == "counted_while" and loop["N"] == 24 and loop["error_still_counts"]
-    assert [r["t"] for r in rows] == list(range(24)) and [r["recipe"] for r in rows] == recipes
-    assert card["fits_used"] == 24 and card["test_scored_once"] and "test_score" in test
-    # the 25th and the second look: refused
-    assert testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipe", json.dumps(recipes[0]))["refused"]
-    assert "once already" in testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))["error"]
+# ---------------------------------------------------------------- reading packs
 
 
-def test_score_test_before_freeze_refused(tmp_path):
-    pack = testing.workspace(HERE, tmp_path / "w", PACK)
-    testing.tool("load_splits", "--pack", pack, "--task", TASK)
-    out = testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", "0:6")
-    assert out["fits_used"] == 6 and "FREEZE" not in out
-    refused = testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(out["results"][0]["recipe"]))
-    assert "18 fits remain" in refused["error"]
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
 
 
-def test_audit_log_written_never_read(tmp_path):
-    pack, rows, *_ = run_loop(tmp_path)
-    log = pack.parents[2] / "runs" / PACK / "adult_income" / "loop_log.jsonl"
-    lines = [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines()]
-    assert [l["t"] for l in lines] == list(range(24)) and all(l["arm"] == "memory" for l in lines)
-    # no script reads it back: the string loop_log never appears in a read path of any tool
-    readers = [p for p in testing.TOOLS.glob("*.py") if "loop_log" in p.read_text(encoding="utf-8") and p.name != "write_loop_log.py"]
-    assert readers == []
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    if f"## {name}" not in body:
+        return ""
+    return body.split(f"## {name}", 1)[1].split("\n## ", 1)[0]
 
 
-def test_pack_is_byte_identical_after_a_run(tmp_path):
-    pack = testing.workspace(HERE, tmp_path / "w", PACK)
-    before = packs.checksums(pack)
-    run_loop(tmp_path)   # a fresh copy under the same tmp_path; run it once more on this one too
-    testing.tool("load_splits", "--pack", pack, "--task", TASK)
-    testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", "0:3")
-    assert packs.checksums(pack) == before
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
 
 
-def test_lint_refuses_a_changed_loop(tmp_path):
-    files = packs.read_pack(HERE / ".claude" / "skills" / PACK)
-    loop = json.loads(files["loop.json"])
-    loop["N"] = 48
-    bad = dict(files, **{"loop.json": json.dumps(loop)})
-    out = testing.tool("lint_pack", "--files", json.dumps(bad), "--task", TASK)
-    assert not out["ok"] and any("loop.json N 48" in p for p in out["problems"])
-    loop["N"] = 24
-    loop["exit"] = ["score_test", "FREEZE"]
-    bad = dict(files, **{"loop.json": json.dumps(loop)})
-    out = testing.tool("lint_pack", "--files", json.dumps(bad), "--task", TASK)
-    assert any("exit must be FREEZE then score_test" in p for p in out["problems"])
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
+
+
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
+            continue
+        candidates = [SKILLS / pack / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
+
+
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
+
+
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
+
+
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+def test_loop_json_declares_the_counted_while():
+    loop = json.loads((SKILLS / "adult-income-loop" / "loop.json").read_text(encoding="utf-8"))
+    recipes = json.loads((SKILLS / "adult-income-loop" / "recipes.json").read_text(encoding="utf-8"))
+    schema = json.loads((SKILLS / "adult-income-loop" / "schema.json").read_text(encoding="utf-8"))
+    assert loop["kind"] == "counted_while" and loop["N"] == 24 == schema["n_fits"] == len(recipes)
+    assert loop["counter"] == "t" and loop["error_still_counts"] is True
+    assert loop["exit"][0] == "FREEZE" and "score_test" in loop["exit"][1]
+    for rule in ("change N", "a second while", "score_test before FREEZE", "read loop.log back"):
+        assert rule in loop["illegal"]
+    assert recipes == schema["recipes"]
+
+
+def test_the_log_is_never_read_back():
+    body = skill("adult-income-loop")[1]
+    assert "no step of this procedure and no helper reads it" in body
+    tools = (SKILLS / "adult-income-loop" / "tools.md").read_text(encoding="utf-8")
+    assert "Audit only: no tool and no step of the procedure reads this file back" in tools
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
+
+
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
+
+
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to runs/_pristine, afterwards restore them
+    from there; everything else under runs/ is cleared. The README says how to reset by hand."""
+    pristine = RUNS / "_pristine"
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    for child in RUNS.iterdir():
+        if child.name != "_pristine":
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
+
+
+def claude(prompt, cont=False, timeout=2400):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [json.loads(l) for l in proc.stdout.splitlines() if l.startswith('{"type":"result"')]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
 
 
 def test_live_claude_code():
-    text = testing.live(HERE)
+    """The recorded run: t reached N, 24 loop-log lines nothing read back, one test score after FREEZE, the pack byte-identical."""
+    live_or_skip()
+    reset()
+    before = tree(SKILLS)
+    text = claude(readme_prompt())
+    arm = RUNS / "adult-income-loop" / "adult_income" / "control"
+    s = state("adult-income-loop", "adult_income", "control")
+    assert s["fits_used"] == 24 and s["frozen"] is True and s["test_scored"] == 1
+    log = [l for l in (arm / "loop.log").read_text(encoding="utf-8").splitlines() if l.strip()]
+    assert len(log) == 24 and log[0].startswith("t=1 ") and log[-1].startswith("t=24 ")
+    events = [r["event"] for r in rows(arm / "traces.jsonl") if "event" in r]
+    assert events.count("score_test") == 1 and events.index("FREEZE") < events.index("score_test")
+    assert tree(SKILLS) == before == tree(MIRROR), "a run changed the pack"
     assert "24" in text

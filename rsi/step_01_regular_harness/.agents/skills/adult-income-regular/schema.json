@@ -3,10 +3,7 @@
  "target": "target",
  "metric": "roc_auc",
  "n_fits": 24,
- "test_rule": {
-  "scores": 1,
-  "after": "FREEZE"
- },
+ "test_rule": "locked, scored once after FREEZE",
  "models": [
   "logreg",
   "rf",

@@ -1,80 +1,256 @@
-"""Lesson 00 - the intent: task.json and acceptance.md validate; a pack that widens the intent is refused
-by lint_pack; the acceptance fields are exactly the scorecard fields; the skill pack meets the contract.
-Offline, no key, no agent: the scripts are the gates, so the claims are provable without one.
+"""Lesson 00 - the intent: intent.md and acceptance.md pass the checklists, the widened pack is refused, the acceptance\nfields are exactly the scorecard fields, the curriculum is in order, and the skill changes nothing.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
+import os
 import re
 import shutil
-import sys
+import subprocess
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['intent']
+INTENTS = ['intent.md', '../tasks/01_adult_income/intent.md', '../tasks/02_breast_cancer/intent.md', '../tasks/03_wine/intent.md', '../tasks/04_digits/intent.md', '../tasks/05_synth_shift_a/intent.md', '../tasks/06_synth_shift_b/intent.md', '../tasks/07_exam/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
-from _lib import tasks, testing  # noqa: E402
-from _lib.scorecard import SCORECARD_FIELDS  # noqa: E402
 
-FIELD_LINE = re.compile(r"^- ([a-z_]+)$", re.M)
+# ---------------------------------------------------------------- reading packs
+
+
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
+
+
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    if f"## {name}" not in body:
+        return ""
+    return body.split(f"## {name}", 1)[1].split("\n## ", 1)[0]
+
+
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
+
+
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
+
+
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
+            continue
+        candidates = [SKILLS / pack / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
+
+
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
+
+
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
+
+
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+SCORECARD_FIELDS = ("problem", "arm", "seed", "n_fits", "fits_used", "wasted_fits", "best_val_score", "best_recipe", "test_score",
+                    "test_scored_once", "test_touched_before_freeze", "cards_active", "cards_added", "cards_demoted")
 
 
 def acceptance_fields():
-    section = (HERE / "acceptance.md").read_text(encoding="utf-8").split("## The scorecard")[1].split("## ")[0]
-    return tuple(FIELD_LINE.findall(section))
+    text = (HERE / "acceptance.md").read_text(encoding="utf-8")
+    return tuple(re.findall(r"^- ([a-z_]+)$", section(text, "The scorecard"), re.M))
 
 
-def test_intent_validates():
-    out = testing.tool("validate_intent", "--task", HERE / "task.json", "--acceptance", HERE / "acceptance.md")
-    assert out["ok"], out
-    assert out["budget"] == {"n_fits": 24, "per": "arm"} and out["test_rule"] == {"scores": 1, "after": "FREEZE"}
+def test_intent_is_the_first_curriculum_problem():
+    """The lesson's intent.md is byte-identical to ../tasks/01_adult_income/intent.md: one intent, read by every later pack."""
+    assert (HERE / "intent.md").read_bytes() == (RSI / "tasks" / "01_adult_income" / "intent.md").read_bytes()
 
 
 def test_acceptance_fields_are_exactly_the_scorecard_fields():
     assert acceptance_fields() == SCORECARD_FIELDS
+    text = (HERE / "acceptance.md").read_text(encoding="utf-8")
+    assert "once" in text and "FREEZE" in text
 
 
-def test_widened_pack_is_refused():
-    out = testing.tool("lint_pack", "--files", f"@{HERE / '.claude/skills/intent/widened_pack.json'}", "--task", HERE / "task.json")
-    assert not out["ok"]
-    assert any("n_fits 48" in p for p in out["problems"]) and any("test_rule" in p for p in out["problems"])
+def test_widened_pack_breaks_the_checklist():
+    """The planted pack raises n_fits to 48, scores the test twice and adds xgb: three rules the lint checklist names."""
+    files = json.loads((SKILLS / "intent" / "widened_pack.json").read_text(encoding="utf-8"))
+    schema = json.loads(files["schema.json"])
+    intent = front_matter((HERE / "intent.md").read_text(encoding="utf-8"))[0]
+    problems = []
+    if schema["n_fits"] != intent["budget_fits"]:
+        problems.append(f"n_fits {schema['n_fits']} != budget_fits {intent['budget_fits']}")
+    if schema["test_rule"] != "locked, scored once after FREEZE":
+        problems.append("test_rule")
+    if not set(schema["models"]) <= set(intent["models"]):
+        problems.append("models")
+    assert problems == ["n_fits 48 != budget_fits 24", "test_rule", "models"]
 
 
-def test_a_bad_task_is_a_result_not_a_crash(tmp_path):
-    bad = json.loads((HERE / "task.json").read_text(encoding="utf-8"))
-    bad["budget"]["n_fits"] = 100
-    (tmp_path / "task.json").write_text(json.dumps(bad), encoding="utf-8")
-    out = testing.tool("validate_intent", "--task", tmp_path / "task.json")
-    assert not out["ok"] and "task.json" in out["problems"][0]
+def test_curriculum_in_order():
+    dirs = sorted(p for p in (RSI / "tasks").iterdir() if p.is_dir())
+    metas = [front_matter((d / "intent.md").read_text(encoding="utf-8"))[0] for d in dirs]
+    assert [m["name"] for m in metas] == ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b", "exam"]
+    assert [m["index"] for m in metas] == list(range(1, 8))
+    assert [m["role"] for m in metas] == ["curriculum"] * 6 + ["exam"]
+    assert all(m["budget_fits"] == 24 and m["test"] == "locked, scored once after FREEZE" for m in metas)
 
 
-def test_curriculum_validates_in_order():
-    names = [t["name"] for t in tasks.all_tasks()]
-    assert names == ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b", "exam"]
-    assert [t["role"] for t in tasks.all_tasks()] == ["curriculum"] * 6 + ["exam"]
-    for t in tasks.all_tasks():
-        assert t["budget"]["n_fits"] == 24 and t["test_rule"] == {"scores": 1, "after": "FREEZE"}
+def test_skill_changes_nothing():
+    """The procedure has no write step and names no helper: the lesson directory stays byte-identical (asserted live too)."""
+    body = skill("intent")[1]
+    assert "helpers/" not in body and "runs/" not in body and "Write" not in section(body, "Procedure")
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
 
 
-def test_cli_contract_json_out_exit_zero():
-    out = testing.tool_cli("validate_intent", "--task", HERE / "task.json", "--acceptance", HERE / "acceptance.md")
-    assert out["ok"] is True
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to runs/_pristine, afterwards restore them
+    from there; everything else under runs/ is cleared. The README says how to reset by hand."""
+    pristine = RUNS / "_pristine"
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    for child in RUNS.iterdir():
+        if child.name != "_pristine":
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
 
 
-def test_skill_changes_nothing(tmp_path):
-    """The skill's two commands leave the lesson directory byte-identical (no run dir, no card, no pack)."""
-    work = tmp_path / "lesson"
-    shutil.copytree(HERE, work, ignore=shutil.ignore_patterns("__pycache__", "runs"))
-    before = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
-    testing.tool("validate_intent", "--task", work / "task.json", "--acceptance", work / "acceptance.md")
-    testing.tool("lint_pack", "--files", f"@{work / '.claude/skills/intent/widened_pack.json'}", "--task", work / "task.json")
-    after = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
-    assert before == after
+def claude(prompt, cont=False, timeout=1200):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [json.loads(l) for l in proc.stdout.splitlines() if l.startswith('{"type":"result"')]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
 
 
 def test_live_claude_code():
-    text = testing.live(HERE)
-    assert "24" in text and "FREEZE" in text
+    live_or_skip()
+    reset()
+    before = tree(HERE)
+    text = claude(readme_prompt())
+    after = {k: v for k, v in tree(HERE).items() if not k.startswith("runs/")}
+    assert {k: v for k, v in before.items() if not k.startswith("runs/")} == after, "the intent skill changed a file"
+    assert "24" in text and "FREEZE" in text and "48" in text
+    for name in ("adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b", "exam"):
+        assert name in text
+    for field in SCORECARD_FIELDS:
+        assert field in text

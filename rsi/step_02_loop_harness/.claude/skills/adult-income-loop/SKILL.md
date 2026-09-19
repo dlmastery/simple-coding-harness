@@ -1,35 +1,34 @@
 ---
 name: adult-income-loop
-description: Train a classifier for the Adult income problem by running the counted loop in loop.json over recipes.json. Use in rsi/step_02_loop_harness, when the pack has loop.json and no memory file.
+description: Train a classifier for the Adult income problem by running the counted loop declared in loop.json over recipes.json - 24 fits, a freeze, one test score - with helpers you build from the contracts in tools.md. Use in rsi/step_02_loop_harness, when the pack has loop.json and no graph or memory file.
 metadata:
   type: workflow
-  version: "2.0"
+  version: "3.0"
   rsi: "off"
 ---
 # Loop harness: the loop is a file
 
-Run every command through the Bash tool from this lesson's directory. This
-pack's directory is `.claude/skills/adult-income-loop`; below, `P` stands
-for that path and `T` for `../tasks/01_adult_income.json`.
+Run every helper through the Bash tool from this lesson's directory. This pack's directory
+is `.claude/skills/adult-income-loop` (`P`); the problem is `../tasks/01_adult_income` (`T`);
+the one arm is `control`.
 
 ## Boot order
-1. This file. 2. `tools.md`. 3. `schema.json`: the recipe space, the budget and the test rule. 4. `loop.json`: the loop. 5. `recipes.json`: what the loop iterates over.
-Nothing else is read. `loop_log.jsonl` is written and never read: no script reads it back.
+1. This file. 2. `tools.md`. 3. `loop.json`: the loop - its kind, `N`, the counter, the body, the exit and what is illegal. 4. `recipes.json`: the 24 recipes the counter walks. 5. `schema.json`: the recipe space and the budget. 6. `T/intent.md`.
 
 ## Procedure
-Run `loop.json` exactly as written:
-1. `python ../tools/load_splits.py --pack P --task T` once.
-2. `counted_while` with counter `t` from 0 to `N` - 1 (`N` is 24): the body fits `recipes[t]` and writes one audit line with `t`, the recipe and the `val_score`. Execute the body for six consecutive values of `t` per pair of commands, four pairs in all:
-   `python ../tools/fit_recipe.py --pack P --task T --recipes @P/recipes.json --range 0:6`
-   `python ../tools/write_loop_log.py --pack P --task T --entries '[{"t": 0, "recipe": {...}, "val_score": ...}, ...]'`
-   then `--range 6:12`, `--range 12:18`, `--range 18:24`, each followed by its log call. An error still counts: `t` advances.
-3. `exit`: when the last fit result says `FREEZE`, pick the highest `val_score` over all 24, then, after FREEZE:
-   `python ../tools/score_test.py --pack P --task T --recipe model=<m>,hyper=<h>,scale=<s>,encode=<e>,class_weight=<c>`
-   `python ../tools/save_model.py --pack P --task T --recipe model=<m>,hyper=<h>,scale=<s>,encode=<e>,class_weight=<c>`
-4. `python ../tools/scorecard.py --pack P --task T` and answer in text with the best val_score, the test score and the fits used. Stop.
+1. Build the helpers of `tools.md` under `runs/adult-income-loop/helpers/` if they are not there yet.
+2. Open the arm: `load_splits P T --arm control --memory off`.
+3. Run the loop exactly as `loop.json` declares it: `kind: counted_while`, the counter `t` from 1 to `N`, and for each `t` the body - the recipe is `recipes.json[t - 1]`, `fit_recipe` fits it (an errored fit still counts: `error_still_counts`), `write_loop_log` appends the audit line. You may fit in four calls of six recipes each (`fit_recipe P T --arm control --recipes <recipes 1-6>`, then 7-12, 13-18, 19-24) and log the six after each call; the counter is `fits_used` in `state.json`, not a number you keep in your head.
+4. The exit, in the order `loop.json` lists it: the result says `FREEZE`; `score_test P T --arm control --recipe <best val recipe>` once; `save_model`; `scorecard`.
+5. Answer in text with `N`, the best val_score, the test score and the number of loop-log lines. Stop.
 
 ## Rules
-The `illegal` list of `loop.json` is binding: do not change `N`, do not reorder the recipes, do not open a second loop, never run `score_test.py` before FREEZE, never write `memory.json`. The scripts refuse the ones they can see (the 25th fit, the early or second test score, a recipe outside the schema); the rest you refuse yourself.
+- Everything under `illegal` in `loop.json` is illegal: do not change `N`, reorder the recipes, open a second loop, score the test before FREEZE, write a memory file, or read `loop.log` back.
+- The log is an audit trail and nothing else: no step of this procedure and no helper reads it. Generation n+1 loads the same `loop.json` and makes the same 24 fits. That is why this is not RSI yet.
+- Never run `score_test` before FREEZE, never twice: the hook and the helper refuse it.
+
+## Off switch
+None: no memory. `loop.json` is `mutable: false` in spirit - a run never changes it, and a test asserts the pack is byte-identical after one.
 
 ## Done when
-`t` reached `N`, `score_test.py` answered once and `save_model.py` once.
+`t` reached `N`, `score_test` answered once, `save_model` once.
