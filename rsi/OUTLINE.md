@@ -1,4 +1,4 @@
-# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v8)
+# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v9)
 
 **The skill pack gets smarter. The model weights do not. You can measure both, turn it off, and roll it back.**
 
@@ -42,24 +42,79 @@ verifier may condition on (`n_rows`, `n_features`, `n_classes`, `imbalance`,
 `MEMORY_OFF` arm at the same budget, and wasted fits before the first good
 recipe — is the series' headline chart, and the exam problem is its proof.
 
+## What the paper says, and how the lessons are organised around it
+
+*The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement*
+(arXiv:2609.11873v2, 15 Sep 2026, 37 authors) is not a catalogue of tricks;
+it is a **framework for deciding whether a loop is RSI at all**, and it makes
+four moves this series copies.
+
+1. **It measures where RSI would matter.** The Headroom-Closed Index
+   normalises benchmark progress per domain (0 = the frontier the year the
+   benchmark appeared, 100 = perfect). Bounded domains are nearly closed
+   (advanced mathematics 86.4, graduate science 85.8); interactive,
+   stateful ones are not (software engineering 52.6, search / terminal
+   agents 56.8, tool agents 39.9). So RSI is worth the most exactly where an
+   agent must *operate a system with hidden rules* — which is why our job is
+   a harness solving a sequence of ML problems, not a static QA benchmark.
+2. **It defines RSI by where the authority sits.** The unit of analysis is
+   the improvement loop, and autonomy is "which decisions have moved from the
+   designer to the system": what to improve (L1), how (L2), which experience
+   to acquire (L3), whether to revise persistent state from deployment
+   feedback under an external acceptance rule (L4), whether to revise the
+   improver / verifier / successor procedure itself (L5). B0 — a better
+   answer this turn with no persistent change — is excluded. Every lesson
+   below states its rung *and what stays human*.
+3. **It sets the evidence bar.** *Structural* recursion (a revised mechanism
+   governs a later round) is not enough; *effective* recursion needs
+   stronger successors **under comparable budgets and independent
+   evaluation**. Three challenges every claim must survive: **safe
+   inheritance** (transfer tests, version histories, rollback — Gödel Agent
+   lost ground in 14 % of trials), **autonomy attribution** (DGM raised
+   SWE-bench 20 → 50 %, but its archive and parent selection stayed
+   human-fixed), **reliable verification** (repeated evaluator access
+   rewards exploitation — seed cherry-picking and test-label extraction were
+   observed; freeze evaluators per epoch, anchor to an independent
+   ground truth, match compute). Our budget object, locked test, private
+   gate, `versions/` + rollback and the approval cycle are these three
+   challenges turned into tools.
+4. **It reads industry, not only papers.** Eight deployed loops (Theseus,
+   Lark, Xiaohongshu's dual-timescale recommender, Humanlaya, ModelBest,
+   Tencent Hunyuan, an agent-native research lab, Frontis.AI) show the
+   practical constraints — feedback pipelines, validation infrastructure,
+   rollback, human governance — that isolated experiments skip. Our human
+   approval cycle and the two-timescale meta-skills lesson come from there.
+
+The paper's honest verdict is the series' thesis: today's public RSI is
+mostly L1–L4 with a human acceptance rule; L5 exists in a few systems
+(A-Evolve-Training 0.80 → 0.86 over four rounds, Red Queen GM, AIDE²) and is
+credible only where the evaluator is protected. "Genuine" RSI would need
+closed loops with persistence, transferred and *attributed* autonomy,
+verified inheritance under matched budgets, and domain-appropriate feedback
+infrastructure. The series never claims more than L5 *flavour*, and says so
+in every README.
+
+### Lesson ↔ paper map
+
+| Lesson | Rung | Which decision the system takes | What stays human | Paper section / evidence rule it exercises |
+|---|---|---|---|---|
+| 00 intent | L1 precondition | none | what to improve, how, success | §3.2: humans specify objective, procedure, acceptance |
+| 01 regular · 02 loop · 04 graph | not RSI | none (executes a fixed procedure) | everything | §2.2 distinction from AutoML / agentic systems; §3.1 B0 boundary |
+| 03 · 05 meta generates loop / graph | L1 | executes a generation procedure | the spec, the acceptance (`y`/`n`/`edit`) | §3.2 L1; §5 human release gates |
+| 06 RSI harness | L4 | revises persistent state (cards) from run feedback | the verifier contract, the off switch | §3.5 L4 (PANDO-style admit / demote rules); Challenge 3 (verifier cannot see the actor) |
+| 07 proof | — | — | the test, the exam | §1.7 effective recursion; Challenge 3 protected evaluation, matched budgets |
+| 08 meta generates RSI | L1 → L4 | generates a mechanism that will change itself | approving that mechanism | Challenge 2 attribution: the human approves an improver, not a result |
+| 09 RSI meta harness | L4 → L5 flavour | revises the improver's policy line; keep-or-rollback | `approval: human`; the gate and the archive rule | §3.6 L5; Challenge 1 rollback + versions; Red Queen GM frozen evaluator |
+| 10 Dream-RSI | L2 | chooses the search strategy from replay | the policy library | Table 2: experience replay; §3.3 L2 |
+| 11 RSIAgent | L3 + L4 | chooses the next experiment; freezes memory | the verifier | §3.4 L3 exploration; frozen memory at test |
+| 12 ModularRSI | L2 → L5 flavour | patches one harness module off-benchmark | module boundaries, the pool | §3.6 harness modules; Challenge 3 benchmark-disjoint validation |
+| 13 Recuris | L4 | consolidates skill memory | validation rule | Table 2: memory / skill consolidation |
+| 14 DGM lineage | L5 flavour | rewrites its own `SKILL.md` / `loop.json` | archive rule, parent choice, gate | Challenge 2 (the paper's DGM example verbatim) |
+| 15 AIDE² | L5 flavour | rewrites the inner agent, keep-if-better | the budget meter, the task set | §1.7 effective recursion across a heterogeneous set; Challenge 3 guards |
+| 16 MetaSkill-Evolve | L5 | revises its own meta-skills on a slow clock | the clock, the human `y` on meta changes | §5.3 dual-timescale industry loop; §3.6 |
+| 17 map | — | — | — | the ladder, HCI, the three challenges as the acceptance test |
+
 ## The definition we use — *The Last AI Built by Humans* (arXiv:2609.11873)
-
-RSI: "an autonomous, closed-loop process in which an AI system identifies its
-own limitations, develops and validates improvements, and uses the resulting
-capabilities to improve the improvement process itself." Persistent changes
-across rounds that affect how later improvements are generated, evaluated,
-selected or consolidated. Not RSI: B0 ("output change without persistent
-system change"), AutoML / continual learning with designer-fixed objective,
-search space and acceptance test. **Structural** recursion (a revised mechanism
-governs a later round) vs **effective** recursion (stronger successors under
-comparable budgets and independent evaluation). Three problems every claim
-must answer: **safe inheritance** (transfer tests, version histories,
-rollback), **autonomy attribution** (AI-controlled decisions vs fixed
-procedure vs human acceptance), **reliable verification** (protected
-evaluation, matched budgets). Rungs: L1 execute → L2 choose strategy → L3
-choose experience → L4 revise state under an external acceptance rule → L5
-revise the improver itself. Every step names its rung and what stays human.
-
 ## The one harness (built once, in `rsi/common/`, ~200 lines, never a step)
 
 `harness.py` — `boot(pack_dir)` reads `SKILL.md` (becomes the system prompt),
