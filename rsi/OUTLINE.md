@@ -1,4 +1,4 @@
-# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v7)
+# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v8)
 
 **The skill pack gets smarter. The model weights do not. You can measure both, turn it off, and roll it back.**
 
@@ -13,15 +13,34 @@ two steps shows exactly what became RSI. Every step runs offline in tests with
 a fake model; `python run.py` needs `BASE_URL` / `API_KEY` / `MODEL` like the
 rest of the repo.
 
-## The job (real software, no toy factory)
+## The job: a sequence of simple ML problems, one harness, growing experience
 
-Improve a tabular classifier on **Adult Census Income** under a hard budget of
-**24 `fit()` calls per arm**, then prove the *pack* improved, not just the
-model: freeze the memory and run the same budget on a **shifted synthetic
-table** it never saw. Bundled 6k-row Adult sample (offline), OpenML cache when
-online. Models: `LogisticRegression`, `RandomForest`, `HistGradientBoosting`.
-Metric: ROC-AUC on validation during search; the test split is scored **once**,
-after freeze, by a tool that raises on a second call.
+The harness solves **simple ML problems in order**, and what it learned on
+problem 1 must make it better at problem 2, then 3 — until the *pack*
+(memory, cards, policy line, harness text) is an expert and the *model
+weights* are exactly what they were. Each problem is a small tabular or
+image-like classification task with a hard budget of **24 `fit()` calls per
+arm**, a locked test split scored once, and the same recipe space (scaling,
+encoding, model ∈ {logreg, rf, hgb}, one hyper-parameter, class weight) so
+that experience can transfer. The curriculum ships in `rsi/tasks/`, one
+`task.json` per problem, offline and deterministic:
+
+| # | Problem | Source | Why it is in the sequence |
+|--:|---|---|---|
+| 1 | Adult Census Income (> 50k) | bundled 6k-row sample (OpenML 1590 / UCI, CC BY 4.0) | mixed numeric + categorical, class imbalance — the first lessons the pack learns (encoding, `class_weight`) |
+| 2 | Breast cancer (malignant) | `sklearn.datasets.load_breast_cancer` | all numeric, small — does "scale before logreg" transfer? |
+| 3 | Wine (3 classes) | `sklearn.datasets.load_wine` | multiclass: metric becomes macro one-vs-rest ROC-AUC; cards conditioned on `n_classes` |
+| 4 | Digits (10 classes) | `sklearn.datasets.load_digits` | 64 numeric features, image-like — tree depth and learning-rate cards get counterexamples |
+| 5 | Synthetic shifted table A | `common/synth.py` (seeded) | a table whose profile flips which recipe fields matter — the superstition test |
+| 6 | Synthetic shifted table B | `common/synth.py` (seeded) | the same, imbalanced and small |
+| 7 | **Exam** | `common/synth.py` (seeded, never used for writing) or Bank Marketing when online | the held-out problem: frozen pack, matched budget, memory arm vs `MEMORY_OFF` arm |
+
+Every problem's `task.json` names the target, the metric (`roc_auc` or
+`roc_auc_ovr_macro`), the budget, the allowed models and the **profile** the
+verifier may condition on (`n_rows`, `n_features`, `n_classes`, `imbalance`,
+`has_categorical`). The learning curve — per problem, memory arm minus
+`MEMORY_OFF` arm at the same budget, and wasted fits before the first good
+recipe — is the series' headline chart, and the exam problem is its proof.
 
 ## The definition we use — *The Last AI Built by Humans* (arXiv:2609.11873)
 
@@ -85,7 +104,7 @@ lesson page with these headings, in this order, verbatim:
 | Stage 3: Build | 03 meta generates the loop harness · 05 meta generates the graph harness · 06 the RSI harness · 08 meta generates the RSI harness |
 | Stage 4: Test | 07 proof — locked test, transfer, the scorecard; `run_tests.py rsi` as the continuous eval |
 | Stage 5: Deploy | 09 the RSI meta harness — approval cycles as gates (human, then the private gate), versions and rollback |
-| Stage 6: Maintain | 10–14 RSI by method (Dream-RSI, RSIAgent, ModularRSI, Recuris, DGM) — closing the loop on the metrics; 15 map |
+| Stage 6: Maintain | 10–14 RSI by method (Dream-RSI, RSIAgent, ModularRSI, Recuris, DGM, AIDE², MetaSkill-Evolve) — closing the loop on the metrics; 15 map |
 
 Skills use the same layout the course teaches (`skills/<name>/SKILL.md` with
 front matter naming when it triggers, then the instructions), and every rule a
@@ -131,11 +150,11 @@ and every meta pack's `tools.md` names it.
 | Step | The pack | The one idea | Rung |
 |-----:|-----|------|------|
 | 06 `rsi_harness` | `skills/adult-income/` (inner H): `SKILL.md` (boot order incl. `memory.json` unless `MEMORY_OFF` and `traces.jsonl`; for t in 1..24 read cards, propose ONE recipe from the schema, fit, append; FREEZE; `score_test` once; "only a meta pack may patch this pack"), `memory.json` (`[]`), `memory.schema.json` (`if` profile predicate → `then` prefer/forbid one field value, `evidence`, `counter`), `tools.md` + `read_memory`; `skills/adult-income-verifier/` (input `{recipe, val_auc, error, profile}` only; IF/THEN cards with evidence and counterexample; refuse cards that mention test or intent; tools `read_traces`, `write_card`) | **The first RSI file.** A card is a constraint on the *next* proposal (`fit_recipe` refuses a forbidden recipe), and no one grades their own homework: the verifier pack boots with only the log. `MEMORY_OFF` is the off switch: same 24 fits, the numbers must fall back. | L4: deployment feedback revises persistent state under our acceptance rule |
-| 07 `proof` | `eval.md` in the inner pack (24 vs 24 with `MEMORY_OFF`, the delete-file check, the scorecard fields, "test touched before freeze: no"); `run.py --transfer` boots the frozen pack on the shifted synthetic table | Locked test = you did not peek. Shifted table = the *pack* got better: effective recursion. The scorecard is the deliverable of every later step too. | evidence standard |
+| 07 `proof` | `eval.md` in the inner pack (24 vs 24 with `MEMORY_OFF`, the delete-file check, the scorecard fields, "test touched before freeze: no"); `run.py --curriculum` runs problems 1→6 in order, carrying the pack forward, and prints the **learning curve** (per problem: memory arm − `MEMORY_OFF` arm at the same budget, wasted fits, cards added/demoted); `run.py --exam` boots the frozen pack on problem 7 | Locked test = you did not peek. The curve = experience from problem n helped on n+1: structural recursion you can see. The exam = effective recursion under a matched budget and an independent evaluation. The scorecard and the curve are the deliverables of every later step too. | evidence standard |
 | 08 `meta_generates_rsi` | `skills/rsi-writer/`: step 05's writer extended to emit the inner pack **and** the verifier pack, `memory.schema.json` and `eval.md` from `task.json`; the proposal shows the verifier contract explicitly and the human must approve it (it is the acceptance rule) | **A meta harness that generates the RSI harness, under human approval.** The human is approving a *mechanism that will change itself later*, not a one-off pack — the README says so and shows the diff the human sees. | L1 for the generation; what it generates runs at L4 |
-| 09 `rsi_meta_harness` | `skills/adult-income-meta/` (MH): reads traces + memory + inner pack; writes **one** proposal per visit — new cards, a small `schema.json` forbid, or the search-policy line; size cap 20 %; no `score_test`; `versions/` per generation; `private_score` on a split the inner pack never sees. Two modes on disk: `approval: human` (every generation's patch goes through the human cycle) and `approval: gate` (the private gate decides keep-or-rollback and the human only sees the log). `run.py` boots inner → meta → inner (generation n+1); `META_OFF` | **The RSI meta harness that improves the harness — and so on.** Generation n+1 is RSI only if it boots what generation n wrote; the reboot is the recursion. Under `approval: human` the human is the acceptance rule (L4); under `approval: gate` the system revises its own improver's policy line behind a protected evaluator (L5 flavour). The archive rule and the gate itself stay human — say so. Rollback and version history are safe inheritance made concrete. | L4 → L5 flavour, switchable in one line |
+| 09 `rsi_meta_harness` | `skills/adult-income-meta/` (MH): reads traces + memory + inner pack; writes **one** proposal per visit — new cards, a small `schema.json` forbid, or the search-policy line; size cap 20 %; no `score_test`; `versions/` per generation; `private_score` on a split the inner pack never sees. Two modes on disk: `approval: human` (every generation's patch goes through the human cycle) and `approval: gate` (the private gate decides keep-or-rollback and the human only sees the log). `run.py` boots inner (problem n) → meta → inner (problem n+1) across the whole curriculum, one generation per problem; `META_OFF` | **The RSI meta harness that improves the harness — problem by problem.** Problem 1 teaches the pack encoding and class weights, problem 3 teaches it multiclass metrics, problem 5 demotes a superstition; by the exam the pack is the expert and the model is unchanged. Generation n+1 is RSI only if it boots what generation n wrote; the reboot is the recursion. Under `approval: human` the human is the acceptance rule (L4); under `approval: gate` the system revises its own improver's policy line behind a protected evaluator (L5 flavour). The archive rule and the gate itself stay human — say so. Rollback and version history are safe inheritance made concrete. | L4 → L5 flavour, switchable in one line |
 
-### Part 3 — RSI by method, one published system per step, same job (steps 10–14)
+### Part 3 — RSI by method, one published system per step, same curriculum (steps 10–16)
 
 Each step is a variant of the step 06/09 packs plus at most one new tool, so
 `diff -r` between two methods shows exactly what the method changes. Every
@@ -150,13 +169,16 @@ transfer), runs under the step 09 approval cycle, and says which file improved.
 | 13 `rsi_skill_memory` | Recuris (arXiv:2608.24876) | memory as a **skill package**: `skill-memory/manifest.yaml` + markdown skill cards (one per situation), a small `working.md` the actor rewrites per run ("what I am doing, which cards apply"); the meta agent turns execution evidence into localised, validated card updates; gains reported by horizon | **Experiential + working memory.** Skill selection is grounded in current need, not the whole history; the memory is git-native (files you can diff). |
 | 14 `rsi_self_modifying` | Darwin Gödel Machine lineage (DGM, arXiv:2505.22954; Mendel / Huxley GM as reading) | the meta pack may propose rewrites of the inner pack's **`SKILL.md` and `loop.json` themselves** (the harness source), keeping an `archive/` of variants with their held-out scores and choosing parents from the archive, one generation deep, behind the private gate and the human cycle | **The agent's own source.** The empirical Gödel machine: keep an archive of stepping stones, expand promising ones; the archive rule and the gate stay human — say what is and is not self-modified. |
 
-### Part 4 — Map (step 15)
+| 15 `rsi_aide2` | AIDE² (Weco AI, July 2026; tech report announced, code not released) | inner loop = the step 06 pack as an AIDE-style **tree search over solutions** with three operators (`draft`, `debug`, `improve`) and an eval reviewer that extracts the score from the run; outer loop = a meta pack that **rewrites the inner pack's operator text** and keeps the rewrite only if it beats the previous best **across the whole heterogeneous curriculum under a fixed cost budget** (fits and tokens, metered by the harness); three reward-hacking guards the outer loop must keep: an anti-overfitting line in every operator prompt, a hard guard that re-runs a suspicious score, a statistical layer that discards outlier successes | **Autoresearch on autoresearch.** Keep-if-better across many problems under one budget is what turns "a better run" into "a better researcher"; the guards are why the score means something. Reported: seven successive improved versions in 100 outer steps, 16× context compression — *reported, unverified* until the report and AIDE85 are released. |
+| 16 `rsi_meta_skills` | MetaSkill-Evolve (arXiv:2607.05297) | two timescales on one frozen model: **task skills** (the inner pack's cards and policy line) evolve every problem; **meta-skills** (the meta pack's own five roles as files — `analyzer.md`, `retriever.md`, `allocator.md`, `proposer.md`, `evolver.md`) evolve every k problems by the same pipeline, with no extra model or objective; the human cycle approves meta-skill changes, the private gate approves task-skill changes | **The improver's skills improve too — slowly.** This is the "and so on": the pack that patches the pack is itself a pack with a version history, and its changes are rarer and gated harder. |
+
+### Part 4 — Map (step 17)
 
 | Step | Adds | The one idea |
 |-----:|------|--------------|
-| 15 `map` | README + `run.py` that prints the ladder with steps 01–14 placed; the file-by-file table (regular vs loop vs graph vs generated vs RSI vs each method, and who approved what); ScienceBuddy (arXiv:2609.17523, harness then weights, reading only) and OpenAI's stated priority as the rungs this series refuses to touch; the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external number marked *reported* with its source | You recognise the nouns because you built the toy — and you can point at which file each method changed and who approved it. |
+| 17 `map` | README + `run.py` that prints the ladder with steps 01–16 placed; the learning curve of every method on the same curriculum side by side; the file-by-file table (regular vs loop vs graph vs generated vs RSI vs each method, and who approved what); ScienceBuddy (arXiv:2609.17523, harness then weights, reading only) and OpenAI's stated priority as the rungs this series refuses to touch; the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external number marked *reported* with its source | You recognise the nouns because you built the toy — and you can point at which file each method changed and who approved it. |
 
-Sixteen small steps. Everything runs offline in tests with the fake model and
+Eighteen small steps. Everything runs offline in tests with the fake model and
 a scripted human; `python run.py` in a step needs a key like the rest of the
 repo, and asks you at every approval.
 
@@ -169,13 +191,15 @@ repo, and asks you at every approval.
 - 04: an illegal path is skipped and counted, never replaced; `score_test` is unreachable before FREEZE; `graph.json` / `paths.json` byte-identical after a run; the loop iterates paths in order.
 - 05: `lint_pack` rejects a proposal with a cycle or a path that violates a constraint before the human ever sees it; an `edit` that removes an edge lands and the pack still boots.
 - 06: the verifier pack's transcript contains no actor text; `write_card` refuses a card mentioning `test` or intent; a planted wrong card is demoted after k counterexamples; `fit_recipe` refuses a forbidden recipe; with the rule-driven fake model, same seeds and budget, the memory arm ≥ the `MEMORY_OFF` arm and wastes fewer fits; `MEMORY_OFF` reproduces step 01's numbers exactly.
-- 07: test scored exactly once; all scorecard fields present; on the shifted table the frozen pack beats `MEMORY_OFF` on ≥ 3 of 5 seeds and the report names a card that did not transfer.
+- 07: test scored exactly once per problem; all scorecard fields present; running problems 1→6 carries the pack forward and the learning-curve gap (memory − `MEMORY_OFF`) is ≥ 0 on every problem and larger on problem 6 than on problem 2 for the rule-driven fake model; on the exam problem the frozen pack beats `MEMORY_OFF` on ≥ 3 of 5 seeds and the report names a card that did not transfer.
 - 08: the proposal contains the verifier contract verbatim and is refused by `lint_pack` when it is missing; the generated packs pass step 06's tests; scripted `n` lands nothing.
 - 09: generation n+1 boots the files generation n wrote (checksums in the trace); under `approval: human` no patch lands without a `y` and an `edit` lands the human's version; under `approval: gate` a patch that raises val and lowers `private_score` is rejected and `versions/` restores the previous pack; `META_OFF` leaves the pack byte-identical; the meta pack cannot call `score_test`.
 - 10: `rank_policies` makes zero fits (the budget counter proves it); a policy preferring unvisited recipes scores "unknown"; the winner is proposed as the search-policy line and the next lap adds new recipes to the log.
 - 11: the broad phase touches every family before the deep phase repeats one; the deep phase prefers the family with the most faults; memory is frozen before `score_test` and unchanged on the transfer table.
 - 12: `contrast` names the module whose text differs between the success and the failure; the patch touches exactly one module file; validation runs on the pool, never the eval table; the patched module helps both fake actors.
 - 13: a skill card is selected by the working-memory need, not by recency; an update is localised to one card and validated before it lands; the horizon report shows the gain per sequence length.
+- 15: the outer loop's keep-if-better is evaluated across every problem of the curriculum under one metered budget (asserted from the trace); a rewrite that wins on one problem and loses on the set is rejected; the three guards are present in every operator prompt and a suspicious score is re-run (scripted).
+- 16: task skills change every problem, meta-skills only every k problems (counted); a meta-skill change never lands without the human `y`; the meta pack's version history is a file you can diff.
 - 14: the archive holds every variant with its held-out score; the parent is chosen from the archive, not always the latest; a rewrite that lowers the private score never becomes a parent; `SKILL.md` and `loop.json` are the only self-modified files (asserted).
 - All: `python run_tests.py rsi` and `python check_snippets.py rsi` green.
 
