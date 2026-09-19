@@ -12,6 +12,8 @@ import os
 import re
 import sys
 
+import httpx
+
 try:
     import truststore
 
@@ -19,6 +21,7 @@ try:
 except ImportError:
     pass
 
+from trueforge_sdk.core.api_error import ApiError
 from trueforge_sdk import (
     AgentSpec,
     GenerativeUiConfig,
@@ -32,6 +35,7 @@ from trueforge_sdk import (
 BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
 MODEL = os.environ.get("TRUEFORGE_MODEL", "openai/gpt-4-1-mini")
 TIMEOUT = 600
+REQUEST_ERRORS = (httpx.HTTPError, ApiError)  # connection failures and non-2xx replies from the server
 INSTRUCTIONS = (
     "You are a concise assistant. When the user asks for a dashboard, a report, "
     "a table or a chart, answer with generative UI."
@@ -40,6 +44,13 @@ INSTRUCTIONS = (
 FENCE = re.compile(r"```openui[^\n]*\n(.*?)```", re.DOTALL)
 
 _client = None
+
+
+def describe_error(error):
+    """One line for a failed request: the server it was sent to and what came back."""
+    if isinstance(error, ApiError):
+        return f"{BASE_URL} answered {error.status_code}: {str(error.body)[:200]}"
+    return f"{BASE_URL} is not answering ({type(error).__name__}: {error})"
 
 
 def client():

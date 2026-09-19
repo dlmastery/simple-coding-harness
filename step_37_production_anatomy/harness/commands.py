@@ -105,7 +105,7 @@ def rewind(messages):
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
     session.save(messages)  # a fresh session has nothing on disk yet; the rewind entry needs the messages before it
     session.rewind_to(keep)
-    todos.reload_from(messages[:keep])  # the plan as it stood at the cut
+    todos.from_transcript(messages[:keep])  # the plan as it stood at the cut
     return redraw(messages[:keep], "rewound")
 
 
@@ -122,7 +122,7 @@ def undo(messages):
         return messages
     session.save(messages)
     session.rewind_to(start)
-    todos.reload_from(messages[:start])
+    todos.from_transcript(messages[:start])
     return redraw(messages[:start], "undone")
 
 
@@ -146,8 +146,8 @@ def sessions(messages):
 
     opened = session.open_session(saved[choice]["id"])
     history.strip(opened)
-    todos.reload_from(opened)
-    tools.reload_from(opened)
+    todos.from_transcript(opened)
+    tools.relearn(opened)
     agent.recover(opened)  # the chat may have ended mid-turn; finish its tool calls before the first request
     return redraw(opened, "opened")
 
@@ -239,15 +239,23 @@ def init(messages):
     target = Path.cwd() / "AGENTS.md"
     report = subagent.task(INIT_QUESTION.strip())
     ui.agent(report)
-    if report.startswith("(") or report.startswith("Error:"):
+    if report.startswith(subagent.STOPPED) or report.startswith("Error:"):
         ui.note("the subagent did not produce a guide; nothing written")
         return messages
-    if not ui.confirm(f"write {target.name}" + (" (it exists; this replaces it)" if target.exists() else "")):
+    if target.exists():
+        what = f"write {target.name} (it exists; this replaces it)"
+    elif (target.parent / "CLAUDE.md").is_file():
+        what = f"write {target.name} (CLAUDE.md is here too; it is read only when AGENTS.md is absent, so it stops being read)"
+    else:
+        what = f"write {target.name}"
+    if not ui.confirm(what):
         ui.note("not written")
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")
     if messages and messages[0].get("role") == "system":
-        messages[0]["content"] = llm.build_system_prompt()  # discovery runs again, so the new file is in the prefix
+        # discovery runs again, so the new file is in the prefix; a handoff note from a compaction stays at its end
+        summary = compaction.previous_summary(messages[0]["content"])
+        messages[0]["content"] = llm.build_system_prompt() + (f"\n\n{summary}" if summary else "")
     ui.note(f"wrote {target}; it is in the system prompt from the next call on")
     return messages
 

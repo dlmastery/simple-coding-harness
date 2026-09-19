@@ -1,7 +1,4 @@
-"""Stage 15 - session, unchanged since stage 14, plus one repair on load:
-a transcript that ends in an assistant message whose tool calls never got
-their results (a crash or a ctrl-c between the two) gets a placeholder
-result per call, so the model can be called again.
+"""Stage 15 - session, unchanged since stage 14.
 """
 
 import json
@@ -12,7 +9,10 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
+PERSIST = True  # False in print mode: one-off runs leave no session behind
 NL = "\n"
+
+UNANSWERED = "(the harness stopped before this tool ran; no result was recorded)"
 
 
 def path_for(session_id):
@@ -22,6 +22,8 @@ def path_for(session_id):
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
     global WRITTEN
+    if not PERSIST:
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         for message in messages[WRITTEN:]:
@@ -32,6 +34,9 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    if not PERSIST:
+        WRITTEN = count
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
@@ -41,10 +46,29 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    if not PERSIST:
+        WRITTEN = len(messages)
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)
+
+
+def repair(messages):
+    """Answer any tool call the log left hanging, so the transcript can be sent again.
+
+    A crash between a reply and its tool results leaves an assistant message
+    whose tool_calls have no tool messages; the API refuses such a transcript.
+    """
+    answered = {m.get("tool_call_id") for m in messages if m.get("role") == "tool"}
+    repaired = []
+    for message in messages:
+        repaired.append(message)
+        for call in message.get("tool_calls") or []:
+            if call.get("id") not in answered:
+                repaired.append({"role": "tool", "tool_call_id": call.get("id"), "content": UNANSWERED})
+    return repaired
 
 
 def load(session_id):
@@ -62,23 +86,6 @@ def load(session_id):
         else:
             messages.append(entry)
     return repair(messages)
-
-
-UNANSWERED = "(the harness stopped before this tool ran; no result was recorded)"
-
-
-def repair(messages):
-    """Answer the tool calls of a final assistant message that got no results.
-
-    The API refuses a transcript where an assistant's tool_calls are not
-    each followed by a tool message. A crash or a ctrl-c between the call
-    and its result leaves exactly that; a placeholder result closes it.
-    """
-    if not messages or messages[-1].get("role") != "assistant":
-        return messages
-    for call in messages[-1].get("tool_calls") or []:
-        messages.append({"role": "tool", "tool_call_id": call["id"], "content": UNANSWERED})
-    return messages
 
 
 def open_session(session_id):

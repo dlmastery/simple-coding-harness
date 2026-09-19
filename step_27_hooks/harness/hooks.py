@@ -128,8 +128,9 @@ def run_command(command, event):
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
     stderr as the reason; anything else is reported and ignored. The hook
     gets a process group of its own, so a timeout kills the script and not
-    just the shell that started it (bash's plumbing, from sandbox.py).
+    just the shell that started it (the same plumbing as bash in sandbox.py).
     """
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     process = subprocess.Popen(
         resolve_python(command),
         shell=True,
@@ -139,7 +140,7 @@ def run_command(command, event):
         encoding="utf-8",
         errors="replace",
         cwd=event.get("cwd") or None,
-        **sandbox.group_options(),
+        **group,
     )
     try:
         stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)

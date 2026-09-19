@@ -38,7 +38,7 @@ PROFILE = """(version 1)
 """
 
 # no pagers, no credential prompts: the command has no terminal to answer on
-ENV = {"PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
+ENV = {"PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0", "PYTHONIOENCODING": "utf-8"}
 
 # the command starts its own process group, so a timeout can kill all of it
 NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}

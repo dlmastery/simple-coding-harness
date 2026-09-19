@@ -1,0 +1,36 @@
+{
+  "name": "synth_shift_b",
+  "index": 6,
+  "title": "Synthetic shifted table B (small, imbalanced)",
+  "source": {
+    "kind": "synth",
+    "n": 400,
+    "seed": 6,
+    "shift": 0,
+    "imbalance": 0.15
+  },
+  "target": "target",
+  "metric": "roc_auc",
+  "budget": {
+    "n_fits": 24,
+    "per": "arm"
+  },
+  "allowed_models": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "test_rule": {
+    "scores": 1,
+    "after": "FREEZE"
+  },
+  "profile_keys": [
+    "n_rows",
+    "n_features",
+    "n_classes",
+    "imbalance",
+    "has_categorical"
+  ],
+  "role": "curriculum",
+  "why": "the same, imbalanced and small"
+}

@@ -66,7 +66,7 @@ def scripted(steps):
     seen = []
     lock = threading.Lock()
 
-    def fake(messages, tools=None, on_delta=None):
+    def fake(messages, tools=None, on_delta=None, on_restart=None):
         with lock:
             seen.append({"cwd": os.getcwd(), "system": messages[0]["content"], "users": [m["content"] for m in messages if m["role"] == "user" and isinstance(m["content"], str)]})
         index = sum(1 for m in messages if m["role"] == "assistant")
@@ -292,7 +292,7 @@ def test_a_write_outside_the_workspace_fails_the_last_check(evals, tmp_path, mon
 
 
 def test_a_crashed_run_still_gets_a_report(evals, tmp_path, monkeypatch):
-    def broken(messages, tools=None, on_delta=None):
+    def broken(messages, tools=None, on_delta=None, on_restart=None):
         raise RuntimeError("the model exploded")
 
     monkeypatch.setattr(agent, "call_llm", broken)

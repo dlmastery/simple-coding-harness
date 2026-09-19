@@ -74,8 +74,13 @@ async function run(messages, forwardedProps = {}) {
   window.a2uiDone = false;
   running = true;
   form.elements.go.disabled = true;
+  let ended = false;
   try {
-    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), onEvent);
+    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), (event) => {
+      ended ||= event.type === 'RUN_FINISHED' || event.type === 'RUN_ERROR';
+      onEvent(event);
+    });
+    if (!ended) note('the stream ended without RUN_FINISHED or RUN_ERROR');
   } catch (error) {
     note(`run failed: ${error.message}`);
   } finally {

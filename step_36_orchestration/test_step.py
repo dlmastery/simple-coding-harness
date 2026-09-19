@@ -101,7 +101,7 @@ class Scripted:
         self.requests = []  # (role, tools offered, user request) per call
         self.lock = threading.Lock()
 
-    def __call__(self, messages, tools=None, on_delta=None):
+    def __call__(self, messages, tools=None, on_delta=None, on_restart=None):
         role = role_of(messages)
         with self.lock:
             self.requests.append((role, [s["function"]["name"] for s in tools or []], messages[1]["content"]))
@@ -225,7 +225,7 @@ def test_parse_plan_reads_numbered_lines_and_the_parallel_tag():
 def worker_that_writes(fake):
     """A worker reply: write the file the step names, then report. The retry writes 'hello'."""
 
-    def reply(messages, tools=None, on_delta=None):
+    def reply(messages, tools=None, on_delta=None, on_restart=None):
         request = messages[1]["content"]
         step = next(line for line in request.splitlines() if line.startswith("Your step"))
         name = step.split("Create ")[1].split()[0]
@@ -234,7 +234,7 @@ def worker_that_writes(fake):
             return use(call(f"w-{name}", "write_file", {"path": name, "content": content})), USAGE
         return say(f"wrote {name}"), USAGE
 
-    def routed(messages, tools=None, on_delta=None):
+    def routed(messages, tools=None, on_delta=None, on_restart=None):
         if role_of(messages) == "worker":
             with fake.lock:
                 fake.requests.append(("worker", names(tools or []), messages[1]["content"]))
@@ -285,7 +285,7 @@ def test_parallel_steps_run_at_the_same_time(fresh, monkeypatch):
     monkeypatch.setattr(ui, "note", lambda text: None)
     gate = threading.Barrier(2, timeout=5)
 
-    def fake(messages, tools=None, on_delta=None):
+    def fake(messages, tools=None, on_delta=None, on_restart=None):
         role = role_of(messages)
         if role == "planner":
             return say("1. One [parallel]\n2. Two [parallel]"), USAGE
@@ -388,7 +388,7 @@ def test_a_ctrl_c_during_a_parallel_wave_does_not_wait_for_the_queued_steps(fres
     monkeypatch.setattr(subagent, "MAX_PARALLEL", 1)
     started = []
 
-    def fake(messages, tools=None, on_delta=None):
+    def fake(messages, tools=None, on_delta=None, on_restart=None):
         role = role_of(messages)
         if role == "planner":
             return say("1. One [parallel]\n2. Two [parallel]\n3. Three [parallel]"), USAGE
@@ -458,7 +458,7 @@ def test_rewind_offers_only_user_messages_and_a_resumed_pending_call_that_fails_
         {"role": "assistant", "content": None, "tool_calls": [{"id": "t2", "type": "function", "function": {"name": "bash", "arguments": "{not json"}}]},
     ]
     notes(monkeypatch)
-    monkeypatch.setattr(agent, "run_results", lambda messages, pending, repeated=None: 1 / 0)  # a crash below run_results
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: 1 / 0)  # a crash below run_results
     assert agent.recover(messages) == 1
     assert messages[-1] == {"role": "tool", "tool_call_id": "t2", "content": "Error: ZeroDivisionError: division by zero"}
 

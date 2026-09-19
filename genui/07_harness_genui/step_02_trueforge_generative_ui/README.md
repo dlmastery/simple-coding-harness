@@ -159,14 +159,24 @@ def extract_program(reply):
 
 `openui_parse.py` is the parser. `feed()` commits a statement at the first
 newline where the text before it balances; an open list waits for its
-closing bracket:
+closing bracket. One more rule keeps a single stray bracket from swallowing
+the rest of the program: a statement never starts inside another one's
+brackets, so a line that begins a new `name = ...` while the text before it
+is still unbalanced closes the broken statement (it becomes one parse
+error) and parsing continues from the new line:
 
 ```python
     def feed(self, text):
-        """Add a chunk. Every complete statement it finishes is parsed now."""
+        """Add a chunk. Every complete statement it finishes is parsed now.
+
+        A statement ends at the first newline where the text before it is
+        balanced. A statement never starts inside another one's brackets, so
+        a line that opens a new `name = ...` while the text before it is still
+        unbalanced closes the broken statement (it becomes a parse error)
+        instead of holding back everything after it.
+        """
         self.buffer += text
         while True:
-            # the first newline at which the text before it is balanced ends a statement
             start, cut = 0, None
             while cut is None:
                 nl = self.buffer.find("\n", start)
@@ -174,6 +184,8 @@ closing bracket:
                     return  # the rest is an unfinished line: hold it back
                 if complete(self.buffer[:nl]):
                     cut = nl
+                elif start and STATEMENT_START.match(self.buffer, start):
+                    cut = start - 1  # the broken statement ends before the line that starts a new one
                 start = nl + 1
             line, self.buffer = self.buffer[:cut], self.buffer[cut + 1:]
             self.add_line(line.replace("\n", " "))
@@ -181,15 +193,17 @@ closing bracket:
 
 `resolve()` turns the small AST into plain values. A reference to a
 statement that has not arrived becomes a `Pending` node instead of an
-error; `+` concatenates when either side is a string, which is how the
-agent writes `"" + total`:
+error. `+` adds two numbers; anything else concatenates as text, which is
+how the agent writes `"" + total` - and `null + 1` or a component on one
+side gives the same string in Python as in the page's JavaScript
+(`"null1"`, `"[object Object]..."`), so the two parsers keep agreeing:
 
 ```python
         if kind == "add":
             left, right = self.resolve(expr[1], path), self.resolve(expr[2], path)
-            if isinstance(left, str) or isinstance(right, str):
-                return f"{left}{right}"
-            return left + right
+            if isinstance(left, (int, float)) and isinstance(right, (int, float)) and not isinstance(left, bool) and not isinstance(right, bool):
+                return left + right
+            return f"{as_text(left)}{as_text(right)}"  # strings concatenate; anything else (null, a component) is text, as the page's JS prints it
         if kind == "call":
             return {"type": expr[1], "args": [self.resolve(a, path) for a in expr[2]]}
         name = expr[1]
@@ -251,19 +265,105 @@ line:
             self.wfile.write(b"data: null\n\n")
 ```
 
+## Why: what breaks without it
+
+TrueForge renders its own generative UI in its own chat client, and only
+there. A product that talks to TrueForge over the SDK - a terminal, a Slack
+bot, a dashboard of its own - gets the same reply as text with a fence in
+it and has nothing to show. Without a parser of ours the choice is to print
+the program as code or to drop it. And a parser that waits for the whole
+reply throws away the property the language was designed for: the first
+line names every child, so the shape of the page is known before the model
+has written any of them. The streaming parser in this step is what turns
+"a reply that contains a program" into "a page that fills in as the model
+writes", on a surface TrueForge has never heard of.
+
 ## Run it
 
-```
+Prerequisites: a TrueForge server (Part 7 of the harness codelab, stage 46
+sets one up on `http://localhost:8790`), `pip install trueforge_sdk httpx`
+for the client, Node 18+ for `npm test`, and Playwright with Chromium
+(`pip install playwright && playwright install chromium`) only for the
+screenshots. `--offline` needs none of those but Python.
+
+```bash
+cd genui/07_harness_genui/step_02_trueforge_generative_ui
 python demo.py                    # live turn on TrueForge, then the page and two screenshots
 python demo.py --offline          # the recorded reply, same page
-python -m pytest test_step.py     # offline: fake TrueForge over SSE, parser tests, node --test
+python demo.py --no-screenshot    # skip Playwright; the page URL is still printed
+python -m pytest test_step.py -q  # offline: fake TrueForge over SSE, parser tests, node --test
 npm test                          # the JS parser tests on their own
+```
+
+```powershell
+cd genui\07_harness_genui\step_02_trueforge_generative_ui
+$env:TRUEFORGE_BASE_URL = "http://localhost:8790"   # the default; TRUEFORGE_MODEL picks the model
+python demo.py --offline
+python -m pytest test_step.py -q
 ```
 
 `TRUEFORGE_BASE_URL` (default `http://localhost:8790`) and `TRUEFORGE_MODEL`
 (default `openai/gpt-4-1-mini`) select the server. The tests never use
 them: they start a fake TrueForge on an ephemeral port and point the real
 `trueforge_sdk` at it.
+
+Expected output: the transcript under "Quick demo" is a real run; the
+streamed reply appears as it arrives, then the outline, then
+`page: http://127.0.0.1:<port>` and the two screenshot lines. With
+`--offline` the raw `sample_reply.md` is printed instead of streamed and no
+token line appears. `python -m pytest test_step.py -q` ends in
+`14 passed`; `npm test` ends in `# fail 0`.
+
+## Error handling
+
+- TrueForge down or refusing the turn: `demo.py` prints one line,
+  `request failed: http://localhost:8790 is not answering (ConnectError: ...)`
+  (or `... answered 404: ...` for a rejected request), and exits 1. No
+  traceback.
+- A turn that ends in any state but `done` - `error`, `cancelled`, or a
+  stream that closes without a `turn.done` event - makes `genui.ask()` raise
+  `RuntimeError("the turn ended 'error' (...) after N streamed characters")`;
+  the demo prints `turn failed: ...` and exits 1. A truncated program is
+  never rendered as if it were complete.
+- A reply without a ```` ```openui ```` fence: `no ```openui block in the
+  reply; nothing to render`, exit 1. An unterminated fence (the reply cut
+  mid-program) still yields the lines that arrived.
+- A line the parser cannot read is one entry in `parsed.errors`, printed
+  under `parse errors:`; the other statements still render. A reference to
+  a statement that never arrives stays a dashed `waiting for x` box and is
+  listed under `unresolved references:`.
+- The page: if the connection drops before the `null` event, the browser
+  reconnects and the server replays from line 1; `onopen` resets the parser
+  and the program pane, so nothing is drawn twice. While disconnected the
+  status line says `disconnected`.
+- ctrl-c while the reply streams stops the demo with Python's usual
+  `KeyboardInterrupt`; the turn keeps running on the server and the session
+  is not deleted.
+- `sample_reply.md` is only overwritten by a live reply that parses with no
+  errors, so one bad live run cannot break `test_recorded_reply_parses_cleanly`.
+
+## Gotchas / What this is not
+
+- The parser reads a subset of OpenUI Lang: strings, numbers without an
+  exponent (`1e3` is a parse error), `null`/`true`/`false`, lists, calls,
+  references and `+`. Objects (`{a: 1}`), `$state`, `@functions` and
+  expressions are not supported; a line that uses them is a parse error and
+  the elements that reference it stay pending. Sub-theme 04 step 02 has the
+  real `lang-core`.
+- The renderer's positional args are a reading of what this agent emitted,
+  not TrueForge's component library. A component outside that reading lands
+  in the `unknown` box with its args visible - that is the expected
+  behaviour for a new TrueForge component, not a bug.
+- One program per server: `server.serve()` holds a single program and
+  streams it to every `/events` connection; there is no session and no
+  concurrency. It serves only `web/index.html`, `web/app.js`,
+  `web/openui-parse.mjs` and `web/render.mjs` (a path with `..` is a 404),
+  on 127.0.0.1, with no authentication.
+- The terminal surface is an outline, not a drawing: `outline()` prints the
+  resolved tree one node per line.
+- The `+` fallback follows the page's JavaScript (`"null" + 1` is `null1`),
+  not Python: that is a choice so both parsers produce the same tree, not a
+  claim about what TrueForge's own renderer would do.
 
 ## What to notice
 
@@ -278,7 +378,9 @@ them: they start a fake TrueForge on an ephemeral port and point the real
   streaming: here every line is drawable the moment it ends.
 - Multi-line statements happen. The second recorded run wrote `Card([` on
   one line and closed it four lines later; the parser's balance check is
-  what makes that harmless, in Python and in the page.
+  what makes that harmless, in Python and in the page. The other direction
+  is covered too: `a = Stack([x)` never closes, so the next `b = ...` line
+  ends it - one error, and everything after it still renders.
 - The renderer's positional args are a reading of what the agent emitted
   (`Stack(children, direction, gap, align, justify, wrap)`,
   `LineChart(categories, series, variant, xLabel, yLabel)`), not a copy of
@@ -299,3 +401,9 @@ them: they start a fake TrueForge on an ephemeral port and point the real
   a tree of the parsed program, instead of a `rich` panel.
 - Tests gain a fake TrueForge (`FakeTrueForge` in `test_step.py`) and a
   `node --test` suite for the JS parser.
+
+## What the next step adds
+
+The hybrid: the same TrueForge session is told about one component the
+server does not know, `HtmlArtifact`, and the page renders its document in
+a sandboxed iframe next to the catalog components.

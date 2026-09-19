@@ -69,7 +69,14 @@ def main(argv=None):
     parser.add_argument("--no-screenshot", action="store_true")
     cli = parser.parse_args(argv)
 
-    reply, metrics = capture(cli.prompt, cli.offline)
+    try:
+        reply, metrics = capture(cli.prompt, cli.offline)
+    except genui.REQUEST_ERRORS as error:  # the server is down or refused the turn: one line, exit 1
+        print(f"request failed: {genui.describe_error(error)}", file=sys.stderr)
+        return 1
+    except RuntimeError as error:  # the turn ended in a state other than done
+        print(f"turn failed: {error}", file=sys.stderr)
+        return 1
     if cli.offline:
         print("--- raw reply (sample_reply.md) ---")
         print(reply)

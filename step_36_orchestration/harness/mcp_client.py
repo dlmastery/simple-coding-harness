@@ -19,7 +19,7 @@ optional dependency, and the rest of the harness must import without it.
 
 import asyncio
 import json
-import os
+import re
 import sys
 import threading
 from pathlib import Path
@@ -61,20 +61,20 @@ def load_config(paths=None):
             continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as broken:
-            _note(f"MCP config {path} skipped: {broken}")
+        except (OSError, ValueError) as failed:  # a broken config is a note, not a crash at start-up
+            _note(f"mcp config {path} skipped: {failed}")
             continue
-        if not isinstance(data, dict):
-            continue
-        table = data.get("servers") if isinstance(data.get("servers"), dict) else data.get("mcpServers", {})  # both spellings
-        for name, spec in (table or {}).items():
-            if not isinstance(spec, dict):
+        table = data.get("servers") or data.get("mcpServers") or {}  # both spellings are in use
+        for name, spec in table.items():
+            if not isinstance(spec, dict) or not SAFE_NAME.match(name):
+                _note(f"mcp server {name!r} skipped: bad entry or name")
                 continue
             command = spec.get("command", "")
             if command in ("python", "python3"):
                 command = sys.executable
             args = [resolve_arg(arg) for arg in spec.get("args", [])]
-            env = {**os.environ, **spec["env"]} if spec.get("env") else None
+            # only the entries the config names go to the server; the harness's own key stays here
+            env = dict(spec["env"]) if spec.get("env") else None
             servers[name] = {"command": command, "args": args, "env": env}
     return servers
 
@@ -116,7 +116,10 @@ class Client:
         from mcp.client.stdio import StdioServerParameters, stdio_client
 
         try:
-            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=spec.get("env"))
+            from mcp.client.stdio import get_default_environment
+
+            env = {**get_default_environment(), **spec["env"]} if spec.get("env") else None  # None: the library's safe default
+            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=env)
             async with stdio_client(params) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
@@ -179,8 +182,11 @@ def client():
 # --- registration ------------------------------------------------------------
 
 
+SAFE_NAME = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")  # what the API accepts as a function name
+
+
 def tool_name(server, tool):
-    return f"mcp__{server}__{tool}"
+    return f"mcp__{server}__{re.sub(r'[^a-zA-Z0-9_-]', '_', tool)[:64]}"
 
 
 def describe(error):

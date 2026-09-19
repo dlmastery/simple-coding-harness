@@ -173,8 +173,13 @@ async function run(messages, forwardedProps = {}) {
   window.a2uiDone = false;
   running = true;
   form.elements.go.disabled = true;
+  let ended = false;
   try {
-    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), onEvent);
+    await runAgent('/agent', runAgentInput({ threadId: THREAD, messages, forwardedProps }), (event) => {
+      ended ||= event.type === 'RUN_FINISHED' || event.type === 'RUN_ERROR';
+      onEvent(event);
+    });
+    if (!ended) note('the stream ended without RUN_FINISHED or RUN_ERROR');
   } catch (error) {
     note(`run failed: ${error.message}`);
   } finally {
@@ -334,15 +339,38 @@ export function runAgentInput({ threadId, messages, forwardedProps = {} }) {
 
 ## Run it
 
-```
-pip install a2ui-agent-sdk ag-ui-protocol fastapi uvicorn openai jsonschema httpx playwright
+```bash
+pip install a2ui-agent-sdk==0.6.0 ag-ui-protocol fastapi uvicorn openai jsonschema httpx playwright
 npm install              # @a2ui/lit, @a2ui/web_core, @a2ui/markdown-it, @lit/context; esbuild for the build
 npm run build            # src/page.mjs -> static/bundle.js (one esbuild command, no config)
 python server.py         # then open http://127.0.0.1:8743/ and press Run agent
-python demo.py           # builds if needed, a live model call, writes demo.png
-python -m pytest test_step.py   # offline; runs npm install, npm test and npm run build when node is on PATH
+python demo.py           # builds if the bundle is missing or stale, a live model call, writes demo.png
+python -m pytest test_step.py   # offline; runs npm install, npm test, and npm run build when the bundle is stale
 npm test
 ```
+
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."     # or API_KEY=... in ~\.simple-harness\env
+pip install a2ui-agent-sdk==0.6.0 ag-ui-protocol fastapi uvicorn openai jsonschema httpx playwright
+python -m playwright install chromium
+npm install; npm run build
+python server.py
+python demo.py
+python -m pytest test_step.py
+npm test
+```
+
+Expected output: the page shows the form's card within about six
+seconds, then fields, labels and the button fill in while the log lists
+one `CUSTOM a2ui updateComponents` per repaint; the fields get their
+values with the final `updateDataModel`, the prose appears under the
+form, then `STEP_FINISHED` and `RUN_FINISHED {...usage...}`. Typing and
+clicking Send logs `action submit from ...`, a three-event run, and the
+status line under the form reads `Server got 'submit' at ... the client
+data model says {...}`. The quick demo above is the same run, driven
+headlessly, plus the raw frames of an action run.
 
 A build step is needed here, and only here in this sub-theme. `@a2ui/lit`
 imports `lit`, `zod`, `@lit/context`, `@preact/signals-core`, `date-fns`,
@@ -373,6 +401,56 @@ What was used from each package:
   `envelope.SurfaceStore`); its strict mode accepts `"version": "v0.9"`
   only, so it was not used here.
 
+## Error handling
+
+- No key, or the model call fails: `RUN_STARTED`, `STEP_STARTED`, then
+  `RUN_ERROR {"message": "AuthenticationError: ..."}`; the page logs it,
+  nothing is drawn, `a2uiDone` flips, the button comes back.
+- The reply fails validation: `CUSTOM a2ui.note {"error": ...}`, the
+  partial surface is withdrawn with `deleteSurface`, `STEP_FINISHED`, and
+  a second attempt; a second failure is
+  `RUN_ERROR "gave up after the correction attempt"` and an empty page.
+- The stream parser hits something it cannot heal (a trailing comma):
+  `CUSTOM a2ui.note {"streaming_stopped": ...}`; the page keeps what it
+  has, the final pass sends the repaired messages.
+- The model is silent for 15 s: a `: keepalive` comment, skipped by the
+  client.
+- A body that is not a `RunAgentInput` (a missing `messages`, a non-JSON
+  body): `422` from FastAPI; the page logs `run failed: 422 ...`.
+- The server is down, or the stream is cut: `run failed: ...`, or
+  `the stream ended without RUN_FINISHED or RUN_ERROR` when the headers
+  arrived but the terminal event did not. `a2uiDone` is set either way,
+  so `demo.py` stops instead of waiting two minutes, and exits with the
+  last log lines when no `RUN_FINISHED` was seen.
+- A message the official processor refuses (an unknown catalog id, a
+  component outside the catalog): `processMessages` throws inside
+  `onEvent`, the rest of that stream is not read, `run failed: ...` is
+  logged; the next run starts with a `deleteSurface`.
+- `demo.py` raises `RuntimeError` when uvicorn cannot bind port 8743
+  (another `server.py` still running) instead of waiting forever.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- One page per process: `STORE` is a global, not keyed by `threadId`
+  although every run carries one; two tabs would answer each other's
+  clicks. A product keys the mirror by thread.
+- `history` is sent in full and only the last user message is read; the
+  thread is carried, not used.
+- The prose is one text message after the reply, not streamed.
+- The `sendDataModel` round trip is shown by echoing the typed fields into
+  the status line; a real server would validate them and act (save,
+  send, fetch).
+- A click during a run is ignored, and Run agent is disabled until the
+  run ends.
+- Fields are empty until the final pass sends `updateDataModel` (the
+  streaming pass skips it, as in step 02).
+- The bundle is not committed; `demo.py` and `test_step.py` rebuild it
+  when `src/*.mjs` is newer than `static/bundle.js`, so `npm` must be on
+  PATH the first time and after every page change.
+- Fixed port 8743; no authentication; the prompt goes to the model as
+  typed.
+
 ## What to notice
 
 - The wire of an action run is three lines: `RUN_STARTED`, one `CUSTOM`
@@ -393,7 +471,15 @@ What was used from each package:
   model back; the mirror is then a convenience, not a requirement.
 - The thread is one `threadId` for the page and a new `runId` per
   generation or click. That is the AG-UI unit; an A2UI surface lives across
-  runs until a `deleteSurface`.
+  runs until a `deleteSurface`, which is why a new generation sends one
+  first.
+
+## What the next sub-theme adds
+
+Sub-theme 04 swaps the format: OpenUI Lang, a line-oriented language
+(`id = Component(args)`) that a renderer can draw one line at a time and
+that the report measures as the most token-efficient of the open formats;
+the same transport ideas hold, the messages get smaller.
 
 ## Diff from the previous step
 
@@ -407,5 +493,6 @@ What was used from each package:
   `POST /agent` (`RunAgentInput` in, AG-UI events out); the generate loop
   yields `step`, `text`, `done` and `error` kinds that `to_events` maps;
   `mirror` sets `sendDataModel`; `answer_action` reads the client data
-  model from `forwardedProps`.
+  model from `forwardedProps` and echoes it. The reset per generation,
+  the keepalive and the one-run-at-a-time page are step 02's, kept.
 - `envelope.py`, `llm.py`, `prompt.py` unchanged.

@@ -56,6 +56,8 @@ WITHHELD = {
     "task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill",
     "ask_user", "computer_act", "computer_screenshot", "remember", "forget", "handoff_to", "finish",
 }
+
+STOPPED = "(the subagent"  # every report that is not findings starts like this, so a caller can tell
 AGENT_PREFIX = "agent_"  # the tools built from agent definitions; withheld like task, so agents do not nest
 
 
@@ -130,14 +132,14 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         with ui.working(label) if tag is None else nullcontext():
             message, usage = call_llm(messages, tools=tools)  # rule 2
         if getattr(message, "failed", None):
-            return f"(the subagent stopped: {message.failed})"  # every retry failed; say so instead of "nothing"
+            return f"{STOPPED} stopped: {message.failed})"  # every retry failed; say so instead of "nothing"
         messages.append(message.model_dump(exclude_none=True))
         ui.usage(usage)
         report = message.content or report
 
         # rule 4: no tool calls means it has stopped looking and started answering
         if not message.tool_calls:
-            return report or "(the subagent came back with nothing)"
+            return report or f"{STOPPED} came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool;
         # a call to a tool that was not offered - task, write_file, an agent - is denied, not run
@@ -152,8 +154,8 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
             messages.append(image_message(path, f"screenshot from tool {name}"))
 
     if report:
-        return f"(stopped after {max_turns} turns, before finishing. Partial findings below.)\n\n{report}"
-    return f"(stopped after {max_turns} turns with nothing to report.)"
+        return f"{STOPPED} stopped after {max_turns} turns, before finishing. Partial findings below.)\n\n{report}"
+    return f"{STOPPED} stopped after {max_turns} turns with nothing to report.)"
 
 
 def explore(description, tag=None):

@@ -520,7 +520,7 @@ def test_bad_arguments_unknown_tool_and_a_raising_tool_each_get_one_tool_message
         FakeMessage(content=None, tool_calls=[
             raw_call("c1", "read_file", '{"path": '),                                   # cut off mid-stream
             raw_call("c2", "no_such_tool", "{}"),                                       # a name the registry lacks
-            raw_call("c3", "read_file", json.dumps({"path": str(tmp_path / "no.txt")})),  # the tool raises
+            raw_call("c3", "bash", json.dumps({"command": "echo hi", "shell": "zsh"})),      # the tool raises (unknown keyword)
             raw_call("c4", "bash", "[1, 2]"),                                           # JSON, but not an object
             raw_call("c5", "bash", "{}"),                                               # a required argument missing
         ]),
@@ -531,7 +531,7 @@ def test_bad_arguments_unknown_tool_and_a_raising_tool_each_get_one_tool_message
     assert list(results) == ["c1", "c2", "c3", "c4", "c5"]  # one tool message per call, in reply order
     assert results["c1"].startswith("Error: the arguments of read_file are not a JSON object:")
     assert results["c2"] == "Error: no tool named 'no_such_tool'."
-    assert results["c3"].startswith("Error: FileNotFoundError:")
+    assert results["c3"].startswith("Error: TypeError:")
     assert results["c4"] == "Error: the arguments of bash are not a JSON object: got list"
     assert results["c5"] == "Blocked by policy: bash: missing argument 'command'"
     assert messages[-1]["content"] == "None of that worked."  # the loop went on to the next reply
@@ -611,7 +611,7 @@ def test_write_todos_rejects_a_bad_status_and_leaves_the_list_alone(monkeypatch)
     monkeypatch.setattr(todos, "TODOS", [{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs a non-empty string 'activeForm'"
+    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs a non-empty 'activeForm'."
     assert todos.write_todos("b").startswith("Error:")
     assert todos.write_todos([{"content": "b", "activeForm": "b", "status": "in_progress"}, {"content": "c", "activeForm": "c", "status": "in_progress"}]).startswith("Error: 2 tasks are in_progress")
     assert todos.TODOS == before
@@ -622,6 +622,6 @@ def test_utf8_survives_write_file_read_file_and_bash(tmp_path):
     text = "héllo wörld — ünïcode ✓\r\nline two\n"
     assert tools.write_file(str(path), text).startswith("Wrote")
     assert tools.read_file(str(path)) == text  # bytes and line endings as written
-    assert tools.str_replace(str(path), "", "x") == "Error: old_str is empty; give the exact text to replace"
+    assert tools.str_replace(str(path), "", "x") == "Error: old_str is empty."
     assert tools.bash(f'"{sys.executable}" -X utf8 -c "print(\'ünïcode ✓\')"').strip() == "ünïcode ✓"
     assert tools.write_file(str(tmp_path / "deep" / "er" / "file.txt"), "x") == f"Wrote {tmp_path / 'deep' / 'er' / 'file.txt'}"  # parents are created

@@ -13,25 +13,29 @@ MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}
 TODOS = []  # [{"content": ..., "activeForm": ..., "status": ...}]
 
 
-def write_todos(todos):
-    """Replace the whole list. At most one task may be in_progress.
-
-    The list is checked before it is stored, so a malformed call leaves the
-    plan as it was and the model gets an Error: it can act on.
-    """
+def validate(todos):
+    """The first problem with a list, or None. Checked before anything is stored."""
     if not isinstance(todos, list):
-        return "Error: todos must be a list"
+        return "Error: todos must be a list."
     for i, todo in enumerate(todos):
         if not isinstance(todo, dict):
-            return f"Error: item {i} is not an object"
+            return f"Error: item {i} is not an object."
         for key in ("content", "activeForm", "status"):
             if not isinstance(todo.get(key), str) or not todo[key]:
-                return f"Error: item {i} needs a non-empty string {key!r}"
+                return f"Error: item {i} needs a non-empty {key!r}."
         if todo["status"] not in MARKS:
-            return f"Error: item {i} has status {todo['status']!r}; use one of {', '.join(MARKS)}"
+            return f"Error: item {i} has status {todo['status']!r}; use one of {', '.join(MARKS)}."
     active = [t for t in todos if t["status"] == "in_progress"]
     if len(active) > 1:
-        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+        return f"Error: {len(active)} tasks are in_progress. At most one may be."
+    return None
+
+
+def write_todos(todos):
+    """Replace the whole list. At most one task may be in_progress."""
+    problem = validate(todos)
+    if problem:
+        return problem  # the old list stays as it was
 
     TODOS[:] = todos
     return todos_prompt() or "Todo list cleared."
@@ -50,24 +54,20 @@ def active_form():
 
 
 def restore(messages):
-    """Rebuild the list from the last write_todos call in a transcript.
-
-    Used after a resume or a rewind: the list lives outside the transcript,
-    so the transcript is the only record of what it was.
-    """
+    """Rebuild the list from the last write_todos in a transcript (resume, rewind)."""
     import json
 
     TODOS.clear()
-    for message in reversed(messages):
+    for message in messages:
         for call in message.get("tool_calls") or []:
-            if call["function"]["name"] == "write_todos":
-                try:
-                    todos = json.loads(call["function"]["arguments"]).get("todos", [])
-                except (ValueError, AttributeError):
-                    return
-                if write_todos(todos).startswith("Error"):
-                    TODOS.clear()
-                return
+            if call["function"]["name"] != "write_todos":
+                continue
+            try:
+                todos = json.loads(call["function"]["arguments"]).get("todos")
+            except (ValueError, AttributeError):
+                continue
+            if validate(todos) is None:
+                TODOS[:] = todos
 
 
 TODO_SCHEMA = {

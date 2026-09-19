@@ -2,17 +2,22 @@
 
 LoopDetector watches the tool calls of consecutive replies and flags a call
 that repeats with the same name and the same arguments REPEAT_LIMIT times
-in a row. unanswered(messages) finds the tool calls at the end of a
-transcript that never got a result, which is what a crash between a model
-reply and its tool results leaves behind. The retry of a failed model call
-lives in llm.py, next to the call it protects. Nothing here talks to the
-model or runs a tool.
+in a row; the OBSERVE tools, which repeat on purpose, are never flagged.
+unanswered(messages) finds the tool calls at the end of a transcript that
+never got a result, which is what a crash between a model reply and its
+tool results leaves behind. The retry of a failed model call lives in
+llm.py, next to the call it protects. Nothing here talks to the model or
+runs a tool.
 """
 
 import json
 
 REPEAT_LIMIT = 3
 REPEATED = "Repeated call detected; change approach or ask the user"
+
+
+# calls that look the same on purpose: polling a job, taking another look at the screen or the page
+OBSERVE = {"job_status", "job_wait", "computer_screenshot", "browser_read", "browser_screenshot"}
 
 
 def parse_args(tool_call, why=False):
@@ -49,7 +54,7 @@ class LoopDetector:
         """Record one reply. Returns one flag per call: True when it has repeated `limit` times."""
         keys = [signature(call) for call in tool_calls]
         self.streaks = {key: self.streaks.get(key, 0) + 1 for key in set(keys)}  # a pair not in this reply starts over
-        return [self.streaks[key] >= self.limit for key in keys]
+        return [self.streaks[key] >= self.limit and key[0] not in OBSERVE for key in keys]
 
 
 def unanswered(messages):

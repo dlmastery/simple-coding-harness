@@ -1,0 +1,33 @@
+{
+  "name": "breast_cancer",
+  "index": 2,
+  "title": "Breast cancer (malignant)",
+  "source": {
+    "kind": "sklearn",
+    "name": "breast_cancer"
+  },
+  "target": "target",
+  "metric": "roc_auc",
+  "budget": {
+    "n_fits": 24,
+    "per": "arm"
+  },
+  "allowed_models": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "test_rule": {
+    "scores": 1,
+    "after": "FREEZE"
+  },
+  "profile_keys": [
+    "n_rows",
+    "n_features",
+    "n_classes",
+    "imbalance",
+    "has_categorical"
+  ],
+  "role": "curriculum",
+  "why": "all numeric, small: does 'scale before logreg' transfer?"
+}

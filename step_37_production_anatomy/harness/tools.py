@@ -162,16 +162,27 @@ def load_tool(name: str) -> str:
     return f"{name} is enabled for the rest of the session. Its schema:\n" + json.dumps(schema["function"], indent=2)
 
 
-def reload_from(messages):
-    """Rebuild LOADED from the load_tool calls of a resumed transcript, so the tools stay enabled."""
+def relearn(messages):
+    """Rebuild LOADED from a resumed transcript: every load_tool call that succeeded.
+
+    LOADED lives in memory, but the transcript still shows the model the
+    schema it loaded; without this the first call after --resume would be
+    told to load the tool again. Rebuilt, not added to: a tool loaded in a
+    turn that /rewind cut away is deferred again.
+    """
+    LOADED.clear()
+    results = {m.get("tool_call_id"): m.get("content") or "" for m in messages if m.get("role") == "tool"}
     for message in messages:
-        if message.get("role") != "assistant":
-            continue
         for call in message.get("tool_calls") or []:
-            if call["function"]["name"] == "load_tool":
-                name = durability.parse_args(call).get("name")
-                if isinstance(name, str):
-                    LOADED.add(name)
+            if call["function"]["name"] != "load_tool":
+                continue
+            try:
+                name = json.loads(call["function"]["arguments"]).get("name")
+            except (ValueError, AttributeError):
+                continue
+            if name and results.get(call["id"], "").startswith(f"{name} is enabled"):
+                LOADED.add(name)
+    return LOADED
 
 
 def load_first(name):
@@ -305,8 +316,9 @@ def decide(tool_call, allowed=None):
     Nothing runs here. This is the half of execute() that must stay on the
     main thread, because an `ask` verdict turns into a prompt. The verdict
     is allow, ask or deny from the rules, `blocked` from a PreToolUse hook,
-    or `error` when the arguments are not a JSON object. A denied call is
-    not offered to the hooks: the rules said no first. A call to a deferred
+    or `error` when the call cannot run at all: arguments that are not a
+    JSON object, or a name that is not a tool. A denied call is not offered
+    to the hooks: the rules said no first. A call to a deferred
     tool that was not loaded is `deferred`: it comes from a stub with no
     parameters, so the rules never see its arguments. `allowed`, when given,
     is the set of tool names this caller was offered; any other name is
@@ -316,6 +328,8 @@ def decide(tool_call, allowed=None):
     args, problem = durability.parse_args(tool_call, why=True)
     if problem:
         return args, "error", f"Error: the arguments of {name} are not a JSON object: {problem}"
+    if name not in TOOLS:
+        return args, "error", f"Error: no tool named {name!r}."
     if allowed is not None and name not in allowed:
         return args, "deny", f"{name} is not available to this agent"
     advice = load_first(name)

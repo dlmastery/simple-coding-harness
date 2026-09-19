@@ -7,9 +7,10 @@ result is the summary, the loop stops after that reply's results are
 in, and the summary is the answer `-p` prints. Three budgets guard the
 loop: `MAX_TURN_CALLS`, step 34's cap on model calls per turn, moved
 here; `MAX_SESSION_COST`, a cap in dollars on the whole session, priced
-from the cost the API reports when the usage carries one and from a
-price table otherwise; and `MAX_TURN_SECONDS`, a cap on the wall-clock
-time of one turn. When one trips, the loop stops and prints why. A
+from the cost OpenRouter reports when asked and estimated from a price
+table on every other host; and `MAX_TURN_SECONDS`, a cap on the
+wall-clock time of one turn. When one trips, the loop stops and prints
+why; the caps are checked before a model call, never during a tool. A
 `Stop` hook joins step 27's hook events: it runs when the turn is about
 to end, and a hook that exits 2 blocks the stop, its stderr becomes a
 user message, `Stop blocked: ...`, and the agent continues. The shipped
@@ -36,13 +37,13 @@ step_41_stop_conditions/
 │   ├── config.py         settings: real env vars win, ~/.simple-harness/env fills gaps
 │   ├── context.py        the late injection block; <env> names the agent and the mode
 │   ├── durability.py     the loop detector and the crash-recovery scan
-│   ├── evaluate.py       the evaluation harness; run_suite(workspace=DIR) grades a copy
+│   ├── evaluate.py       the evaluation harness; every task is its own session budget and records its cost
 │   ├── handoff.py        handoffs: the conversation moves to another agent definition
 │   ├── history.py        keeps the transcript small enough to send, pictures too
 │   ├── hooks.py          hook events; Stop joins them, and an exit 2 blocks the stop
 │   ├── instructions.py   project instruction files (AGENTS.md) for the prompt
 │   ├── jobs.py           background jobs: commands that run while the chat goes on
-│   ├── llm.py            the model call with retries; build_system_prompt(role)
+│   ├── llm.py            the model call with retries; USAGE_EXTRA asks OpenRouter for the cost
 │   ├── mcp_client.py     MCP client: tools served by other processes over stdio
 │   ├── memory.py         persistent memory
 │   ├── modes.py          named permission policies, one layer above the rules
@@ -50,11 +51,11 @@ step_41_stop_conditions/
 │   ├── pipeline.py       the plan, work, review pipeline behind /pipeline
 │   ├── plan.py           plan mode: the read-only tool set, ask_user included
 │   ├── prompt.py         the input line
-│   ├── sandbox.py        an OS sandbox for bash
-│   ├── session.py        JSONL session log; {"handoff": name} markers replayed by load()
+│   ├── sandbox.py        an OS sandbox for bash; popen() and kill_tree() for a timeout
+│   ├── session.py        JSONL session log; {"handoff": name} markers replayed by load(), not by all_sessions()
 │   ├── skills.py         skills, unchanged since stage 9
 │   ├── stop.py           stop conditions: finish, the three budgets, the Stop hook
-│   ├── subagent.py       the subagent loop; TASK_SCHEMA has no top-level anyOf
+│   ├── subagent.py       the subagent loop; spends and checks the session budget
 │   ├── todos.py          the plan behind write_todos
 │   ├── tools.py          the tool registry; finish in TOOLS but not TOOL_SCHEMAS
 │   └── ui.py             rich panels; handoff() draws the handoff -> name line
@@ -85,7 +86,7 @@ step_41_stop_conditions/
 │   ├── SCORECARD.md    the recorded run as a markdown scorecard, 4/5
 │   └── transcript.md   the recorded run's messages, readable
 ├── AGENTS.md        project instructions the harness reads into its prompt
-├── test_step.py     offline tests: finish, the budgets and the Stop hook on a fake model
+├── test_step.py     offline tests: finish, the budgets, the Stop hook, a denied finish, eval budgets
 ├── pyproject.toml   package metadata; version 0.41.0
 └── README.md        this file
 ```
@@ -121,6 +122,18 @@ session of many turns has no cap at all. A cap on calls does not cap
 time either: one call can wait minutes on a slow provider. The three
 caps together are the promise the harness makes to the person paying
 for it: a turn ends, and a session ends, whatever the model does.
+
+### What breaks without it
+
+Step 40's loop has one cap, forty calls per turn. A model that reads a
+file, edits it, reads it again and never answers spends forty calls of a
+100k-token transcript - a few dollars - before the harness notices, and
+then the next user message starts the count again. Ask it in a loop
+from a script and there is no ceiling at all. With no `finish`, a
+headless `-p` run prints whatever text happened to be in the last reply,
+which after a batch of tool calls is often nothing. And with no Stop
+hook, "always run the tests before you answer" is a sentence in the
+system prompt the model is free to forget.
 
 ## The code, piece by piece
 
@@ -164,9 +177,9 @@ set, `subagent.WITHHELD` keeps it from every subagent, and
 def cost_of(usage):
     """The dollars one model call cost, and where the number came from.
 
-    The cost the usage carries wins: step 20's client reads it from the
-    API. Otherwise the tokens are priced from PRICES, with the cached part
-    of the prompt at its own rate.
+    The cost the usage carries wins: OpenRouter reports one when asked
+    (llm.USAGE_EXTRA). Otherwise the tokens are priced from PRICES, with
+    the cached part of the prompt at its own rate.
     """
     usage = usage or {}
     if usage.get("cost") is not None:
@@ -186,24 +199,40 @@ def record(usage):
     return cost
 ```
 
-Step 20's OpenRouter client asks the API for the cost of every call and
-puts it in the usage dict as `cost`. When that key is present it is the
-number. When it is not, the tokens are priced: `PRICES` maps a model to
-its prompt, completion and cached-prompt price per million tokens, and
-a model not in the table gets `FALLBACK_PRICES`, which the
-`PRICE_PROMPT`, `PRICE_COMPLETION` and `PRICE_CACHED` environment
-variables set. `record` is called wherever a model call returns: the
-main loop, the subagent loop and the compaction summariser. A subagent
-spends the same budget as the agent that started it.
+Only OpenRouter reports a cost, and only when asked. `harness/llm.py`:
+
+```python
+USAGE_EXTRA = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
+```
+
+goes out as `extra_body` on every request, and `usage_from` reads the
+`cost` field of the usage chunk into the usage dict, `None` on any
+other host. When that key is present it is the number. When it is not,
+the tokens are priced: `PRICES` maps a model to its prompt, completion
+and cached-prompt price per million tokens, and a model not in the
+table gets `FALLBACK_PRICES`, which the `PRICE_PROMPT`,
+`PRICE_COMPLETION` and `PRICE_CACHED` environment variables set. The
+table has three `gpt-4.1` entries; the default model,
+`deepseek/deepseek-v4-flash`, is not in it, so a default install on a
+non-OpenRouter host is priced at the fallback $1 / $4 / $0.25 per
+million, which is far above that model's list price. `/cost` says so
+(`fallback prices, set PRICE_PROMPT, ...`); set the three variables to
+the real prices or the $5 cap trips early. `record` is called wherever
+a model call returns: the main loop, the subagent loop and the
+compaction summariser. A subagent spends the same budget as the agent
+that started it, and checks it too: `subagent.loop` asks
+`stop.tripped(0)` before each of its own calls and returns `(the
+subagent stopped: ...)` when the session's cost or the turn's clock is
+over.
 
 ### 3. The three budgets
 
 `harness/stop.py`:
 
 ```python
-MAX_TURN_CALLS = int(os.environ.get("MAX_TURN_CALLS", 40))          # model calls one turn may make
-MAX_SESSION_COST = float(os.environ.get("MAX_SESSION_COST", 5.0))   # dollars one session may spend
-MAX_TURN_SECONDS = float(os.environ.get("MAX_TURN_SECONDS", 900))   # wall-clock seconds one turn may take
+MAX_TURN_CALLS = env_number("MAX_TURN_CALLS", 40)       # model calls one turn may make
+MAX_SESSION_COST = env_number("MAX_SESSION_COST", 5.0)  # dollars one session may spend
+MAX_TURN_SECONDS = env_number("MAX_TURN_SECONDS", 900.0)  # wall-clock seconds one turn may take
 MAX_STOP_BLOCKS = 3      # times the Stop hooks may send the agent back in one turn
 ...
 def tripped(calls):
@@ -231,9 +260,22 @@ or with `None`. The check sits before the call, not after, so the call
 that would cross a line is the one that is not made. The transcript
 ends in a valid place either way: every call that was made has its
 results. Two of the caps reset per turn, and their reports say
-`continue` goes on. The cost cap is per session and stays tripped: the
-next turn stops before its first call with the same report, and the
-way on is a higher `MAX_SESSION_COST` in the environment.
+`continue` goes on. The cost cap is per session and stays tripped:
+`agent.turn` asks `stop.tripped(0)` before it appends the next user
+message, so a spent session prints the same report and leaves the
+transcript as it was, and the way on is a higher `MAX_SESSION_COST` in
+the environment. `env_number` reads each variable: a value that is not
+a number is a note on stderr and the default, not a crash at import.
+
+The settings, in one place:
+
+| variable | default | unit | scope |
+|---|---|---|---|
+| `MAX_TURN_CALLS` | 40 | model calls | per turn; `continue` starts a new turn |
+| `MAX_SESSION_COST` | 5.0 | dollars | per session (per task in `eval`) |
+| `MAX_TURN_SECONDS` | 900 | seconds of wall clock | per turn |
+| `MAX_STOP_BLOCKS` | 3 (not an env var) | Stop hook blocks | per turn |
+| `PRICE_PROMPT` / `PRICE_COMPLETION` / `PRICE_CACHED` | 1.0 / 4.0 / 0.25 | dollars per million tokens | models not in `PRICES` |
 
 ### 4. The Stop event
 
@@ -242,7 +284,7 @@ way on is a higher `MAX_SESSION_COST` in the environment.
 ```python
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd", "Stop")
 ...
-EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # the last four: Stop
+EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # the last four: Stop
 ```
 
 `harness/stop.py`:
@@ -329,7 +371,8 @@ and the turn ends with a note that says so.
                 continue  # the block is a user message now; the agent reads it on the next call
             break
 ...
-        handoff.switch(messages)  # a handoff_to result in this reply: the next call is the new agent's
+        finally:
+            handoff.switch(messages)  # a handoff_to result in this reply: the next call is the new agent's - even when the user leaves
 
         summary = stop.finished()
         if summary is not None:  # the reply called finish: its other calls ran, and the turn ends here
@@ -349,6 +392,29 @@ ends go through the same `may_stop`, so a model cannot get past a Stop
 hook by calling `finish` instead of answering. A budget trip does not
 ask the hooks: a budget is the harness's decision, and a hook that
 sent the agent back would spend past the cap.
+
+Headless, `last_reply` is what `-p` prints, and a `finish` counts only
+when it ran:
+
+```python
+def last_reply(messages):
+...
+    results = {m.get("tool_call_id"): m.get("content") for m in messages if m.get("role") == "tool"}
+    for message in reversed(messages):
+        if message["role"] != "assistant":
+            continue
+        for call in message.get("tool_calls") or []:
+            summary = stop.finish_summary(call["function"]["arguments"])
+            if call["function"]["name"] == "finish" and results.get(call["id"]) == summary:
+                return summary
+        if message.get("content"):
+            return message["content"]
+    return ""
+```
+
+A `finish` that a PreToolUse hook blocked or a session `never` denied
+has `Blocked by ...` as its tool result, not the summary, so it is not
+the answer; the text of the last reply is.
 
 ### 7. The example hook
 
@@ -376,34 +442,83 @@ if last_edit is not None:
 ```
 
 The hook finds the newest edit to a `.py` file and looks for a `bash`
-call that ran pytest after it. No edit, or an edit followed by pytest,
-exits 0 and the turn ends. An edit with no pytest after it exits 2,
-and the agent reads `Stop blocked: tests were not run after editing
-calc.py; run pytest, then answer`. `.agents/hooks.json` registers it
-under `"Stop"`, with no matcher: a Stop event has no tool name, so
-every Stop hook runs.
+call whose command contains `pytest` after it. It is a substring
+check, not "the tests passed": `echo pytest` satisfies it (the tests
+use exactly that), and a pytest run that failed satisfies it too. A
+hook that reads `tool_result` for `passed` is a few more lines. No
+edit, or an edit followed by pytest, exits 0 and the turn ends. An
+edit with no pytest after it exits 2, and the agent reads `Stop
+blocked: tests were not run after editing calc.py; run pytest, then
+answer`. `.agents/hooks.json` registers it under `"Stop"`, with no
+matcher: a Stop event has no tool name, so every Stop hook runs.
 
 ## Run it
+
+Prerequisites: Python 3.10+, `API_KEY` (and optionally `BASE_URL`,
+`MODEL`) in the environment or in `~/.simple-harness/env`. For a
+model outside `PRICES` on a host that is not OpenRouter, set
+`PRICE_PROMPT`, `PRICE_COMPLETION` and `PRICE_CACHED` to its list
+prices per million tokens.
 
 ```bash
 pip install -e .
 harness
+```
+
+```powershell
+pip install -e .
+harness
+```
+
+### Expected output
+
+```text
 > add a subtract function to calc.py
+
+  ╭──────────────────────────────────────────────────────────────╮
+  │ str_replace {"path": "calc.py", "old_str": ..., "new_str": ...} │
+  │ ──────────────────────────────────────────────────────────── │
+  │ Replaced 1 match(es) in calc.py                              │
+  ╰──────────────────────────────────────────────────────────────╯
+
+  1,204 prompt (estimate 1,180) · 96 completion · $0.0016
+
+  Stop blocked: tests were not run after editing calc.py; run pytest, then answer
+
+  ╭──────────────────────────────────────────────────────────────╮
+  │ bash pytest -q                                               │
+  │ ──────────────────────────────────────────────────────────── │
+  │ 3 passed in 0.12s                                            │
+  ╰──────────────────────────────────────────────────────────────╯
+
+  ╭──────────────────────────────────────────────────────────────╮
+  │ finish Added subtract(a, b) to calc.py; 3 tests pass.        │
+  │ ──────────────────────────────────────────────────────────── │
+  │ Added subtract(a, b) to calc.py; 3 tests pass.               │
+  ╰──────────────────────────────────────────────────────────────╯
+
+  1,530 prompt (estimate 1,502) · 61 completion · $0.0018
+
+  finish: the turn ends here
 ```
 
 The agent writes the function and answers. Before the answer shows, the
-Stop hook runs and blocks it: a muted line reads `Stop blocked: tests
-were not run after editing calc.py; run pytest, then answer`, and the
-spinner comes back. The next reply runs pytest, and the one after it
-answers, or calls `finish` with a summary. Either way the hook now
-lets the turn end. Every usage line carries the call's cost, such as
-`1,204 prompt (estimate 1,180) · 96 completion · $0.0041`, and the
-summary table at exit has a `cost` row.
+Stop hook runs and blocks it: a muted line reads `Stop blocked: ...`,
+and the spinner comes back. The next reply runs pytest, and the one
+after it answers, or calls `finish` with a summary. Either way the hook
+now lets the turn end. Every usage line carries the call's cost, and
+the summary table at exit has a `cost` row.
 
-Type `/cost`:
+Type `/cost`. With one of the `gpt-4.1` models:
 
 ```text
 session cost $0.0123 of MAX_SESSION_COST=$5.00 (list prices); MAX_TURN_CALLS=40; MAX_TURN_SECONDS=900; Stop hook blocks this turn: 1
+```
+
+With the default model and no `PRICE_*` variables:
+
+```text
+session cost $0.0412 of MAX_SESSION_COST=$5.00 (fallback prices, set PRICE_PROMPT, PRICE_COMPLETION and PRICE_CACHED); MAX_TURN_CALLS=40; MAX_TURN_SECONDS=900; Stop hook blocks this turn: 0
 ```
 
 Trip a budget on purpose. Start with `MAX_SESSION_COST=0.01 harness`
@@ -430,6 +545,56 @@ python run_tests.py 41
 python check_snippets.py 41
 ```
 
+```powershell
+python run_tests.py 41
+python check_snippets.py 41
+```
+
+## Error handling
+
+- **A bad tool call.** As in step 39: malformed arguments, an unknown
+  tool, a missing argument and a tool that raises each become one
+  `Error:` tool message. `finish` with no summary records `(finished
+  without a summary)` and still ends the turn.
+- **A failing command.** Its output is the result; over 60 s it is
+  killed with its tree and the result starts `Timed out after 60s and
+  was killed. Output so far:`. The turn clock keeps running through it.
+- **Ctrl-C.** The steer prompt; a second ctrl-c leaves. The turn clock
+  and the block count are per turn, so a steered turn keeps them.
+- **A dead model call.** After the retries the turn ends with a note;
+  nothing is charged for a call that returned no usage.
+- **A tripped budget.** A note, and the prompt is back. The call cap
+  and the clock reset with the next message; the cost cap does not:
+  every later message gets the same note and is not added to the
+  transcript.
+- **A bad number in the environment.** `MAX_SESSION_COST=abc` prints
+  `MAX_SESSION_COST='abc' is not a number; using 5.0` on stderr at start
+  and goes on with the default.
+- **Leaving.** `/exit`, `/quit`, ctrl-d, or ctrl-z then enter on
+  Windows.
+
+## Gotchas / What this is not
+
+- The cost is an estimate on every host but OpenRouter, and the
+  default model is priced with the fallback table until `PRICE_*` is
+  set. `/cost` names the source.
+- The caps are checked before a model call, never after or during. A
+  turn can run `MAX_TURN_SECONDS` plus one whole tool batch: a 60 s
+  `bash`, a `job_wait` up to its own timeout, or a subagent's turns
+  (the subagent checks the session cost and the turn clock before each
+  of its own calls, but a running tool is never cut short).
+- `MAX_SESSION_COST` is per session. In `eval` every task starts at
+  zero and its spend is in the report (`Result.cost`); a chat keeps
+  the total until it exits.
+- `finish` runs through the permissions and the hooks like any call. A
+  PreToolUse hook or a session `never` on `finish` means the turn
+  cannot end that way; the model has to answer with text, and `-p`
+  prints that text, not the denied summary.
+- `require_tests.py` matches the substring `pytest` in a bash command.
+  It is an example of the shape, not a test gate.
+- After `MAX_STOP_BLOCKS` blocks the hooks lose: the turn ends with a
+  note and whatever answer the model gave.
+
 ## What to notice
 
 - `finish` is a tool, not a special case in the loop. It runs through
@@ -439,10 +604,10 @@ python check_snippets.py 41
 - The budgets are checked before a call, never after. The call that
   would cross a line is the one that is not made, so a tripped budget
   never leaves a call without its results.
-- Cost is one number per call, from one function. The API's own figure
-  wins when it is there; the price table is the fallback, and its
-  source is named in `/cost`, so an estimate is never mistaken for a
-  bill.
+- Cost is one number per call, from one function. OpenRouter's own
+  figure wins when it is there; the price table is the fallback, and
+  its source is named in `/cost`, so an estimate is never mistaken for
+  a bill.
 - A subagent spends the parent's budget. `record` runs in the subagent
   loop and in the compaction call too, because those are the calls a
   user does not see one by one.
@@ -471,14 +636,22 @@ Added: `stop.py` (`MAX_TURN_CALLS`, `MAX_SESSION_COST`,
 `finished`, `elapsed`, `prices`, `cost_of`, `record`, `tripped`,
 `status`, `turn_calls`, `may_stop`, `send_back`, `reset`),
 `.agents/require_tests.py`. Changed: `agent.py` (`MAX_CALLS` removed;
-`stop.begin_turn`, `stop.tripped`, the finish schema in the offered
-tools, `stop.record` on the usage line, `may_stop` and `send_back` on
-both ends, `last_reply` reads a finish summary), `hooks.py` (`Stop` in
+`stop.tripped(0)` before the user message, `stop.begin_turn`,
+`stop.tripped`, the finish schema in the offered tools, `stop.record`
+on the usage line, `may_stop` and `send_back` on both ends,
+`last_reply` reads a finish summary that ran), `hooks.py` (`Stop` in
 `EVENTS`, four keys in `EVENT_KEYS`), `tools.py` (`finish` in `TOOLS`),
-`subagent.py` (`finish` in `WITHHELD`, `stop.record` in the loop),
-`compact.py` (`stop.record` after the summariser call), `plan.py`
-(`offered` lets `finish` run in plan mode), `ui.py` (`usage(cost=)`
-and the `cost` row of the summary), `evaluate.py` (the usage recorder
-passes `cost` through), `commands.py` (`/cost`),
+`subagent.py` (`finish` in `WITHHELD`, `stop.tripped(0)` and
+`stop.record` in the loop), `compact.py` (`stop.record` after the
+summariser call), `plan.py` (`offered` lets `finish` run in plan mode),
+`ui.py` (`usage(cost=)` and the `cost` row of the summary),
+`evaluate.py` (`stop.SPENT` saved, zeroed and restored per task; the
+usage recorder adds `cost`), `commands.py` (`/cost`),
 `.agents/hooks.json` (the `Stop` entry). Everything else, `capstone/`
 included, is unchanged from step 40.
+
+## What the next step adds
+
+Step 42 streams a command's output: the lines of a `bash` call, a
+background job and a subagent run reach a live panel as they arrive,
+and a timed-out command hands the model what it printed.

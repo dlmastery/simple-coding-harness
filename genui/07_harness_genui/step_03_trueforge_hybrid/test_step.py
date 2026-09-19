@@ -69,6 +69,12 @@ def test_plus_on_anything_but_numbers_is_text():
     assert parsed.tree()["args"][0] == ["null1", 5]  # the same text the page's JS parser produces
 
 
+def test_a_failed_request_is_one_line_naming_the_server():
+    from trueforge_sdk.core.api_error import ApiError
+    assert genui.describe_error(ApiError(status_code=404, headers={}, body={"error": "no such session"})).startswith(f"{genui.BASE_URL} answered 404")
+    assert genui.describe_error(ConnectionError("refused")) == f"{genui.BASE_URL} is not answering (ConnectionError: refused)"
+
+
 def test_a_turn_that_does_not_end_done_is_an_error(fake_trueforge, monkeypatch):
     """A turn that ends `error` (or a stream with no turn.done) raises: a truncated program is never returned as complete."""
     monkeypatch.setattr(FakeTrueForge, "status", "error")

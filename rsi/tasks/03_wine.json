@@ -1,0 +1,33 @@
+{
+  "name": "wine",
+  "index": 3,
+  "title": "Wine (3 classes)",
+  "source": {
+    "kind": "sklearn",
+    "name": "wine"
+  },
+  "target": "target",
+  "metric": "roc_auc_ovr_macro",
+  "budget": {
+    "n_fits": 24,
+    "per": "arm"
+  },
+  "allowed_models": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "test_rule": {
+    "scores": 1,
+    "after": "FREEZE"
+  },
+  "profile_keys": [
+    "n_rows",
+    "n_features",
+    "n_classes",
+    "imbalance",
+    "has_categorical"
+  ],
+  "role": "curriculum",
+  "why": "multiclass: the metric becomes macro one-vs-rest ROC-AUC; cards conditioned on n_classes"
+}

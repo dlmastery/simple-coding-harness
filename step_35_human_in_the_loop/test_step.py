@@ -105,7 +105,7 @@ def fake_model(monkeypatch, replies):
     replies = list(replies)
     requests = []
 
-    def fake(messages, tools=None, on_delta=None):
+    def fake(messages, tools=None, on_delta=None, on_restart=None):
         requests.append(messages)
         reply = replies.pop(0)
         if isinstance(reply, BaseException):
@@ -394,7 +394,7 @@ def test_a_resumed_transcript_whose_pending_call_fails_gets_an_error_result(monk
         raise KeyError("boom")
 
     monkeypatch.setitem(tools.TOOLS, "bash", boom)
-    monkeypatch.setattr(agent, "run_results", lambda messages, pending, repeated=None: boom("x"))  # a crash below run_results
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: boom("x"))  # a crash below run_results
     messages = [
         {"role": "system", "content": "s"},
         {"role": "user", "content": "go"},

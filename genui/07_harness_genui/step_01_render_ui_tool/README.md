@@ -122,11 +122,19 @@ CATALOG = {
 ```
 
 `validate()` returns every problem as a sentence. The model gets the list
-back as the tool result, so a bad spec is a correction, not a crash:
+back as the tool result, so a bad spec is a correction, not a crash. The spec
+is whatever the model put in the tool call, so every level is checked for
+its shape before it is read - a `root` that is a list, `props` that is a
+list, a child given as an object - and a wrong shape is a sentence too:
 
 ```python
 def validate(spec):
-    """Every problem in a spec, as plain sentences. An empty list means valid."""
+    """Every problem in a spec, as plain sentences. An empty list means valid.
+
+    The spec is whatever the model put in the tool call, so every level is
+    checked for its shape before it is read: a wrong shape is a sentence in
+    the list, never an exception out of the validator.
+    """
     problems = []
     if not isinstance(spec, dict) or "elements" not in spec or "root" not in spec:
         return ["spec must be an object with 'root' and 'elements'"]
@@ -145,6 +153,18 @@ def validate(spec):
             if child not in elements:
                 problems.append(f"{eid}: child '{child}' is not an element id")
 ```
+
+What it checks, in order: the top-level shape; every element is an object
+with a string `type` from the catalog; `props` is an object whose keys are
+in the catalog and whose values have the declared type (`string` or `list`);
+required props are present; `children` is a list of ids that exist, and only
+on types that take children; `Stack.direction` is `row`/`column`;
+`Chart.kind` is `bar`/`line`, `labels` and `values` have the same length and
+`values` are numbers; every `Table` row is a list; and, when nothing else
+is wrong, no element contains itself (`cycles()`). What it does not check:
+the length of a label or a value, the number of cells per row against the
+number of columns, or ids that no `children` list reaches (an unreachable
+element is simply never drawn).
 
 `harness/tools.py` adds the tool next to `bash` and `task`. The function is
 small: validate, publish, report:
@@ -174,12 +194,14 @@ The catalog, the only element types you may use:
 {catalog_prompt()}
 ```
 
-`harness/ui.py` is the first surface. `tool()` routes a valid `render_ui`
-call to `render()`, and `_element()` maps one element to one `rich`
-renderable, recursing over children:
+`harness/ui.py` is the first surface. `tool()` routes a `render_ui` call
+that *ran* to `render()` - the decision is keyed on the result, not on the
+arguments, so a denied or failed call shows the usual tool panel with the
+denial or the error in it and no picture. `_element()` then maps one element
+to one `rich` renderable, recursing over children:
 
 ```python
-        if name == "render_ui" and not validate(args.get("spec")):
+        if name == "render_ui" and result.startswith("Rendered "):  # drawn only when the tool ran: a denied or failed call is a panel, not a picture
             return self.render(args["spec"])
 ```
 
@@ -238,26 +260,130 @@ source.onmessage = (event) => {
   surface.replaceChildren(render(spec));
 ```
 
+## Why: what breaks without it
+
+Ask the stage 15 agent for "a dashboard for the lemonade stand" and it
+writes a Markdown table and a list of numbers, because prose is the only
+output it has. A model that *could* answer with a chart has no channel for
+it, so the answer is a description of a chart. Giving it HTML instead would
+open the other failure: the model writes markup, the terminal cannot show
+it, and the browser would run whatever it wrote. The spec sits in between:
+structured enough for both surfaces to draw, constrained enough (six
+catalog types, validated) that the surfaces can trust it. Without the
+validator the terminal renderer would raise on the first `Chart` whose
+`values` are strings, halfway through a turn, with the tool call still
+unanswered in the transcript.
+
 ## Run it
 
-```
+Prerequisites: `pip install -r ../../../requirements.txt` from the repo
+root (openai, rich, prompt_toolkit). Playwright with Chromium
+(`pip install playwright && playwright install chromium`) is needed only for
+`demo.py`'s screenshot. Settings come from `API_KEY` (or `OPENAI_API_KEY`),
+`BASE_URL` and `MODEL` in the environment or in `~/.simple-harness/env`;
+the defaults are the OpenAI endpoint and `gpt-4.1-mini`.
+
+```bash
+cd genui/07_harness_genui/step_01_render_ui_tool
 python -m harness.agent            # the interactive agent, terminal surface only
 python -m harness.agent --web      # also serve http://127.0.0.1:8770
-python demo.py                     # one scripted turn, both surfaces, demo.png
-python -m pytest test_step.py      # offline: fake model, ephemeral web server
+python -m harness.agent --web 9000 # ...on another port
+python demo.py                     # one scripted turn on the real model, both surfaces, demo.png
+python demo.py --offline           # the same turn against the scripted model, no API key
+python -m pytest test_step.py -q   # offline: fake model, ephemeral web server
 ```
 
-Settings come from `API_KEY`, `BASE_URL` and `MODEL` in the environment or
-in `~/.simple-harness/env`. Playwright with Chromium is needed only for the
-screenshot.
+```powershell
+cd genui\07_harness_genui\step_01_render_ui_tool
+$env:API_KEY = "sk-..."             # or OPENAI_API_KEY; ~/.simple-harness/env works too
+python -m harness.agent --web
+python demo.py --offline
+python -m pytest test_step.py -q
+```
+
+Expected output of `python -m harness.agent --web`, then one request:
+
+```text
+───────────────────────────────  coding agent  ────────────────────────────────
+  sandbox: none  ·  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+  web surface: open http://127.0.0.1:8770 in a browser
+
+> show me a dashboard for a lemonade stand
+  1,365 prompt · 308 completion
+  ┌─ render_ui · 7 elements ─────────────────────────────────────────────────┐
+  │ ┌─ Lemonade stand - this week ─────────────────────────────────────────┐ │
+  │ │ Revenue              Cups sold             Margin                    │ │
+  │ │ $184  +12%           92  +8                61%  -2%                  │ │
+  │ │ Cups per day                                                         │ │
+  │ │ Mon  ███████████████             14                                  │ │
+  ...
+  └──────────────────────────────────────────────────────────────────────────┘
+  1,690 prompt · 43 completion
+  agent
+  Here is this week's lemonade stand at a glance.
+```
+
+The browser tab shows the same seven elements as DOM, and redraws on the
+next `render_ui` call without a reload. `python -m pytest test_step.py -q`
+ends in `12 passed`.
+
+## Error handling
+
+Every tool call gets exactly one `tool` message, whatever went wrong, so the
+transcript stays valid and `--resume` can always send it:
+
+- A `render_ui` call with a spec the catalog rejects returns
+  `Invalid spec, nothing rendered:` followed by one line per problem. Nothing
+  is drawn on either surface; the model reads the list and tries again.
+- Malformed JSON in the arguments returns
+  `Error: the arguments of render_ui are not a JSON object: ...`; a tool name
+  that does not exist returns `Error: no tool named 'x'.`; anything a tool
+  raises comes back as `Error: TypeError: ...` (all in `tools.execute()`,
+  shared with the subagent).
+- A denied call (`Blocked by policy: ...` or `The user denied this tool
+  call.`) is shown as a tool panel, never drawn - `ui.tool` checks the
+  result, not the arguments.
+- `--web` on a port that is taken prints
+  `web surface not started on port 8770: ...` and the terminal surface
+  carries on alone.
+- A model call that fails (`openai.APIError`, or an empty reply) ends the
+  turn with `model call failed: ...`; your message stays in the transcript.
+- ctrl-c during a turn answers every tool call that had not run with
+  `(interrupted before this tool ran)`, prints `interrupted`, saves, and
+  returns to the prompt. A turn that would exceed 40 model calls stops with
+  `stopped after 40 model calls in one turn; say 'continue' to go on`.
+- Leave with `/exit`, `/quit`, ctrl-d (ctrl-z then enter on Windows) or
+  ctrl-c at the prompt.
+
+## Gotchas / What this is not
+
+- `render_ui` goes through `execute()`, which today rates it `allow`: the
+  permission rules only ask about `bash` and writes outside the project or
+  into `.git/`. If you add an `ask` rule for it, nothing else has to change -
+  `ui.tool` already refuses to draw a call whose result is a denial.
+- The subagent never gets the tool (`WITHHELD` in `harness/subagent.py`)
+  and is denied if it names it anyway: what it may run is exactly what it
+  was shown.
+- The web surface serves only `web/index.html` and `web/app.js`; a path
+  with `..` in it is a 404. It listens on 127.0.0.1, has no authentication,
+  and replays the last spec to every tab that connects.
+- Both renderers assume a validated spec. `render()` is only reached through
+  a `Rendered ...` result; calling it by hand with a spec `validate()` would
+  reject is on you.
+- This is a fixed catalog with no state and no actions: a `Metric` cannot
+  be clicked and a `Table` cannot be sorted. Sub-theme 05 has the actions
+  story; here the point is the one-tool, two-surface shape.
+- The tool named `bash` runs through `subprocess` with `shell=True`, so on
+  Windows it is cmd.exe, and the sandbox is `none` there (see stage 12).
 
 ## What to notice
 
 - The model saw the catalog once, in the system prompt, and produced a
   ten-element map with nested Cards, a Chart and a Table on the first call.
   Nothing in the loop changed to make that happen; the tool did the work.
-- `render_ui` sits behind `execute()`, so it goes through the same
-  permission check as `bash`. The subagent does not get it (`WITHHELD` in
+- `render_ui` sits behind `execute()`, the same entry point as `bash`, so
+  the same code decides, asks and reports for it - today it is rated
+  `allow`. The subagent does not get it (`WITHHELD` in
   `harness/subagent.py`): an explorer reports, it does not draw.
 - The terminal renderer and the DOM renderer are the same shape: a lookup
   by type and a recursive walk. Adding a `Gauge` means one catalog entry
@@ -266,3 +392,9 @@ screenshot.
 - The web surface is a push channel, not a poll. `publish()` fans one spec
   out to every open tab, and a tab that opens after the render still gets
   the latest one.
+
+## What the next step adds
+
+The same catalog idea on a harness we do not own: TrueForge's built-in
+generative UI speaks OpenUI Lang, and step 02 renders its stream in a page
+of ours with the parser from sub-theme 04.

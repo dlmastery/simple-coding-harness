@@ -19,15 +19,17 @@ def find_skills():
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
+            text = path.read_text(encoding="utf-8-sig", errors="replace")
+            match = FRONT_MATTER.match(text)
+            if not match:
+                continue
             try:
-                text = path.read_text(encoding="utf-8-sig")
-                match = FRONT_MATTER.match(text)
-                meta = yaml.safe_load(match.group(1)) if match else None
-            except (OSError, yaml.YAMLError, ValueError) as failed:
-                print(f"skill {path} skipped: {type(failed).__name__}: {failed}")
+                meta = yaml.safe_load(match.group(1)) or {}
+            except yaml.YAMLError:
+                print(f"skipping {path}: bad front matter")  # a broken skill must not stop the harness
                 continue
             if not isinstance(meta, dict):
-                continue  # no front matter: not a skill
+                continue
             name = str(meta.get("name") or path.parent.name)
             description = " ".join(str(meta.get("description", "")).split())
             skills[name] = {"description": description, "path": path}
@@ -46,7 +48,7 @@ def read_skill(name: str) -> str:
     """Open a skill and return its full instructions."""
     if name not in SKILLS:
         return f"No skill named '{name}'."
-    return SKILLS[name]["path"].read_text(encoding="utf-8-sig")
+    return SKILLS[name]["path"].read_text(encoding="utf-8")
 
 
 if __name__ == "__main__":

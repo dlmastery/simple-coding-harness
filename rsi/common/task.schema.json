@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "task.json - what to improve, how, and what counts as success",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "index", "title", "source", "target", "metric", "budget", "allowed_models", "test_rule", "profile_keys", "role"],
+  "properties": {
+    "name": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "index": {"type": "integer", "minimum": 1},
+    "title": {"type": "string"},
+    "source": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["adult", "sklearn", "synth"]},
+        "name": {"type": "string"},
+        "n": {"type": "integer", "minimum": 100},
+        "seed": {"type": "integer"},
+        "shift": {"enum": [0, 1]},
+        "imbalance": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
+        "n_classes": {"type": "integer", "minimum": 2}
+      }
+    },
+    "target": {"const": "target"},
+    "metric": {"enum": ["roc_auc", "roc_auc_ovr_macro"]},
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n_fits", "per"],
+      "properties": {"n_fits": {"type": "integer", "minimum": 1, "maximum": 24}, "per": {"const": "arm"}}
+    },
+    "allowed_models": {"type": "array", "items": {"enum": ["logreg", "rf", "hgb"]}, "minItems": 1, "uniqueItems": true},
+    "test_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scores", "after"],
+      "properties": {"scores": {"const": 1}, "after": {"const": "FREEZE"}}
+    },
+    "profile_keys": {
+      "type": "array",
+      "items": {"enum": ["n_rows", "n_features", "n_classes", "imbalance", "has_categorical"]},
+      "uniqueItems": true
+    },
+    "role": {"enum": ["curriculum", "exam"]},
+    "why": {"type": "string"}
+  }
+}

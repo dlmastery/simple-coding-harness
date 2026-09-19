@@ -1,0 +1,33 @@
+{
+  "name": "digits",
+  "index": 4,
+  "title": "Digits (10 classes)",
+  "source": {
+    "kind": "sklearn",
+    "name": "digits"
+  },
+  "target": "target",
+  "metric": "roc_auc_ovr_macro",
+  "budget": {
+    "n_fits": 24,
+    "per": "arm"
+  },
+  "allowed_models": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "test_rule": {
+    "scores": 1,
+    "after": "FREEZE"
+  },
+  "profile_keys": [
+    "n_rows",
+    "n_features",
+    "n_classes",
+    "imbalance",
+    "has_categorical"
+  ],
+  "role": "curriculum",
+  "why": "64 numeric features, image-like: tree depth and learning-rate cards get counterexamples"
+}

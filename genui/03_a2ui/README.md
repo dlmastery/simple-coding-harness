@@ -8,6 +8,29 @@ middle of the generation axis in the State of Generative UI report
 (June 2026, https://www.openui.com/blog/state-of-generative-ui-report), and
 it is transport-agnostic, which the third step uses.
 
+The server-to-client half is the four envelope messages. The
+client-to-server half, which the intro of the spec defines and every step
+here uses, is two things:
+
+- the `action` message a `Button` raises, with its `context` resolved
+  from the data model at click time:
+  `{"name": "submit", "surfaceId": "main", "sourceComponentId": "send", "timestamp": "...", "context": {"email": "ada@example.com"}}`;
+  step 01 logs it, step 02 posts it to `/action`, step 03 carries it in
+  an AG-UI run's `forwardedProps`;
+- `sendDataModel`, a flag on `createSurface`: when the server sets it,
+  the client sends its whole data model (`{"version", "surfaces": {id:
+  {...}}}`) along with every action, so a server that keeps no mirror
+  still knows what the user typed. Step 03's server sets it and echoes the
+  fields back.
+
+A repeated `createSurface` for an id that exists is a reset in the hand
+store of steps 01 and 02 (an `EventSource` reconnect replays it) and an
+error in the official `MessageProcessor` of step 03, so steps 02 and 03
+send `deleteSurface` before a new generation. Every page logs a bad
+message and goes on (steps 02 and 03 also flip `window.a2uiDone` whatever
+the server does), and the demos raise instead of spinning when their
+port is taken.
+
 The three steps, in order; each is self-contained and starts from a copy of
 the previous one:
 

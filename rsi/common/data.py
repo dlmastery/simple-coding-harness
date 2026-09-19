@@ -1,9 +1,9 @@
-"""Step 00 - the data: the bundled Adult sample, the full table on request, the
-dataset profile the memory cards condition on, and the one split every step shares.
+"""The data: the bundled Adult sample, the sklearn built-ins, the profile a card
+may condition on, and the one four-way split every arm shares.
 
-The bundled 6,000-row sample keeps every step offline. RSI_FULL=1 asks for the
-full 48,842-row table: from the cache under ~/.simple-harness/rsi/ when it is
-there, else from OpenML (network), which fills the cache.
+The bundled 6,000-row Adult sample keeps every lesson offline. RSI_FULL=1 asks
+for the full 48,842-row table from the cache under ~/.simple-harness/rsi/, or
+from OpenML (network) once, which fills the cache.
 """
 
 import os
@@ -12,6 +12,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from common.recipe import TARGET
+
 # plain-Python strings: pandas 3 otherwise backs text with pyarrow, whose DLLs crash
 # on some Windows machines when scikit-learn was imported first
 pd.options.mode.string_storage = "python"
@@ -19,7 +21,8 @@ pd.options.mode.string_storage = "python"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 SAMPLE = DATA_DIR / "adult_sample.csv"
 CACHE = Path.home() / ".simple-harness" / "rsi" / "adult_full.csv"
-TARGET = "target"
+
+PROFILE_KEYS = ("n_rows", "n_features", "n_classes", "imbalance", "has_categorical")
 
 
 def load_adult():
@@ -41,9 +44,19 @@ def fetch_full():
     return frame
 
 
+def load_sklearn(name):
+    """One of the sklearn built-ins as a frame with an integer `target`: breast_cancer, wine, digits."""
+    from sklearn import datasets
+
+    bunch = getattr(datasets, f"load_{name}")()
+    df = pd.DataFrame(bunch.data, columns=[str(c).replace(" ", "_") for c in bunch.feature_names])
+    df[TARGET] = bunch.target.astype(int)
+    return df
+
+
 def clean(df):
     """Categoricals as plain strings with "missing" for NaN, the target as int.
-    Cleaning is fixed here on purpose: it is not a recipe field and no step searches it."""
+    Cleaning is fixed here on purpose: it is not a recipe field and no pack searches it."""
     df = df.copy()
     for col in df.columns:
         if col != TARGET and not pd.api.types.is_numeric_dtype(df[col]):
@@ -52,26 +65,22 @@ def clean(df):
     return df
 
 
-def categorical_columns(df):
-    return [c for c in df.columns if c != TARGET and not pd.api.types.is_numeric_dtype(df[c])]
-
-
 def profile(df):
     """What a card is allowed to condition on: five numbers about the table, nothing about the signal."""
-    cats = categorical_columns(df)
-    share = float(df[TARGET].mean())
+    counts = df[TARGET].value_counts(normalize=True)
     return {
-        "rows": int(len(df)),
-        "cols": int(df.shape[1] - 1),
-        "categorical": len(cats),
-        "max_cardinality": int(max((df[c].nunique() for c in cats), default=0)),
-        "minority_share": round(min(share, 1 - share), 3),
+        "n_rows": int(len(df)),
+        "n_features": int(df.shape[1] - 1),
+        "n_classes": int(df[TARGET].nunique()),
+        "imbalance": round(float(counts.min()), 3),          # share of the rarest class
+        "has_categorical": int(any(df[c].dtype == object for c in df.columns if c != TARGET)),
     }
 
 
 def split_frame(df, seed=0):
     """One shuffle, four disjoint parts: train 55 %, val 15 %, private 10 %, test 20 %.
-    The same seed gives the same rows in the same order on every machine: the split is a constant."""
+    The same seed gives the same rows in the same order on every machine: the split is a constant.
+    The private part is the gate's split (step 09); no inner pack ever sees it."""
     order = np.random.default_rng(seed).permutation(len(df))
     n = len(df)
     parts = np.split(order, [int(n * 0.55), int(n * 0.70), int(n * 0.80)])

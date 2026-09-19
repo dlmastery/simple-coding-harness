@@ -91,7 +91,7 @@ def turn(messages, user_input, cli=None):
             ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
             break
         try:
-            calls, message, usage = one_call(messages, submitted.context, calls, debug)
+            calls, message, usage, allowed = one_call(messages, submitted.context, calls, debug)
         except KeyboardInterrupt:
             if not steered(messages, "the turn"):  # run_results has answered every call by now
                 raise
@@ -104,7 +104,7 @@ def turn(messages, user_input, cli=None):
             if flag:
                 ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
         try:
-            run_results(messages, message.tool_calls, repeated)
+            run_results(messages, message.tool_calls, repeated, allowed)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
                 raise
@@ -120,8 +120,9 @@ def turn(messages, user_input, cli=None):
 def one_call(messages, hook_context, calls, debug):
     """One model call: the late block, the request, the reply into the transcript.
 
-    Returns (calls, message, usage); message is None when the call failed
-    for good and nothing went in the transcript. A KeyboardInterrupt from
+    Returns (calls, message, usage, allowed); message is None when the call
+    failed for good and nothing went in the transcript, and allowed is the
+    set of tool names the model was offered. A KeyboardInterrupt from
     anywhere in here - the git status in the late block, the request, the
     stream - leaves the transcript as it was, with the interrupted call
     counted.
@@ -144,9 +145,17 @@ def one_call(messages, hook_context, calls, debug):
                 streamed = True
             ui.stream_delta(text)
 
+        def on_restart():
+            nonlocal streamed
+            ui.stream_end()
+            ui.note("that reply broke off and is discarded; the retry starts it over")
+            streamed = False  # the next words open a fresh reply on screen
+
+        schemas = active_schemas(plan.toolset())
+        allowed = {s["function"]["name"] for s in schemas}  # what the model was offered is all it may run
         estimate = budget.breakdown(messages)["total"]  # what this request should cost
         with spinner:
-            message, usage = call_llm(with_mode(messages) + [injection], tools=active_schemas(plan.toolset()), on_delta=on_delta)
+            message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta, on_restart=on_restart)
     except KeyboardInterrupt:
         if streamed:
             ui.stream_end()  # the part that arrived is on screen, but it goes nowhere: a reply is whole or absent
@@ -158,7 +167,7 @@ def one_call(messages, hook_context, calls, debug):
         if streamed:
             ui.stream_end()  # a stream that broke may have shown part of a reply
         ui.note(message.failed)  # the model never answered; nothing goes in the transcript
-        return calls, None, usage
+        return calls, None, usage, allowed
 
     messages.append(message.model_dump(exclude_none=True))
     session.save(messages)
@@ -174,7 +183,7 @@ def one_call(messages, hook_context, calls, debug):
 
     if debug:
         ui.debug(message.model_dump(exclude_none=True))
-    return calls, message, usage
+    return calls, message, usage, allowed
 
 
 def steered(messages, where):
@@ -195,12 +204,14 @@ def steered(messages, where):
     return True
 
 
-def run_results(messages, tool_calls, repeated=None):
+def run_results(messages, tool_calls, repeated=None, allowed=None):
     """Run the tool calls of one reply and append their results in order.
 
     A call flagged in `repeated` does not run: its result is REPEATED, so
     the model reads why nothing new came back. The rest are decided first,
-    run together, then reported in order, as before.
+    run together, then reported in order, as before. `allowed` is the set
+    of tool names the model was offered; a call to any other name is
+    denied, so the offered set is the runnable set.
 
     A Ctrl-C while the calls run does not lose the reply: every call that
     has no result by then gets INTERRUPTED, the results are appended in
@@ -213,7 +224,7 @@ def run_results(messages, tool_calls, repeated=None):
     interrupt = None
     try:
         if fresh:
-            execute_all(fresh, outcomes)
+            execute_all(fresh, outcomes, allowed)
     except KeyboardInterrupt as stop:
         interrupt = stop
     outcomes += [(durability.parse_args(call), None) for call in fresh[len(outcomes):]]  # never started
@@ -275,8 +286,8 @@ def recover(messages):
 def resume(messages):
     """Point the module state at a loaded transcript: strip it, rebuild todos and loaded tools, recover."""
     history.strip(messages)
-    todos.reload_from(messages)
-    tools.reload_from(messages)
+    todos.from_transcript(messages)
+    tools.relearn(messages)
     ui.resumed(messages)
     ui.replay(messages)
     recover(messages)  # a crash mid-turn left tool calls without results: run them now

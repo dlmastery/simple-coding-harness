@@ -1,7 +1,9 @@
-"""Step 00 - the budget: n fits, then it raises. The loop has no other way to fit.
+"""The budget: n fits, then it refuses. No tool has another way to fit.
 
-An off switch that is an object, not a sentence in a README: a policy that wants
-a 25th fit gets BudgetExhausted, and `used` is the count every claim quotes.
+An off switch that is an object, not a sentence in a README: the 25th
+`fit_recipe` gets an `Error:` result, and `used` is the count every claim
+quotes. FREEZE is the moment the budget is spent: `score_test` opens then and
+`write_card` closes then.
 """
 
 
@@ -18,9 +20,14 @@ class Budget:
     def left(self):
         return self.n - self.used
 
-    def fit(self, fn, *args):
-        """The one path to a fit: count first, then call. An exhausted budget refuses."""
-        if self.used >= self.n:
+    @property
+    def frozen(self):
+        """FREEZE: every fit is spent. The test split may be scored once, the memory may not change."""
+        return self.used >= self.n
+
+    def spend(self):
+        """Count one fit before it happens. An error still counts: a wasted fit is a fit."""
+        if self.frozen:
             raise BudgetExhausted(f"budget of {self.n} fits used; fit {self.used + 1} refused")
         self.used += 1
-        return fn(*args)
+        return self.used

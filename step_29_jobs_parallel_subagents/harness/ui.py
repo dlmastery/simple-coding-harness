@@ -28,11 +28,22 @@ MUTED = "#565f89"
 
 MAX_TOOL_OUTPUT_LINES = 12
 
-APPROVE_LOCK = threading.Lock()  # one question at a time: subagents ask from threads
-
-LEAVE = "ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave"
-
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
+
+APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+
+
+class Idle:
+    """A spinner that does nothing: used off the main thread, where rich cannot draw one."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
 
 
 class UI:
@@ -42,7 +53,6 @@ class UI:
         self.console = Console()
         self.live = True  # False in headless mode: no streamed text, panels on stderr
         self._totals = {}
-        self._totals_lock = threading.Lock()
 
     def headless(self):
         """Print mode: progress goes to stderr, so stdout carries only the answer."""
@@ -54,7 +64,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /sessions  /rewind  ·  alt-enter for a newline  ·  {LEAVE}", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -74,11 +84,12 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
+                    raw = call["function"]["arguments"]
                     try:
-                        args = json.loads(call["function"]["arguments"])
-                    except ValueError:
-                        args = {"arguments": call["function"]["arguments"]}  # broken JSON: show it raw
-                    self.tool(call["function"]["name"], args if isinstance(args, dict) else {"arguments": args}, results.get(call["id"], ""))
+                        args = json.loads(raw)
+                    except ValueError:  # the model once sent broken JSON; show it as it was
+                        args = {"arguments": raw}
+                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -94,17 +105,21 @@ class UI:
     def approve(self, reason):
         """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
 
-        Under a lock: parallel subagents ask from their own threads, and the
-        terminal can hold one question at a time. Headless with no terminal
-        to ask (-p with piped stdin) the answer is no, and stderr says so.
+        In print mode nothing may reach stdout, and without a terminal there
+        is nobody to ask: the call is denied and stderr says so.
         """
         with APPROVE_LOCK:
             if not self.live and not sys.stdin.isatty():
-                self.note(f"denied, no terminal to ask: {reason}")
+                self.note(f"denied, no terminal to ask on: {reason}")
                 return False
             self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
             try:
-                answer = prompt.read("  allow? (y/n)> ").strip()
+                if self.live:
+                    answer = prompt.read("  allow? (y/n)> ").strip()
+                else:
+                    sys.stderr.write("  allow? (y/n)> ")
+                    sys.stderr.flush()
+                    answer = input().strip()
             except (EOFError, KeyboardInterrupt):
                 return False
             return answer.lower().startswith("y")
@@ -115,20 +130,19 @@ class UI:
         Returns (approved, feedback). Feedback is empty on yes, and on a no
         it is whatever the user typed at the second prompt.
         """
-        with APPROVE_LOCK:
-            try:
-                answer = prompt.read("  approve? (y/n)> ").strip()
-            except (EOFError, KeyboardInterrupt):
-                return False, ""
-            if answer.lower().startswith("y"):
-                return True, ""
-            try:
-                return False, prompt.read("  feedback> ").strip()
-            except (EOFError, KeyboardInterrupt):
-                return False, ""
+        try:
+            answer = prompt.read("  approve? (y/n)> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            return False, ""
+        if answer.lower().startswith("y"):
+            return True, ""
+        try:
+            return False, prompt.read("  feedback> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            return False, ""
 
     def ask(self):
-        """The next message. None means the user is leaving; "" is an empty line."""
+        """The next message; "" for an empty line, None when the input is closed."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -170,7 +184,7 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos") and not str(result).startswith("Error"):
+        if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -240,21 +254,26 @@ class UI:
     def working(self, label="thinking"):
         """The spinner. Use it as a context manager; call .stop() to end it early.
 
-        Off the main thread it is a no-op with the same shape: rich allows one
-        live display, and parallel subagents would fight over it.
+        Only the main thread gets one: a second live display from a worker
+        thread is an error in rich, and a subagent may run on a worker.
         """
         if threading.current_thread() is not threading.main_thread():
-            return _Quiet()
+            return Idle()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats):
-        with self._totals_lock:  # subagent threads report too
-            for key, value in stats.items():
-                self._totals[key] = self._totals.get(key, 0) + (value or 0)
-        parts = " · ".join(f"${value:.4f}" if key == "cost" else f"{value:,} {key.replace('_tokens', '')}" for key, value in stats.items() if value)
-        self.console.print(Padding(Text(parts, style=MUTED), (1, 0, 0, 2)))
+        for key, value in stats.items():
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                self._totals[key] = self._totals.get(key, 0) + value
+        parts = []
+        for key, value in stats.items():
+            if key == "cost" and value is not None:
+                parts.append(f"${value:.4f}")
+            elif isinstance(value, (int, float)) and value:
+                parts.append(f"{value:,} {key.replace('_tokens', '')}")
+        self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
 
     def summary(self):
         if not self._totals:
@@ -288,19 +307,6 @@ class UI:
         if hidden > 0:
             body.append(f"\n… {hidden} more lines", style=f"italic {TOOL}")
         return body
-
-
-class _Quiet:
-    """A spinner that does nothing: what working() hands out off the main thread."""
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *_):
-        return False
-
-    def stop(self):
-        pass
 
 
 ui = UI()

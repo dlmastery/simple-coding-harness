@@ -184,7 +184,7 @@ out, and the callers re-raise the interrupt.
             ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
             break
         try:
-            calls, message, usage = one_call(messages, submitted.context, calls, debug)
+            calls, message, usage, allowed = one_call(messages, submitted.context, calls, debug)
         except KeyboardInterrupt:
             if not steered(messages, "the turn"):  # run_results has answered every call by now
                 raise
@@ -197,7 +197,7 @@ out, and the callers re-raise the interrupt.
             if flag:
                 ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
         try:
-            run_results(messages, message.tool_calls, repeated)
+            run_results(messages, message.tool_calls, repeated, allowed)
         except KeyboardInterrupt:
             if not steered(messages, "the tool calls"):  # every call has a result by now
                 raise
@@ -238,7 +238,7 @@ handler.
     interrupt = None
     try:
         if fresh:
-            execute_all(fresh, outcomes)
+            execute_all(fresh, outcomes, allowed)
     except KeyboardInterrupt as stop:
         interrupt = stop
     outcomes += [(durability.parse_args(call), None) for call in fresh[len(outcomes):]]  # never started

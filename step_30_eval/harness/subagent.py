@@ -36,6 +36,7 @@ from contextlib import nullcontext
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
+# the computer tools too: an explorer reads and reports, it does not click - or write memories
 WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "computer_act", "computer_screenshot", "remember", "forget"}
 
 def build_system_prompt(cwd=None):
@@ -95,9 +96,9 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": request},
     ]
-    allowed = {s["function"]["name"] for s in tools}
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
@@ -113,8 +114,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         if not message.tool_calls:
             return report or "(the subagent came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same
-        # pool - and only the tools this loop was offered, whatever the model names
+        # the same executor as the main loop: same permissions, same sandbox, same pool
         outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):

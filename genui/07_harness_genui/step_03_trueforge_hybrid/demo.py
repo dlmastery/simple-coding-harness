@@ -159,7 +159,14 @@ def main(argv=None):
 
     for name, prompt in PROMPTS:
         print(f"\n== {name}: {'catalog components only' if name == 'catalog' else 'catalog components plus one HtmlArtifact'} ==")
-        reply, metrics = capture(name, prompt, args.offline)
+        try:
+            reply, metrics = capture(name, prompt, args.offline)
+        except genui.REQUEST_ERRORS as error:  # the server is down or refused the turn: one line, exit 1
+            print(f"request failed: {genui.describe_error(error)}", file=sys.stderr)
+            return 1
+        except RuntimeError as error:  # the turn ended in a state other than done
+            print(f"turn failed: {error}", file=sys.stderr)
+            return 1
         if args.offline:
             print(reply)
         program = genui.extract_program(reply)

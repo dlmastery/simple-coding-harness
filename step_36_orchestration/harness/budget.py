@@ -64,7 +64,7 @@ def breakdown(messages):
     with every request, so they are counted from their sources.
     """
     # here, not at the top: tools imports llm, and llm imports this module
-    from .instructions import instructions_prompt
+    from .instructions import LOADED, render
     from .memory import memory_index
     from .skills import skills_prompt
     from .tools import active_schemas
@@ -74,7 +74,7 @@ def breakdown(messages):
     if messages and messages[0].get("role") == "system":
         system = messages[0].get("content") or ""
         rest = messages[1:]
-    instructions = part_of(system, instructions_prompt())
+    instructions = part_of(system, render(LOADED))  # the files the prompt was built from; no new discovery here
     skills = part_of(system, skills_prompt())
 
     text = results = images = 0
@@ -84,9 +84,9 @@ def breakdown(messages):
             images += IMAGE_TOKENS * sum(1 for part in content if part.get("type") == "image_url")
             text += sum(tokens(part.get("text", "")) for part in content)
         elif message.get("role") == "tool":
-            results += tokens(json.dumps(message))
+            results += tokens(json.dumps(message, ensure_ascii=False))  # as sent: a non-ASCII char is not six
         else:
-            text += tokens(json.dumps(message))
+            text += tokens(json.dumps(message, ensure_ascii=False))
 
     counts = {
         "system prompt": tokens(system) - instructions - skills,

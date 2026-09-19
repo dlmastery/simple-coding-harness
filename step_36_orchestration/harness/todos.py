@@ -51,7 +51,7 @@ def active_form():
     return "thinking"
 
 
-def reload_from(messages):
+def from_transcript(messages):
     """Rebuild TODOS from the last write_todos call of a resumed transcript. Empty when there is none."""
     latest = None
     for message in messages:

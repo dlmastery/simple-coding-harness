@@ -45,9 +45,10 @@ SAMPLE_SPEC = {
 
 def scripted_model():
     """A stand-in for call_llm: one render_ui call, then a one-line reply."""
-    call = SimpleNamespace(id="call_1", function=SimpleNamespace(name="render_ui", arguments=json.dumps({"spec": SAMPLE_SPEC})))
+    function = SimpleNamespace(name="render_ui", arguments=json.dumps({"spec": SAMPLE_SPEC}))
+    call = SimpleNamespace(id="call_1", type="function", function=function, model_dump=lambda exclude_none=True: {"id": "call_1", "type": "function", "function": vars(function)})
     turns = [
-        SimpleNamespace(content=None, tool_calls=[call], model_dump=lambda exclude_none=True: {"role": "assistant", "content": None, "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "render_ui", "arguments": call.function.arguments}}]}),
+        SimpleNamespace(content=None, tool_calls=[call], model_dump=lambda exclude_none=True: {"role": "assistant", "content": None, "tool_calls": [call.model_dump()]}),
         SimpleNamespace(content="Here is this week's lemonade stand at a glance.", tool_calls=None, model_dump=lambda exclude_none=True: {"role": "assistant", "content": "Here is this week's lemonade stand at a glance."}),
     ]
     usage = {"prompt_tokens": 0, "completion_tokens": 0}
@@ -61,7 +62,7 @@ def run_turn(prompt):
     for _ in range(MAX_CALLS):
         with ui.working():
             message, usage = llm.call_llm(messages)
-        messages.append(message.model_dump(exclude_none=True))
+        messages.append(llm.entry(message))  # role, content, tool_calls: never the provider's extras
         ui.usage(usage)
         if message.content:
             ui.agent(message.content)

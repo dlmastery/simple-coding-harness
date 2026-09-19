@@ -19,7 +19,7 @@ sys.argv.append("--offline")  # demo.py reads this before importing the harness
 from rich.console import Console  # noqa: E402
 
 import demo  # noqa: E402
-from harness import genui, llm, subagent, tools, web  # noqa: E402
+from harness import genui, llm, session, subagent, todos, tools, web  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 SPEC = demo.SAMPLE_SPEC
@@ -74,8 +74,24 @@ def test_execute_answers_every_call_even_when_it_cannot_run():
     args, result = tools.execute(SimpleNamespace(id="c", function=SimpleNamespace(name="render_ui", arguments="{not json")))
     assert args == {} and result.startswith("Error: the arguments of render_ui are not a JSON object:")
     assert tools.execute(call("no_such_tool", {}))[1] == "Error: no tool named 'no_such_tool'."
-    assert tools.execute(call("read_file", {"path": str(HERE_DIR / "missing.txt")}))[1].startswith("Error: FileNotFoundError:")
+    assert tools.execute(call("read_file", {"path": str(HERE_DIR / "missing.txt")}))[1].endswith("missing.txt is not a file.")
+    assert tools.execute(call("read_file", {"paths": "x"}))[1].startswith("Error: TypeError:")  # a wrong argument name raises inside the tool
     assert tools.execute(call("bash", {}))[1] == "Blocked by policy: bash: missing argument 'command'"
+
+
+def test_utf8_round_trip_and_bad_todos_and_session_repair(tmp_path, monkeypatch):
+    """The stage 15 guarantees still hold under the new tool: utf-8 files, a refused plan, a repaired transcript."""
+    path = str(tmp_path / "tree.md")
+    text = "├── café Łódź 🎉\n"
+    assert tools.write_file(path, text) == f"Wrote {path}" and tools.read_file(path) == text
+    before = list(todos.TODOS)
+    assert tools.write_todos([{"content": "a", "activeForm": "b", "status": "done"}]).startswith("Error: item 0")
+    assert todos.TODOS == before
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path / "sessions")
+    monkeypatch.setattr(session, "WRITTEN", 0)
+    dangling = {"role": "assistant", "content": None, "tool_calls": [{"id": "c9", "type": "function", "function": {"name": "render_ui", "arguments": "{"}}]}
+    session.save([{"role": "system", "content": "s"}, {"role": "user", "content": "draw"}, dangling])
+    assert session.load(session.CURRENT)[-1] == {"role": "tool", "tool_call_id": "c9", "content": session.STOPPED}
 
 
 def test_a_denied_render_ui_is_not_drawn(monkeypatch):

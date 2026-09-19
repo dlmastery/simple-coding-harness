@@ -17,12 +17,13 @@ COMMANDS = {
     "/rewind": "jump back to an earlier point in this chat",
     "/sessions": "open a past chat",
     "/compact": "summarise the history so far and free up the context window",
-    "/memory": "list what the agent remembers across sessions",
     "/mcp": "list the MCP servers, whether each started, and the tools they added",
     "/hooks": "list the hooks configured for each event",
     "/plan": "plan mode: read-only tools until you approve a plan",
     "/act": "act mode: every tool, the default",
     "/jobs": "list the background jobs and whether each is still running",
+    "/memory": "list what the agent remembers across sessions",
+    "/exit": "leave (ctrl-d, or ctrl-z then enter on Windows, does the same)",
 }
 
 
@@ -38,26 +39,20 @@ def redraw(messages, label):
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)
     ui.replay(messages)
+    todos.restore(messages)  # the plan belongs to the transcript now on screen
     return messages
 
 
 def rewind(messages):
-    """Cut the chat back to just before one of the user's messages.
-
-    Only user messages are offered: a cut anywhere else could leave a tool
-    call without its result, and the model refuses such a transcript.
-    """
-    users = [i for i, m in enumerate(messages) if m["role"] == "user"]
-    rows = [f"{i:<4} {preview(messages[i])}" for i in users]
-    choice = ui.pick("rewind to before", rows)
+    """Cut the chat back to just before a user message - never between a call and its result."""
+    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
+    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
     if choice is None:
         return messages
-    session.save(messages)  # a fresh chat has no file yet; the marker needs one
-    cut = users[choice]
+    cut = rows[choice][0]
     session.rewind_to(cut)
-    kept = messages[:cut]
-    todos.restore(kept)  # the plan is whatever the kept transcript last wrote
-    return redraw(kept, "rewound")
+    return redraw(messages[:cut], "rewound")
 
 
 def sessions(messages):
@@ -69,9 +64,7 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    opened = session.open_session(saved[choice]["id"])
-    todos.restore(opened)  # the other chat's plan, not this one's
-    return redraw(opened, "opened")
+    return redraw(session.open_session(saved[choice]["id"]), "opened")
 
 
 def compact(messages):
