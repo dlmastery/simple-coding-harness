@@ -193,7 +193,7 @@ before reaching the static grid's answer, summed over the curriculum):
   10 Dream-RSI              +0.0000        +0.0012        +0.0000        +0.0005        +0.0024        +0.0646       34/33
   11 RSIAgent               +0.0000        +0.0000        +0.0000        +0.0000        +0.0000        -0.0270       27/33
   13 Recuris                +0.0000        +0.0000        +0.0000        +0.0000        +0.0024        +0.0646        6/33
-  16 MetaSkill        ROW_16
+  16 MetaSkill              +0.0000        +0.0012        +0.0000        +0.0000        +0.0024        +0.0646       20/33
 ```
 
 Three methods are reported on their own pages instead: ModularRSI patched
@@ -825,7 +825,7 @@ fast loop boots what the slow loop wrote.
 **Run.** The curriculum prompt on the lesson page, with your answer at each
 slow visit.
 
-**See.** SEE_16
+**See.** Three turns (37 + 27 + 1): the fast loop flipped the policy line on problem 1 under the gate; the slow loop proposed `Cards per visit: 3 -> 4` after problem 3, the human approved (`gen_001` of the meta pack), and had nothing to propose after problem 6; the curve and exam are lesson 07's exactly, and the page says the meta-skill change made no difference to the numbers.
 
 **What the test proves.** Task skills change every problem and meta-skills
 only on the clock; a meta-skill change never lands without the human; the

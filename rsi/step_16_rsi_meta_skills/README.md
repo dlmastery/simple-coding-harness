@@ -102,7 +102,70 @@ patches only what its front matter allows:
             raise ValueError(f"this meta pack may patch {allowed} only, not {name}")
 ```
 
-RECORDING_16
+The recorded run (Claude Code 2.1.278, headless, three turns - 37 turns 652 s,
+27 turns 1016 s, 1 turn 6 s; the arms' fit calls trimmed to the visits and
+the tables):
+
+```text
+[Skill adult-income-curriculum]
+agent> Verifier: 9 cards written, 9 new, 0 demoted (4 active). Now the fast visit (M) on problem 1.
+agent> Rule (a) applies: policy is static and 4 >= 2 (flip threshold) cards are active. Writing the patched
+SKILL.md with only the policy line changed, then proposing it.
+agent> Fast visit 1: g1, gate 0.8951 -> 0.8951, kept, landed as gen_001. Problem 1 is not a multiple of k=3,
+so no slow visit. On to problem 02 (policy line now obey-memory).
+... problems 2 and 3: fast visits propose nothing ...
+$ mkdir -p runs/meta-evolver/patch/roles && sed 's/^Cards per visit: 3$/Cards per visit: 4/' .claude/skills/task-skills-meta/roles/proposer.md > runs/meta-evolver/patch/roles/proposer.md && python ../tools/patch_pack.py --pack .claude/skills/meta-evolver --task ../tasks/03_wine.json --target .claude/skills/task-skills-meta --files @runs/meta-evolver/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=none --summary "proposer: Cards per visit 3 -> 4" --visit 1
+{"id": "g1", "decision": null, "landed": false, "diff": "--- a/roles/proposer.md
++++ b/roles/proposer.md
+@@ -2,2 +2,2 @@
+ One patch per visit. Cards are merged from the last problem's pairs, evidence 1 each.
+-Cards per visit: 3
++Cards per visit: 4 ...", ...}
+agent> The slow loop (meta-evolver) has a proposal pending and needs your decision before anything lands.
+I'm stopping here as its SKILL.md requires.
+Slow visit 1 (after problem 3, k=3) - proposal g1 on task-skills-meta, awaiting you: the fast loop added
+15 cards over the last 3 problems but the gap isn't growing (0, +0.0012, 0), so its first rule fires:
+raise Cards per visit. approve / edit / reject? Your exact words will be passed to patch_pack.py --approved.
+[37 turns, 652 s]
+=== user> approve
+$ python ../tools/patch_pack.py --pack .claude/skills/meta-evolver --task ../tasks/03_wine.json --target .claude/skills/task-skills-meta --proposal g1 --approved "approve"
+{"id": "g1", "decision": "y", "landed": true, "version": "gen_001", "files": ["roles/proposer.md"], "approved_by": "human", "words": "approve"}
+agent> Landed as gen_001 of the meta pack; roles re-read (Cards per visit: 4, flip threshold 2). Problem 04 (digits).
+agent> Fast visit 4: nothing applies (policy flipped, every value has wins, all rule cards already held).
+Nothing proposed. Problem 05. ... Fast visit 5: nothing applies. Problem 06. ... Fast visit 6: nothing
+applies. Problem 6 is a multiple of k=3 - slow visit 2.
+agent> Slow visit 2: nothing - gap growing (0 -> +0.0024 -> +0.0646) and policy already obey-memory. Not asked.
+$ python ../tools/curve.py --pack .claude/skills/adult-income --tasks ../tasks
+{"summary": {"gaps_val": [0.0, 0.0012, 0.0, 0.0, 0.0024, 0.0646], "wasted_memory_total": 20, "wasted_control_total": 33, "never_negative": true}}
+$ python ../tools/exam.py --pack .claude/skills/adult-income --task ../tasks/07_exam.json --seeds 0,1,2,3,4
+memory arm beats control on 4 of 5 seeds (3 on test score, 1 same score; a tie won by fewer wasted fits), mean test gap 0.0308; pack unchanged: True; no card written: True
+$ python ../tools/read_pack.py --pack .claude/skills/task-skills-meta --checksums
+{"versions": ["gen_001"], ...}      runs/adult-income/versions: gen_001    runs/task-skills-meta/versions: gen_001
+agent> Done. Fast decisions (task-skills-meta, gate): problem 1 g1 static -> obey-memory, gate 0.8951 ->
+0.8951, landed gen_001; problems 2-6 nothing proposed. Slow decisions (meta-evolver, k=3, human): problem 3
+roles/proposer.md Cards per visit: 3 -> 4, "approve", gen_001 under runs/task-skills-meta/versions/;
+problem 6 nothing (gap growing and policy already obey-memory), not asked.
+Note: the raised Cards per visit never took effect in practice - rule (c) of the fast loop never fired,
+because the verifier had already written every rule card before each fast visit.
+[27 turns, 1016 s]
+=== user> approve
+agent> There's nothing pending to approve - the only slow-loop proposal (Cards per visit: 3 -> 4 after
+problem 3) already landed with your earlier "approve" as gen_001 of the meta pack, and the second slow visit
+(after problem 6) had nothing to propose, so no approval was requested.
+[1 turns, 6 s]
+```
+
+What to notice, honestly: the two clocks are visible in the two `versions/`
+directories - one generation of the actor (the policy flip, problem 1), one
+generation of the meta pack (`Cards per visit: 3 -> 4`, problem 3, with the
+human) - and the curve and exam are lesson 07's exactly, because the fast
+loop's only effective change is the same policy flip and the slow loop's
+change touched a rule that never fired afterwards (the verifier had already
+written every card the fast loop would have merged). The improver's skill
+changed, under a human, on the slow clock, and it made no difference to the
+numbers: that is what happened, and the page says so rather than claiming
+the "and so on" paid. The third headless turn was superfluous - the agent
+had nothing pending and said so.
 
 Files:
 
