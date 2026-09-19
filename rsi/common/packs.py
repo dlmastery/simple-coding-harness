@@ -136,8 +136,8 @@ def lint_pack(pack_dir, task):
         problems.append("a verifier pack must state the verifier contract verbatim")
     if "write_card" in allowed and any(t in allowed for t in ("fit_recipe", "score_test", "walk_path")):
         problems.append("a verifier pack may not fit or score: no one grades their own homework")
-    if md.get("rsi") == "on" and "memory.schema.json" not in files and "memory.json" not in files:
-        problems.append("rsi: on without a memory file")
+    if md.get("rsi") == "on" and "memory.schema.json" not in files and "memory.json" not in files             and not any(t in allowed for t in ("patch_pack", "write_card")):
+        problems.append("rsi: on without a memory file or a tool that changes one")
     return problems
 
 

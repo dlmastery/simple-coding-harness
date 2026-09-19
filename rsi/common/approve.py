@@ -66,6 +66,9 @@ def show(proposal, out=None):
     print(f"--- proposal {proposal['id']}: {proposal['kind']} - {proposal.get('summary', '')}", file=out)
     payload = proposal["payload"]
     if proposal["kind"] == "pack":
+        from common.packs import VERIFIER_CONTRACT
+        if any(VERIFIER_CONTRACT in text for text in payload.values()):
+            print(f"### verifier contract (the acceptance rule you are approving)\n{VERIFIER_CONTRACT}", file=out)
         for name, text in payload.items():
             if name.endswith("graph.json"):      # the graph as the human reads it: nodes, then edges
                 g = json.loads(text)

@@ -227,7 +227,9 @@ def lint_pack(run, files):
         problems = packs.lint_pack(tmp, run.task)
         if not problems:
             from common.harness import Run
-            Run(tmp, run.task, run_dir=tmp / "dry", human=run.human, quiet=True)   # a dry boot: the prompt builds or it does not
+            # a dry boot of each pack (a directory of packs has one per subdirectory): the prompt builds or it does not
+            for pack_dir in ([tmp] if (tmp / "SKILL.md").exists() else sorted(p.parent for p in tmp.glob("*/SKILL.md"))):
+                Run(pack_dir, run.task, run_dir=tmp / "dry", human=run.human, quiet=True)
     except Exception as e:
         problems = [f"dry boot failed: {e}"]
     finally:
@@ -320,18 +322,25 @@ def patch_pack(run, files, recipe, summary):
     payload = {"files": changes, "recipe": rec}
     mode = (run.meta.get("metadata") or {}).get("approval", "human")
     if mode == "gate":
+        # the private gate: snapshot, land, score the evidence recipe on the private split; a loss rolls back
+        label = land_patch(run, payload)
         verdict = private_gate(run, rec)
         p = {"id": f"g{len(run.proposals.items) + 1}", "kind": "patch", "payload": payload, "decision": "y" if verdict["keep"] else "n",
-             "applied": False, "summary": summary}
+             "applied": verdict["keep"], "summary": summary}
         run.proposals.items[p["id"]] = p
+        if not verdict["keep"]:
+            packs.rollback(run.target, run.versions_dir, label)
+            run.trace.append(event="rollback", problem=run.problem, arm=run.arm, seed=run.seed,
+                             info={"proposal": p["id"], "version": label, "gate": verdict, "checksums": packs.checksums(run.target)})
+            return {"id": p["id"], "decision": "n", "gate": verdict, "landed": False, "rolled_back_to": label}
     else:
         p = run.proposals.propose("patch", payload, summary)
         verdict = None
-    if p["decision"] not in ("y", "edit"):
-        run.trace.append(event="reject", problem=run.problem, arm=run.arm, seed=run.seed, info={"proposal": p["id"], "gate": verdict})
-        return {"id": p["id"], "decision": p["decision"], "gate": verdict, "landed": False}
-    label = land_patch(run, p["payload"])
-    p["applied"] = True
+        if p["decision"] not in ("y", "edit"):
+            run.trace.append(event="reject", problem=run.problem, arm=run.arm, seed=run.seed, info={"proposal": p["id"]})
+            return {"id": p["id"], "decision": p["decision"], "landed": False}
+        label = land_patch(run, p["payload"])
+        p["applied"] = True
     run.trace.append(event="apply", problem=run.problem, arm=run.arm, seed=run.seed,
                      info={"proposal": p["id"], "decision": p["decision"], "version": label, "gate": verdict,
                            "checksums": packs.checksums(run.target)})

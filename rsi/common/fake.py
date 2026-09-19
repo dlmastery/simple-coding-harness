@@ -167,12 +167,11 @@ class FakeModel:
 
     def order(self, t, profile, fits):
         """The recipes in the order this pack's files and policy line say to try them."""
-        policy = t.line("Search policy:") or "static"
         static = t.json_file("recipes.json") or t.json_file("schema.json", {}).get("recipes") or recipe.static_list()
         cards = t.json_file("memory.json", []) or []
         forbid = t.json_file("schema.json", {}).get("forbid", [])
-        if policy == "static" and cards:
-            policy = "obey-memory"
+        # the policy line is binding when the pack has one; a pack with cards and no line obeys them
+        policy = t.line("Search policy:") or ("obey-memory" if cards else "static")
         return policy_order(policy, static, cards, profile, fits, seed=len(t.system), forbid=forbid)
 
     # ------------------------------------------------------------------ verifier
@@ -203,7 +202,11 @@ class FakeModel:
         if lint != {"text": "ok"}:
             return self.reply(text=f"My pack does not lint: {lint}. Stopping.")
         if not t.called("propose"):
-            return self.reply(self.call("propose", kind="pack", payload=self.render(t, task), summary=f"a pack for {task['name']} from the template"))
+            files = self.render(t, task)
+            summary = f"a pack for {task['name']} from the template"
+            if any(name.endswith("memory.json") for name in files):
+                summary += "; this pack will change its own memory.json on every problem it runs"
+            return self.reply(self.call("propose", kind="pack", payload=files, summary=summary))
         decision = t.results("propose")[-1][1]
         if decision.get("decision") in ("y", "edit") and not t.called("apply"):
             return self.reply(self.call("apply", id=decision["id"]))

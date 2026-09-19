@@ -1,6 +1,6 @@
 ---
-name: adult-income
-description: Train a classifier for a curriculum problem under a 24-fit budget, proposing one recipe at a time shaped by the memory cards. Use when the pack has memory.json and a verifier pack writes to it.
+name: {{slug}}
+description: Train a classifier for {{title}} and the problems after it under a {{n_fits}}-fit budget, proposing one recipe at a time shaped by the memory cards. Use when the pack has memory.json and a verifier pack writes to it.
 metadata:
   type: workflow
   version: "1.0"

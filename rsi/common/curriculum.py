@@ -124,3 +124,21 @@ def print_exam(report, out=print):
             f"gap {r['gap_test']:+.4f} {'win' if r['win'] else 'loss'}")
     for c in report["did_not_transfer"]:
         out(f"  did not transfer: {json.dumps(c['if'])} -> {json.dumps(c['then'])} (evidence {c['evidence']}, counter {c['counter']})")
+
+
+def meta_visit(meta_dir, actor_dir, task, model, run_dir, *, seed=0, human=None, quiet=True):
+    """One visit of a meta pack between two problems: boot it with the actor pack as its target, run it, and
+    return what its one patch_pack call answered (or None when it proposed nothing)."""
+    import json as _json
+
+    from common.checks import tool_results
+
+    before = checksums(actor_dir)
+    meta = harness.boot(meta_dir, task, seed=seed, arm="meta", run_dir=run_dir, target=actor_dir, human=human, quiet=quiet)
+    harness.run(meta, model)
+    results = tool_results(meta, "patch_pack")
+    answer = None
+    if results:
+        text = results[-1]
+        answer = _json.loads(text) if not text.startswith("Error:") else {"error": text}
+    return {"pack": meta.meta["name"], "patch": answer, "changed": checksums(actor_dir) != before, "calls": meta.calls}
