@@ -62,16 +62,16 @@ def synth_task(name, index, role="curriculum", **source):
 
 
 def test_curriculum():
-    """Six small synthetic problems and an exam: the offline curriculum every test runs in seconds.
-    Trees win on the even seeds (shift 0), a line wins on the odd ones (shift 1): experience must
-    transfer across a flip, not just repeat itself."""
+    """Six small synthetic problems and an exam: the offline curriculum every test runs in seconds, shaped
+    like the real one (trees, line, trees multiclass, line multiclass, line, trees; the exam is trees):
+    experience must survive a flip of which model wins, not just repeat itself."""
     return [
         synth_task("t1_trees_cat", 1, n=500, seed=101, shift=0, imbalance=0.2),
         synth_task("t2_line_small", 2, n=400, seed=102, shift=1, imbalance=0.4),
         synth_task("t3_trees_multi", 3, n=500, seed=103, shift=0, imbalance=0.3, n_classes=3),
         synth_task("t4_line_multi", 4, n=500, seed=104, shift=1, imbalance=0.3, n_classes=3),
-        synth_task("t5_trees_imbalanced", 5, n=500, seed=105, shift=0, imbalance=0.15),
-        synth_task("t6_line_cat", 6, n=450, seed=106, shift=1, imbalance=0.25),
+        synth_task("t5_line_balanced", 5, n=500, seed=105, shift=1, imbalance=0.4),
+        synth_task("t6_trees_imbalanced", 6, n=450, seed=106, shift=0, imbalance=0.15),
     ], synth_task("t7_exam", 7, role="exam", n=600, seed=107, shift=0, imbalance=0.2)
 
 

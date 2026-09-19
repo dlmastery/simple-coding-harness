@@ -35,8 +35,10 @@ budget:
 
 1. `test_scored_once` is true and `test_touched_before_freeze` is false for
    both arms (you did not peek);
-2. the memory arm's `best_val_score` is at least the `MEMORY_OFF` arm's, and
-   its `wasted_fits` are fewer, on every problem after the first;
+2. the memory arm's `best_val_score` is at least the `MEMORY_OFF` arm's on
+   every problem, the gap is larger on the last problem than on the second,
+   and its `wasted_fits` (fits spent before reaching the `MEMORY_OFF` arm's
+   best val score, within 0.005) are fewer in total over the curriculum;
 3. on the exam problem the frozen pack beats `MEMORY_OFF` on at least 3 of 5
    seeds (a higher test score, or the same score reached with fewer wasted
    fits), and the report names every applicable card that did not transfer.

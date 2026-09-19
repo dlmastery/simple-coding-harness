@@ -26,6 +26,15 @@ def workspace(step_dir, *names, into=None, fresh=True):
     return out if len(out) > 1 else out[0]
 
 
+def run_dir(step_dir, name, fresh=True):
+    """runs/<name> under the step, emptied first so a run's log and models are that run's only."""
+    path = Path(step_dir) / "runs" / name
+    if fresh and path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def step_task(step_dir, default="adult_income"):
     """The step's own task.json when it ships one, else the named curriculum problem."""
     own = Path(step_dir) / "task.json"

@@ -8,32 +8,34 @@ The list lives here, not in the transcript. The late injection shows it to
 the model on every call, so the plan is always in front of the model.
 """
 
-import json
-
 MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}
 
 TODOS = []  # [{"content": ..., "activeForm": ..., "status": ...}]
 
 
-def write_todos(todos):
-    """Replace the whole list. At most one task may be in_progress.
-
-    The list is checked before anything is assigned, so a bad call leaves
-    the current plan as it was and the model reads why.
-    """
+def validate(todos):
+    """The first problem with a list, or None. Checked before anything is stored."""
     if not isinstance(todos, list):
-        return "Error: todos must be a list"
+        return "Error: todos must be a list."
     for i, todo in enumerate(todos):
         if not isinstance(todo, dict):
-            return f"Error: item {i} is not an object"
-        for key in ("content", "activeForm"):
+            return f"Error: item {i} is not an object."
+        for key in ("content", "activeForm", "status"):
             if not isinstance(todo.get(key), str) or not todo[key]:
-                return f"Error: item {i} needs a non-empty {key!r}"
-        if todo.get("status") not in MARKS:
-            return f"Error: item {i} has status {todo.get('status')!r}; use one of {', '.join(MARKS)}"
+                return f"Error: item {i} needs a non-empty {key!r}."
+        if todo["status"] not in MARKS:
+            return f"Error: item {i} has status {todo['status']!r}; use one of {', '.join(MARKS)}."
     active = [t for t in todos if t["status"] == "in_progress"]
     if len(active) > 1:
-        return f"Error: {len(active)} tasks are in_progress. Only one may be."
+        return f"Error: {len(active)} tasks are in_progress. At most one may be."
+    return None
+
+
+def write_todos(todos):
+    """Replace the whole list. At most one task may be in_progress."""
+    problem = validate(todos)
+    if problem:
+        return problem  # the old list stays as it was
 
     TODOS[:] = todos
     return todos_prompt() or "Todo list cleared."
@@ -51,22 +53,21 @@ def active_form():
     return "thinking"
 
 
-def from_transcript(messages):
-    """Rebuild the list from the last write_todos call that succeeded, for a resumed chat."""
-    results = {m.get("tool_call_id"): m.get("content") or "" for m in messages if m.get("role") == "tool"}
-    found = []
+def restore(messages):
+    """Rebuild the list from the last write_todos in a transcript (resume, rewind)."""
+    import json
+
+    TODOS.clear()
     for message in messages:
         for call in message.get("tool_calls") or []:
-            if call["function"]["name"] != "write_todos" or results.get(call["id"], "").startswith("Error"):
+            if call["function"]["name"] != "write_todos":
                 continue
             try:
                 todos = json.loads(call["function"]["arguments"]).get("todos")
             except (ValueError, AttributeError):
                 continue
-            if isinstance(todos, list):
-                found = todos
-    TODOS[:] = found
-    return TODOS
+            if validate(todos) is None:
+                TODOS[:] = todos
 
 
 TODO_SCHEMA = {

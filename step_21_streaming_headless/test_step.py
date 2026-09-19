@@ -11,16 +11,21 @@ from harness import agent, llm, permissions, session, subagent, todos, tools  # 
 from harness.ui import ui  # noqa: E402
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
 
 
 # ------------------------------------------------------------ a fake stream
@@ -205,7 +210,7 @@ def test_utf8_round_trip_through_write_read_and_bash(tmp_path, monkeypatch):
     assert tools.str_replace(str(target), "", "x") == "Error: old_str is empty."
     assert tools.str_replace(str(target), "wörld", "welt").startswith("Replaced 1")
     assert "welt" in tools.read_file(str(target))
-    out = tools.bash(f'{sys.executable} -c "print(chr(233) + chr(10004))"')
+    out = tools.bash(f'{sys.executable} -X utf8 -c "print(chr(233) + chr(10004))"')  # -X utf8: the child writes UTF-8 on Windows too
     assert chr(233) + chr(10004) in out
 
 
@@ -350,7 +355,7 @@ def test_turn_streams_live_and_stops_the_spinner_at_the_first_delta(quiet, monke
 
 def test_turn_returns_the_compacted_list_when_needed(quiet, monkeypatch):
     monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (FakeMessage(content="ok", tool_calls=None), {"prompt_tokens": 10 ** 9}))
-    monkeypatch.setattr(agent.compact, "LAST_SIZE", 0)
+    monkeypatch.setattr(agent.compact, "COMPACTED_AT", 0)
     replacement = [{"role": "system", "content": "compacted"}]
     monkeypatch.setattr(agent.commands, "compact", lambda messages: replacement)
     assert agent.turn([{"role": "system", "content": "s"}], "hi") is replacement
@@ -368,7 +373,7 @@ def test_session_load_repairs_a_dangling_tool_call(tmp_path, monkeypatch):
     ]
     (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
     loaded = session.load("x")
-    assert loaded[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+    assert loaded[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.STOPPED}
 
 
 def test_rewind_cuts_before_a_user_message_never_inside_an_exchange(monkeypatch):

@@ -207,7 +207,7 @@ class FakeModel:
         decision = t.results("propose")[-1][1]
         if decision.get("decision") in ("y", "edit") and not t.called("apply"):
             return self.reply(self.call("apply", id=decision["id"]))
-        landed = t.results("apply")[-1][1] if t.called("apply") else "nothing landed"
+        landed = t.results("apply")[-1][1].get("text", "apply failed") if t.called("apply") else "nothing landed"
         return self.reply(text=f"Proposal {decision.get('id')} decided {decision.get('decision')}: {landed}.")
 
     def render(self, t, task):
@@ -329,7 +329,9 @@ def policy_order(policy, static, cards, profile, fits, seed=0, forbid=()):
             return probes
         # then obey: the grid ranked by the cards, with the probe winner as the model belief
         want["model"] = max(probed, key=lambda x: x[0])[1]["model"]
-        ranked = sorted(full, key=lambda r: (-memory.agreement(r, cards, profile, want), recipe.key(r) not in static_keys, full.index(r)))
+        # the believed family first; inside it the static recipes before the hyper variants; then the cards
+        ranked = sorted(full, key=lambda r: (r["model"] != want["model"], recipe.key(r) not in static_keys,
+                                             -memory.agreement(r, cards, profile, want), full.index(r)))
         return probes + ranked
     if policy == "random":
         order = list(full)

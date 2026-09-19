@@ -31,17 +31,28 @@ from .todos import active_form
 from .tools import active_schemas, execute_all, relearn
 from .ui import ui
 
-MAX_CALLS = 40  # model calls one turn may make before the loop stops and asks
+MAX_CALLS = 40  # model calls in one turn; past that the model is looping, not working
 
 INTERRUPTED = "(interrupted before this tool ran)"
+
+
+def answer_pending(messages):
+    """Give every unanswered tool call a tool message, so the transcript stays valid."""
+    answered = {m.get("tool_call_id") for m in messages if m["role"] == "tool"}
+    last = messages[-1]
+    if last["role"] != "assistant":
+        return
+    for call in last.get("tool_calls") or []:
+        if call["id"] not in answered:
+            messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
 
 
 def turn(messages, user_input, cli=None):
     """One user message, every model call and tool call it leads to.
 
-    Returns the message list, which compaction may have replaced. The turn
-    ends when the model answers without tool calls, when a model call
-    fails, or when MAX_CALLS calls have been made.
+    Returns the message list, which compaction may have replaced. Returns
+    it early, with every tool call answered, when the model call fails or
+    the turn is interrupted.
     """
     debug = getattr(cli, "debug", False)
 
@@ -51,62 +62,82 @@ def turn(messages, user_input, cli=None):
         return messages
     messages.append({"role": "user", "content": user_input})
     session.save(messages)
-    calls = 0  # model calls so far in this turn
     usage = {}
 
-    while True:
-        if calls >= MAX_CALLS:
-            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
-            break
-        injection = reminder(hook_context=submitted.context)
-        ui.injection(injection["content"])
+    try:
+        for _ in range(MAX_CALLS):
+            injection = reminder(hook_context=submitted.context)
+            ui.injection(injection["content"])
 
-        if history.fit(messages):
-            ui.note("dropped old tool output to make this request fit")
+            if history.fit(messages):
+                ui.note("dropped old tool output to make this request fit")
 
-        spinner = ui.working(active_form())
-        streamed = False
+            spinner = ui.working(active_form())
+            streamed = False
 
-        def on_delta(text):
-            nonlocal streamed
-            if not streamed:
-                spinner.stop()  # the wait is over: the first words are here
-                ui.stream_start()
-                streamed = True
-            ui.stream_delta(text)
+            def on_delta(text):
+                nonlocal streamed
+                if not streamed:
+                    spinner.stop()  # the wait is over: the first words are here
+                    ui.stream_start()
+                    streamed = True
+                ui.stream_delta(text)
 
-        schemas = active_schemas(plan.toolset())
-        allowed = {s["function"]["name"] for s in schemas}  # what the model was offered is all it may run
-        estimate = budget.breakdown(messages)["total"]  # what this request should cost
-        with spinner:
+            schemas = active_schemas(plan.toolset())  # the stubs stand in for the deferred tools
+            estimate = budget.breakdown(messages)["total"]  # what this request should cost
             try:
-                message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta)
-            except openai.APIError as failed:
+                with spinner:
+                    message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta)
+            except (openai.APIError, RuntimeError) as failed:
+                # the user message stays, nothing dangles: the next turn can retry
                 if streamed:
-                    ui.stream_end()  # a stream that broke may have shown part of a reply
-                ui.note(f"model call failed: {failed}")  # the user message stays; the transcript is still valid
+                    ui.stream_end()
+                ui.note(f"model call failed: {failed}")
                 break
-        calls += 1
 
-        messages.append(message.model_dump(exclude_none=True))
+            messages.append(message.model_dump(exclude_none=True))
+            session.save(messages)
+
+            if streamed:
+                ui.stream_end()
+            elif message.content:
+                ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
+            ui.usage(usage, estimate)
+            warning = budget.check(usage.get("prompt_tokens") or estimate)
+            if warning:
+                ui.note(warning)
+
+            if debug:
+                ui.debug(message.model_dump(exclude_none=True))
+
+            if not message.tool_calls:
+                break
+
+            # decide every call first, run the allowed ones together, then report in order
+            outcomes = execute_all(message.tool_calls)
+            pictures = []  # (tool name, PNG path) for every image a result asked to show
+            for tool_call, (args, result) in zip(message.tool_calls, outcomes):
+                result, paths = history.split_images(result)
+                pictures += [(tool_call.function.name, path) for path in paths]
+                ui.tool(tool_call.function.name, args, result)
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": result,
+                })
+                session.save(messages)  # after every message, so a crash loses nothing
+
+            # the pictures go after the last result, so no tool message is orphaned
+            for name, path in pictures:
+                messages.append(history.image_message(path, f"screenshot from tool {name}"))
+                session.save(messages)
+        else:
+            ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
+    except KeyboardInterrupt:
+        answer_pending(messages)  # a call was cut off between the reply and its results
         session.save(messages)
-
-        if streamed:
-            ui.stream_end()
-        elif message.content:
-            ui.agent(message.content)  # a reply that did not stream, e.g. from a fake model
-        ui.usage(usage, estimate)
-        warning = budget.check(usage.get("prompt_tokens") or estimate)
-        if warning:
-            ui.note(warning)
-
-        if debug:
-            ui.debug(message.model_dump(exclude_none=True))
-
-        if not message.tool_calls:
-            break
-
-        run_results(messages, message.tool_calls, allowed)
+        ui.note("interrupted")
 
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
@@ -116,64 +147,24 @@ def turn(messages, user_input, cli=None):
     return messages
 
 
-def run_results(messages, tool_calls, allowed=None):
-    """Run the tool calls of one reply and append their results in order.
-
-    Every call gets exactly one tool message, whatever happened to it: a
-    denied call, a blocked call, a call whose tool raised, all come back as
-    text the model can read. The results are decided first, run together,
-    then reported in order.
-    """
-    outcomes = execute_all(tool_calls, allowed)
-    pictures = []  # (tool name, PNG path) for every image a result asked to show
-    for tool_call, (args, result) in zip(tool_calls, outcomes):
-        result, paths = history.split_images(result)
-        pictures += [(tool_call.function.name, path) for path in paths]
-        ui.tool(tool_call.function.name, args, result)
-
-        messages.append({
-            "role": "tool",
-            "tool_call_id": tool_call.id,
-            "content": result,
-        })
-        session.save(messages)  # after every message, so a crash loses nothing
-
-    # the pictures go after the last result, so no tool message is orphaned
-    for name, path in pictures:
-        messages.append(history.image_message(path, f"screenshot from tool {name}"))
-        session.save(messages)
-
-
-def unanswered_ids(messages):
-    """The ids of the tool calls at the end of the transcript that have no result yet."""
-    index = len(messages) - 1
-    while index >= 0 and messages[index].get("role") == "tool":
-        index -= 1
-    if index < 0 or messages[index].get("role") != "assistant":
-        return []
-    answered = {m.get("tool_call_id") for m in messages[index + 1:]}
-    return [call["id"] for call in messages[index].get("tool_calls") or [] if call["id"] not in answered]
-
-
-def interrupted(messages):
-    """A ctrl-c landed mid-turn: give every tool call without a result one that says so.
-
-    The transcript stays valid for the API, the user's message and the
-    model's reply stay, and the prompt comes back.
-    """
-    for call_id in unanswered_ids(messages):
-        messages.append({"role": "tool", "tool_call_id": call_id, "content": INTERRUPTED})
-    ui.note("interrupted")
-    session.save(messages)
-    return messages
-
-
 def last_reply(messages):
     """The text of the newest assistant message, or an empty string."""
     for message in reversed(messages):
         if message["role"] == "assistant" and message.get("content"):
             return message["content"]
     return ""
+
+
+def resume_last(messages):
+    """Open the newest saved chat, if there is one; else keep the fresh transcript."""
+    saved = session.all_sessions()
+    if not saved:
+        return messages
+    messages = session.open_session(saved[0]["id"])
+    history.strip(messages)
+    todos.restore(messages)
+    relearn(messages)  # and so do the deferred tools the model loaded
+    return messages
 
 
 def parser():
@@ -214,20 +205,19 @@ def chat(cli):
     messages = [{"role": "system", "content": build_system_prompt()}]  # after connect_all: the deferred list is complete
 
     if cli.print:
+        if cli.resume:
+            messages = resume_last(messages)
+        else:
+            session.PERSIST = False  # a one-off run leaves no session behind
         messages = turn(messages, cli.print, cli)
         reply = last_reply(messages)
         print(reply)
-        raise SystemExit(0 if reply else 1)  # no answer is an error a script can see
+        raise SystemExit(0 if reply else 1)  # empty answer or a failed turn: tell the caller
 
     if cli.resume:
-        saved = session.all_sessions()
-        if saved:
-            messages = session.open_session(saved[0]["id"])
-            history.strip(messages)
-            todos.from_transcript(messages)  # the plan lives outside the transcript; rebuild it
-            relearn(messages)  # and so do the deferred tools the model loaded
-            ui.resumed(messages)
-            ui.replay(messages)
+        messages = resume_last(messages)
+        ui.resumed(messages)
+        ui.replay(messages)
 
     while True:
         user_input = ui.ask()
@@ -243,8 +233,8 @@ def chat(cli):
                 continue
 
             messages = turn(messages, user_input, cli)
-        except KeyboardInterrupt:
-            messages = interrupted(messages)
+        except KeyboardInterrupt:  # e.g. during /compact: back to the prompt
+            ui.note("interrupted")
 
     ui.summary()
 

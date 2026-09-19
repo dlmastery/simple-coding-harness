@@ -7,7 +7,6 @@ asks `approve? (y/n)` and writes the file on yes. The rest is step 29.
 from pathlib import Path
 
 from . import compact as compaction
-from . import history
 from . import hooks
 from . import instructions
 from . import jobs
@@ -25,15 +24,15 @@ COMMANDS = {
     "/rewind": "jump back to an earlier point in this chat",
     "/sessions": "open a past chat",
     "/compact": "summarise the history so far and free up the context window",
-    "/memory": "list what the agent remembers across sessions",
     "/mcp": "list the MCP servers, whether each started, and the tools they added",
     "/hooks": "list the hooks configured for each event",
     "/plan": "plan mode: read-only tools until you approve a plan",
     "/act": "act mode: every tool, the default",
     "/jobs": "list the background jobs and whether each is still running",
+    "/memory": "list what the agent remembers across sessions",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
-    "/exit": "leave (so do /quit, ctrl-d, ctrl-z then enter on Windows, and ctrl-c at the prompt)",
+    "/exit": "leave (ctrl-d, or ctrl-z then enter on Windows, does the same)",
 }
 
 INIT_QUESTION = """
@@ -63,34 +62,25 @@ def preview(message):
 
 
 def redraw(messages, label):
-    """The screen no longer matches the history, so wipe it and draw again.
-
-    The todo list lives outside the transcript; it is rebuilt from the
-    last write_todos call that the transcript still holds.
-    """
-    todos.from_transcript(messages)
+    """The screen no longer matches the history, so wipe it and draw again."""
     ui.clear()
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)
     ui.replay(messages)
+    todos.restore(messages)  # the plan belongs to the transcript now on screen
     return messages
 
 
-def turn_starts(messages):
-    """The indexes of the user messages: the only places a transcript can be cut without orphaning a tool call."""
-    return [i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)]
-
-
 def rewind(messages):
-    """Cut the transcript before a user message the user picks: the turn it opened is forgotten."""
-    starts = turn_starts(messages)
-    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(starts)]
-    choice = ui.pick("rewind to before", rows)
+    """Cut the chat back to just before a user message - never between a call and its result."""
+    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
+    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
     if choice is None:
         return messages
-    keep = starts[choice]
-    session.rewind_to(keep)
-    return redraw(messages[:keep], "rewound")
+    cut = rows[choice][0]
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 
 
 def sessions(messages):
@@ -102,9 +92,7 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    opened = session.open_session(saved[choice]["id"])
-    history.strip(opened)  # its old tool output shrinks, the way --resume shrinks it
-    return redraw(opened, "opened")
+    return redraw(session.open_session(saved[choice]["id"]), "opened")
 
 
 def compact(messages):
@@ -221,10 +209,6 @@ def instruction_list(messages):
 
 
 def handle(command, messages):
-    if command == "/init":
-        return init(messages)
-    if command == "/instructions":
-        return instruction_list(messages)
     if command == "/plan":
         return set_mode(messages, "plan")
     if command == "/act":
@@ -243,5 +227,9 @@ def handle(command, messages):
         return sessions(messages)
     if command == "/memory":
         return memories(messages)
+    if command == "/init":
+        return init(messages)
+    if command == "/instructions":
+        return instruction_list(messages)
     ui.note("\n".join(f"{name}  -  {help}" for name, help in COMMANDS.items()))
     return messages

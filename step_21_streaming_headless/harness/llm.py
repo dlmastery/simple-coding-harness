@@ -1,10 +1,9 @@
 """Step 21 - call_llm streams. Text deltas reach the caller as they arrive; tool
 calls are assembled chunk by chunk; the usage comes with the final chunk.
 
-The loop in agent.py appends `message.model_dump(exclude_none=True)` and reads
-`message.content` and `message.tool_calls`. The StreamedMessage dataclass
-below keeps that exact surface, so nothing downstream knows the reply was
-streamed.
+The loop in agent.py appends `entry(message)` and reads `message.content` and
+`message.tool_calls`. The StreamedMessage dataclass below keeps that exact
+surface, so nothing downstream knows the reply was streamed.
 """
 
 import json
@@ -31,12 +30,17 @@ Answer back to the user once exploration is done.
 
 For any task that takes more than one step, call write_todos first and plan it
 out. Send the whole list every time you call it - it replaces the old one.
-Keep exactly one task in_progress, mark it completed the moment it is finished,
+Keep at most one task in_progress, mark it completed the moment it is finished,
 and move the next one to in_progress in the same call. Skip the tool entirely
 for single-step tasks; it is noise there.
 
 The current list is injected back to you every turn inside <todos> tags, so
 that block - not the transcript - is the truth about where you are.
+
+Long tool output is cut short, and the whole thing is written to a temp file
+whose path is given at the cut. Page through it with head, tail, sed -n or
+grep rather than asking for it again. That file only exists for the current
+turn, so read it now or re-run the command later.
 
 When you need to understand how something works - where a feature lives, how
 data flows, what calls what - send a task subagent instead of grepping your
@@ -45,11 +49,6 @@ just the findings, so the search does not fill yours. It cannot see this
 conversation, so write the question so it stands alone. Do all editing
 yourself; the subagent only reads.
 
-Long tool output is cut short, and the whole thing is written to a temp file
-whose path is given at the cut. Page through it with head, tail, sed -n or
-grep rather than asking for it again. That file only exists for the current
-turn, so read it now or re-run the command later.
-
 Your current working directory is: {os.getcwd()}
 
 You have skills available. Each one is a set of instructions for a task.
@@ -57,6 +56,18 @@ If a skill matches what the user wants, call read_skill first and follow it.
 
 {skills_prompt()}
 """
+
+
+def entry(message):
+    """The transcript entry for a reply: role, content and tool_calls, nothing else.
+
+    Providers attach extras (reasoning, annotations) that must not be sent
+    back on the next call, so the whole message is never dumped as it is.
+    """
+    saved = {"role": "assistant", "content": message.content}
+    if message.tool_calls:
+        saved["tool_calls"] = [call.model_dump(exclude_none=True) for call in message.tool_calls]
+    return saved
 
 
 @dataclass
@@ -75,6 +86,10 @@ class StreamedToolCall:
     type: str = "function"
     function: StreamedFunction = field(default_factory=StreamedFunction)
 
+    def model_dump(self, exclude_none=True):
+        """The dict entry() stores for this call: id, type and the function."""
+        return {"id": self.id, "type": self.type, "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
 
 @dataclass
 class StreamedMessage:
@@ -85,32 +100,18 @@ class StreamedMessage:
     role: str = "assistant"
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript: role, content, and the calls if any.
-
-        Nothing else - a reasoning field or an annotation echoed back would
-        be rejected by the next provider along.
-        """
-        entry = {"role": self.role, "content": self.content}
-        if self.tool_calls:
-            entry["tool_calls"] = [
-                {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
-                for c in self.tool_calls
-            ]
-        return entry
+        """The same three keys entry() keeps - there is nothing else to drop."""
+        return entry(self)
 
 
-def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came."""
-    if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
-    completion_details = getattr(chunk_usage, "completion_tokens_details", None)
-    prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
+def usage_from(usage):
+    """Token counts as a plain dict. Some proxies send no usage at all."""
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
-        "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-        "cached_tokens": getattr(prompt_details, "cached_tokens", None),
-        "cost": getattr(chunk_usage, "cost", None),
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None),
+        "cost": getattr(usage, "cost", None),  # OpenRouter, in dollars; None everywhere else
     }
 
 
@@ -200,4 +201,5 @@ if __name__ == "__main__":
         print("Tool: ", tool_call.function.name, args)
         print(result, "\n")
 
+    print(entry(message))
     print(usage)

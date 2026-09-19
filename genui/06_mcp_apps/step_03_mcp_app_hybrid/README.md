@@ -10,7 +10,7 @@ region the catalog does not cover, here a what-if price slider. The MCP
 server makes that model call, not the host: MCP Apps keeps credentials on
 the server side. The view mounts the generated document in a nested
 `<iframe sandbox="allow-scripts">` with its own content security policy
-injected first in its head, so the open-ended part runs one boundary
+injected right after the doctype (before any `<head>`), so the open-ended part runs one boundary
 deeper than the app itself. The app's own iframe and policy from step 01
 are unchanged. The host is step 01's, on new ports, with one addition: the
 context the view reports goes into the next model turn.
@@ -115,7 +115,7 @@ run. That place is a second iframe.
 ```text
 host page (host.html)                                  the host's origin
 └── app iframe   sandbox="allow-scripts"               the spec's CSP, built from the resource's _meta.ui.csp
-    └── generated iframe   sandbox="allow-scripts"     the region CSP from sandbox.mjs, injected first in <head>: no network, inline only
+    └── generated iframe   sandbox="allow-scripts"     the region CSP from sandbox.mjs, injected right after the doctype: no network, inline only
 ```
 
 Three parties and two boundaries. The host trusts the app as far as the

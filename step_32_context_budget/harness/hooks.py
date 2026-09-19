@@ -12,9 +12,11 @@ are merged per event:
 A hook is either a `command` (a shell line; the JSON event arrives on
 stdin) or a `python` entry (`"module:function"`, imported and called with
 the event dict). Both answer the same way: nothing, to let the loop
-continue; `{"block": "reason"}` to stop the action; `{"result": ...}` to
-replace a tool result; `{"context": ...}` to add text to the late block. A
-command may also block by exiting with code 2, with stderr as the reason.
+continue; `{"block": "reason"}` to stop the action (after a tool ran, to
+tell the model its result was rejected); `{"result": ...}` to replace a
+tool result; `{"context": ...}` to add text to the late block, or to a tool
+result on the tool events. A command may also block by exiting with code
+2, with stderr as the reason.
 
 A hook that crashes, times out or prints something that is not JSON is
 reported with a note and ignored. The loop never dies because of a hook.
@@ -23,12 +25,13 @@ reported with a note and ignored. The loop never dies because of a hook.
 import importlib
 import json
 import os
-import signal
 import subprocess
 import sys
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
 from pathlib import Path
+
+from . import sandbox
 
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd")
 
@@ -43,12 +46,9 @@ BLOCK_EXIT_CODE = 2  # a command hook exits with this to block; stderr is the re
 
 EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd")
 
-# the command starts its own process group, so a timeout can kill all of it
-NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
-
-CACHE = {}  # config path -> (mtime, parsed hooks); the files are read again only when they change
-
 SESSION_CONTEXT = []  # what the SessionStart hooks asked to add to every late block
+
+_cache = {}  # config path -> (mtime, parsed): the files are read again only when they change
 
 
 @dataclass
@@ -61,21 +61,35 @@ class HookOutcome:
     context: str = ""      # text for the late block, empty when no hook added any
 
 
+def read_config(path):
+    """One hooks.json, parsed; cached by its mtime, so every event does not re-read it.
+
+    A broken file is noted once, when it changed, not on every tool call.
+    """
+    try:
+        mtime = path.stat().st_mtime
+    except OSError:
+        return {}
+    if path in _cache and _cache[path][0] == mtime:
+        return _cache[path][1]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("the top level is not an object")
+    except (OSError, ValueError) as failed:
+        _note(f"hook config {path} skipped: {failed}")
+        data = {}
+    _cache[path] = (mtime, data)
+    return data
+
+
 def load_config(paths=None):
     """Merge every hooks.json that exists. Returns {event name: [hook, ...]}."""
     merged = {event: [] for event in EVENTS}
     for path in paths if paths is not None else CONFIG_PATHS:
         if not path.exists():
             continue
-        try:
-            mtime = path.stat().st_mtime
-            if path not in CACHE or CACHE[path][0] != mtime:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                CACHE[path] = (mtime, data if isinstance(data, dict) else {})
-        except (OSError, ValueError) as failed:
-            _note(f"hook config {path} skipped: {failed}")
-            continue
-        for event, hooks in CACHE[path][1].items():
+        for event, hooks in read_config(path).items():
             if event in merged and isinstance(hooks, list):
                 merged[event] += [h for h in hooks if isinstance(h, dict)]
     return merged
@@ -86,7 +100,7 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())  # case matters on every OS
 
 
 def describe(hook):
@@ -107,41 +121,40 @@ def resolve_python(command):
     return command
 
 
-def kill_tree(pid):
-    """Kill a process and everything it started."""
-    if os.name == "nt":
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
-    else:
-        os.killpg(pid, signal.SIGKILL)
-
-
 def run_command(command, event):
     """Run a shell hook with the event on stdin. Returns a reply dict or None.
 
     shell=True so `python .agents/check.py` works the same on Windows and
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
-    stderr as the reason; anything else is reported and ignored.
+    stderr as the reason; anything else is reported and ignored. The hook
+    gets a process group of its own, so a timeout kills the script and not
+    just the shell that started it (the same plumbing as bash in sandbox.py).
     """
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     process = subprocess.Popen(
         resolve_python(command),
         shell=True,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        encoding="utf-8", errors="replace",
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
         cwd=event.get("cwd") or None,
-        **NEW_GROUP,
+        **group,
     )
     try:
         stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
-        kill_tree(process.pid)
+        sandbox.kill_tree(process)
         process.communicate()
         raise
-    if process.returncode == BLOCK_EXIT_CODE:
-        return {"block": stderr.strip() or "blocked by hook"}
-    if process.returncode != 0:
-        _note(f"hook `{command}` exited {process.returncode} and was ignored: {stderr.strip()[:200]}")
+    completed = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+    if completed.returncode == BLOCK_EXIT_CODE:
+        return {"block": completed.stderr.strip() or "blocked by hook"}
+    if completed.returncode != 0:
+        _note(f"hook `{command}` exited {completed.returncode} and was ignored: {completed.stderr.strip()[:200]}")
         return None
-    output = stdout.strip()
+    output = completed.stdout.strip()
     if not output:
         return None
     reply = json.loads(output)

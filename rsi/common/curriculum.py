@@ -17,8 +17,9 @@ from common.packs import checksums
 
 
 def run_problem(pack_dir, task, model, run_dir, *, seed=0, arm="memory", verifier_dir=None, memory_off=None,
-                memory_frozen=False, human=None, quiet=True):
-    """Inner pack, then the verifier on its log (unless frozen or MEMORY_OFF). Returns (scorecard, inner run, verifier run)."""
+                memory_frozen=False, human=None, quiet=True, bar=None):
+    """Inner pack, then the verifier on its log (unless frozen or MEMORY_OFF). Returns (scorecard, inner run, verifier run).
+    `bar` is the control arm's best val score on this problem and seed, the wasted-fits reference."""
     before = memory.load(pack_dir / "memory.json")
     inner = harness.boot(pack_dir, task, seed=seed, arm=arm, run_dir=run_dir, human=human, quiet=quiet, memory_off=memory_off)
     harness.run(inner, model)
@@ -27,10 +28,10 @@ def run_problem(pack_dir, task, model, run_dir, *, seed=0, arm="memory", verifie
         verifier = harness.boot(verifier_dir, task, seed=seed, arm=arm, run_dir=run_dir, target=pack_dir, human=human, quiet=quiet)
         harness.run(verifier, model)
     after = memory.load(pack_dir / "memory.json")
-    return scorecard_for(inner, before, after), inner, verifier
+    return scorecard_for(inner, before, after, bar), inner, verifier
 
 
-def scorecard_for(run, cards_before, cards_after):
+def scorecard_for(run, cards_before, cards_after, bar=None):
     best_val, best_recipe = scorecard.best_of(run.fits)
     test_rows = run.trace.rows("score_test", problem=run.problem, arm=run.arm, seed=run.seed)
     fit_rows = run.trace.rows("fit", problem=run.problem, arm=run.arm, seed=run.seed)
@@ -38,7 +39,7 @@ def scorecard_for(run, cards_before, cards_after):
     active_after = {memory.card_id(c) for c in cards_after if memory.active(c)}
     return scorecard.make_scorecard(
         problem=run.problem, arm=run.arm, seed=run.seed, n_fits=run.budget.n, fits_used=run.budget.used,
-        wasted_fits=scorecard.wasted_fits(run.fits), best_val_score=best_val, best_recipe=best_recipe,
+        wasted_fits=scorecard.wasted_fits(run.fits, bar), best_val_score=best_val, best_recipe=best_recipe,
         test_score=run.gate.result["test_score"] if run.gate.result else None,
         test_scored_once=len(test_rows) == 1,
         test_touched_before_freeze=any(r["info"]["fits_used"] < run.budget.n for r in test_rows) if test_rows else False,
@@ -53,7 +54,8 @@ def run_curriculum(pack_dir, verifier_dir, task_list, model, run_dir, *, seed=0,
     curve = []
     for i, task in enumerate(task_list, 1):
         control, _, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="control", memory_off=True, human=human, quiet=quiet)
-        card, inner, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="memory", verifier_dir=verifier_dir, human=human, quiet=quiet)
+        card, inner, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="memory", verifier_dir=verifier_dir, human=human, quiet=quiet,
+                                     bar=control["best_val_score"])
         row = curve_row(i, task, card, control)
         if meta is not None:
             row["meta"] = meta(task, i)
@@ -79,7 +81,8 @@ def run_exam(pack_dir, exam_task, model, run_dir, *, seeds=(0, 1, 2, 3, 4), quie
     results = []
     for seed in seeds:
         control, _, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="control", memory_off=True, memory_frozen=True, quiet=quiet)
-        mem, inner, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="memory", memory_frozen=True, quiet=quiet)
+        mem, inner, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="memory", memory_frozen=True, quiet=quiet,
+                                    bar=control["best_val_score"])
         gap = round(mem["test_score"] - control["test_score"], 4)
         results.append({"seed": seed, "memory": mem, "control": control, "gap_test": gap,
                         "gap_val": round(mem["best_val_score"] - control["best_val_score"], 4),

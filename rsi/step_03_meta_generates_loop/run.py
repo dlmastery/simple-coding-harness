@@ -7,7 +7,6 @@ the generated pack on Adult.
     python run.py                                 # the real model: BASE_URL / API_KEY / MODEL
 """
 
-import shutil
 import sys
 from pathlib import Path
 
@@ -30,9 +29,7 @@ def generate(model, out_dir, human=None, quiet=False, writer=WRITER, step=HERE):
 
 def main(writer=WRITER, step=HERE, generated="adult-income-loop"):
     model = harness.choose_model()
-    out = step / "runs" / "generated" / generated
-    if out.exists():
-        shutil.rmtree(out)
+    out = steps.run_dir(step, "generated") / generated
     run = generate(model, out, writer=writer, step=step)
     print(run.messages[-1]["content"])
     if not out.exists():

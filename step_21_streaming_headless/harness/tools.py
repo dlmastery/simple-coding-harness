@@ -1,10 +1,8 @@
 """Stage 15 - tools gain the task subagent and execute(), the one permission-checked
 entry point the main loop and the subagent both use.
 
-execute() never raises. Bad arguments, an unknown tool name and an exception
-inside a tool all come back as an "Error: ..." string, so every tool call
-the model makes gets exactly one tool message - the API rejects a transcript
-where one is missing.
+Every tool returns a string. execute turns a tool call into (args, result)
+and never raises, so the model always gets a result it can read.
 """
 
 import json
@@ -16,7 +14,6 @@ from .permissions import check
 from .skills import read_skill
 from .subagent import TASK_SCHEMA, task
 from .todos import TODO_SCHEMA, write_todos
-
 
 def bash(command: str) -> str:
     """Run a shell command and return its combined stdout and stderr."""
@@ -159,50 +156,38 @@ TOOLS = {
 }
 
 
-def parse_args(tool_call):
-    """The arguments as a dict, or (partial dict, error string) when they are not one."""
-    name = tool_call.function.name
-    try:
-        args = json.loads(tool_call.function.arguments or "{}")
-    except json.JSONDecodeError as bad:
-        return {}, f"Error: the arguments of {name} are not a JSON object: {bad}"
-    if not isinstance(args, dict):
-        return {}, f"Error: the arguments of {name} are not a JSON object: got {type(args).__name__}"
-    return args, None
-
-
-def as_text(result):
-    """Tool results are strings. Anything else is made into one."""
-    if isinstance(result, str):
-        return result
-    return "(no output)" if result is None else json.dumps(result, default=str)
-
-
 def execute(tool_call, allowed=None):
-    """Run one tool call through the permission layer. Returns (args, result).
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. `allowed` is the
-    set of tool names the caller offered; anything else is refused, so a
-    subagent cannot run a tool by naming it.
+    set of tool names the caller offered; a call outside it is denied, so a
+    subagent cannot run a withheld tool just by naming it.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
     name = tool_call.function.name
-    args, problem = parse_args(tool_call)
-    if problem:
-        return args, problem
-    if allowed is not None and name not in allowed:
-        return args, f"Blocked by policy: {name} is not available to this agent"
-    action, reason = check(name, args)
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if allowed is not None and name not in allowed:  # offered set == executable set
+        action, reason = "deny", f"{name} is not available to this agent"
+    elif name not in TOOLS:  # a name that is not in the table
+        return args, f"Error: no tool named {name!r}."
+    else:
+        action, reason = check(name, args)
     if action == "deny":
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
-    tool = TOOLS.get(name)
-    if tool is None:
-        return args, f"Error: no tool named {name!r}."
     try:
-        return args, as_text(tool(**args))
-    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
-        return args, f"Error: {type(failed).__name__}: {failed}"
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return args, result

@@ -445,13 +445,14 @@ with every step from here on.
 - **A bad tool call.** Arguments that are not a JSON object come back as
   `Error: the arguments of bash are not a JSON object: ...`; a name that is
   not a tool as `Error: no tool named 'x'.`; a tool that raises as
-  `Error: FileNotFoundError: ...` (the class and the message). Every
+  `Error: TypeError: ...` (the class and the message), and `read_file` on a
+  missing path as `Error: ... is not a file.`. Every
   `tool_call` in a reply gets exactly one tool message, so the transcript
   stays valid and the model reads what went wrong and tries again.
 - **A failing command.** `bash` returns stdout and stderr together, with
   no exit code: the error text is what the model reads. A command that
   runs past 60 seconds is killed with its whole process tree and returns
-  `Error: command timed out after 60s`.
+  `Timed out after 60s and was killed. Output so far:` with what it printed.
 - **A dead model call.** `call_llm` raising an `openai.APIError`
   (connection refused, 401, 429, 5xx) ends the turn with a note,
   `model call failed: ...`; the user message stays in the transcript, so
@@ -542,9 +543,10 @@ Added: `instructions.py` (`NAMES`, `HOME`, `MAX_CHARS`, `LOADED`,
 (`INSTRUCTIONS_INTRO`, `instructions_section`, `build_system_prompt` places
 the section after the working directory line), `commands.py`
 (`INIT_QUESTION`, `init`, `instruction_list`, `/init` and `/instructions`
-in `COMMANDS` and `handle`), `ui.py` (`confirm`, `/init` in the banner).
-Shipped: `AGENTS.md` in this directory. Everything else is unchanged from
-step 30.
+in `COMMANDS` and `handle`), `ui.py` (`confirm`, `/init` in the banner),
+`subagent.py` (`STOPPED`, the prefix of every report that is not findings,
+so `/init` can tell a stop from a guide). Shipped: `AGENTS.md` in this
+directory. Everything else is unchanged from step 30.
 
 ## What the next step adds
 

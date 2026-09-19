@@ -20,7 +20,7 @@ def main():
     task = steps.step_task(HERE)
     pack = steps.workspace(HERE, PACK)
     before = packs.checksums(pack)
-    run = harness.boot(pack, task, run_dir=HERE / "runs" / PACK, arm="control")
+    run = harness.boot(pack, task, run_dir=steps.run_dir(HERE, PACK), arm="control")
     harness.run(run, harness.choose_model())
     print(run.messages[-1]["content"])
     print(steps.brief(curriculum.scorecard_for(run, [], [])))

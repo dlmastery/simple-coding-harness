@@ -20,14 +20,18 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos
+from . import agent, context, hooks, jobs, llm, memory, permissions, plan, sandbox, session, skills, todos
 from .ui import ui
+
+# a note from the loop that means the turn did not finish, whatever the checker would say
+TROUBLE = ("model call failed", "stopped after")
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
 
@@ -100,18 +104,21 @@ def load_suite(suite_dir):
 
 
 @contextmanager
-def isolated(workspace, session_dir, session_id, usage):
+def isolated(workspace, session_dir, session_id, usage, notes=None):
     """Run one task as if the harness had started in `workspace`.
 
     Module-level state that was computed from the working directory at
     import time is pointed at the workspace: the permission and sandbox
-    project roots, the hook config paths, the git status baseline. State
-    that accumulates during a chat is emptied: the todo list, the plan and
-    the mode, the session context from hooks, the background jobs. The
-    session module writes to a fresh file under `session_dir`. `ui.approve`
-    answers yes, and every usage dict the loop reports is summed into
-    `usage`. Everything is restored on the way out, whatever happened
-    inside, and any job the task left running is killed.
+    project roots, the hook config paths, the git status baseline, the
+    skills. State that accumulates during a chat is emptied: the todo list,
+    the plan and the mode, the session context from hooks, the background
+    jobs. The session module writes to a fresh file under `session_dir`,
+    and the memory store is an empty one next to it, so a run neither sees
+    nor changes what the user's own chats remembered. `ui.approve` answers
+    yes, every usage dict the loop reports is summed into `usage`, and every
+    note the loop prints is kept in `notes`. Everything is restored on the
+    way out, whatever happened inside, and any job the task left running is
+    killed.
     """
     saved = {
         "cwd": os.getcwd(),
@@ -119,11 +126,14 @@ def isolated(workspace, session_dir, session_id, usage):
         "permissions": permissions.PROJECT,
         "sandbox": sandbox.PROJECT,
         "hooks": (hooks.CONFIG_PATHS, list(hooks.SESSION_CONTEXT)),
+        "memory": memory.MEMORY_DIRS,
+        "skills": (skills.SKILL_DIRS, skills.SKILLS),
         "status": context.LAST_STATUS,
         "todos": list(todos.TODOS),
         "plan": (plan.MODE, plan.PLAN, list(plan.FEEDBACK)),
         "approve": ui.approve,
         "usage": ui.usage,
+        "note": ui.note,
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -132,20 +142,31 @@ def isolated(workspace, session_dir, session_id, usage):
     sandbox.PROJECT = workspace
     hooks.CONFIG_PATHS = [hooks.CONFIG_PATHS[0], workspace / ".agents" / "hooks.json"]
     hooks.SESSION_CONTEXT.clear()
+    memory.MEMORY_DIRS = [Path(session_dir).parent / "memory" / "project", Path(session_dir).parent / "memory" / "_user"]
+    skills.SKILL_DIRS = [workspace / ".agents" / "skills"]
+    skills.SKILLS = skills.find_skills()
     context.LAST_STATUS = context.git_status()
     todos.TODOS.clear()
     plan.set_mode("plan")  # forgets the old plan and its feedback...
     plan.set_mode("act")   # ...and the task runs with every tool
     jobs.kill_all()
     ui.approve = lambda reason: True
+    lock = threading.Lock()  # subagent threads report usage too
 
     def record(stats):
-        for key, value in (stats or {}).items():
-            if isinstance(value, (int, float)):
-                usage[key] = usage.get(key, 0) + value
+        with lock:
+            for key, value in (stats or {}).items():
+                if isinstance(value, (int, float)):
+                    usage[key] = usage.get(key, 0) + value
         saved["usage"](stats)
 
+    def keep(text):
+        if notes is not None:
+            notes.append(text)
+        saved["note"](text)
+
     ui.usage = record
+    ui.note = keep
     try:
         yield workspace
     finally:
@@ -156,11 +177,14 @@ def isolated(workspace, session_dir, session_id, usage):
         sandbox.PROJECT = saved["sandbox"]
         hooks.CONFIG_PATHS = saved["hooks"][0]
         hooks.SESSION_CONTEXT[:] = saved["hooks"][1]
+        memory.MEMORY_DIRS = saved["memory"]
+        skills.SKILL_DIRS, skills.SKILLS = saved["skills"]
         context.LAST_STATUS = saved["status"]
         todos.TODOS[:] = saved["todos"]
         plan.MODE, plan.PLAN, plan.FEEDBACK[:] = saved["plan"]
         ui.approve = saved["approve"]
         ui.usage = saved["usage"]
+        ui.note = saved["note"]
 
 
 def system_prompt_for(workspace):
@@ -171,9 +195,12 @@ def system_prompt_for(workspace):
 # --------------------------------------------------------------- checking
 
 
+NOISE = {"__pycache__", ".pytest_cache"}  # left by the agent's own test runs; not the judge's business
+
+
 def file_list(workspace):
     """Every file under the workspace, relative, sorted, one per line."""
-    paths = sorted(p.relative_to(workspace).as_posix() for p in Path(workspace).rglob("*") if p.is_file())
+    paths = sorted(p.relative_to(workspace).as_posix() for p in Path(workspace).rglob("*") if p.is_file() and not NOISE & set(p.parts))
     return "\n".join(paths) or "(empty)"
 
 
@@ -182,7 +209,7 @@ def run_check_py(task, workspace):
     try:
         completed = subprocess.run(
             [sys.executable, str(task.path / "check.py")],
-            cwd=workspace, capture_output=True, encoding="utf-8", errors="replace", timeout=CHECK_TIMEOUT,
+            cwd=workspace, capture_output=True, text=True, timeout=CHECK_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"check.py took more than {CHECK_TIMEOUT}s"
@@ -236,16 +263,21 @@ def run_task(task, run=1, suite_name="suite", keep=False):
     session_id = f"eval-{suite_name}-{task.name}-{run}-{datetime.now():%Y%m%d-%H%M%S-%f}"
 
     usage = {}
+    notes = []
+    answer = ""
     started = time.perf_counter()
-    with isolated(workspace, root / "sessions", session_id, usage) as cwd:
+    with isolated(workspace, root / "sessions", session_id, usage, notes) as cwd:
         messages = [{"role": "system", "content": system_prompt_for(cwd)}]
         try:
             messages = agent.turn(messages, task.prompt)
-            answer, error = agent.last_reply(messages), None
+            answer = agent.last_reply(messages)
+            trouble = [note for note in notes if note.startswith(TROUBLE)]
+            if trouble:  # the loop kept the transcript valid, but the turn did not finish
+                raise RuntimeError(trouble[0])
+            passed, detail = check(task, cwd, answer)  # a judge that cannot be reached fails the run too
         except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
-            answer, error = "", f"run failed: {type(failed).__name__}: {failed}"
+            passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
         seconds = time.perf_counter() - started
-        passed, detail = (False, error) if error else check(task, cwd, answer)
 
     if not keep:
         shutil.rmtree(root, ignore_errors=True)
@@ -275,18 +307,9 @@ def summarise(name, results):
     }
 
 
-def run_suite(suite_dir, repeat=1, keep=False):
-    """Run every task `repeat` times. Returns the report dict and writes it to the suite dir."""
-    suite_dir = Path(suite_dir)
-    tasks = load_suite(suite_dir)
-    started = datetime.now()
-    results = []
-    for task in tasks:
-        for run in range(1, repeat + 1):
-            ui.note(f"eval {task.name} run {run}/{repeat}")
-            results.append(run_task(task, run, suite_dir.name, keep))
-
-    report = {
+def build_report(suite_dir, tasks, results, repeat, started):
+    """The report dict: per-task totals with every result, and a suite total."""
+    return {
         "suite": suite_dir.name,
         "model": llm.MODEL,
         "started": started.isoformat(timespec="seconds"),
@@ -298,7 +321,26 @@ def run_suite(suite_dir, repeat=1, keep=False):
         ],
         "summary": summarise(suite_dir.name, results) | {"tasks": len(tasks)},
     }
-    (suite_dir / REPORT_NAME).write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+
+def run_suite(suite_dir, repeat=1, keep=False):
+    """Run every task `repeat` times. Returns the report dict and writes it to the suite dir.
+
+    The report is written whatever ends the loop, so a ctrl-c halfway
+    through a long --repeat leaves the runs that finished on disk.
+    """
+    suite_dir = Path(suite_dir)
+    tasks = load_suite(suite_dir)
+    started = datetime.now()
+    results = []
+    try:
+        for task in tasks:
+            for run in range(1, repeat + 1):
+                ui.note(f"eval {task.name} run {run}/{repeat}")
+                results.append(run_task(task, run, suite_dir.name, keep))
+    finally:
+        report = build_report(suite_dir, tasks, results, repeat, started)
+        (suite_dir / REPORT_NAME).write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
 

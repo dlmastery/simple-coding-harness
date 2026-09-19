@@ -16,16 +16,19 @@ SCORECARD_FIELDS = (
 )
 
 
-GOOD = 0.01   # a recipe within 1 % of the arm's best is a good one; the fits before the first good one were the price
+GOOD = 0.005   # within 0.005 of the bar counts as reaching it
 
 
-def wasted_fits(rows):
-    """Fits spent before the first good recipe (within 1 % of the arm's best), plus every fit that errored."""
+def wasted_fits(rows, bar=None):
+    """Fits spent before the first recipe that reaches the bar (within 0.005), plus every fit that errored.
+    The bar is the MEMORY_OFF arm's best val score on the same problem and seed - the static grid's answer -
+    or, for that arm itself and for a run with no control, the arm's own best. Experience is measured by
+    how many fits it saved on the way to the same answer."""
     scored = [r for r in rows if r["val_score"] is not None]
     if not scored:
         return len(rows)
-    best = max(r["val_score"] for r in scored)
-    first_good = next(i for i, r in enumerate(rows) if r["val_score"] is not None and r["val_score"] >= best * (1 - GOOD))
+    target = (max(r["val_score"] for r in scored) if bar is None else bar) - GOOD
+    first_good = next((i for i, r in enumerate(rows) if r["val_score"] is not None and r["val_score"] >= target), len(rows))
     return first_good + sum(1 for r in rows[first_good:] if r["val_score"] is None)
 
 

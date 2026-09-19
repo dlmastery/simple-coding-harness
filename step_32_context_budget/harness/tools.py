@@ -13,12 +13,16 @@ mode, and active_schemas() is the version that goes on the wire. The
 browser tools are in the first and not the second: only the browse
 subagent is offered them. The computer tools and the memory tools are in
 both, and the MCP tools join both when their servers start.
+
+Nothing here raises. Bad arguments, an unknown tool name and an exception
+inside a tool all come back as an "Error: ..." string, so every tool call
+the model makes gets exactly one tool message - the API rejects a transcript
+where one is missing.
 """
 
 import json
 import os
 import subprocess
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from . import browser, budget, computer, history, hooks, jobs, memory, plan, sandbox
@@ -36,22 +40,25 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Error: command timed out after {expired.timeout}s"
+        partial = (expired.stdout or "") + (expired.stderr or "")
+        return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap((result.stdout + result.stderr) or "(no output)")
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
     if not os.path.isfile(path):
-        return f"Error: no file at {path}"
+        return f"Error: {path} is not a file."
     with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return history.cap(f.read())
 
 
 def write_file(path: str, content: str) -> str:
-    """Create a file, or overwrite it if it already exists. Missing parent directories are made."""
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="") as f:  # newline="": the file keeps its own line endings
+    """Create a file, or overwrite it if it already exists."""
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
 
@@ -59,9 +66,9 @@ def write_file(path: str, content: str) -> str:
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
     if not old_str:
-        return "Error: old_str is empty; give the exact text to replace"
+        return "Error: old_str is empty."
     if not os.path.isfile(path):
-        return f"Error: no file at {path}"
+        return f"Error: {path} is not a file."
     with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
@@ -295,47 +302,49 @@ MAX_WORKERS = 4  # tool calls of one reply that may run at the same time
 
 DENIED = "The user denied this tool call."
 
-SERIAL = {"task", "browse", "submit_plan"}  # calls that must run one at a time, on the calling thread
+PRE_CONTEXT = {}  # tool call id -> what its PreToolUse hooks added; run() appends it to the result
 
-APPROVE_LOCK = threading.Lock()  # one approval prompt at a time, whichever thread asks
-
-
-def serial(name):
-    """Whether a call must run on the calling thread: it prompts, or it drives a browser or the screen."""
-    return name in SERIAL or name.startswith(("browser_", "computer_"))
+# Tools whose order matters, or that talk to the user themselves: a reply
+# that holds one of these runs sequentially, on the calling thread. The
+# browser is one page: open must finish before read, and a click before
+# the screenshot that checks it. submit_plan asks the user to approve.
+SERIAL = {"task", "browse", "submit_plan", *browser.TOOLS, *computer.COMPUTER_TOOLS}
 
 
 def parse_args(tool_call):
-    """The arguments as a dict, or (None, reason) when they are not a JSON object."""
+    """The arguments as a dict, or (partial dict, error string) when they are not one."""
+    name = tool_call.function.name
     try:
         args = json.loads(tool_call.function.arguments or "{}")
-    except ValueError as failed:  # JSONDecodeError is a ValueError
-        return None, str(failed)
+    except json.JSONDecodeError as bad:
+        return {}, f"Error: the arguments of {name} are not a JSON object: {bad}"
     if not isinstance(args, dict):
-        return None, f"got {type(args).__name__}"
+        return {}, f"Error: the arguments of {name} are not a JSON object: got {type(args).__name__}"
     return args, None
+
+
+def as_text(result):
+    """Tool results are strings. Anything else is made into one."""
+    if isinstance(result, str):
+        return result
+    return "(no output)" if result is None else json.dumps(result, default=str)
 
 
 def decide(tool_call, allowed=None):
     """Parse the arguments and rate the call. Returns (args, action, reason).
 
     Nothing runs here. This is the half of execute() that must stay on the
-    main thread, because an `ask` verdict turns into a prompt. The verdict
-    is allow, ask or deny from the rules, `blocked` from a PreToolUse hook,
-    or `error` when the call cannot run at all: arguments that are not a
-    JSON object, or a name that is not a tool. `allowed` is the set of
-    names this agent was offered; a name outside it is denied, so a tool
-    that was filtered out of the request cannot be run by naming it.
-    A denied call is not offered to the hooks: the rules said no first.
-    A call to a deferred tool that was not loaded is `deferred`: it comes
-    from a stub with no parameters, so the rules never see its arguments.
+    main thread, because an `ask` verdict turns into a prompt. A fourth
+    verdict, `error`, carries the message for arguments that cannot be used,
+    and a fifth, `blocked`, comes from a PreToolUse hook. A denied call is
+    not offered to the hooks: the rules said no first. A call to a deferred
+    tool that was not loaded is `deferred`: it comes from a stub with no
+    parameters, so the rules never see its arguments.
     """
     name = tool_call.function.name
     args, problem = parse_args(tool_call)
-    if problem is not None:
-        return {}, "error", f"Error: the arguments of {name} are not a JSON object: {problem}"
-    if name not in TOOLS:
-        return args, "error", f"Error: no tool named {name!r}."
+    if problem:
+        return args, "error", problem
     if allowed is not None and name not in allowed:
         return args, "deny", f"{name} is not available to this agent"
     advice = load_first(name)
@@ -347,55 +356,61 @@ def decide(tool_call, allowed=None):
     outcome = hooks.run_hooks("PreToolUse", {"tool_name": name, "tool_input": args})
     if outcome.blocked:
         return args, "blocked", outcome.reason
+    if outcome.context:
+        PRE_CONTEXT[tool_call.id] = outcome.context
     return args, action, reason
+
+
+def call(tool_call, args):
+    """Call the tool itself. Never raises: a broken tool is a result, not a crash."""
+    tool = TOOLS.get(tool_call.function.name)
+    if tool is None:
+        return f"Error: no tool named {tool_call.function.name!r}."
+    try:
+        return as_text(tool(**args))
+    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
+        return f"Error: {type(failed).__name__}: {failed}"
 
 
 def run(tool_call, args):
     """Run the tool with already-parsed arguments, then the PostToolUse hooks.
 
-    No permission check here. The tool never raises into the loop: an
-    exception becomes an `Error:` result the model can read and act on.
-    A hook that answers with a result replaces what the tool returned; a
-    hook that blocks after the fact tells the model the call ran but was
-    refused; a hook's context is appended inside <hook> tags.
+    No permission check here. The event says whether the tool succeeded
+    (`ok`: the result is not an Error:). A hook that answers with a result
+    replaces what the tool returned; one that blocks cannot undo the tool,
+    so the model is told the hook rejected the outcome; any context, from
+    the hooks before or after the call, rides along in a <hook> block.
     """
-    name = tool_call.function.name
-    try:
-        result = TOOLS[name](**args)
-    except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
-        result = f"Error: {type(failed).__name__}: {failed}"
-    if not isinstance(result, str):
-        result = "(no output)" if result is None else json.dumps(result, default=str)
-    outcome = hooks.run_hooks("PostToolUse", {"tool_name": name, "tool_input": args, "tool_result": result, "ok": not result.startswith("Error")})
+    result = call(tool_call, args)
+    event = {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result, "ok": not result.startswith("Error")}
+    outcome = hooks.run_hooks("PostToolUse", event)
     if outcome.blocked:
-        return f"Blocked by hook: {outcome.reason}"
-    if outcome.result is not None:
-        result = outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
-    if outcome.context:
-        result += f"\n<hook>\n{outcome.context}\n</hook>"
+        result = f"Blocked by hook: {outcome.reason}"
+    elif outcome.result is not None:
+        result = as_text(outcome.result)
+    context = "\n".join(c for c in (PRE_CONTEXT.pop(tool_call.id, ""), outcome.context) if c)
+    if context:
+        result += f"\n<hook>\n{context}\n</hook>"
     return result
 
 
 def settle(action, reason):
     """Turn a verdict into a result string, or None when the call may run.
 
-    A `deny` never runs, and neither does a call a hook `blocked` or one
-    whose verdict is `error`, or a `deferred` tool that was not loaded. An `ask` prompts the user and
-    runs only on yes. The prompt is under a lock: subagents on threads may
-    ask at the same time, and two prompts at once would swallow answers.
+    A `deny` never runs, and neither does a call a hook `blocked`, or a
+    `deferred` tool that was not loaded. An `ask` prompts the user and runs
+    only on yes. An `error` is already its own result.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
-    if action == "deny":
-        return f"Blocked by policy: {reason}"
     if action in ("error", "deferred"):
         return reason
+    if action == "deny":
+        return f"Blocked by policy: {reason}"
     if action == "blocked":
         return f"Blocked by hook: {reason}"
-    if action == "ask":
-        with APPROVE_LOCK:
-            if not ui.approve(reason):
-                return DENIED
+    if action == "ask" and not ui.approve(reason):
+        return DENIED
     return None
 
 
@@ -403,8 +418,9 @@ def execute(tool_call, allowed=None):
     """Run one tool call through the permission layer. Returns (args, result).
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
-    exactly the same rules - it is not a way around them. This is decide,
-    settle and run in one step, for callers that want the direct path.
+    exactly the same rules - it is not a way around them. `allowed` is the
+    set of tool names the caller offered; anything else is refused. This is
+    decide, settle and run in one step, for callers that want the direct path.
     """
     args, action, reason = decide(tool_call, allowed)
     result = settle(action, reason)
@@ -416,17 +432,15 @@ def execute(tool_call, allowed=None):
 def execute_all(tool_calls, allowed=None):
     """Run every tool call of one reply. Returns [(args, result)] in the same order.
 
-    One call takes the direct path, and so does a reply that carries a
-    serial call: those run one after the other on this thread, in reply
-    order, so prompts and the browser keep their order. Otherwise the calls
-    are decided first, one at a time on this thread, so the prompts appear
-    in order. Then the allowed ones run together in a thread pool. A denied
-    or declined call gets its message as the result and never runs. A
-    ctrl-c while the pool runs cancels what has not started; the calls in
-    flight finish on their own.
+    One call takes the direct path, and so does a batch that holds a SERIAL
+    tool: its order matters, or it asks the user itself, so it cannot share
+    a pool. Otherwise the calls are decided first, one at a time on this
+    thread, so the prompts appear in order. Then the allowed ones run
+    together in a thread pool. A denied or declined call gets its message as
+    the result and never runs.
     """
-    if len(tool_calls) == 1 or any(serial(call.function.name) for call in tool_calls):
-        return [execute(call, allowed) for call in tool_calls]
+    if len(tool_calls) == 1 or any(c.function.name in SERIAL for c in tool_calls):
+        return [execute(tool_call, allowed) for tool_call in tool_calls]
 
     outcomes = []  # (args, result) per call; result is None until it has run
     for tool_call in tool_calls:
@@ -440,7 +454,7 @@ def execute_all(tool_calls, allowed=None):
         for i, future in futures.items():
             outcomes[i] = (outcomes[i][0], future.result())
     except KeyboardInterrupt:
-        pool.shutdown(wait=False, cancel_futures=True)
+        pool.shutdown(wait=False, cancel_futures=True)  # do not sit through a 60s command
         raise
     pool.shutdown(wait=True)
     return outcomes

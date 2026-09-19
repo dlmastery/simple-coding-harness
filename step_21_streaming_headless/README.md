@@ -45,6 +45,19 @@ entry point is an interactive prompt that waits for a keyboard.
 
 ```python
 @dataclass
+class StreamedToolCall:
+    """One tool call. Same attributes as the SDK's ChatCompletionMessageToolCall."""
+
+    id: str = ""
+    type: str = "function"
+    function: StreamedFunction = field(default_factory=StreamedFunction)
+
+    def model_dump(self, exclude_none=True):
+        """The dict entry() stores for this call: id, type and the function."""
+        return {"id": self.id, "type": self.type, "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
+@dataclass
 class StreamedMessage:
     """The assembled reply. Same surface as the SDK's ChatCompletionMessage."""
 
@@ -53,29 +66,21 @@ class StreamedMessage:
     role: str = "assistant"
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript: role, content, and the calls if any.
-
-        Nothing else - a reasoning field or an annotation echoed back would
-        be rejected by the next provider along.
-        """
-        entry = {"role": self.role, "content": self.content}
-        if self.tool_calls:
-            entry["tool_calls"] = [
-                {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
-                for c in self.tool_calls
-            ]
-        return entry
+        """The same three keys entry() keeps - there is nothing else to drop."""
+        return entry(self)
 ```
 
 The SDK's non-streaming call returns a `ChatCompletionMessage`. The loop
-reads three things from it: `.content`, `.tool_calls` and
-`model_dump(exclude_none=True)`. This dataclass offers the same three. Each
-tool call is a `StreamedToolCall` with `.id` and `.function.name` and
-`.function.arguments`, which is what `tools.execute()` reads. The dict
-from `model_dump` has exactly three keys - `role`, `content` and, when
-there are any, `tool_calls` - so the session file, compaction and replay
-all keep working, and nothing a provider adds to its replies (reasoning
-text, annotations) is ever echoed back in the next request.
+reads three things from it: `.content`, `.tool_calls` and, through
+`entry()`, each tool call's `model_dump(exclude_none=True)`. These
+dataclasses offer the same three. Each tool call is a `StreamedToolCall`
+with `.id` and `.function.name` and `.function.arguments`, which is what
+`tools.execute()` reads. `entry()` is unchanged from step 15: the dict it
+stores has exactly three keys - `role`, `content` and, when there are any,
+`tool_calls` - so the session file, compaction and replay all keep
+working, and nothing a provider adds to its replies (reasoning text,
+annotations) is ever echoed back in the next request. `--debug` shows the
+reply through `model_dump`, which for a streamed message is `entry()` again.
 
 ### 2. Reading the stream
 
@@ -169,27 +174,24 @@ with a shorter reply.
 `harness/llm.py`:
 
 ```python
-def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came."""
-    if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
-    completion_details = getattr(chunk_usage, "completion_tokens_details", None)
-    prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
+def usage_from(usage):
+    """Token counts as a plain dict. Some proxies send no usage at all."""
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
-        "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-        "cached_tokens": getattr(prompt_details, "cached_tokens", None),
-        "cost": getattr(chunk_usage, "cost", None),
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None),
+        "cost": getattr(usage, "cost", None),  # OpenRouter, in dollars; None everywhere else
     }
 ```
 
-The usage keys do not change, except for one addition: `cost`, which
+`usage_from` is the step 15 function with one more key: `cost`, which
 OpenRouter fills in dollars when asked and every other provider leaves
 `None`. `ui.usage()` prints the counts and the cost, and
 `compact.needed()` reads `prompt_tokens` to decide when to compact. A
-provider that sends no usage chunk gets a dict of `None` values, which
-both callers already treat as zero.
+stream that sends no usage chunk hands `usage_from` a `None`, and every
+`getattr` on it gives a dict of `None` values, which both callers already
+treat as zero.
 
 ### 4. Printing live
 
@@ -227,22 +229,16 @@ resumed, which is why a resumed chat looks tidier than the live one did.
 
 ```python
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early.
-
-        Only the main thread gets one: a second live display from a worker
-        thread is an error in rich, and a subagent may run on a worker.
-        """
-        if threading.current_thread() is not threading.main_thread():
-            return Idle()
+        """The spinner. Use it as a context manager; call .stop() to end it early."""
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 ```
 
 The spinner used to be a context manager built on a generator. Now it
 returns the `rich` status object itself. That object is still a context
 manager, so `with ui.working(...)` in the subagent and in `/compact`
-keeps working. It also has a `.stop()` method, which the loop needs. Off
-the main thread it returns `Idle`, a do-nothing stand-in; nothing in this
-step runs there yet, step 22 does.
+keeps working. It also has a `.stop()` method, which the loop needs.
+Nothing in this step runs off the main thread; step 22 does, and adds the
+guard for it.
 
 ### 5. One turn, as a function
 
@@ -290,7 +286,7 @@ def turn(messages, user_input, cli=None):
                 ui.note(f"model call failed: {failed}")
                 break
 
-            messages.append(message.model_dump(exclude_none=True))
+            messages.append(entry(message))
             session.save(messages)
 
             if streamed:
@@ -312,7 +308,9 @@ def turn(messages, user_input, cli=None):
         else:
             ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
     except KeyboardInterrupt:
-        answer_pending(messages)  # a call was cut off between the reply and its results
+        # ctrl-c mid-turn: answer the tool calls that never ran, so the
+        # transcript stays valid, and go back to the prompt.
+        session.repair(messages, INTERRUPTED)
         session.save(messages)
         ui.note("interrupted")
 
@@ -345,24 +343,33 @@ the API will accept again:
   `RuntimeError` from an in-stream error chunk) ends the turn with a note.
   The user message stays, no tool call is left unanswered, and the next
   turn simply retries.
-- ctrl-c during a call or a tool run. `answer_pending()` gives every tool
+- ctrl-c during a call or a tool run. `session.repair()` gives every tool
   call of the last reply that has no result yet a tool message,
-  `(interrupted before this tool ran)`, so the assistant message is not
-  orphaned. Then the prompt comes back.
+  `INTERRUPTED` - `(interrupted before this tool ran)` - so the assistant
+  message is not orphaned. Then the prompt comes back.
 
-`harness/agent.py`:
+`harness/session.py`:
 
 ```python
-def answer_pending(messages):
-    """Give every unanswered tool call a tool message, so the transcript stays valid."""
-    answered = {m.get("tool_call_id") for m in messages if m["role"] == "tool"}
-    last = messages[-1]
-    if last["role"] != "assistant":
-        return
-    for call in last.get("tool_calls") or []:
-        if call["id"] not in answered:
-            messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
+
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
+    """
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 ```
+
+The same `repair()` runs in `session.load()`, with a different note, for
+a transcript an older crash left behind. The ctrl-c path is the step 15
+one; only the note has a name now, so the tests can check for it.
 
 ### 6. Tool calls that cannot run are results, not exceptions
 
@@ -370,36 +377,46 @@ def answer_pending(messages):
 
 ```python
 def execute(tool_call, allowed=None):
-    """Run one tool call through the permission layer. Returns (args, result).
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. `allowed` is the
-    set of tool names the caller offered; anything else is refused, so a
-    subagent cannot run a tool by naming it.
+    set of tool names the caller offered; a call outside it is denied, so a
+    subagent cannot run a withheld tool just by naming it.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
     name = tool_call.function.name
-    args, problem = parse_args(tool_call)
-    if problem:
-        return args, problem
-    if allowed is not None and name not in allowed:
-        return args, f"Blocked by policy: {name} is not available to this agent"
-    action, reason = check(name, args)
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if allowed is not None and name not in allowed:  # offered set == executable set
+        action, reason = "deny", f"{name} is not available to this agent"
+    elif name not in TOOLS:  # a name that is not in the table
+        return args, f"Error: no tool named {name!r}."
+    else:
+        action, reason = check(name, args)
     if action == "deny":
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
-    tool = TOOLS.get(name)
-    if tool is None:
-        return args, f"Error: no tool named {name!r}."
     try:
-        return args, as_text(tool(**args))
-    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
-        return args, f"Error: {type(failed).__name__}: {failed}"
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return args, result
 ```
 
-`execute()` never raises. Arguments that are not a JSON object, a tool
+`execute()` is unchanged from step 15, and it matters more now: a
+streamed reply can end with a call whose arguments are broken JSON, and a
+failed call must still get its tool message before the next request goes
+out. It never raises. Arguments that are not a JSON object, a tool
 name that does not exist, a missing required argument, a file that is not
 there: each comes back as an `Error: ...` string and goes into the
 transcript as that call's result. That is not politeness. The API refuses
@@ -472,21 +489,20 @@ answer. That is what makes `harness -p "..." > answer.md` work.
         In print mode nothing may reach stdout, and without a terminal there
         is nobody to ask: the call is denied and stderr says so.
         """
-        with APPROVE_LOCK:
-            if not self.live and not sys.stdin.isatty():
-                self.note(f"denied, no terminal to ask on: {reason}")
-                return False
-            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-            try:
-                if self.live:
-                    answer = prompt.read("  allow? (y/n)> ").strip()
-                else:
-                    sys.stderr.write("  allow? (y/n)> ")
-                    sys.stderr.flush()
-                    answer = input().strip()
-            except (EOFError, KeyboardInterrupt):
-                return False
-            return answer.lower().startswith("y")
+        if not self.live and not sys.stdin.isatty():
+            self.note(f"denied, no terminal to ask on: {reason}")
+            return False
+        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+        try:
+            if self.live:
+                answer = prompt.read("  allow? (y/n)> ").strip()
+            else:
+                sys.stderr.write("  allow? (y/n)> ")
+                sys.stderr.flush()
+                answer = input().strip()
+        except (EOFError, KeyboardInterrupt):
+            return False
+        return answer.lower().startswith("y")
 ```
 
 The one thing in print mode that could still write to stdout is the
@@ -690,11 +706,12 @@ step_21_streaming_headless/
 diff -r ../step_15_subagents/harness harness
 ```
 
-Changed: `llm.py` (streaming, `StreamedMessage`, `usage_from`,
+Changed: `llm.py` (streaming, `StreamedMessage`, `cost` in `usage_from`,
 `on_delta`, `finish_reason`), `ui.py` (`stream_start`, `stream_delta`,
 `stream_end`, `headless`, `working` returns the status object,
-`approve` in print mode), `agent.py` (`turn`, `answer_pending`,
-`last_reply`, `-p`), `session.py` (`PERSIST`, `repair`).
+`approve` in print mode, cost in the token line), `agent.py` (`turn`,
+`INTERRUPTED`, `last_reply`, `resume_last`, `-p`), `session.py`
+(`PERSIST`). Everything else is the step 15 file.
 
 ## What the next step adds
 

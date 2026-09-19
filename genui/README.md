@@ -117,8 +117,70 @@ to bundle a library that ships no browser build. Node 22 is required.
 ```bash
 python run_tests.py genui/01          # one sub-theme, offline, no key
 python run_tests.py genui             # every genui step
-python check_snippets.py genui        # every code snippet in every README exists in the code
+python check_snippets.py genui        # every code snippet in every step README exists in the code
+python check_snippets.py              # the same for this document and the root codelab
 ```
+
+## Robustness in this series
+
+Every step keeps the same five guarantees. They are stated once here;
+each step README has an **Error handling** section with the exact
+strings, and each sub-theme README says what its steps share.
+
+- **A page always reaches a terminal state.** Every stream ends with one
+  terminal frame: `{"done": true, ...}` (01), `RUN_FINISHED` or
+  `RUN_ERROR` (02, 03.3), `done` (03.2), `event: done` or `event: error`
+  (04.2, 04.4), an `{"error": ...}` line (05.2, 05.3), a `null` line or
+  chunk (07.2, 07.3). Every hand-written reader checks `response.ok`
+  before it reads, folds `\r\n`, skips SSE comments, and records the
+  error itself when the server is down, answers 4xx/5xx or cuts the
+  stream, so `data-state=done`, `a2uiDone` or a status of `error: ...`
+  is set in a `finally`. A click while a turn runs is dropped by the page
+  (01.4, 03.2, 03.3, 05.3) and refused by the server with a 409 (01.4).
+- **A server never leaves a stream open on failure.** A model call that
+  fails after the headers have left becomes the last frame, never an
+  HTTP error or a silent truncation (01.x, 02.x, 03.x, 04.2, 04.4, 05.2,
+  05.3); a tool that cannot run is an `Error: ...` result the model
+  reads (02.2, 02.3, 06.1, 06.2, 07.1); the tool loop is capped (02.2:
+  8 rounds, 06.1: 4, 02.3 and 07.1: 40 model calls); a failed turn takes
+  its user message back out of the transcript (01.4, 05.3); the endpoint
+  closes the generator, and with it the model stream, when the browser
+  leaves (01, 02); a `: keepalive` comment goes out after 15 s of
+  silence (02.3, 03.2, 03.3). What arrives is checked for shape:
+  tool-call fragments are assembled by index until the stream ends
+  (01), JSON Patch and JSON Pointer refuse prototype keys and non-digit
+  indices (02.2, 03.1, 05.2), specs are checked for types and cycles
+  (01.2, 05.1, 07.1), and A2UI surfaces are deleted before a new
+  generation because the official processor refuses a repeated
+  `createSurface` (03.2, 03.3).
+- **Model HTML is sanitised and boxed.** Model text is rendered as text,
+  through `esc()`, `list()` for array props and `Object.hasOwn` for
+  component names (01, 02.2, 06.3; React escapes for 04 and 05, whose
+  registries still coerce list props), and `textContent` for a server's
+  tool names and URIs (06.1). Model-written HTML only ever lands in an
+  `<iframe sandbox="allow-scripts">` with a `default-src 'none'` CSP
+  injected as a `<meta>` and any meta refresh stripped; 04.4, 06.3 and
+  07.3 put the meta right after the doctype, before any element the
+  model wrote, and 04.4 says why "first in `<head>`" (01.3, 01.4) is
+  weaker. The host accepts one message shape from the one window it
+  mounted. The MCP Apps host validates the CSP domains a resource
+  declares, allowlists `tools/call` by `_meta.ui.visibility` and
+  `resources/read` by the listing, and opens `http(s):` links only
+  (06.1). The gap every sandbox step states: nothing stops the frame
+  navigating itself.
+- **Demo waits are bounded.** A `demo.py` that starts uvicorn in a
+  thread waits at most 10 s (06.3: 20 s) and raises
+  `RuntimeError(... did not start on port ...)` when the port is taken
+  or the import failed; the standard-library servers of 04 and 07 bind
+  synchronously, so a taken port raises at once; every Playwright wait
+  carries a timeout, and the 07.2 and 07.3 demos exit 1 with one line
+  naming the TrueForge URL when the hosted harness is down or the turn
+  ends in any state but `done`.
+- **Tests need no network.** Every `test_step.py` scripts the model. The
+  two 04.3 tests that count tokens `pytest.skip` when tiktoken's
+  `o200k_base` cannot be fetched, and 07.3's `count_tokens` falls back
+  to a character estimate. `npm install`, once per Node step, is the only
+  download.
 
 ## How to read a step
 
@@ -185,7 +247,7 @@ def components(prompt):
             yield {"done": True, "usage": {k: v for k, v in event.items() if k != "type"}}
 ```
 
-Look at the three branches: a tool call becomes a component message, prose becomes a `note`, and the usage closes the stream. The page never learns that a model exists; it renders messages.
+Look at the three branches: a tool call becomes a component message, prose becomes a `note`, and the usage closes the stream. The page never learns that a model exists; it renders messages. `llm.stream_chat` assembles the calls by index until the stream ends and emits them in index order, because the pieces of two calls may interleave and some endpoints omit the index; a model failure after the headers have left becomes a last `{"done": true, "error": "<Type>: <message>"}` frame instead of a broken stream.
 
 **Run.**
 
@@ -194,7 +256,7 @@ cd genui/01_foundations/step_01_static_components
 python demo.py
 ```
 
-**See.** The recorded run produced 6 SSE messages in 7.9s: three `Metric` frames, one `Table`, one `Chart`, then `done` with 249 prompt tokens and 295 completion tokens. The page drew the first metric while the chart was still streaming, because a new tool-call index means every earlier call is complete. The model chose only the order of its calls; it could not group the metrics in a row.
+**See.** The recorded run produced 6 SSE messages in 7.9s: three `Metric` frames, one `Table`, one `Chart`, then `done` with 249 prompt tokens and 295 completion tokens. The page paints one component per frame, but the frames arrive together: every call is emitted after the stream ends, in index order, and painting during the stream begins in step 01.2. The model chose only the order of its calls; it could not group the metrics in a row.
 
 ![Step 01.1: three metrics, a table and a chart, one SSE frame each](01_foundations/step_01_static_components/demo.png)
 
@@ -218,17 +280,18 @@ python demo.py
 export function renderFlat(spec, id = spec?.root, seen = new Set()) {
   // A flat element map. A child id whose element has not arrived yet renders
   // as a pending slot, so the layout holds still while the details stream in.
-  const node = spec?.elements?.[id];
+  const elements = spec?.elements;
+  const node = typeof id === "string" && elements && typeof elements === "object" && Object.hasOwn(elements, id) ? elements[id] : undefined;
   if (node === undefined || seen.has(id)) return PENDING;
   seen.add(id);
   if (!isComponent(node)) return PENDING;
-  const children = (node.children ?? []).map((child) => renderFlat(spec, child, seen)).join("");
+  const children = list(node.children).map((child) => renderFlat(spec, child, seen)).join("");
   const html = render(node.type, node.props, children);
   return isPartial(node) ? `<div class="pending-wrap">${html}</div>` : html;
 }
 ```
 
-Look at the `PENDING` returns: a child id whose element has not arrived draws an empty slot, so the layout holds still.
+Look at the `PENDING` returns: a child id whose element has not arrived draws an empty slot, so the layout holds still. `Object.hasOwn` and `list()` are the tolerance: an id like `__proto__` or a `children` that is not an array is treated as absent, not thrown on, and `seen` stops a cycle.
 
 **Run.**
 
@@ -255,7 +318,7 @@ python demo.py
 
 **Why now.** Step 01.2 bounded the model to a catalog. This step removes the catalog, shows the price, and contains the trust problem.
 
-**Build.** `server.py` gains an `html` mode with `HTML_PROMPT`, which spells out the sandbox rules because the model has to write code that works inside them; every mode's `done` message now carries `raw`, the exact text the model wrote. `page/sandbox.mjs` is the box: an `<iframe sandbox="allow-scripts">` with a Content Security Policy injected as the first tag in `<head>`. `page/app.js` listens for `postMessage` and keeps one shape from the one window it mounted. `tokens.py` counts the raw text with tiktoken. The design decision: two layers of containment. The sandbox attribute gives the document a unique origin and denies forms, popups and navigation; the CSP denies every network request.
+**Build.** `server.py` gains an `html` mode with `HTML_PROMPT`, which spells out the sandbox rules because the model has to write code that works inside them; every mode's `done` message now carries `raw`, the exact text the model wrote. `page/sandbox.mjs` is the box: an `<iframe sandbox="allow-scripts">` with a Content Security Policy injected as the first tag in `<head>`. `page/app.js` listens for `postMessage` and keeps one shape from the one window it mounted. `tokens.py` counts the raw text with tiktoken. The design decision: two layers of containment. The sandbox attribute gives the document a unique origin and denies forms, popups and navigation of the host; the CSP denies every load and connection. Neither stops the document navigating itself, so `sandboxed()` strips the one exit that needs no click, a `<meta http-equiv="refresh">`, and the guarantee is the opaque origin rather than silence.
 
 `01_foundations/step_03_open_ended_html/page/sandbox.mjs`:
 
@@ -273,7 +336,7 @@ export function isEvent(data) {
 }
 ```
 
-Look at `default-src 'none'`: inline code can compute but cannot phone home. `allow-scripts` without `allow-same-origin` matters; with both, the document could reach the host's cookies and DOM.
+Look at `default-src 'none'`: inline code can compute but cannot load or send. `allow-scripts` without `allow-same-origin` matters; with both, the document could reach the host's cookies and DOM. The meta goes first in `<head>` here (`<head\b`, so a `<header>` does not match); step 04.4 moves it to right after the doctype and says why that is the safer anchor.
 
 **Run.**
 
@@ -298,23 +361,25 @@ python demo.py
 
 **Why now.** Step 01.2 made declarative the default and step 01.3 contained open-ended output. This step puts the container inside the catalog and closes the loop.
 
-**Build.** `catalog.py` adds one entry, `GeneratedView`, whose only prop is a string of HTML, plus two prompt rules that say what the hatch is for and how small to keep it. `page/render.mjs` renders that component as the step 01.3 sandbox, with the document escaped because it is an attribute value here. `server.py` keeps sessions: a run opens a transcript, each turn appends the model's reply, and `/api/action` turns a click into a user message on that transcript. `page/app.js` routes a button click and a `postMessage` from any generated iframe through one `act` function. The design decision: the first turn and every later turn share one code path and one stream.
+**Build.** `catalog.py` adds one entry, `GeneratedView`, whose only prop is a string of HTML, plus two prompt rules that say what the hatch is for and how small to keep it. `page/render.mjs` renders that component as the step 01.3 sandbox, with the document escaped because it is an attribute value here. `server.py` keeps sessions: a run opens a transcript, each turn appends the model's reply, and `/api/action` turns a click into a user message on that transcript. `page/app.js` routes a button click and a `postMessage` from any generated iframe through one `act` function, and ignores both while a turn is streaming, so a `GeneratedView` that posts on load cannot start a turn that re-mounts it. The design decision: the first turn and every later turn share one code path and one stream.
 
 `01_foundations/step_04_hybrid_escape_hatch/server.py`:
 
 ```python
 @app.post("/api/action")
-def action(body: Action):
+def action(body: Action, request: Request):
     """The loop closes: the event becomes a user message, the model answers with the next layout."""
     session = SESSIONS.get(body.session)
     if session is None:
         raise HTTPException(404, "unknown session")
+    if session["lock"].locked():
+        raise HTTPException(409, "a turn is still running on this session")
     session["turn"] += 1
     session["messages"].append({"role": "user", "content": EVENT_PROMPT.format(action=body.action, payload=json.dumps(body.payload))})
-    return stream(declarative_turn(body.session))
+    return stream(declarative_turn(body.session), request)
 ```
 
-Look at the last two lines: the event is appended as text, and the same generator that streamed the first layout streams the reply.
+Look at the last two lines: the event is appended as text, and the same generator that streamed the first layout streams the reply. The 409 is the per-session lock: one turn at a time, so a double click cannot interleave two streams on one transcript; and a turn that fails removes the user message it appended, so the transcript never carries a question the model did not answer.
 
 **Run.**
 
@@ -329,7 +394,7 @@ python demo.py
 
 ![Step 01.4: turn 2 after the click, two elements changed](01_foundations/step_04_hybrid_escape_hatch/demo_after_action.png)
 
-**Checkpoint.** The action name `restock_lemons` appears in no schema. Find where the page, the server and the model each handle it, and note that only the model interprets it.
+**Checkpoint.** The action name `restock_lemons` appears in no schema. Find where the page, the server and the model each handle it, and note that only the model interprets it. That is also the loop's prompt-injection path: a `GeneratedView` can post any `name` it likes, and a product would whitelist action names per layout.
 
 **Takeaway.** The hybrid pattern keeps the catalog in charge, rents the sandbox for one component, and makes a click the next user message.
 
@@ -389,7 +454,7 @@ python demo.py
 
 ![Step 02.1: the rendered answer on the left, the AG-UI events on the right, one per line](02_ag_ui/step_01_ag_ui_server/demo.png)
 
-**Checkpoint.** Set `API_KEY` to a wrong value and run again. The stream still ends with one terminal event, now `RUN_ERROR`, and the page still reaches a final status.
+**Checkpoint.** Set `API_KEY` to a wrong value and run again. The stream still ends with one terminal event, now `RUN_ERROR`, and the page still reaches a final status. Then stop the server and run again: no stream at all this time, and the page reaches `error: ...` on its own, because the reader checks `response.ok` and treats a stream that ends without a terminal event as an error.
 
 **Takeaway.** A transport is a fixed vocabulary of events with a join key, so any AG-UI client can read any AG-UI agent.
 
@@ -401,7 +466,7 @@ python demo.py
 
 **Why now.** Step 02.1 streamed text only, and its `state` field was empty. This step sends patches to one object instead of one message per component, so the page can send the object back.
 
-**Build.** `tools.py` holds three server tools that draw nothing; each returns a JSON Patch against a `dashboard` object, such as an `add` on `/dashboard/metrics/-`. `llm.py` streams tool call fragments as well as text. `agent.py` applies each patch on the server first, then emits it as `STATE_DELTA`, so both copies stay equal. `json_patch.py` and `json-patch.mjs` are the same three operations on both sides. `render.mjs` rebuilds the dashboard on every state change. The design decision: `confirm_purchase` is a client tool declared in `RunAgentInput.tools`; the server streams the call and ends the run so the page can answer.
+**Build.** `tools.py` holds three server tools that draw nothing; each returns a JSON Patch against a `dashboard` object, such as an `add` on `/dashboard/metrics/-`. `llm.py` streams tool call fragments as well as text. `agent.py` applies each patch on the server first, then emits it as `STATE_DELTA`, so both copies stay equal, and ends the text message before the first `TOOL_CALL_START`, the order the reference client enforces. `json_patch.py` and `json-patch.mjs` are the same three operations on both sides, and both refuse a prototype key or a non-digit index in a path. The page rolls a run's messages back on `RUN_ERROR` or a cut stream, so the next run's history is one the API accepts. `render.mjs` rebuilds the dashboard on every state change. The design decision: `confirm_purchase` is a client tool declared in `RunAgentInput.tools`; the server streams the call and ends the run so the page can answer.
 
 `02_ag_ui/step_02_ag_ui_tools_and_state/agent.py`:
 
@@ -413,7 +478,7 @@ python demo.py
                 if call["name"] in client_tools:
                     waiting_on_client = True  # the page runs it; its result opens the next run
                     continue
-                result, operations = execute(call["name"], json.loads(call["arguments"] or "{}"))
+                result, operations = execute(call["name"], call["arguments"])
                 if operations:
                     apply_patch(state, operations)
                     yield StateDeltaEvent(delta=operations)
@@ -423,7 +488,7 @@ python demo.py
                 break
 ```
 
-Look at the snapshot: the run starts from the state the client sent, or from an empty dashboard. Then look at the `continue`: a client tool gets no result on the server; its answer arrives on the next run.
+Look at the snapshot: the run starts from the state the client sent, or from an empty dashboard. Then look at the `continue`: a client tool gets no result on the server; its answer arrives on the next run. `execute` takes the raw argument string and never raises: a bad name, arguments that are not a JSON object, a missing argument or a failing tool all come back as an `Error: ...` result the model reads. The loop around it stops after `MAX_TURNS = 8` model calls with a `RUN_ERROR`, so a model that keeps calling tools cannot run up the bill.
 
 **Run.**
 
@@ -454,12 +519,13 @@ python demo.py
 
 ```python
             for tool_call in message.tool_calls:
-                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id)
+                # the parent is the text message, when there was one
+                yield ToolCallStartEvent(tool_call_id=tool_call.id, tool_call_name=tool_call.function.name, parent_message_id=message_id if started else None)
                 yield ToolCallArgsEvent(tool_call_id=tool_call.id, delta=tool_call.function.arguments)
                 yield ToolCallEndEvent(tool_call_id=tool_call.id)
 
                 ASKED.clear()
-                args, result = execute(tool_call)
+                result = run_tool(tool_call)
                 for reason in ASKED:
                     yield CustomEvent(name="permission", value={"reason": reason, "decision": "allow"})
                 yield ToolCallResultEvent(message_id=str(uuid4()), tool_call_id=tool_call.id, content=result, role="tool")
@@ -468,7 +534,7 @@ python demo.py
                     yield StateDeltaEvent(delta=[{"op": "replace", "path": "/todos", "value": copy.deepcopy(todos.TODOS)}])
 ```
 
-Look at `execute`: it is the harness's own function, permission layer included. The arguments go out as one `TOOL_CALL_ARGS` delta because the harness assembles the call first.
+Look at `run_tool`: it wraps the harness's own `execute`, permission layer included, and turns every failure (an unknown tool, arguments that are not JSON, a tool that raises) into an `Error: ...` result, so the page gets exactly one `TOOL_CALL_RESULT` per call. The arguments go out as one `TOOL_CALL_ARGS` delta because the harness assembles the call first. The bridge caps the run at `MAX_CALLS` model calls, writes a `: keepalive` comment after 15 s of silence so a long tool does not look like a dead stream, and auto-allows every permission question: the browser has no prompt, and the harness can run shell commands, so this server is a demo, not a product.
 
 **Run.**
 
@@ -483,7 +549,7 @@ python demo.py
 
 ![Step 02.3: the coding agent's tool calls and permission in the chat, the todo plan as shared state on the right](02_ag_ui/step_03_ag_ui_from_the_harness/demo.png)
 
-**Checkpoint.** Set `HARNESS_WORKDIR` to a project of your own and ask for a change from the browser. Then diff `harness/` against the harness codelab's step 21: it is empty.
+**Checkpoint.** Set `HARNESS_WORKDIR` to a project of your own and ask for a change from the browser, and read the warning at the top of the step README first: this server runs shell commands for anyone who can reach the port and auto-approves the `ask` tier, so it stays on 127.0.0.1. Then `diff -r` `harness/` against the harness codelab's step 21: nothing in the copy mentions AG-UI, because the bridge translates side effects and never edits it.
 
 **Takeaway.** A second transport costs a bridge and a page, not a new agent.
 
@@ -528,12 +594,13 @@ Sub-theme 01 found that a flat element map streams best. A2UI v0.9.1 is that sha
     }
   }
 ...
-  tree(id = 'root') {
+  tree(id = 'root', ancestors = new Set()) {
     const component = this.components.get(id);
     if (!component) return { id, missing: true };
+    if (ancestors.has(id)) return { id, cycle: true };
 ```
 
-Components go into a map keyed by id; data goes through a pointer. The nested tree is never on the wire; `tree()` rebuilds it at paint time.
+Components go into a map keyed by id; data goes through a pointer. The nested tree is never on the wire; `tree()` rebuilds it at paint time, and the `ancestors` set turns a component that names itself as a descendant into a `cycle` node instead of a stack overflow. The pointer helpers refuse `__proto__`, `constructor` and `prototype` as keys and accept only digit indices into lists, on both sides.
 
 **Run.**
 
@@ -546,7 +613,7 @@ python demo.py
 
 ![Step 03.1: the spec's contact form, rendered by hand from four messages](03_a2ui/step_01_a2ui_messages_by_hand/demo.png)
 
-**Checkpoint.** Reorder the components in `contact_form.jsonl` so a child precedes its parent. The page renders the same form; the map ignores order.
+**Checkpoint.** Reorder the components in `contact_form.jsonl` so a child precedes its parent. The page renders the same form; the map ignores order. Then make a component list itself as a child: the page paints `cycle at <id>` and goes on, because `tree()` carries its ancestors.
 
 **Takeaway.** A2UI is a flat map plus a data model; a client that keeps those two things can render any catalog.
 
@@ -558,7 +625,7 @@ python demo.py
 
 **Why now.** Step 03.1 replayed messages written by people. This step has the model write them, with the official Python SDK doing prompt, streaming parse and repair.
 
-**Build.** `prompt.py` wraps `a2ui-agent-sdk`: `DirectJsonFormat` renders the Basic Catalog into a system prompt, `DirectJsonStreamParser` yields `updateComponents` messages while the reply streams, and the full parser repairs and validates the finished reply. `server.py` runs the loop in `generate`: streamed messages go straight to the page; when the reply is complete the full parser runs, and on failure the partial surfaces are deleted and the error goes back to the model once. A `SurfaceStore` mirror lets `answer_action` find the status `Text` and answer a click with one `updateDataModel`. `static/app.mjs` reads the SSE body over `fetch` and posts actions. The design decision: streaming is an optimisation on top of the validated result, never a replacement for it.
+**Build.** `prompt.py` wraps `a2ui-agent-sdk`: `DirectJsonFormat` renders the Basic Catalog into a system prompt, `DirectJsonStreamParser` yields `updateComponents` messages while the reply streams, and the full parser repairs and validates the finished reply. `server.py` runs the loop in `generate`: it first sends `deleteSurface` for every surface its mirror still holds, so a second generation starts clean; streamed messages go straight to the page; when the reply is complete the full parser runs, and on failure the partial surfaces are deleted and the error goes back to the model once. A `SurfaceStore` mirror lets `answer_action` find the status `Text` and answer a click with one `updateDataModel`. `static/app.mjs` reads the SSE body over `fetch`, checks `response.ok`, skips the `: keepalive` comments the server writes after 15 s of silence, and posts actions; a bad body to either route is a 422. The design decision: streaming is an optimisation on top of the validated result, never a replacement for it.
 
 `03_a2ui/step_02_a2ui_from_a_model/server.py`:
 
@@ -606,7 +673,7 @@ python demo.py
 
 **Why now.** Step 03.2 rendered by hand over plain SSE. This step swaps in `@a2ui/lit` and carries the same messages as AG-UI runs.
 
-**Build.** `src/page.mjs` builds a `MessageProcessor` from `@a2ui/web_core` over the Lit Basic Catalog and appends an `A2uiSurface` element whenever a surface is created. Its event switch has one line for the join: a `CUSTOM` event named `a2ui` goes to `processor.processMessages`. `src/agui.mjs` is a small AG-UI client with a frame splitter and the `RunAgentInput` shape. `server.py` keeps the generate loop and adds `to_events`, which maps `(kind, payload)` pairs onto `ag-ui-protocol` event classes; `POST /agent` writes frames with `EventEncoder`. A click becomes a second run whose `forwardedProps` carry the action and the client data model. The design decision: nothing in A2UI changes to ride AG-UI, and nothing in AG-UI changes to carry it. One `esbuild` call bundles the renderer into `static/bundle.js`.
+**Build.** `src/page.mjs` builds a `MessageProcessor` from `@a2ui/web_core` over the Lit Basic Catalog and appends an `A2uiSurface` element whenever a surface is created. Its event switch has one line for the join: a `CUSTOM` event named `a2ui` goes to `processor.processMessages`. `src/agui.mjs` is a small AG-UI client with a frame splitter and the `RunAgentInput` shape. `server.py` keeps the generate loop and adds `to_events`, which maps `(kind, payload)` pairs onto `ag-ui-protocol` event classes; `POST /agent` takes a `RunAgentInput` (a bad body is a 422) and writes frames with `EventEncoder`. The `deleteSurface`-first rule matters more here than in step 03.2: the official `MessageProcessor` throws `Surface main already exists.` on a repeated `createSurface`, where the hand store treated it as a reset. A click becomes a second run whose `forwardedProps` carry the action and the client data model. The design decision: nothing in A2UI changes to ride AG-UI, and nothing in AG-UI changes to carry it. One `esbuild` call bundles the renderer into `static/bundle.js`.
 
 `03_a2ui/step_03_a2ui_lit_and_ag_ui/server.py`:
 
@@ -639,7 +706,7 @@ npm install && npm run build
 python demo.py
 ```
 
-**See.** The page runs `@a2ui/lit` 0.11.0. The run started at 1.63s, `createSurface` arrived at 7.19s, and 54 `CUSTOM a2ui updateComponents` events followed before `RUN_FINISHED` at 15.64s with 9929 prompt tokens and 686 completion tokens. The click at 15.78s sent a second run; its wire is three lines, `RUN_STARTED`, one `CUSTOM` event with an `updateDataModel`, and `RUN_FINISHED` at 15.81s. The client data model it carried had 92 bytes.
+**See.** The page runs `@a2ui/lit` 0.11.0. The run started at 1.63s, `createSurface` arrived at 7.19s, and 54 `CUSTOM a2ui updateComponents` events followed before `RUN_FINISHED` at 15.64s with 9929 prompt tokens and 686 completion tokens. The click at 15.78s sent a second run; its wire is three lines, `RUN_STARTED`, one `CUSTOM` event with an `updateDataModel`, and `RUN_FINISHED` at 15.81s. The server echoes the client data model the click carried into the status `Text` (`... the client data model says {"form": {...}}`), which is `sendDataModel` demonstrated rather than measured.
 
 ![Step 03.3: the same form drawn by the official Lit renderer, fed by AG-UI events](03_a2ui/step_03_a2ui_lit_and_ag_ui/demo.png)
 
@@ -671,7 +738,7 @@ This sub-theme is about generation, not transport. OpenUI Lang is the line-orien
 
 **Why now.** Sub-theme 01 streamed a flat element map that paid for keys, quotes and brackets on every field. This step keeps the streaming property and drops the cost.
 
-**Build.** `openui_parse.py` is the Python parser: tokenize, split into statements, parse each expression, resolve references from `root` into one tree. `openui-parse.mjs` is the same parser in JavaScript for the page; `test_step.py` checks that both produce the same tree for `program.oui`. `catalog.json` holds eight components as plain JSON Schema, and the order of `properties` is the order of the arguments. `render.mjs` keys one DOM function per component name and draws a placeholder as a grey box. `server.py` sends `program.oui` one line per SSE message. The design decision: the resolver is re-run on every pushed line, never patched.
+**Build.** `openui_parse.py` is the Python parser: tokenize, split into statements, parse each expression, resolve references from `root` into one tree. `openui-parse.mjs` is the same parser in JavaScript for the page; `test_step.py` checks that both produce the same tree for `program.oui`. `catalog.json` holds eight components as plain JSON Schema, and the order of `properties` is the order of the arguments. `render.mjs` keys one DOM function per component name and draws a placeholder as a grey box. `server.py` sends `program.oui` one line per SSE message. The design decision: the resolver is re-run on every pushed line, never patched. A broken line is an error line, not a sink: a string ends with its line, so a stray `"` costs one statement, while a stray `[` holds back the lines after it until a `]` arrives (step 07.2's parser closes that gap).
 
 `04_openui_lang/step_01_openui_lang_parser/openui_parse.py`:
 
@@ -720,7 +787,7 @@ python demo.py
 
 **Why now.** Step 04.1 kept the catalog, the parser and the renderer in three separate files. This step derives all three from one source and lets a real model write the program.
 
-**Build.** `library.mjs` defines the eight components with `defineComponent()`: a name, a description, a Zod props schema and a React function, then `createLibrary()` with `Stack` as the root. `prompt.mjs` prints `library.prompt()`; `server.py` caches it in `prompt.txt` and sends it as the system message. `POST /generate` forwards every model delta as one SSE message. `app.mjs` accumulates the deltas in one string and hands it to `<Renderer>`, which wraps the `@openuidev/lang-core` streaming parser. The design decision: the key order of each `z.object()` is the argument order, so the prompt, the parser and the renderer cannot disagree. React 19 ships CommonJS only, so `nodetools.py` runs esbuild once.
+**Build.** `library.mjs` defines the eight components with `defineComponent()`: a name, a description, a Zod props schema and a React function, then `createLibrary()` with `Stack` as the root. `prompt.mjs` prints `library.prompt()`; `server.py` caches it in `prompt.txt` and sends it as the system message. `POST /generate` forwards every model delta as one SSE message and ends the stream with `event: done`, or `event: error` with the reason when the model call fails part-way. `app.mjs` accumulates the deltas in one string and hands it to `<Renderer>`, which wraps the `@openuidev/lang-core` streaming parser; the library drops an element whose required argument is still a forward reference (`null-required`) or whose prop has the wrong type (`type-mismatch`), where step 04.1's hand parser drew a skeleton. The design decision: the key order of each `z.object()` is the argument order, so the prompt, the parser and the renderer cannot disagree. React 19 ships CommonJS only, so `nodetools.py` runs esbuild once.
 
 `04_openui_lang/step_02_openui_react_lang/library.mjs`:
 
@@ -767,7 +834,7 @@ python demo.py
 
 **Why now.** Steps 04.1 and 04.2 asserted that the line-oriented syntax is cheaper than JSON. This step measures the claim on the report's own seven scenarios.
 
-**Build.** `samples/` holds the seven `.oui` programs the report's benchmark recorded and the 53-component `schema.json`. `convert.py` projects each parsed tree into Thesys C1 JSON, json-render's element map and its RFC 6902 patch stream, and YAML; the YAML emitter ports the `yaml` npm package's quoting and folding rules. `benchmark.py` counts every text with `tiktoken`'s `o200k_base`, compares each cell with the report's table, and prints seconds at 60 tokens per second. `report/` holds the OpenUI repository's committed projections, and `test_step.py` requires a byte-for-byte match. The design decision: all four texts are projections of one parsed tree, so syntax is the only variable.
+**Build.** `samples/` holds the seven `.oui` programs the report's benchmark recorded and the 53-component `schema.json`. `convert.py` projects each parsed tree into Thesys C1 JSON, json-render's element map and its RFC 6902 patch stream, and YAML; the YAML emitter ports the `yaml` npm package's quoting and folding rules. `benchmark.py` counts every text with `tiktoken`'s `o200k_base`, compares each cell with the report's table, and prints seconds at 60 tokens per second; a sample that does not parse is one `benchmark failed: ...` line, not a traceback. `report/` holds the OpenUI repository's committed projections, and `test_step.py` requires a byte-for-byte match; the two tests that count tokens skip when the vocabulary cannot be fetched, so the suite passes offline. The design decision: all four texts are projections of one parsed tree, so syntax is the only variable.
 
 `04_openui_lang/step_03_format_benchmark/benchmark.py`:
 
@@ -822,7 +889,7 @@ report TOTAL            4800    9122     9948    10180      -
 
 **Why now.** Step 04.2 gave the model a catalog and nothing else, so an interactive request had nowhere to go. This step builds the escape hatch on OpenUI's own `examples/miscellaneous/html-artifact` reference implementation.
 
-**Build.** `library.mjs` keeps the eight step 04.2 components and adds `Markdown` and `HtmlArtifact(title, document)`, with the example's prompt rules: the catalog for dashboards, `Markdown` for conversation, an artifact only when the user asks for something interactive. `html-artifact.mjs` shows the raw source while the document streams, then Raw and Rendered tabs. `sandbox.mjs` injects a Content Security Policy first in `<head>` and accepts one message shape from the iframe. The design decision: the document is the second string argument of one statement, so it streams like any other string, with no second endpoint and no tool call.
+**Build.** `library.mjs` keeps the eight step 04.2 components and adds `Markdown` and `HtmlArtifact(title, document)`, with the example's prompt rules: the catalog for dashboards, `Markdown` for conversation, an artifact only when the user asks for something interactive. `html-artifact.mjs` shows the raw source while the document streams, then Raw and Rendered tabs. `sandbox.mjs` injects a Content Security Policy right after the doctype, before any element the model wrote, strips a meta refresh, and accepts one message shape from the iframe, checked against `event.source`; `checkDocument()` lists an external `src`, a network call or an oversized document next to the artifact, and the CSP blocks the request either way. The design decision: the document is the second string argument of one statement, so it streams like any other string, with no second endpoint and no tool call.
 
 `04_openui_lang/step_04_openui_html_artifact/html-artifact.mjs`:
 
@@ -843,7 +910,7 @@ function HtmlArtifactRenderer({ props }) {
         }),
 ```
 
-Look at the ternary: `useIsStreaming()` decides between the raw source and the iframe, and `sandboxed()` adds the CSP before the document reaches `srcDoc`.
+Look at the ternary: `useIsStreaming()` decides between the raw source and the iframe, and `sandboxed()` adds the CSP before the document reaches `srcDoc`. Why after the doctype and not first in `<head>`: the model writes the document, and a `<script>` placed before `<head>`, or a `<head>` inside a comment, would make a `<head>` search put the policy where the browser ignores it. Anchoring on the doctype puts the meta before anything the model can run.
 
 **Run.**
 
@@ -888,7 +955,7 @@ json-render is one of the open formats in the declarative middle of the report: 
 
 **Why now.** Sub-theme 01 wrote the catalog prompt, the parser and the renderer by hand. This step gives those jobs to the library and keeps the loop: one request, one complete spec.
 
-**Build.** `catalog.mjs` declares six components with Zod props and calls `catalog.prompt()` with four extra rules that ask for one JSON object instead of the library's native JSONL. `prompt.py` runs `prompt.mjs` once and caches the text in `prompt.txt`, so the server never imports the catalog; `catalog_json.mjs` exports the props as JSON Schema for `spec.py`, which rejects unknown types, dangling child ids and wrong prop types. `registry.mjs` maps each catalog entry to a React function through `defineRegistry`, written with `htm` so the same file runs in the browser and under `react-dom/server`. `app.mjs` wraps `Renderer` in `JSONUIProvider`. The design decision: no JSX and no bundler; `index.html` carries an import map of pinned esm.sh builds that match `package.json`.
+**Build.** `catalog.mjs` declares six components with Zod props and calls `catalog.prompt()` with four extra rules that ask for one JSON object instead of the library's native JSONL. `prompt.py` runs `prompt.mjs` once and caches the text in `prompt.txt`, so the server never imports the catalog; `catalog_json.mjs` exports the props as JSON Schema for `spec.py`, which rejects unknown types, dangling child ids, wrong prop types, wrong shapes at every level and an element that contains itself, as sentences in a 502 rather than a traceback; a model call that fails or refuses is a 502 too. `registry.mjs` maps each catalog entry to a React function through `defineRegistry`, written with `htm` so the same file runs in the browser and under `react-dom/server`. `app.mjs` wraps `Renderer` in `JSONUIProvider`. The design decision: no JSX and no bundler; `index.html` carries an import map of pinned esm.sh builds that match `package.json`.
 
 `05_json_render/step_01_json_render_catalog/catalog.mjs`:
 
@@ -933,7 +1000,7 @@ python demo.py
 
 **Why now.** Step 05.1 showed nothing until the whole object arrived at 5.8 s. The library's native format is JSONL patches; this step removes the four rules and uses it.
 
-**Build.** `catalog.mjs` drops the four rules; `llm.py` streams the reply with no JSON mode, because JSONL is many objects. `json_patch.py` is a small RFC 6902 implementation with the library's two tolerances: `add` creates a missing parent and `replace` creates a missing target. Its `SpecStream` applies complete lines as chunks arrive. `server.py` relays every chunk to the page unchanged and pushes a copy into a `SpecStream`, so it ends with the spec, the patches and the timings. `app.mjs` pushes each chunk into `createSpecStreamCompiler`. The design decision: the first patch sets `/root` alone, and `Renderer` has no guard for that, so the page gives it an empty element map until `/elements` arrives.
+**Build.** `catalog.mjs` drops the four rules; `llm.py` streams the reply with no JSON mode, because JSONL is many objects. `json_patch.py` is a small RFC 6902 implementation with the library's two tolerances: `add` creates a missing parent and `replace` creates a missing target. Its `SpecStream` applies complete lines as chunks arrive. `server.py` relays every chunk to the page unchanged and pushes a copy into a `SpecStream`, so it ends with the spec, the patches and the timings; a line that does not apply (not an object, a scalar parent, a prototype key) is skipped and recorded as `(line, reason)` under `skipped` in `/last`, where json-render's compiler drops it silently, and a model call that fails part-way ends the stream with one `{"error": "..."}` line that both compilers skip and the page reads as the reason. `app.mjs` pushes each chunk into `createSpecStreamCompiler`. The design decision: the first patch sets `/root` alone, and `Renderer` has no guard for that, so the page gives it an empty element map until `/elements` arrives.
 
 `05_json_render/step_02_json_render_streaming_patches/app.mjs`:
 
@@ -981,7 +1048,7 @@ python demo.py
 
 **Why now.** Step 05.2 streams a spec and stops. The report describes the point of a declarative format as a loop: the model edits a document, and the document is the UI.
 
-**Build.** `catalog.mjs` adds a `Button` and two actions, `refresh_numbers` and `show_details`, with Zod `params`; a spec binds a press with an `on` field on the element, not with code in props. `app.mjs` keeps the compiler in a ref and maps each catalog action to one handler: `POST /action`, then push the reply into the same compiler. `server.py` keeps one transcript per session; a press becomes a user message that asks for patches. `ink_render.mjs` is the second target: a component map written with ink's `Box` and `Text`. The design decision: catalog actions go to the server, the built-in `setState` stays in the page, and the server never learns about it.
+**Build.** `catalog.mjs` adds a `Button` and two actions, `refresh_numbers` and `show_details`, with Zod `params`; a spec binds a press with an `on` field on the element, not with code in props. `app.mjs` keeps the compiler in a ref and maps each catalog action to one handler: `POST /action`, check `response.ok` so a JSON error body is never fed to the compiler as a patch line, then push the reply into the same compiler; a press while a turn runs is logged and dropped. `server.py` keeps one transcript per session; a press becomes a user message that asks for patches, its `params` are validated against the action's schema (a 400 when they do not fit), and a turn whose model call fails takes the pressed message back out of the transcript. `ink_render.mjs` is the second target: a component map written with ink's `Box` and `Text`, with `Metric`, `Table` and `Chart` defaulting a `$state` prop that has not arrived. The design decision: catalog actions go to the server, the built-in `setState` stays in the page, and the server never learns about it.
 
 `05_json_render/step_03_json_render_actions_and_targets/ink_render.mjs`:
 
@@ -1039,7 +1106,7 @@ The same spec in the terminal, cut to its top:
 <!-- SUBTHEME 06 -->
 # Sub-theme 06: MCP Apps, UI in a host you do not control
 
-The report's second transport. Sub-theme 02 put the agent inside a product you own. Here the agent lives in someone else's chat client, and you ship the interface to it as an MCP resource: a `ui://` URI, an HTML document, a tool that points at it, and a JSON-RPC bridge over `postMessage` between a sandboxed iframe and the host. The spec is SEP-1865. Both steps use FastMCP on the server and no SDK anywhere else. At the end the reader has one server that renders in a browser host, in a terminal host, and in Claude Desktop, unchanged.
+The report's second transport. Sub-theme 02 put the agent inside a product you own. Here the agent lives in someone else's chat client, and you ship the interface to it as an MCP resource: a `ui://` URI, an HTML document, a tool that points at it, and a JSON-RPC bridge over `postMessage` between a sandboxed iframe and the host. The spec is SEP-1865. All three steps use FastMCP on the server and no SDK anywhere else. At the end the reader has one server that renders in a browser host, in a terminal host, and in Claude Desktop, unchanged, and a third that ships the hybrid through the same host with the open-ended part one sandbox deeper.
 
 **Roadmap of this sub-theme**
 
@@ -1047,6 +1114,7 @@ The report's second transport. Sub-theme 02 put the agent inside a product you o
 |---|---|---|
 | 06.1 | A FastMCP server whose tool result carries a view, and the smallest browser host that can mount it | A tool result has two audiences: `content` for the model, `structuredContent` for the iframe; the view talks only to the host |
 | 06.2 | The same server, unchanged, inside the harness's MCP client as a text host, plus the Claude Desktop and Goose configuration | The host decides what it can show; ship a text result that stands alone and a `ui://` view for hosts that can mount it |
+| 06.3 | A tool that returns catalog components plus one model-written region, mounted in a nested sandbox inside the app | The hybrid one boundary deeper: two frames, two policies, one accepted message shape, the key on the server |
 
 ## Step 06.1: An MCP App, a tool result that carries its interface
 
@@ -1056,7 +1124,7 @@ The report's second transport. Sub-theme 02 put the agent inside a product you o
 
 **Why now.** Sub-theme 02 rendered on a page you wrote. This step gives up the page, the model and the loop, and keeps one MCP server.
 
-**Build.** `server.py` is a FastMCP server with one tool, `lemonade_dashboard`, and one resource at `ui://lemonade/dashboard.html` whose text is `view.html`. The tool's `_meta.ui.resourceUri` links the two. `view.html` speaks JSON-RPC over `postMessage` in three functions. `bridge.mjs` answers `ui/initialize`, holds the tool input and result until the view says `initialized`, and proxies every later request to the server. `host.html` builds a content security policy from the resource's metadata and mounts the HTML in an iframe with `sandbox="allow-scripts"`. `host.py` owns the model call. The design decision: the resource is static and declared up front; the data arrives later, as a notification.
+**Build.** `server.py` is a FastMCP server with one tool, `lemonade_dashboard`, and one resource at `ui://lemonade/dashboard.html` whose text is `view.html`. The tool's `_meta.ui.resourceUri` links the two. `view.html` speaks JSON-RPC over `postMessage` in three functions. `bridge.mjs` answers `ui/initialize`, holds the tool input and result until the view says `initialized`, and proxies every later request to the server, but only what the host allows: `tools/call` for tools the listing marks app-visible, `resources/read` for `ui://` URIs the listing declared, `http(s):` links only, and only from the window it mounted. `bridge.mjs` also builds the content security policy from the resource's metadata, checking every declared domain, and injects it right after the doctype; `host.html` mounts the HTML in an iframe with `sandbox="allow-scripts"`, runs the tool loop, appends one `tool` message per `tool_call` whatever went wrong, stops after four tool rounds, and writes tool names and URIs, the server's strings, through `textContent`. `host.py` owns the model call. The design decision: the resource is static and declared up front; the data arrives later, as a notification.
 
 `06_mcp_apps/step_01_mcp_app_resource/server.py`:
 
@@ -1091,7 +1159,7 @@ python demo.py
 
 ![Step 06.1: the lemonade dashboard mounted in a sandboxed iframe by a minimal MCP Apps host](06_mcp_apps/step_01_mcp_app_resource/demo.png)
 
-**Checkpoint.** Add `"visibility": ["app"]` to a second tool's `_meta.ui`: it leaves the model's tool list while the view can still call it.
+**Checkpoint.** Add `"visibility": ["app"]` to a second tool's `_meta.ui`: it leaves the model's tool list while the view can still call it. Then have the view call a tool marked `["model"]` only: the bridge answers with a JSON-RPC error and nothing reaches the server.
 
 **Takeaway.** The interface travels as a resource, the data as a tool result, and every message between them passes through a host that can refuse it.
 
@@ -1103,7 +1171,7 @@ python demo.py
 
 **Why now.** Step 06.1 built a host to prove the protocol. Real hosts are built by other people.
 
-**Build.** The server and the browser host are unchanged from step 06.1. `harness/` is the harness codelab's step 26 MCP client, extended into a text host. `.agents/mcp.json` starts the server with `--stdio`. `harness/mcp_client.py` remembers which tools carry a `ui://` resource, reads the resource once per session, and queues the result's `structuredContent` as a card. `harness/ui_text.py` turns any JSON into text. `harness/agent.py` draws the card after the tool panel, one added line. The design decision: the card is queued, not drawn inside the call, because the call runs on a pool thread and the loop writes the terminal.
+**Build.** The server and the browser host are unchanged from step 06.1. `harness/` is the harness codelab's step 26 MCP client as fixed in this round (`diff -r` against it shows only this step's additions), extended into a text host, so every `tool_call` gets exactly one tool message, a turn stops after 40 model calls, and ctrl-c answers the queued calls with `(interrupted before this tool ran)`. `.agents/mcp.json` starts the server with `--stdio`. `harness/mcp_client.py` remembers which tools carry a `ui://` resource, reads the resource once per session, and queues the result's `structuredContent` as a card. `harness/ui_text.py` turns any JSON into text. `harness/agent.py` draws the card after the tool panel, one added line. The design decision: the card is queued, not drawn inside the call, because the call runs on a pool thread and the loop writes the terminal.
 
 `06_mcp_apps/step_02_mcp_app_in_a_real_host/harness/mcp_client.py`:
 
@@ -1165,7 +1233,7 @@ Claude Desktop and Goose mount the same resource in a real iframe; the step READ
 
 **Why now.** Step 01.4 built the hybrid on a page you own. Step 06.1 shipped a view as a resource. This step puts one inside the other.
 
-**Build.** `server.py` keeps step 06.1's resource, link and policy, and changes the tool. `lemonade_report(days, focus)` returns two halves in `structuredContent`: `components`, six catalog items in the shape of step 01.1, and `generated`, one HTML document the model writes for a region the catalog does not cover. `report.py` builds the spec and makes the server's own model call; without a key, a hand-written fallback with the same contract takes its place. `catalog.mjs` renders the components with four escaped renderers. `sandbox.mjs` mounts the generated document in a nested `sandbox="allow-scripts"` iframe with its own policy first in the head. The design decision: the server calls the model, not the host, because MCP Apps keeps credentials on the server side.
+**Build.** `server.py` keeps step 06.1's resource, link and policy, and changes the tool. `lemonade_report(days, focus)` returns two halves in `structuredContent`: `components`, six catalog items in the shape of step 01.1, and `generated`, one HTML document the model writes for a region the catalog does not cover. `report.py` builds the spec and makes the server's own model call, off the event loop; without a key, or when the call fails, a hand-written fallback with the same contract takes its place and the view's status says which region is on screen. `catalog.mjs` renders the components with four escaped renderers that coerce every list-shaped prop. `sandbox.mjs` mounts the generated document in a nested `sandbox="allow-scripts"` iframe with its own stricter policy injected right after the doctype and any meta refresh stripped. What the view hands the host as context goes into the next turn as a labelled, capped user note, never a system message. The design decision: the server calls the model, not the host, because MCP Apps keeps credentials on the server side.
 
 `06_mcp_apps/step_03_mcp_app_hybrid/view.html`:
 
@@ -1212,7 +1280,7 @@ python demo.py
 <!-- SUBTHEME 07 -->
 # Sub-theme 07: Generative UI in the harness
 
-The two codelabs meet here. The harness codelab ends with a coding agent that talks in prose and tool panels, then moves the loop onto TrueForge. This sub-theme gives both harnesses a rendering surface. Both steps are declarative generation in the report's terms; the transports are a terminal, a browser page fed over SSE, and the TrueForge SDK. At the end the reader has the stage 15 loop drawing a validated spec on two surfaces, and a parser plus renderer for OpenUI Lang, the language TrueForge's generative UI speaks. Sub-theme 06 put an interface into a host the reader does not control; this one lets the reader's own agent answer with one.
+The two codelabs meet here. The harness codelab ends with a coding agent that talks in prose and tool panels, then moves the loop onto TrueForge. This sub-theme gives both harnesses a rendering surface. The first two steps are declarative generation in the report's terms and the third is its hybrid; the transports are a terminal, a browser page fed over SSE, and the TrueForge SDK. At the end the reader has the stage 15 loop drawing a validated spec on two surfaces, a parser plus renderer for OpenUI Lang, the language TrueForge's generative UI speaks, and one sandboxed `HtmlArtifact` that the hosted harness's own chat UI does not have. Sub-theme 06 put an interface into a host the reader does not control; this one lets the reader's own agent answer with one.
 
 **Roadmap of this sub-theme**
 
@@ -1220,6 +1288,7 @@ The two codelabs meet here. The harness codelab ends with a coding agent that ta
 |---|---|---|
 | 07.1 | A `render_ui(spec)` tool on the stage 15 loop, a six-component catalog, a `rich` renderer and a browser page over SSE | The spec is the interface: validate once, draw on any surface, and the model never sees the picture |
 | 07.2 | A TrueForge session with `generative_ui` on, an OpenUI Lang parser in Python and JavaScript, a page that draws one line per event | A hosted harness already speaks a UI language; forward references and line-oriented statements make it stream |
+| 07.3 | Step 07.2's session with one `HtmlArtifact` statement allowed, rendered by the page in a sandboxed iframe | The escape hatch a hosted harness does not ship lives in the surface that renders its replies |
 
 ## Step 07.1: A render_ui tool for the harness
 
@@ -1229,7 +1298,7 @@ The two codelabs meet here. The harness codelab ends with a coding agent that ta
 
 **Why now.** The reader has the stage 15 harness and the element map from sub-theme 01. This step joins them without changing the loop.
 
-**Build.** `harness/` is the stage 15 loop copied whole. `harness/genui.py` is new: a six-component catalog with typed props and a children flag, plus `validate()`, which returns every problem as a plain sentence. `harness/tools.py` adds `render_ui` next to `bash` and `task`, behind the same permission check. `harness/llm.py` writes the catalog into the system prompt from the dictionary the validator reads, so the two cannot drift. `harness/ui.py` is the first surface: one `rich` renderable per element, recursing over children. `harness/web.py` and `web/app.js` are the second: a standard library HTTP server pushes each spec to every open tab over SSE, and the page walks the map from `root`. The design decision: the model sees one sentence; the surface draws the picture from data.
+**Build.** `harness/` is the stage 15 loop as fixed in this round, copied whole (`diff -r` against it shows only this step's idea), so `execute()` answers every call, a turn stops after 40 model calls and ctrl-c leaves a valid transcript. `harness/genui.py` is new: a six-component catalog with typed props and a children flag, plus `validate()`, which checks the shape of `root`, `props` and `children`, numeric chart values and list rows, and returns every problem as a plain sentence. `harness/tools.py` adds `render_ui` next to `bash` and `task`, through the same `execute()`; the subagent never gets the tool and is denied if it names it anyway. `harness/llm.py` writes the catalog into the system prompt from the dictionary the validator reads, so the two cannot drift. `harness/ui.py` is the first surface: one `rich` renderable per element, recursing over children. `harness/web.py` and `web/app.js` are the second: a standard library HTTP server serves only the two files under `web/` (a path with `..` is a 404), pushes each spec to every open tab over SSE, and the page walks the map from `root`; a taken port prints one line and the terminal carries on alone. The design decision: the model sees one sentence; the surface draws the picture from data.
 
 `07_harness_genui/step_01_render_ui_tool/harness/tools.py`:
 
@@ -1248,7 +1317,7 @@ def render_ui(spec: dict) -> str:
     return f"Rendered {len(spec['elements'])} elements from root '{spec['root']}'."
 ```
 
-Look at the two return values. A bad spec comes back as corrections, not a crash; a good one is published and acknowledged in one line.
+Look at the two return values. A bad spec comes back as corrections, not a crash; a good one is published and acknowledged in one line. `ui.tool` draws only a result that starts with `Rendered `, so a denied call (`Blocked by policy: ...`) shows as a tool panel and is never drawn.
 
 **Run.**
 
@@ -1273,16 +1342,22 @@ python demo.py
 
 **Why now.** Step 07.1 taught the local harness to draw. TrueForge, the hosted harness from Part 7, already does this with `generative_ui` enabled: its agent answers with an OpenUI Lang program inside a fence. This step renders that program in a page of its own.
 
-**Build.** `client/genui.py` opens a session with `generative_ui` enabled, streams one turn, and `extract_program()` pulls the text out of the first ```openui fence, even one that never closed. `openui_parse.py` is a streaming-first parser: statements are `name = expr`, values are strings, numbers, lists, component calls, `+` and references, forward or backward. `web/openui-parse.mjs` is the same parser in JavaScript, tested against the same program. `web/render.mjs` maps each component name to a function of its positional args; unknown components become a labelled box, pending references a dashed placeholder. `server.py` sends one line per SSE event, and `web/app.js` feeds each line to the parser and redraws from `root`. The design decision: a statement commits at the first newline where its brackets balance, so a multi-line `Card([` waits and every finished line is drawable at once.
+**Build.** `client/genui.py` opens a session with `generative_ui` enabled, streams one turn, and `extract_program()` pulls the text out of the first ```openui fence, even one that never closed; a turn that ends in any state but `done` raises, so a truncated program is never rendered as complete, and `describe_error()` turns a server that is down into one line naming the URL. `openui_parse.py` is a streaming-first parser: statements are `name = expr`, values are strings, numbers, lists, component calls, `+` and references, forward or backward; it reads a subset of the language (no exponents, no objects, no `$state`), and a line outside it is one parse error, not a blank page. `web/openui-parse.mjs` is the same parser in JavaScript, tested against the same program. `web/render.mjs` maps each component name to a function of its positional args; unknown components become a labelled box, pending references a dashed placeholder. `server.py` serves only the `web/` files and sends one line per SSE event, then `null`; `web/app.js` feeds each line to the parser, redraws from `root`, closes the `EventSource` on the `null` and resets the parser on a reconnect so a replay is not appended to itself. The design decision: a statement commits at the first newline where its brackets balance, so a multi-line `Card([` waits and every finished line is drawable at once.
 
 `07_harness_genui/step_02_trueforge_generative_ui/openui_parse.py`:
 
 ```python
     def feed(self, text):
-        """Add a chunk. Every complete statement it finishes is parsed now."""
+        """Add a chunk. Every complete statement it finishes is parsed now.
+
+        A statement ends at the first newline where the text before it is
+        balanced. A statement never starts inside another one's brackets, so
+        a line that opens a new `name = ...` while the text before it is still
+        unbalanced closes the broken statement (it becomes a parse error)
+        instead of holding back everything after it.
+        """
         self.buffer += text
         while True:
-            # the first newline at which the text before it is balanced ends a statement
             start, cut = 0, None
             while cut is None:
                 nl = self.buffer.find("\n", start)
@@ -1290,12 +1365,14 @@ python demo.py
                     return  # the rest is an unfinished line: hold it back
                 if complete(self.buffer[:nl]):
                     cut = nl
+                elif start and STATEMENT_START.match(self.buffer, start):
+                    cut = start - 1  # the broken statement ends before the line that starts a new one
                 start = nl + 1
             line, self.buffer = self.buffer[:cut], self.buffer[cut + 1:]
             self.add_line(line.replace("\n", " "))
 ```
 
-Look at the inner loop: `complete()` is a bracket-balance check, and the loop walks newline by newline until the text before one balances.
+Look at the inner loop: `complete()` is a bracket-balance check, and the loop walks newline by newline until the text before one balances. The `elif` is the rule that keeps a stream from stalling: a statement that never closes its bracket would otherwise hold back every line after it, so the next `name = ...` line ends it as a parse error and the page keeps drawing. The JavaScript parser applies the same rule.
 
 **Run.**
 
@@ -1322,7 +1399,7 @@ python demo.py
 
 **Why now.** Step 07.2 rendered TrueForge's catalog in a page of ours. That catalog is static: a table, a tag, never a calculator to play with. This step puts the report's hybrid on a harness you do not own.
 
-**Build.** `client/genui.py` keeps step 07.2's session and changes only the `instructions`: the catalog from `get_openui_instructions`, minus `Form`, `Input` and `$state`, plus `HtmlArtifact(title, document)`, allowed only when the user asks for something interactive, with one example. Both parsers gain `partial()`, a lenient read of the line still in the buffer, so a streaming artifact appears in the tree as a partial node. `web/render.mjs` draws that node as raw source, and the complete node as a sandboxed iframe with the policy from `web/sandbox.mjs` injected first in `<head>`. `server.py` streams 40-character chunks instead of lines. The decision that matters: the TrueForge chat UI does not know this component, so this page, not the harness, is where the hybrid exists.
+**Build.** `client/genui.py` keeps step 07.2's session and changes only the `instructions`: the catalog from `get_openui_instructions`, minus `Form`, `Input` and `$state`, plus `HtmlArtifact(title, document)`, allowed only when the user asks for something interactive, with one example. Both parsers gain `partial()`, a lenient read of the line still in the buffer, so a streaming artifact appears in the tree as a partial node (its unquoted scalars read as strings until the line closes). `web/render.mjs` draws that node as raw source, and the complete node as a sandboxed iframe with the policy from `web/sandbox.mjs` injected right after the doctype and any meta refresh stripped; `checkDocument()` lists an external `src`, a network call or an oversized document under the frame, and a document that is not a string renders as empty rather than `[object Object]`. `server.py` streams 40-character chunks instead of lines. `artifact.py` counts tokens with tiktoken and falls back to a character estimate when the vocabulary cannot be fetched. The decision that matters: the TrueForge chat UI does not know this component, so this page, not the harness, is where the hybrid exists.
 
 `07_harness_genui/step_03_trueforge_hybrid/web/render.mjs`:
 
@@ -1345,7 +1422,7 @@ python demo.py
     frame.srcdoc = sandboxed(String(document));
 ```
 
-The same component draws source while its line is open and an iframe once it closes; `sandboxed()` is the only path a document takes into the page.
+The same component draws source while its line is open and an iframe once it closes; `sandboxed()` is the only path a document takes into the page. A statement that commits after the artifact line rebuilds the tree and re-creates the iframe, which resets what the user typed; the instructions say there is none, but the model decides.
 
 **Run.**
 
@@ -1447,11 +1524,13 @@ Three rules held across all 23 steps.
    from one definition. Change the definition and all three change. This
    is what keeps declarative generation safe.
 3. **Errors are results.** A spec that fails validation goes back to the
-   model as text. A blocked script stays inside its iframe. The loop never
-   ends because the agent drew something wrong.
+   model as text. A blocked script stays inside its iframe. A model call
+   that dies mid-stream is the stream's last frame, not a hung page. The
+   loop never ends because the agent drew something wrong.
 
 The harness codelab ended with the same three rules for tools. They hold
-for interfaces too.
+for interfaces too, and the guarantees in "Robustness in this series" are
+what the three rules cost to keep in every step.
 
 ## Sub-theme index
 

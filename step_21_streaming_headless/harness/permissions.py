@@ -1,8 +1,8 @@
 """Stage 15 - which tool calls need a human.
 
 An allow list names the commands the agent may run on its own: ls, pwd,
-echo and other read-only commands it uses to gather information. Every
-other command stops and asks the user. If the user approves, the tool call
+echo and other commands it uses to gather information. Every other
+command stops and asks the user. If the user approves, the tool call
 runs.
 
 The allow / ask design comes from OpenCode. A third verdict, deny, covers
@@ -10,10 +10,9 @@ the handful of commands no answer at the prompt should unlock: rm, sudo,
 chmod, chown, curl and the like. The last matching rule wins, so the
 catch-all goes first.
 
-The rules only see text. Anything that hides a command inside another one -
-$(...), backticks, process substitution - or turns a read-only command into a
-write - a redirection, `tee`, `find -delete` - is rated ask, whatever the
-allow list says.
+The rules only see the command text, so anything they cannot read - a
+`$(...)` substitution, a backtick, a redirection into a file - is treated
+as a reason to ask, never as a reason to allow.
 """
 
 import re
@@ -32,7 +31,7 @@ BASH_RULES = {
     "find *": "allow", "tree*": "allow",
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
     "pytest*": "allow", "python -m pytest*": "allow",
-    # `env` prints the API key: ask
+    # env prints every variable, API_KEY included, straight into the transcript
     "env": "ask",
     # risky: never, even if the user says yes
     "rm *": "deny", "sudo *": "deny", "chmod *": "deny", "chown *": "deny",
@@ -40,15 +39,17 @@ BASH_RULES = {
     "git push*": "deny", "git reset*": "deny", "git clean*": "deny",
 }
 
-HIDDEN = ("$(", "`", "<(", ">(")  # a command inside a command: the rules cannot see it
-WRITES = re.compile(r"(?<![<>&\d])>{1,2}(?!&)|(^|\s|\|)tee(\s|$)")  # a redirection or tee turns a read into a write
-FIND_WRITES = re.compile(r"\s-(delete|exec|execdir|ok|okdir)(\s|$)")
+# The rules match a command's first word; these hide another command inside it.
+UNREADABLE = re.compile(r"\$\(|`|<\(|>\(")
+# An allowed command that writes: a redirection into a file, tee, or find that deletes / runs things.
+WRITES = re.compile(r"(?<![0-9&<])>>?(?!&)|\btee\b|\bfind\b.*\s-(delete|exec|execdir|ok|okdir)\b")
 
 
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, &&, newline - but not inside quotes.
+    """Split a compound command on |, ||, ;, &, &&, newlines - but not inside quotes.
 
-    `2>&1` and `>&` are redirections, not separators.
+    `2>&1` and `>&2` are redirections, not separators, so an & right after
+    a > or a digit stays with its command.
     """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
@@ -62,8 +63,8 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch == "&" and i > 0 and command[i - 1] == ">":
-            current.append(ch)  # part of >& or 2>&1
+        elif ch == "&" and current and current[-1] in ">0123456789":
+            current.append(ch)
         elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
@@ -77,31 +78,23 @@ def split_command(command):
 
 
 def unquoted(part):
-    """The part with quoted strings blanked out, so a `>` inside quotes does not count."""
-    return re.sub(r"'[^']*'|\"[^\"]*\"", "''", part)
-
-
-def rate(part):
-    """The verdict for one simple command."""
-    action = "ask"
-    for pattern, rule in BASH_RULES.items():
-        if fnmatch(part, pattern):
-            action = rule
-    if action != "allow":
-        return action
-    bare = unquoted(part)
-    if any(marker in bare for marker in HIDDEN):
-        return "ask"
-    if WRITES.search(bare):
-        return "ask"
-    if bare.startswith("find ") and FIND_WRITES.search(bare):
-        return "ask"
-    return "allow"
+    """The command with its quoted strings blanked, so a > inside quotes is not a redirection."""
+    return re.sub(r"\"[^\"]*\"|'[^']*'", "", part)
 
 
 def decide(command):
     """Rate every part of a compound command; the strictest verdict wins."""
-    verdicts = [rate(part) for part in split_command(command)]
+    if UNREADABLE.search(command):
+        return "ask"  # we cannot see what runs inside, so a human has to
+    verdicts = []
+    for part in split_command(command):
+        action = "ask"
+        for pattern, rule in BASH_RULES.items():
+            if fnmatch(part, pattern):
+                action = rule
+        if action == "allow" and WRITES.search(unquoted(part)):
+            action = "ask"  # `cat a > b` is a write, whatever the verb
+        verdicts.append(action)
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
             return strictest
@@ -113,9 +106,10 @@ def inside_project(path):
     return resolved == PROJECT or PROJECT in resolved.parents
 
 
-def inside_git(path):
+def in_git_dir(path):
+    """.git is inside the project, but a hook written there runs on the next git command."""
     resolved = Path(path).resolve()
-    return (PROJECT / ".git") in resolved.parents
+    return inside_project(path) and ".git" in resolved.relative_to(PROJECT).parts
 
 
 def check(name, args):
@@ -123,7 +117,7 @@ def check(name, args):
     if name == "bash":
         command = args.get("command", "")
         if not command:
-            return "deny", f"{name}: missing argument 'command'"
+            return "deny", "bash: missing argument 'command'"
         return decide(command), f"run: {command}"
 
     if name in ("write_file", "str_replace"):
@@ -132,7 +126,7 @@ def check(name, args):
             return "deny", f"{name}: missing argument 'path'"
         if not inside_project(path):
             return "ask", f"{name} outside {PROJECT}: {path}"
-        if inside_git(path):
+        if in_git_dir(path):
             return "ask", f"{name} inside .git: {path}"
 
     return "allow", None

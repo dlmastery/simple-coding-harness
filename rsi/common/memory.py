@@ -26,7 +26,7 @@ import jsonschema
 from common.data import PROFILE_KEYS
 from common.recipe import FIELDS, SCHEMA
 
-MIN_EVIDENCE = 2     # one comparison is a coincidence; two is a card
+MIN_EVIDENCE = 1     # one problem is one piece of evidence: a card acts after one, a counterexample demotes it
 OPS = {">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le, "==": operator.eq}
 
 CARD_SCHEMA = {
@@ -84,7 +84,7 @@ def card_id(card):
 
 
 def active(card):
-    """Enough evidence, and at most half as many counterexamples: two counters demote a two-evidence card."""
+    """Some evidence, and at most half as many counterexamples: one counter demotes a one-evidence card."""
     return card["evidence"] >= MIN_EVIDENCE and card["evidence"] >= 2 * card["counter"]
 
 
@@ -180,7 +180,7 @@ def compare(rows, profile):
     """The verifier's rule for one problem: per field, the value that won the most pairwise comparisons net of
     its losses gets evidence 1 on its prefer card; every value that lost more than it won gets counter 1; a value
     that errored gets evidence 1 on its forbid card. One problem is one piece of evidence, however many pairs it
-    had: a card needs two problems to become active, and two problems against it to be demoted."""
+    had: a card is active from its first problem, and demoted as soon as its counters reach half its evidence."""
     wins, losses, errors = tally(rows)
     deltas = []
     for field in FIELDS:
