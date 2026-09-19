@@ -1,17 +1,19 @@
-# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v9)
+# Zero to Hero: Recursive Self-Improvement — a hello world, skills only (outline, v10: skills run inside a coding agent)
 
 **The skill pack gets smarter. The model weights do not. You can measure both, turn it off, and roll it back.**
 
-Hello world, concept first, **skills-based from the first step**: the agent is
-configured by files it boots (`SKILL.md` and its siblings), never by Python
-that drives the loop. Python only supplies the *tools* a skill names
-(`fit_recipe`, `write_card`, `score_test` …) and one tiny skills harness that
-boots a pack and runs the model loop — the same shape as the root codelab's
-stage 4 (skills) + stage 15 (`execute()` as the one place every tool call goes
-through). Every step adds one idea by changing the files, so `diff -r` between
-two steps shows exactly what became RSI. Every step runs offline in tests with
-a fake model; `python run.py` needs `BASE_URL` / `API_KEY` / `MODEL` like the
-rest of the repo.
+Hello world, concept first, **skills-based from the first step, run inside a
+coding agent**: every lesson is a skill pack under `rsi/step_NN/.claude/skills/`
+(mirrored to `.agents/skills/`) that you run by opening Claude Code — or this
+repo's harness, Antigravity, Codex — in the lesson directory and typing the
+prompt its README gives. There is no Python driver: the agent is the loop,
+and Python survives only as the **tool scripts** under `rsi/tools/` that a
+skill tells the agent to run through its shell (`fit_recipe.py`,
+`write_card.py`, `score_test.py` …) and as the pytest tests of those scripts
+and of the pack contracts. Every step adds one idea by changing the files, so
+`diff -r` between two steps shows exactly what became RSI. Every claim is
+provable offline (`python run_tests.py rsi`), because the scripts are the
+gates; the READMEs carry transcripts recorded with `claude -p`.
 
 ## The job: a sequence of simple ML problems, one harness, growing experience
 
@@ -31,9 +33,9 @@ that experience can transfer. The curriculum ships in `rsi/tasks/`, one
 | 2 | Breast cancer (malignant) | `sklearn.datasets.load_breast_cancer` | all numeric, small — does "scale before logreg" transfer? |
 | 3 | Wine (3 classes) | `sklearn.datasets.load_wine` | multiclass: metric becomes macro one-vs-rest ROC-AUC; cards conditioned on `n_classes` |
 | 4 | Digits (10 classes) | `sklearn.datasets.load_digits` | 64 numeric features, image-like — tree depth and learning-rate cards get counterexamples |
-| 5 | Synthetic shifted table A | `common/synth.py` (seeded) | a table whose profile flips which recipe fields matter — the superstition test |
-| 6 | Synthetic shifted table B | `common/synth.py` (seeded) | the same, imbalanced and small |
-| 7 | **Exam** | `common/synth.py` (seeded, never used for writing) or Bank Marketing when online | the held-out problem: frozen pack, matched budget, memory arm vs `MEMORY_OFF` arm |
+| 5 | Synthetic shifted table A | `tools/_lib/synth.py` (seeded) | a table whose profile flips which recipe fields matter — the superstition test |
+| 6 | Synthetic shifted table B | `tools/_lib/synth.py` (seeded) | the same, imbalanced and small |
+| 7 | **Exam** | `tools/_lib/synth.py` (seeded, never used for writing) or Bank Marketing when online | the held-out problem: frozen pack, matched budget, memory arm vs `MEMORY_OFF` arm |
 
 Every problem's `task.json` names the target, the metric (`roc_auc` or
 `roc_auc_ovr_macro`), the budget, the allowed models and the **profile** the
@@ -114,25 +116,67 @@ in every README.
 | 16 MetaSkill-Evolve | L5 | revises its own meta-skills on a slow clock | the clock, the human `y` on meta changes | §5.3 dual-timescale industry loop; §3.6 |
 | 17 map | — | — | — | the ladder, HCI, the three challenges as the acceptance test |
 
-## The one harness (built once, in `rsi/common/`, ~200 lines, never a step)
+## The one runtime (built once, in `rsi/tools/` and `rsi/hooks/`, never a step)
 
-`harness.py` — `boot(pack_dir)` reads `SKILL.md` (becomes the system prompt),
-`tools.md` (which tools this pack may call — the allowed set), `schema.json`
-(the recipe space, given to the model verbatim) and, when present,
-`memory.json` (cards, appended to the prompt unless `MEMORY_OFF`). Then the
-loop from stage 15: call the model, run every tool call through `execute()`
-(unknown / disallowed / malformed → `Error:` result, never a crash), append,
-repeat, stop when the pack's budget is spent or the model answers in text.
-`tools.py` — the tool table: `load_splits`, `fit_recipe(recipe)`,
-`read_memory`, `write_card(card)` (verifier only), `read_traces`,
-`score_test(recipe)` (once, after `FREEZE`), `walk_path` (04), `lint_pack` / `propose` / `decide` / `apply` (03, 05, 08, 09),
-`private_score`, `patch_pack`, `rollback` (09), `rank_policies` (10), `contrast` (12). Every tool is a gate:
-`fit_recipe` counts the budget and refuses a recipe a `forbid` card rules out;
-`score_test` refuses before freeze and on a second call; `write_card` refuses a
-card that names test or intent. The skill *says* the rule; the tool *enforces*
-it — that is what makes a skill pack testable. `fake.py` — a scripted /
-rule-driven fake model for the tests (reads the cards in its prompt and
-proposes accordingly), so every claim is provable without a key.
+There is no model loop in Python. A lesson is run by a coding agent that
+reads `SKILL.md` and executes the commands the procedure names, one JSON
+result at a time:
+
+- `rsi/tools/*.py` — one script per tool, arguments in (JSON on the line,
+  `k=v,k=v` pairs, or `@file`), one JSON object out on stdout, exit 0 even on
+  a refusal (`{"error": "..."}` is a result the agent reads, never a crash).
+  Offline, no key, deterministic. `load_splits`, `fit_recipe`, `score_test`,
+  `save_model`, `freeze`, `write_loop_log`, `walk_path`, `read_memory`,
+  `write_card`, `read_traces`, `lint_pack`, `propose`, `apply`, `read_pack`,
+  `patch_pack`, `private_score`, `rollback`, `rank_policies`, `write_plan`,
+  `contrast`, `skill_memory`, `archive`, `meter`, `scorecard`, `curve`,
+  `exam`, `validate_intent`, `map`. Shared code in `rsi/tools/_lib/` (data,
+  synth, tasks, recipe → sklearn pipeline, memory cards, packs, graph,
+  policies, scorecard, trace, state, proposals).
+- **State on disk.** `<lesson>/runs/<pack>/<task>/state.json` holds one
+  entry per arm and seed — fits used, frozen, test scored, the fit rows —
+  and `traces.jsonl` next to it is the append-only log. The budget, FREEZE
+  and the locked test are these numbers: `fit_recipe.py` refuses the 25th
+  fit because `fits_used` says 24, `score_test.py` refuses before FREEZE and
+  a second time because the file says so. The pack is the other half of the
+  state: `memory.json`, `versions/` (under `runs/<pack>/`), `config.json`
+  with the off switches (`{"memory": "off"}` is MEMORY_OFF, `{"meta": "off"}`
+  is META_OFF), `proposals/`.
+- **Every rule a skill states that must hold absolutely is enforced by a
+  script** (the budget, the freeze, the forbid cards, the schema, the
+  verifier contract, the approval word, the size cap, the `patches:` globs,
+  `tools.md`'s Allowed list — a script refuses to act for a pack whose
+  `tools.md` does not allow it) **and additionally by a Claude Code hook**:
+  every lesson ships `.claude/settings.json` with a PreToolUse hook,
+  `rsi/hooks/gate.py`, that blocks `score_test.py` before FREEZE or twice and
+  `apply.py` / `patch_pack.py --proposal` without `--approved "<the user's
+  exact words>"` — the playbook's "advisory skill + deterministic gate"
+  split, and the root codelab's step 27 shape. Agents without hooks get the
+  script-level refusal.
+- **The human approval cycle** is the skill telling the agent: run
+  `propose.py` (or `patch_pack.py` stage 1), show the returned diff to the
+  user, ask "approve / edit / reject", and only after the user answers run
+  `apply.py --approved "<their words>"` (`--edited @file` lands the user's
+  version). In Claude Code that is a chat question; in this repo's harness
+  `ask_user`; in Antigravity the ask_user hook. The trace records who
+  approved and with which words. Under `approval: gate` (lesson 09 on) the
+  private split decides keep-or-rollback inside `patch_pack.py`.
+- **Curriculum across problems** (lessons 07, 09–16): the meta skill's
+  procedure loops over `tasks/*.json` in order — the agent orchestrates, the
+  scripts measure (`curve.py` writes `curve.json`, `exam.py` the exam).
+- **Where skills load from.** `rsi/step_NN/.claude/skills/<name>/` (Claude
+  Code discovers them when opened in that directory) and the identical
+  `.agents/skills/<name>/` (this repo's harness; Antigravity via
+  `skills_paths=`, Codex via `~/.codex/skills`). A test asserts the two are
+  byte-identical.
+- **Tests.** `test_step.py` per lesson (pytest, offline, seconds): the
+  claims of "What each test proves" via the scripts, the pack contract
+  (front matter, every command named in `SKILL.md` exists, every tool in
+  `tools.md` Forbidden absent from the procedure, mirror identical, hook
+  installed), and a `claude -p` smoke test only under `RSI_LIVE=1`. The
+  tests play the agent with the same commands the skill names; where the
+  agent's choice matters (which recipe next), they follow the policy text
+  of the skill (`_lib/policies.py`).
 
 ## Format — conforms to the Claude Academy *AI-native SDLC playbook*
 
@@ -145,8 +189,8 @@ lesson page with these headings, in this order, verbatim:
 
 1. `# <Lesson title>` then one paragraph of concept (why this lesson exists).
 2. `## Getting started` — prerequisites, what the previous lesson left on disk, what this one adds.
-3. `## How to execute it` — numbered steps: the exact commands (bash and PowerShell), what to answer at each approval.
-4. `## What it looks like` — the pack files shown (front matter first), the expected terminal output from a real run, and the `Files` tree.
+3. `## How to execute it` — numbered steps: the exact prompt to type into the agent, the commands the agent will run (bash; PowerShell quoting notes), what you will be asked at each approval and what to answer, the headless `claude -p` line.
+4. `## What it looks like` — the pack files shown (front matter first), the transcript recorded with `claude -p` from the lesson directory (the tool calls the agent made, the scripts' JSON results, the final answer; or a note that no recording could be made), and the `Files` tree.
 5. `## Governance considerations` — who approves what, the off switches, what the model may not do and which tool enforces it, what is and is not self-modified (autonomy attribution).
 6. `## How to measure it` — the test claims of this lesson (each one line: claim → the test that proves it), the scorecard fields it reports, and how to run `python run_tests.py rsi`.
 7. `## Next lesson` — one line; previous lesson linked too.
@@ -160,10 +204,10 @@ lesson page with these headings, in this order, verbatim:
 | Stage 5: Deploy | 09 the RSI meta harness — approval cycles as gates (human, then the private gate), versions and rollback |
 | Stage 6: Maintain | 10–14 RSI by method (Dream-RSI, RSIAgent, ModularRSI, Recuris, DGM, AIDE², MetaSkill-Evolve) — closing the loop on the metrics; 15 map |
 
-Skills use the same layout the course teaches (`skills/<name>/SKILL.md` with
-front matter naming when it triggers, then the instructions), and every rule a
-skill states that must hold absolutely is also enforced by a tool or the
-harness — the course's "advisory skill + deterministic gate" split.
+Skills use the same layout the course teaches (`.claude/skills/<name>/SKILL.md`
+with front matter naming when it triggers, then the instructions), and every
+rule a skill states that must hold absolutely is also enforced by a script and
+by the lesson's hook — the course's "advisory skill + deterministic gate" split.
 
 ## Steps — every step is a skill pack booted by the one harness
 
@@ -184,7 +228,7 @@ human's (autonomy attribution).
 
 Pack files use the repo's skill front matter (`name`, `description`,
 `metadata: {type, version, rsi}`), so the packs also load in the root
-codelab's harness. The approval cycle lives in `common/approve.py`
+codelab's harness. The approval cycle lives in `tools/propose.py` + `tools/apply.py` (`_lib/proposals.py`)
 (`propose(kind, payload) → proposal id`, `decide(id) → y/n/edit`, `apply(id)`)
 and every meta pack's `tools.md` names it.
 
@@ -192,7 +236,7 @@ and every meta pack's `tools.md` names it.
 
 | Step | The pack (what is on disk) | The one idea | Rung |
 |-----:|-----|------|------|
-| 00 `intent` | `task.json` (what to improve: Adult income > 50k; metric ROC-AUC; budget 24 fits per arm; allowed models; the locked test rule; the transfer table) and `acceptance.md` (the scorecard fields and the pass rule, written *before* any pack exists); `run.py` validates both against `common/task.schema.json` | **Capture the intent first.** Humans specify what should be improved, how, and what counts as success — the framework paper's L1 precondition and the playbook's `intent.md`. Every later pack, writer and verifier reads this file; nothing may widen it. | L1 precondition |
+| 00 `intent` | `task.json` (what to improve: Adult income > 50k; metric ROC-AUC; budget 24 fits per arm; allowed models; the locked test rule; the transfer table) and `acceptance.md` (the scorecard fields and the pass rule, written *before* any pack exists); the `intent` skill validates both against `tools/_lib/task.schema.json` (`validate_intent.py`) | **Capture the intent first.** Humans specify what should be improved, how, and what counts as success — the framework paper's L1 precondition and the playbook's `intent.md`. Every later pack, writer and verifier reads this file; nothing may widen it. | L1 precondition |
 | 01 `regular_harness` | `skills/adult-income-regular/`: `SKILL.md` (boot only this pack; fit the baseline; run the static 24-recipe list in order; pick best val; `score_test` once; `save_model`; stop; "next run boots this same text"), `tools.md` (allowed / forbidden), `schema.json` (task, target, metric, `n_fits: 24`, baseline, the 24 recipes) | A repeatable trainer. Same text every run, same waste every Monday. **The control arm, and not RSI.** The harness, the budget object, the locked test and the append-only trace arrive here. | B0 / AutoML |
 | 02 `loop_harness` | `skills/adult-income-loop/`: `SKILL.md`, `loop.json` (`kind: counted_while`, `N: 24`, counter `t`, `error_still_counts`, `body`, `exit: FREEZE → score_test once → save_model`, `illegal: change N, reorder, second while, score_test before FREEZE, write memory.json`), `recipes.json`, `tools.md` + `write_loop_log` (audit only) | **Loop engineering**: name the steps, the counter and the gate in a file; the tools enforce what the file declares. Still not RSI: the log is never read back; generation n+1 loads the same `loop.json`. | harness engineering |
 | 03 `meta_generates_loop` | `skills/loop-writer/`: `SKILL.md` ("you do not fit models; given `task.json` write a loop pack: SKILL.md, tools.md, loop.json, recipes.json; then `propose` it and wait"), `tools.md` (`read_task`, `lint_pack` (the generated pack must boot in a dry run), `propose`, `apply` — never `fit_recipe`), `task.json` (target, metric, budget, allowed models) | **A meta harness whose output is a loop harness, under human approval.** The human sees the whole proposed pack, answers `y` / `n` / `edit`; `n` means nothing lands. One shot from a spec: generating twice yields the same proposal, and running the generated pack never changes it. Most "agent builds agent" demos stop here — not RSI yet. | L1: humans specify what / how / success; AI executes; human accepts |
@@ -204,9 +248,9 @@ and every meta pack's `tools.md` names it.
 | Step | The pack | The one idea | Rung |
 |-----:|-----|------|------|
 | 06 `rsi_harness` | `skills/adult-income/` (inner H): `SKILL.md` (boot order incl. `memory.json` unless `MEMORY_OFF` and `traces.jsonl`; for t in 1..24 read cards, propose ONE recipe from the schema, fit, append; FREEZE; `score_test` once; "only a meta pack may patch this pack"), `memory.json` (`[]`), `memory.schema.json` (`if` profile predicate → `then` prefer/forbid one field value, `evidence`, `counter`), `tools.md` + `read_memory`; `skills/adult-income-verifier/` (input `{recipe, val_auc, error, profile}` only; IF/THEN cards with evidence and counterexample; refuse cards that mention test or intent; tools `read_traces`, `write_card`) | **The first RSI file.** A card is a constraint on the *next* proposal (`fit_recipe` refuses a forbidden recipe), and no one grades their own homework: the verifier pack boots with only the log. `MEMORY_OFF` is the off switch: same 24 fits, the numbers must fall back. | L4: deployment feedback revises persistent state under our acceptance rule |
-| 07 `proof` | `eval.md` in the inner pack (24 vs 24 with `MEMORY_OFF`, the delete-file check, the scorecard fields, "test touched before freeze: no"); `run.py --curriculum` runs problems 1→6 in order, carrying the pack forward, and prints the **learning curve** (per problem: memory arm − `MEMORY_OFF` arm at the same budget, wasted fits, cards added/demoted); `run.py --exam` boots the frozen pack on problem 7 | Locked test = you did not peek. The curve = experience from problem n helped on n+1: structural recursion you can see. The exam = effective recursion under a matched budget and an independent evaluation. The scorecard and the curve are the deliverables of every later step too. | evidence standard |
+| 07 `proof` | `eval.md` in the inner pack (24 vs 24 with `MEMORY_OFF`, the delete-file check, the scorecard fields, "test touched before freeze: no"); the `adult-income-curriculum` skill runs problems 1→6 in order (the agent orchestrates, the scripts measure), carrying the pack forward, and `curve.py` prints the **learning curve** (per problem: memory arm − `MEMORY_OFF` arm at the same budget, wasted fits, cards added/demoted); the same skill runs the frozen pack on problem 7 and `exam.py` reports | Locked test = you did not peek. The curve = experience from problem n helped on n+1: structural recursion you can see. The exam = effective recursion under a matched budget and an independent evaluation. The scorecard and the curve are the deliverables of every later step too. | evidence standard |
 | 08 `meta_generates_rsi` | `skills/rsi-writer/`: step 05's writer extended to emit the inner pack **and** the verifier pack, `memory.schema.json` and `eval.md` from `task.json`; the proposal shows the verifier contract explicitly and the human must approve it (it is the acceptance rule) | **A meta harness that generates the RSI harness, under human approval.** The human is approving a *mechanism that will change itself later*, not a one-off pack — the README says so and shows the diff the human sees. | L1 for the generation; what it generates runs at L4 |
-| 09 `rsi_meta_harness` | `skills/adult-income-meta/` (MH): reads traces + memory + inner pack; writes **one** proposal per visit — new cards, a small `schema.json` forbid, or the search-policy line; size cap 20 %; no `score_test`; `versions/` per generation; `private_score` on a split the inner pack never sees. Two modes on disk: `approval: human` (every generation's patch goes through the human cycle) and `approval: gate` (the private gate decides keep-or-rollback and the human only sees the log). `run.py` boots inner (problem n) → meta → inner (problem n+1) across the whole curriculum, one generation per problem; `META_OFF` | **The RSI meta harness that improves the harness — problem by problem.** Problem 1 teaches the pack encoding and class weights, problem 3 teaches it multiclass metrics, problem 5 demotes a superstition; by the exam the pack is the expert and the model is unchanged. Generation n+1 is RSI only if it boots what generation n wrote; the reboot is the recursion. Under `approval: human` the human is the acceptance rule (L4); under `approval: gate` the system revises its own improver's policy line behind a protected evaluator (L5 flavour). The archive rule and the gate itself stay human — say so. Rollback and version history are safe inheritance made concrete. | L4 → L5 flavour, switchable in one line |
+| 09 `rsi_meta_harness` | `skills/adult-income-meta/` (MH): reads traces + memory + inner pack; writes **one** proposal per visit — new cards, a small `schema.json` forbid, or the search-policy line; size cap 20 %; no `score_test`; `versions/` per generation; `private_score` on a split the inner pack never sees. Two modes on disk: `approval: human` (every generation's patch goes through the human cycle) and `approval: gate` (the private gate decides keep-or-rollback and the human only sees the log). the curriculum skill runs inner (problem n) → meta → inner (problem n+1) across the whole curriculum, one generation per problem; `META_OFF` | **The RSI meta harness that improves the harness — problem by problem.** Problem 1 teaches the pack encoding and class weights, problem 3 teaches it multiclass metrics, problem 5 demotes a superstition; by the exam the pack is the expert and the model is unchanged. Generation n+1 is RSI only if it boots what generation n wrote; the reboot is the recursion. Under `approval: human` the human is the acceptance rule (L4); under `approval: gate` the system revises its own improver's policy line behind a protected evaluator (L5 flavour). The archive rule and the gate itself stay human — say so. Rollback and version history are safe inheritance made concrete. | L4 → L5 flavour, switchable in one line |
 
 ### Part 3 — RSI by method, one published system per step, same curriculum (steps 10–16)
 
@@ -219,7 +263,7 @@ transfer), runs under the step 09 approval cycle, and says which file improved.
 |-----:|-----|------|------|
 | 10 `rsi_dream` | Dream-RSI (arXiv:2609.14858) | `policies.md` (random, neighbours-of-top-3, prefer-untried-family, obey-memory); tool `rank_policies(names)`: replays `traces.jsonl` as a simulator, scores each policy best-of-first-k over the *logged* recipes with zero fits, unvisited picks = "unknown"; the meta pack proposes the winner as the inner **search-policy line**; the next online lap grows the log | **The search policy.** History is an exact gym for the recipes you visited and silent elsewhere; recursion pays only if the next lap visits new places (saturation shown, not hidden). |
 | 11 `rsi_agent` | RSIAgent (arXiv:2609.15364) | three packs: `curriculum` (picks the next experiment by uncertainty `u = (1−success) + c/(n+1)`, broad phase large `c`, deep phase small `c` + fault rate), `actor` (proposes and runs), `verifier` (sees only the world result); memory frozen before `score_test` and reused on the transfer table | **The memory, chosen on purpose.** Broad-then-deep spends the same fits on higher-information experiments; frozen memory at test is what makes the comparison fair. |
-| 12 `rsi_modular` | ModularRSI (arXiv:2609.14857) | the inner pack split into five files that mirror the paper's modules (`agent_loop.md`, `tool_use.md`, `observation.md`, `context.md`, `completion.md`); a disjoint pool of synthetic tables (`pool/`, never the eval table); tool `contrast(pool_traces)` pairs a success and a failure on the same task and names the module; the meta pack proposes a patch to **one module**, validates on the pool, then integrates; transfer shown across two fake actors | **A harness module, evolved off the benchmark.** Contrast localises the bug to a module; the benchmark-disjoint pool kills leaderboard overfitting; a patch that helps both actors improved the workshop, not one model's quirks. |
+| 12 `rsi_modular` | ModularRSI (arXiv:2609.14857) | the inner pack split into five files that mirror the paper's modules (`agent_loop.md`, `tool_use.md`, `observation.md`, `context.md`, `completion.md`); a disjoint pool of synthetic tables (`pool/`, never the eval table); tool `contrast(pool_traces)` pairs a success and a failure on the same task and names the module; the meta pack proposes a patch to **one module**, validates on the pool, then integrates; transfer shown across two actor packs | **A harness module, evolved off the benchmark.** Contrast localises the bug to a module; the benchmark-disjoint pool kills leaderboard overfitting; a patch that helps both actors improved the workshop, not one model's quirks. |
 | 13 `rsi_skill_memory` | Recuris (arXiv:2608.24876) | memory as a **skill package**: `skill-memory/manifest.yaml` + markdown skill cards (one per situation), a small `working.md` the actor rewrites per run ("what I am doing, which cards apply"); the meta agent turns execution evidence into localised, validated card updates; gains reported by horizon | **Experiential + working memory.** Skill selection is grounded in current need, not the whole history; the memory is git-native (files you can diff). |
 | 14 `rsi_self_modifying` | Darwin Gödel Machine lineage (DGM, arXiv:2505.22954; Mendel / Huxley GM as reading) | the meta pack may propose rewrites of the inner pack's **`SKILL.md` and `loop.json` themselves** (the harness source), keeping an `archive/` of variants with their held-out scores and choosing parents from the archive, one generation deep, behind the private gate and the human cycle | **The agent's own source.** The empirical Gödel machine: keep an archive of stepping stones, expand promising ones; the archive rule and the gate stay human — say what is and is not self-modified. |
 
@@ -230,27 +274,27 @@ transfer), runs under the step 09 approval cycle, and says which file improved.
 
 | Step | Adds | The one idea |
 |-----:|------|--------------|
-| 17 `map` | README + `run.py` that prints the ladder with steps 01–16 placed; the learning curve of every method on the same curriculum side by side; the file-by-file table (regular vs loop vs graph vs generated vs RSI vs each method, and who approved what); ScienceBuddy (arXiv:2609.17523, harness then weights, reading only) and OpenAI's stated priority as the rungs this series refuses to touch; the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external number marked *reported* with its source | You recognise the nouns because you built the toy — and you can point at which file each method changed and who approved it. |
+| 17 `map` | README + the `rsi-map` skill (`map.py`) that prints the ladder with steps 01–16 placed; the learning curve of every method on the same curriculum side by side; the file-by-file table (regular vs loop vs graph vs generated vs RSI vs each method, and who approved what); ScienceBuddy (arXiv:2609.17523, harness then weights, reading only) and OpenAI's stated priority as the rungs this series refuses to touch; the terminology table (self-refine, learning, self-organise/emergence, AutoML, bounded, genuine); the acceptance test; every external number marked *reported* with its source | You recognise the nouns because you built the toy — and you can point at which file each method changed and who approved it. |
 
-Eighteen small steps. Everything runs offline in tests with the fake model and
-a scripted human; `python run.py` in a step needs a key like the rest of the
-repo, and asks you at every approval.
+Eighteen small steps. Everything is provable offline in tests (the scripts
+are the gates; the tests play the agent); a lesson is *run* by opening a
+coding agent in its directory, which asks you at every approval.
 
-## What each test proves (offline, fake model, scripted human, no key)
+## What each test proves (offline, the scripts as gates, the test as the agent, no key)
 
 - 00: `task.json` and `acceptance.md` validate against the schema; a pack that tries to raise the budget or touch the test rule is rejected by `lint_pack`; the acceptance fields are exactly the scorecard fields every later step reports.
-- 01: the fake model follows `SKILL.md` (24 fits in schema order, best-val pick, one `score_test`); the 25th `fit_recipe` and the second `score_test` are `Error:` results; an unknown / disallowed / malformed tool call is an `Error:` result and the loop continues; the trace is append-only; the same pack twice gives the same log.
+- 01: the static walk follows `SKILL.md` (24 fits in schema order, best-val pick, one `score_test`); the 25th `fit_recipe` and the second `score_test` are `Error:` results; an unknown / disallowed / malformed tool call is an `Error:` result and the loop continues; the trace is append-only; the same pack twice gives the same log.
 - 02: `loop.json` is honoured by the tools (25th fit, pre-FREEZE `score_test`); the audit log is never read back; the pack is byte-identical after a run.
 - 03: the writer cannot call `fit_recipe` (not in its `tools.md` → `Error:`); the proposal is shown before anything lands; scripted `n` leaves the disk untouched, `y` lands exactly the proposal, `edit` lands the human's text; generating twice from the same `task.json` gives byte-identical proposals; the generated pack boots and passes step 02's checks; running it changes none of its files.
 - 04: an illegal path is skipped and counted, never replaced; `score_test` is unreachable before FREEZE; `graph.json` / `paths.json` byte-identical after a run; the loop iterates paths in order.
 - 05: `lint_pack` rejects a proposal with a cycle or a path that violates a constraint before the human ever sees it; an `edit` that removes an edge lands and the pack still boots.
-- 06: the verifier pack's transcript contains no actor text; `write_card` refuses a card mentioning `test` or intent; a planted wrong card is demoted after k counterexamples; `fit_recipe` refuses a forbidden recipe; with the rule-driven fake model, same seeds and budget, the memory arm ≥ the `MEMORY_OFF` arm and wastes fewer fits; `MEMORY_OFF` reproduces step 01's numbers exactly.
-- 07: test scored exactly once per problem; all scorecard fields present; running problems 1→6 carries the pack forward and the learning-curve gap (memory − `MEMORY_OFF`) is ≥ 0 on every problem and larger on problem 6 than on problem 2 for the rule-driven fake model; on the exam problem the frozen pack beats `MEMORY_OFF` on ≥ 3 of 5 seeds and the report names a card that did not transfer.
+- 06: the verifier pack's transcript contains no actor text; `write_card` refuses a card mentioning `test` or intent; a planted wrong card is demoted after k counterexamples; `fit_recipe` refuses a forbidden recipe; with the obey-memory policy, same seeds and budget, the memory arm ≥ the `MEMORY_OFF` arm and wastes fewer fits; `MEMORY_OFF` reproduces step 01's numbers exactly.
+- 07: test scored exactly once per problem; all scorecard fields present; running problems 1→6 carries the pack forward and the learning-curve gap (memory − `MEMORY_OFF`) is ≥ 0 on every problem and larger on problem 6 than on problem 2 for the obey-memory policy; on the exam problem the frozen pack beats `MEMORY_OFF` on ≥ 3 of 5 seeds and the report names a card that did not transfer.
 - 08: the proposal contains the verifier contract verbatim and is refused by `lint_pack` when it is missing; the generated packs pass step 06's tests; scripted `n` lands nothing.
 - 09: generation n+1 boots the files generation n wrote (checksums in the trace); under `approval: human` no patch lands without a `y` and an `edit` lands the human's version; under `approval: gate` a patch that raises val and lowers `private_score` is rejected and `versions/` restores the previous pack; `META_OFF` leaves the pack byte-identical; the meta pack cannot call `score_test`.
 - 10: `rank_policies` makes zero fits (the budget counter proves it); a policy preferring unvisited recipes scores "unknown"; the winner is proposed as the search-policy line and the next lap adds new recipes to the log.
 - 11: the broad phase touches every family before the deep phase repeats one; the deep phase prefers the family with the most faults; memory is frozen before `score_test` and unchanged on the transfer table.
-- 12: `contrast` names the module whose text differs between the success and the failure; the patch touches exactly one module file; validation runs on the pool, never the eval table; the patched module helps both fake actors.
+- 12: `contrast` names the module whose text differs between the success and the failure; the patch touches exactly one module file; validation runs on the pool, never the eval table; the patched module helps both actor packs.
 - 13: a skill card is selected by the working-memory need, not by recency; an update is localised to one card and validated before it lands; the horizon report shows the gain per sequence length.
 - 15: the outer loop's keep-if-better is evaluated across every problem of the curriculum under one metered budget (asserted from the trace); a rewrite that wins on one problem and loses on the set is rejected; the three guards are present in every operator prompt and a suspicious score is re-run (scripted).
 - 16: task skills change every problem, meta-skills only every k problems (counted); a meta-skill change never lands without the human `y`; the meta pack's version history is a file you can diff.
@@ -263,4 +307,4 @@ Repos and abstracts checked: RSIAgent (arXiv:2609.15364, AetherLabsAI/RSIAgent),
 
 ## Repo wiring
 
-`rsi/README.md` (series codelab, top-down); `run_tests.py` / `check_snippets.py` already know `rsi/step_*`; `rsi/data/` bundled sample + licence note; `rsi/common/` harness, tools, fake model, loader, synth; `scikit-learn`, `pandas`, `numpy` in `requirements.txt`.
+`rsi/README.md` (series codelab, top-down); `run_tests.py` / `check_snippets.py` already know `rsi/step_*`; `rsi/data/` bundled sample + licence note; `rsi/tools/` the scripts and `_lib`; `rsi/hooks/gate.py`; `rsi/tasks/` the curriculum; `scikit-learn`, `pandas`, `numpy`, `jsonschema`, `pyyaml` in `requirements.txt`.

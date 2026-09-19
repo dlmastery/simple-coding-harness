@@ -1,205 +1,272 @@
 # Lesson 01 - The regular harness: a repeatable trainer, and not RSI
 
-A skill pack that trains a classifier the same way every run: boot
-`SKILL.md`, fit the 24 recipes of `schema.json` in order, pick the best
-validation score, score the locked test split once, save the model, stop.
-Next Monday it boots the same text and wastes the same fits. This is the
-control arm of the whole series and, in the framework paper's terms, B0 /
-AutoML: a fixed procedure, no persistent change, no decision moved from the
-designer to the system. It is also where the machinery arrives - the one
-skills harness (`common/harness.py`), the tool table with `execute()`
-(`common/tools.py`), the budget object, the locked test and the append-only
-trace - so that everything later is a diff against this pack.
+A skill that trains a classifier the same way every run: the agent opens
+the arm, fits the 24 recipes of `schema.json` in order with one command,
+picks the best validation score, scores the locked test split once, saves
+the model, writes the scorecard, stops. Next Monday it boots the same text
+and wastes the same fits. This is the control arm of the whole series and,
+in the framework paper's terms, B0 / AutoML: a fixed procedure, no
+persistent change, no decision moved from the designer to the system. It is
+also where the machinery arrives - the tool scripts under `../tools/` (the
+budget object, the locked test and the append-only trace as files under
+`runs/`), and the hook under `../hooks/` - so that everything later is a
+diff against this pack.
 
 ## Getting started
 
-Lesson 00 left `task.json` and `acceptance.md`. This lesson adds one pack,
-`skills/adult-income-regular/` (three files), and the harness it boots.
-The harness copies the pack into `runs/work/` before booting, so the pack
-under `skills/` stays what you read here.
+Lesson 00 left `task.json` and `acceptance.md`, and the curriculum under
+`../tasks/`. This lesson adds one pack, `.claude/skills/adult-income-regular/`
+(three files: `SKILL.md`, `tools.md`, `schema.json`), mirrored to
+`.agents/skills/`, and the lesson's `.claude/settings.json` with the hook.
+Open your agent in this directory (`cd rsi/step_01_regular_harness && claude`;
+this repo's harness, Antigravity with `skills_paths=[".agents/skills"]`, or
+Codex with the pack under `~/.codex/skills/` - see lesson 00). Running the
+skill writes only under `runs/` (git-ignored): the pack itself does not change,
+and the test asserts it.
 
 ## How to execute it
 
-1. Run the pack on Adult with the scripted fake model (no key):
+1. Type the prompt:
+
+   ```text
+   Use the adult-income-regular skill: train the Adult income classifier and report the scorecard.
+   ```
+
+   The agent runs, through its Bash tool, exactly the five commands of the
+   procedure:
 
    ```bash
-   cd rsi/step_01_regular_harness
-   FAKE_MODEL=1 python run.py
+   python ../tools/load_splits.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json
+   python ../tools/fit_recipe.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipes @.claude/skills/adult-income-regular/schema.json
+   python ../tools/score_test.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+   python ../tools/save_model.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+   python ../tools/scorecard.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json
    ```
 
-   ```powershell
-   cd rsi\step_01_regular_harness
-   $env:FAKE_MODEL = "1"; python run.py
-   ```
+   Recipes are written as `k=v` pairs so no shell has to quote JSON; a
+   recipe may also be JSON on the line (bash) or `@file` (any shell; in
+   PowerShell quote it, `'@file'`). No approval prompt: this pack changes
+   nothing.
 
-2. Run it with a real model: set `BASE_URL`, `API_KEY` and `MODEL` like the
-   rest of the repo and drop `FAKE_MODEL`. There is no approval prompt in
-   this lesson: the pack changes nothing.
-3. Tests: `python run_tests.py rsi` from the repo root.
+2. Try to break the rule, by hand: run `score_test.py` again. The hook blocks
+   it before it runs (`gate: the test split was scored once already`), and
+   without the hook the script answers `{"error": "the test split was scored
+   once already; there is no second look"}`. Run `fit_recipe.py` once more:
+   `fit 25 refused (FREEZE)`. Nothing is spent.
+
+3. Reset with `rm -rf runs` (the pack under `.claude/skills/` was never
+   written to).
+
+4. Headless, as recorded below:
+   `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill"`.
+   Tests: `python run_tests.py rsi` from the repo root.
 
 ## What it looks like
 
-`skills/adult-income-regular/SKILL.md` - the front matter names the pack and
-when it triggers; the body is the system prompt:
+`.claude/skills/adult-income-regular/SKILL.md` - the front matter names the
+pack and when it triggers; the body is the procedure, each step an exact
+command:
 
 ```markdown
 ---
 name: adult-income-regular
-description: Train a classifier for the Adult income problem by walking a fixed list of 24 recipes. Use when the task is adult_income and the pack has no loop, graph or memory file.
+description: Train a classifier for the Adult income problem by walking a fixed list of 24 recipes, the same way every run. Use in rsi/step_01_regular_harness, when the task is adult_income and the pack has no loop, graph or memory file.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "off"
 ---
 # Regular harness: the same trainer, every run
 
-## Boot order
-1. This file. 2. `tools.md`: the only tools you may call. 3. `schema.json`: the task, the budget and the 24 recipes.
-Nothing else is read. Nothing is written except the model file.
-
 ## Procedure
-1. Call `load_splits` once.
-2. The first recipe of `schema.json` -> `recipes` is the baseline. Call `fit_recipe` on every recipe of the list, in order, one call per recipe. That is 24 fits: the budget. A 25th is refused.
-3. When a fit result says `FREEZE` (`fits_left` is 0), pick the recipe with the highest `val_score`.
-4. Call `score_test` once with that recipe, after FREEZE. Then call `save_model` with it.
-5. Answer in text: the best val_score, the test score and the number of fits. Stop.
+1. Open the arm and read the profile:
+   `python ../tools/load_splits.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json`
+2. Fit the 24 recipes of `schema.json` -> `recipes`, in order, in one call; the first is the baseline. That is the whole budget: the script counts each fit and refuses a 25th.
+   `python ../tools/fit_recipe.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipes @.claude/skills/adult-income-regular/schema.json`
+3. The result's last line says `FREEZE` (`fits_left` is 0). Pick the recipe with the highest `val_score` from `results`.
+
+## Rules
+- Fit only the recipes that appear in `schema.json`, in their order. Never invent a field or a value; the script refuses a recipe outside the schema.
+- Never run `score_test.py` before FREEZE, and never twice: the hook blocks it and the script refuses it.
+- Do not read or write any other file. The next run boots this same text and makes the same 24 fits.
 ```
 
-`skills/adult-income-regular/tools.md` - the allowed set is what the harness
-offers; everything else is an `Error:` result:
+`.claude/skills/adult-income-regular/schema.json` - the task, the budget and
+the 24 recipes (the 3 x 2 x 2 x 2 grid at each model's middle hyper value):
 
-```markdown
-## Allowed
-- load_splits - the problem's train / val splits, its profile and its budget
-- fit_recipe - one fit on train scored on val; counted against the budget of 24
-- score_test - the locked test split, once, after FREEZE
-- save_model - pickle the chosen recipe's fitted pipeline
+```json
+{
+ "task": "adult_income",
+ "target": "target",
+ "metric": "roc_auc",
+ "n_fits": 24,
+ "test_rule": {"scores": 1, "after": "FREEZE"},
+ "models": ["logreg", "rf", "hgb"],
+ "baseline": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"},
+ "recipes": [ ...24 recipes... ]
+}
 ```
 
-The harness reads those files and runs the stage-15 loop:
-
-`../common/harness.py`:
+`../tools/_lib/state.py` - the budget, FREEZE and the locked test are
+numbers in `runs/<pack>/<task>/state.json`, and every script starts from the
+file:
 
 ```python
-def run(session, model, max_calls=MAX_CALLS, user="Begin. Follow the procedure in your instructions."):
-    """The loop. `model(messages, tool_schemas) -> {content, tool_calls}`; every call goes through execute()."""
-    session.messages = [{"role": "system", "content": session.system}]
-    resume(session, model, user, max_calls)
-```
-
-```python
-    session.messages.append({"role": "user", "content": user})
-    schemas = schemas_for(session.allowed)
-    for _ in range(max_calls):
-        reply = model(session.messages, schemas)
-        session.calls += 1
-        session.messages.append(entry(reply))
-        if not reply.get("tool_calls"):
-            break
-        for call in reply["tool_calls"]:
-            result = execute(session, call)
-            session.messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
-```
-
-`execute()` is the one place every call goes through - unknown, disallowed
-or malformed becomes a result the model reads, never a crash:
-
-`../common/tools.py`:
-
-```python
-def execute(run, call):
-    """Turn one tool call into a result string. Never raises; unknown / disallowed / malformed -> `Error:`."""
-    name = call.get("name")
-    try:
-        args = json.loads(call.get("arguments") or "{}")
-        if not isinstance(args, dict):
-            raise ValueError("not an object")
-    except ValueError as e:
-        return f"Error: the arguments of {name} are not a JSON object: {e}"
-    if name not in run.allowed:
-        return f"Error: {name} is not in this pack's tools.md; it is not available"
-    if name not in TOOLS:
-        return f"Error: no tool named {name!r}"
-```
-
-The budget is an object, and FREEZE is the moment it is spent:
-
-`../common/budget.py`:
-
-```python
-    @property
-    def frozen(self):
-        """FREEZE: every fit is spent. The test split may be scored once, the memory may not change."""
-        return self.used >= self.n
-
     def spend(self):
-        """Count one fit before it happens. An error still counts: a wasted fit is a fit."""
-        if self.frozen:
-            raise BudgetExhausted(f"budget of {self.n} fits used; fit {self.used + 1} refused")
-        self.used += 1
-        return self.used
+        """Count one fit before it happens; the 25th raises. An error still counts: a wasted fit is a fit."""
+        s = self.arm_state
+        if s["frozen"] or s["fits_used"] >= s["n_fits"]:
+            raise ValueError(f"budget of {s['n_fits']} fits used; fit {s['fits_used'] + 1} refused (FREEZE)")
+        s["fits_used"] += 1
+        if s["fits_used"] >= s["n_fits"]:
+            s["frozen"] = True
+        return s["fits_used"]
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1`, the bundled 6,000-row
-Adult sample, 28 model calls, about 15 s):
+```python
+    def score_test_once(self, rec):
+        s = self.arm_state
+        if not s["frozen"]:
+            raise ValueError(f"the test split is locked until FREEZE: {self.left} fits remain (or run freeze.py to forfeit them)")
+        if s["test_scored"]:
+            raise ValueError("the test split was scored once already; there is no second look")
+        score = tasks.score_on(self.task, self.seed, rec, "test")
+        s["test_scored"], s["test_score"], s["test_recipe"] = True, score, rec
+```
+
+`../tools/fit_recipe.py` - a recipe outside the schema, a model the task
+does not allow, or (from lesson 06) a recipe a forbid card rules out is
+refused before any budget is spent:
+
+```python
+def check(run, rec, schema):
+    """Every reason this recipe may not be fitted, before any budget is spent."""
+    rec = recipe.validate(rec)
+    if rec["model"] not in run.task["allowed_models"]:
+        raise ValueError(f"model {rec['model']} is not allowed by the task")
+    if rec["model"] not in schema.get("models", recipe.SCHEMA["model"]):
+        raise ValueError(f"model {rec['model']} is not in schema.json -> models")
+```
+
+`../hooks/gate.py` - the same rule, enforced before the script runs, for an
+agent that honours hooks (Claude Code does; the others get the script's
+refusal):
+
+```python
+        if name == "score_test.py":
+            try:
+                s = state_for(args, cwd)
+            except Exception as e:      # an unreadable state is the script's problem, not the hook's
+                return False, f"gate: could not read the state ({e}); the script decides"
+            if s is None:
+                return True, "gate: score_test.py needs --pack and --task, and an arm opened by load_splits.py"
+            if not s["frozen"]:
+                return True, f"gate: the test split is locked until FREEZE - {s['n_fits'] - s['fits_used']} fits remain on arm {s['arm']}"
+            if s["test_scored"]:
+                return True, "gate: the test split was scored once already; there is no second look"
+```
+
+The recorded run (Claude Code 2.1.278, headless, from this directory; the
+fit results trimmed after the third recipe):
 
 ```text
-Done. Best val 0.9172 with {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}; test 0.9034; 24 fits.
-adult_income [control] fits 24/24 wasted 16 best val 0.9172 test 0.9034 recipe {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}
-model calls 28; trace C:\Users\evija\simple-coding-harness\rsi\step_01_regular_harness\runs\adult-income-regular\traces.jsonl
+[Skill adult-income-regular]
+agent> Using the adult-income-regular skill: load splits, fit the 24 schema recipes,
+score the best once on test, save, scorecard.
+$ python ../tools/load_splits.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json
+{"pack": "adult-income-regular", "problem": "adult_income", "arm": "memory", "seed": 0,
+ "profile": {"n_rows": 6000, "n_features": 14, "n_classes": 2, "imbalance": 0.239, "has_categorical": 1},
+ "metric": "roc_auc", "n_fits": 24, "fits_used": 0, "fits_left": 24, "frozen": false, ...}
+$ python ../tools/fit_recipe.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipes @.claude/skills/adult-income-regular/schema.json
+{"results": [
+  {"n": 1, "recipe": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "val_score": 0.9114, "error": null, "fits_left": 23},
+  {"n": 2, "recipe": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}, "val_score": 0.911, "error": null, "fits_left": 22},
+  {"n": 3, "recipe": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "ordinal", "class_weight": "none"}, "val_score": 0.8544, "error": null, "fits_left": 21},
+  ...
+  {"n": 24, ... "fits_left": 0}], "fits_used": 24, "n_fits": 24, "fits_left": 0, "FREEZE": true}
+agent> FREEZE reached. Best val_score is 0.9172, tied between recipes 18 and 22; taking the
+first one (n=18: hgb, hyper=0.1, scale=yes, onehot, balanced).
+$ python ../tools/score_test.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+{"test_score": 0.9034, "recipe": {...}, "fits_used": 24, "metric": "roc_auc"}
+$ python ../tools/save_model.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+{"saved": "...\\runs\\adult-income-regular\\adult_income\\model_memory_0.pkl", ...}
+$ python ../tools/scorecard.py --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income.json
+{"problem": "adult_income", "arm": "memory", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 16,
+ "best_val_score": 0.9172, "best_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"},
+ "test_score": 0.9034, "test_scored_once": true, "test_touched_before_freeze": false,
+ "cards_active": 0, "cards_added": 0, "cards_demoted": 0}
+agent> Done. Best val_score 0.9172, test score 0.9034, 24 / 24 fits (FREEZE reached).
+HGB dominated (0.910-0.917); logreg with onehot was close behind; RF sat at ~0.903-0.905.
+Ordinal encoding hurt logreg badly (0.83-0.86) but was neutral for the tree models.
+`scale` made no difference for the tree models, so recipes 9-16 and 21-24 duplicated
+results - the scorecard counts 16 wasted fits.
+[9 turns, 89 s]
 ```
 
-`wasted 16`: sixteen fits went by before the first recipe within 0.005 of
-the arm's best - the eight logistic regressions and the eight random forests
-of the static list. Run it again tomorrow and it wastes the same sixteen.
+What to notice: the agent's commentary at the end ("ordinal hurt logreg",
+"scale made no difference for trees") is exactly the knowledge the static
+walk throws away every Monday - `wasted_fits: 16` is the price. Lesson 06
+puts it in a file. Also: the agent prefixed every command with `cd
+"<this directory>"` on its own; the paths in `SKILL.md` are relative to the
+lesson directory and that is where the agent was opened.
 
 Files:
 
 ```text
 step_01_regular_harness/
-  skills/adult-income-regular/
-    SKILL.md        the procedure: 24 fits in order, best val, score_test once, save_model
-    tools.md        Allowed: load_splits, fit_recipe, score_test, save_model; Forbidden: the rest
-    schema.json     the task, n_fits 24, the test rule, the recipe fields, the baseline and the 24 recipes
-  run.py            boot the pack on Adult (FAKE_MODEL=1 or a real model)
-  test_step.py      the claims below
-  README.md         this lesson
-  runs/             (created by run.py, ignored by git) the working copy, the trace, the model pickle
+├── README.md
+├── test_step.py
+├── .claude/
+│   ├── settings.json                     the hook
+│   └── skills/adult-income-regular/
+│       ├── SKILL.md                      boot order, procedure, rules
+│       ├── tools.md                      allowed / forbidden scripts
+│       └── schema.json                   task, budget, the 24 recipes
+├── .agents/skills/adult-income-regular/  the same three files
+└── runs/adult-income-regular/adult_income/   (after a run; git-ignored)
+    ├── state.json                        fits used, frozen, test scored
+    ├── traces.jsonl                      boot, 24 fits, score_test, save_model
+    ├── scorecard_memory_0.json
+    └── model_memory_0.pkl
 ```
 
 ## Governance considerations
 
-- Who approves what: nobody needs to; the pack proposes nothing and writes
-  no file but a model pickle in `runs/`.
-- Off switches: the budget (`common/budget.py`) refuses the 25th fit; the
-  loop's call cap (`MAX_CALLS`) stops a pack that never answers in text.
-- What the model may not do, and which tool enforces it: fit a recipe
-  outside the schema (`fit_recipe` validates); fit a 25th time
-  (`Budget.spend`); score the test split before FREEZE or twice
-  (`common/gate.py: LockedTest`); call a tool not in `tools.md`
-  (`execute`).
-- What is and is not self-modified: nothing is. `SKILL.md` is identical
-  before and after the run and the next run boots the same text. Rung: not
-  RSI - B0 / AutoML.
+- **Who approves what.** Nobody: the pack changes nothing, so there is
+  nothing to approve. The human wrote the pack; the agent executes it.
+- **The hook.** `../hooks/gate.py` blocks `score_test.py` while
+  `state.json` says fits remain, and again once it says `test_scored`.
+- **What the script refuses.** The 25th `fit_recipe.py`; a recipe outside
+  `schema.json`; `score_test.py` before FREEZE or twice; `save_model.py` for
+  a recipe this arm never fitted; any script whose name is not under
+  `## Allowed` in the pack's `tools.md` (`write_card.py` answers `not in
+  adult-income-regular's tools.md`).
+- **What is and is not self-modified.** Nothing is. `runs/` is written; the
+  pack is not; the trace is append-only (there is no script that rewrites or
+  deletes a line). This is the B0 boundary the framework paper draws: a
+  better answer this run, no persistent change.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| the fake model follows `SKILL.md`: 24 fits in schema order, best-val pick, one `score_test` | `test_fake_follows_skill_md_24_fits_in_schema_order_best_val_one_test` |
-| the 25th `fit_recipe` and the second `score_test` are `Error:` results | `test_25th_fit_and_second_score_test_are_error_results` |
-| `score_test` before FREEZE is refused | `test_score_test_before_freeze_is_refused` |
-| an unknown / disallowed / malformed tool call is an `Error:` result and the loop continues | `test_unknown_disallowed_malformed_calls_are_errors_and_the_loop_continues` |
-| the trace is append-only | `test_trace_is_append_only` |
-| the same pack twice gives the same log | `test_same_pack_twice_gives_the_same_log` |
-| the pack is byte-identical after a run | `test_pack_is_byte_identical_after_a_run` |
+| the static walk makes 24 fits in schema order, the baseline first, and one test score, and the scorecard has exactly lesson 00's fields | `test_static_walk_24_fits_in_schema_order_one_test_score` |
+| the 25th fit and the second score are refusals (JSON results), and `state.json` says so | `test_25th_fit_and_second_score_are_refusals` |
+| `score_test` before FREEZE is refused by the script and blocked by the hook (exit 2) | `test_score_test_before_freeze_is_refused_by_script_and_hook` |
+| an unknown value, malformed JSON, an extra field or a disallowed script is a result, and no fit is spent | `test_bad_calls_are_results_not_crashes` |
+| the trace is append-only and the same pack twice gives the same log | `test_trace_is_append_only_and_deterministic` |
+| the CLI contract (subprocess, JSON out, exit 0) | `test_cli_contract` |
+| the pack contract (front matter, scripts exist, forbidden absent, mirror identical, hook installed) | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen of `acceptance.md`, with
-`cards_active` / `cards_added` / `cards_demoted` at 0 (no memory). Run
-`python run_tests.py rsi` from the repo root.
+Scorecard on this machine (seed 0): `fits_used 24`, `wasted_fits 16`,
+`best_val_score 0.9172`, `test_score 0.9034`, `test_scored_once true`,
+`test_touched_before_freeze false`, cards 0 / 0 / 0.
+
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [02 - loop engineering](../step_02_loop_harness/README.md): the loop
-becomes a file the tools enforce. Previous:
-[00 - intent](../step_00_intent/README.md).
+[Lesson 02 - loop engineering](../step_02_loop_harness/README.md): the same
+trainer with its loop, counter and gate named in a file the scripts enforce.
+Previous: [Lesson 00 - intent](../step_00_intent/README.md).

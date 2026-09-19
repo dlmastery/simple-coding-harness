@@ -1,56 +1,80 @@
-"""Step 00 - the intent validates, nothing may widen it, and the acceptance fields are the scorecard fields."""
+"""Lesson 00 - the intent: task.json and acceptance.md validate; a pack that widens the intent is refused
+by lint_pack; the acceptance fields are exactly the scorecard fields; the skill pack meets the contract.
+Offline, no key, no agent: the scripts are the gates, so the claims are provable without one.
+"""
 
 import json
+import re
+import shutil
 import sys
 from pathlib import Path
 
-import jsonschema
-import pytest
-
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import packs, tasks  # noqa: E402
-from common.scorecard import SCORECARD_FIELDS  # noqa: E402
-from run import acceptance_fields, widened  # noqa: E402
+from _lib import tasks, testing  # noqa: E402
+from _lib.scorecard import SCORECARD_FIELDS  # noqa: E402
 
-REGULAR = HERE.parent / "step_01_regular_harness" / "skills" / "adult-income-regular"
+FIELD_LINE = re.compile(r"^- ([a-z_]+)$", re.M)
 
 
-def test_task_json_validates_against_the_schema():
-    task = tasks.load_task(HERE / "task.json")
-    assert task["name"] == "adult_income" and task["budget"] == {"n_fits": 24, "per": "arm"}
-    assert task["test_rule"] == {"scores": 1, "after": "FREEZE"}
+def acceptance_fields():
+    section = (HERE / "acceptance.md").read_text(encoding="utf-8").split("## The scorecard")[1].split("## ")[0]
+    return tuple(FIELD_LINE.findall(section))
 
 
-def test_a_widened_task_is_rejected():
-    task = tasks.load_task(HERE / "task.json")
-    with pytest.raises(jsonschema.ValidationError):
-        tasks.validate_task({**task, "budget": {"n_fits": 48, "per": "arm"}})
-    with pytest.raises(jsonschema.ValidationError):
-        tasks.validate_task({**task, "test_rule": {"scores": 2, "after": "FREEZE"}})
-    with pytest.raises(jsonschema.ValidationError):
-        tasks.validate_task({**task, "extra": "a field the schema does not know"})
-
-
-def test_every_curriculum_task_validates_and_is_in_order():
-    problems = tasks.all_tasks()
-    assert [t["index"] for t in problems] == list(range(1, 8))
-    assert [t["role"] for t in problems][-1] == "exam" and all(t["role"] == "curriculum" for t in problems[:-1])
-    assert all(t["budget"]["n_fits"] == 24 and t["test_rule"] == {"scores": 1, "after": "FREEZE"} for t in problems)
-
-
-def test_lint_pack_rejects_a_raised_budget_or_a_touched_test_rule():
-    task = tasks.load_task(HERE / "task.json")
-    assert packs.lint_pack(REGULAR, task) == []
-    assert any("n_fits 48" in p for p in packs.lint_pack(widened(REGULAR, n_fits=48), task))
-    assert any("test_rule" in p for p in packs.lint_pack(widened(REGULAR, test_rule={"scores": 2, "after": "FREEZE"}), task))
-    assert any("metric" in p for p in packs.lint_pack(widened(REGULAR, metric="accuracy"), task))
-    assert any("model the task does not allow" in p for p in packs.lint_pack(widened(REGULAR, models=["logreg", "svm"]), task))
+def test_intent_validates():
+    out = testing.tool("validate_intent", "--task", HERE / "task.json", "--acceptance", HERE / "acceptance.md")
+    assert out["ok"], out
+    assert out["budget"] == {"n_fits": 24, "per": "arm"} and out["test_rule"] == {"scores": 1, "after": "FREEZE"}
 
 
 def test_acceptance_fields_are_exactly_the_scorecard_fields():
     assert acceptance_fields() == SCORECARD_FIELDS
-    text = (HERE / "acceptance.md").read_text(encoding="utf-8")
-    assert "3 of 5" in text and "MEMORY_OFF" in text   # the pass rule names the exam and the off switch
+
+
+def test_widened_pack_is_refused():
+    out = testing.tool("lint_pack", "--files", f"@{HERE / '.claude/skills/intent/widened_pack.json'}", "--task", HERE / "task.json")
+    assert not out["ok"]
+    assert any("n_fits 48" in p for p in out["problems"]) and any("test_rule" in p for p in out["problems"])
+
+
+def test_a_bad_task_is_a_result_not_a_crash(tmp_path):
+    bad = json.loads((HERE / "task.json").read_text(encoding="utf-8"))
+    bad["budget"]["n_fits"] = 100
+    (tmp_path / "task.json").write_text(json.dumps(bad), encoding="utf-8")
+    out = testing.tool("validate_intent", "--task", tmp_path / "task.json")
+    assert not out["ok"] and "task.json" in out["problems"][0]
+
+
+def test_curriculum_validates_in_order():
+    names = [t["name"] for t in tasks.all_tasks()]
+    assert names == ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b", "exam"]
+    assert [t["role"] for t in tasks.all_tasks()] == ["curriculum"] * 6 + ["exam"]
+    for t in tasks.all_tasks():
+        assert t["budget"]["n_fits"] == 24 and t["test_rule"] == {"scores": 1, "after": "FREEZE"}
+
+
+def test_cli_contract_json_out_exit_zero():
+    out = testing.tool_cli("validate_intent", "--task", HERE / "task.json", "--acceptance", HERE / "acceptance.md")
+    assert out["ok"] is True
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_skill_changes_nothing(tmp_path):
+    """The skill's two commands leave the lesson directory byte-identical (no run dir, no card, no pack)."""
+    work = tmp_path / "lesson"
+    shutil.copytree(HERE, work, ignore=shutil.ignore_patterns("__pycache__", "runs"))
+    before = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
+    testing.tool("validate_intent", "--task", work / "task.json", "--acceptance", work / "acceptance.md")
+    testing.tool("lint_pack", "--files", f"@{work / '.claude/skills/intent/widened_pack.json'}", "--task", work / "task.json")
+    after = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
+    assert before == after
+
+
+def test_live_claude_code():
+    text = testing.live(HERE)
+    assert "24" in text and "FREEZE" in text

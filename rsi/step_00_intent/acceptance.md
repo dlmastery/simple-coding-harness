@@ -4,7 +4,8 @@ The intent is `task.json`: improve ROC-AUC on Adult income (> 50k) under a
 budget of 24 fits per arm, with the models it allows, the locked test rule it
 states and the profile keys a card may condition on. Nothing downstream may
 widen it: `lint_pack` refuses a pack whose `n_fits`, `test_rule`, `metric` or
-`models` differ from the task's. The curriculum in `../tasks/` is the transfer
+`models` differ from the task's. The test split is scored once, after FREEZE
+(the budget spent), never before and never twice. The curriculum in `../tasks/` is the transfer
 table: the same intent, one `task.json` per problem, in the order the pack
 learns them; problem 7 is the exam and is never written to.
 

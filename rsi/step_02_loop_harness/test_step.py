@@ -1,53 +1,98 @@
-"""Step 02 - loop.json is honoured by the tools, the audit log is never read back, the pack does not change."""
+"""Lesson 02 - loop engineering: loop.json is honoured by the scripts (N = 24, the 25th fit refused, score_test
+before FREEZE refused); the audit log is written and never read back (no script reads it); the pack is byte-
+identical after a run; the loop's order is recipes.json's order; lint_pack refuses a loop that changes N.
+"""
 
 import json
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, packs, steps, tasks, tools  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
+from _lib import packs, testing  # noqa: E402
 
 PACK = "adult-income-loop"
-TASK = tasks.test_curriculum()[0][0]
+TASK = testing.task("adult_income")
 
 
-def booted(tmp_path):
-    pack = steps.workspace(HERE, PACK, into=tmp_path / "p")
-    return checks.run_pack(pack, TASK, FakeModel(), tmp_path / "p" / "run", arm="control"), pack
+def run_loop(tmp_path):
+    """The procedure of SKILL.md: four slices of six, each followed by its audit lines."""
+    pack = testing.workspace(HERE, tmp_path / "w", PACK)
+    testing.tool("load_splits", "--pack", pack, "--task", TASK)
+    rows = []
+    for t0 in range(0, 24, 6):
+        out = testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", f"{t0}:{t0 + 6}")
+        rows += out["results"]
+        entries = [{"t": r["t"], "recipe": r["recipe"], "val_score": r["val_score"]} for r in out["results"]]
+        logged = testing.tool("write_loop_log", "--pack", pack, "--task", TASK, "--entries", json.dumps(entries))
+        assert logged["logged"] == 6
+    assert out["FREEZE"] is True
+    best = max((r for r in rows if r.get("val_score") is not None), key=lambda r: r["val_score"])
+    test = testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))
+    testing.tool("save_model", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))
+    card = testing.tool("scorecard", "--pack", pack, "--task", TASK)
+    return pack, rows, best, test, card
 
 
-def test_loop_json_is_honoured_by_the_tools(tmp_path):
-    run, pack = booted(tmp_path)
+def test_loop_json_is_honoured(tmp_path):
+    pack, rows, best, test, card = run_loop(tmp_path)
     loop = json.loads((pack / "loop.json").read_text(encoding="utf-8"))
     recipes = json.loads((pack / "recipes.json").read_text(encoding="utf-8"))
-    assert [r["recipe"] for r in run.fits] == recipes and len(run.fits) == loop["N"] == 24
-    gate = checks.budget_and_gate(run)
-    assert gate["fit_25"].startswith("Error: budget of 24 fits used")           # "change N" is not the model's to do
-    assert gate["second_test"].startswith("Error: the test split was scored once")
-    assert checks.test_before_freeze(pack, TASK, tmp_path / "p" / "fresh").startswith("Error: the test split is locked until FREEZE")
-    assert packs.lint_pack(pack, TASK) == []
+    assert loop["kind"] == "counted_while" and loop["N"] == 24 and loop["error_still_counts"]
+    assert [r["t"] for r in rows] == list(range(24)) and [r["recipe"] for r in rows] == recipes
+    assert card["fits_used"] == 24 and card["test_scored_once"] and "test_score" in test
+    # the 25th and the second look: refused
+    assert testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipe", json.dumps(recipes[0]))["refused"]
+    assert "once already" in testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(best["recipe"]))["error"]
 
 
-def test_the_audit_log_is_written_and_never_read_back(tmp_path):
-    run, pack = booted(tmp_path)
-    lines = (run.run_dir / "loop_log.jsonl").read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 24 and json.loads(lines[0])["t"] == 1
-    assert [n for n in tools.TOOLS if "loop_log" in n] == ["write_loop_log"]       # the only tool that touches it writes
-    results = [m["content"] for m in run.messages if m["role"] == "tool"]
-    assert not any("loop_log" in r for r in results if not r.startswith("logged"))  # and no result carried it back
-    assert len(checks.tool_calls(run, "write_loop_log")) == 24
+def test_score_test_before_freeze_refused(tmp_path):
+    pack = testing.workspace(HERE, tmp_path / "w", PACK)
+    testing.tool("load_splits", "--pack", pack, "--task", TASK)
+    out = testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", "0:6")
+    assert out["fits_used"] == 6 and "FREEZE" not in out
+    refused = testing.tool("score_test", "--pack", pack, "--task", TASK, "--recipe", json.dumps(out["results"][0]["recipe"]))
+    assert "18 fits remain" in refused["error"]
+
+
+def test_audit_log_written_never_read(tmp_path):
+    pack, rows, *_ = run_loop(tmp_path)
+    log = pack.parents[2] / "runs" / PACK / "adult_income" / "loop_log.jsonl"
+    lines = [json.loads(l) for l in log.read_text(encoding="utf-8").splitlines()]
+    assert [l["t"] for l in lines] == list(range(24)) and all(l["arm"] == "memory" for l in lines)
+    # no script reads it back: the string loop_log never appears in a read path of any tool
+    readers = [p for p in testing.TOOLS.glob("*.py") if "loop_log" in p.read_text(encoding="utf-8") and p.name != "write_loop_log.py"]
+    assert readers == []
 
 
 def test_pack_is_byte_identical_after_a_run(tmp_path):
-    pack = steps.workspace(HERE, PACK, into=tmp_path / "p")
-    assert checks.unchanged(pack, lambda: checks.run_pack(pack, TASK, FakeModel(), tmp_path / "p" / "run", arm="control"))
-    assert not (pack / "memory.json").exists()                                    # "write memory.json" is illegal, and did not happen
+    pack = testing.workspace(HERE, tmp_path / "w", PACK)
+    before = packs.checksums(pack)
+    run_loop(tmp_path)   # a fresh copy under the same tmp_path; run it once more on this one too
+    testing.tool("load_splits", "--pack", pack, "--task", TASK)
+    testing.tool("fit_recipe", "--pack", pack, "--task", TASK, "--recipes", f"@{pack / 'recipes.json'}", "--range", "0:3")
+    assert packs.checksums(pack) == before
 
 
-def test_generation_n_plus_1_loads_the_same_loop(tmp_path):
-    a, pack = booted(tmp_path)
-    b = checks.run_pack(pack, TASK, FakeModel(), tmp_path / "p" / "run2", arm="control")
-    assert checks.fit_sequence(a) == checks.fit_sequence(b)                        # nothing was learned, by design
+def test_lint_refuses_a_changed_loop(tmp_path):
+    files = packs.read_pack(HERE / ".claude" / "skills" / PACK)
+    loop = json.loads(files["loop.json"])
+    loop["N"] = 48
+    bad = dict(files, **{"loop.json": json.dumps(loop)})
+    out = testing.tool("lint_pack", "--files", json.dumps(bad), "--task", TASK)
+    assert not out["ok"] and any("loop.json N 48" in p for p in out["problems"])
+    loop["N"] = 24
+    loop["exit"] = ["score_test", "FREEZE"]
+    bad = dict(files, **{"loop.json": json.dumps(loop)})
+    out = testing.tool("lint_pack", "--files", json.dumps(bad), "--task", TASK)
+    assert any("exit must be FREEZE then score_test" in p for p in out["problems"])
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE)
+    assert "24" in text
