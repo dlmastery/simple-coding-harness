@@ -382,28 +382,26 @@ The other three loaders follow the same shape.
 
 ```python
 def apply(ctx):
-    """The hooks extension: the harness's own hooks, and the /hooks command."""
-    for event, found in BUILTIN.items():
-        for hook in found:
-            ctx.hook(event, python_hook(hook["python"]), hook.get("matcher") or "*")
+    """The hooks extension: the /hooks command. BUILTIN runs from tools.run(), not as a registered hook."""
     ctx.command("/hooks", "list the hooks configured for each event", list_command)
 ...
     for hook in extensions.hooks_for(event_name) + load_config().get(event_name, []):
 ```
 
-`BUILTIN` is the place for hooks the harness registers on its own. It is
-empty in this step: the checkpoint capture that step 33 registered there
-as a `PreToolUse` hook now runs from `tools.run`, after the permission
-check and the approval, so a declined edit captures nothing
-(`checkpoint.pre_tool_use` is still there for a `hooks.json` that wants
-it as a hook). `apply` registers whatever `BUILTIN` holds as function
-hooks, and `run_hooks` runs the registered hooks - the harness's own and
-every hook an extension added - before the config files' hooks, in the
-order they were registered. A registered hook is a plain function called
-with the event dict, and it answers the way a `python` hook did: a dict
-or `None`. A `PostToolUse` event carries `ok`, `False` when the tool
-answered with an `Error:` result, so a hook can tell a failed call from
-a good one before it replaces the result.
+`BUILTIN` stays what step 33 made it: the checkpoint capture, run by
+`run_builtin` from `tools.run`, after the permission check and the
+approval, so a declined edit captures nothing. It is not registered
+through the context on purpose: `run_hooks("PreToolUse")` fires in
+`decide`, before the approval, and a capture there would be the bug step
+33 removed. `apply` registers the `/hooks` command, and `run_hooks` runs
+the registered hooks - every hook an extension added, in the order they
+were registered - before the config files' hooks. A registered hook is a
+plain function called with the event dict, and it answers the way a
+`python` hook did: a dict or `None`. A `PostToolUse` event carries `ok`,
+`False` when the tool answered with an `Error:` result, so a hook can
+tell a failed call from a good one before it replaces the result.
+`/hooks` lists the registered hooks with their source, then the built-in
+ones, then the config files'.
 
 `harness/agents.py`:
 
@@ -455,7 +453,7 @@ row.
 `harness/tools.py`:
 
 ```python
-extensions.load_builtin()  # skills, hooks, agents, MCP: read_skill, /hooks and /mcp, one agent_<name> tool per definition
+extensions.load_builtin()  # skills, hooks, agents, MCP: read_skill, the checkpoint hook, one agent_<name> tool per definition
 extensions.load()          # .agents/extensions/*.py and ~/.simple-harness/extensions/*.py, after the built-in ones
 ```
 
@@ -493,21 +491,25 @@ hook can still refuse it by name.
 `harness/tools.py`:
 
 ```python
+def as_text(result):
+    """A tool message must be text; a hook's replacement result goes through this too."""
+    if isinstance(result, str):
+        return result
+    return "(no output)" if result is None else json.dumps(result, default=str)
+
+
+def call(tool_call, args):
+    """Call the tool itself. Never raises: a broken tool is a result, not a crash."""
     name = tool_call.function.name
-    fn = TOOLS.get(name)
-    if fn is None:
-        result = f"Error: no tool named {name!r}."
-    else:
-        checkpoint.before(name, args)  # the file as it is now, so /undo can put it back; only an edit tool captures
-        try:
-            result = fn(**args)
-        except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
-            result = f"Error: {type(failed).__name__}: {failed}"
-    if not isinstance(result, str):
-        result = "(no output)" if result is None else json.dumps(result, default=str)
+    if name not in TOOLS:  # decide() refuses these first; call() alone must not raise either
+        return f"Error: no tool named {name!r}."
+    try:
+        return as_text(TOOLS[name](**args))  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return f"Error: {type(e).__name__}: {e}"
 ```
 
-`run` calls the function with the arguments as keywords, so a tool with
+`call` calls the function with the arguments as keywords, so a tool with
 the wrong parameter names gets a `TypeError` and the model reads it as
 an `Error:` result. A tool is expected to return a string; one that
 returns a dict or a list gets it serialised to JSON, and `None` becomes
@@ -767,8 +769,9 @@ Added: `extensions.py` (`EXTENSION_DIRS`, `BUILTIN`, `RESERVED`,
 `.agents/extensions/word_count.py`. Changed: `skills.py`
 (`READ_SKILL_SCHEMA`, `SKILLS_INTRO`, `skills_section`, `apply`),
 `hooks.py` (`apply`, `python_hook`, function hooks in `run_hook`,
-`run_hooks` reads `extensions.hooks_for`, `list_command`; `BUILTIN` is
-empty because the checkpoint capture moved into `tools.run`),
+`run_hooks` reads `extensions.hooks_for`, `list_command`; `BUILTIN`
+still holds the checkpoint capture, run by `run_builtin` from
+`tools.run`),
 `agents.py` (`normalise`, `apply`, `register` through the context),
 `mcp_client.py` (`CONTEXT`, `apply`, `register` through the context,
 `list_command`), `tools.py` (`read_skill` and its schema removed from

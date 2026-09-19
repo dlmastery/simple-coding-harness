@@ -1,16 +1,19 @@
-"""Step 43 - hooks are an extension. apply(ctx) registers the harness's
-own hooks from BUILTIN through ctx.hook, and the /hooks command through
-ctx.command. run_hooks runs the registered hooks first - the built-in
-ones and every hook an extension added - then the hooks from the config
-files, in the same shape as before. A registered hook is a function
-called with the event dict; it answers like a python hook.
+"""Step 43 - hooks are an extension. apply(ctx) registers the /hooks
+command through ctx.command, and any extension may register a hook
+through ctx.hook. run_hooks runs the registered hooks first, then the
+hooks from the config files, in the same shape as before. A registered
+hook is a function called with the event dict; it answers like a python
+hook. BUILTIN stays apart: the checkpoint capture runs from tools.run(),
+after the approval, not as a registered hook, so a declined call
+captures nothing.
 The rest is step 41: the Stop event joins the list. Its hooks run when a turn is
 about to end, with the answer and every tool call of the turn in the
 event; a hook that exits 2 blocks the stop and its stderr goes back to
 the agent as a user message (see stop.py). The rest is step 33: hooks
 with a built-in list. BUILTIN holds the hooks the
-harness registers itself; they run before every hook from the config
-files, for the same events and in the same shape. Step 33 adds one: the
+harness registers itself, in the same shape as a config entry. They run
+through run_builtin(), which tools.run() calls once a call is allowed,
+so a built-in sees only the calls that really run. Step 33 adds one: the
 checkpoint capture on PreToolUse. The rest is step 27.
 
 A hook is configured, not coded into the harness. Two files are read,
@@ -24,13 +27,11 @@ are merged per event:
 A hook is either a `command` (a shell line; the JSON event arrives on
 stdin) or a `python` entry (`"module:function"`, imported and called with
 the event dict). Both answer the same way: nothing, to let the loop
-continue; `{"block": "reason"}` to stop the action; `{"result": ...}` to
-replace a tool result; `{"context": ...}` to add text to the late block. A
-command may also block by exiting with code 2, with stderr as the reason.
-A PostToolUse event carries `ok`: False when the tool answered with an
-Error: result, so a hook can tell a failed call from a good one. A block
-on PostToolUse cannot undo the call; it tells the model the hook refused
-the result.
+continue; `{"block": "reason"}` to stop the action (after a tool ran, to
+tell the model its result was rejected); `{"result": ...}` to replace a
+tool result; `{"context": ...}` to add text to the late block, or to a tool
+result on the tool events. A command may also block by exiting with code
+2, with stderr as the reason.
 
 A hook that crashes, times out or prints something that is not JSON is
 reported with a note and ignored. The loop never dies because of a hook.
@@ -45,7 +46,7 @@ from dataclasses import dataclass
 from fnmatch import fnmatchcase
 from pathlib import Path
 
-from . import extensions, streaming
+from . import extensions, sandbox
 
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd", "Stop")
 
@@ -58,22 +59,19 @@ TIMEOUT = 30  # seconds a command hook may take before it is killed and ignored
 
 BLOCK_EXIT_CODE = 2  # a command hook exits with this to block; stderr is the reason
 
-EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # ok: PostToolUse; the last four: Stop
-
-CONFIG_CACHE = {}  # path -> (mtime, parsed hooks): the files are read again only when they changed
+EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # the last four: Stop
 
 SESSION_CONTEXT = []  # what the SessionStart hooks asked to add to every late block
 
-BUILTIN = {  # the harness's own hooks; same shape as a config entry, registered by apply() and run first.
-    # Empty since the checkpoint capture moved into tools.run(), after the approval: a declined call captures nothing.
+_cache = {}  # config path -> (mtime, parsed): the files are read again only when they change
+
+BUILTIN = {  # the harness's own hooks; same shape as a config entry, run by run_builtin() once a call is allowed
+    "PreToolUse": [{"matcher": "write_file|str_replace", "python": "harness.checkpoint:pre_tool_use"}],
 }
 
 
 def apply(ctx):
-    """The hooks extension: the harness's own hooks, and the /hooks command."""
-    for event, found in BUILTIN.items():
-        for hook in found:
-            ctx.hook(event, python_hook(hook["python"]), hook.get("matcher") or "*")
+    """The hooks extension: the /hooks command. BUILTIN runs from tools.run(), not as a registered hook."""
     ctx.command("/hooks", "list the hooks configured for each event", list_command)
 
 
@@ -97,29 +95,35 @@ class HookOutcome:
     context: str = ""      # text for the late block, empty when no hook added any
 
 
-def load_config(paths=None):
-    """Merge every hooks.json that exists. Returns {event name: [hook, ...]}.
+def read_config(path):
+    """One hooks.json, parsed; cached by its mtime, so every event does not re-read it.
 
-    Called on every event, so a file is parsed once per change: the cache
-    holds it by modification time.
+    A broken file is noted once, when it changed, not on every tool call.
     """
+    try:
+        mtime = path.stat().st_mtime
+    except OSError:
+        return {}
+    if path in _cache and _cache[path][0] == mtime:
+        return _cache[path][1]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("the top level is not an object")
+    except (OSError, ValueError) as failed:
+        _note(f"hook config {path} skipped: {failed}")
+        data = {}
+    _cache[path] = (mtime, data)
+    return data
+
+
+def load_config(paths=None):
+    """Merge every hooks.json that exists. Returns {event name: [hook, ...]}."""
     merged = {event: [] for event in EVENTS}
     for path in paths if paths is not None else CONFIG_PATHS:
-        try:
-            stamp = path.stat().st_mtime
-        except OSError:
-            continue  # no such file
-        cached = CONFIG_CACHE.get(path)
-        if cached is None or cached[0] != stamp:
-            try:
-                data = json.loads(path.read_text(encoding="utf-8-sig"))
-            except (OSError, ValueError) as failed:
-                _note(f"hook config {path} skipped: {failed}")
-                data = {}
-            if not isinstance(data, dict):
-                data = {}
-            cached = CONFIG_CACHE[path] = (stamp, data)
-        for event, hooks in cached[1].items():
+        if not path.exists():
+            continue
+        for event, hooks in read_config(path).items():
             if event in merged and isinstance(hooks, list):
                 merged[event] += [h for h in hooks if isinstance(h, dict)]
     return merged
@@ -130,7 +134,7 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())  # case matters on every OS
 
 
 def describe(hook):
@@ -158,8 +162,10 @@ def run_command(command, event):
     shell=True so `python .agents/check.py` works the same on Windows and
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
     stderr as the reason; anything else is reported and ignored. The hook
-    gets a process group of its own, so a timeout kills what it started.
+    gets a process group of its own, so a timeout kills the script and not
+    just the shell that started it (the same plumbing as bash in sandbox.py).
     """
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     process = subprocess.Popen(
         resolve_python(command),
         shell=True,
@@ -169,19 +175,21 @@ def run_command(command, event):
         encoding="utf-8",
         errors="replace",
         cwd=event.get("cwd") or None,
-        **streaming.group_options(),
+        **group,
     )
     try:
         stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
-        streaming.kill(process)
+        sandbox.kill_tree(process)
+        process.communicate()
         raise
-    if process.returncode == BLOCK_EXIT_CODE:
-        return {"block": stderr.strip() or "blocked by hook"}
-    if process.returncode != 0:
-        _note(f"hook `{command}` exited {process.returncode} and was ignored: {stderr.strip()[:200]}")
+    completed = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+    if completed.returncode == BLOCK_EXIT_CODE:
+        return {"block": completed.stderr.strip() or "blocked by hook"}
+    if completed.returncode != 0:
+        _note(f"hook `{command}` exited {completed.returncode} and was ignored: {completed.stderr.strip()[:200]}")
         return None
-    output = stdout.strip()
+    output = completed.stdout.strip()
     if not output:
         return None
     reply = json.loads(output)
@@ -217,6 +225,21 @@ def run_hook(hook, event):
     except Exception as failed:  # noqa: BLE001 - a broken hook must not take the loop down
         _note(f"hook `{describe(hook)}` failed and was ignored: {type(failed).__name__}: {failed}")
     return None
+
+
+def run_builtin(event_name, event=None):
+    """Run the harness's own hooks for the event. They never block.
+
+    The checkpoint capture is one of them, and it runs from tools.run(),
+    after the permission check and the user's answer: a write the user
+    declined is never captured.
+    """
+    event = {key: None for key in EVENT_KEYS} | (event or {})
+    event["event"] = event_name
+    event["cwd"] = event["cwd"] or os.getcwd()
+    for hook in BUILTIN.get(event_name, []):
+        if matches(hook, event.get("tool_name")):
+            run_hook(hook, event)
 
 
 def run_hooks(event_name, event=None):
@@ -258,10 +281,11 @@ def session_start():
 
 
 def list_command(messages, arg=""):
-    """/hooks: every hook grouped by event, the registered ones with their source, then the config files'."""
+    """/hooks: every hook grouped by event: the registered ones with their source, the built-in ones, then the config files'."""
     from .ui import ui  # here, not at the top: ui imports todos, tools imports hooks
 
     rows = [f"{event:<18} {hook.get('matcher') or '*':<24} {describe(hook)}  ({extensions.label(hook['source'])})" for event in EVENTS for hook in extensions.hooks_for(event)]
+    rows += [f"{event:<18} {hook.get('matcher') or '*':<24} {describe(hook)}  (built-in)" for event, found in BUILTIN.items() for hook in found]
     rows += [f"{event:<18} {hook.get('matcher') or '*':<24} {describe(hook)}" for event, found in load_config().items() for hook in found]
     ui.note("\n".join(rows) if rows else "no hooks configured (see .agents/hooks.json)")
     return messages

@@ -20,14 +20,18 @@ a hook block all survive every mode, auto included. The OS sandbox of step
 CURRENT holds the approval mode. Plan mode is not stored here: it lives in
 plan.MODE, so entering plan and approving a plan keep the mode the user had
 before, and current() reports "plan" while plan.MODE is "plan".
+
+A change of CURRENT is written to the session log as a {"mode": name}
+entry, so --resume comes back in the same mode. Plan mode is not logged:
+a plan that was never approved does not survive the session either.
 """
 
-from . import plan
+from . import plan, session
 
 MODES = {
     "default": "the rules as they are: read-only commands run, edits inside the project run, the rest asks",
     "accept-edits": "edits inside the project never ask; the bash rules are unchanged",
-    "read-only": "edits and every call the rules would ask about are denied; exploration runs",
+    "read-only": "edits, memory writes and every call the rules would ask about are denied; exploration runs",
     "auto": "nothing asks; deny rules, session nevers and the sandbox still apply",
     "plan": "read-only tools until a plan is approved (step 28)",
 }
@@ -64,12 +68,13 @@ def current():
     return "plan" if plan.MODE == "plan" else CURRENT
 
 
-def set_mode(name):
+def set_mode(name, log=True):
     """Switch to a mode by name. Returns the name. Raises ValueError for an unknown one.
 
     `plan` hands over to step 28 and leaves CURRENT alone, so the mode the
     user had comes back when the plan is approved. Any other name leaves
-    plan mode, if the harness was in it.
+    plan mode, if the harness was in it, and is logged to the session
+    unless `log` is False (session.load replaying the log passes that).
     """
     global CURRENT
     if name not in MODES:
@@ -80,15 +85,23 @@ def set_mode(name):
     CURRENT = name
     if plan.MODE == "plan":
         plan.set_mode("act")
+    if log:
+        session.mode(name)
     return name
 
 
 def category(name, args, inside_project):
-    """Which row of the table a call falls under."""
+    """Which row of the table a call falls under.
+
+    remember and forget write files too - under the harness home, not the
+    project - so they count as an edit inside: read-only denies them.
+    """
     if name in ("bash", "bash_background"):
         return "bash"
     if name in ("write_file", "str_replace"):
         return "edit-inside" if inside_project(args.get("path", "")) else "edit-outside"
+    if name in ("remember", "forget"):
+        return "edit-inside"
     return "other"
 
 

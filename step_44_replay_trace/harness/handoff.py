@@ -19,10 +19,17 @@ feature and nothing else. Compaction's <summary> block, if the prefix
 carries one, is kept through the swap.
 
 A definition takes part in handoffs when its front matter has a
-`handoffs` list; the list names the definitions it may hand off to. The
-default agent may hand off to every definition that has such a list.
-/handoff <name> forces a handoff from the prompt line and is not limited
-by the lists; /handoff main returns to the default agent.
+`handoffs` list; the list names the definitions it may hand off to, and
+`main` on the list names the default agent. The default agent may hand
+off to every definition that has such a list. /handoff <name> forces a
+handoff from the prompt line and is not limited by the lists; /handoff
+main returns to the default agent.
+
+The active agent's `tools:` list is the tool set the model is offered,
+and offered() lets permissions.check deny a call to any other name: a
+handed-off reviewer with three tools cannot run write_file by naming it.
+A turn may hand off MAX_HANDOFFS times; past that, handoff_to answers
+with an error and the active agent has to answer the user itself.
 """
 
 from . import agents, plan
@@ -31,10 +38,10 @@ MAIN = "main"     # the name of the default coding agent, which has no definitio
 ACTIVE = None     # the active definition, or None for the default agent
 PENDING = None    # the name a handoff_to call asked for, until switch() applies it
 LAST_REASON = ""  # the reason the model gave for the pending handoff
-MAX_HANDOFFS = 4  # handoffs one turn may make; two agents passing the conversation back and forth stop here
-HANDOFFS = 0      # handoffs made this turn
+MAX_HANDOFFS = 4  # handoffs one turn may make: two agents passing the user back and forth stop here
+HOPS = 0          # handoffs so far in this turn; agent.turn resets it
 
-ALWAYS = ("handoff_to", "finish", "submit_plan", "load_tool")  # offered to every agent, whatever its tools: list says
+ALWAYS = ("handoff_to", "finish", "submit_plan", "load_tool")  # never cut from a definition's tool list: the loop's own tools
 
 HANDOFF_SCHEMA = {
     "type": "function",
@@ -75,18 +82,6 @@ def definition(name):
     return agents.AGENTS.get(name)
 
 
-def offered(name):
-    """Whether the active agent may run a tool: everything, or its `tools:` list plus ALWAYS."""
-    wanted = None if ACTIVE is None else ACTIVE.get("tools")
-    return wanted is None or name in wanted or name in ALWAYS
-
-
-def begin_turn():
-    """A new turn: the handoff count starts over."""
-    global HANDOFFS
-    HANDOFFS = 0
-
-
 def targets(active=None):
     """The names the active definition may hand off to, in definition order.
 
@@ -97,7 +92,7 @@ def targets(active=None):
     active = ACTIVE if active is None else active
     if active is None:
         return [name for name, a in agents.AGENTS.items() if a.get("handoffs") is not None]
-    return [name for name in active.get("handoffs") or [] if name in agents.AGENTS]
+    return [name for name in active.get("handoffs") or [] if name in agents.AGENTS or name == MAIN]
 
 
 def handoff_section(active=None):
@@ -105,7 +100,19 @@ def handoff_section(active=None):
     names = targets(active)
     if not names:
         return ""
-    return HANDOFF_INTRO + "\n".join(f"- {name}: {agents.AGENTS[name]['description']}" for name in names) + "\n"
+    described = {MAIN: "the default coding agent", **{name: a["description"] for name, a in agents.AGENTS.items()}}
+    return HANDOFF_INTRO + "\n".join(f"- {name}: {described[name]}" for name in names) + "\n"
+
+
+def offered(name):
+    """Whether the active agent may run a tool: everything for the default agent, its `tools:` list for a definition.
+
+    The names in ALWAYS are the loop's own and stay whatever the list says.
+    permissions.check asks this, so the tool set the model can run is the
+    one it was offered, not the whole registry.
+    """
+    wanted = None if ACTIVE is None else ACTIVE.get("tools")
+    return wanted is None or name in wanted or name in ALWAYS
 
 
 def system_prompt(active, cwd=None):
@@ -141,8 +148,8 @@ def handoff_to(agent: str, reason: str) -> str:
     global PENDING, LAST_REASON
     if agent == active_name():
         return f"Error: {agent} is already the active agent."
-    if HANDOFFS >= MAX_HANDOFFS:
-        return f"Error: {HANDOFFS} handoffs this turn already (MAX_HANDOFFS={MAX_HANDOFFS}); answer the user yourself."
+    if HOPS >= MAX_HANDOFFS:
+        return f"Error: handoff limit reached this turn ({MAX_HANDOFFS}); answer the user yourself."
     allowed = targets()
     if agent not in allowed:
         if definition(agent) is None and agent != MAIN:
@@ -161,16 +168,26 @@ def apply(name, messages):
     prompt is carried over, so the new agent reads what came before.
     """
     global ACTIVE
+    found = None if name == MAIN else definition(name)
+    if name != MAIN and found is None:
+        raise KeyError(name)  # before ACTIVE changes: a marker for a definition that is gone leaves the agent as it was
+    ACTIVE = found
+    refresh(messages)
+    return ACTIVE
+
+
+def refresh(messages):
+    """Rewrite messages[0] to the active agent's prompt, keeping a compaction <summary> block if there is one.
+
+    apply() calls this at a handoff; /init calls it after writing
+    AGENTS.md, so the rebuilt prefix is still the active agent's.
+    """
     from . import compact  # here, not at the top: compact imports llm
 
-    ACTIVE = None if name == MAIN else definition(name)
-    if name != MAIN and ACTIVE is None:
-        raise KeyError(name)
     if messages and messages[0].get("role") == "system":
         summary = compact.previous_summary(messages[0]["content"])
         prompt = system_prompt(ACTIVE)
         messages[0]["content"] = prompt + ("\n\n" + summary if summary else "")
-    return ACTIVE
 
 
 def switch(messages, name=None, reason=None):
@@ -180,10 +197,12 @@ def switch(messages, name=None, reason=None):
     happens when there is none. A name that is not a definition, and is
     not `main`, is refused with a note.
     """
-    global PENDING, LAST_REASON, HANDOFFS
+    global PENDING, LAST_REASON, HOPS
     from . import session
     from .ui import ui
 
+    if name is None and PENDING is not None:
+        HOPS += 1  # a handoff the model asked for counts against the turn's limit; /handoff does not
     name = PENDING if name is None else name
     reason = LAST_REASON if reason is None else reason
     PENDING = None
@@ -195,16 +214,21 @@ def switch(messages, name=None, reason=None):
         return None
     previous = active_name()
     apply(name, messages)
-    HANDOFFS += 1
     session.handoff(name)
     ui.handoff(previous, name, reason)
     return name
 
 
+def new_turn():
+    """A turn starts: the handoff count starts from zero again."""
+    global HOPS
+    HOPS = 0
+
+
 def reset():
     """Back to the default agent, with nothing pending. Used at session start and by tests."""
-    global ACTIVE, PENDING, LAST_REASON, HANDOFFS
+    global ACTIVE, PENDING, LAST_REASON
     ACTIVE = None
     PENDING = None
     LAST_REASON = ""
-    HANDOFFS = 0
+    new_turn()

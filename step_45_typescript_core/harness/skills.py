@@ -7,16 +7,17 @@ unchanged since step 4.
 """
 
 import re
+import sys
 from pathlib import Path
 
 import yaml
-
-FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
 
 SKILL_DIRS = [
     Path.home() / ".agents" / "skills",  # your skills
     Path.cwd() / ".agents" / "skills",   # this project's skills
 ]
+
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
 
 READ_SKILL_SCHEMA = {
     "type": "function",
@@ -36,28 +37,28 @@ If a skill matches what the user wants, call read_skill first and follow it."""
 
 
 def find_skills():
-    """Glob SKILL.md under every skill dir; name -> {description, path}."""
+    """Glob SKILL.md under every skill dir; name -> {description, path}.
+
+    One broken skill file must not stop the harness from starting, so a
+    file without front matter or with bad YAML is skipped with a note.
+    """
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
+            match = FRONT_MATTER.match(path.read_text(encoding="utf-8", errors="replace"))
+            if not match:
+                continue
             try:
-                match = FRONT_MATTER.match(path.read_text(encoding="utf-8-sig"))
-                meta = yaml.safe_load(match.group(1)) if match else None
-            except (OSError, yaml.YAMLError) as failed:  # one bad file is a note, not a start-up failure
-                _note(f"skill {path.parent.name} skipped: {failed}")
+                meta = yaml.safe_load(match.group(1)) or {}
+            except yaml.YAMLError as bad:
+                print(f"skipping {path}: {bad}", file=sys.stderr)
                 continue
             if not isinstance(meta, dict):
                 continue
-            name = str(meta.get("name") or path.parent.name)  # the folder names the skill when the front matter does not
+            name = str(meta.get("name") or path.parent.name)
             description = " ".join(str(meta.get("description", "")).split())
             skills[name] = {"description": description, "path": path}
     return skills
-
-
-def _note(text):
-    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
-
-    ui.note(text)
 
 
 SKILLS = find_skills()
@@ -77,7 +78,7 @@ def read_skill(name: str) -> str:
     """Open a skill and return its full instructions."""
     if name not in SKILLS:
         return f"No skill named '{name}'."
-    return SKILLS[name]["path"].read_text(encoding="utf-8-sig", errors="replace")
+    return SKILLS[name]["path"].read_text(encoding="utf-8", errors="replace")
 
 
 def apply(ctx):

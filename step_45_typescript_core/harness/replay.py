@@ -168,7 +168,7 @@ def resolve(session_id):
 def main(cli):
     """`harness replay <session id> [--speed N] [--step]`. Returns the exit code."""
     session_id = resolve(cli.session)
-    ui.resumed(session.load(session_id, apply_handoffs=False), label=f"replay {session_id}")  # a count of the messages; no agent is made active
+    ui.resumed(session.raw_messages(session.path_for(session_id)), label=f"replay {session_id}")  # a count of the messages; no agent is made active
     events = replay(session_id, speed=cli.speed, step=cli.step)
     ui.note(f"replayed {len(events)} entries")
     ui.summary()  # the tokens and dollars of the session, added up from its usage entries

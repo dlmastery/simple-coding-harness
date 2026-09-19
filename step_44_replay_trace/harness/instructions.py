@@ -26,7 +26,7 @@ def git_root(cwd=None):
     try:
         done = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
-            cwd=cwd, capture_output=True, text=True, timeout=10,
+            cwd=cwd, capture_output=True, encoding="utf-8", errors="replace", timeout=10,
         )
     except (OSError, subprocess.SubprocessError):
         return cwd
@@ -80,7 +80,7 @@ def label(path, cwd=None):
 
 def read_instructions(path):
     """The file's text, cut at MAX_CHARS with a note that says so."""
-    text = path.read_text(encoding="utf-8-sig", errors="replace")  # -sig: a BOM from a Windows editor is not part of the text
+    text = path.read_text(encoding="utf-8-sig", errors="replace")  # -sig: a BOM from a Windows editor is dropped
     if len(text) <= MAX_CHARS:
         return text
     return (
@@ -89,13 +89,20 @@ def read_instructions(path):
     )
 
 
+def render(paths, cwd=None):
+    """The files as prompt text, each under a header naming it; empty when there are none."""
+    return "\n\n".join(f"# Instructions from {label(path, cwd)}\n\n{read_instructions(path).strip()}" for path in paths)
+
+
 def instructions_prompt(cwd=None):
-    """Every instruction file, each under a header naming it; empty when there are none."""
+    """Discover the files, remember them in LOADED, and render them.
+
+    Only the system prompt builder calls this; anything that just needs the
+    text again reads LOADED through render(), so /instructions describes
+    the prompt the model has, not the disk as it is now.
+    """
     LOADED[:] = find_instructions(cwd)
-    parts = []
-    for path in LOADED:
-        parts.append(f"# Instructions from {label(path, cwd)}\n\n{read_instructions(path).strip()}")
-    return "\n\n".join(parts)
+    return render(LOADED, cwd)
 
 
 if __name__ == "__main__":

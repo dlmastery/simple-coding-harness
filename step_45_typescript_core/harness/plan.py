@@ -14,7 +14,7 @@ from . import todos
 
 MODE = "act"
 
-READ_ONLY = ("bash", "read_file", "read_skill", "task", "load_tool", "ask_user", "recall")  # offered in plan mode, in this order
+READ_ONLY = ("bash", "read_file", "read_skill", "recall", "task", "load_tool", "ask_user")  # offered in plan mode, in this order
 
 PLAN = None     # the approved plan, kept until the todos are all completed
 FEEDBACK = []   # what the user said to each rejected plan, newest last
@@ -57,8 +57,8 @@ SUBMIT_PLAN_SCHEMA = {
 
 
 def offered(name):
-    """Whether a tool may run in the current mode. finish and handoff_to end or move a turn in either mode."""
-    return MODE == "act" or name in READ_ONLY or name in ("submit_plan", "finish", "handoff_to")
+    """Whether a tool may run in the current mode. A handoff writes nothing, and finish ends a turn, in either mode."""
+    return MODE == "act" or name in READ_ONLY or name in ("submit_plan", "handoff_to", "finish")
 
 
 def toolset():
@@ -159,7 +159,7 @@ def submit_plan(plan):
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
     if MODE != "plan":
-        return "Error: not in plan mode; the user did not ask for a plan. Do the work, or ask them."
+        return "Error: not in plan mode"  # a call remembered from an earlier transcript, not offered now
     problems = validate(plan)
     if problems:
         return "Error: the plan is invalid:\n" + "\n".join(f"- {p}" for p in problems)
@@ -185,7 +185,7 @@ def set_mode(mode):
 
 
 def done():
-    """True once every todo is completed. An empty list is not done: the plan stays until the steps exist."""
+    """True once every todo is completed. An empty list is not done: the plan stays."""
     return bool(todos.TODOS) and all(t.get("status") == "completed" for t in todos.TODOS)
 
 

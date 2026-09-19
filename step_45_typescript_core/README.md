@@ -522,24 +522,32 @@ top of `subagent.ts` would run while `tools.ts` was still loading, and
 Three places in the port are not a line-for-line translation. Each one
 is about waiting.
 
-**Streams.** The Python `bash` tool of stage 15 called
-`subprocess.run`, which blocks until the command exits and hands back
-the whole output (the function is still in `sandbox.py`, though since
-step 42 `bash` goes through `streaming.run` instead):
+**Streams.** The Python `bash` tool of stage 15 called `sandbox.run`,
+which blocks until the command exits and hands back the whole output
+(the function is still in `sandbox.py`, though since step 42 `bash`
+goes through `streaming.run` instead):
 
 `harness/sandbox.py`:
 
 ```python
 def run(command, timeout=60):
-    """Run a command, sandboxed when the OS lets us."""
+    """Run a command, sandboxed when the OS lets us. Raises TimeoutExpired with the partial output.
+    ...
     sandboxed = wrap(command)
-    return subprocess.run(
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+    process = subprocess.Popen(
         sandboxed or command,
         shell=sandboxed is None,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
+        stdin=subprocess.DEVNULL,  # a command that waits for input would hang the turn
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
+        env=ENV,
+        **group,
     )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
 ```
 
 Node has no blocking call that also captures output. `spawn` returns at
@@ -603,14 +611,16 @@ the thread it runs on:
 
 ```python
     pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+    futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
+    for i, future in futures.items():
+        future.add_done_callback(keep(i))
     try:
-        futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
-        for i, future in futures.items():
-            future.add_done_callback(keep(i))
+        while not all(future.done() for future in futures.values()):
+            wait(futures.values(), timeout=POLL)  # short waits: Windows delivers a Ctrl-C only between them
         for future in futures.values():
             future.result()  # re-raises the first failure, in call order
     except KeyboardInterrupt:
-        pool.shutdown(wait=False, cancel_futures=True)  # the calls that have not started never will; the running ones finish on their own
+        pool.shutdown(wait=False, cancel_futures=True)  # the queued calls never start; the running ones finish alone
         raise
     pool.shutdown(wait=True)
 ```

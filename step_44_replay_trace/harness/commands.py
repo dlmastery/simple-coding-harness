@@ -35,15 +35,18 @@ from . import handoff
 from . import hooks
 from . import instructions
 from . import jobs
+from . import llm
 from . import plan
 from . import memory
+from . import history
 from . import modes
 from . import pipeline
 from . import sandbox
 from . import session
 from . import stop
 from . import subagent
-from . import todos
+from .todos import restore
+from . import tools
 from .ui import ui
 
 COMMANDS = {
@@ -51,12 +54,12 @@ COMMANDS = {
     "/handoff": "hand the conversation to an agent: /handoff <name>, or /handoff main for the default agent",
     "/mode": "show the approval modes, or switch: /mode default|accept-edits|read-only|auto|plan",
     "/pipeline": "plan a task, then work and review every step with the project's agents",
-    "/rewind": "jump back to an earlier point in this chat, files included",
+    "/rewind": "jump back to before one of your messages, files included",
     "/undo": "undo the last turn: its file changes and its messages",
     "/checkpoints": "list the turns of this chat and the files each one changed",
     "/sessions": "open a past chat",
-    "/compact": "summarise the history so far and free up the context window",
     "/memory": "list what the agent remembers across sessions",
+    "/compact": "summarise the history so far and free up the context window",
     "/extensions": "list the extensions, what each one registered, and the ones that failed",
     "/plan": "plan mode: read-only tools until you approve a plan",
     "/act": "act mode: every tool, the default",
@@ -65,7 +68,7 @@ COMMANDS = {
     "/cost": "show what this session has cost and the budgets that stop a turn",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
-    "/exit": "leave the chat (so do ctrl-d, or ctrl-z then enter on Windows, and ctrl-c at the prompt)",
+    "/exit": "leave (ctrl-d and ctrl-c do the same)",
 }
 
 INIT_QUESTION = """
@@ -82,8 +85,9 @@ that is new to the project. Use these headings, in this order:
    existing code makes obvious.
 
 Report only what the files show; quote commands and paths exactly. Say
-plainly what you could not find. Markdown, under 400 words, no preamble:
-the report is written to the file as it is.
+plainly what you could not find. Markdown, no preamble: the report is
+written to the file as it is. This guide is the one report that may run
+past your usual length: up to 400 words.
 """
 
 
@@ -99,32 +103,30 @@ def redraw(messages, label):
     ui.banner(sandbox.name(), modes.current())
     ui.resumed(messages, label)
     ui.replay(messages)
+    restore(messages)  # the plan lives outside the transcript; rebuild it from this one
+    tools.relearn(messages)  # and so do the deferred tools the model loaded
     return messages
 
 
 def rewind(messages):
-    """Cut the transcript before the chosen user message and undo the turns that began at or after it.
+    """Cut the chat back to just before one of your messages and undo the turns from there on.
 
-    Only user messages are offered: a cut anywhere else could leave a tool
-    call without its result, and the API refuses such a transcript.
+    Only user messages are offered: a cut anywhere else would leave a tool
+    call without its result, or a turn's files changed while its messages
+    are gone.
     """
-    turns = [i for i, m in enumerate(messages) if m.get("role") == "user" and not isinstance(m.get("content"), list)]
-    if not turns:
-        ui.note("nothing to rewind to yet")
-        return messages
-    choice = ui.pick("rewind to before", [f"{i:<4} {preview(messages[i])}" for i in turns])
+    users = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [preview(messages[i]) for i in users])
     if choice is None:
         return messages
-    keep = turns[choice]
-    undone = checkpoint.undo_since(keep)
+    cut = users[choice]
+    undone = checkpoint.undo_since(cut)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
-    session.save(messages)  # a chat that has not been saved yet gets its file before the marker goes in
-    session.rewind_to(keep)
-    kept = messages[:keep]
-    todos.rebuild(kept)  # the list as it stood at that point
-    return redraw(kept, "rewound")
+    session.save(messages)  # a fresh chat may not be on disk yet
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 
 
 def undo(messages):
@@ -139,9 +141,7 @@ def undo(messages):
         ui.note("that turn's place in the transcript is not known; the messages stay")
         return messages
     session.rewind_to(start)
-    kept = messages[:start]
-    todos.rebuild(kept)
-    return redraw(kept, "undone")
+    return redraw(messages[:start], "undone")
 
 
 def checkpoint_list(messages):
@@ -160,9 +160,13 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    from . import agent  # here, not at the top: agent imports this module
+    from .agent import recover  # here, not at the top: agent imports this module
 
-    return redraw(agent.reopen(session.open_session(saved[choice]["id"])), "opened")
+    opened = session.open_session(saved[choice]["id"])
+    history.strip(opened)  # the same shrink --resume does
+    redraw(opened, "opened")
+    recover(opened)  # a crash mid-turn left tool calls without results: run them now, as --resume does
+    return opened
 
 
 def compact(messages):
@@ -178,11 +182,14 @@ def compact(messages):
         # One more API call, fired when the window is nearly full - the worst
         # moment to lose the session over a rate limit. Keep going as we are.
         ui.note(f"compaction failed ({type(failure).__name__}); transcript kept as is")
+        compaction.COMPACTED_AT = before  # do not try again until the transcript has grown
         return messages
     if len(compacted) == before:
         ui.note("nothing old enough to compact yet")
+        compaction.COMPACTED_AT = before
         return messages
     session.compacted(compacted)
+    budget.WARNED.clear()  # the window is mostly free again: the 50% and 75% notes may fire once more
     checkpoint.compacted(before, len(compacted))  # the turn starts move with the messages
     ui.compacted(before, compacted)
     return compacted
@@ -291,16 +298,20 @@ def init(messages):
     target = Path.cwd() / "AGENTS.md"
     report = subagent.task(INIT_QUESTION.strip())
     ui.agent(report)
-    if report.startswith("(") or report.startswith("Error:"):
+    if report.startswith(subagent.STOPPED) or report.startswith("Error:"):
         ui.note("the subagent did not produce a guide; nothing written")
         return messages
-    if not ui.confirm(f"write {target.name}" + (" (it exists; this replaces it)" if target.exists() else "")):
+    if target.exists():
+        what = f"write {target.name} (it exists; this replaces it)"
+    elif (target.parent / "CLAUDE.md").is_file():
+        what = f"write {target.name} (CLAUDE.md is here too; it is read only when AGENTS.md is absent, so it stops being read)"
+    else:
+        what = f"write {target.name}"
+    if not ui.confirm(what):
         ui.note("not written")
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")
-    if messages and messages[0].get("role") == "system":
-        summary = compaction.previous_summary(messages[0]["content"])  # a compaction note in the prefix stays
-        messages[0]["content"] = handoff.system_prompt(handoff.ACTIVE) + ("\n\n" + summary if summary else "")  # discovery runs again, for the active agent
+    handoff.refresh(messages)  # discovery runs again, so the new file is in the prefix; the active agent and the summary stay
     ui.note(f"wrote {target}; it is in the system prompt from the next call on")
     return messages
 
@@ -311,8 +322,8 @@ def instruction_list(messages):
         ui.note("no instruction files loaded (AGENTS.md or CLAUDE.md in ~/.simple-harness, the git root, or below)")
         return messages
     rows = []
-    for path in instructions.LOADED:
-        size = len(path.read_text(encoding="utf-8", errors="replace"))
+    for path in instructions.LOADED:  # the files the prompt was built from, not what is on disk now
+        size = len(path.read_text(encoding="utf-8-sig", errors="replace"))
         cut = f"  (cut at {instructions.MAX_CHARS:,})" if size > instructions.MAX_CHARS else ""
         rows.append(f"{instructions.label(path):<40} {size:>7,} chars{cut}")
     ui.note("\n".join(rows))
@@ -323,6 +334,10 @@ def run_pipeline(messages, task):
     """Plan, work and review a task with the shipped agents; print the summary table."""
     if not task:
         ui.note("usage: /pipeline <task>")
+        return messages
+    missing = pipeline.missing_agents()
+    if missing:
+        ui.note(f"the pipeline needs the {', '.join(missing)} definition(s) in .agents/agents; none ran")
         return messages
     checkpoint.begin_turn(len(messages))  # every edit of the run lands in one turn, so one /undo takes it all back
     plan_text, steps = pipeline.run(task)
@@ -344,10 +359,6 @@ def handle(command, messages):
         return mode(messages, command[len("/mode"):].strip())
     if command == "/pipeline" or command.startswith("/pipeline "):
         return run_pipeline(messages, command[len("/pipeline"):].strip())
-    if command == "/init":
-        return init(messages)
-    if command == "/instructions":
-        return instruction_list(messages)
     if command == "/plan":
         return set_mode(messages, "plan")
     if command == "/act":
@@ -372,6 +383,10 @@ def handle(command, messages):
         return sessions(messages)
     if command == "/memory":
         return memories(messages)
+    if command == "/init":
+        return init(messages)
+    if command == "/instructions":
+        return instruction_list(messages)
     handled = registered(command, messages)
     if handled is not None:
         return handled

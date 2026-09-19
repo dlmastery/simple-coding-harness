@@ -161,23 +161,18 @@ of one reply carry near-identical stamps.
 ```python
 clock = time.time  # the stamp on every entry; a name the tests can replace
 ...
-def log(session_id=None):
-    """The log file of a session, opened for appending; the directory is made on the way. Nowhere, when QUIET."""
-    if QUIET and session_id is None:
-        return open(os.devnull, "a", encoding="utf-8")
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)
-    return path_for(CURRENT if session_id is None else session_id).open("a", encoding="utf-8")
-
-
 def stamped(entry):
     """The entry with `ts` added, as one JSON line. The dict passed in is not touched."""
-    return json.dumps({**entry, "ts": round(clock(), 3)}) + NL
+    return json.dumps({**entry, "ts": round(clock(), 3)}) + "\n"
 
 
 def save(messages, usage=None, seconds=None, cost=None):
 ...
     global WRITTEN
-    with log() as f:
+    if not PERSIST:
+        return
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    with path_for(CURRENT).open("a", encoding="utf-8") as f:
         for message in messages[WRITTEN:]:
             f.write(stamped(message))
         if usage is not None:
@@ -190,11 +185,10 @@ def save(messages, usage=None, seconds=None, cost=None):
 `usage` is given, one more line follows the new messages: the usage
 dict as the client returned it, `index`, the position of the assistant
 message it belongs to, `seconds`, how long the call took, and `cost`,
-the dollars `stop.record` priced it at. The rewind, handoff and
+the dollars `stop.record` priced it at. The rewind, mode, handoff and
 compaction markers go through `stamped` too, so every line of the log
-has a time, and every writer opens the file through `log()`, which
-makes the session directory first: a `/rewind` in a chat that has not
-been saved yet does not fail on a missing folder.
+has a time; `PERSIST` still says whether anything is written at all,
+as since step 21.
 
 ### 2. Loading drops what the model does not read
 
@@ -214,13 +208,13 @@ step 40: rewinds cut, compactions replace, handoffs rewrite the prompt.
 A resumed session sends the model exactly the list it sent before this
 step, and the tests assert that equality.
 
-`load(session_id, apply_handoffs=True)` grew one flag. A handoff marker
-makes that agent the active one, a global. `all_sessions()`, which
-loads every log to title it for `/sessions`, and `replay.main` pass
-`apply_handoffs=False`, so listing or replaying old chats does not
-change which agent answers the live one. Only `open_session` -
-`/sessions` with a pick, `--resume` - applies the markers, after a
-`handoff.reset()`.
+A handoff marker makes that agent the active one, a global, and a mode
+marker sets the mode. `all_sessions()`, which titles every log for
+`/sessions`, and `replay.main`, which counts the messages, read the raw
+lines through `raw_messages()` instead, so listing or replaying old
+chats does not change which agent answers the live one or which mode it
+is in. Only `open_session` - `/sessions` with a pick, `--resume` -
+applies the markers, after a `handoff.reset()`.
 
 ### 3. The loop records the call
 
@@ -228,13 +222,13 @@ change which agent answers the live one. Only `open_session` -
 
 ```python
     messages.append({"role": "user", "content": user_input})
-    session.save(messages)  # on disk now, with its own time: a crash during the model call keeps the question
+    session.save(messages)
 ...
         started = time.monotonic()  # the seconds of the call go in the log next to its usage
 ...
-        messages.append(message.model_dump(exclude_none=True))
-        cost = stop.record(usage)  # priced and added to the session's total
-        session.save(messages, usage=usage, seconds=round(time.monotonic() - started, 3), cost=cost)  # the numbers go next to the message
+    messages.append(entry(message))
+    cost = stop.record(usage)  # priced and added to the session's total
+    session.save(messages, usage=usage, seconds=round(time.monotonic() - started, 3), cost=cost)  # the numbers go next to the message
 ```
 
 The user message is saved the moment it is appended, so its stamp is
@@ -642,8 +636,8 @@ Added: `replay.py` (`MAX_PAUSE`, `Event`, `entries`, `timeline`,
 `render_row`, `totals`, `STYLE`, `SCRIPT`, `html`, `write`, `main`).
 Changed: `session.py` (`clock`, `stamped`; `save(messages, usage=None,
 seconds=None, cost=None)` stamps every line and writes the usage
-entry; `rewind_to`, `handoff` and `compacted` stamp their markers;
-`load` drops `ts` and skips usage entries), `agent.py` (the call is
+entry; `rewind_to`, `mode`, `handoff` and `compacted` stamp their
+markers; `load` drops `ts` and skips usage entries), `agent.py` (the call is
 timed, `stop.record` runs before `session.save` and the numbers go to
 it; the `replay` and `trace` subcommands), `pyproject.toml` (version
 0.44.0). Everything else, `capstone/` and `.agents/` included, is

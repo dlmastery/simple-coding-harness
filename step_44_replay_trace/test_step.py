@@ -25,16 +25,21 @@ from harness.ui import ui  # noqa: E402
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 def say(text):
@@ -94,7 +99,7 @@ class Scripted:
         self.requests = []  # (tools offered, user messages) per call
         self.lock = threading.Lock()
 
-    def __call__(self, messages, tools=None, on_delta=None):
+    def __call__(self, messages, tools=None, on_delta=None, on_restart=None):
         with self.lock:
             self.requests.append(([s["function"]["name"] for s in tools or []], [m["content"] for m in messages if m["role"] == "user"]))
             reply = self.replies.pop(0) if len(self.replies) > 1 else self.replies[0]
@@ -355,13 +360,13 @@ def test_listing_sessions_does_not_change_the_active_agent(monkeypatch):
 
 
 def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_message_and_a_trace_row(monkeypatch, tmp_path):
-    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{not json"))
+    broken = FakeCall(id="b1", function=SimpleNamespace(name="bash", arguments="{not json"))
     Scripted([use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"})), say("done")]).install(monkeypatch)
     messages = agent.turn([{"role": "system", "content": "sys"}], "go")
     results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
     assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
     assert results["b2"] == "Error: no tool named 'no_such_tool'."
-    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b3"] == "Error: missing.txt is not a file."
     assert messages[-1] == {"role": "assistant", "content": "done"}
     result = trace.write("test-session", tmp_path / "t.html")  # the trace shows the broken call as it was, and every result
     assert [t["result"][:6] for t in result.calls[0].tool_calls] == ["Error:", "Error:", "Error:"]
@@ -401,9 +406,10 @@ def test_a_resumed_transcript_with_a_dangling_tool_call_is_repaired(monkeypatch)
         ]},
     ]
     session.path_for("crashed").write_text("".join(json.dumps(m) + "\n" for m in dangling), encoding="utf-8")
-    messages = agent.reopen(session.open_session("crashed"))
+    messages = session.open_session("crashed")
+    agent.recover(messages)  # what --resume and /sessions do once the transcript is open
     assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool"]  # both calls answered
-    assert messages[3]["content"].startswith("Error: FileNotFoundError:")
+    assert messages[3]["content"] == "Error: missing.txt is not a file."
     assert messages[4]["content"].startswith("Error: the arguments of bash are not a JSON object:")
     assert durability.unanswered(messages) == [] and seen[-1] == "recovered 2 tool calls left unanswered by the last run"
     assert len(session.load("crashed")) == 5  # and saved, so the next --resume does not run them again
@@ -445,7 +451,7 @@ def test_a_turn_stops_after_the_model_call_cap(monkeypatch):
 
 
 def test_a_print_run_without_resume_writes_no_log(monkeypatch):
-    monkeypatch.setattr(session, "QUIET", True)  # what chat() sets for -p without --resume
+    monkeypatch.setattr(session, "PERSIST", False)  # what chat() sets for -p without --resume
     session.save([{"role": "user", "content": "hi"}])
     session.rewind_to(0)
     assert not session.path_for(session.CURRENT).exists() and not session.SESSION_DIR.exists()
@@ -458,13 +464,13 @@ def test_utf8_round_trip_through_the_file_tools_and_bash(monkeypatch):
     assert tools.read_file("u.txt") == text
     assert tools.str_replace("u.txt", "ünïcode", "unicode") == "Replaced 1 match(es) in u.txt"
     assert tools.str_replace("u.txt", "", "x").startswith("Error: old_str is empty")
-    assert tools.bash(f'{sys.executable} -c "print(chr(0x2713))"').strip() == "✓"
+    assert tools.bash(f'{sys.executable} -X utf8 -c "print(chr(0x2713))"').strip() == "✓"
 
 
 def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone(monkeypatch):
     todos.write_todos([{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
     result = todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}])
-    assert result == "Error: item 0 has status 'done'; use one of pending, in_progress, completed."
+    assert result == "Error: item 0 has status 'done'; use pending, in_progress or completed."
     assert [t["content"] for t in todos.TODOS] == ["a"]  # unchanged
     Scripted([use(call("t1", "write_todos", {"todos": [{"content": "b", "activeForm": "b", "status": "done"}]})), say("ok")]).install(monkeypatch)
     messages = agent.turn(start(), "plan")  # the loop survives it, and the next reminder still renders
@@ -480,7 +486,7 @@ def test_rewind_offers_user_messages_only_and_leaves_no_orphan_call(monkeypatch)
     for name in ("clear", "banner", "resumed", "replay"):
         monkeypatch.setattr(ui, name, lambda *a, **k: None)
     kept = commands.handle("/rewind", messages)
-    assert [row.split()[0] for row in offered] == ["1", "5"]  # the two user messages, by index
+    assert offered == ["first", "second"]  # the two user messages
     assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]  # cut before "second": no orphan
     assert durability.unanswered(kept) == []
     assert lines()[-1]["rewind_to"] == 5  # the cut is in the log too, stamped like every entry, so --resume lands at the same place

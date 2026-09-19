@@ -17,48 +17,39 @@ raise subprocess.TimeoutExpired so bash can turn it into a result.
 """
 
 import os
-import signal
 import subprocess
-import sys
 import threading
 
 from . import sandbox
 
 TIMEOUT = 60      # seconds a foreground command may run before it is killed
-JOIN_GRACE = 2    # seconds to wait for the reader after a kill; a child that kept the pipe open cannot hold the caller
-
-# no pagers and no credential prompts: the command has no terminal to answer on
-ENV = {"PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0", "PYTHONIOENCODING": "utf-8"}
+JOIN_GRACE = 2    # seconds to wait for the reader after the process has ended
 
 
 def popen(command):
     """Start a command through the sandbox wrapper, its output on one text pipe.
 
-    stderr is merged into stdout so the lines keep their order. text=True
-    and bufsize=1 make the pipe line-buffered on this side; errors="replace"
-    keeps a stray byte from ending the read. stdin is /dev/null: a command
-    that waits for a keyboard gets an end of file instead of a hang.
+    stderr is merged into stdout so the lines keep their order, which is
+    the order the model reads them in. bufsize=1 makes the pipe
+    line-buffered on this side. The rest is what sandbox.run does for a
+    foreground command: no stdin, utf-8 with errors="replace" so a stray
+    byte cannot end the read, the no-pager environment, and a process
+    group of its own so a kill reaches the children too.
     """
     sandboxed = sandbox.wrap(command)  # argv inside the OS sandbox, or None for a plain shell
+    group = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
     return subprocess.Popen(
         sandboxed or command,
         shell=sandboxed is None,
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        bufsize=1,
         encoding="utf-8",
         errors="replace",
-        bufsize=1,
-        env={**os.environ, **ENV},
-        **group_options(),
+        env=sandbox.ENV,
+        **group,
     )
-
-
-def group_options():
-    """Popen options that put the command in a process group of its own, so a kill reaches its children too."""
-    if sys.platform == "win32":
-        return {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-    return {"start_new_session": True}
 
 
 class Reader:
@@ -79,7 +70,11 @@ class Reader:
         self.thread.start()
 
     def pump(self):
-        """The thread body: one readline at a time until the pipe closes."""
+        """The thread body: one readline at a time until the pipe closes.
+
+        A callback that raises stops being called; the reading goes on, so
+        the model still gets the whole output when the screen cannot show it.
+        """
         try:
             for raw in self.process.stdout:
                 self.count += 1
@@ -88,13 +83,18 @@ class Reader:
                 if self.on_line is not None:
                     try:
                         self.on_line(raw.rstrip("\r\n"))
-                    except Exception:  # noqa: BLE001 - a screen that cannot draw must not stop the reading
-                        pass
+                    except Exception:  # noqa: BLE001 - the screen is not worth the output
+                        self.on_line = None
         finally:
             self.process.stdout.close()
 
     def join(self, timeout=None):
-        """Wait for the last lines. After a kill, give a timeout: a child that kept the pipe open cannot hold the caller for long."""
+        """Wait for the last lines: without a limit after a normal exit, for JOIN_GRACE seconds after a kill.
+
+        A process that ended closed its end of the pipe, so the reader is
+        about to finish; a killed one may have left a grandchild holding
+        the pipe open, and that cannot hold the caller for long.
+        """
         self.thread.join(timeout)
 
     def text(self):
@@ -107,19 +107,12 @@ def kill(process):
 
     process.kill() alone reaches only the shell. The command it started
     keeps the pipe open and keeps printing, and the reader keeps reading.
-    group_options() gave the command a group of its own, so on POSIX the
-    whole group gets the signal; on Windows taskkill walks the tree.
+    sandbox.kill_tree signals the whole process group on POSIX and walks
+    the tree with taskkill on Windows.
     """
     if process.poll() is not None:
         return
-    if sys.platform == "win32":
-        subprocess.run(["taskkill", "/F", "/T", "/PID", str(process.pid)], capture_output=True)
-    else:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)  # start_new_session: the group id is the pid
-        except (ProcessLookupError, PermissionError):
-            pass
-    process.kill()
+    sandbox.kill_tree(process)
     try:
         process.wait(timeout=JOIN_GRACE)
     except subprocess.TimeoutExpired:
@@ -131,20 +124,21 @@ def run(command, timeout=None, on_line=None):
 
     The main thread waits on the process with the timeout (TIMEOUT unless
     given) while the Reader pumps the pipe. On expiry the process tree is
-    killed and subprocess.TimeoutExpired is raised, as subprocess.run did,
-    so the caller's handling stays the same. A KeyboardInterrupt kills it too.
+    killed and subprocess.TimeoutExpired is raised with `output` set to
+    the lines that arrived before the kill, as sandbox.run did, so bash
+    hands the model what it saw. A KeyboardInterrupt kills it too.
     """
     timeout = TIMEOUT if timeout is None else timeout
     process = popen(command)
     reader = Reader(process, on_line)
     try:
         process.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as expired:
         kill(process)
         reader.join(JOIN_GRACE)
-        raise subprocess.TimeoutExpired(command, timeout, output=reader.text())  # what it printed before the kill rides along
+        raise subprocess.TimeoutExpired(command, timeout, output=reader.text()) from expired
     except BaseException:
         kill(process)
         raise
-    reader.join()  # a normal exit closed the pipe; the last lines are moments away
+    reader.join()  # the process has ended: the pipe is closing, the last lines are moments away
     return reader.text()

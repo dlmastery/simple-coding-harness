@@ -34,9 +34,6 @@ import yaml
 
 from . import extensions, subagent
 
-FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
-NAME = re.compile(r"^[A-Za-z0-9_-]{1,50}$")  # an agent name is also a tool name: the API's characters only
-
 AGENT_DIRS = [
     Path.home() / ".agents" / "agents",  # your agents
     Path.cwd() / ".agents" / "agents",   # this project's agents
@@ -46,17 +43,36 @@ PREFIX = subagent.AGENT_PREFIX  # every agent tool is agent_<name>
 DEFAULT_MAX_TURNS = 12          # the same cap as the exploration subagent
 EDIT_TOOLS = ("write_file", "str_replace")  # withheld from the exploration subagent, but a definition may name them
 
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
+NAME = re.compile(r"[A-Za-z0-9_-]{1,50}")  # agent_<name> has to be a tool name the API accepts
+
 
 def parse(text):
-    """Split a definition file into its front matter dict and its body. None when there is no front matter, or it is not YAML."""
+    """Split a definition file into its front matter dict and its body.
+
+    Returns (None, text) when there is no front matter. Raises ValueError
+    when the front matter is not a YAML mapping; find_agents turns that
+    into a note and skips the file.
+    """
     match = FRONT_MATTER.match(text)
     if not match:
         return None, text
     try:
-        meta = yaml.safe_load(match.group(1))
-    except yaml.YAMLError:
-        return None, text
-    return (meta if isinstance(meta, dict) else {}), text[match.end():].strip()
+        meta = yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError as broken:
+        raise ValueError(f"front matter is not valid YAML: {broken}") from None
+    if not isinstance(meta, dict):
+        raise ValueError("front matter is not a mapping")
+    return meta, text[match.end():].strip()
+
+
+def tool_list(value):
+    """The `tools` field as a list of names: a YAML list, or a comma-separated string. None means every tool."""
+    if isinstance(value, str):
+        value = [part for part in value.split(",") if part.strip()]
+    if not isinstance(value, list):
+        return None
+    return [str(t).strip() for t in value]
 
 
 def normalise(definition):
@@ -66,21 +82,13 @@ def normalise(definition):
     body, the system prompt of the agent. A dict from a file's front
     matter and a dict an extension builds by hand come out the same.
     """
-    tools = definition.get("tools")
-    handoffs = definition.get("handoffs")
-    if isinstance(tools, str):
-        tools = [t.strip() for t in tools.split(",") if t.strip()]  # `tools: bash, read_file` is a list too
-    if isinstance(handoffs, str):
-        handoffs = [h.strip() for h in handoffs.split(",") if h.strip()]
-    name = str(definition["name"])
-    if not NAME.match(name):
-        raise ValueError(f"agent name {name!r} must match [A-Za-z0-9_-] and be at most 50 characters")
+    max_turns = int(definition.get("max_turns") or DEFAULT_MAX_TURNS)
     return {
-        "name": name,
+        "name": str(definition["name"]),
         "description": " ".join(str(definition.get("description", "")).split()),
-        "tools": [str(t) for t in tools] if isinstance(tools, list) else None,
-        "handoffs": [str(h) for h in handoffs] if isinstance(handoffs, list) else None,
-        "max_turns": int(definition.get("max_turns") or DEFAULT_MAX_TURNS),
+        "tools": tool_list(definition.get("tools")),
+        "handoffs": tool_list(definition.get("handoffs")),
+        "max_turns": max_turns if max_turns > 0 else DEFAULT_MAX_TURNS,
         "prompt": str(definition.get("prompt") or "").strip(),
         "path": definition.get("path"),
     }
@@ -90,21 +98,27 @@ def find_agents(dirs=None):
     """Read every <name>.md under the agent dirs; name -> definition.
 
     A later directory wins on a clash, so a project agent replaces a
-    personal one of the same name. A file without a name in its front
-    matter is skipped.
+    personal one of the same name. A file without a front matter is
+    skipped; a file with a broken one, a bad name or a bad max_turns is
+    skipped with a note, so one bad definition never stops the harness
+    from starting.
     """
     agents = {}
     for directory in dirs or AGENT_DIRS:
         for path in sorted(directory.glob("*.md")):
             try:
                 meta, body = parse(path.read_text(encoding="utf-8-sig"))
-                if not meta or "name" not in meta:
+                if meta is None:
                     continue
-                definition = normalise({**meta, "prompt": body, "path": path})
-            except (OSError, ValueError) as failed:  # a file that cannot be read or has a bad name: one note, the rest load
-                _note(f"agent definition {path.name} skipped: {failed}")
+                name = str(meta.get("name") or path.stem)
+                if not NAME.fullmatch(name):
+                    raise ValueError(f"name {name!r} must match {NAME.pattern}")
+                max_turns = int(meta.get("max_turns") or DEFAULT_MAX_TURNS)
+            except (OSError, ValueError) as broken:
+                _note(f"agent definition {path} skipped: {broken}")
                 continue
-            agents[definition["name"]] = definition
+            definition = normalise({**meta, "name": name, "max_turns": max_turns, "prompt": body, "path": path})
+            agents[name] = definition
     return agents
 
 

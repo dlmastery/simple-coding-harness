@@ -8,37 +8,38 @@ The list lives here, not in the transcript. The late injection shows it to
 the model on every call, so the plan is always in front of the model.
 """
 
+import json
+
 MARKS = {"pending": "[ ]", "in_progress": "[~]", "completed": "[x]"}
+FIELDS = ("content", "activeForm", "status")
 
 TODOS = []  # [{"content": ..., "activeForm": ..., "status": ...}]
 
 
-KEYS = ("content", "activeForm", "status")
-
-
-def problem(todos):
-    """What is wrong with a todo list, or None. Checked before the list replaces the old one."""
+def validate(todos):
+    """The first thing wrong with a list, as an error string, or None."""
     if not isinstance(todos, list):
         return "Error: todos must be a list."
     for i, todo in enumerate(todos):
-        if not isinstance(todo, dict):
-            return f"Error: item {i} is not an object."
-        for key in KEYS:
-            if not isinstance(todo.get(key), str) or not todo[key].strip():
-                return f"Error: item {i} needs a non-empty {key!r}."
+        if not isinstance(todo, dict) or any(field not in todo for field in FIELDS):
+            return f"Error: item {i} needs content, activeForm and status."
         if todo["status"] not in MARKS:
-            return f"Error: item {i} has status {todo['status']!r}; use one of {', '.join(MARKS)}."
+            return f"Error: item {i} has status {todo['status']!r}; use pending, in_progress or completed."
     active = [t for t in todos if t["status"] == "in_progress"]
     if len(active) > 1:
-        return f"Error: {len(active)} tasks are in_progress. At most one may be."
+        return f"Error: {len(active)} tasks are in_progress. Only one may be."
     return None
 
 
 def write_todos(todos):
-    """Replace the whole list. At most one task may be in_progress. A bad list leaves the old one in place."""
-    wrong = problem(todos)
-    if wrong:
-        return wrong
+    """Replace the whole list. At most one task may be in_progress.
+
+    Checked before the assignment: a bad list is refused and the old plan
+    stays, so the block injected every turn can never break.
+    """
+    problem = validate(todos)
+    if problem:
+        return problem
     TODOS[:] = todos
     return todos_prompt() or "Todo list cleared."
 
@@ -55,20 +56,19 @@ def active_form():
     return "thinking"
 
 
-def rebuild(messages):
-    """The list as the last write_todos call of a transcript left it, for a resumed or rewound chat."""
-    from .durability import parse_args_of  # here, not at the top: durability is a leaf, but keep the import local as elsewhere
-
+def restore(messages):
+    """Rebuild the list from the last write_todos in a transcript (resume, rewind, /sessions)."""
     TODOS.clear()
-    for message in messages:
-        if message.get("role") != "assistant":
-            continue
+    for message in reversed(messages):
         for call in message.get("tool_calls") or []:
             if call["function"]["name"] == "write_todos":
-                todos = parse_args_of(call["function"]["arguments"]).get("todos")
-                if problem(todos) is None:
+                try:
+                    todos = json.loads(call["function"]["arguments"]).get("todos")
+                except (ValueError, AttributeError):
+                    return
+                if validate(todos) is None:
                     TODOS[:] = todos
-    return list(TODOS)
+                return
 
 
 TODO_SCHEMA = {
