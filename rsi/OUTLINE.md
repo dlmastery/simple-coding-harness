@@ -114,7 +114,6 @@ in every README.
 | 16 MetaSkill-Evolve | L5 | revises its own meta-skills on a slow clock | the clock, the human `y` on meta changes | §5.3 dual-timescale industry loop; §3.6 |
 | 17 map | — | — | — | the ladder, HCI, the three challenges as the acceptance test |
 
-## The definition we use — *The Last AI Built by Humans* (arXiv:2609.11873)
 ## The one harness (built once, in `rsi/common/`, ~200 lines, never a step)
 
 `harness.py` — `boot(pack_dir)` reads `SKILL.md` (becomes the system prompt),
