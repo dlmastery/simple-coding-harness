@@ -7,21 +7,22 @@ from . import hooks
 from . import plan
 from . import mcp_client
 from . import memory
+from . import history
 from . import sandbox
 from . import session
-from . import todos
+from .todos import restore
 from .ui import ui
 
 COMMANDS = {
-    "/rewind": "jump back to an earlier point in this chat",
+    "/rewind": "jump back to before one of your messages",
     "/sessions": "open a past chat",
+    "/memory": "list what the agent remembers across sessions",
     "/compact": "summarise the history so far and free up the context window",
     "/mcp": "list the MCP servers, whether each started, and the tools they added",
     "/hooks": "list the hooks configured for each event",
     "/plan": "plan mode: read-only tools until you approve a plan",
     "/act": "act mode: every tool, the default",
-    "/memory": "list what the agent remembers across sessions",
-    "/exit": "leave (ctrl-d, or ctrl-z then enter on Windows, does the same)",
+    "/exit": "leave (ctrl-d and ctrl-c do the same)",
 }
 
 
@@ -37,20 +38,24 @@ def redraw(messages, label):
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)
     ui.replay(messages)
-    todos.restore(messages)  # the plan belongs to the transcript now on screen
+    restore(messages)  # the plan lives outside the transcript; rebuild it from this one
     return messages
 
 
 def rewind(messages):
-    """Cut the chat back to just before a user message - never between a call and its result."""
-    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
-    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
-    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
+    """Cut the chat back to just before one of your messages.
+
+    Only user messages are offered: a cut there can never separate a tool
+    call from its result, which the API would refuse on the next call.
+    """
+    users = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [preview(messages[i]) for i in users])
     if choice is None:
         return messages
-    cut = rows[choice][0]
-    session.rewind_to(cut)
-    return redraw(messages[:cut], "rewound")
+    count = users[choice]
+    session.save(messages)  # a fresh chat may not be on disk yet
+    session.rewind_to(count)
+    return redraw(messages[:count], "rewound")
 
 
 def sessions(messages):
@@ -62,7 +67,9 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    return redraw(session.open_session(saved[choice]["id"]), "opened")
+    messages = session.open_session(saved[choice]["id"])
+    history.strip(messages)  # the same shrink --resume does
+    return redraw(messages, "opened")
 
 
 def compact(messages):
@@ -78,9 +85,11 @@ def compact(messages):
         # One more API call, fired when the window is nearly full - the worst
         # moment to lose the session over a rate limit. Keep going as we are.
         ui.note(f"compaction failed ({type(failure).__name__}); transcript kept as is")
+        compaction.COMPACTED_AT = before  # do not try again until the transcript has grown
         return messages
     if len(compacted) == before:
         ui.note("nothing old enough to compact yet")
+        compaction.COMPACTED_AT = before
         return messages
     session.compacted(compacted)
     ui.compacted(before, compacted)

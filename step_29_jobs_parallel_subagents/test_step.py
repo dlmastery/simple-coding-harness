@@ -17,16 +17,21 @@ from harness.ui import ui  # noqa: E402
 PY = f'"{sys.executable}"'  # `python` on the PATH may be a Store alias; the interpreter running the tests is not
 
 
+class FakeCall(SimpleNamespace):
+    def model_dump(self, exclude_none=True):
+        return {"id": self.id, "type": "function", "function": {"name": self.function.name, "arguments": self.function.arguments}}
+
+
 class FakeMessage(SimpleNamespace):
     def model_dump(self, exclude_none=True):
         entry = {"role": "assistant", "content": self.content}
         if self.tool_calls:
-            entry["tool_calls"] = [{"id": c.id, "type": "function", "function": {"name": c.function.name, "arguments": c.function.arguments}} for c in self.tool_calls]
+            entry["tool_calls"] = [c.model_dump() for c in self.tool_calls]
         return entry
 
 
 def call(cid, name, arguments):
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=json.dumps(arguments)))
 
 
 def python_job(code):
@@ -236,10 +241,10 @@ def test_one_description_still_runs_one_subagent(quiet, monkeypatch):
 
 def test_a_single_subagent_that_crashes_is_a_report_too(quiet, monkeypatch):
     def fake(messages, tools=None, on_delta=None):
-        raise RuntimeError("model unreachable")
+        raise ValueError("bad reply")  # not a model failure: loop() answers those itself
 
     monkeypatch.setattr("harness.llm.call_llm", fake)
-    assert subagent.task(description="solo") == "Error: the subagent failed with RuntimeError: model unreachable"
+    assert subagent.task(description="solo") == "Error: the subagent failed with ValueError: bad reply"
 
 
 def test_a_subagent_cannot_run_a_tool_it_was_not_offered(quiet, monkeypatch):
@@ -285,12 +290,12 @@ def test_parallel_subagents_take_turns_at_the_approval_prompt(quiet, monkeypatch
 def test_a_failing_subagent_does_not_sink_the_others(quiet, monkeypatch):
     def fake(messages, tools=None, on_delta=None):
         if messages[1]["content"] == "bad":
-            raise RuntimeError("model unreachable")
+            raise ValueError("bad reply")
         return FakeMessage(content="fine", tool_calls=None), {"prompt_tokens": 1, "completion_tokens": 1}
 
     monkeypatch.setattr("harness.llm.call_llm", fake)
     result = subagent.task(descriptions=["good", "bad"])
-    assert result.startswith("## subagent 1: good\n\nfine\n\n## subagent 2: bad\n\nError: subagent 2 failed with RuntimeError: model unreachable")
+    assert result.startswith("## subagent 1: good\n\nfine\n\n## subagent 2: bad\n\nError: subagent 2 failed with ValueError: bad reply")
 
 
 # --------------------------------------------------------------- the loop
@@ -322,7 +327,7 @@ def test_loop_smoke_job_then_parallel_task(quiet, monkeypatch):
 
 def raw_call(cid, name, arguments):
     """A tool call whose arguments are exactly this string, valid JSON or not."""
-    return SimpleNamespace(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
+    return FakeCall(id=cid, function=SimpleNamespace(name=name, arguments=arguments))
 
 
 def fake_model(monkeypatch, *replies):
@@ -349,7 +354,7 @@ def test_bad_arguments_unknown_tool_and_a_raising_tool_each_get_one_tool_message
     assert results["c1"].startswith("Error: the arguments of read_file are not a JSON object:")
     assert results["c2"] == "Error: no tool named 'no_such_tool'."
     assert results["c3"].startswith("Error: TypeError:")
-    assert results["c4"] == "Error: the arguments of bash are not a JSON object: got list"
+    assert results["c4"] == "Error: the arguments of bash are not a JSON object: not an object"
     assert results["c5"] == "Blocked by policy: bash: missing argument 'command'"
     assert messages[-1]["content"] == "None of that worked."  # the loop went on to the next reply
 
@@ -398,8 +403,8 @@ def test_session_load_repairs_a_dangling_tool_call(tmp_path, monkeypatch):
     pending = {"role": "assistant", "content": None, "tool_calls": [{"id": "c1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}
     (tmp_path / "old.jsonl").write_text("".join(json.dumps(m) + "\n" for m in [{"role": "system", "content": "s"}, {"role": "user", "content": "hi"}, pending]), encoding="utf-8")
     messages = session.load("old")
-    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.UNANSWERED}
-    assert session.repair([{"role": "user", "content": "hi"}]) == [{"role": "user", "content": "hi"}]  # nothing to repair
+    assert messages[-1] == {"role": "tool", "tool_call_id": "c1", "content": session.STOPPED}
+    assert session.repair([{"role": "user", "content": "hi"}], session.STOPPED) == 0  # nothing to repair
 
 
 def test_rewind_offers_only_user_messages_and_leaves_no_orphan(tmp_path, monkeypatch):
@@ -428,7 +433,7 @@ def test_write_todos_rejects_a_bad_status_and_leaves_the_list_alone(monkeypatch)
     monkeypatch.setattr(todos, "TODOS", [{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs a non-empty 'activeForm'."
+    assert todos.write_todos([{"content": "b"}]) == "Error: item 0 needs content, activeForm and status."
     assert todos.write_todos("b").startswith("Error:")
     assert todos.write_todos([{"content": "b", "activeForm": "b", "status": "in_progress"}, {"content": "c", "activeForm": "c", "status": "in_progress"}]).startswith("Error: 2 tasks are in_progress")
     assert todos.TODOS == before

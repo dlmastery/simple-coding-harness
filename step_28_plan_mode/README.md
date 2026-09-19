@@ -247,7 +247,7 @@ def check(name, args):
     if name == "bash":
         command = args.get("command", "")
         if not command:
-            return "deny", f"{name}: missing argument 'command'"
+            return "deny", "bash: missing argument 'command'"
         action = decide(command)
         if plan.MODE == "plan" and action == "ask":
             return "deny", f"plan mode: only read-only commands run before the plan is approved: {command}"

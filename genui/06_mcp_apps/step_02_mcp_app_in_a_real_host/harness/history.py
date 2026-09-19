@@ -14,9 +14,10 @@ mechanisms, cheapest first. Only the first two live here; the expensive one
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
 
-Two markers tell them apart: a capped result still has its full text on
-disk for the rest of the turn; a trimmed one is gone for good, and strip
-and fit leave it alone.
+Two markers, because they mean different things: CAPPED says "the rest is
+in a file for this turn", TRIMMED says "the rest is gone". strip and fit
+look for TRIMMED only, so a capped result is still shrunk once its turn is
+over.
 
 A fourth piece, images: a tool result that carries a `[[image:PATH]]` marker
 asks the loop to show the model that PNG. image_message() builds the user
@@ -35,8 +36,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-CAPPED = "[output capped:"    # from cap: the rest is in a temp file until the turn ends
-TRIMMED = "[output trimmed:"  # from strip and fit: the rest is gone; stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap(): the full text is on disk until the turn ends
+TRIMMED = "[output trimmed:"  # from strip() and fit(): gone for good; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt

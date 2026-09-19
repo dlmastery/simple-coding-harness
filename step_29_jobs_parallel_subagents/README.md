@@ -237,7 +237,7 @@ thread lists them.
     if name in ("bash", "bash_background"):
         command = args.get("command", "")
         if not command:
-            return "deny", f"{name}: missing argument 'command'"
+            return "deny", "bash: missing argument 'command'"
         action = decide(command)
         if plan.MODE == "plan" and action == "ask":
             return "deny", f"plan mode: only read-only commands run before the plan is approved: {command}"
@@ -337,8 +337,8 @@ description to a pool of at most four threads and collects the futures in
 the order given, so the reports come back in that order whatever the
 finishing order was. A subagent that raises becomes an error section; the
 others still report. The single-description path goes through `guarded`
-too, so a subagent whose model call fails is `Error: the subagent failed
-with ...` as a tool result, not a crash of the main turn. The tool result
+too, so a subagent that raises is `Error: the subagent failed with ...`
+as a tool result, not a crash of the main turn. The tool result
 is one string with a `##` header per subagent, so the main agent can tell
 which answer belongs to which question.
 
@@ -509,9 +509,10 @@ ignores its first signal) and kill them; they take about 20 seconds.
   be a number of seconds, got ...`.
 - **`job_kill` on a job that already ended** reports `job-1 had already
   ended.` and the state; killing twice is harmless.
-- **A subagent that crashes** (its model call fails, a tool raises past
-  the guards) is the section `Error: subagent 2 failed with
-  RuntimeError: ...`; the other sections are their reports. A single
+- **A subagent that crashes** (something raises past the guards; a
+  failed model call is already the loop's own `(the subagent's model
+  call failed: ...)` report) is the section `Error: subagent 2 failed
+  with ValueError: ...`; the other sections are their reports. A single
   subagent gives `Error: the subagent failed with ...`.
 - **A subagent that names a withheld tool** (`bash_background`,
   `write_file`) gets `Blocked by policy: bash_background is not

@@ -19,27 +19,15 @@ from . import mcp_client
 from . import plan
 from . import sandbox
 from . import session
-from . import todos
 from .context import reminder
-from .llm import SYSTEM_PROMPT, call_llm, with_mode
-from .todos import active_form
+from .llm import SYSTEM_PROMPT, call_llm, entry, with_mode
+from .todos import active_form, restore
 from .tools import execute_all
 from .ui import ui
 
-MAX_CALLS = 40  # model calls in one turn; past that the model is looping, not working
+MAX_CALLS = 40  # model calls in one turn before we stop and ask the user
 
 INTERRUPTED = "(interrupted before this tool ran)"
-
-
-def answer_pending(messages):
-    """Give every unanswered tool call a tool message, so the transcript stays valid."""
-    answered = {m.get("tool_call_id") for m in messages if m["role"] == "tool"}
-    last = messages[-1]
-    if last["role"] != "assistant":
-        return
-    for call in last.get("tool_calls") or []:
-        if call["id"] not in answered:
-            messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
 
 
 def turn(messages, user_input, cli=None):
@@ -88,7 +76,7 @@ def turn(messages, user_input, cli=None):
                 ui.note(f"model call failed: {failed}")
                 break
 
-            messages.append(message.model_dump(exclude_none=True))
+            messages.append(entry(message))
             session.save(messages)
 
             if streamed:
@@ -125,7 +113,9 @@ def turn(messages, user_input, cli=None):
         else:
             ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
     except KeyboardInterrupt:
-        answer_pending(messages)  # a call was cut off between the reply and its results
+        # ctrl-c mid-turn: answer the tool calls that never ran, so the
+        # transcript stays valid, and go back to the prompt.
+        session.repair(messages, INTERRUPTED)
         session.save(messages)
         ui.note("interrupted")
 
@@ -152,7 +142,7 @@ def resume_last(messages):
         return messages
     messages = session.open_session(saved[0]["id"])
     history.strip(messages)
-    todos.restore(messages)
+    restore(messages)  # the plan lives outside the transcript; rebuild it
     return messages
 
 

@@ -323,9 +323,11 @@ def run(tool_call, args):
     return result
 ```
 
-`run()` calls the tool through `call()`, the step 25 helper that turns an
-unknown name or an exception inside the tool into an `Error:` string,
-and then the `PostToolUse` hooks, with the result in the event and `ok`
+`run()` calls the tool through `call()`, the plain call split out of
+step 22's `run()`: it turns an unknown name or an exception inside the
+tool into an `Error:` string and makes any other result text with
+`as_text()`, which a hook's replacement result goes through too. Then
+come the `PostToolUse` hooks, with the result in the event and `ok`
 saying whether it is an `Error:`. That prefix is
 the harness's convention for every failed tool (a missing file, a bad
 argument, a server that said no); a `bash` command that exited non-zero

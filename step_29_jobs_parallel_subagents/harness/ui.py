@@ -79,18 +79,13 @@ class UI:
         results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
         for message in messages:
             if message["role"] == "user":
-                content = message["content"]
-                self.user(caption_of(content) if isinstance(content, list) else content)
+                content = message.get("content") or ""
+                self.user(caption_of(content) if isinstance(content, list) else str(content))
             elif message["role"] == "assistant":
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    raw = call["function"]["arguments"]
-                    try:
-                        args = json.loads(raw)
-                    except ValueError:  # the model once sent broken JSON; show it as it was
-                        args = {"arguments": raw}
-                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -143,7 +138,7 @@ class UI:
             return False, ""
 
     def ask(self):
-        """The next message; "" for an empty line, None when the input is closed."""
+        """One line from the user; None when they are leaving (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -185,6 +180,7 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
+        # the one place the UI knows a tool by name - and only when the plan was accepted
         if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
@@ -207,9 +203,8 @@ class UI:
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            status = todo.get("status")
-            style = TODO_STYLES.get(status, MUTED)
-            rows.add_row(Text(MARKS.get(status, "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -267,13 +262,12 @@ class UI:
     def usage(self, stats):
         with USAGE_LOCK:
             for key, value in stats.items():
-                if isinstance(value, (int, float)) and not isinstance(value, bool):
-                    self._totals[key] = self._totals.get(key, 0) + value
+                self._totals[key] = self._totals.get(key, 0) + (value or 0)
         parts = []
         for key, value in stats.items():
-            if key == "cost" and value is not None:
+            if key == "cost" and value:
                 parts.append(f"${value:.4f}")
-            elif isinstance(value, (int, float)) and value:
+            elif value:
                 parts.append(f"{value:,} {key.replace('_tokens', '')}")
         self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
 
@@ -295,6 +289,14 @@ class UI:
         self.console.print(
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
+
+    def _parse_args(self, arguments):
+        """Stored arguments may be broken JSON (a cut-off reply); show them raw then."""
+        try:
+            args = json.loads(arguments)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw": arguments}
+        return args if isinstance(args, dict) else {"raw": arguments}
 
     def _format_args(self, args):
         if len(args) == 1:

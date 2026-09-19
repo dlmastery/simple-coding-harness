@@ -33,6 +33,8 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
 
+import openai
+
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
@@ -87,9 +89,11 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     """
     # Imported here, not at the top: tools imports us, and we need tools.
     from .history import fit, image_message, split_images
-    from .llm import call_llm
+    from .llm import call_llm, entry
     from .tools import execute_all
     from .ui import ui
+
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was shown
 
     # rule 1: two messages, born here, dead at the return
     messages = [
@@ -98,15 +102,19 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     ]
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
-    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
         fit(messages)  # its context can overflow too, and nobody compacts it
 
-        with ui.working(label) if tag is None else nullcontext():
-            message, usage = call_llm(messages, tools=tools)  # rule 2
-        messages.append(message.model_dump(exclude_none=True))
+        try:
+            with ui.working(label) if tag is None else nullcontext():
+                message, usage = call_llm(messages, tools=tools)  # rule 2
+        except (openai.APIError, RuntimeError) as failure:
+            # its failure is a result for the main agent, never a crash of the session
+            report = f"(the subagent's model call failed: {failure})" + (f"\n\nPartial findings:\n\n{report}" if report else "")
+            return report
+        messages.append(entry(message))
         ui.usage(usage)
         report = message.content or report
 
@@ -115,7 +123,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
             return report or "(the subagent came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls, allowed=allowed)
+        outcomes = execute_all(message.tool_calls, allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
