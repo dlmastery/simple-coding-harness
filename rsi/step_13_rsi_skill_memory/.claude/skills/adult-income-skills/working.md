@@ -1,4 +1,4 @@
 # Working memory
 
-Need: small, categorical
-Cards: onehot-for-categorical, hgb-for-small
+Need: (none yet)
+Cards: none

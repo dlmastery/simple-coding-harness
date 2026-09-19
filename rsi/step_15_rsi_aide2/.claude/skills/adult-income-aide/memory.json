@@ -1,1 +1,223 @@
-[]
+[
+ {
+  "if": {
+   "key": "n_rows",
+   "op": ">=",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "hgb"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": ">=",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "logreg"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": ">=",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "rf"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 0.05
+  },
+  "evidence": 1,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 0.3
+  },
+  "evidence": 1,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_features",
+   "op": ">=",
+   "value": 10
+  },
+  "then": {
+   "field": "scale",
+   "prefer": "yes"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_features",
+   "op": ">=",
+   "value": 10
+  },
+  "then": {
+   "field": "scale",
+   "prefer": "no"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "has_categorical",
+   "op": "==",
+   "value": 1
+  },
+  "then": {
+   "field": "encode",
+   "prefer": "onehot"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "has_categorical",
+   "op": "==",
+   "value": 1
+  },
+  "then": {
+   "field": "encode",
+   "prefer": "ordinal"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": "<",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "none"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": "<",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "balanced"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "hgb"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "logreg"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "rf"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 0.1
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": ">=",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "none"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": ">=",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "balanced"
+  },
+  "evidence": 0,
+  "counter": 1
+ }
+]

@@ -19,6 +19,8 @@ from _lib import cli, memory, packs  # noqa: E402
 from _lib.state import Run  # noqa: E402
 from scorecard import card_for  # noqa: E402
 
+SCRATCH = ("plan.json", "working.md")
+
 PARSER = cli.common(cli.parser(__doc__, seeds={"default": "0,1,2,3,4", "help": "the seeds, comma-separated"}), arm=False)
 
 
@@ -58,7 +60,8 @@ def main(argv=None):
               "ties": sum(1 for r in results if r["gap_test"] == 0),
               "mean_gap_test": round(sum(r["gap_test"] or 0 for r in results) / len(results), 4) if results else None,
               "cards_applicable": applicable, "did_not_transfer": did_not_transfer,
-              "pack_unchanged": first_boot is not None and {k: v for k, v in now.items() if k != "plan.json"} == {k: v for k, v in first_boot.items() if k != "plan.json"},
+              # plan.json (lesson 11) and working.md (lesson 13) are per-run scratch the actor rewrites by design
+              "pack_unchanged": first_boot is not None and {k: v for k, v in now.items() if k not in SCRATCH} == {k: v for k, v in first_boot.items() if k not in SCRATCH},
               "no_card_written": not any(run.trace.rows("card"))}
     out_path = run.root.parent / "exam.json"
     with open(out_path, "w", encoding="utf-8", newline="\n") as f:

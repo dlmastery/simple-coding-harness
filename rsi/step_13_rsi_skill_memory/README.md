@@ -94,7 +94,69 @@ The pack arrived with one card: on tables with a categorical column, one-hot enc
                          f"({wins.get((field, value), 0)} wins, {losses.get((field, value), 0)} losses); nothing lands")
 ```
 
-RECORDING_13
+The recorded run (Claude Code 2.1.278, headless, 70 turns, 1460 s; the
+arms' fit calls trimmed to the agent's notes and the tables):
+
+```text
+[Skill adult-income-curriculum]
+agent> Problem 01, memory arm: need tags small? no (6000 rows); categorical, imbalanced.
+$ python ../tools/skill_memory.py --pack .claude/skills/adult-income-skills --task ../tasks/01_adult_income.json --action need --need categorical,imbalanced
+{"need": ["categorical", "imbalanced"], "cards": [{"name": "onehot-for-categorical", "when": ["categorical"], "then": "encode=onehot", "horizon": 1}], "prefer": {"encode": "onehot"}, "working": ".../working.md"}
+... (the probe, then the hgb family; FREEZE; score once; scorecard) ...
+$ python ../tools/skill_memory.py --pack .claude/skills/adult-income-skills --task ../tasks/01_adult_income.json --action update --as .claude/skills/skill-memory-meta --card hgb-for-categorical-imbalanced --then model=hgb --when categorical,imbalanced --body "hgb won every model comparison on adult_income" --visit 1
+{"card": "hgb-for-categorical-imbalanced", "file": "skill-memory/cards/hgb-for-categorical-imbalanced.md", "horizon": 1, "version": "gen_001", "new": true, "wins": 16, "losses": 0}
+agent> Meta updates, one per visit (card -> horizon):
+| 1 | adult_income | new hgb-for-categorical-imbalanced (model=hgb), gen_001 |
+| 2 | breast_cancer | new hgb-for-small (model=hgb), gen_002 |
+| 3 | wine | nothing - all 24 fits tied at 1.0, tally had 0 wins / 0 losses |
+| 4 | digits | new hgb-for-imbalanced-multiclass (model=hgb), gen_003 |
+| 5 | synth_shift_a | hgb-for-small updated -> model=logreg, when small,categorical, gen_004 |
+| 6 | synth_shift_b | new none-for-small-categorical-imbalanced (class_weight=none), gen_005 |
+$ python ../tools/curve.py --pack .claude/skills/adult-income-skills --tasks ../tasks
+ # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
+ 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034    2/16      0/0/0
+ 2 breast_cancer            0.9954   0.9954 +0.0000    0.9844    0.9844    0/0       0/0/0
+ 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/0
+ 4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       0/0/0
+ 5 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       0/0/0
+ 6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    3/17      0/0/0
+agent> never_negative: true; wasted fits total 6 (memory) vs 33 (control).
+Final horizons (skill_memory.py --action list): onehot-for-categorical [categorical] encode=onehot - 1;
+hgb-for-categorical-imbalanced [categorical, imbalanced] model=hgb - 1; hgb-for-small [small, categorical]
+model=logreg - 2; hgb-for-imbalanced-multiclass [imbalanced, multiclass] model=hgb - 1;
+none-for-small-categorical-imbalanced [small, categorical, imbalanced] class_weight=none - 1.
+$ python ../tools/exam.py --pack .claude/skills/adult-income-skills --task ../tasks/07_exam.json --seeds 0,1,2,3,4
+exam: memory arm beats control on 4 of 5 seeds (3 on test score, 1 same score; a tie won by fewer wasted fits), mean test gap 0.0306; pack unchanged: False; no card written: True
+agent> pack_unchanged did not hold as printed (False). The per-boot checksums show the only differing file is
+working.md, rewritten by skill_memory.py --action need on the seed-0 memory arm (step 2 of the actor's
+procedure). All cards, the manifest and every other pack file are identical across all 10 exam boots; no
+card changed. The check flags the actor's own working-memory rewrite, not a change to the memory.
+agent> Report names every applicable card that did not transfer - the script reported cards_applicable: []
+and did_not_transfer: [] (its card-transfer check reads memory.json cards, not the skill-memory cards), so it
+named none. By my reading of the log, two selected cards did not transfer: hgb-for-small (model=logreg -
+logreg lost every probe on all 5 seeds; hgb won) and onehot-for-categorical (ordinal beat onehot on seed 0,
+where the memory arm lost).
+[70 turns, 1460 s]
+```
+
+What to notice, honestly: the memory arm reaches the static grid's answer
+in 6 wasted fits over the curriculum where the grid needs 33 - the best
+figure in the series - because a selected card's `then` goes straight into
+the probe; the val gaps are lesson 07's except breast cancer (0 here: the
+skill memory had one card, `encode=onehot`, which is a no-op on a table
+without categoricals, so the probe ran the default order). The agent
+caught two things the scripts got wrong at recording time, and both are
+fixed on this page's account: `exam.py` flagged `working.md` - the actor's
+own scratch, rewritten by design - as a pack change (it now ignores it,
+like lesson 11's `plan.json`), and its "did not transfer" check reads
+`memory.json` cards only, so for a skill package it names none; the agent
+read the exam log and named `hgb-for-small` (updated to `model=logreg` on
+problem 5 and wrong on every exam seed) and `onehot-for-categorical` (wrong
+on seed 0). `curve.py`'s cards columns read `memory.json` too and show 0
+for this pack; the horizon list above is the card report. The updated
+card is the honest one: `hgb-for-small` flipped to `logreg` on the linear
+synthetic table and misled the exam - a horizon of 2 is two problems, not
+two agreeing problems.
 
 Files:
 

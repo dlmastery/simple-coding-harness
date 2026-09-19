@@ -99,9 +99,62 @@ metadata:
     ranked.sort(key=lambda e: (-(e["best_logged_val"] or 0), -e["unknown"]))
 ```
 
-The recorded run: see the note below.
+The recorded run (Claude Code 2.1.278, headless, 70 turns, 1495 s; the
+arms' fit calls trimmed to the visits and the tables):
 
-RECORDING_10
+```text
+[Skill adult-income-curriculum]
+agent> Verifier: 9 cards written, 9 new, 0 demoted. Now the Dream-RSI visit 1 on problem 01.
+$ python ../tools/rank_policies.py --pack .claude/skills/adult-income-meta-dream --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --policies static,obey-memory,random,neighbours-of-top-3,prefer-untried-family
+{"ranking": [{"policy": "obey-memory", "best_logged_val": 0.9172, "visited": 10, "unknown": 14, ...}, {"policy": "neighbours-of-top-3", "best_logged_val": 0.9172, "unknown": 6, ...}, {"policy": "static", "best_logged_val": 0.9172, "visited": 24, "unknown": 0, ...}, ...],
+ "winner": "obey-memory", "fits_spent": 0, "log_size": 24, "saturated": false, "current_policy": "static"}
+agent> Winner obey-memory != current static, so I write the patched SKILL.md (only the policy line changed)
+and propose it through the gate.
+$ python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta-dream --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --files @runs/adult-income-meta-dream/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "policy -> obey-memory: best logged val 0.9172, unknown 14" --visit 1
+{"id": "g1", "decision": "y", "approved_by": "gate", "gate": {"before": 0.8951, "after": 0.8951, "keep": true}, "landed": true, "version": "gen_001", "files": ["SKILL.md"], ...}
+agent> Visit 1: gate kept (private 0.8951 -> 0.8951), landed as gen_001, policy now obey-memory.
+agent> Visit 2: gate kept (1.0 -> 1.0), gen_002, policy now random.
+agent> Visit 3: kept, gen_003, policy neighbours-of-top-3.
+agent> Visit 4: kept (private 0.9985 -> 0.9994), gen_004, policy obey-memory.
+agent> Visit 5: kept (0.9323 -> 0.9395), gen_005, policy neighbours-of-top-3.
+agent> Visit 6: kept (0.5806 -> 0.8817), gen_006, policy random. All six problems done - the learning curve.
+$ python ../tools/curve.py --pack .claude/skills/adult-income --tasks ../tasks
+ # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
+ 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034   16/16      9/0/10
+ 2 breast_cancer            0.9966   0.9954 +0.0012    0.9883    0.9844    0/0       6/0/10
+ 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/10
+ 4 digits                   0.9995    0.999 +0.0005     0.999    0.9984    0/0       4/0/10
+ 5 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       5/1/10
+ 6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834   17/17      2/1/10
+$ python ../tools/exam.py --pack .claude/skills/adult-income --task ../tasks/07_exam.json --seeds 0,1,2,3,4
+memory arm beats control on 4 of 5 seeds (3 on test score, 1 same score won by fewer wasted fits), mean test gap 0.0282; pack unchanged: True; no card written: True
+agent> Dream-RSI visits (all zero fits, fits_spent: 0 every time):
+| visit | problem | ranking (policy: best logged val / unknown) | proposal | gate | version |
+| 1 | adult_income | obey-memory 0.9172/14, neighbours 0.9172/6, static 0.9172/0, prefer-untried 0.9172/0, random 0.915/17 | static -> obey-memory | keep 0.8951 -> 0.8951 | gen_001 |
+| 2 | breast_cancer | random 0.9966/17, prefer-untried 0.9954/20, static 0.9954/14, neighbours 0.9954/14, obey-memory 0.9954/2 (stopped early) | obey-memory -> random | keep 1.0 -> 1.0 | gen_002 |
+| 3 | wine | neighbours 1.0/18, static 1.0/17, prefer-untried 1.0/17, random 1.0/0, obey-memory none/3 (stopped early) | random -> neighbours-of-top-3 | keep 1.0 -> 1.0 | gen_003 |
+| 4 | digits | obey-memory 0.999/16, random 0.999/16, neighbours 0.999/9, prefer-untried 0.999/9, static 0.999/8 | neighbours -> obey-memory | keep 0.9985 -> 0.9994 | gen_004 |
+| 5 | synth_shift_a | neighbours 0.9531/6, random 0.9528/18, prefer-untried 0.9507/20, static 0.9507/14, obey-memory 0.9507/2 (stopped early) | obey-memory -> neighbours-of-top-3 | keep 0.9323 -> 0.9395 | gen_005 |
+| 6 | synth_shift_b | random 0.8571/17, obey-memory 0.8571/12, neighbours 0.8571/7, prefer-untried 0.7925/16, static 0.7925/8 | neighbours -> random | keep 0.5806 -> 0.8817 | gen_006 |
+The log was never saturated (some policy always had unknown picks), and every one of the six proposals was
+kept - the gate never rolled one back. Note that the winner flipped on every visit; the ranking rewards
+the policy that would revisit the fewest logged recipes, so it tends to pick whatever the previous policy wasn't.
+[70 turns, 1495 s]
+```
+
+What to notice, honestly: the curve's gaps are lesson 07's except digits
+(+0.0005) and the wasted fits on problem 6 (17 under `neighbours-of-top-3`
+where `obey-memory` wasted 3), and the exam's mean test gap is +0.0282
+against lesson 07's +0.0308. Dream-RSI's ranking is exact where the log
+has been and rewards leaving it; on a log that one policy wrote, the
+policy that *did not* write it ranks first at every tie, so the line
+flipped six times in six visits - `static -> obey-memory -> random ->
+neighbours-of-top-3 -> obey-memory -> neighbours-of-top-3 -> random` - and
+the gate kept each flip because the evidence recipe is the log's best
+recipe under either policy. The replay is a gym for the recipes you
+visited and silent elsewhere; it does not know which policy *found*
+them. That is the paper's point about "reliable verification", and this
+page reports it rather than smoothing it over.
 
 Files:
 
