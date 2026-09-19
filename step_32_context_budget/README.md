@@ -379,15 +379,14 @@ as in step 30, and gets the same section.
         """One line per model call. estimate is the harness's count of the prompt it sent."""
         with USAGE_LOCK:
             for key, value in stats.items():
-                if isinstance(value, (int, float)) and not isinstance(value, bool):
-                    self._totals[key] = self._totals.get(key, 0) + value
+                self._totals[key] = self._totals.get(key, 0) + (value or 0)
         parts = []
         for key, value in stats.items():
             if key == "prompt_tokens" and estimate is not None:
                 parts.append(f"{value:,} prompt (estimate {estimate:,})" if value else f"estimate {estimate:,} prompt")
-            elif key == "cost" and value is not None:
+            elif key == "cost" and value:
                 parts.append(f"${value:.4f}")
-            elif isinstance(value, (int, float)) and value:
+            elif value:
                 parts.append(f"{value:,} {key.replace('_tokens', '')}")
 ```
 

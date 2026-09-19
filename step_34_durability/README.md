@@ -406,6 +406,7 @@ def recover(messages):
     from .agent import recover  # here, not at the top: agent imports this module
 
     opened = session.open_session(saved[choice]["id"])
+    history.strip(opened)  # the same shrink --resume does
     redraw(opened, "opened")
     recover(opened)  # a crash mid-turn left tool calls without results: run them now, as --resume does
     return opened
@@ -414,13 +415,15 @@ def recover(messages):
 The recovered calls go through `run_results`, the same function the turn
 uses, so `execute_all` decides each one through the permission rules and
 the hooks: a command that asks still asks, a denied one gets the denial
-as its result, and the checkpoint hook captures an edit. `session.repair`
-of the earlier steps, which gave every hanging call the stand-in result
-`(the harness stopped before this tool ran; no result was recorded)`, is
-gone: `session.load` returns the transcript as the crash left it, this
-step replaces the stand-in with a real result, and `/sessions` recovers
+as its result, and the checkpoint hook captures an edit. The stand-in
+result of the earlier steps, `session.STOPPED` (`(the harness stopped
+before this tool ran; no result was recorded)`), which `session.load` wrote
+for every hanging call, is gone: `load` returns the transcript as the crash
+left it, this step gives the call a real result, and `/sessions` recovers
 the same way `--resume` does (headless `-p --resume` too), so there is no
-way to open a crashed chat that leaves it unsendable.
+way to open a crashed chat that leaves it unsendable. `session.repair`
+itself stays, for ctrl-c mid-turn: a call the user cut off is answered
+with `INTERRUPTED`, not run again.
 
 Two details keep the recovery itself from becoming the thing that
 crashes. The checkpoint turn is the last one on disk, the turn that was
@@ -616,12 +619,12 @@ Added: `durability.py` (`REPEAT_LIMIT`, `REPEATED`, `OBSERVE`,
 retries with `on_restart` and returns a failed message,
 `StreamedMessage.failed`), `agent.py` (`turn` stops on a failed message
 and runs the detector, `on_restart`, the tool-running half of `turn`
-moved out into `run_results`, which takes `repeated`, `recover`,
-`answer_pending` through `durability.unanswered`, `chat` recovers on
-`--resume`), `commands.py` (`/sessions` recovers), `compact.py` and
-`evaluate.py` (a failed call raises), `subagent.py` (a failed model call
-becomes the report), `session.py` (`load` no longer writes stand-in
-results; `repair` and `UNANSWERED` are gone, `recover` does that job).
+moved out into `run_results`, which takes `repeated`, `recover`, `chat`
+recovers on `--resume`), `commands.py` (`/sessions` recovers), `compact.py`
+and `evaluate.py` (a failed call raises), `subagent.py` (a failed model
+call becomes the report), `session.py` (`load` no longer writes stand-in
+results and `STOPPED` is gone, `recover` does that job; `repair` stays for
+ctrl-c).
 Everything else is unchanged from step 33.
 
 ## What the next step adds

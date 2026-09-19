@@ -369,22 +369,22 @@ def undo_since(message_count, session_id=None):
 ```python
 def rewind(messages):
     ...
-    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
-    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
-    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
+    users = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [preview(messages[i]) for i in users])
     if choice is None:
         return messages
-    cut = rows[choice][0]
+    cut = users[choice]
     undone = checkpoint.undo_since(cut)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
+    session.save(messages)  # a fresh chat may not be on disk yet
     session.rewind_to(cut)
     return redraw(messages[:cut], "rewound")
 ```
 
 The picker offers turn boundaries, not messages: one row per user message,
-labelled with its index, and the cut lands just before the one chosen. Two things go wrong with a cut
+and the cut lands just before the one chosen. Two things go wrong with a cut
 anywhere else. An assistant message with tool calls that loses its results
 leaves the transcript in a state the API refuses (`tool_calls` without a
 `tool` message each). And a turn that began before the cut but wrote

@@ -14,10 +14,9 @@ browser tools are in the first and not the second: only the browse
 subagent is offered them. The computer tools and the memory tools are in
 both, and the MCP tools join both when their servers start.
 
-Nothing here raises. Bad arguments, an unknown tool name and an exception
-inside a tool all come back as an "Error: ..." string, so every tool call
-the model makes gets exactly one tool message - the API rejects a transcript
-where one is missing.
+Every tool returns a string. Nothing here raises: bad arguments, an unknown
+tool name and an exception inside a tool all come back as the result string,
+so the model always gets a result it can read.
 """
 
 import json
@@ -31,7 +30,6 @@ from .permissions import check
 from .skills import read_skill
 from .subagent import TASK_SCHEMA, task
 from .todos import TODO_SCHEMA, write_todos
-
 
 def bash(command: str) -> str:
     """Run a shell command and return its combined stdout and stderr."""
@@ -311,42 +309,29 @@ PRE_CONTEXT = {}  # tool call id -> what its PreToolUse hooks added; run() appen
 SERIAL = {"task", "browse", "submit_plan", *browser.TOOLS, *computer.COMPUTER_TOOLS}
 
 
-def parse_args(tool_call):
-    """The arguments as a dict, or (partial dict, error string) when they are not one."""
-    name = tool_call.function.name
-    try:
-        args = json.loads(tool_call.function.arguments or "{}")
-    except json.JSONDecodeError as bad:
-        return {}, f"Error: the arguments of {name} are not a JSON object: {bad}"
-    if not isinstance(args, dict):
-        return {}, f"Error: the arguments of {name} are not a JSON object: got {type(args).__name__}"
-    return args, None
-
-
-def as_text(result):
-    """Tool results are strings. Anything else is made into one."""
-    if isinstance(result, str):
-        return result
-    return "(no output)" if result is None else json.dumps(result, default=str)
-
-
 def decide(tool_call, allowed=None):
     """Parse the arguments and rate the call. Returns (args, action, reason).
 
     Nothing runs here. This is the half of execute() that must stay on the
     main thread, because an `ask` verdict turns into a prompt. A fourth
-    verdict, `error`, carries the message for arguments that cannot be used,
-    and a fifth, `blocked`, comes from a PreToolUse hook. A denied call is
-    not offered to the hooks: the rules said no first. A call to a deferred
+    verdict, `error`, carries the message for a call that cannot be used:
+    arguments that are not a JSON object, or a name not in the table. A
+    fifth, `blocked`, comes from a PreToolUse hook. A denied call is not
+    offered to the hooks: the rules said no first. A call to a deferred
     tool that was not loaded is `deferred`: it comes from a stub with no
     parameters, so the rules never see its arguments.
     """
     name = tool_call.function.name
-    args, problem = parse_args(tool_call)
-    if problem:
-        return args, "error", problem
-    if allowed is not None and name not in allowed:
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, "error", f"Error: the arguments of {name} are not a JSON object: {e}"
+    if allowed is not None and name not in allowed:  # offered set == executable set
         return args, "deny", f"{name} is not available to this agent"
+    if name not in TOOLS:  # a name that is not in the table
+        return args, "error", f"Error: no tool named {name!r}."
     advice = load_first(name)
     if advice is not None:
         return args, "deferred", advice
@@ -361,15 +346,22 @@ def decide(tool_call, allowed=None):
     return args, action, reason
 
 
+def as_text(result):
+    """A tool message must be text; a hook's replacement result goes through this too."""
+    if isinstance(result, str):
+        return result
+    return "(no output)" if result is None else json.dumps(result, default=str)
+
+
 def call(tool_call, args):
     """Call the tool itself. Never raises: a broken tool is a result, not a crash."""
-    tool = TOOLS.get(tool_call.function.name)
-    if tool is None:
-        return f"Error: no tool named {tool_call.function.name!r}."
+    name = tool_call.function.name
+    if name not in TOOLS:  # decide() refuses these first; call() alone must not raise either
+        return f"Error: no tool named {name!r}."
     try:
-        return as_text(tool(**args))
-    except Exception as failed:  # noqa: BLE001 - a broken tool is a result, not a crash
-        return f"Error: {type(failed).__name__}: {failed}"
+        return as_text(TOOLS[name](**args))  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return f"Error: {type(e).__name__}: {e}"
 
 
 def run(tool_call, args):
@@ -415,12 +407,13 @@ def settle(action, reason):
 
 
 def execute(tool_call, allowed=None):
-    """Run one tool call through the permission layer. Returns (args, result).
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. `allowed` is the
-    set of tool names the caller offered; anything else is refused. This is
-    decide, settle and run in one step, for callers that want the direct path.
+    set of tool names the caller offered; a call outside it is denied. This
+    is decide, settle and run in one step, for callers that want the direct path.
     """
     args, action, reason = decide(tool_call, allowed)
     result = settle(action, reason)

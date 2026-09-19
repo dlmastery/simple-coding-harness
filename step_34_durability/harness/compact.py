@@ -66,18 +66,18 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-LAST_SIZE = 0  # how long the transcript was when compaction last ran (or found nothing to do)
+COMPACTED_AT = 0  # how long the transcript was right after the last compaction
 
 
 def needed(usage, messages):
     """Has the last request grown past the point where we rebuild?
 
-    Once compaction has run - or found nothing old enough - it does not fire
-    again until the transcript has grown, so one big prompt does not trigger
-    it on every turn.
+    Never twice on the same transcript: if a compaction just happened and
+    the prompt is still over the line, another one would only rewrite the
+    system prompt again and throw the cache away for nothing.
     """
-    full = (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
-    return full and len(messages) > LAST_SIZE
+    over = (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+    return over and len(messages) > COMPACTED_AT
 
 
 def previous_summary(system_content):
@@ -124,8 +124,9 @@ def summarize(messages, previous=""):
 def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
-    A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are user messages: they open a fresh exchange.
+    A tool result has to keep the assistant message that asked for it, and
+    some providers refuse a transcript whose first message after the system
+    prompt is not the user's, so the only safe cut points are user messages.
     """
     for index in range(max(start, 1), len(messages)):
         if messages[index]["role"] == "user":
@@ -159,10 +160,11 @@ def remember_handoff(summary):
 
 def compact(messages):
     """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
-    global LAST_SIZE
-    cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
+    global COMPACTED_AT
+    # the system prompt, handoff note included, is part of every request: budget for it
+    budget = config.CONTEXT_WINDOW * config.COMPACT_TO - estimate(messages[:1])
+    cut = tail_start(messages, budget)
     if cut <= 1:
-        LAST_SIZE = len(messages)  # nothing to do yet: do not ask again until it grows
         return messages
 
     system = messages[0]["content"]
@@ -173,5 +175,5 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
-    LAST_SIZE = len(kept)
+    COMPACTED_AT = len(kept)
     return kept
