@@ -1,52 +1,86 @@
-# Zero to Hero: Recursive Self-Improvement — a hello world, skills only
+# Zero to Hero: Recursive Self-Improvement
+
+## A hello world, skills only: make the agent's own files get better across runs, and prove it
 
 **Status: in progress.** The plan of record is [`OUTLINE.md`](OUTLINE.md)
-(v6, 19 Sep 2026). Steps land here one at a time; each is a skill pack booted
-by one tiny skills harness in [`common/`](common/), with a test that runs
-without a key (`python run_tests.py rsi` from the repo root).
+(v7, 19 Sep 2026). Lessons land here one at a time; each is a skill pack
+booted by one tiny skills harness in [`common/`](common/), with a test that
+runs without a key. Layout and lesson format follow the Claude Academy
+*AI-native SDLC playbook*: six stages, one lesson per step.
 
-## What this series is
+The job is real software: an Adult Census Income classifier under a 24-fit
+budget. The agent is configured only by skill files. The thing that improves
+is the skill pack — memory cards, a search-policy line, a schema patch, the
+harness text itself — behind a verifier that cannot see the actor's story, a
+locked test that can be scored once, a human approval cycle, a private gate
+and a rollback. Definitions and evidence standards are those of *The Last AI
+Built by Humans: Toward Genuine Recursive Self-Improvement*
+(arXiv:2609.11873).
 
-The third series of this repo. The root codelab builds a coding agent
-harness; [`genui/`](../genui/) puts an interface on its output; this one asks
-the question the September 2026 papers ask: **can the agent's own files get
-better across runs, and how would you know?** It follows the definition and
-the evidence standards of *The Last AI Built by Humans: Toward Genuine
-Recursive Self-Improvement* (arXiv:2609.11873): persistent changes across
-rounds that affect how later improvements are generated, evaluated, selected
-or consolidated; structural vs effective recursion; safe inheritance,
-autonomy attribution, reliable verification.
+## What you'll learn
 
-The job is real software (an Adult Census Income classifier under a 24-fit
-budget), the agent is configured only by skill files, and the thing that
-improves is the skill pack: memory cards, a search-policy line, a schema
-patch — behind a verifier that cannot see the actor's story, a locked test
-that can be scored once, a private gate, and a rollback.
+By the end of this course, you'll be able to:
 
-## Layout (when complete)
+- Say, in the framework paper's terms, what is and is not recursive
+  self-improvement — B0 self-refinement, AutoML, a harness you engineered by
+  hand, a harness a meta skill generated — and name the rung (L1–L5) each one
+  stands on.
+- Engineer a harness as files: a loop with a counted budget and a freeze
+  gate, a graph whose paths are recipes, and a meta skill that writes such a
+  harness from an intent file under a human approval cycle.
+- Add the first RSI file (memory cards behind a verifier contract) and prove
+  it with a matched budget, one locked test score and a transfer table.
+- Run an RSI meta harness that patches the harness one change per
+  generation, under human approval and then under a private gate, with
+  version history and rollback.
+- Reproduce, on the same job, what Dream-RSI, RSIAgent, ModularRSI, Recuris
+  and the Darwin Gödel Machine each change — and point at the file.
+
+## Who this course is for
+
+Engineers who build agents with skills and want to know what "the agent
+improves itself" means in files, tests and approvals, not slogans. It is a
+hello world on purpose: no OSWorld, no GPUs, no weight updates.
+
+## Prerequisites
+
+Python 3.10+, `pip install -r requirements.txt` from the repo root; the root
+codelab's stages 4 (skills), 15 (`execute()`), 30 (evals) and 35 (approval
+prompts) are the ideas reused here. Tests need no key; `python run.py` in a
+lesson needs `BASE_URL` / `API_KEY` / `MODEL` like the rest of the repo.
+
+Estimated time: about an hour of reading; each lesson's run takes minutes.
+
+## Lessons
 
 ```text
 rsi/
-  OUTLINE.md                          the plan: definitions, steps, tests, tutorial validation
+  OUTLINE.md                          the plan: definitions, format, steps, tests, tutorial validation
   common/                             the one skills harness, the tools every skill names, the approval cycle
   data/                               bundled Adult sample (6k rows) and how it was made
-  Part 1 - harness engineering, not RSI
-  step_00_regular_harness/            a repeatable trainer: same SKILL.md every run
-  step_01_loop_harness/               loop engineering: loop.json, a counted while with a freeze
-  step_02_meta_generates_loop/        a meta skill writes the loop pack; the human approves, edits or rejects
-  step_03_graph_harness/              graph engineering with loops: graph.json + paths.json
-  step_04_meta_generates_graph/       a meta skill writes the graph pack; lint, then human approval
-  Part 2 - the first RSI, its proof, the meta harnesses that make and improve it
-  step_05_rsi_harness/                memory cards + a verifier pack; MEMORY_OFF
-  step_06_proof/                      freeze, one test score, transfer to a shifted table, the scorecard
-  step_07_meta_generates_rsi/         a meta skill writes the RSI packs; the human approves the verifier contract
-  step_08_rsi_meta_harness/           one patch per generation; approval: human or gate; versions + rollback
-  Part 3 - RSI by method, same job, same approval cycle
-  step_09_rsi_dream/                  Dream-RSI: rank search policies on the trace log, zero fits
-  step_10_rsi_agent/                  RSIAgent: curriculum / actor / verifier, broad-then-deep, frozen memory
-  step_11_rsi_modular/                ModularRSI: five module files, contrastive pairs, benchmark-disjoint pool
-  step_12_rsi_skill_memory/           Recuris: memory as a skill package + working memory
-  step_13_rsi_self_modifying/         DGM lineage: rewrites of SKILL.md/loop.json, an archive of variants
-  Part 4
-  step_14_map/                        the ladder, the papers, file-by-file table, who approved what, terminology
+  Stage 1: Plan
+  step_00_intent/                     capture what to improve, how, and what counts as success: task.json + acceptance.md
+  Stage 2: Design
+  step_01_regular_harness/            a repeatable trainer: same SKILL.md every run - not RSI
+  step_02_loop_harness/               loop engineering: loop.json, a counted while with a freeze
+  step_04_graph_harness/              graph engineering with loops: graph.json + paths.json
+  Stage 3: Build
+  step_03_meta_generates_loop/        a meta skill writes the loop pack; the human approves, edits or rejects
+  step_05_meta_generates_graph/       a meta skill writes the graph pack; lint, then human approval
+  step_06_rsi_harness/                memory cards + a verifier pack; MEMORY_OFF
+  step_08_meta_generates_rsi/         a meta skill writes the RSI packs; the human approves the verifier contract
+  Stage 4: Test
+  step_07_proof/                      freeze, one test score, transfer to a shifted table, the scorecard
+  Stage 5: Deploy
+  step_09_rsi_meta_harness/           one patch per generation; approval: human or gate; versions + rollback
+  Stage 6: Maintain
+  step_10_rsi_dream/                  Dream-RSI: rank search policies on the trace log, zero fits
+  step_11_rsi_agent/                  RSIAgent: curriculum / actor / verifier, broad-then-deep, frozen memory
+  step_12_rsi_modular/                ModularRSI: five module files, contrastive pairs, benchmark-disjoint pool
+  step_13_rsi_skill_memory/           Recuris: memory as a skill package + working memory
+  step_14_rsi_self_modifying/         DGM lineage: rewrites of SKILL.md/loop.json, an archive of variants
+  step_15_map/                        the ladder, the papers, file-by-file table, who approved what, terminology
 ```
+
+Steps are numbered in build order (each reuses the one before); the stage
+grouping above is the reading order of the course page.
