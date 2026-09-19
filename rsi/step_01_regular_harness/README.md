@@ -83,9 +83,12 @@ The harness reads those files and runs the stage-15 loop:
 ```python
 def run(session, model, max_calls=MAX_CALLS, user="Begin. Follow the procedure in your instructions."):
     """The loop. `model(messages, tool_schemas) -> {content, tool_calls}`; every call goes through execute()."""
-    from common.tools import execute, schemas_for
+    session.messages = [{"role": "system", "content": session.system}]
+    resume(session, model, user, max_calls)
+```
 
-    session.messages = [{"role": "system", "content": session.system}, {"role": "user", "content": user}]
+```python
+    session.messages.append({"role": "user", "content": user})
     schemas = schemas_for(session.allowed)
     for _ in range(max_calls):
         reply = model(session.messages, schemas)

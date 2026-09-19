@@ -72,9 +72,13 @@ class Run:
                 parts.append("### FILE: memory.json\n(MEMORY_OFF: the cards are not loaded this run)")
                 continue
             parts.append(f"### FILE: {name}\n{self.files[name].strip()}")
-        if self.target != self.pack_dir and self.memory_path.exists() and not self.memory_off:
-            # a verifier or meta pack reads the pack it writes to: its cards are in the prompt, its transcript is not
-            parts.append(f"### FILE: memory.json\n{self.memory_path.read_text(encoding='utf-8').strip()}")
+        if self.memory_off and "memory.json" not in self.files:   # the off switch is visible whatever the memory's shape
+            parts.append("### FILE: memory.json\n(MEMORY_OFF: no memory is loaded this run)")
+        if self.target != self.pack_dir and not self.memory_off:
+            # a verifier or meta pack reads the pack it writes to: its memory is in the prompt, its transcript is not
+            for name, text in packs.read_pack(self.target).items():
+                if name == "memory.json" or name.startswith("skill-memory/") or name == "working.md":
+                    parts.append(f"### FILE: {name}\n{text.strip()}")
         parts.append(f"### PROBLEM\n{json.dumps({k: self.task[k] for k in ('name', 'title', 'metric', 'budget')})}")
         return "\n\n".join(parts)
 
@@ -105,9 +109,21 @@ def entry(reply):
 
 def run(session, model, max_calls=MAX_CALLS, user="Begin. Follow the procedure in your instructions."):
     """The loop. `model(messages, tool_schemas) -> {content, tool_calls}`; every call goes through execute()."""
+    session.messages = [{"role": "system", "content": session.system}]
+    resume(session, model, user, max_calls)
+    chars = sum(len(str(m.get("content") or "")) + len(json.dumps(m.get("tool_calls") or [])) for m in session.messages)
+    session.trace.append(event="stop", problem=session.problem, arm=session.arm, seed=session.seed,
+                         info={"calls": session.calls, "fits": session.budget.used, "tokens": chars // 4})   # ~4 chars per token
+    return session
+
+
+def resume(session, model, user, max_calls=MAX_CALLS):
+    """The stage-15 loop on a session: append a user message, then call the model, run each tool call through
+    execute(), append the result, repeat, until the model answers in text or the call cap is hit. `run` starts
+    a transcript with it; lesson 11 continues one with it (same transcript, same budget, same tools)."""
     from common.tools import execute, schemas_for
 
-    session.messages = [{"role": "system", "content": session.system}, {"role": "user", "content": user}]
+    session.messages.append({"role": "user", "content": user})
     schemas = schemas_for(session.allowed)
     for _ in range(max_calls):
         reply = model(session.messages, schemas)
@@ -118,8 +134,6 @@ def run(session, model, max_calls=MAX_CALLS, user="Begin. Follow the procedure i
         for call in reply["tool_calls"]:
             result = execute(session, call)
             session.messages.append({"role": "tool", "tool_call_id": call["id"], "content": result})
-    session.trace.append(event="stop", problem=session.problem, arm=session.arm, seed=session.seed,
-                         info={"calls": session.calls, "fits": session.budget.used})
     return session
 
 

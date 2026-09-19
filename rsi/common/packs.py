@@ -26,19 +26,31 @@ PROMPT_FILES = ("tools.md", "schema.json", "loop.json", "recipes.json", "graph.j
                 "template", "modules", "skill-memory", "working.md", "operators.md", "roles")
 IGNORED = ("__pycache__",)
 
+# the guard every AIDE2 operator prompt must carry verbatim (lesson 15)
+ANTI_OVERFIT = "Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed."
+
 # the acceptance rule every verifier pack must state verbatim: what it may see, and therefore what it may not
 VERIFIER_CONTRACT = ("Contract: the verifier sees only {recipe, val_score, error, profile}; "
                      "it never sees the actor's transcript, the test split or the intent.")
 
 
-def parse_front_matter(text):
+def split_front_matter(text):
+    """(front matter dict, body) of any markdown file with a --- block on top; a file without one is ({}, text)."""
     match = FRONT_MATTER.match(text)
     if not match:
-        raise ValueError("SKILL.md has no front matter")
+        return {}, text
     meta = yaml.safe_load(match.group(1)) or {}
-    if not isinstance(meta, dict) or "name" not in meta or "description" not in meta:
+    return (meta if isinstance(meta, dict) else {}), text[match.end():]
+
+
+def parse_front_matter(text):
+    """A SKILL.md's front matter: it must exist and name the skill and when to use it."""
+    if not FRONT_MATTER.match(text):
+        raise ValueError("SKILL.md has no front matter")
+    meta, body = split_front_matter(text)
+    if "name" not in meta or "description" not in meta:
         raise ValueError("front matter needs name and description")
-    return meta, text[match.end():]
+    return meta, body
 
 
 def read_pack(pack_dir):
@@ -122,7 +134,8 @@ def lint_pack(pack_dir, task):
                 problems.append(f"schema.json recipe: {e}")
     if "fit_recipe" in allowed and "schema.json" not in files:
         problems.append("a pack that fits needs schema.json")
-    if "score_test" in allowed and "after FREEZE" not in body:
+    prose = body + "".join(t for n, t in files.items() if n.endswith(".md"))   # SKILL.md and the module files it boots
+    if "score_test" in allowed and "after FREEZE" not in prose:
         problems.append("SKILL.md must say score_test runs once, after FREEZE")
 
     if "loop.json" in files:
@@ -136,7 +149,12 @@ def lint_pack(pack_dir, task):
         problems.append("a verifier pack must state the verifier contract verbatim")
     if "write_card" in allowed and any(t in allowed for t in ("fit_recipe", "score_test", "walk_path")):
         problems.append("a verifier pack may not fit or score: no one grades their own homework")
-    if md.get("rsi") == "on" and "memory.schema.json" not in files and "memory.json" not in files             and not any(t in allowed for t in ("patch_pack", "write_card")):
+    if "operators.md" in files:
+        for section in files["operators.md"].split("\n## ")[1:]:
+            if ANTI_OVERFIT not in section:
+                problems.append(f"operator {section.splitlines()[0].strip()!r} lacks the anti-overfitting line")
+    has_memory = any(n in files for n in ("memory.schema.json", "memory.json")) or any(n.startswith("skill-memory/") for n in files)
+    if md.get("rsi") == "on" and not has_memory and not any(t in allowed for t in ("patch_pack", "write_card", "skill_memory")):
         problems.append("rsi: on without a memory file or a tool that changes one")
     return problems
 

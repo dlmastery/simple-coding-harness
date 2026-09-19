@@ -103,7 +103,7 @@ _FITS = {}
 
 def fit_for(task, seed, rec):
     """Fit one recipe on the task's train split and score it on val. Cached: deterministic, so a repeat is free."""
-    k = (task["name"], seed, recipe.key(rec))
+    k = (json.dumps(task["source"], sort_keys=True), task["metric"], seed, recipe.key(rec))   # the table, not its name
     if k not in _FITS:
         parts = splits(task, seed)
         _FITS[k] = recipe.fit(rec, parts["train"], parts["val"], task["metric"])

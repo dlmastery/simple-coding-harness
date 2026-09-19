@@ -48,14 +48,19 @@ def scorecard_for(run, cards_before, cards_after, bar=None):
     )
 
 
-def run_curriculum(pack_dir, verifier_dir, task_list, model, run_dir, *, seed=0, human=None, meta=None, quiet=True):
+def run_curriculum(pack_dir, verifier_dir, task_list, model, run_dir, *, seed=0, human=None, meta=None, quiet=True, memory_arm=None):
     """Problems in order, memory arm (learning) and MEMORY_OFF arm (control) each, the pack carried forward.
-    `meta(task, index)` runs between problems when given (step 09). Returns the learning curve rows."""
+    `meta(task, index)` runs between problems when given (step 09); `memory_arm(task, bar)` replaces the plain
+    actor -> verifier run of the memory arm when given (step 11's curriculum -> actor -> curriculum -> actor).
+    Returns the learning curve rows."""
     curve = []
     for i, task in enumerate(task_list, 1):
         control, _, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="control", memory_off=True, human=human, quiet=quiet)
-        card, inner, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="memory", verifier_dir=verifier_dir, human=human, quiet=quiet,
-                                     bar=control["best_val_score"])
+        if memory_arm is not None:
+            card, inner = memory_arm(task, control["best_val_score"])
+        else:
+            card, inner, _ = run_problem(pack_dir, task, model, run_dir, seed=seed, arm="memory", verifier_dir=verifier_dir, human=human, quiet=quiet,
+                                         bar=control["best_val_score"])
         row = curve_row(i, task, card, control)
         if meta is not None:
             row["meta"] = meta(task, i)
@@ -74,15 +79,20 @@ def curve_row(i, task, card, control):
             "cards_added": card["cards_added"], "cards_demoted": card["cards_demoted"], "cards_active": card["cards_active"]}
 
 
-def run_exam(pack_dir, exam_task, model, run_dir, *, seeds=(0, 1, 2, 3, 4), quiet=True):
-    """The frozen pack on the held-out problem: memory arm vs MEMORY_OFF arm per seed, no verifier, no card written."""
+def run_exam(pack_dir, exam_task, model, run_dir, *, seeds=(0, 1, 2, 3, 4), quiet=True, memory_arm=None):
+    """The frozen pack on the held-out problem: memory arm vs MEMORY_OFF arm per seed, no verifier, no card written.
+    `memory_arm(task, seed, bar)` replaces the plain actor run when given."""
     cards = memory.load(pack_dir / "memory.json")
-    before = checksums(pack_dir)
+    fixed = lambda: {k: v for k, v in checksums(pack_dir).items() if k != "plan.json"}   # noqa: E731  plan.json is per-run scratch
+    before = fixed()
     results = []
     for seed in seeds:
         control, _, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="control", memory_off=True, memory_frozen=True, quiet=quiet)
-        mem, inner, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="memory", memory_frozen=True, quiet=quiet,
-                                    bar=control["best_val_score"])
+        if memory_arm is not None:
+            mem, inner = memory_arm(exam_task, seed, control["best_val_score"])
+        else:
+            mem, inner, _ = run_problem(pack_dir, exam_task, model, run_dir, seed=seed, arm="memory", memory_frozen=True, quiet=quiet,
+                                        bar=control["best_val_score"])
         gap = round(mem["test_score"] - control["test_score"], 4)
         results.append({"seed": seed, "memory": mem, "control": control, "gap_test": gap,
                         "gap_val": round(mem["best_val_score"] - control["best_val_score"], 4),
@@ -98,7 +108,7 @@ def run_exam(pack_dir, exam_task, model, run_dir, *, seeds=(0, 1, 2, 3, 4), quie
               "ties": sum(1 for r in results if r["gap_test"] == 0),
               "mean_gap_test": round(sum(r["gap_test"] for r in results) / len(results), 4),
               "cards_applicable": applicable, "did_not_transfer": did_not_transfer,
-              "pack_unchanged": checksums(pack_dir) == before}
+              "pack_unchanged": fixed() == before}
     with open(run_dir / "exam.json", "w", encoding="utf-8", newline="\n") as f:
         json.dump(report, f, indent=1)
         f.write("\n")
@@ -126,7 +136,7 @@ def print_exam(report, out=print):
         out(f"  did not transfer: {json.dumps(c['if'])} -> {json.dumps(c['then'])} (evidence {c['evidence']}, counter {c['counter']})")
 
 
-def meta_visit(meta_dir, actor_dir, task, model, run_dir, *, seed=0, human=None, quiet=True):
+def meta_visit(meta_dir, actor_dir, task, model, run_dir, *, seed=0, human=None, quiet=True, user=None):
     """One visit of a meta pack between two problems: boot it with the actor pack as its target, run it, and
     return what its one patch_pack call answered (or None when it proposed nothing)."""
     import json as _json
@@ -135,7 +145,7 @@ def meta_visit(meta_dir, actor_dir, task, model, run_dir, *, seed=0, human=None,
 
     before = checksums(actor_dir)
     meta = harness.boot(meta_dir, task, seed=seed, arm="meta", run_dir=run_dir, target=actor_dir, human=human, quiet=quiet)
-    harness.run(meta, model)
+    harness.run(meta, model, **({"user": user} if user else {}))
     results = tool_results(meta, "patch_pack")
     answer = None
     if results:

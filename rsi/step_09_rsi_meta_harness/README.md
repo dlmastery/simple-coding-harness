@@ -108,7 +108,7 @@ before anything lands, and the gate's rollback on a loss:
 ```
 
 ```python
-    if mode == "gate":
+    if mode in ("gate", "both"):
         # the private gate: snapshot, land, score the evidence recipe on the private split; a loss rolls back
         label = land_patch(run, payload)
         verdict = private_gate(run, rec)
@@ -142,20 +142,20 @@ Expected output, on this machine (`FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y
  4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       3/1/9
  5 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       4/1/12
  6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    2/17      2/2/13
-  after problem 1: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_001"}
+  after problem 1: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_001", "files": ["SKILL.md"]}
   after problem 2: adult-income-meta -> null
   after problem 3: adult-income-meta -> null
   after problem 4: adult-income-meta -> null
-  after problem 5: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_002"}
+  after problem 5: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_002", "files": ["memory.json"]}
   after problem 6: adult-income-meta -> null
 versions: ['gen_001', 'gen_002']; actor pack byte-identical to skills/: False
 actor boots (checksums of SKILL.md / schema.json / memory.json per generation):
-  adult_income     a8161f196126 fe416aeb708b 37517e5f3dc6
-  breast_cancer    cdd2d3f39422 fe416aeb708b 66d72d59372c
-  wine             cdd2d3f39422 fe416aeb708b cf17a31704bc
-  digits           cdd2d3f39422 fe416aeb708b cf17a31704bc
-  synth_shift_a    cdd2d3f39422 fe416aeb708b f455c8ffb4e0
-  synth_shift_b    cdd2d3f39422 fe416aeb708b 4cf3925c8ac1
+  adult_income     e1da1f5b2fe7 fe416aeb708b 37517e5f3dc6
+  breast_cancer    9ffc716fca7d fe416aeb708b 66d72d59372c
+  wine             9ffc716fca7d fe416aeb708b cf17a31704bc
+  digits           9ffc716fca7d fe416aeb708b cf17a31704bc
+  synth_shift_a    9ffc716fca7d fe416aeb708b f455c8ffb4e0
+  synth_shift_b    9ffc716fca7d fe416aeb708b 4cf3925c8ac1
 ```
 
 Read the last block: `SKILL.md` changes once (generation 1 flipped the

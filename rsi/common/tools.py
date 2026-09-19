@@ -15,6 +15,7 @@ import pickle
 import shutil
 import tempfile
 from difflib import SequenceMatcher
+from fnmatch import fnmatch
 from pathlib import Path
 
 from common import graph, memory, packs, recipe, tasks
@@ -196,13 +197,19 @@ def write_card(run, card):
     return {"cards": len(cards), "added": added, "active": memory.active(merged), "demoted": demoted}
 
 
+def actor_arm(run):
+    """Whose fits a pack reads: its own arm's, or - for a meta pack booted as `meta` - the memory arm's."""
+    return "memory" if run.arm == "meta" else run.arm
+
+
 @tool("read_traces", scope="string")
 def read_traces(run, scope):
     """The fit rows of this problem ("problem") or of every problem so far ("all"): recipe, val_score, error, profile only."""
     if scope not in ("problem", "all"):
         raise ValueError("scope is 'problem' or 'all'")
-    match = {"problem": run.problem, "arm": run.arm} if scope == "problem" else {}
-    rows = [{"recipe": r["recipe"], "val_score": r["val_score"], "error": r["error"], "problem": r["problem"], "seed": r["seed"]}
+    match = {"problem": run.problem, "arm": actor_arm(run), "seed": run.seed} if scope == "problem" else {}
+    rows = [{"recipe": r["recipe"], "val_score": r["val_score"], "error": r["error"], "problem": r["problem"], "seed": r["seed"],
+             **({"arm": r["arm"]} if scope == "all" else {})}     # the arm only across problems: one problem's rows are one arm's
             for r in run.trace.rows("fit", **match)]
     return {"rows": rows, "profile": run.profile}
 
@@ -303,13 +310,15 @@ def patch_pack(run, files, recipe, summary):
     """Propose one patch ({path: {after}}) with the recipe that motivates it; the human or the private gate decides; land it if approved."""
     if run.visits.get("patch_pack", 0) >= 1:
         raise ValueError("one proposal per visit; this visit already made one")
-    run.visits["patch_pack"] = 1
     rec = validate_recipe(recipe)
     current = packs.read_pack(run.target)
+    allowed_paths = (run.meta.get("metadata") or {}).get("patches")   # the files this meta pack may touch, as globs
     changes, changed_chars = {}, 0
     for name, change in files.items():
         if not isinstance(change, dict) or "after" not in change:
             raise ValueError("each file change is {after: text | null}")
+        if allowed_paths and not any(fnmatch(name, pat) for pat in allowed_paths):
+            raise ValueError(f"this meta pack may patch {allowed_paths} only, not {name}")
         before, after = current.get(name) or "", change["after"] or ""
         changes[name] = {"before": current.get(name), "after": change["after"]}
         # the unmatched characters of the diff: a rewrite costs its length, a one-line change costs one line
@@ -320,15 +329,23 @@ def patch_pack(run, files, recipe, summary):
     if "SKILL.md" in changes and changes["SKILL.md"]["after"] and "after FREEZE" not in changes["SKILL.md"]["after"]:
         raise ValueError("a patch may not remove the test rule from SKILL.md")
     payload = {"files": changes, "recipe": rec}
+    run.visits["patch_pack"] = 1      # a proposal that passed the checks is this visit's one proposal
     mode = (run.meta.get("metadata") or {}).get("approval", "human")
-    if mode == "gate":
+    if mode in ("gate", "both"):
         # the private gate: snapshot, land, score the evidence recipe on the private split; a loss rolls back
         label = land_patch(run, payload)
         verdict = private_gate(run, rec)
         p = {"id": f"g{len(run.proposals.items) + 1}", "kind": "patch", "payload": payload, "decision": "y" if verdict["keep"] else "n",
              "applied": verdict["keep"], "summary": summary}
         run.proposals.items[p["id"]] = p
-        if not verdict["keep"]:
+        if verdict["keep"] and mode == "both":       # the gate kept it; now the human sees the diff and decides
+            human = run.proposals.propose("patch", payload, summary)
+            p["decision"], p["payload"] = human["decision"], human["payload"]
+            if p["decision"] == "edit":
+                packs.rollback(run.target, run.versions_dir, label)
+                land_patch(run, p["payload"])
+        if p["decision"] not in ("y", "edit"):
+            p["applied"] = False
             packs.rollback(run.target, run.versions_dir, label)
             run.trace.append(event="rollback", problem=run.problem, arm=run.arm, seed=run.seed,
                              info={"proposal": p["id"], "version": label, "gate": verdict, "checksums": packs.checksums(run.target)})
@@ -343,8 +360,8 @@ def patch_pack(run, files, recipe, summary):
         p["applied"] = True
     run.trace.append(event="apply", problem=run.problem, arm=run.arm, seed=run.seed,
                      info={"proposal": p["id"], "decision": p["decision"], "version": label, "gate": verdict,
-                           "checksums": packs.checksums(run.target)})
-    return {"id": p["id"], "decision": p["decision"], "gate": verdict, "landed": True, "version": label}
+                           "files": sorted(changes), "checksums": packs.checksums(run.target)})
+    return {"id": p["id"], "decision": p["decision"], "gate": verdict, "landed": True, "version": label, "files": sorted(changes)}
 
 
 def incumbent_recipe(run):
@@ -385,3 +402,287 @@ def rollback(run, version):
     run.trace.append(event="rollback", problem=run.problem, arm=run.arm, seed=run.seed,
                      info={"version": version, "checksums": packs.checksums(run.target)})
     return f"rolled back to {version}"
+
+
+# ------------------------------------------------------------------ lesson 10: Dream-RSI
+
+
+@tool("rank_policies", names="array")
+def rank_policies(run, names):
+    """Replay this problem's log as a simulator: each named policy's best logged val among its first n_fits picks; a pick not in the log is unknown. Zero fits."""
+    from common.policies import policy_order
+
+    rows = run.trace.rows("fit", problem=run.problem)
+    logged = {recipe.key(r["recipe"]): r["val_score"] for r in rows if r["val_score"] is not None}
+    schema = json.loads((run.target / "schema.json").read_text(encoding="utf-8"))
+    static, forbid, cards, profile = schema.get("recipes", recipe.static_list()), schema.get("forbid", []), cards_for(run), run.profile
+    ranking = []
+    for name in names:
+        fits, tried, unknown = [], [], 0
+        for n in range(1, schema["n_fits"] + 1):
+            pick = next((r for r in policy_order(name, static, cards, profile, fits, seed=0, forbid=forbid) if r not in tried), None)
+            if pick is None:
+                break
+            tried.append(pick)
+            if recipe.key(pick) in logged:      # the log answers for free
+                fits.append(({"recipe": pick}, {"n": n, "val_score": logged[recipe.key(pick)]}))
+            else:                               # the gym is silent here: the policy would have to fit to know
+                unknown += 1
+        best = max((r["val_score"] for _, r in fits), default=None)
+        # an adaptive policy whose next pick depends on an unknown result stops early: the gym is silent there
+        ranking.append({"policy": name, "best_logged_val": best, "visited": len(fits), "unknown": unknown,
+                        "stopped_early": len(fits) + unknown < schema["n_fits"]})
+    # the best logged score wins; at a tie the policy that would visit more new places wins - a lap that
+    # revisits the log learns nothing
+    ranking.sort(key=lambda e: (-(e["best_logged_val"] or 0), -e["unknown"]))
+    run.trace.append(event="rank_policies", problem=run.problem, arm=run.arm, seed=run.seed,
+                     info={"ranking": ranking, "fits_spent": 0, "log_size": len(logged)})
+    return {"ranking": ranking, "fits_spent": 0, "saturated": all(e["unknown"] == 0 for e in ranking)}
+
+
+# ------------------------------------------------------------------ lesson 11: RSIAgent
+
+
+@tool("write_plan", plan="object")
+def write_plan(run, plan):
+    """Write plan.json into the actor pack: {phase: broad | deep, c: number, experiments: [recipes]}. The actor fits them in order."""
+    if not isinstance(plan, dict) or plan.get("phase") not in ("broad", "deep") or not isinstance(plan.get("experiments"), list):
+        raise ValueError("a plan is {phase: broad | deep, c: number, experiments: [recipes]}")
+    experiments = [validate_recipe(r) for r in plan["experiments"]]
+    if not experiments:
+        raise ValueError("a plan needs at least one experiment")
+    plan = {"phase": plan["phase"], "c": float(plan.get("c", 0)), "experiments": experiments}
+    with open(run.target / "plan.json", "w", encoding="utf-8", newline="\n") as f:
+        json.dump(plan, f, indent=1)
+        f.write("\n")
+    run.trace.append(event="plan", problem=run.problem, arm=run.arm, seed=run.seed,
+                     info={"phase": plan["phase"], "c": plan["c"], "families": [r["model"] for r in experiments]})
+    return {"written": "plan.json", "phase": plan["phase"], "experiments": len(experiments)}
+
+
+# ------------------------------------------------------------------ lesson 12: ModularRSI
+
+
+@tool("contrast", a="string", b="string")
+def contrast(run, a, b):
+    """Pair the success and the failure of two actor packs on every pool task they both ran, and name the module whose text differs between them."""
+    root = run.target.parent
+    pa, pb = packs.read_pack(root / a), packs.read_pack(root / b)
+    if not pa or not pb:
+        raise ValueError(f"both packs must sit next to the target: {root / a}, {root / b}")
+    differing = sorted(n for n in set(pa) | set(pb) if n.startswith("modules/") and pa.get(n) != pb.get(n))
+    problems = sorted({r["problem"] for r in run.trace.rows("fit", arm=a)} & {r["problem"] for r in run.trace.rows("fit", arm=b)})
+    pairs = []
+    for problem in problems:
+        best = {}
+        for arm in (a, b):
+            rows = [r for r in run.trace.rows("fit", problem=problem, arm=arm) if r["val_score"] is not None]
+            top = max(rows, key=lambda r: r["val_score"]) if rows else None
+            best[arm] = {"val": top["val_score"] if top else None, "recipe": top["recipe"] if top else None}
+        if best[a]["val"] == best[b]["val"]:
+            continue
+        success, failure = (a, b) if (best[a]["val"] or 0) > (best[b]["val"] or 0) else (b, a)
+        pairs.append({"problem": problem, "success": success, "failure": failure, "best": best})
+    wins = {arm: sum(1 for p in pairs if p["success"] == arm) for arm in (a, b)}
+    winner = max((a, b), key=lambda arm: wins[arm]) if pairs and wins[a] != wins[b] else None
+    module = differing[0] if len(differing) == 1 else None
+    result = {"pairs": pairs, "modules_differing": differing, "module": module, "winner": winner, "wins": wins,
+              "texts": {a: pa.get(module), b: pb.get(module)} if module else {}}
+    run.trace.append(event="contrast", problem=run.problem, arm=run.arm, seed=run.seed, info=result)
+    return result
+
+
+# ------------------------------------------------------------------ lesson 13: Recuris
+
+
+def need_tags(profile):
+    """The situation tags a working memory names: what the table is like, nothing about the signal."""
+    tags = []
+    if profile["n_rows"] < 1000:
+        tags.append("small")
+    if profile["has_categorical"]:
+        tags.append("categorical")
+    if profile["imbalance"] < 0.35:
+        tags.append("imbalanced")
+    if profile["n_classes"] > 2:
+        tags.append("multiclass")
+    return tags
+
+
+def parse_value(text):
+    """A `then` value as the recipe holds it: numbers and null as JSON, everything else as a string."""
+    try:
+        return json.loads(text)
+    except ValueError:
+        return text
+
+
+def skill_cards(pack_dir):
+    """The skill package: manifest.yaml entries joined with each card's front matter (when, then, validated, horizon)."""
+    import yaml
+
+    manifest = yaml.safe_load((pack_dir / "skill-memory" / "manifest.yaml").read_text(encoding="utf-8")) or {}
+    cards = []
+    for entry in manifest.get("cards", []):
+        meta, body = packs.split_front_matter((pack_dir / "skill-memory" / entry["file"]).read_text(encoding="utf-8"))
+        cards.append({**entry, **{k: meta[k] for k in ("when", "then", "validated", "horizon") if k in meta}, "body": body.strip()})
+    return cards
+
+
+@tool("skill_memory", action="string", payload="object")
+def skill_memory(run, action, payload):
+    """need: select the skill cards whose `when` tags fit the need and write working.md (actor). update: one localised, validated card update (meta)."""
+    root = run.target / "skill-memory"
+    if action == "need":
+        need = list(payload.get("need", []))
+        # selection by need, not by recency: every card whose situation tags all hold, in manifest order
+        chosen = [c for c in skill_cards(run.target) if c.get("validated") and set(c.get("when", [])) <= set(need)]
+        prefer = {}
+        for c in chosen:
+            field, value = c["then"].split("=")
+            prefer[field] = parse_value(value)
+        text = "# Working memory\n\nNeed: " + ", ".join(need) + "\nCards: " + (", ".join(c["name"] for c in chosen) or "none") + "\n"
+        with open(run.target / "working.md", "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        run.trace.append(event="working", problem=run.problem, arm=run.arm, seed=run.seed, info={"need": need, "cards": [c["name"] for c in chosen]})
+        return {"need": need, "cards": [{"name": c["name"], "when": c["when"], "then": c["then"], "horizon": c.get("horizon", 0)} for c in chosen], "prefer": prefer}
+    if action == "update":
+        name, then, when = payload.get("card"), payload.get("then"), list(payload.get("when", []))
+        if not name or not then or "=" not in then:
+            raise ValueError("an update is {card: name, then: field=value, when: [tags], body: text}")
+        field, value = then.split("=")
+        value = parse_value(value)
+        rows = [{"recipe": r["recipe"], "val_score": r["val_score"], "error": r["error"]}
+                for r in run.trace.rows("fit", problem=run.problem, arm=actor_arm(run), seed=run.seed)]
+        wins, losses, _ = memory.tally(rows)
+        if wins.get((field, value), 0) <= losses.get((field, value), 0):
+            raise ValueError(f"not validated: {then} did not win its comparisons on {run.problem} "
+                             f"({wins.get((field, value), 0)} wins, {losses.get((field, value), 0)} losses); nothing lands")
+        if run.visits.get("skill_update", 0) >= 1:
+            raise ValueError("one card update per visit")
+        run.visits["skill_update"] = 1
+        label = f"gen_{len(list(run.versions_dir.glob('gen_*'))) + 1:03d}" if run.versions_dir.exists() else "gen_001"
+        packs.snapshot(run.target, run.versions_dir, label)
+        cards = skill_cards(run.target)
+        existing = next((c for c in cards if c["name"] == name), None)
+        horizon = (existing.get("horizon", 0) if existing else 0) + 1
+        text = (f"---\nname: {name}\nwhen: [{', '.join(when)}]\nthen: {then}\nvalidated: true\nhorizon: {horizon}\n---\n"
+                f"{payload.get('body', '').strip()}\n")
+        path = root / (existing["file"] if existing else f"cards/{name}.md")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        if not existing:
+            import yaml
+            manifest = yaml.safe_load((root / "manifest.yaml").read_text(encoding="utf-8")) or {"cards": []}
+            manifest["cards"].append({"name": name, "file": f"cards/{name}.md"})
+            with open(root / "manifest.yaml", "w", encoding="utf-8", newline="\n") as f:
+                yaml.safe_dump(manifest, f, sort_keys=False)
+        run.trace.append(event="skill_update", problem=run.problem, arm=run.arm, seed=run.seed,
+                         info={"card": name, "then": then, "when": when, "horizon": horizon, "version": label, "new": existing is None})
+        return {"card": name, "file": path.relative_to(run.target).as_posix(), "horizon": horizon, "version": label, "new": existing is None}
+    raise ValueError("action is need or update")
+
+
+# ------------------------------------------------------------------ lesson 14: the Darwin Goedel Machine lineage
+
+
+def held_out_tasks(run):
+    """The fixed held-out benchmark a DGM meta pack names in its front matter (`held_out: <dir>`), relative to the pack."""
+    rel = (run.meta.get("metadata") or {}).get("held_out")
+    return tasks.all_tasks(run.pack_dir / rel) if rel else []
+
+
+def archive_index(run):
+    path = run.run_dir / "archive" / "archive.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+
+
+@tool("archive", action="string", payload="object")
+def archive(run, action, payload):
+    """add: store the target pack as a variant with its held-out gain (private score of its best recipe minus the control arm's, over the held-out problems an arm ran). list: every variant. parent: the best-scoring variant's label. restore: make a variant the current pack."""
+    root = run.run_dir / "archive"
+    root.mkdir(parents=True, exist_ok=True)
+    index = archive_index(run)
+    if action == "add":
+        label, arm = payload.get("label"), payload.get("arm")
+        if not label or not arm:
+            raise ValueError("add takes {label, arm}: the variant's name and the arm under which it ran the held-out problems")
+        # the held-out score: over every problem the arm ran, the private score of its best recipe minus the
+        # control arm's on the same problem and seed - a gain over the static walk on a fixed benchmark
+        gains = {}
+        for problem in sorted({r["problem"] for r in run.trace.rows("fit", arm=arm)}):
+            for seed in sorted({r["seed"] for r in run.trace.rows("fit", arm=arm, problem=problem)}):
+                task = tasks.load_task(problem) if problem in {t["name"] for t in tasks.all_tasks()} else run.task
+                if task["name"] != problem:   # a held-out table outside rsi/tasks: the meta pack names it in its front matter
+                    task = next(t for t in held_out_tasks(run) if t["name"] == problem)
+                mine = [r for r in run.trace.rows("fit", problem=problem, arm=arm, seed=seed) if r["val_score"] is not None]
+                control = [r for r in run.trace.rows("fit", problem=problem, arm="control", seed=seed) if r["val_score"] is not None]
+                if not mine or not control:
+                    continue
+                best = max(mine, key=lambda r: r["val_score"])["recipe"]
+                base = max(control, key=lambda r: r["val_score"])["recipe"]
+                gains[f"{problem}/{seed}"] = round(tasks.score_on(task, seed, best, "private") - tasks.score_on(task, seed, base, "private"), 4)
+        if not gains:
+            raise ValueError(f"arm {arm!r} has no held-out problem with a control arm to compare against")
+        score = round(sum(gains.values()) / len(gains), 4)
+        packs.snapshot(run.target, root, label)
+        index = [e for e in index if e["label"] != label]
+        index.append({"label": label, "problem": run.problem, "seed": run.seed, "arm": arm, "gains": gains, "held_out": score,
+                      "checksums": packs.checksums(run.target), "parent": payload.get("parent")})
+    elif action == "restore":
+        label = payload.get("label")
+        if label not in {e["label"] for e in index}:
+            raise ValueError(f"no variant {label!r} in the archive")
+        packs.rollback(run.target, root, label)
+    elif action == "parent":
+        if not index:
+            raise ValueError("the archive is empty; add a variant first")
+        # the parent is the best held-out score, ties to the older variant: never "the latest" by default
+        best = max(index, key=lambda e: (e["held_out"] if e["held_out"] is not None else -1, -index.index(e)))
+        run.trace.append(event="archive", problem=run.problem, arm=run.arm, seed=run.seed,
+                         info={"action": action, "label": best["label"], "latest": index[-1]["label"], "size": len(index)})
+        return {"parent": best["label"], "held_out": best["held_out"], "latest": index[-1]["label"]}
+    elif action != "list":
+        raise ValueError("action is add, list, parent or restore")
+    with open(root / "archive.json", "w", encoding="utf-8", newline="\n") as f:
+        json.dump(index, f, indent=1)
+        f.write("\n")
+    run.trace.append(event="archive", problem=run.problem, arm=run.arm, seed=run.seed,
+                     info={"action": action, "label": payload.get("label"), "size": len(index)})
+    return {"action": action, "variants": [{k: e[k] for k in ("label", "problem", "held_out", "parent")} for e in index]}
+
+
+# ------------------------------------------------------------------ lesson 15: AIDE2
+
+
+@tool("meter", arm="string")
+def meter(run, arm):
+    """The cost so far under one arm (or all with ""): fits from the trace, tokens estimated from the transcripts' size at each stop."""
+    fits = run.trace.rows("fit", **({"arm": arm} if arm else {}))
+    stops = run.trace.rows("stop", **({"arm": arm} if arm else {}))
+    tokens = sum(s["info"].get("tokens", 0) for s in stops)
+    out = {"arm": arm or "all", "fits": len(fits), "tokens": tokens, "problems": sorted({r["problem"] for r in fits})}
+    run.trace.append(event="meter", problem=run.problem, arm=run.arm, seed=run.seed, info=out)
+    return out
+
+
+SUSPICIOUS = 0.999    # a validation score this close to perfect is re-run before it is believed
+JUMP = 0.2            # so is one that jumps this far above the previous best in one fit
+
+
+def aide_keep(before, after, mad_k=3.0):
+    """AIDE2's outer rule: keep a rewrite only if it is better across the whole set under the same budget, after the
+    statistical layer drops outlier successes - a per-problem gain more than `mad_k` MADs above the median gain is
+    discarded, so one lucky problem cannot carry the decision. Returns (keep, detail)."""
+    problems = sorted(set(before) & set(after))
+    gains = {p: round(after[p] - before[p], 4) for p in problems}
+    values = sorted(gains.values())
+    median = values[len(values) // 2] if values else 0.0
+    mad = max(sorted(abs(v - median) for v in values)[len(values) // 2] if values else 0.0, 0.01)   # a floor of one AUC point: rounding is not spread
+    outliers = [p for p, g in gains.items() if g - median > mad_k * mad]
+    kept = {p: g for p, g in gains.items() if p not in outliers}
+    total = round(sum(kept.values()), 4)
+    keep = bool(kept) and total > 0 and sum(1 for g in kept.values() if g < 0) <= len(kept) // 2
+    return keep, {"gains": gains, "outliers_discarded": outliers, "total_gain": total, "wins": sum(1 for g in kept.values() if g > 0),
+                  "losses": sum(1 for g in kept.values() if g < 0)}

@@ -1,0 +1,36 @@
+{
+  "name": "pool_trees_1",
+  "index": 1,
+  "title": "synthetic pool_trees_1",
+  "source": {
+    "kind": "synth",
+    "n": 400,
+    "seed": 203,
+    "shift": 0,
+    "imbalance": 0.25
+  },
+  "target": "target",
+  "metric": "roc_auc",
+  "budget": {
+    "n_fits": 24,
+    "per": "arm"
+  },
+  "allowed_models": [
+    "logreg",
+    "rf",
+    "hgb"
+  ],
+  "test_rule": {
+    "scores": 1,
+    "after": "FREEZE"
+  },
+  "profile_keys": [
+    "n_rows",
+    "n_features",
+    "n_classes",
+    "imbalance",
+    "has_categorical"
+  ],
+  "role": "curriculum",
+  "why": "benchmark-disjoint pool table: a synthetic seed no curriculum or exam problem uses"
+}
