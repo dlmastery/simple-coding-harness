@@ -245,10 +245,8 @@ def run_builtin(event_name, event=None):
 `harness/tools.py`:
 
 ```python
-    name = tool_call.function.name
-    hooks.run_builtin("PreToolUse", {"tool_name": name, "tool_input": args})  # the checkpoint capture, once the call is allowed
-    try:
-        result = TOOLS[name](**args)
+    hooks.run_builtin("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})  # the checkpoint capture, once the call is allowed
+    result = call(tool_call, args)
 ```
 
 The capture could have been two lines at the top of `tools.run`. It is a
@@ -369,35 +367,30 @@ def undo_since(message_count, session_id=None):
 `harness/commands.py`:
 
 ```python
-def turn_starts(messages):
-    """The indexes of the user messages: the only places a transcript can be cut without orphaning a tool call."""
-    return [i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)]
-
-
 def rewind(messages):
     ...
-    starts = turn_starts(messages)
-    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(starts)]
-    choice = ui.pick("rewind to before", rows)
+    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
+    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
     if choice is None:
         return messages
-    keep = starts[choice]
-    undone = checkpoint.undo_since(keep)
+    cut = rows[choice][0]
+    undone = checkpoint.undo_since(cut)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
-    session.rewind_to(keep)
-    return redraw(messages[:keep], "rewound")
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 ```
 
-The picker offers turns, not messages: one row per user message, and the
-cut lands just before the one chosen. Two things go wrong with a cut
+The picker offers turn boundaries, not messages: one row per user message,
+labelled with its index, and the cut lands just before the one chosen. Two things go wrong with a cut
 anywhere else. An assistant message with tool calls that loses its results
 leaves the transcript in a state the API refuses (`tool_calls` without a
 `tool` message each). And a turn that began before the cut but wrote
 files after it would keep its edits while its messages vanish, the
 mismatch this step exists to remove. A cut at a user message is a cut at a
-turn boundary, so `undo_since(keep)` takes back exactly the turns whose
+turn boundary, so `undo_since(cut)` takes back exactly the turns whose
 messages go, newest first.
 
 ### 8. Compaction and /checkpoints
@@ -490,9 +483,10 @@ and `hello.py` prints hello again. A second `/undo` deletes the file and
 empties the chat. A third says `nothing to undo`.
 
 Now try the same with `/rewind`. After three turns the picker offers three
-rows, `turn 1`, `turn 2`, `turn 3`, each with the first words of that
-turn's request. Pick `turn 2`: the note says `2 turn(s) undone, 2 file(s)
-restored` and the files are back to how they were after turn 1.
+rows, one per user message (`1`, `5`, `9`: the index of each in the
+transcript), each with the first words of that turn's request. Pick the
+second: the note says `2 turn(s) undone, 2 file(s) restored` and the files
+are back to how they were after turn 1.
 
 Type `/hooks` and the first row is the capture:
 

@@ -172,10 +172,10 @@ def test_a_big_schema_goes_out_as_a_stub_until_it_is_loaded():
 def test_active_schemas_composes_with_the_plan_tool_set_and_the_subagent_tool_set(monkeypatch):
     monkeypatch.setattr(plan, "MODE", "plan")
     offered = tools.active_schemas(plan.toolset())
-    assert names(offered) == ["bash", "read_file", "read_skill", "task", "recall", "submit_plan"]  # nothing deferred: no load_tool
+    assert names(offered) == ["bash", "read_file", "read_skill", "recall", "task", "submit_plan"]  # nothing deferred: no load_tool
     monkeypatch.setattr(plan, "READ_ONLY", (*plan.READ_ONLY, "big_tool"))
     offered = tools.active_schemas(plan.toolset())
-    assert names(offered) == ["bash", "read_file", "read_skill", "task", "recall", "big_tool", "submit_plan", "load_tool"]
+    assert names(offered) == ["bash", "read_file", "read_skill", "recall", "task", "big_tool", "submit_plan", "load_tool"]
     assert next(s for s in offered if s["function"]["name"] == "big_tool")["function"]["description"].startswith("deferred")
     assert plan.offered("load_tool")  # allowed in plan mode, so the load can happen there too
     monkeypatch.setattr(plan, "MODE", "act")
@@ -288,7 +288,7 @@ def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_mess
     assert list(results) == ["c1", "c2", "c3", "c4"] and out[-1]["content"] == "recovered"
     assert results["c1"].startswith("Error: the arguments of bash are not a JSON object:")
     assert results["c2"] == "Error: no tool named 'no_such_tool'."
-    assert results["c3"].startswith("Error: no file at ")
+    assert results["c3"].startswith("Error: ") and results["c3"].endswith("missing.txt is not a file.")
     assert results["c4"].startswith("Error: TypeError:")
     assert tools.execute(call("c5", "bash", {}))[1] == "Blocked by policy: bash: missing argument 'command'"
 
@@ -309,8 +309,8 @@ def test_write_todos_with_a_bad_status_returns_an_error_and_leaves_the_list_alon
     todos.write_todos([{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos([{"content": "b", "status": "pending"}]) == "Error: item 0 needs a non-empty 'activeForm'"
-    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.write_todos([{"content": "b", "status": "pending"}]) == "Error: item 0 needs a non-empty 'activeForm'."
+    assert todos.write_todos("not a list") == "Error: todos must be a list."
     assert todos.TODOS == before
     assert todos.write_todos([]) == "Todo list cleared."
 
@@ -330,7 +330,7 @@ def test_rewind_offers_only_user_turns_so_no_tool_call_is_orphaned(monkeypatch):
     monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
     monkeypatch.setattr(session, "rewind_to", lambda count: None)
     out = commands.handle("/rewind", messages)
-    assert len(offered[0]) == 2 and offered[0][0].startswith("turn 1") and "one" in offered[0][0]
+    assert len(offered[0]) == 2 and offered[0][0].startswith("1 ") and "one" in offered[0][0]  # the index of the user message, never a tool call
     assert [m["role"] for m in out] == ["system", "user", "assistant", "tool", "assistant"]  # cut before "two"
     for message in out:
         for tool_call in message.get("tool_calls") or []:
@@ -360,10 +360,7 @@ def test_ctrl_c_mid_turn_fills_the_missing_results_and_the_prompt_comes_back(mon
     monkeypatch.setitem(tools.TOOLS, "bash", boom)
     monkeypatch.setattr(ui, "approve", lambda reason: True)
     monkeypatch.setattr(agent, "call_llm", _fake_model([FakeMessage(content=None, tool_calls=[call("c1", "bash", {"command": "sleep 60"})])]))
-    messages = [{"role": "system", "content": "s"}]
-    with pytest.raises(KeyboardInterrupt):
-        agent.turn(messages, "wait")
-    out = agent.interrupted(messages)
+    out = agent.turn([{"role": "system", "content": "s"}], "wait")  # the turn catches ctrl-c and answers the pending call itself
     assert out[-1] == {"role": "tool", "tool_call_id": "c1", "content": agent.INTERRUPTED} and seen[-1] == "interrupted"
 
 

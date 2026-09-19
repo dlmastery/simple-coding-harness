@@ -8,7 +8,6 @@ step 31.
 import json
 import sys
 import threading
-from contextlib import nullcontext
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -31,6 +30,22 @@ MUTED = "#565f89"
 MAX_TOOL_OUTPUT_LINES = 12
 
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
+
+APPROVE_LOCK = threading.Lock()  # one approval question at a time, whichever thread asks
+USAGE_LOCK = threading.Lock()    # parallel subagents report usage from their threads; += is not atomic
+
+
+class Idle:
+    """A spinner that does nothing: used off the main thread, where rich cannot draw one."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
 
 
 class UI:
@@ -71,7 +86,12 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
+                    raw = call["function"]["arguments"]
+                    try:
+                        args = json.loads(raw)
+                    except ValueError:  # the model once sent broken JSON; show it as it was
+                        args = {"arguments": raw}
+                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -87,18 +107,24 @@ class UI:
     def approve(self, reason):
         """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
 
-        Headless (-p) there is nobody to ask: the call is denied with a note
-        on stderr, so a script never hangs on a prompt it cannot see.
+        In print mode nothing may reach stdout, and without a terminal there
+        is nobody to ask: the call is denied and stderr says so.
         """
-        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-        if not self.live:
-            self.console.print(Padding(Text("denied: no terminal to ask on (headless mode)", style=MUTED), (0, 0, 0, 2)))
-            return False
-        try:
-            answer = prompt.read("  allow? (y/n)> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            return False
-        return answer.lower().startswith("y")
+        with APPROVE_LOCK:
+            if not self.live and not sys.stdin.isatty():
+                self.note(f"denied, no terminal to ask on: {reason}")
+                return False
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                if self.live:
+                    answer = prompt.read("  allow? (y/n)> ").strip()
+                else:
+                    sys.stderr.write("  allow? (y/n)> ")
+                    sys.stderr.flush()
+                    answer = input().strip()
+            except (EOFError, KeyboardInterrupt):
+                return False
+            return answer.lower().startswith("y")
 
     def approve_plan(self):
         """Step 28: the plan is on screen; ask for a yes, or a no with feedback.
@@ -127,7 +153,7 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
-        """The next message. None means leave: ctrl-d, ctrl-z+enter on Windows, or ctrl-c at the prompt."""
+        """The next message; "" for an empty line, None when the input is closed."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
@@ -191,8 +217,9 @@ class UI:
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES.get(todo.get("status"), MUTED)
-            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
+            status = todo.get("status")
+            style = TODO_STYLES.get(status, MUTED)
+            rows.add_row(Text(MARKS.get(status, "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -238,24 +265,28 @@ class UI:
     def working(self, label="thinking"):
         """The spinner. Use it as a context manager; call .stop() to end it early.
 
-        Off the main thread it is a no-op: rich allows one live display, and
-        a subagent on a thread must not fight the main loop for it.
+        Only the main thread gets one: a second live display from a worker
+        thread is an error in rich, and a subagent may run on a worker.
         """
         if threading.current_thread() is not threading.main_thread():
-            return nullcontext()
+            return Idle()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats, estimate=None):
         """One line per model call. estimate is the harness's count of the prompt it sent."""
-        for key, value in stats.items():
-            self._totals[key] = self._totals.get(key, 0) + (value or 0)
+        with USAGE_LOCK:
+            for key, value in stats.items():
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    self._totals[key] = self._totals.get(key, 0) + value
         parts = []
         for key, value in stats.items():
             if key == "prompt_tokens" and estimate is not None:
                 parts.append(f"{value:,} prompt (estimate {estimate:,})" if value else f"estimate {estimate:,} prompt")
-            elif value:
+            elif key == "cost" and value is not None:
+                parts.append(f"${value:.4f}")
+            elif isinstance(value, (int, float)) and value:
                 parts.append(f"{value:,} {key.replace('_tokens', '')}")
         self.console.print(Padding(Text(" · ".join(parts), style=MUTED), (1, 0, 0, 2)))
 
@@ -270,7 +301,7 @@ class UI:
         table.add_column(style=MUTED)
         table.add_column(style=f"bold {ACCENT}", justify="right")
         for key, value in self._totals.items():
-            table.add_row(key.replace("_", " "), f"{value:,}")
+            table.add_row(key.replace("_", " "), f"${value:.4f}" if key == "cost" else f"{value:,}")
         self.console.print(Padding(table, (1, 2)))
         self.console.print(Rule(style=MUTED))
         self.console.print()
@@ -306,18 +337,10 @@ class UI:
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
 
-    def _parse_args(self, arguments):
-        """The arguments of a saved tool call, or the raw string when they never were JSON."""
-        try:
-            args = json.loads(arguments or "{}")
-        except ValueError:
-            return {"arguments": arguments}
-        return args if isinstance(args, dict) else {"arguments": args}
-
     def _format_args(self, args):
         if len(args) == 1:
             return str(next(iter(args.values())))
-        return json.dumps(args, default=str)
+        return json.dumps(args)
 
     def _format_result(self, result):
         lines = str(result).strip().splitlines() or ["(no output)"]

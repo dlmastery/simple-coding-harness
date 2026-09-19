@@ -269,7 +269,7 @@ def test_rewind_command_restores_the_files_to_the_chosen_point(fresh, monkeypatc
     picked = []
     monkeypatch.setattr(ui, "pick", lambda title, rows: picked.append(rows) or 1)  # to before turn 2: turn 1 stays, turns 2 and 3 go
     messages = commands.handle("/rewind", messages)
-    assert [row.split()[:2] for row in picked[0]] == [["turn", "1"], ["turn", "2"], ["turn", "3"]]  # only user turns are offered
+    assert [row.split()[:2] for row in picked[0]] == [["1", "make"], ["5", "make"], ["9", "edit"]]  # only user messages are offered, by index
     assert len(messages) == 5 and messages[-1]["content"] == "wrote a"
     assert (fresh / "a.txt").read_text() == "one" and not (fresh / "b.txt").exists()
     assert checkpoint.turns() == [1] and seen[-1] == "2 turn(s) undone, 2 file(s) restored"
@@ -369,7 +369,7 @@ def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_mess
     assert list(results) == ["c1", "c2", "c3", "c4"] and out[-1]["content"] == "recovered"
     assert results["c1"].startswith("Error: the arguments of bash are not a JSON object:")
     assert results["c2"] == "Error: no tool named 'no_such_tool'."
-    assert results["c3"].startswith("Error: no file at ")
+    assert results["c3"].startswith("Error: ") and results["c3"].endswith("missing.txt is not a file.")
     assert results["c4"].startswith("Error: TypeError:")
     assert tools.execute(call("c5", "bash", {}))[1] == "Blocked by policy: bash: missing argument 'command'"
 
@@ -390,8 +390,8 @@ def test_write_todos_with_a_bad_status_returns_an_error_and_leaves_the_list_alon
     todos.write_todos([{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
     before = list(todos.TODOS)
     assert todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}]).startswith("Error: item 0 has status 'done'")
-    assert todos.write_todos([{"content": "b", "status": "pending"}]) == "Error: item 0 needs a non-empty 'activeForm'"
-    assert todos.write_todos("not a list") == "Error: todos must be a list"
+    assert todos.write_todos([{"content": "b", "status": "pending"}]) == "Error: item 0 needs a non-empty 'activeForm'."
+    assert todos.write_todos("not a list") == "Error: todos must be a list."
     assert todos.TODOS == before
     assert todos.write_todos([]) == "Todo list cleared."
 
@@ -411,7 +411,7 @@ def test_rewind_offers_only_user_turns_so_no_tool_call_is_orphaned(monkeypatch):
     monkeypatch.setattr(commands, "redraw", lambda messages, label: messages)
     monkeypatch.setattr(session, "rewind_to", lambda count: None)
     out = commands.handle("/rewind", messages)
-    assert len(offered[0]) == 2 and offered[0][0].startswith("turn 1") and "one" in offered[0][0]
+    assert len(offered[0]) == 2 and offered[0][0].startswith("1 ") and "one" in offered[0][0]  # the index of the user message, never a tool call
     assert [m["role"] for m in out] == ["system", "user", "assistant", "tool", "assistant"]  # cut before "two"
     for message in out:
         for tool_call in message.get("tool_calls") or []:
@@ -441,10 +441,7 @@ def test_ctrl_c_mid_turn_fills_the_missing_results_and_the_prompt_comes_back(mon
     monkeypatch.setitem(tools.TOOLS, "bash", boom)
     monkeypatch.setattr(ui, "approve", lambda reason: True)
     monkeypatch.setattr(agent, "call_llm", _fake_model([FakeMessage(content=None, tool_calls=[call("c1", "bash", {"command": "sleep 60"})])]))
-    messages = [{"role": "system", "content": "s"}]
-    with pytest.raises(KeyboardInterrupt):
-        agent.turn(messages, "wait")
-    out = agent.interrupted(messages)
+    out = agent.turn([{"role": "system", "content": "s"}], "wait")  # the turn catches ctrl-c and answers the pending call itself
     assert out[-1] == {"role": "tool", "tool_call_id": "c1", "content": agent.INTERRUPTED} and seen[-1] == "interrupted"
 
 

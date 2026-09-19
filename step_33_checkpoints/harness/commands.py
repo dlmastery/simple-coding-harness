@@ -11,7 +11,6 @@ from pathlib import Path
 from . import budget
 from . import checkpoint
 from . import compact as compaction
-from . import history
 from . import hooks
 from . import instructions
 from . import jobs
@@ -32,16 +31,16 @@ COMMANDS = {
     "/checkpoints": "list the turns of this chat and the files each one changed",
     "/sessions": "open a past chat",
     "/compact": "summarise the history so far and free up the context window",
-    "/memory": "list what the agent remembers across sessions",
     "/mcp": "list the MCP servers, whether each started, and the tools they added",
     "/hooks": "list the hooks configured for each event",
     "/plan": "plan mode: read-only tools until you approve a plan",
     "/act": "act mode: every tool, the default",
     "/jobs": "list the background jobs and whether each is still running",
+    "/memory": "list what the agent remembers across sessions",
     "/context": "show what fills the context window, category by category",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
-    "/exit": "leave (so do /quit, ctrl-d, ctrl-z then enter on Windows, and ctrl-c at the prompt)",
+    "/exit": "leave (ctrl-d, or ctrl-z then enter on Windows, does the same)",
 }
 
 INIT_QUESTION = """
@@ -71,44 +70,35 @@ def preview(message):
 
 
 def redraw(messages, label):
-    """The screen no longer matches the history, so wipe it and draw again.
-
-    The todo list and the set of loaded tools live outside the transcript;
-    both are rebuilt from the calls the transcript still holds.
-    """
-    todos.from_transcript(messages)
-    tools.relearn(messages)
+    """The screen no longer matches the history, so wipe it and draw again."""
     ui.clear()
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)
     ui.replay(messages)
+    todos.restore(messages)  # the plan belongs to the transcript now on screen
+    tools.relearn(messages)  # and so do the deferred tools the model loaded
     return messages
 
 
-def turn_starts(messages):
-    """The indexes of the user messages: the only places a transcript can be cut without orphaning a tool call."""
-    return [i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)]
-
-
 def rewind(messages):
-    """Cut the transcript before a user message the user picks and undo the turns from there on.
+    """Cut the chat back to just before a user message and undo the turns from there on.
 
     Only user messages are offered: a cut anywhere else would leave a tool
     call without its result, or a turn's files changed while its messages
     are gone.
     """
-    starts = turn_starts(messages)
-    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(starts)]
-    choice = ui.pick("rewind to before", rows)
+    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
+    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
     if choice is None:
         return messages
-    keep = starts[choice]
-    undone = checkpoint.undo_since(keep)
+    cut = rows[choice][0]
+    undone = checkpoint.undo_since(cut)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
-    session.rewind_to(keep)
-    return redraw(messages[:keep], "rewound")
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 
 
 def undo(messages):
@@ -142,9 +132,7 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    opened = session.open_session(saved[choice]["id"])
-    history.strip(opened)  # its old tool output shrinks, the way --resume shrinks it
-    return redraw(opened, "opened")
+    return redraw(session.open_session(saved[choice]["id"]), "opened")
 
 
 def compact(messages):
@@ -270,10 +258,6 @@ def instruction_list(messages):
 
 
 def handle(command, messages):
-    if command == "/init":
-        return init(messages)
-    if command == "/instructions":
-        return instruction_list(messages)
     if command == "/plan":
         return set_mode(messages, "plan")
     if command == "/act":
@@ -298,5 +282,9 @@ def handle(command, messages):
         return sessions(messages)
     if command == "/memory":
         return memories(messages)
+    if command == "/init":
+        return init(messages)
+    if command == "/instructions":
+        return instruction_list(messages)
     ui.note("\n".join(f"{name}  -  {help}" for name, help in COMMANDS.items()))
     return messages

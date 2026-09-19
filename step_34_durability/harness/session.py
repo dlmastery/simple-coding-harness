@@ -1,4 +1,6 @@
-"""Stage 15 - session, unchanged since stage 14.
+"""Step 34 - load() no longer writes a stand-in result for a tool call the
+log left hanging: agent.recover() runs the call instead, so a resumed chat
+gets the real result. The rest is stage 15.
 """
 
 import json
@@ -9,6 +11,7 @@ PROJECT = "".join(c if c.isalnum() else "-" for c in str(Path.cwd().resolve()))
 SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
+PERSIST = True  # False in print mode: one-off runs leave no session behind
 NL = "\n"
 
 
@@ -19,6 +22,8 @@ def path_for(session_id):
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
     global WRITTEN
+    if not PERSIST:
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         for message in messages[WRITTEN:]:
@@ -29,6 +34,9 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    if not PERSIST:
+        WRITTEN = count
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
@@ -38,6 +46,9 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    if not PERSIST:
+        WRITTEN = len(messages)
+        return
     SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
@@ -45,7 +56,12 @@ def compacted(messages):
 
 
 def load(session_id):
-    """Replay the log: messages accumulate, rewinds cut them back, a compaction replaces them."""
+    """Replay the log: messages accumulate, rewinds cut them back, a compaction replaces them.
+
+    A crash between a reply and its tool results leaves the last assistant
+    message with tool calls that have no result; the transcript comes back
+    as it is, and agent.recover() runs those calls before the chat goes on.
+    """
     messages = []
     for line in path_for(session_id).read_text(encoding="utf-8").splitlines():
         try:

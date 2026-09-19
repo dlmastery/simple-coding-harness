@@ -175,7 +175,7 @@ def stream_once(request, on_delta=None):
         ...
     message = StreamedMessage(
         content="".join(parts) or None,
-        tool_calls=tool_calls or None,
+        tool_calls=[calls[key] for key in sorted(calls, key=str)] or None,
     )
     return message, usage_from(final_usage)
 ```
@@ -225,24 +225,24 @@ transcript.
 `harness/agent.py`:
 
 ```python
-    detector = durability.LoopDetector()
-    calls = 0  # model calls so far in this turn
     usage = {}
+    detector = durability.LoopDetector()
 
-    while True:
-        if calls >= MAX_CALLS:
-            ui.note(f"stopped after {calls} model calls in one turn; say 'continue' to go on")
-            break
-        ...
-        with spinner:
-            message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta, on_restart=on_restart)
-        calls += 1
+    try:
+        for _ in range(MAX_CALLS):
+            ...
+            with spinner:
+                message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta, on_restart=on_restart)
 
-        if getattr(message, "failed", None):
-            if streamed:
-                ui.stream_end()  # a stream that broke may have shown part of a reply
-            ui.note(message.failed)  # the model never answered; the user message stays, so 'try again' works
-            break
+            if getattr(message, "failed", None):
+                # every retry failed: the user message stays, nothing dangles, so 'try again' works
+                if streamed:
+                    ui.stream_end()  # a stream that broke may have shown part of a reply
+                ui.note(message.failed)
+                break
+            ...
+        else:
+            ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
 ```
 
 A failed call ends the turn. The user message stays in the transcript
@@ -250,9 +250,9 @@ A failed call ends the turn. The user message stays in the transcript
 again" and the model sees what was asked; the next turn simply adds a
 second user message after it. The `try/except openai.APIError` of the
 earlier steps is gone from the loop: nothing raises out of `call_llm` any
-more. The call counter is checked before each call, so a turn makes at
-most `MAX_CALLS` calls, and the results of the last one are saved before
-the loop stops. The transcript ends in tool results, which is a valid
+more. The `for` runs at most `MAX_CALLS` times, and its `else` says so
+when the cap is reached; the results of the last call are saved before
+the loop stops, so the transcript ends in tool results, which is a valid
 place to continue from.
 
 `harness/compact.py`:
@@ -316,21 +316,22 @@ loop.
 `harness/agent.py`:
 
 ```python
-        repeated = detector.observe(message.tool_calls)
-        for tool_call, flag in zip(message.tool_calls, repeated):
-            if flag:
-                ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
-        run_results(messages, message.tool_calls, allowed, repeated)
+            repeated = detector.observe(message.tool_calls)
+            for tool_call, flag in zip(message.tool_calls, repeated):
+                if flag:
+                    ui.note(f"repeated call detected: {tool_call.function.name} with the same arguments {durability.REPEAT_LIMIT} times in a row")
+            run_results(messages, message.tool_calls, repeated)
 ...
     repeated = repeated or [False] * len(tool_calls)
     fresh = [call for call, flag in zip(tool_calls, repeated) if not flag]
-    ran = iter(execute_all(fresh, allowed) if fresh else [])
+    ran = iter(execute_all(fresh) if fresh else [])
     pictures = []  # (tool name, PNG path) for every image a result asked to show
     for tool_call, flag in zip(tool_calls, repeated):
         args, result = (durability.parse_args(tool_call), durability.REPEATED) if flag else next(ran)
 ```
 
-A flagged call is not run. Running it a third time would give the same
+`run_results` is the tool-running half of the turn, moved out of `turn()`
+so that `recover()` below can use it too. A flagged call is not run. Running it a third time would give the same
 result and might repeat a side effect. Its result is the fixed sentence,
 which the model reads in the next request. The turn goes on: the model
 usually changes approach, and if it does not, the call cap ends the turn.
@@ -383,8 +384,8 @@ def recover(messages):
     try:
         run_results(messages, pending)
     except Exception as failed:  # noqa: BLE001 - a recovery that crashes would crash every resume after it
-        for call_id in unanswered_ids(messages):
-            messages.append({"role": "tool", "tool_call_id": call_id, "content": f"Error: {type(failed).__name__}: {failed}"})
+        for call in durability.unanswered(messages):
+            messages.append({"role": "tool", "tool_call_id": call.id, "content": f"Error: {type(failed).__name__}: {failed}"})
         session.save(messages)
     count = len(pending)
     ui.note(f"recovered {count} tool call{'s' if count != 1 else ''} left unanswered by the last run")
@@ -392,13 +393,11 @@ def recover(messages):
 ```
 
 ```python
-            messages = session.open_session(saved[0]["id"])
-            history.strip(messages)
-            todos.from_transcript(messages)  # the plan lives outside the transcript; rebuild it
-            relearn(messages)  # and so do the deferred tools the model loaded
-            ui.resumed(messages)
-            ui.replay(messages)
-            recover(messages)  # a crash mid-turn left tool calls without results: run them now
+    if cli.resume:
+        messages = resume_last(messages)
+        ui.resumed(messages)
+        ui.replay(messages)
+        recover(messages)  # a crash mid-turn left tool calls without results: run them now
 ```
 
 `harness/commands.py`:
@@ -407,7 +406,6 @@ def recover(messages):
     from .agent import recover  # here, not at the top: agent imports this module
 
     opened = session.open_session(saved[choice]["id"])
-    history.strip(opened)  # its old tool output shrinks, the way --resume shrinks it
     redraw(opened, "opened")
     recover(opened)  # a crash mid-turn left tool calls without results: run them now, as --resume does
     return opened
@@ -416,10 +414,13 @@ def recover(messages):
 The recovered calls go through `run_results`, the same function the turn
 uses, so `execute_all` decides each one through the permission rules and
 the hooks: a command that asks still asks, a denied one gets the denial
-as its result, and the checkpoint hook captures an edit. Step 31's
-`session.repaired` no longer runs: this step replaces the stand-in result
-with a real one, and `/sessions` recovers the same way `--resume` does,
-so there is no way to open a crashed chat that leaves it unsendable.
+as its result, and the checkpoint hook captures an edit. `session.repair`
+of the earlier steps, which gave every hanging call the stand-in result
+`(the harness stopped before this tool ran; no result was recorded)`, is
+gone: `session.load` returns the transcript as the crash left it, this
+step replaces the stand-in with a real result, and `/sessions` recovers
+the same way `--resume` does (headless `-p --resume` too), so there is no
+way to open a crashed chat that leaves it unsendable.
 
 Two details keep the recovery itself from becoming the thing that
 crashes. The checkpoint turn is the last one on disk, the turn that was
@@ -614,12 +615,14 @@ Added: `durability.py` (`REPEAT_LIMIT`, `REPEATED`, `OBSERVE`,
 `TRANSIENT_CODES`, `retryable`, `describe`, `stream_once`, `call_llm`
 retries with `on_restart` and returns a failed message,
 `StreamedMessage.failed`), `agent.py` (`turn` stops on a failed message
-and runs the detector, `on_restart`, `run_results` takes `repeated`,
-`recover`, `chat` recovers on `--resume`), `commands.py` (`/sessions`
-recovers), `compact.py` and `evaluate.py` (a failed call raises),
-`subagent.py` (a failed model call becomes the report), `session.py`
-(`rewind_to` and `compacted` make the directory). Everything else is
-unchanged from step 33.
+and runs the detector, `on_restart`, the tool-running half of `turn`
+moved out into `run_results`, which takes `repeated`, `recover`,
+`answer_pending` through `durability.unanswered`, `chat` recovers on
+`--resume`), `commands.py` (`/sessions` recovers), `compact.py` and
+`evaluate.py` (a failed call raises), `subagent.py` (a failed model call
+becomes the report), `session.py` (`load` no longer writes stand-in
+results; `repair` and `UNANSWERED` are gone, `recover` does that job).
+Everything else is unchanged from step 33.
 
 ## What the next step adds
 

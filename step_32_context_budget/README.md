@@ -192,23 +192,22 @@ that jumps past both lines at once earns one warning, for the higher line.
 `harness/agent.py`:
 
 ```python
-        schemas = active_schemas(plan.toolset())
-        allowed = {s["function"]["name"] for s in schemas}  # what the model was offered is all it may run
-        estimate = budget.breakdown(messages)["total"]  # what this request should cost
-        with spinner:
+            schemas = active_schemas(plan.toolset())  # the stubs stand in for the deferred tools
+            estimate = budget.breakdown(messages)["total"]  # what this request should cost
             try:
-                message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta)
-            except openai.APIError as failed:
+                with spinner:
+                    message, usage = call_llm(with_mode(messages) + [injection], tools=schemas, on_delta=on_delta)
+            except (openai.APIError, RuntimeError) as failed:
+                # the user message stays, nothing dangles: the next turn can retry
                 if streamed:
-                    ui.stream_end()  # a stream that broke may have shown part of a reply
-                ui.note(f"model call failed: {failed}")  # the user message stays; the transcript is still valid
+                    ui.stream_end()
+                ui.note(f"model call failed: {failed}")
                 break
-        calls += 1
-        ...
-        ui.usage(usage, estimate)
-        warning = budget.check(usage.get("prompt_tokens") or estimate)
-        if warning:
-            ui.note(warning)
+            ...
+            ui.usage(usage, estimate)
+            warning = budget.check(usage.get("prompt_tokens") or estimate)
+            if warning:
+                ui.note(warning)
 ```
 
 The estimate is taken before the call, of the messages about to go out.
@@ -216,10 +215,9 @@ The usage line gets both numbers. The warning uses the real count when the
 model reported one and the estimate otherwise, so a fake model in a test
 still triggers it. `plan.toolset()` chooses the tools for the mode, as in
 step 28, and `active_schemas` turns the deferred ones into stubs on the
-way to the wire. The names in that list are also the names the model may
-run this call (`allowed`, from step 15's rule that the offered set is the
-runnable set): a stub is in the list, so a call to it is answered by the
-deferral advice below, not by a permission verdict.
+way to the wire. A stub is in that list under the tool's own name, so a
+call to it reaches `decide`, which answers with the deferral advice below
+rather than a permission verdict.
 
 ### 4. The stub
 
@@ -379,13 +377,17 @@ as in step 30, and gets the same section.
 ```python
     def usage(self, stats, estimate=None):
         """One line per model call. estimate is the harness's count of the prompt it sent."""
-        for key, value in stats.items():
-            self._totals[key] = self._totals.get(key, 0) + (value or 0)
+        with USAGE_LOCK:
+            for key, value in stats.items():
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    self._totals[key] = self._totals.get(key, 0) + value
         parts = []
         for key, value in stats.items():
             if key == "prompt_tokens" and estimate is not None:
                 parts.append(f"{value:,} prompt (estimate {estimate:,})" if value else f"estimate {estimate:,} prompt")
-            elif value:
+            elif key == "cost" and value is not None:
+                parts.append(f"${value:.4f}")
+            elif isinstance(value, (int, float)) and value:
                 parts.append(f"{value:,} {key.replace('_tokens', '')}")
 ```
 
@@ -571,7 +573,7 @@ Changed: `tools.py` (`LOADED`, `LOAD_TOOL_SCHEMA`, `is_deferred`,
 `llm.py` (`DEFERRED_INTRO`, `deferred_section`, `build_system_prompt`
 takes `schemas`, `call_llm` defaults to `active_schemas()`), `agent.py`
 (the estimate, `ui.usage` with it, `budget.check`, the system prompt built
-after `connect_all`), `ui.py` (`usage` takes `estimate`, `context`),
+after `connect_all`, `relearn` in `resume_last`), `ui.py` (`usage` takes `estimate`, `context`),
 `commands.py` (`/context`, `WARNED` cleared by `/compact`, `relearn` in `redraw`), `plan.py` (`load_tool` in `READ_ONLY`),
 `subagent.py` and `browse.py` (`toolset` through `active_schemas`),
 `evaluate.py` (the usage recorder takes the estimate; `WARNED` and `LOADED` reset per task). Everything else is

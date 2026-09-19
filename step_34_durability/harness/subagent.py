@@ -2,10 +2,9 @@
 the reason as its report, so the main agent reads what happened. The rest
 is step 32: the subagent tool set goes through active_schemas(), so a
 deferred tool is a stub for a subagent too, and load_tool comes with it;
-and step 30: the subagent prompt names the working directory of
-the call, not of the import, so a subagent started by the eval runner
-searches the task workspace, and the task tool can run several subagents
-at once.
+step 31: every report that is not findings starts with STOPPED; and step
+30: the subagent prompt names the working directory of the call, not of
+the import, and the task tool can run several subagents at once.
 
 A task tool hands a self-contained exploration question to a fresh agent
 that has its own context window. The subagent reuses call_llm: it takes a
@@ -40,7 +39,8 @@ from contextlib import nullcontext
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill"}
+# the computer tools too: an explorer reads and reports, it does not click - or write memories
+WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "computer_act", "computer_screenshot", "remember", "forget"}
 
 STOPPED = "(the subagent"  # every report that is not findings starts like this, so a caller can tell
 
@@ -76,10 +76,11 @@ SYSTEM_PROMPT = build_system_prompt()
 
 
 def toolset():
-    """Every tool schema except the withheld ones, with the deferred ones as stubs."""
+    """Every tool schema except the withheld ones, and only what the mode allows, with the deferred ones as stubs."""
+    from . import plan
     from .tools import TOOL_SCHEMAS, active_schemas
 
-    return active_schemas([s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD])
+    return active_schemas([s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD and plan.offered(s["function"]["name"])])
 
 
 def loop(system_prompt, request, tools, max_turns, label="subagent exploring", tag=None):
@@ -102,7 +103,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     ]
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
-    allowed = {s["function"]["name"] for s in tools} | {"load_tool"}  # rule 2, enforced: the offered set is the runnable set
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
@@ -121,7 +122,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
             return report or f"{STOPPED} came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls, allowed)
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
@@ -137,15 +138,8 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
 
 
 def explore(description, tag=None):
-    """One exploration subagent: every tool but the withheld ones, twelve turns.
-
-    A crash inside becomes a report: the lead agent reads what went wrong,
-    and one failure never sinks the others that run beside it.
-    """
-    try:
-        return loop(build_system_prompt(), description, toolset(), MAX_TURNS, tag=tag)  # the cwd of this call, not of the import
-    except Exception as failure:  # noqa: BLE001
-        return f"Error: subagent{f' {tag}' if tag is not None else ''} failed with {type(failure).__name__}: {failure}"
+    """One exploration subagent: every tool but the withheld ones, twelve turns."""
+    return loop(build_system_prompt(), description, toolset(), MAX_TURNS, tag=tag)  # the cwd of this call, not of the import
 
 
 def title(description):
@@ -154,10 +148,19 @@ def title(description):
     return first if len(first) <= 60 else first[:57] + "..."
 
 
+def guarded(number, description):
+    """explore(), but a crash becomes a report: one failure must not sink the others."""
+    try:
+        return explore(description, tag=number)
+    except Exception as failure:  # noqa: BLE001
+        who = f"subagent {number}" if number is not None else "the subagent"
+        return f"Error: {who} failed with {type(failure).__name__}: {failure}"
+
+
 def parallel(descriptions):
     """Run one subagent per description at the same time; join the reports in order."""
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
-        futures = [pool.submit(explore, description, number) for number, description in enumerate(descriptions, 1)]
+        futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
         reports = [future.result() for future in futures]
     return "\n\n".join(
         f"## subagent {number}: {title(description)}\n\n{report}"
@@ -175,7 +178,7 @@ def task(description: str = None, descriptions: list = None) -> str:
     if descriptions:
         return parallel([str(d) for d in descriptions])
     if description:
-        return explore(description)
+        return guarded(None, str(description))  # a crash is a report here too
     return "Error: give a description, or a list of descriptions to run several subagents at once."
 
 
@@ -216,7 +219,6 @@ TASK_SCHEMA = {
                     ),
                 },
             },
-            "anyOf": [{"required": ["description"]}, {"required": ["descriptions"]}],
         },
     },
 }
