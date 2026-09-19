@@ -15,7 +15,7 @@ from common.tools import execute  # noqa: E402
 
 ACTOR, VERIFIER = "adult-income", "adult-income-verifier"
 CUR, _ = tasks.test_curriculum()
-T1, T3, T5 = CUR[0], CUR[2], CUR[4]          # three tree-shaped tables: what problem 1 teaches must help on 3 and 5
+T1, T3, T6 = CUR[0], CUR[2], CUR[5]          # three tree-shaped tables: what problem 1 teaches must help on 3 and 6
 STEP01 = HERE.parent / "step_01_regular_harness" / "skills" / "adult-income-regular"
 
 
@@ -73,10 +73,10 @@ def test_fit_recipe_refuses_a_forbidden_recipe(tmp_path):
 
 def test_memory_arm_beats_memory_off_at_the_same_budget(tmp_path):
     actor, verifier = packs_in(tmp_path)
-    curve = curriculum.run_curriculum(actor, verifier, [T1, T3, T5], FakeModel(), tmp_path / "run")
-    assert curve[0]["gap_val"] == 0 and curve[0]["cards_active"] == 0                  # no card yet: identical arms
+    curve = curriculum.run_curriculum(actor, verifier, [T1, T3, T6], FakeModel(), tmp_path / "run")
+    assert curve[0]["gap_val"] == 0 and curve[0]["cards_active"] > 0                   # first problem: identical arms, then cards
     last = curve[-1]
-    assert last["cards_active"] >= 2
+    assert last["cards_active"] >= 2 and last["cards_active"] >= curve[0]["cards_active"]
     assert last["memory"]["fits_used"] == last["control"]["fits_used"] == 24
     assert last["gap_val"] >= 0 and last["wasted_memory"] < last["wasted_control"]
     assert last["memory"]["test_scored_once"] and last["control"]["test_scored_once"]
