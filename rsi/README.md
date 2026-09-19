@@ -1,7 +1,7 @@
 # Zero to Hero: Recursive Self-Improvement — a hello world, skills only
 
 **Status: in progress.** The plan of record is [`OUTLINE.md`](OUTLINE.md)
-(v3, 19 Sep 2026). Steps land here one at a time; each is a skill pack booted
+(v4, 19 Sep 2026). Steps land here one at a time; each is a skill pack booted
 by one tiny skills harness in [`common/`](common/), with a test that runs
 without a key (`python run_tests.py rsi` from the repo root).
 
@@ -27,13 +27,14 @@ that can be scored once, a private gate, and a rollback.
 
 ```text
 rsi/
-  OUTLINE.md              the plan: definitions, steps, tests, tutorial validation
-  common/                 the one skills harness + the tools every skill names
-  data/                   bundled Adult sample (6k rows) and how it was made
-  step_00_regular_skill/  a repeatable trainer: same SKILL.md every run — not RSI
-  step_01_memory_skill/   memory cards + a verifier pack; MEMORY_OFF
-  step_02_freeze_and_proof/  freeze, one test score, transfer to a shifted table
-  step_03_policy_skill/   rank search policies on the log with zero fits
-  step_04_meta_skill/     a meta pack patches the inner pack; private gate; rollback
-  step_05_map/            the ladder, the papers, the terminology, the acceptance test
+  OUTLINE.md                 the plan: definitions, steps, tests, tutorial validation
+  common/                    the one skills harness + the tools every skill names
+  data/                      bundled Adult sample (6k rows) and how it was made
+  step_00_regular_skill/     a repeatable trainer: same SKILL.md every run - not RSI
+  step_01_loop_skill/        loop engineering: loop.json, a counted while with a freeze - not RSI
+  step_02_graph_skill/       graph engineering: graph.json + paths.json, a recipe is a path - not RSI
+  step_03_memory_skill/      the first RSI file: memory cards + a verifier pack; MEMORY_OFF
+  step_04_proof/             freeze, one test score, transfer to a shifted table, the scorecard
+  step_05_meta_skill/        a meta pack patches the inner pack: cards, schema or policy; private gate; rollback
+  step_06_map/               the ladder, the papers, regular vs loop vs graph vs RSI, the acceptance test
 ```
