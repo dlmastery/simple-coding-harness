@@ -97,10 +97,27 @@ def load(root, pid):
     return path, json.loads(path.read_text(encoding="utf-8"))
 
 
+def sub_packs(files):
+    """The top-level directories of a payload that are packs themselves (a directory of packs: lesson 08 lands
+    an actor and a verifier at once). Empty when the payload is one pack."""
+    if "SKILL.md" in files:
+        return []
+    return sorted({name.split("/")[0] for name in files if "/" in name and name.split("/", 1)[1] == "SKILL.md"})
+
+
 def land_pack(target, files):
+    """Write the payload under target. One pack replaces target; a directory of packs replaces each sub-pack
+    directory and nothing else under target (the writer's own pack lives next to them)."""
     import shutil
 
     target = Path(target)
+    subs = sub_packs(files)
+    if subs:
+        for sub in subs:
+            if (target / sub).exists():
+                shutil.rmtree(target / sub)
+        packs.write_pack(target, files)
+        return {sub: packs.checksums(target / sub) for sub in subs}
     if target.exists():
         shutil.rmtree(target)
     packs.write_pack(target, files)

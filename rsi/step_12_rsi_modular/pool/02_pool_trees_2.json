@@ -4,7 +4,7 @@
   "title": "synthetic pool_trees_2",
   "source": {
     "kind": "synth",
-    "n": 400,
+    "n": 1500,
     "seed": 206,
     "shift": 0,
     "imbalance": 0.25
@@ -32,5 +32,5 @@
     "has_categorical"
   ],
   "role": "curriculum",
-  "why": "benchmark-disjoint pool table: a synthetic seed no curriculum or exam problem uses"
+  "why": "a benchmark-disjoint pool table (trees-shaped, 1500 rows so the private split has 150): validation for module patches, never the eval table"
 }

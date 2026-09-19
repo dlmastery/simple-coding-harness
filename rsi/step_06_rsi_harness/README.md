@@ -1,132 +1,129 @@
-# Lesson 06 - The RSI harness: the first file that changes because of what happened
+# Lesson 06 - The RSI harness: the first file a later run reads that an earlier run wrote
 
-Two packs. The actor (`adult-income`) boots `memory.json` and proposes one
-recipe at a time under a search policy the cards shape; the verifier
-(`adult-income-verifier`) boots after the actor's run is frozen, sees only
-`{recipe, val_score, error, profile}` rows, and writes typed cards - IF a
-profile condition THEN prefer or forbid one field value, with evidence and
-counter counts. A card is a constraint on the *next* proposal, enforced by
-a tool (`fit_recipe` refuses a forbidden recipe), and no one grades their
-own homework: the verifier never sees the actor's transcript, and the actor
-has no `write_card`. `MEMORY_OFF` is the off switch: same pack, same 24
-fits, no cards, and the numbers must fall back to lesson 01's exactly. In
-the framework paper's terms this is L4: deployment feedback revises
-persistent state under an acceptance rule we wrote (the verifier contract).
+Two packs. The actor (`adult-income`) trains under the 24-fit budget and
+*proposes* its recipes shaped by the memory cards in `memory.json`: a card is
+`IF <profile predicate> THEN prefer / forbid <one field value>`, with
+`evidence` and `counter` counts, typed by `memory.schema.json` so that a
+script can enforce it (`fit_recipe.py` refuses a recipe a forbid card rules
+out; there is no free-text field for a diary entry or the word "test"). The
+verifier (`adult-income-verifier`) writes the cards, and no one grades their
+own homework: its whole input is `{recipe, val_score, error}` rows and the
+profile from `read_traces.py` - never the actor's transcript, the test
+split or the intent - and the actor cannot write a card at all (`write_card`
+is not in its `tools.md`; the script refuses). `MEMORY_OFF` is the off
+switch: `--memory off` on an arm or `{"memory": "off"}` in `config.json`
+gives lesson 01's numbers exactly. This is L4 in the framework paper's terms:
+deployment feedback revises persistent state under an acceptance rule the
+human wrote (the verifier contract, the card schema, the demotion rule).
 
 ## Getting started
 
-Lesson 05 left the writers and the approval cycle. This lesson adds the two
-packs, `memory.schema.json` (the JSON Schema of a card), `memory.json`
-(starts as `[]`), the tools `read_memory`, `write_card` and `read_traces`,
-and `common/memory.py` (cards, the verifier's rule, the preference a search
-obeys). `common/curriculum.py: run_problem` runs actor then verifier on one
-problem and returns the scorecard.
+Lesson 05 left the generated graph pack. This lesson adds two packs under
+`.claude/skills/` - `adult-income/` (`SKILL.md`, `tools.md`, `schema.json`,
+`memory.schema.json`, `memory.json` = `[]`) and `adult-income-verifier/`
+(`SKILL.md`, `tools.md`, `memory.schema.json`) - and three scripts:
+`read_memory.py`, `write_card.py`, `read_traces.py`. A run **changes the
+pack**: `memory.json` fills with cards. Reset with `git checkout --
+.claude/skills/adult-income/memory.json .agents/skills/adult-income/memory.json`
+(or write `[]` into both) and `rm -rf runs`.
 
 ## How to execute it
 
-1. Run the pack over four small curriculum problems in a row, memory arm
-   and `MEMORY_OFF` arm each, the pack carried forward:
+1. Type the prompt (two problems, so the cards learned on the first can
+   act on the second):
+
+   ```text
+   Problem 1 is ../tasks/01_adult_income.json, problem 2 is ../tasks/02_breast_cancer.json. On problem 1: use the adult-income skill for the control arm (memory off) and then for the memory arm, then use the adult-income-verifier skill to write the cards. Then on problem 2: the adult-income skill for the control arm and for the memory arm. Report the four scorecards side by side and which cards applied on problem 2.
+   ```
+
+   The commands the agent runs, per arm and for the verifier:
 
    ```bash
-   cd rsi/step_06_rsi_harness
-   FAKE_MODEL=1 python run.py
-   FAKE_MODEL=1 python run.py adult_income breast_cancer      # any problems by name, in order
-   MEMORY_OFF=1 FAKE_MODEL=1 python run.py                    # the off switch
+   python ../tools/load_splits.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control --memory off
+   python ../tools/fit_recipe.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control --recipes @.claude/skills/adult-income/schema.json
+   python ../tools/score_test.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+   python ../tools/scorecard.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control
+   # the memory arm: the same without --arm control / --memory off; with cards, read_memory + batches of fit_recipe --recipes '[...]'
+   python ../tools/read_traces.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --scope problem --tally
+   python ../tools/write_card.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --as .claude/skills/adult-income-verifier --cards '[{"if": {...}, "then": {...}, "evidence": 1, "counter": 0}, ...]'
    ```
 
-   ```powershell
-   cd rsi\step_06_rsi_harness
-   $env:FAKE_MODEL = "1"; python run.py
-   $env:MEMORY_OFF = "1"; python run.py
-   ```
+   No approval prompt in this lesson: the acceptance rule is the verifier
+   contract plus the card schema, both enforced by `write_card.py`.
+   PowerShell: put the cards in a file and pass `--cards '@cards.json'`.
 
-   No approval prompt: the verifier writes cards under the contract, the
-   contract is the acceptance rule, and the human wrote it.
-2. Read `runs/work/adult-income/memory.json` after the run: that file is
-   the whole difference between the two arms.
-3. Tests: `python run_tests.py rsi`.
+2. Try the refusals by hand: a card with a `note` field, or with `"prefer":
+   "test"` (`write_card.py` answers `not a card: ...`); `fit_recipe.py` on a
+   recipe a forbid card rules out (`no fit spent`); `write_card.py --as
+   .claude/skills/adult-income` (the actor: `not in adult-income's tools.md`).
+
+3. Headless, as recorded: `claude -p "<the prompt>" --allowedTools
+   "Bash,Read,Write,Edit,Skill"` (about six minutes). Tests: `python
+   run_tests.py rsi`.
 
 ## What it looks like
 
-`skills/adult-income/SKILL.md` - the actor:
+`.claude/skills/adult-income/SKILL.md` - the actor's search policy in words,
+and the rule it may not break:
 
 ```markdown
 ---
 name: adult-income
-description: Train a classifier for a curriculum problem under a 24-fit budget, proposing one recipe at a time shaped by the memory cards. Use when the pack has memory.json and a verifier pack writes to it.
+description: Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm). Use in rsi/step_06_rsi_harness and later, when the pack has memory.json and a verifier pack writes to it.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "on"
 ---
-```
+# RSI harness: the inner pack (the actor)
 
-```markdown
-2. For t in 1..24: read the cards that apply (an `if` the profile satisfies, `evidence` >= 1, `counter` at most half the `evidence`), propose ONE recipe from `schema.json` -> `fields`, and call `fit_recipe`. A recipe a forbid card rules out is refused by the tool and costs no fit; do not propose it again.
-   Search policy: obey-memory
-```
+## Procedure
+2. Search policy: obey-memory.
+   - No applicable card (every control arm; a memory arm with an empty memory): walk `schema.json` -> `recipes` in order, in one call:
+     `python ../tools/fit_recipe.py --pack P --task T [--arm control] --recipes @P/schema.json`
+   - Otherwise take, per field, the applicable `prefer` card with the most `evidence` minus `counter` as the preferred value (`python ../tools/read_memory.py --pack P --task T` lists them under `preferred`; a tie is no preference). Then, in calls of up to eight recipes each, in this order until a result says `FREEZE`:
+     a. Probe: one recipe per model of `schema.json` -> `models`, the preferred model first, each with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at its middle hyper value (`logreg` 1, `rf` 16, `hgb` 0.1). The probe winner is the model belief.
+     b. The believed model's family: its recipes from `recipes` (middle hyper value) first, then its hyper variants; inside each group the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order.
+     c. The rest of the grid of `fields`, grid order (model, hyper, scale, encode, class_weight).
 
-```markdown
+## Rules
+- Never write a card: that is the verifier's job, and `write_card` is not in your `tools.md`. Only a meta pack may patch this pack.
+
 ## Off switch
-MEMORY_OFF: the harness does not load `memory.json`; you run the static order. Same 24 fits, so the numbers can be compared.
+MEMORY_OFF: `--memory off` on the arm, or `{"memory": "off"}` in `config.json`. No card is read or written; you run the static order. Same 24 fits, so the numbers can be compared.
 ```
 
-`skills/adult-income-verifier/SKILL.md` - the contract line is checked
-verbatim by `lint_pack`, and the procedure is the rule the fake model and a
-real one both apply:
+`.claude/skills/adult-income-verifier/SKILL.md` - the contract, verbatim
+(`lint_pack` refuses a verifier pack without it), and the rule that turns a
+log into cards:
 
 ```markdown
 ---
 name: adult-income-verifier
-description: Turn the fit log of one problem into memory cards for the actor pack. Use after the actor's run on a problem is frozen; input is the log and the profile, nothing else.
+description: Turn the fit log of one problem into memory cards for the actor pack adult-income. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "on"
 ---
 # The verifier: no one grades their own homework
 
 Contract: the verifier sees only {recipe, val_score, error, profile}; it never sees the actor's transcript, the test split or the intent.
+
+## Procedure
+1. Read the fits of this problem's memory arm, with the pairwise tally:
+   `python ../tools/read_traces.py --pack P --task T --scope problem --tally`
+2. Tally every pair of rows whose recipes differ in exactly one field (two models at their default hyper value count as differing in `model` only): the higher `val_score` is a win for its value of that field and a loss for the other; a pair where one side errored marks the erroring value. The script's `tally` is the same count; check yours against it.
+3. Per field, write ONE `prefer` card for the value with the most wins net of losses (`evidence` 1) - if it has any net wins at all - and a `counter` 1 card (same `if`/`then`, `evidence` 0) for every value that lost more than it won. Write a `forbid` card (`evidence` 1) for a value that errored.
 ```
 
-```markdown
-3. Per field, write ONE prefer card for the value with the most wins net of losses (`evidence` 1) - if it has any net wins at all - and a `counter` 1 card for every value that lost more than it won. Write a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on (`class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical`; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3). Call `write_card` once per card; the tool merges the counts into `memory.json`. One problem is one piece of evidence: a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
-```
-
-A card, as `memory.json` holds it after the run below:
-
-```json
-{"if": {"key": "has_categorical", "op": "==", "value": 1}, "then": {"field": "encode", "prefer": "onehot"}, "evidence": 2, "counter": 0}
-```
-
-The tools that make the rules enforceable:
-
-`../common/tools.py`:
+`../tools/_lib/memory.py` - a card is typed; the words "test" and "intent"
+cannot get in; a counterexample demotes:
 
 ```python
-    card = memory.forbidden(rec, cards_for(run), run.profile)
-    if card is not None:
-        raise ValueError(f"a forbid card rules this recipe out: {json.dumps(card['then'])} (no fit spent)")
-```
+FORBIDDEN_WORDS = ("test", "intent")
 
-```python
-@tool("write_card", card="object")
-def write_card(run, card):
-    """Merge one card into memory.json: validated against memory.schema.json; refused if it names the test or the intent."""
-    if run.memory_off:
-        raise ValueError("MEMORY_OFF: no card is written this run")
-    if run.memory_frozen:
-        raise ValueError("the memory is frozen; no card lands until the next problem")
-    schema = json.loads(run.files.get("memory.schema.json") or json.dumps(memory.CARD_SCHEMA))
-    try:
-        memory.validate_card(card, schema)
-    except Exception as e:
-        raise ValueError(f"not a card: {str(e).splitlines()[0]}")
-```
 
-`../common/memory.py`:
-
-```python
 def validate_card(card, schema=CARD_SCHEMA):
     """A card is typed. Anything outside the type - a reason, an intent, the word test - is refused."""
     jsonschema.validate(card, schema)
@@ -143,93 +140,159 @@ def active(card):
     return card["evidence"] >= MIN_EVIDENCE and card["evidence"] >= 2 * card["counter"]
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1`, the four small problems;
-`mem` is the memory arm, `ctl` the `MEMORY_OFF` arm at the same budget and
-seed; `wasted` counts fits before the arm reached the `MEMORY_OFF` arm's
-best val score; `cards +/-/act` is cards activated / demoted / active):
+`../tools/fit_recipe.py` - a forbid card is a gate, not advice:
 
-```text
- # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
- 1 breast_cancer            0.9954   0.9954 +0.0000    0.9844    0.9844    0/0       1/0/1
- 2 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/1
- 3 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       5/0/6
- 4 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    3/17      2/0/8
-memory.json after 4 problems: 8 cards, 8 active
-  {"if": {"key": "n_rows", "op": "<", "value": 1000}, "then": {"field": "model", "prefer": "hgb"}, "evidence": 2, "counter": 0}
-  {"if": {"key": "n_rows", "op": "<", "value": 1000}, "then": {"field": "model", "prefer": "logreg"}, "evidence": 1, "counter": 0}
-  {"if": {"key": "n_classes", "op": "<", "value": 3}, "then": {"field": "hyper", "prefer": 1}, "evidence": 1, "counter": 0}
-  {"if": {"key": "n_features", "op": "<", "value": 10}, "then": {"field": "scale", "prefer": "no"}, "evidence": 1, "counter": 0}
-  {"if": {"key": "has_categorical", "op": "==", "value": 1}, "then": {"field": "encode", "prefer": "onehot"}, "evidence": 2, "counter": 0}
-  {"if": {"key": "imbalance", "op": ">=", "value": 0.35}, "then": {"field": "class_weight", "prefer": "none"}, "evidence": 1, "counter": 0}
-  {"if": {"key": "n_classes", "op": "<", "value": 3}, "then": {"field": "hyper", "prefer": 0.3}, "evidence": 1, "counter": 0}
-  {"if": {"key": "imbalance", "op": "<", "value": 0.35}, "then": {"field": "class_weight", "prefer": "none"}, "evidence": 1, "counter": 0}
+```python
+    cards = [] if run.memory_off else memory.load(run.memory_path)
+    card = memory.forbidden(rec, cards, run.profile)
+    if card is not None:
+        raise ValueError(f"a forbid card rules this recipe out: {json.dumps(card['then'])} (no fit spent)")
 ```
 
-Read it top to bottom: on problem 1 the arms are identical (no card yet);
-by problem 4 the memory arm reaches the static grid's best within 3 fits
-instead of 17, and its own best is 0.065 higher on validation and 0.076
-higher on the locked test, because the cards sent it to the `hgb` family
-first and the freed budget explored that family's learning rates. Wine sits
-at 1.0 for every recipe: ties teach nothing, and the verifier wrote nothing.
+`../tools/read_traces.py` - the verifier's whole input, and the shape that
+*is* the contract:
+
+```python
+    if a.scope == "problem":
+        raw = run.fit_rows(arm=a.of)
+        rows = [{"recipe": r["recipe"], "val_score": r["val_score"], "error": r["error"]} for r in raw]
+```
+
+The recorded run (Claude Code 2.1.278, headless, 28 turns, 347 s; the
+agent piped the fit results through a one-line `python -c` formatter of its
+own, trimmed here):
+
+```text
+[Skill adult-income]
+agent> Memory is empty. Problem 1, control arm: open the arm.
+$ python ../tools/load_splits.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control --memory off
+agent> No applicable cards -> walk the static list in one call.
+$ python ../tools/fit_recipe.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --arm control --recipes @.claude/skills/adult-income/schema.json
+agent> FREEZE. Best val_score is 0.9172, first reached at fit 18: hgb, 0.1, yes, onehot, balanced.
+$ python ../tools/score_test.py ... --arm control --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced && python ../tools/save_model.py ... && python ../tools/scorecard.py ... --arm control
+agent> Problem 1 control done: best val 0.9172, test 0.9034, 24 fits, 16 wasted. Now problem 1 memory
+arm (memory is empty, so the same static walk applies).
+$ python ../tools/load_splits.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json
+$ python ../tools/fit_recipe.py ... --recipes @.claude/skills/adult-income/schema.json
+agent> Same numbers (same seed, same order). Best is fit 18 again.
+[Skill adult-income-verifier]
+$ python ../tools/read_traces.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --scope problem --tally
+{"scope": "problem", "rows": [{"recipe": {...}, "val_score": 0.9114, "error": null}, ... 24 rows], "profile": {...},
+ "tally": {"wins": [...], "losses": [...], "errored": []}, "cards_by_rule": [ ... 9 cards ... ]}
+$ python ../tools/write_card.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --as .claude/skills/adult-income-verifier --cards '[
+{"if":{"key":"n_rows","op":">=","value":1000},"then":{"field":"model","prefer":"hgb"},"evidence":1,"counter":0},
+{"if":{"key":"n_rows","op":">=","value":1000},"then":{"field":"model","prefer":"logreg"},"evidence":0,"counter":1},
+{"if":{"key":"n_rows","op":">=","value":1000},"then":{"field":"model","prefer":"rf"},"evidence":0,"counter":1},
+{"if":{"key":"n_features","op":">=","value":10},"then":{"field":"scale","prefer":"yes"},"evidence":1,"counter":0},
+{"if":{"key":"n_features","op":">=","value":10},"then":{"field":"scale","prefer":"no"},"evidence":0,"counter":1},
+{"if":{"key":"has_categorical","op":"==","value":1},"then":{"field":"encode","prefer":"onehot"},"evidence":1,"counter":0},
+{"if":{"key":"has_categorical","op":"==","value":1},"then":{"field":"encode","prefer":"ordinal"},"evidence":0,"counter":1},
+{"if":{"key":"imbalance","op":"<","value":0.35},"then":{"field":"class_weight","prefer":"none"},"evidence":1,"counter":0},
+{"if":{"key":"imbalance","op":"<","value":0.35},"then":{"field":"class_weight","prefer":"balanced"},"evidence":0,"counter":1}]'
+{"cards": 9, "written": 9, "added": 9, "demoted": 0, "refused": 0, "by": "adult-income-verifier", ...}
+$ python ../tools/load_splits.py ... --task ../tasks/02_breast_cancer.json --arm control --memory off
+$ python ../tools/fit_recipe.py ... --task ../tasks/02_breast_cancer.json --arm control --recipes @.claude/skills/adult-income/schema.json
+agent> Best val 0.9954, first at fit 18: hgb, 0.1, yes, onehot, balanced.
+agent> Problem 2 control done. Now the memory arm - open it and read which cards apply.
+$ python ../tools/load_splits.py ... --task ../tasks/02_breast_cancer.json && python ../tools/read_memory.py ... --task ../tasks/02_breast_cancer.json
+agent> One applicable card: scale: yes (n_features 30 >= 10). No preferred model / encode /
+class_weight, so probe uses defaults onehot / none in grid model order.
+$ python ../tools/fit_recipe.py ... --recipes '[{"model":"logreg","hyper":1,"scale":"yes","encode":"onehot","class_weight":"none"}, {"model":"rf","hyper":16,...}, {"model":"hgb","hyper":0.1,...}]'
+agent> Probe winner: hgb (0.9949 vs logreg 0.9937, rf 0.9917). Model belief = hgb. Step b: the hgb
+family from recipes (scale=yes ones first), then hyper variants.
+$ python ../tools/fit_recipe.py ... --recipes '[ 8 hgb recipes ]'
+$ python ../tools/fit_recipe.py ... --recipes '[ 8 more: hgb at 0.05 and 0.3 ]'
+agent> New best: hgb 0.3 yes onehot none at 0.9966. Five fits left - the remaining hyper variants.
+$ python ../tools/fit_recipe.py ... --recipes '[ 5 hgb recipes ]'
+FREEZE True fits_left 0
+$ python ../tools/score_test.py ... --recipe model=hgb,hyper=0.3,scale=yes,encode=onehot,class_weight=none && ... scorecard.py ...
+agent> ## Scorecards
+| | P1 adult_income control | P1 memory | P2 breast_cancer control | P2 memory |
+| best val_score | 0.9172 | 0.9172 | 0.9954 | 0.9966 |
+| test_score     | 0.9034 | 0.9034 | 0.9844 | 0.9883 |
+| best recipe    | hgb 0.1 yes onehot balanced | same | hgb 0.1 yes onehot balanced | hgb 0.3 yes onehot none |
+| fits used / wasted | 24 / 16 | 24 / 16 | 24 / 0 | 24 / 0 |
+| cards active   | 0 | 0 | 0 | 4 |
+Problem 1's two arms are identical by construction: memory was empty, so the memory arm walked the
+same static list as the control arm.
+Which cards applied on problem 2 (profile: n_rows 569, n_features 30, n_classes 2, imbalance 0.373,
+has_categorical 0): 1 of 4 - n_features >= 10 -> prefer scale: yes. Did not apply: n_rows >= 1000 ->
+hgb (569 rows), has_categorical == 1 -> onehot (no categoricals), imbalance < 0.35 -> class_weight
+none (0.373). So the memory arm had only a scale preference and no model belief; it ran the probe,
+committed to hgb, and spent the remaining 21 fits on the hgb family - which is where the gain came
+from: the static list never leaves hyper 0.1, while the family search found hgb at learning rate 0.3
+(0.9966 val / 0.9883 test vs 0.9954 / 0.9844).
+One observation for the series: the model card is keyed on n_rows >= 1000, so hgb's dominance on
+problem 1 couldn't transfer to a 569-row problem even though it won here too.
+[28 turns, 347 s]
+```
+
+What to notice: the memory arm's recipes are the agent's own choices,
+following the policy text - and they land on the same 0.9966 / 0.9883 the
+test's scripted policy finds. The agent's closing observation is exactly
+the superstition problem lesson 07's curriculum is built around (a card
+conditioned on `n_rows` cannot know whether the signal is linear), and it
+was made from the profile and the numbers, not from the data. The verifier
+never saw the actor's messages; it saw 24 rows and a profile.
 
 Files:
 
 ```text
 step_06_rsi_harness/
-  skills/adult-income/
-    SKILL.md            the actor: boot order, the search policy line, the off switch
-    tools.md            Allowed: load_splits, fit_recipe, read_memory, score_test, save_model; write_card Forbidden
-    schema.json         the recipe fields, n_fits 24, the test rule, the static list, a (still empty) forbid list
-    memory.schema.json  the JSON Schema of a card: if / then / evidence / counter, nothing else
-    memory.json         [] - the first RSI file
-  skills/adult-income-verifier/
-    SKILL.md            the contract line, the comparison rule, the card thresholds
-    tools.md            Allowed: read_traces, write_card; fit_recipe and score_test Forbidden
-    memory.schema.json  the same schema; write_card validates against this copy
-  run.py                actor -> verifier per problem, both arms, the pack carried forward
-  test_step.py          the claims below
-  README.md             this lesson
+├── README.md, test_step.py, .claude/settings.json
+├── .claude/skills/adult-income/          the actor
+│   ├── SKILL.md, tools.md, schema.json
+│   ├── memory.schema.json                IF profile THEN prefer / forbid one field value
+│   └── memory.json                       [] shipped; the cards land here
+├── .claude/skills/adult-income-verifier/ SKILL.md (the contract), tools.md, memory.schema.json
+├── .agents/skills/...                    the same
+└── runs/adult-income/{adult_income,breast_cancer}/   state.json (both arms), traces.jsonl, scorecards
 ```
 
 ## Governance considerations
 
-- Who approves what: the human approved the verifier contract by writing
-  it; every card lands under it without a prompt. That is the acceptance
-  rule of this rung, and the reason lesson 08 makes a human approve the
-  contract explicitly when a writer generates it.
-- Off switches: `MEMORY_OFF` (no cards loaded, no card written); the budget
-  and the locked test as before; `memory_frozen` (lesson 07's exam) closes
-  `write_card`.
-- What the model may not do, and which tool enforces it: the actor may not
-  write a card (`write_card` is not in its `tools.md`); the verifier may not
-  fit or score (`lint_pack` refuses a verifier with those tools, `execute`
-  refuses the calls); a card may not carry a reason, an intent or the word
-  test (`memory.schema.json` has `additionalProperties: false`,
-  `validate_card` scans the text); a forbidden recipe is not fitted
-  (`fit_recipe`); the verifier is booted with the actor's log, never its
-  messages (`read_traces` returns five keys).
-- What is and is not self-modified: `memory.json` is. `SKILL.md`,
-  `tools.md`, `schema.json` and `memory.schema.json` are not - only a meta
-  pack may patch them (lesson 09). The model's weights are what they were.
-  Rung: L4; what stays human is the contract and the off switch.
+- **Who approves what.** The human wrote the acceptance rule - the
+  verifier contract, `memory.schema.json`, the demotion rule - and the
+  system applies it without asking: this is the first lesson where a run
+  changes a file a later run reads. No human sits in the loop per card;
+  the human's decision is the rule and the off switch.
+- **The hook.** As before (locked test). No approval call exists in this
+  lesson.
+- **What the script refuses.** `write_card.py`: a card outside the schema
+  (an extra field, an unknown profile key, both `prefer` and `forbid`), a
+  card mentioning `test` or `intent`, any card under `MEMORY_OFF`, any card
+  from a pack whose `tools.md` lacks `write_card` (the actor).
+  `fit_recipe.py`: a recipe a forbid card rules out (no fit spent).
+  `read_traces.py` cannot return anything but rows and the profile.
+  `fit_recipe.py` / `score_test.py`: refused for the verifier.
+- **What is and is not self-modified.** `memory.json` is - by the verifier,
+  under the contract. `SKILL.md`, `schema.json`, the policy line and
+  `tools.md` are not: "only a meta pack may patch this pack" (lesson 09).
+  Autonomy attribution: the system decides *which cards*, from evidence;
+  the human decided what a card may be, who may write one, and how one
+  dies.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| the verifier pack's transcript contains no actor text; its rows have the contract's keys only | `test_verifier_transcript_contains_no_actor_text` |
-| `write_card` refuses a card mentioning `test` or `intent`, or carrying any extra field | `test_write_card_refuses_a_card_that_names_the_test_or_the_intent` |
-| a planted wrong card is demoted after two counterexamples | `test_a_planted_wrong_card_is_demoted_after_two_counterexamples` |
-| `fit_recipe` refuses a forbidden recipe, at no cost to the budget | `test_fit_recipe_refuses_a_forbidden_recipe` |
-| same seeds and budget: the memory arm >= the `MEMORY_OFF` arm and wastes fewer fits | `test_memory_arm_beats_memory_off_at_the_same_budget` |
-| `MEMORY_OFF` reproduces lesson 01's numbers exactly | `test_memory_off_reproduces_step_01_exactly` |
+| `MEMORY_OFF` (`config.json`) reproduces lesson 01's numbers exactly and refuses every card | `test_memory_off_reproduces_lesson_01_exactly` |
+| the verifier's input is rows `{recipe, val_score, error}` and the profile, nothing else; it writes typed cards (`encode: onehot` among them) | `test_verifier_sees_only_rows_and_profile_and_writes_typed_cards` |
+| a card with a note, the word `test` or `intent`, both prefer and forbid, or an unknown key is refused; the actor cannot write a card, the verifier cannot fit | `test_write_card_refuses_test_intent_and_extra_fields` |
+| a planted wrong card is demoted by one counterexample; a forbid card refuses a fit and no budget is spent | `test_planted_wrong_card_is_demoted_and_forbid_card_refuses_a_fit` |
+| after problem 1, the memory arm on problem 2 beats the control arm (val and test) at the same budget, wastes no more fits, and reaches a hyper variant the static list never visits | `test_memory_arm_beats_control_on_problem_2_after_problem_1` |
+| the pack contract | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen, per arm and per problem;
-`cards_added` / `cards_demoted` / `cards_active` are live from here on. Run
-`python run_tests.py rsi` from the repo root.
+Scorecards on this machine (seed 0): problem 1 memory = control (val 0.9172,
+test 0.9034, wasted 16); problem 2 control val 0.9954 / test 0.9844, memory
+val 0.9966 / test 0.9883, wasted 0 / 0, cards active 4. Breast cancer is
+nearly saturated for this recipe space; the gain is small and real.
+
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [07 - proof](../step_07_proof/README.md): the locked test, the
-learning curve across the curriculum, the exam. Previous:
-[05 - a meta skill generates the graph harness](../step_05_meta_generates_graph/README.md).
+[Lesson 07 - the proof](../step_07_proof/README.md): the learning curve over
+six problems and the exam. Previous:
+[Lesson 05 - the graph writer](../step_05_meta_generates_graph/README.md).

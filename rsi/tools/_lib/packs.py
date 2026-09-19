@@ -220,3 +220,12 @@ def diff(before, after):
         if a != b:
             out += difflib.unified_diff(a.splitlines(), b.splitlines(), f"a/{name}", f"b/{name}", lineterm="", n=1)
     return "\n".join(out)
+
+
+POLICY_LINE = re.compile(r"^\s*(?:- )?Search policy:\s*([a-z0-9-]+)\s*\.?\s*$", re.M)
+
+
+def policy_line(text):
+    """The pack's `Search policy: <name>` line (the one a meta pack patches) - a line of its own, not a mention."""
+    m = POLICY_LINE.search(text)
+    return m.group(1) if m else None

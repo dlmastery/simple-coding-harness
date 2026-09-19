@@ -1,0 +1,1 @@
+{"phase": "broad", "c": 2.0, "experiments": [{"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}]}

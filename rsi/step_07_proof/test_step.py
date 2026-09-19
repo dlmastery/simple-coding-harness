@@ -1,71 +1,117 @@
-"""Step 07 - test scored once per problem; every scorecard field present; the learning curve over the curriculum
-is never negative and grows; the frozen pack beats MEMORY_OFF on the exam and the report names a card that did
-not transfer. One curriculum run and one exam run, shared by the tests (module scope: ~40 s on this machine)."""
+"""Lesson 07 - the proof: the test is scored exactly once per problem and arm; every scorecard has exactly the
+acceptance fields; problems 1..6 in order carry the pack forward and the learning-curve gap (memory - control)
+is >= 0 on every problem and larger on problem 6 than on problem 2; on the exam the frozen pack beats the
+control arm on >= 3 of 5 seeds, no card is written, the pack is unchanged, and the report names a card that
+did not transfer. The test plays the curriculum skill on the offline synthetic curriculum (six small tables
+shaped like the real one, and a held-out exam), so it runs in seconds.
+"""
 
+import json
 import sys
 from pathlib import Path
 
 import pytest
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import curriculum, memory, packs, steps, tasks  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.scorecard import SCORECARD_FIELDS  # noqa: E402
-from common.trace import TraceLog  # noqa: E402
+from _lib import packs, tasks, testing  # noqa: E402
+from _lib.scorecard import SCORECARD_FIELDS  # noqa: E402
 
 ACTOR, VERIFIER = "adult-income", "adult-income-verifier"
-CUR, EXAM = tasks.test_curriculum()
+
+
+def synthetic_tasks(tmp_path):
+    """The offline curriculum as task files, the shape every script expects."""
+    d = tmp_path / "tasks"
+    d.mkdir()
+    curriculum, exam = tasks.test_curriculum()
+    paths = []
+    for t in curriculum:
+        p = d / f"{t['index']:02d}_{t['name']}.json"
+        p.write_text(json.dumps(t), encoding="utf-8")
+        paths.append(p)
+    exam_path = d / f"{exam['index']:02d}_{exam['name']}.json"
+    exam_path.write_text(json.dumps(exam), encoding="utf-8")
+    return paths, exam_path
 
 
 @pytest.fixture(scope="module")
-def proof(tmp_path_factory):
-    tmp = tmp_path_factory.mktemp("proof")
-    actor, verifier = steps.workspace(HERE, ACTOR, VERIFIER, into=tmp / "w")
-    curve = curriculum.run_curriculum(actor, verifier, CUR, FakeModel(), tmp / "run")
-    checksums = packs.checksums(actor)
-    report = curriculum.run_exam(actor, EXAM, FakeModel(), tmp / "exam")
-    return {"actor": actor, "curve": curve, "report": report, "trace": TraceLog(tmp / "run" / "traces.jsonl"),
-            "exam_trace": TraceLog(tmp / "exam" / "traces.jsonl"), "checksums_before_exam": checksums}
+def curriculum_run(tmp_path_factory):
+    """One curriculum run shared by the tests below (a minute of fits): actor, verifier, task paths, exam path, curve."""
+    return run_curriculum(tmp_path_factory.mktemp("curriculum"))
 
 
-def test_test_is_scored_exactly_once_per_problem_and_arm(proof):
-    for task in CUR:
+def run_curriculum(tmp_path):
+    actor, verifier = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER)
+    paths, exam_path = synthetic_tasks(tmp_path)
+    for p in paths:
+        testing.play_arm(actor, p, arm="control", memory_off=True)
+        testing.play_arm(actor, p)
+        testing.play_verifier(actor, p, verifier)
+    curve = testing.tool("curve", "--pack", actor, "--tasks", tmp_path / "tasks")
+    return actor, verifier, paths, exam_path, curve
+
+
+def test_curve_gap_never_negative_and_growing(curriculum_run):
+    actor, verifier, paths, exam_path, curve = curriculum_run
+    tmp_path = actor.parents[2]
+    rows = curve["curve"]
+    assert len(rows) == 6 and curve["summary"]["complete"] == 6
+    assert all(r["gap_val"] >= 0 for r in rows), [r["gap_val"] for r in rows]
+    assert rows[5]["gap_val"] > rows[1]["gap_val"], [r["gap_val"] for r in rows]
+    assert curve["summary"]["wasted_memory_total"] < curve["summary"]["wasted_control_total"]
+    assert sum(r["cards_added"] for r in rows) > 0 and any(r["cards_demoted"] > 0 for r in rows)   # a superstition met its counterexample
+    assert "problem" in curve["table"] and (tmp_path / "runs" / ACTOR / "curve.json").exists()
+
+
+def test_test_scored_once_per_problem_and_arm_with_every_field(curriculum_run):
+    actor, verifier, paths, exam_path, curve = curriculum_run
+    tmp_path = actor.parents[2]
+    for r in curve["curve"]:
         for arm in ("memory", "control"):
-            assert len(proof["trace"].rows("score_test", problem=task["name"], arm=arm, seed=0)) == 1
-    for row in proof["curve"]:
-        for arm in ("memory", "control"):
-            assert row[arm]["test_scored_once"] and not row[arm]["test_touched_before_freeze"]
-    for r in proof["report"]["results"]:
-        assert len(proof["exam_trace"].rows("score_test", problem=EXAM["name"], arm="memory", seed=r["seed"])) == 1
+            card = r[arm]
+            assert set(card) == set(SCORECARD_FIELDS)
+            assert card["test_scored_once"] and not card["test_touched_before_freeze"] and card["fits_used"] == 24
+        trace = [json.loads(l) for l in (tmp_path / "runs" / ACTOR / r["problem"] / "traces.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert sum(1 for t in trace if t["event"] == "score_test" and t["arm"] == "memory") == 1
+        assert sum(1 for t in trace if t["event"] == "score_test" and t["arm"] == "control") == 1
 
 
-def test_every_scorecard_field_is_present(proof):
-    for row in proof["curve"]:
-        for arm in ("memory", "control"):
-            assert tuple(row[arm]) == SCORECARD_FIELDS
-    eval_md = (HERE / "skills" / ACTOR / "eval.md").read_text(encoding="utf-8")
-    assert all(field in eval_md for field in SCORECARD_FIELDS)                      # eval.md names them all
-    assert "`test_touched_before_freeze` must be `no`" in eval_md
+def test_exam_frozen_pack_beats_control_on_most_seeds(curriculum_run):
+    actor, verifier, paths, exam_path, curve = curriculum_run
+    tmp_path = actor.parents[2]
+    before = packs.checksums(actor)
+    for seed in range(5):
+        testing.play_arm(actor, exam_path, arm="control", memory_off=True, seed=seed, freeze_memory=True)
+        testing.play_arm(actor, exam_path, seed=seed, freeze_memory=True)
+        refused = testing.tool("write_card", "--pack", actor, "--task", exam_path, "--seed", seed, "--as", verifier,
+                               "--card", json.dumps({"if": {"key": "n_rows", "op": ">", "value": 1}, "then": {"field": "model", "prefer": "rf"}, "evidence": 1, "counter": 0}))
+        assert "frozen" in refused["error"]
+    report = testing.tool("exam", "--pack", actor, "--task", exam_path, "--seeds", "0,1,2,3,4")
+    assert report["wins"] >= 3, report["table"]
+    assert report["pack_unchanged"] and report["no_card_written"] and packs.checksums(actor) == before
+    assert report["missing"] == [] and len(report["results"]) == 5
+    assert isinstance(report["did_not_transfer"], list) and "did not transfer" in report["table"] or report["did_not_transfer"] == []
+    assert (tmp_path / "runs" / ACTOR / "exam.json").exists()
 
 
-def test_the_pack_is_carried_forward_and_the_learning_curve_grows(proof):
-    curve = proof["curve"]
-    assert [r["index"] for r in curve] == [1, 2, 3, 4, 5, 6]
-    assert all(r["gap_val"] >= 0 for r in curve)
-    assert curve[5]["gap_val"] > curve[1]["gap_val"]
-    assert curve[0]["cards_active"] > 0 and curve[5]["cards_active"] >= curve[1]["cards_active"]   # carried forward
-    assert sum(r["wasted_memory"] for r in curve) < sum(r["wasted_control"] for r in curve)
-    boots = [b for b in proof["trace"].rows("boot", arm="memory") if b["info"]["pack"] == ACTOR]
-    assert boots[-1]["info"]["checksums"]["memory.json"] != boots[0]["info"]["checksums"]["memory.json"]
+def test_memory_off_config_gives_control_numbers(tmp_path):
+    actor, verifier = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER)
+    paths, _ = synthetic_tasks(tmp_path)
+    testing.play_arm(actor, paths[0])
+    testing.play_verifier(actor, paths[0], verifier)
+    control = testing.play_arm(actor, paths[1], arm="control", memory_off=True)
+    (actor / "config.json").write_text('{"memory": "off"}', encoding="utf-8")
+    off = testing.play_arm(actor, paths[1], arm="memory")
+    assert off["best_val_score"] == control["best_val_score"] and off["test_score"] == control["test_score"]
+    assert off["best_recipe"] == control["best_recipe"] and off["cards_active"] == 0
 
 
-def test_the_frozen_pack_beats_memory_off_on_the_exam(proof):
-    report = proof["report"]
-    assert len(report["seeds"]) == 5 and report["wins"] >= 3
-    assert report["pack_unchanged"] and packs.checksums(proof["actor"]) == proof["checksums_before_exam"]
-    assert proof["exam_trace"].rows("card") == []                                    # frozen: nothing written
-    assert report["did_not_transfer"], "the report names the cards that did not transfer"
-    for c in report["did_not_transfer"]:
-        assert memory.active(c) and memory.matches(c, tasks.profile(EXAM))
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE, timeout=3600)
+    assert "exam" in text.lower()

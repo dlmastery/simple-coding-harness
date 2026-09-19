@@ -55,10 +55,11 @@ def parser(doc, **args):
     p = argparse.ArgumentParser(description=doc.strip().splitlines()[0], formatter_class=argparse.RawDescriptionHelpFormatter,
                                 epilog=doc)
     for name, spec in args.items():
+        flag = f"--{name.replace('_', '-')}"
         if isinstance(spec, dict):
-            p.add_argument(f"--{name}", **spec)
+            p.add_argument(flag, dest=spec.pop("dest", name), **spec)
         else:
-            p.add_argument(f"--{name}", help=spec)
+            p.add_argument(flag, dest=name, help=spec)
     return p
 
 

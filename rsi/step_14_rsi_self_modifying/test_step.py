@@ -1,97 +1,132 @@
-"""Step 14 - the archive holds every variant with its held-out score; the parent is chosen from the archive, not
-always the latest; a rewrite that lowers the held-out score never becomes a parent; SKILL.md and loop.json are the
-only self-modified files."""
+"""Lesson 14 - the Darwin Goedel Machine lineage: the archive holds every variant with its held-out score; the
+parent is chosen from the archive by score, not always the latest; a rewrite that lowers the private score
+never becomes a parent (the gate rolls it back before it runs); SKILL.md and loop.json are the only
+self-modified files; approval: both puts the human after the gate.
+"""
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, harness, packs, steps, tasks  # noqa: E402
-from common.approve import Human  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.tools import archive_index, execute  # noqa: E402
-from common.trace import TraceLog  # noqa: E402
-from run import ACTOR, META, VERIFIER, held_out, run_generations  # noqa: E402
+from _lib import packs, recipe, tasks, testing  # noqa: E402
 
-CUR, _ = tasks.test_curriculum()
-T1, T2 = CUR[0], CUR[1]
+ACTOR, VERIFIER, META = "adult-income", "adult-income-verifier", "dgm-meta"
 
 
-def two_generations(tmp_path):
-    run_dir = tmp_path / "run"
-    curve, actor, _ = run_generations(FakeModel(), [T1, T2], run_dir, human=Human(["y", "y"]), into=tmp_path / "w")
-    meta = harness.boot(tmp_path / "w" / META, T1, run_dir=run_dir, target=actor, arm="meta", quiet=True)
-    return curve, actor, run_dir, archive_index(meta), TraceLog(run_dir / "traces.jsonl")
+def setup(tmp_path):
+    actor, verifier, meta = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER, META)
+    held = sorted((meta / "held-out").glob("*.json"))
+    return actor, verifier, meta, held
 
 
-def test_the_archive_holds_every_variant_with_its_held_out_score(tmp_path):
-    curve, actor, run_dir, index, trace = two_generations(tmp_path)
-    assert [e["label"] for e in index] == [f"{T1['name']}-static", f"{T2['name']}-obey-memory"]
-    for e in index:
-        assert isinstance(e["held_out"], float) and set(e["gains"]) == {f"{t['name']}/0" for t in held_out()}
-        assert (run_dir / "archive" / e["label"] / "SKILL.md").exists() and (run_dir / "archive" / e["label"] / "loop.json").exists()
-        snapshot = {k: v for k, v in packs.checksums(run_dir / "archive" / e["label"]).items() if k != "CHECKSUMS.json"}
-        assert e["checksums"] == snapshot                                                    # the variant is the pack as it ran
-    heldout_rows = trace.rows("fit", arm="heldout-1")
-    assert {r["problem"] for r in heldout_rows} == {t["name"] for t in held_out()}          # scored on the fixed benchmark
-    assert not ({t["name"] for t in held_out()} & {t["name"] for t in CUR})                  # which no curriculum problem shares
+def benchmark(actor, verifier, held, seed):
+    for tp in held:
+        testing.play_arm(actor, tp, arm="control", memory_off=True, seed=seed)
+        testing.play_arm(actor, tp, seed=seed)
+        testing.play_verifier(actor, tp, verifier, seed=seed)
 
 
-def test_the_parent_is_chosen_from_the_archive_not_always_the_latest(tmp_path):
-    actor, meta = steps.workspace(HERE, ACTOR, META, into=tmp_path / "w")
-    run = harness.boot(meta, T1, run_dir=tmp_path / "run", target=actor, arm="meta", quiet=True)
-    root = tmp_path / "run" / "archive"
-    root.mkdir(parents=True)
-    packs.snapshot(actor, root, "older-good")
-    packs.snapshot(actor, root, "latest-worse")
-    index = [{"label": "older-good", "problem": "x", "seed": 0, "held_out": 0.02, "parent": None},
-             {"label": "latest-worse", "problem": "y", "seed": 0, "held_out": -0.01, "parent": "older-good"}]
-    (root / "archive.json").write_text(json.dumps(index), encoding="utf-8")
-    parent = json.loads(execute(run, checks.call("archive", action="parent", payload={})))
-    assert parent == {"parent": "older-good", "held_out": 0.02, "latest": "latest-worse"}
-    listed = json.loads(execute(run, checks.call("archive", action="list", payload={})))
-    assert [v["label"] for v in listed["variants"]] == ["older-good", "latest-worse"]
+def archive(meta, actor, task, action, seed=0, **kw):
+    argv = ["--pack", str(meta), "--task", str(task), "--target", str(actor), "--action", action, "--seed", str(seed)]
+    for k, v in kw.items():
+        argv += [f"--{k.replace('_', '-')}", str(v)]
+    return testing.tool("archive", *argv)
 
 
-def test_a_rewrite_that_lowers_the_held_out_score_never_becomes_a_parent(tmp_path):
-    curve, actor, run_dir, index, trace = two_generations(tmp_path)
-    scores = {e["label"]: e["held_out"] for e in index}
-    picks = [r["info"] for r in trace.rows("archive") if r["info"]["action"] == "parent"]
-    assert len(picks) == 2
-    worst = min(scores, key=scores.get)
-    if scores[worst] < max(scores.values()):
-        meta = harness.boot(tmp_path / "w" / META, T2, run_dir=run_dir, target=actor, arm="meta", quiet=True)
-        parent = json.loads(execute(meta, checks.call("archive", action="parent", payload={})))
-        assert parent["parent"] != worst and parent["held_out"] == max(scores.values())
-    restore = [r for r in trace.rows("archive") if r["info"]["action"] == "restore"]
-    if restore:
-        assert restore[-1]["info"]["label"] != worst
+def rewrite(meta, actor, task, policy, evidence, visit, words=None):
+    files = packs.read_pack(actor)
+    current = testing.policy_line(actor)
+    loop = json.loads(files["loop.json"])
+    loop["policy"] = policy
+    payload = {"SKILL.md": {"after": files["SKILL.md"].replace(f"Search policy: {current}", f"Search policy: {policy}")},
+               "loop.json": {"after": json.dumps(loop, indent=1) + "\n"}}
+    out = testing.tool("patch_pack", "--pack", meta, "--task", task, "--target", actor, "--files", json.dumps(payload), "--recipe", json.dumps(evidence),
+                       "--summary", f"-> {policy}", "--visit", str(visit))
+    if words and out.get("landed") == "pending":
+        out = testing.tool("patch_pack", "--pack", meta, "--task", task, "--target", actor, "--proposal", out["id"], "--approved", words)
+    return out
 
 
-def test_skill_md_and_loop_json_are_the_only_self_modified_files(tmp_path):
-    curve, actor, run_dir, index, trace = two_generations(tmp_path)
-    applied = trace.rows("apply")
-    assert applied and all(set(a["info"]["files"]) <= {"SKILL.md", "loop.json"} for a in applied)
-    meta = harness.boot(tmp_path / "w" / META, T1, run_dir=run_dir, target=actor, arm="meta", quiet=True)
-    recipe = {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
-    assert execute(meta, checks.call("patch_pack", files={"schema.json": {"after": "{}"}}, recipe=recipe, summary="x")) \
-        .startswith("Error: this meta pack may patch ['SKILL.md', 'loop.json'] only, not schema.json")
-    assert execute(meta, checks.call("patch_pack", files={"tools.md": {"after": "x"}}, recipe=recipe, summary="x")).startswith("Error: this meta pack may patch")
-    variants = [packs.read_pack(run_dir / "archive" / e["label"]) for e in index]
-    differing = {n for v in variants for n in v if n != "CHECKSUMS.json" and v[n] != variants[0].get(n)}
-    assert differing <= {"SKILL.md", "loop.json", "memory.json"}                         # memory.json is the verifier's, not a rewrite
-    loop = json.loads((run_dir / "archive" / index[1]["label"] / "loop.json").read_text(encoding="utf-8"))
-    assert loop["policy"] == "obey-memory" and loop["N"] == 24                              # the rewrite kept the budget
-    assert packs.lint_pack(run_dir / "archive" / index[1]["label"], T2) == []
+def best_recipe(actor, task, seed):
+    rows = testing.tool("read_traces", "--pack", actor, "--task", task, "--seed", str(seed), "--scope", "problem")["rows"]
+    return max((r for r in rows if r["val_score"] is not None), key=lambda r: r["val_score"])["recipe"]
 
 
-def test_the_human_can_refuse_what_the_gate_kept(tmp_path):
-    run_dir = tmp_path / "run"
-    curve, actor, _ = run_generations(FakeModel(), [T1], run_dir, human=Human(["n"]), into=tmp_path / "w")
-    patch = curve[0]["meta"]["patch"]
-    assert patch["gate"]["keep"] and patch["decision"] == "n" and not patch["landed"] and patch["rolled_back_to"] == "gen_001"
-    assert "Search policy: static" in (actor / "SKILL.md").read_text(encoding="utf-8")
+def test_archive_holds_every_variant_and_the_parent_is_by_score_not_recency(tmp_path):
+    actor, verifier, meta, held = setup(tmp_path)
+    benchmark(actor, verifier, held, seed=1)
+    g1 = archive(meta, actor, held[-1], "add", seed=1, label="gen1-static", held_out=meta / "held-out")
+    assert g1["variants"][0]["label"] == "gen1-static" and g1["variants"][0]["policy"] == "static"
+    assert (tmp_path / "runs" / ACTOR / "archive" / "gen1-static" / "SKILL.md").exists()
+    # generation 2: obey-memory, kept by the gate and the human, run on the benchmark, archived
+    out = rewrite(meta, actor, held[-1], "obey-memory", best_recipe(actor, held[-1], 1), visit=1, words="approve")
+    assert out["landed"] and out["approved_by"] == "human" and sorted(out["files"]) == ["SKILL.md", "loop.json"]
+    benchmark(actor, verifier, held, seed=2)
+    g2 = archive(meta, actor, held[-1], "add", seed=2, label="gen2-obey-memory", parent="gen1-static", held_out=meta / "held-out")
+    scores = {e["label"]: e["held_out"] for e in g2["variants"]}
+    assert set(scores) == {"gen1-static", "gen2-obey-memory"} and all(isinstance(v, float) for v in scores.values())
+    parent = archive(meta, actor, held[-1], "parent")
+    assert parent["parent"] == max(scores, key=lambda k: (scores[k], k == "gen1-static"))
+    # plant a newer, worse variant: the parent rule ignores it
+    index = tmp_path / "runs" / ACTOR / "archive" / "archive.json"
+    entries = json.loads(index.read_text(encoding="utf-8"))
+    shutil.copytree(tmp_path / "runs" / ACTOR / "archive" / "gen1-static", tmp_path / "runs" / ACTOR / "archive" / "gen3-worse")
+    entries.append(dict(entries[0], label="gen3-worse", held_out=-1.0, policy="random"))
+    index.write_text(json.dumps(entries), encoding="utf-8")
+    parent = archive(meta, actor, held[-1], "parent")
+    assert parent["latest"] == "gen3-worse" and parent["parent"] != "gen3-worse" and parent["is_latest"] is False
+    restored = archive(meta, actor, held[-1], "restore", label=parent["parent"])
+    assert restored["checksums"]["SKILL.md"] == entries[[e["label"] for e in entries].index(parent["parent"])]["checksums"]["SKILL.md"]
+
+
+def test_rewrite_that_lowers_the_private_score_is_rolled_back_and_never_archived(tmp_path):
+    actor, verifier, meta, held = setup(tmp_path)
+    benchmark(actor, verifier, held, seed=1)
+    archive(meta, actor, held[-1], "add", seed=1, label="gen1-static", held_out=meta / "held-out")
+    before = packs.checksums(actor)
+    worse = {"model": "logreg", "hyper": 0.25, "scale": "no", "encode": "ordinal", "class_weight": "balanced"}
+    out = rewrite(meta, actor, held[-1], "random", worse, visit=1)
+    assert out["decision"] == "n" and out["approved_by"] == "gate" and out["landed"] is False and out["gate"]["keep"] is False
+    assert packs.checksums(actor) == before
+    labels = [e["label"] for e in archive(meta, actor, held[-1], "list")["variants"]]
+    assert labels == ["gen1-static"]
+
+
+def test_only_skill_and_loop_are_self_modified_and_the_human_comes_after_the_gate(tmp_path):
+    actor, verifier, meta, held = setup(tmp_path)
+    benchmark(actor, verifier, held, seed=1)
+    evidence = best_recipe(actor, held[-1], 1)
+    other = testing.tool("patch_pack", "--pack", meta, "--task", held[-1], "--target", actor, "--files", json.dumps({"schema.json": {"after": "{}"}}),
+                         "--recipe", json.dumps(evidence), "--summary", "no", "--visit", "1")
+    assert "may patch ['SKILL.md', 'loop.json'] only" in other["error"]
+    before = packs.checksums(actor)
+    pending = rewrite(meta, actor, held[-1], "obey-memory", evidence, visit=2)
+    assert pending["landed"] == "pending" and pending["gate"]["keep"] and pending["version"] == "gen_001"
+    no = testing.tool("patch_pack", "--pack", meta, "--task", held[-1], "--target", actor, "--proposal", pending["id"], "--approved", "no thanks")
+    assert no["decision"] == "n" and no["rolled_back_to"] == "gen_001" and packs.checksums(actor) == before
+    yes = rewrite(meta, actor, held[-1], "obey-memory", evidence, visit=3, words="yes")
+    after = packs.checksums(actor)
+    assert yes["landed"] and {k for k in after if after[k] != before.get(k)} == {"SKILL.md", "loop.json"}
+    assert json.loads(packs.read_pack(actor)["loop.json"])["policy"] == "obey-memory" == testing.policy_line(actor)
+    assert "not in dgm-meta's tools.md" in testing.tool("score_test", "--pack", meta, "--task", held[-1], "--recipe", json.dumps(recipe.BASELINE))["error"]
+
+
+def test_held_out_is_disjoint_from_the_curriculum():
+    names = {t["name"] for t in tasks.all_tasks()}
+    sources = {json.dumps(t["source"], sort_keys=True) for t in tasks.all_tasks()}
+    for p in sorted((HERE / ".claude" / "skills" / META / "held-out").glob("*.json")):
+        t = tasks.load_task(p)
+        assert t["name"] not in names and json.dumps(t["source"], sort_keys=True) not in sources
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE, timeout=3600)
+    assert "archive" in text.lower()

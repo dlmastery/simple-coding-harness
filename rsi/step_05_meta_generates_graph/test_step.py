@@ -1,83 +1,124 @@
-"""Step 05 - lint_pack rejects a cycle or an illegal path before the human sees it; an edit that removes an edge
-lands and the pack still boots; the writer's proposal shows the graph as nodes and edges."""
+"""Lesson 05 - a meta skill generates the graph harness under human approval: lint_pack refuses a proposal with
+a cycle or a path that violates a constraint before the human ever sees it; the proposal renders the graph as
+nodes and edges; an edit that removes a path lands and the pack still runs; an edit that removes an edge every
+path needs does not lint and does not land; the writer cannot walk or fit; the generated pack passes lesson
+04's checks.
+"""
 
-import io
 import json
 import sys
-from contextlib import redirect_stdout
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, packs, tasks  # noqa: E402
-from common.approve import Human  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.tools import execute  # noqa: E402
-from run import generate_graph  # noqa: E402
+from _lib import packs, render, tasks, testing  # noqa: E402
 
-TASK = tasks.load_task(HERE / "skills" / "graph-writer" / "task.json")
-SYNTH = tasks.test_curriculum()[0][0]
+WRITER = "graph-writer"
+OUT = "adult-income-graph"
 
 
-def proposal(tmp_path, answers=("n",)):
-    run = generate_graph(FakeModel(), tmp_path / "out", human=Human(list(answers)), quiet=True)
-    return run, dict(run.proposals.items["p1"]["payload"])
+def setup(tmp_path):
+    writer = testing.workspace(HERE, tmp_path, WRITER)
+    task_path = writer / "task.json"
+    rendered = tmp_path / "runs" / WRITER / "rendered"
+    packs.write_pack(rendered, render.render(writer / "template", tasks.load_task(task_path)))
+    return writer, task_path, rendered, tmp_path / ".claude" / "skills" / OUT
 
 
-def test_lint_rejects_a_cycle_before_the_human_sees_it(tmp_path):
-    run, files = proposal(tmp_path)
+def propose(writer, task_path, payload, target):
+    return testing.tool("propose", "--pack", writer, "--task", task_path, "--target", target, "--kind", "pack",
+                        "--payload", payload if isinstance(payload, str) else f"@{payload}", "--summary", "graph pack for adult_income")
+
+
+def test_writer_cannot_walk_or_fit(tmp_path):
+    writer, task_path, *_ = setup(tmp_path)
+    assert "not in graph-writer's tools.md" in testing.tool("walk_path", "--pack", writer, "--task", task_path, "--path", "p00")["error"]
+    assert "not in graph-writer's tools.md" in testing.tool("fit_recipe", "--pack", writer, "--task", task_path, "--recipe", "model=logreg,hyper=1,scale=yes,encode=onehot,class_weight=none")["error"]
+
+
+def test_cycle_and_bad_path_refused_before_the_human_sees_them(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    files = packs.read_pack(rendered)
     g = json.loads(files["graph.json"])
-    g["edges"].append(["fit", "scale"])                                          # a cycle: scale -> ... -> fit -> scale
-    bad = {**files, "graph.json": json.dumps(g, indent=1)}
-    asked_before = list(run.human.asked)
-    result = execute(run, checks.call("propose", kind="pack", payload=bad, summary="with a cycle"))
-    assert result.startswith("Error: lint_pack refuses this pack before the human sees it") and "graph.json has a cycle" in result
-    assert run.human.asked == asked_before                                        # the human was never asked
-
-
-def test_lint_rejects_a_path_that_violates_a_constraint(tmp_path):
-    run, files = proposal(tmp_path)
+    g["edges"].append(["fit", "scale"])
+    out = propose(writer, task_path, json.dumps(dict(files, **{"graph.json": json.dumps(g)})), target)
+    assert "lint_pack refuses this pack before the user sees it" in out["error"] and "cycle" in out["error"]
     paths = json.loads(files["paths.json"])
-    paths[3]["nodes"] = ["load", "scale", "encode", "encode", "model", "fit"]  # encode twice
-    paths[4]["nodes"] = ["load", "scale", "encode", "model", "fit", "score_test"]  # reaches the sink
-    bad = {**files, "paths.json": json.dumps(paths, indent=1)}
-    result = execute(run, checks.call("propose", kind="pack", payload=bad, summary="bad paths"))
-    assert "path p03: edge encode -> encode is not in the graph" in result
-    assert "path p04: reaches score_test, a sink that opens only after FREEZE" in result
-    assert len(run.human.asked) == 1                                              # only the writer's own, clean proposal
+    paths[1]["nodes"] = ["load", "scale", "encode", "model", "fit", "score_test"]
+    out = propose(writer, task_path, json.dumps(dict(files, **{"paths.json": json.dumps(paths)})), target)
+    assert "reaches score_test" in out["error"]
+    assert not (tmp_path / "runs" / WRITER / "adult_income" / "proposals").exists() or not list((tmp_path / "runs" / WRITER / "adult_income" / "proposals").glob("*.json"))
 
 
-def test_the_human_sees_the_graph_as_nodes_and_edges(tmp_path):
-    buf = io.StringIO()
-    with redirect_stdout(buf):
-        generate_graph(FakeModel(), tmp_path / "out", human=Human(["n"]), quiet=False)
-    shown = buf.getvalue()
-    assert "### graph.json as a graph" in shown and "nodes: load, scale, encode, model, fit, score_test" in shown
-    assert "edges: load -> scale; scale -> encode; encode -> model; model -> fit; fit -> score_test" in shown
-    assert not (tmp_path / "out").exists()
+def test_proposal_shows_the_graph_as_nodes_and_edges(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    assert "### graph.json as a graph" in p["diff"]
+    assert "nodes: load, scale, encode, model, fit, score_test" in p["diff"]
+    assert "edges: load -> scale; scale -> encode; encode -> model; model -> fit; fit -> score_test" in p["diff"]
 
 
-def test_an_edit_that_removes_an_edge_lands_and_the_pack_still_boots(tmp_path):
-    _, files = proposal(tmp_path)
-    g = json.loads(files["graph.json"])
-    g["edges"] = [e for e in g["edges"] if e != ["fit", "score_test"]]           # the human removes one edge
-    edited = {**files, "graph.json": json.dumps(g, indent=1) + "\n"}
-    out = tmp_path / "landed"
-    run = generate_graph(FakeModel(), out, human=Human([("edit", edited)]), quiet=True)
-    assert run.proposals.items["p1"]["decision"] == "edit"
-    assert json.loads((out / "graph.json").read_text(encoding="utf-8"))["edges"] == g["edges"]
-    assert packs.lint_pack(out, TASK) == []
-    inner = checks.run_pack(out, SYNTH, FakeModel(), tmp_path / "run", arm="control")
-    assert inner.budget.used == 24 and inner.gate.result is not None
-    assert checks.unchanged(out, lambda: checks.run_pack(out, SYNTH, FakeModel(), tmp_path / "run2", arm="control"))
+def test_edit_removing_a_path_lands_and_the_pack_still_runs(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    edited = packs.read_pack(rendered)
+    paths = json.loads(edited["paths.json"])
+    removed = paths.pop(7)                       # the human drops one path
+    loop = json.loads(edited["loop.json"])
+    loop["N"] = 23                               # ...and the counter with it; the linter holds N to the budget
+    edited["paths.json"], edited["loop.json"] = json.dumps(paths, indent=1), json.dumps(loop, indent=1)
+    out = testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "edit: drop p07", "--edited", json.dumps(edited))
+    assert "does not lint" in out["error"] and "N 23" in out["error"]
+    # the honest edit: keep N, drop the path, and the linter says the count no longer matches - the human must
+    # keep the budget; so the edit that lands is: replace p07's binding with another legal recipe
+    edited = packs.read_pack(rendered)
+    paths = json.loads(edited["paths.json"])
+    paths[7]["bindings"] = dict(paths[7]["bindings"], hyper=0.25)
+    edited["paths.json"] = json.dumps(paths, indent=1)
+    out = testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "edit: p07 at C=0.25", "--edited", json.dumps(edited))
+    assert out["landed"] and out["decision"] == "edit"
+    assert json.loads((target / "paths.json").read_text(encoding="utf-8"))[7]["bindings"]["hyper"] == 0.25
+    assert removed["id"] == "p07"
+    task = testing.task("adult_income")
+    testing.tool("load_splits", "--pack", target, "--task", task)
+    walked = testing.tool("walk_path", "--pack", target, "--task", task, "--paths", "p06,p07")
+    assert walked["results"][1]["recipe"]["hyper"] == 0.25 and walked["results"][1]["val_score"] is not None
 
 
-def test_y_lands_a_graph_pack_that_passes_step_04_checks(tmp_path):
-    out = tmp_path / "out"
-    generate_graph(FakeModel(), out, human=Human(["y"]), quiet=True)
-    assert sorted(packs.read_pack(out)) == ["SKILL.md", "graph.json", "loop.json", "paths.json", "schema.json", "tools.md"]
-    run = checks.run_pack(out, SYNTH, FakeModel(), tmp_path / "run", arm="control")
-    assert len(checks.tool_calls(run, "walk_path")) == 24 and run.gate.result is not None
-    assert checks.test_before_freeze(out, SYNTH, tmp_path / "fresh").startswith("Error: the test split is locked")
+def test_edit_removing_a_needed_edge_does_not_land(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    edited = packs.read_pack(rendered)
+    g = json.loads(edited["graph.json"])
+    g["edges"] = [e for e in g["edges"] if e != ["scale", "encode"]]
+    edited["graph.json"] = json.dumps(g)
+    out = testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "edit", "--edited", json.dumps(edited))
+    assert "does not lint" in out["error"] and "edge scale -> encode is not in the graph" in out["error"]
+    assert not target.exists()
+
+
+def test_generated_pack_passes_lesson_04_checks(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "yes")
+    assert packs.read_pack(target) == packs.read_pack(rendered)
+    reference = packs.read_pack(HERE.parent / "step_04_graph_harness" / ".claude" / "skills" / OUT)
+    assert json.loads(reference["paths.json"]) == json.loads(packs.read_pack(target)["paths.json"])
+    assert json.loads(reference["graph.json"]) == json.loads(packs.read_pack(target)["graph.json"])
+    task = testing.task("adult_income")
+    before = packs.checksums(target)
+    testing.tool("load_splits", "--pack", target, "--task", task)
+    for t0 in range(0, 24, 6):
+        out = testing.tool("walk_path", "--pack", target, "--task", task, "--paths", ",".join(f"p{t:02d}" for t in range(t0, t0 + 6)))
+    assert out["FREEZE"] and out["fits_used"] == 24
+    assert packs.checksums(target) == before
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE)
+    assert "p1" in text

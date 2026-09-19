@@ -1,4 +1,0 @@
-# Module: tool use
-- Every recipe comes from `schema.json` -> `fields`; never invent a value.
-- A recipe a forbid card rules out is refused by `fit_recipe` and costs no fit; do not propose it again.
-- Only the tools of `tools.md` exist; anything else is an `Error:` result.

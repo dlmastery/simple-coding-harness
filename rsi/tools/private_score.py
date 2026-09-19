@@ -15,7 +15,7 @@ from _lib import cli, recipe, tasks  # noqa: E402
 from _lib.state import Run, require_tool  # noqa: E402
 
 PARSER = cli.common(cli.parser(__doc__, recipe="the recipe: JSON, k=v pairs, or @file",
-                               visit={"type": "int", "default": 1, "help": "the visit number"}))
+                               visit={"type": int, "default": 1, "help": "the visit number"}))
 
 
 def main(argv=None):

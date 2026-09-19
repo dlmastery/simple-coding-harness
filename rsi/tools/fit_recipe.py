@@ -22,6 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _lib import cli, memory, recipe, tasks  # noqa: E402
 from _lib.state import Run, require_tool  # noqa: E402
 
+SUSPICIOUS = 0.999    # a validation score this close to perfect is re-run before it is believed (lesson 15)
+JUMP = 0.2            # so is one that jumps this far above the previous best in one fit
+
 PARSER = cli.common(cli.parser(__doc__, recipe="one recipe: JSON, k=v pairs, or @file",
                                recipes="a JSON list of recipes (or @file): fitted in order, one budget count each",
                                range="with --recipes: the slice t0:t1 of the list to fit (0-based, t1 excluded), e.g. 0:6"))
@@ -60,8 +63,13 @@ def fit_one(run, rec, error=None):
     else:
         val = None
     row = {"n": n, "recipe": rec, "val_score": val, "error": error}
+    # AIDE2's review guard: a score at or above 0.999, or one that jumps more than 0.2 above the previous best in one
+    # fit, is flagged; the actor re-runs it before believing it (it costs a fit), and the trace keeps the flag
+    previous = [f["val_score"] for f in run.arm_state["fits"] if f["val_score"] is not None]
+    if val is not None and (val >= SUSPICIOUS or (previous and val - max(previous) > JUMP)):
+        row["suspicious"] = True
     run.arm_state["fits"].append(row)
-    run.log("fit", recipe=rec, val_score=val, error=error, seconds=round(time.time() - t0, 3), n=n)
+    run.log("fit", recipe=rec, val_score=val, error=error, seconds=round(time.time() - t0, 3), n=n, suspicious=row.get("suspicious", False))
     out = {**row, "fits_left": run.left}
     if run.arm_state["frozen"]:
         out["FREEZE"] = True
@@ -80,6 +88,8 @@ def main(argv=None):
     todo = [cli.value(a.recipe)] if a.recipe else cli.value(a.recipes) if a.recipes else None
     if isinstance(todo, dict) and "recipes" in todo:          # --recipes @schema.json: the pack's static list
         todo = todo["recipes"]
+    if isinstance(todo, dict) and "experiments" in todo:      # --recipes @plan.json: RSIAgent's plan (lesson 11)
+        todo = todo["experiments"]
     if not todo or not isinstance(todo, list):
         raise ValueError("give --recipe (one) or --recipes (a JSON list, or @schema.json for its recipes)")
     t0 = 0

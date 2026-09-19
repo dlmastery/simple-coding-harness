@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from _lib import cli, memory  # noqa: E402
-from _lib.state import Run, require_tool  # noqa: E402
+from _lib.state import Run, pack_name, require_tool  # noqa: E402
 
 PARSER = cli.common(cli.parser(__doc__, card="one card: JSON or @file", cards="a JSON list of cards (or @file)",
                                **{"as": {"dest": "writer", "default": None, "help": "the pack writing (for the trace), e.g. adult-income-verifier"}}))
@@ -60,7 +60,7 @@ def main(argv=None):
     written = [r for r in results if not r.get("refused")]
     out = {"cards": len(cards), "written": len(written), "added": sum(1 for r in written if r["added"]),
            "demoted": sum(1 for r in written if r["demoted"]), "refused": sum(1 for r in results if r.get("refused")),
-           "by": a.writer or run.pack}
+           "by": pack_name(a.writer) if a.writer and Path(a.writer).is_dir() else (a.writer or run.pack)}
     if len(results) == 1:
         return {**results[0], **out} if not results[0].get("refused") else {"error": results[0]["error"], "card": results[0]["card"]}
     return {**out, "results": results}

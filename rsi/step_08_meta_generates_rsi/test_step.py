@@ -1,74 +1,103 @@
-"""Step 08 - the proposal carries the verifier contract verbatim and is refused without it; the generated packs
-pass lesson 06's checks; scripted n lands nothing."""
+"""Lesson 08 - a meta skill generates the RSI harness under human approval: the proposal contains the verifier
+contract verbatim and is refused by lint_pack when it is missing; the generated packs pass lesson 06's checks
+(cards written after a run, MEMORY_OFF reproduces the control numbers, forbid cards enforced); "no" lands
+nothing; the writer cannot fit or write a card; the two packs land side by side under .claude/skills without
+touching the writer.
+"""
 
-import io
+import json
 import sys
-from contextlib import redirect_stdout
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, curriculum, harness, memory, packs, tasks  # noqa: E402
-from common.approve import Human  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.tools import execute  # noqa: E402
-from run import generate_rsi  # noqa: E402
+from _lib import memory, packs, recipe, render, tasks, testing  # noqa: E402
 
-TASK = tasks.load_task(HERE / "skills" / "rsi-writer" / "task.json")
-CUR, _ = tasks.test_curriculum()
-T1, T3, T6 = CUR[0], CUR[2], CUR[5]
-STEP01 = HERE.parent / "step_01_regular_harness" / "skills" / "adult-income-regular"
+WRITER = "rsi-writer"
 
 
-def test_proposal_contains_the_verifier_contract_and_the_human_sees_it_first(tmp_path):
-    buf = io.StringIO()
-    with redirect_stdout(buf):
-        run = generate_rsi(FakeModel(), tmp_path / "out", human=Human(["n"]), quiet=False)
-    shown = buf.getvalue()
-    payload = run.proposals.items["p1"]["payload"]
-    assert packs.VERIFIER_CONTRACT in payload["verifier/SKILL.md"]
-    assert shown.index("### verifier contract (the acceptance rule you are approving)") < shown.index("### actor/SKILL.md")
-    assert "will change its own memory.json" in run.proposals.items["p1"]["summary"]
-    assert not (tmp_path / "out").exists()                                             # n: nothing landed
+def setup(tmp_path):
+    writer = testing.workspace(HERE, tmp_path, WRITER)
+    task_path = writer / "task.json"
+    rendered = tmp_path / "runs" / WRITER / "rendered"
+    packs.write_pack(rendered, render.render(writer / "template", tasks.load_task(task_path), render.RSI_SUBDIRS))
+    return writer, task_path, rendered, tmp_path / ".claude" / "skills"
 
 
-def test_lint_refuses_a_proposal_without_the_contract(tmp_path):
-    run = generate_rsi(FakeModel(), tmp_path / "out", human=Human(["n"]), quiet=True)
-    files = dict(run.proposals.items["p1"]["payload"])
-    files["verifier/SKILL.md"] = files["verifier/SKILL.md"].replace(packs.VERIFIER_CONTRACT, "The verifier reads the log.")
-    result = execute(run, checks.call("propose", kind="pack", payload=files, summary="no contract"))
-    assert result.startswith("Error: lint_pack refuses") and "verifier: a verifier pack must state the verifier contract verbatim" in result
-    files["verifier/tools.md"] = run.proposals.items["p1"]["payload"]["verifier/tools.md"].replace("## Allowed\n", "## Allowed\n- fit_recipe - grade my own homework\n")
-    result = execute(run, checks.call("propose", kind="pack", payload=files, summary="a verifier that fits"))
-    assert "no one grades their own homework" in result
-    assert len(run.human.asked) == 1
+def propose(writer, task_path, payload, target):
+    return testing.tool("propose", "--pack", writer, "--task", task_path, "--target", target, "--kind", "pack",
+                        "--payload", payload if isinstance(payload, str) else f"@{payload}", "--summary", "RSI harness for adult_income")
 
 
-def test_generated_packs_pass_step_06_checks(tmp_path):
-    out = tmp_path / "out"
-    generate_rsi(FakeModel(), out, human=Human(["y"]), quiet=True)
-    actor, verifier = out / "actor", out / "verifier"
-    assert packs.lint_pack(out, TASK) == [] and sorted(p.name for p in out.iterdir()) == ["actor", "verifier"]
-    # the verifier sees only the log
-    _, inner, ver = curriculum.run_problem(actor, T1, FakeModel(), tmp_path / "run", verifier_dir=verifier)
-    iso = checks.verifier_isolation(inner, ver)
-    assert iso["leaked"] == [] and iso["row_keys"] == ["error", "problem", "recipe", "seed", "val_score"]
-    # write_card refuses the word test
-    card = {"if": {"key": "n_rows", "op": "<", "value": 1000}, "then": {"field": "model", "prefer": "test"}, "evidence": 1, "counter": 0}
-    assert execute(ver, checks.call("write_card", card=card)).startswith("Error: not a card: a card may not mention 'test'")
-    # MEMORY_OFF reproduces step 01 exactly
-    off = checks.run_pack(actor, T1, FakeModel(), tmp_path / "off", arm="control", memory_off=True)
-    assert checks.fit_sequence(off) == checks.fit_sequence(checks.run_pack(STEP01, T1, FakeModel(), tmp_path / "reg", arm="control"))
-    # the memory arm >= MEMORY_OFF at the same budget after two problems of experience
-    curve = curriculum.run_curriculum(actor, verifier, [T1, T3, T6], FakeModel(), tmp_path / "curve")
-    assert curve[-1]["gap_val"] >= 0 and curve[-1]["wasted_memory"] < curve[-1]["wasted_control"]
-    assert len(memory.load(actor / "memory.json")) > 0
+def test_proposal_carries_the_contract_and_is_refused_without_it(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    assert p["diff"].startswith("### verifier contract (the acceptance rule you are approving)\n" + packs.VERIFIER_CONTRACT)
+    files = packs.read_pack(rendered)
+    assert "adult-income/SKILL.md" in files and "adult-income-verifier/SKILL.md" in files
+    stripped = dict(files, **{"adult-income-verifier/SKILL.md": files["adult-income-verifier/SKILL.md"].replace(packs.VERIFIER_CONTRACT, "")})
+    out = propose(writer, task_path, json.dumps(stripped), target)
+    assert "must state the verifier contract verbatim" in out["error"]
 
 
-def test_generating_twice_gives_the_same_proposal(tmp_path):
-    a = generate_rsi(FakeModel(), tmp_path / "a", human=Human(["n"]), quiet=True)
-    b = generate_rsi(FakeModel(), tmp_path / "b", human=Human(["n"]), quiet=True)
-    assert a.proposals.items["p1"]["payload"] == b.proposals.items["p1"]["payload"]
-    assert harness.boot(HERE / "skills" / "rsi-writer", TASK, run_dir=tmp_path / "w", quiet=True).budget.n == 0   # a writer has no fits
+def test_no_lands_nothing_and_the_writer_cannot_fit_or_write_a_card(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    out = testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "no")
+    assert out["landed"] is False and sorted(d.name for d in target.iterdir()) == [WRITER]
+    assert "not in rsi-writer's tools.md" in testing.tool("fit_recipe", "--pack", writer, "--task", task_path, "--recipe", json.dumps(recipe.BASELINE))["error"]
+    assert "not in rsi-writer's tools.md" in testing.tool("write_card", "--pack", writer, "--task", task_path, "--as", writer, "--card", "{}")["error"]
+
+
+def test_generated_packs_land_side_by_side_and_pass_lesson_06_checks(tmp_path):
+    writer, task_path, rendered, target = setup(tmp_path)
+    p = propose(writer, task_path, rendered, target)
+    out = testing.tool("apply", "--pack", writer, "--task", task_path, "--proposal", p["id"], "--approved", "yes, approve the mechanism")
+    assert out["landed"] and sorted(out["files"])[:2] == ["adult-income-verifier/SKILL.md", "adult-income-verifier/memory.schema.json"]
+    actor, verifier = target / "adult-income", target / "adult-income-verifier"
+    assert actor.exists() and verifier.exists() and (target / WRITER / "SKILL.md").exists()     # the writer survived
+    assert memory.load(actor / "memory.json") == []
+    # lesson 06's checks on the generated packs
+    t1, t2 = testing.task("adult_income"), testing.task("breast_cancer")
+    control = testing.play_arm(actor, t1, arm="control", memory_off=True)
+    mem = testing.play_arm(actor, t1)
+    assert mem["best_val_score"] == control["best_val_score"] == 0.9172
+    v = testing.play_verifier(actor, t1, verifier)
+    assert v["written"] >= 3 and v["by"] == "adult-income-verifier"
+    assert len(memory.load(actor / "memory.json")) >= 3
+    mem2 = testing.play_arm(actor, t2)
+    control2 = testing.play_arm(actor, t2, arm="control", memory_off=True)
+    assert mem2["best_val_score"] >= control2["best_val_score"] and mem2["cards_active"] >= 1
+    forbid = {"if": {"key": "has_categorical", "op": "==", "value": 1}, "then": {"field": "encode", "forbid": "ordinal"}, "evidence": 1, "counter": 0}
+    testing.tool("write_card", "--pack", actor, "--task", t1, "--as", verifier, "--card", json.dumps(forbid))
+    refused = testing.tool("fit_recipe", "--pack", actor, "--task", t1, "--recipe", json.dumps(dict(recipe.BASELINE, encode="ordinal")))
+    assert refused["refused"] and "forbid card" in refused["error"]
+    # nothing came back to the writer
+    assert sorted(p.name for p in (tmp_path / "runs" / WRITER / "adult_income").iterdir()) == ["proposals", "traces.jsonl"]
+
+
+def test_same_task_twice_gives_the_same_proposal(tmp_path):
+    a, b = setup(tmp_path / "a"), setup(tmp_path / "b")
+    assert packs.read_pack(a[2]) == packs.read_pack(b[2])
+    pa, pb = propose(*a[:2], a[2], a[3]), propose(*b[:2], b[2], b[3])
+    assert json.loads(Path(pa["file"]).read_text(encoding="utf-8"))["payload"] == json.loads(Path(pb["file"]).read_text(encoding="utf-8"))["payload"]
+
+
+def test_generated_actor_equals_lesson_07_actor():
+    task = tasks.load_task(HERE / ".claude" / "skills" / WRITER / "task.json")
+    files = render.render(HERE / ".claude" / "skills" / WRITER / "template", task, render.RSI_SUBDIRS)
+    reference = packs.read_pack(HERE.parent / "step_07_proof" / ".claude" / "skills" / "adult-income")
+    generated, ref = json.loads(files["adult-income/schema.json"]), json.loads(reference["schema.json"])
+    assert {k: v for k, v in generated.items() if k != "task"} == {k: v for k, v in ref.items() if k != "task"}
+    assert files["adult-income/memory.schema.json"] == reference["memory.schema.json"]
+    assert packs.VERIFIER_CONTRACT in files["adult-income-verifier/SKILL.md"]
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE)
+    assert "contract" in text.lower()

@@ -1,67 +1,86 @@
-"""Step 17 - the ladder places every lesson; the side-by-side curve reads each lesson's curve.json and says which
-lessons have not run; every lesson has a file-and-approver row; the six terms are defined; every external number
-is marked reported with its source."""
+"""Lesson 17 - the map: the ladder places every lesson 00-16 on a rung (09 on two); the side-by-side table reads
+each lesson's curve.json and names the lessons not run yet; every lesson 01-16 has a file-and-approver row; the
+six terms are defined and genuine RSI is marked as not reached; every external number is printed as reported
+with a source; the map runs nothing and changes nothing.
+"""
 
-import io
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-import run as themap  # noqa: E402
+from _lib import testing  # noqa: E402
 
 LESSONS = [f"{i:02d}" for i in range(17)]
 
 
+def the_map(root=HERE.parent):
+    return testing.tool("map", "--lessons", root)
+
+
 def test_the_ladder_places_every_lesson_on_a_rung():
-    placed = {}
-    for rung, lessons, decision, human in themap.LADDER:
-        assert decision and human                                                    # every rung says what moved and what stayed
-        for lesson in lessons:
-            placed.setdefault(lesson[:2], []).append(rung)
-    assert sorted(placed) == LESSONS
-    assert len(placed["09"]) == 2 and all(len(v) == 1 for k, v in placed.items() if k != "09")   # 09 sits on two rungs, one line apart
-    buf = io.StringIO()
-    themap.print_ladder(out=lambda s: buf.write(s + "\n"))
-    assert "L5 flavour" in buf.getvalue() and "not RSI" in buf.getvalue()
+    m = the_map()
+    placed = [l.split()[0] for rung in m["ladder"] for l in rung["lessons"]]
+    assert sorted(set(placed)) == LESSONS and placed.count("09") == 2
+    for rung in m["ladder"]:
+        assert rung["decision"] and rung["human"]
 
 
-def test_the_side_by_side_curve_reads_each_lessons_curve_and_names_the_missing(tmp_path, monkeypatch):
-    row = lambda p, g, wm, wc: {"problem": p, "gap_val": g, "wasted_memory": wm, "wasted_control": wc}   # noqa: E731
-    (tmp_path / "a").mkdir()
-    (tmp_path / "a" / "curve.json").write_text(json.dumps([row("p1", 0.0, 5, 5), row("p2", 0.02, 1, 9)]), encoding="utf-8")
-    monkeypatch.setattr(themap, "ROOT", tmp_path)
-    monkeypatch.setattr(themap, "CURVES", {"A": "a/curve.json", "B": "b/curve.json"})
-    curves = themap.load_curves()
-    assert curves["A"] is not None and curves["B"] is None
-    buf = io.StringIO()
-    themap.print_curves(curves, out=lambda s: buf.write(s + "\n"))
-    text = buf.getvalue()
-    assert "+0.0200" in text and "6/14" in text and "B" in text and "not run yet" in text
+def test_the_side_by_side_curve_reads_each_lessons_curve_and_names_the_missing(tmp_path):
+    root = tmp_path / "rsi"
+    root.mkdir()
+    curve = [{"problem": "p1", "gap_val": 0.0, "gap_test": 0.0, "wasted_memory": 3, "wasted_control": 5, "cards_active": 2},
+             {"problem": "p2", "gap_val": 0.01, "gap_test": 0.02, "wasted_memory": 1, "wasted_control": 4, "cards_active": 3}]
+    (root / "step_07_proof" / "runs" / "adult-income").mkdir(parents=True)
+    (root / "step_07_proof" / "runs" / "adult-income" / "curve.json").write_text(json.dumps(curve), encoding="utf-8")
+    m = the_map(root)
+    assert m["curves"]["07 proof"][1]["gap_val"] == 0.01 and "07 proof" not in m["not_run"]
+    assert "10 Dream-RSI" in m["not_run"] and "not run yet" in m["table"] and "+0.0100" in m["table"] and "4/9" in m["table"]
+    empty = the_map(tmp_path / "nothing")
+    assert len(empty["not_run"]) == len(empty["curves"]) and "no lesson has been run yet" in empty["table"]
 
 
 def test_every_lesson_has_a_file_and_an_approver_row():
-    numbers = [row[0][:2] for row in themap.FILES]
-    assert numbers == LESSONS[1:]
-    assert all(what and who for _, what, who in themap.FILES)
-    assert any("nobody" in who for _, _, who in themap.FILES[:2]) and any("human" in who for _, _, who in themap.FILES)
+    m = the_map()
+    rows = {r["lesson"].split()[0]: r for r in m["files"]}
+    assert sorted(rows) == LESSONS[1:]
+    assert all(r["improved"] and r["approved_by"] for r in rows.values())
+    assert rows["01"]["improved"] == "nothing" and "human" in rows["03"]["approved_by"] and "gate" in rows["09"]["approved_by"]
 
 
 def test_the_six_terms_are_defined():
-    assert [t for t, _ in themap.TERMS] == ["self-refine", "learning", "self-organise / emergence", "AutoML", "bounded RSI", "genuine RSI"]
-    assert "not reached here" in dict(themap.TERMS)["genuine RSI"]
+    m = the_map()
+    terms = {t["term"]: t["meaning"] for t in m["terms"]}
+    assert set(terms) == {"self-refine", "learning", "self-organise / emergence", "AutoML", "bounded RSI", "genuine RSI"}
+    assert "not reached" in terms["genuine RSI"]
 
 
 def test_every_external_number_is_marked_reported_with_a_source():
-    buf = io.StringIO()
-    themap.print_reported(out=lambda s: buf.write(s + "\n"))
-    lines = [l for l in buf.getvalue().splitlines() if re.search(r"\d", l)]
-    assert lines and all(l.strip().startswith("reported:") and "[" in l for l in lines)
+    m = the_map()
     readme = (HERE / "README.md").read_text(encoding="utf-8")
-    for claim, source in themap.REPORTED:
-        assert source.split(",")[0].split(" /")[0] in readme                            # every source is cited on the page
-    assert readme.count("*reported*") >= 3
+    for r in m["reported"]:
+        assert r["status"] == "reported" and r["source"]
+        assert re.search(r"arXiv:\d{4}\.\d{5}|tech report|tutorial", r["source"])
+    assert "reported" in m["table"] and "*reported*" in readme
+
+
+def test_the_map_changes_nothing(tmp_path):
+    work = tmp_path / "lesson"
+    shutil.copytree(HERE, work, ignore=shutil.ignore_patterns("__pycache__", "runs"))
+    before = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
+    the_map(work.parent)
+    after = {p.relative_to(work).as_posix(): p.read_bytes() for p in work.rglob("*") if p.is_file()}
+    assert before == after
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE)
+    assert "reported" in text

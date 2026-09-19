@@ -1,175 +1,147 @@
 # Lesson 10 - Dream-RSI: rank the search policies on the log, at zero fits
 
-Dream-RSI (arXiv:2609.14858) replays experience as a simulator to choose
-how to search next. Here that is one tool, `rank_policies`: for every policy
-named in `policies.md` it walks the policy's first 24 picks against this
-problem's log, answers a pick from the log when the log has it, counts a
-pick the log does not have as *unknown*, and spends no fit - the budget
-counter proves it. A policy's score is the best logged val among its picks;
-at a tie the policy with more unknown picks ranks higher, because a lap that
-only revisits the log learns nothing. The meta pack proposes the winner as
-the actor's `Search policy:` line through lesson 09's cycle, and the next
-lap grows the log. The lesson is the limit as much as the trick: history is
-an exact gym for the recipes you visited and silent everywhere else, an
-adaptive policy stops replaying at its first unknown, and on a problem where
-everything ties the ranking rewards novelty alone.
+Dream-RSI (arXiv:2609.14858) replays experience as a simulator: instead of
+spending fits to compare search strategies, the meta pack replays the fit
+log and asks, for each policy in `policies.md`, what its first 24 picks
+would have scored. A pick the log holds is answered for free; a pick the
+log does not hold is `unknown` - the gym is exact where you have been and
+silent everywhere else. `rank_policies.py` makes zero fits (the target's
+budget counter is read before and after), ranks by the best logged val and
+breaks ties towards the policy that would visit more new places, and the
+winner is proposed as the actor's `Search policy:` line through the private
+gate. The honest half of the lesson: a saturated log (`saturated: true`,
+every policy's `unknown` is 0) means the next lap would learn nothing, and
+the script says so instead of promising a gain. L2 in the framework's
+terms: the system chooses *how* to improve; the policy library stays human.
 
 ## Getting started
 
-Lesson 09 left the actor with its policy line, the verifier, and the meta
-cycle. This lesson adds `skills/adult-income-meta-dream/` (a meta pack whose
-`patches:` allow-list is `SKILL.md` only) with `policies.md`, the tool
-`rank_policies`, and `common/policies.py` - the one function that says what
-order each named policy would try recipes in, shared by the fake model and
-the replay. The Dream-RSI search-policy line replaces lesson 09's rule (a).
+Lesson 09 left the actor (policy line `static`), the verifier and the
+curriculum skill. This lesson adds `.claude/skills/adult-income-meta-dream/`
+(`SKILL.md`, `tools.md`, `policies.md`), extends the actor's policy menu to
+the five policies of `policies.md` (`read_memory.py --order <policy>` walks
+any of them), and adds one script: `../tools/rank_policies.py`. Open your
+agent in this directory. Reset after a run: `echo "[]" >
+.claude/skills/adult-income/memory.json`, set the actor's policy line back to
+`static`, mirror to `.agents/skills/`, `rm -rf runs`.
 
 ## How to execute it
 
-1. The curriculum with a Dream-RSI visit after every problem:
+1. Type the prompt:
+
+   ```text
+   Use the adult-income-curriculum skill with the meta pack adult-income-meta-dream: run the six curriculum problems with a Dream-RSI visit after each, then the exam, and report the curve, the exam and the policy rankings.
+   ```
+
+   The meta visit after each problem is:
 
    ```bash
-   cd rsi/step_10_rsi_dream
-   FAKE_MODEL=1 python run.py
-   FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y python run.py     # scripted approvals
+   python ../tools/rank_policies.py --pack .claude/skills/adult-income-meta-dream --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --policies static,obey-memory,random,neighbours-of-top-3,prefer-untried-family
+   python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta-dream --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --files @runs/adult-income-meta-dream/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "policy -> obey-memory: best logged val 0.9172, unknown 0" --visit 1
    ```
 
-   ```powershell
-   cd rsi\step_10_rsi_dream
-   $env:FAKE_MODEL = "1"; python run.py
-   ```
+   No approval prompt: `approval: gate`. The human reads the log.
 
-   At each `approve p1 (patch)? [y/n/edit]` the diff is one line - the
-   policy - and the summary names the winner's best logged val and its
-   unknown count. `y` lands it, `n` keeps the current policy.
-2. Tests: `python run_tests.py rsi`.
+2. Try the meta pack's limits by hand: `python ../tools/fit_recipe.py --pack
+   .claude/skills/adult-income-meta-dream ...` answers `not in
+   adult-income-meta-dream's tools.md`; a patch to `schema.json` answers
+   `may patch ['SKILL.md'] only`.
+
+3. Headless: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill"`.
+   Tests: `python run_tests.py rsi`.
 
 ## What it looks like
 
-`skills/adult-income-meta-dream/SKILL.md`:
+`.claude/skills/adult-income-meta-dream/SKILL.md`:
 
 ```markdown
 ---
 name: adult-income-meta-dream
-description: Choose the actor pack's search policy by replaying the fit log as a simulator (Dream-RSI) - zero fits - and propose the winner as the actor's `Search policy:` line. Use after a problem's actor and verifier runs are done, before the next problem boots.
+description: Choose the actor pack's search policy by replaying the fit log as a simulator (Dream-RSI) with zero fits, and propose the winner as the actor's Search policy line through the private gate. Use in rsi/step_10_rsi_dream after a problem's actor and verifier runs are done, before the next problem boots.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "on"
-  approval: human
+  approval: gate
   patches: ["SKILL.md"]
 ---
+# Dream-RSI: the log is an exact gym for the recipes you visited, and silent elsewhere
+
+## Procedure
+2. Rank every policy named in `policies.md` on the log of the problem just finished:
+   `python ../tools/rank_policies.py --pack M --task T --target P --policies static,obey-memory,random,neighbours-of-top-3,prefer-untried-family`
+   The script replays the log: for each policy it walks the policy's first 24 picks, answers a pick from the log when the log has it, and counts a pick the log does not have as `unknown`. No fit is spent (`fits_spent: 0`, and the actor's budget counter is unchanged). A policy's score is the best logged val among its picks; at a tie the policy with more unknown picks ranks higher, because a lap that only revisits the log learns nothing.
+3. If `winner` equals the current policy line, say so and stop.
+
+## Rules
+- Zero fits: `fit_recipe` is not in your `tools.md`; `rank_policies.py` reports `fits_spent: 0` and the budget counter proves it.
+- When every policy's unknown count is 0 the log is saturated: say so - the next lap will visit nothing new, and recursion pays only if it does.
 ```
 
-```markdown
-2. Call `rank_policies` with every policy named in `policies.md`. The tool replays the log: for each policy it walks the policy's first 24 picks, answers a pick from the log when the log has it, and counts a pick the log does not have as `unknown`. No fit is spent. A policy's score is the best logged val among its picks; at a tie the policy with more unknown picks ranks higher, because a lap that only revisits the log learns nothing.
-```
-
-`skills/adult-income-meta-dream/policies.md`:
-
-```markdown
-- `static`: walk `schema.json` -> `recipes` in order, cards or no cards.
-- `obey-memory`: probe one recipe per model (the believed model first) with the preferred preprocessing; then the believed family - its static recipes, then its hyper variants - ranked by the cards; then the rest of the grid.
-- `random`: the 72-recipe grid in a seeded shuffle.
-- `neighbours-of-top-3`: six static fits, then the untried neighbours (one field away) of the three best so far, then the static list.
-- `prefer-untried-family`: at every step the model family with the fewest fits so far, static recipes before hyper variants.
-```
-
-The replay:
-
-`../common/tools.py`:
+`../tools/rank_policies.py` - the replay:
 
 ```python
-    rows = run.trace.rows("fit", problem=run.problem)
-    logged = {recipe.key(r["recipe"]): r["val_score"] for r in rows if r["val_score"] is not None}
-```
-
-```python
-            tried.append(pick)
-            if recipe.key(pick) in logged:      # the log answers for free
-                fits.append(({"recipe": pick}, {"n": n, "val_score": logged[recipe.key(pick)]}))
-            else:                               # the gym is silent here: the policy would have to fit to know
-                unknown += 1
+    for name in [p.strip() for p in a.policies.split(",") if p.strip()]:
+        fits, tried, unknown = [], [], 0
+        try:
+            for n in range(1, schema["n_fits"] + 1):
+                pick = next((r for r in policies.policy_order(name, static, cards, profile, fits, seed=a.seed, forbid=forbid) if r not in tried), None)
+                if pick is None:
+                    break
+                tried.append(pick)
+                if recipe.key(pick) in logged:
+                    fits.append(({"recipe": pick}, {"n": n, "val_score": logged[recipe.key(pick)]}))
+                else:
+                    unknown += 1
 ```
 
 ```python
-    ranking.sort(key=lambda e: (-(e["best_logged_val"] or 0), -e["unknown"]))
+    ranked.sort(key=lambda e: (-(e["best_logged_val"] or 0), -e["unknown"]))
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y`;
-the prompts are elided):
+The recorded run: see the note below.
 
-```text
- # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
- 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034   16/16      4/0/4
- 2 breast_cancer            0.9966   0.9954 +0.0012    0.9883    0.9844    0/0       3/0/7
- 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       1/0/8
- 4 digits                   0.9991    0.999 +0.0001    0.9988    0.9984    0/0       1/0/9
- 5 synth_shift_a            0.9507   0.9507 +0.0000    0.9181    0.9181    9/0       4/1/12
- 6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    4/17      1/0/13
-  after problem 1: log 24 recipes, fits spent 0; winner obey-memory (best logged 0.9172, unknown 14); patch {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_001", "files": ["SKILL.md"]}
-  after problem 2: log 38 recipes, fits spent 0; winner random (best logged 0.9966, unknown 12); patch {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_002", "files": ["SKILL.md"]}
-  after problem 3: log 42 recipes, fits spent 0; winner random (best logged 1.0, unknown 12); patch null
-  after problem 4: log 41 recipes, fits spent 0; winner random (best logged 0.9991, unknown 12); patch null
-  after problem 5: log 41 recipes, fits spent 0; winner obey-memory (best logged 0.9507, unknown 9); patch {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_003", "files": ["SKILL.md"]}
-  after problem 6: log 38 recipes, fits spent 0; winner random (best logged 0.8571, unknown 12); patch {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_004", "files": ["SKILL.md"]}
-policy line now: Search policy: random
-```
-
-Read it against lesson 09's curve. After problem 1 the replay picks
-`obey-memory` (the same best, more unvisited picks) and problem 2 improves
-as before. After problem 2 the replay credits `random` with the 0.9966 that
-`obey-memory` actually found - a replay gives a policy credit for any logged
-recipe it happens to pick - and the actor runs random on problems 3 and 4,
-where everything ties anyway. After problem 5 `obey-memory` wins again,
-problem 6 repeats lesson 09's +0.065, and the replay on problem 6's log
-hands the line back to `random` for whatever comes next. Zero fits were
-spent on any of these decisions; the trace row `rank_policies` says
-`fits_spent: 0` each time. That is the method and its price in one table.
+RECORDING_10
 
 Files:
 
 ```text
 step_10_rsi_dream/
-  skills/adult-income/              lesson 09's actor (Search policy: static, an empty forbid list)
-  skills/adult-income-verifier/     lesson 09's verifier
-  skills/adult-income-meta-dream/
-    SKILL.md                        read log, cards, pack; rank_policies; patch the policy line to the winner
-    tools.md                        Allowed: read_traces, read_memory, read_pack, rank_policies, patch_pack
-    policies.md                     the five policies and what each does
-  run.py                            the curriculum with a Dream-RSI visit after every problem
-  test_step.py                      the claims below
-  README.md                         this lesson
+├── README.md, test_step.py, .claude/settings.json
+├── .claude/skills/adult-income/              the actor: policy line `static`, five policies described
+├── .claude/skills/adult-income-verifier/
+├── .claude/skills/adult-income-curriculum/   names the dream meta pack
+├── .claude/skills/adult-income-meta-dream/   SKILL.md, tools.md, policies.md
+├── .agents/skills/...
+└── runs/{adult-income, adult-income-meta-dream}/   (after a run)
 ```
 
 ## Governance considerations
 
-- Who approves what: the human approves each policy change (`approval:
-  human`); the ranking itself is the model's, made on the log alone.
-- Off switches: `META_OFF`; `n` at the prompt; `versions/` as in lesson 09.
-- What the model may not do, and which tool enforces it: fit during the
-  ranking (`fit_recipe` is not in its `tools.md`; `rank_policies` never
-  calls `do_fit`); patch anything but `SKILL.md` (`patches: ["SKILL.md"]`,
-  enforced by `patch_pack`); name a policy that does not exist
-  (`policy_order` raises, `execute` returns the error).
-- What is and is not self-modified: the actor's `Search policy:` line.
-  The policy library (`policies.md`, `common/policies.py`) is the human's:
-  the system chooses among strategies it did not write. Rung: L2 (how to
-  improve), with the acceptance rule human.
+- **Who approves what.** The private gate, per visit; the policy library
+  (`policies.md`) is the human's and the meta pack may not add to it.
+- **The hook.** The locked test; no human call in this lesson.
+- **What the script refuses.** A fit for the meta pack; a patch to any file
+  but `SKILL.md`; a second proposal per visit; a patch the private split
+  scores lower.
+- **What is and is not self-modified.** The actor's `Search policy:` line
+  (one line of its `SKILL.md`), through a snapshot and the gate. The five
+  policies' definitions, the cards' rule and the verifier are not.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| `rank_policies` makes zero fits (the budget counter and the trace prove it); the meta pack cannot fit | `test_rank_policies_makes_zero_fits` |
-| a policy preferring unvisited recipes scores unknown; `static` on its own log has none; an unknown policy name is an error | `test_a_policy_preferring_unvisited_recipes_scores_unknown` |
-| the winner is proposed as the search-policy line, lands under `y`, and the next lap adds recipes the log never saw | `test_the_winner_is_proposed_and_the_next_lap_visits_new_recipes` |
+| `rank_policies` spends zero fits (the state is byte-identical), `static` replays the log fully, `random` and `neighbours-of-top-3` leave it (`unknown` > 0), the meta pack cannot fit | `test_rank_policies_spends_zero_fits_and_marks_unknown` |
+| the winner becomes the policy line through the gate; the next lap visits recipes the log did not hold; any other file is refused | `test_winner_becomes_the_policy_line_and_the_next_lap_visits_new_recipes` |
+| a saturated log is reported as such | `test_saturated_log_is_reported` |
+| the pack contract | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen per problem and arm, plus the
-`rank_policies` trace rows (ranking, `fits_spent`, log size). Run
-`python run_tests.py rsi` from the repo root.
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [11 - RSIAgent](../step_11_rsi_agent/README.md): the next experiment
-chosen on purpose, broad then deep, memory frozen at test. Previous:
-[09 - the RSI meta harness](../step_09_rsi_meta_harness/README.md).
+[Lesson 11 - RSIAgent](../step_11_rsi_agent/README.md): the next experiment,
+chosen on purpose. Previous:
+[Lesson 09 - the RSI meta harness](../step_09_rsi_meta_harness/README.md).

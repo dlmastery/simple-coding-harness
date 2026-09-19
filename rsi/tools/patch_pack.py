@@ -6,7 +6,8 @@
     # stage 2 - under `approval: human` (the meta pack's front matter), after the user answered
     python ../tools/patch_pack.py --pack ... --task ... --target ... --proposal g1 --approved "<the user's exact words>"
 
-`--files` is {path: {"after": text | null}}. The script refuses a second
+`--files` is {path: {"after": text | null}}, or `@dir` - a directory holding
+only the changed files, at their paths in the pack. The script refuses a second
 proposal in the same visit, a patch outside the meta pack's `patches:` globs,
 one that changes more than 20 % of the pack's text, or one that removes the
 test rule from SKILL.md. Under `approval: gate` the private split decides at
@@ -14,8 +15,10 @@ stage 1 - the evidence recipe is scored against the incumbent on a split the
 target never sees; a loss rolls the target back to the snapshot. Under
 `approval: human` stage 1 returns the diff and waits; stage 2 lands or
 rejects with the user's words. `approval: both` is the gate first, then the
-human. `config.json` `{"meta": "off"}` in the meta pack is META_OFF: nothing
-is proposed.
+human. `approval: metered` (lesson 15) lands the patch at stage 1 and leaves
+the decision to `meter.py --decide` after the curriculum ran under it.
+`config.json` `{"meta": "off"}` in the meta pack is META_OFF: nothing is
+proposed.
 """
 import json
 import sys
@@ -34,7 +37,7 @@ PARSER = cli.common(cli.parser(__doc__, target={"required": True, "help": "the p
                                files="stage 1: {path: {after: text | null}} (JSON or @file)",
                                recipe="stage 1: the evidence recipe (the best val recipe of the last problem)",
                                summary={"default": "", "help": "stage 1: one line"},
-                               visit={"type": "int", "default": 1, "help": "stage 1: the visit number (one proposal per visit)"},
+                               visit={"type": int, "default": 1, "help": "stage 1: the visit number (one proposal per visit)"},
                                proposal="stage 2: the proposal id", approved="stage 2: the user's exact words",
                                edited="stage 2: the user's version of --files, with --approved edit"))
 
@@ -59,6 +62,9 @@ def private_gate(run, target_run, candidate):
 
 def checked_patch(run, target, files, rec):
     """The patch as {path: {before, after}} after every rule; raises on the first broken one."""
+    if not isinstance(files, dict) or not files:
+        raise ValueError("--files is {path: {after: text | null}}, or @dir with the changed files")
+    files = {n: ({"after": c} if isinstance(c, str) else c) for n, c in files.items()}     # @dir gives {path: text}
     current = packs.read_pack(target)
     allowed = (run.meta.get("metadata") or {}).get("patches")
     changes, changed = {}, 0
@@ -83,6 +89,8 @@ def main(argv=None):
     run = Run(a.pack, a.task, a.arm, a.seed, a.run)
     require_tool(run.pack_dir, "patch_pack")
     target = Path(a.target)
+    if Path(target).resolve() == run.pack_dir:
+        raise ValueError("a pack does not patch itself: the target is another pack (the actor, or the fast loop's pack)")
     target_run = Run(target, a.task, "memory", a.seed, a.run)
     versions = target_run.versions_dir
     mode = (run.meta.get("metadata") or {}).get("approval", "human")
@@ -156,6 +164,14 @@ def main(argv=None):
                 checksums=packs.checksums(target))
         return {"id": record["id"], "decision": "y", "approved_by": "gate", "gate": verdict, "landed": True, "version": label,
                 "files": sorted(payload["files"]), "diff": diff}
+    if mode == "metered":                                    # AIDE2: land now, decide after the curriculum (meter.py --decide)
+        label = proposals.land_patch(target, versions, payload)
+        record["version"] = label
+        proposals.save(path, record)
+        run.log("apply_pending", proposal=record["id"], version=label, files=sorted(payload["files"]), checksums=packs.checksums(target))
+        return {"id": record["id"], "decision": None, "landed": "pending", "version": label, "diff": diff,
+                "next": "Run the curriculum under the rewrite (a new arm), then: python ../tools/meter.py --decide --proposal "
+                        f"{record['id']} --before <old arm> --after <new arm> --tasks ../tasks"}
     proposals.save(path, record)
     run.log("propose", proposal=record["id"], kind="patch", summary=a.summary, files=sorted(payload["files"]))
     return {"id": record["id"], "decision": None, "landed": False, "diff": diff, "summary": a.summary,

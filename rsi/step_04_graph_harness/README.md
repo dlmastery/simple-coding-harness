@@ -1,48 +1,64 @@
 # Lesson 04 - Graph engineering with loops: the job is a DAG, a recipe is a path
 
-The job becomes `graph.json`: nodes are the legal operators (`load`,
-`scale`, `encode`, `model`, `fit`, `score_test`), edges are hard
-dependencies, and the constraints say one scale, one encode and one model
-per path, no cycles, and `score_test` a sink that opens only after FREEZE.
-A recipe is a path with bindings; `paths.json` lists the 24 the loop walks;
-`loop.json` now iterates over paths and the new tool `walk_path` fits what a
-path binds. The rule that makes the file honest is the one for illegal
-paths: skip and count, never repair, never invent. Both files are
-`mutable: false`. Still harness engineering, still not RSI - but now the
-whole search space is a picture a human can approve, which lesson 05 uses.
+The trainer's job written as a graph: `graph.json` names the legal
+operators as nodes (`load`, `scale`, `encode`, `model`, `fit`, `score_test`),
+the hard dependencies as edges, and the constraints (one `scale`, one
+`encode`, one `model` per path; no cycles; `score_test` a sink behind
+`gate: freeze_only`). A recipe is a path with bindings; `paths.json` lists
+the baseline and 23 more; the counted loop of lesson 02 now iterates over
+paths and `walk_path.py` fits what a path binds. An illegal path - a missing
+edge, a second model, a path that reaches the sink - is skipped and still
+counts as a fit; a path id that is not in the file is refused. Both graph
+files are `mutable: false`. Still not RSI: the graph is the human's, the walk
+is fixed, and nothing about the walk changes the next one. What this lesson
+adds is a *structure a later writer can generate and a human can read as
+nodes and edges* (lesson 05).
 
 ## Getting started
 
-Lesson 03 left the writer and the approval cycle. This lesson adds
-`skills/adult-income-graph/` (six files), the tool `walk_path`, and the
-graph checks in `common/graph.py` (`why_illegal`, `lint_graph`) that
-`lint_pack` now runs on any pack with a `graph.json`.
+Lesson 03 left the generated loop pack. This lesson adds
+`.claude/skills/adult-income-graph/` (`SKILL.md`, `tools.md`, `schema.json`,
+`graph.json`, `paths.json`, `loop.json`), mirrored to `.agents/skills/`, and
+one script: `../tools/walk_path.py`. Open your agent in this directory. A run
+writes only under `runs/`.
 
 ## How to execute it
 
-1. Walk the graph on Adult:
+1. Type the prompt:
+
+   ```text
+   Use the adult-income-graph skill: walk the graph's paths on the Adult income problem and report the scorecard.
+   ```
+
+   The agent runs the counted loop as four walks of six paths, then the exit:
 
    ```bash
-   cd rsi/step_04_graph_harness
-   FAKE_MODEL=1 python run.py
+   python ../tools/load_splits.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json
+   python ../tools/walk_path.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --paths p00,p01,p02,p03,p04,p05
+   python ../tools/walk_path.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --paths p06,p07,p08,p09,p10,p11
+   python ../tools/walk_path.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --paths p12,p13,p14,p15,p16,p17
+   python ../tools/walk_path.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --paths p18,p19,p20,p21,p22,p23
+   python ../tools/score_test.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+   python ../tools/save_model.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+   python ../tools/scorecard.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json
    ```
 
-   ```powershell
-   cd rsi\step_04_graph_harness
-   $env:FAKE_MODEL = "1"; python run.py
-   ```
+   No approval prompt; no quoting issues in any shell (ids and `k=v` pairs).
 
-2. Break a path by hand in `runs/work/adult-income-graph/paths.json`
-   (drop `"encode"` from one path's `nodes`) and boot that copy: the path
-   is skipped, the budget still counts it, and `paths.json` is not repaired.
-   The test `test_illegal_path_is_skipped_and_counted_never_replaced` does
-   exactly this.
-3. No approval prompt: the pack changes nothing. Tests:
-   `python run_tests.py rsi`.
+2. Plant an illegal path by hand, in a copy: give `p03` the nodes
+   `["load", "encode", "scale", "model", "fit"]` (the graph has no edge
+   `load -> encode`) and walk it. The result has `val_score: null`,
+   `"error": "illegal path: edge load -> encode is not in the graph"` and
+   `n: 4` - counted, not repaired. Ask for `p99`: refused, "the loop walks the
+   paths it has, it does not invent one".
+
+3. Reset with `rm -rf runs`. Headless: `claude -p "<the prompt>" --allowedTools
+   "Bash,Read,Write,Edit,Skill"`. Tests: `python run_tests.py rsi`.
 
 ## What it looks like
 
-`skills/adult-income-graph/graph.json`:
+`.claude/skills/adult-income-graph/graph.json` - nodes, edges, constraints,
+immutable:
 
 ```json
 {
@@ -55,57 +71,38 @@ graph checks in `common/graph.py` (`why_illegal`, `lint_graph`) that
   "fit": {"op": "fit_recipe"},
   "score_test": {"op": "score_test", "gate": "freeze_only", "sink": true}
  },
- "edges": [
-  ["load", "scale"],
-  ["scale", "encode"],
-  ["encode", "model"],
-  ["model", "fit"],
-  ["fit", "score_test"]
- ],
- "constraints": {
-  "one_of": ["scale", "encode", "model"],
-  "no_cycles": true,
-  "sink_after_freeze": "score_test"
- }
+ "edges": [["load", "scale"], ["scale", "encode"], ["encode", "model"], ["model", "fit"], ["fit", "score_test"]],
+ "constraints": {"one_of": ["scale", "encode", "model"], "no_cycles": true, "sink_after_freeze": "score_test"}
 }
 ```
 
-`skills/adult-income-graph/SKILL.md` - front matter and the one rule:
+`.claude/skills/adult-income-graph/SKILL.md` - the loop over paths:
 
 ```markdown
 ---
 name: adult-income-graph
-description: Train a classifier for the Adult income problem by walking the paths of graph.json in the order of paths.json, one per loop iteration. Use when the pack has graph.json and no memory file.
+description: Train a classifier for the Adult income problem by walking the paths of graph.json in the order of paths.json, one counted loop over paths. Use in rsi/step_04_graph_harness, when the pack has graph.json and paths.json and no memory file.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "off"
 ---
+# Graph harness: the job is a DAG, a recipe is a path, the loop walks paths
+
+## Procedure
+Run `loop.json` exactly as written:
+1. `python ../tools/load_splits.py --pack P --task T` once.
+2. `counted_while` with counter `t` from 0 to `N` - 1 (`N` is 24): walk `paths[t]` by its id. Walk six paths per command, in `paths.json` order, four commands in all:
+   `python ../tools/walk_path.py --pack P --task T --paths p00,p01,p02,p03,p04,p05`
+   then `p06..p11`, `p12..p17`, `p18..p23`. The script checks each path against the graph: a legal path fits the recipe its bindings form; an illegal one (a missing edge, two model nodes, a path that reaches `score_test`) is skipped and still counts as a fit, with the reason in its `error`. A path id that is not in `paths.json` is refused. You never repair a path and never invent one.
+
+## Rules
+- Paths in the order of `paths.json`, each once. Never run `fit_recipe.py`: a recipe reaches the fitter only as a path of the graph, and `fit_recipe` is not in your `tools.md`.
+- `graph.json` and `paths.json` are `mutable: false`: you do not edit them, add a path or remove an edge.
 ```
 
-```markdown
-2. `counted_while` with counter `t` from 0 to `N` - 1: call `walk_path` with `paths[t].id`. The tool checks the path against the graph: a legal path fits the recipe its bindings form; an illegal one is skipped and still counts as a fit. You never repair a path and never invent one.
-```
-
-The tool and the rule it enforces:
-
-`../common/tools.py`:
-
-```python
-@tool("walk_path", path_id="string")
-def walk_path(run, path_id):
-    """Walk one path of graph.json by id: fit the recipe it binds. An illegal path is skipped and counted."""
-    g = json.loads(run.files["graph.json"])
-    paths = {p["id"]: p for p in json.loads(run.files["paths.json"])}
-    if path_id not in paths:
-        raise ValueError(f"no path {path_id!r} in paths.json; the loop walks the paths it has, it does not invent one")
-    reason = graph.why_illegal(g, paths[path_id])
-    if reason:
-        return do_fit(run, graph.path_recipe(paths[path_id]) or paths[path_id].get("bindings"), error=f"illegal path: {reason}")
-    return do_fit(run, graph.path_recipe(paths[path_id]))
-```
-
-`../common/graph.py`:
+`../tools/_lib/graph.py` - what makes a path illegal, in the order the
+script checks:
 
 ```python
 def why_illegal(graph, path):
@@ -127,58 +124,103 @@ def why_illegal(graph, path):
     return None
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1`):
+`../tools/walk_path.py` - skip and count, never invent:
+
+```python
+    for pid in ids:
+        if pid not in paths:
+            results.append({"path": pid, "error": f"no path {pid!r} in paths.json; the loop walks the paths it has, it does not invent one", "refused": True})
+            continue
+        reason = graph.why_illegal(g, paths[pid])
+        try:
+            if reason:
+                results.append({"path": pid, **fit_one(run, graph.path_recipe(paths[pid]) or paths[pid].get("bindings"), error=f"illegal path: {reason}")})
+            else:
+                results.append({"path": pid, **fit_one(run, graph.path_recipe(paths[pid]))})
+```
+
+The recorded run (Claude Code 2.1.278, headless; the agent read the six pack
+files first; results trimmed):
 
 ```text
-Done. Best val 0.9172 with {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}; test 0.9034; 24 fits.
-adult_income [control] fits 24/24 wasted 16 best val 0.9172 test 0.9034 recipe {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}
-paths walked 24, illegal (skipped and counted) 0; graph.json and paths.json byte-identical after the run: True
+[Skill adult-income-graph]
+agent> Boot complete. Now step 1: load the splits.
+$ python ../tools/load_splits.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json
+{"pack": "adult-income-graph", "problem": "adult_income", "n_fits": 24, "fits_used": 0, ...}
+agent> Splits loaded (24 fits budget, 0 used). Now the counted while: four commands of six
+paths each, in paths.json order.
+$ python ../tools/walk_path.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json --paths p00,p01,p02,p03,p04,p05
+{"results": [{"path": "p00", "n": 1, "recipe": {"model": "logreg", ...}, "val_score": 0.9114, "error": null, "fits_left": 23}, ...
+             {"path": "p05", "n": 6, ... "val_score": 0.9074, "error": null, "fits_left": 18}], "fits_used": 6, "n_fits": 24, "fits_left": 18}
+$ python ../tools/walk_path.py ... --paths p06,p07,p08,p09,p10,p11
+$ python ../tools/walk_path.py ... --paths p12,p13,p14,p15,p16,p17
+$ python ../tools/walk_path.py ... --paths p18,p19,p20,p21,p22,p23
+{"results": [... {"path": "p23", "n": 24, ... "fits_left": 0}], "fits_used": 24, "fits_left": 0, "FREEZE": true}
+$ python ../tools/score_test.py ... --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced
+{"test_score": 0.9034, ...}
+$ python ../tools/save_model.py ... && python ../tools/scorecard.py --pack .claude/skills/adult-income-graph --task ../tasks/01_adult_income.json
+{"fits_used": 24, "wasted_fits": 16, "best_val_score": 0.9172, "test_score": 0.9034, "test_scored_once": true, ...}
+agent> Done. The loop ran to completion exactly as loop.json specifies: t reached N = 24,
+score_test answered once after FREEZE, save_model once.
+Best val_score 0.9172 (p17: hgb, lr 0.1, scale yes, onehot, balanced); test 0.9034; fits 24/24;
+illegal paths 0 - all 24 paths fit the graph (every error was null).
+p17 and p21 tied at 0.9172 (identical except scale, a no-op for hgb); I took p17, the earlier
+one in paths.json order. Everything ran as the pack prescribes: no fit_recipe, no edits to
+graph.json / paths.json, test scored exactly once.
+[16 turns, 124 s]
 ```
+
+What to notice: same numbers as lessons 01-03 (the 24 paths bind the 24
+static recipes in the same order), and zero illegal paths in the shipped
+file - the illegal-path behaviour is exercised by the test on a copy, and by
+you in step 2 above.
 
 Files:
 
 ```text
 step_04_graph_harness/
-  skills/adult-income-graph/
-    SKILL.md        walk paths[t] for t in 0..N-1; skip and count an illegal path; score_test after FREEZE
-    tools.md        Allowed: load_splits, walk_path, score_test, save_model; fit_recipe is Forbidden
-    schema.json     the recipe fields, n_fits 24, the test rule, the baseline
-    graph.json      nodes, edges, constraints; mutable: false
-    paths.json      24 paths (p00 = the baseline) with bindings; mutable through the graph's flag
-    loop.json       counted_while over paths; illegal: add or repair a path
-  run.py            boot the pack on Adult; count illegal paths; checksum the pack
-  test_step.py      the claims below
-  README.md         this lesson
+├── README.md, test_step.py, .claude/settings.json
+├── .claude/skills/adult-income-graph/
+│   ├── SKILL.md, tools.md, schema.json
+│   ├── graph.json                 nodes, edges, constraints; mutable: false
+│   ├── paths.json                 p00 (baseline) .. p23 with bindings; mutable: false
+│   └── loop.json                  counted while over paths
+├── .agents/skills/adult-income-graph/
+└── runs/adult-income-graph/adult_income/   (after a run)
 ```
 
 ## Governance considerations
 
-- Who approves what: nobody; nothing is proposed.
-- Off switches: the budget, the locked test; `mutable: false` on both
-  files, checked by `lint_graph`.
-- What the model may not do, and which tool enforces it: fit a recipe that
-  is not a path (`fit_recipe` is not in `tools.md`); walk a path that is not
-  in `paths.json` (`walk_path` refuses by id); repair or replace an illegal
-  path (`walk_path` counts it and moves on); reach `score_test` through the
-  graph before FREEZE (`why_illegal` on the sink, and `LockedTest` behind
-  it).
-- What is and is not self-modified: nothing. `graph.json` and `paths.json`
-  are byte-identical after a run. Rung: harness engineering, not RSI.
+- **Who approves what.** Nobody; the graph and the paths are the human's
+  and immutable during a run.
+- **The hook.** As before: `score_test.py` before FREEZE or twice.
+- **What the script refuses.** A path id not in `paths.json`; `fit_recipe.py`
+  for this pack (not in its `tools.md`: a recipe reaches the fitter only as a
+  path); `score_test` before FREEZE or twice. An illegal path is not refused
+  but *counted* with its reason - a bad plan costs budget, which is what
+  makes "the loop never invents a path" checkable.
+- **What is and is not self-modified.** Nothing; `graph.json` and `paths.json`
+  checksums are equal before and after a run (asserted).
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| the loop iterates the paths in order and the pack lints | `test_loop_walks_the_paths_in_order_and_the_pack_lints` |
-| an illegal path is skipped and counted, never replaced; `paths.json` is not repaired | `test_illegal_path_is_skipped_and_counted_never_replaced` |
-| `score_test` is unreachable before FREEZE (the sink's gate, and the locked test behind it) | `test_score_test_is_unreachable_before_freeze` |
-| `graph.json` / `paths.json` byte-identical after a run | `test_graph_and_paths_are_byte_identical_after_a_run` |
-| `fit_recipe` is not a way around the graph, nor is an invented path id | `test_fit_recipe_is_not_a_way_around_the_graph` |
+| the loop walks `paths.json` in order, binds the 24 static recipes, scores the test once | `test_loop_walks_paths_in_order_and_scores_once` |
+| an illegal path is skipped and counted with its reason, never replaced; an unknown id is refused | `test_illegal_path_is_skipped_and_counted_never_replaced` |
+| `score_test` is unreachable before FREEZE; `fit_recipe` is not a tool of this pack | `test_score_test_unreachable_before_freeze_and_fit_recipe_not_a_tool` |
+| `graph.json` / `paths.json` are byte-identical after a run | `test_graph_files_byte_identical_after_a_run` |
+| `lint_pack` refuses a cyclic graph and a path that breaks a constraint | `test_lint_refuses_a_cycle_and_a_bad_path` |
+| the pack contract | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen. Run `python run_tests.py rsi` from
-the repo root.
+Scorecard (seed 0): `fits_used 24`, `wasted_fits 16`, `best_val_score 0.9172`,
+`test_score 0.9034`, illegal paths 0.
+
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [05 - a meta skill generates the graph harness](../step_05_meta_generates_graph/README.md).
-Previous: [03 - a meta skill generates the loop harness](../step_03_meta_generates_loop/README.md).
+[Lesson 05 - a meta skill generates the graph harness](../step_05_meta_generates_graph/README.md),
+where `edit` is the interesting answer. Previous:
+[Lesson 03 - a meta skill generates the loop harness](../step_03_meta_generates_loop/README.md).

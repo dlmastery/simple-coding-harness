@@ -1,66 +1,86 @@
-"""Step 10 - rank_policies spends no fit; a policy that prefers unvisited recipes scores unknown; the winner is
-proposed as the search-policy line and the next lap visits new recipes."""
+"""Lesson 10 - Dream-RSI: rank_policies makes zero fits (the budget counter proves it); a policy preferring
+unvisited recipes scores "unknown" where the log is silent; the winner is proposed as the actor's search-policy
+line through the gate and the next lap adds new recipes to the log; a saturated log is reported as such; the
+meta pack can patch SKILL.md only and cannot fit.
+"""
 
 import json
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, harness, recipe, steps, tasks  # noqa: E402
-from common.approve import Human  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.tools import execute  # noqa: E402
-from common.trace import TraceLog  # noqa: E402
-from run import ACTOR, META, run_generations  # noqa: E402
+from _lib import packs, recipe, tasks, testing  # noqa: E402
 
-CUR, _ = tasks.test_curriculum()
-T1, T3 = CUR[0], CUR[2]
-POLICIES = ["static", "obey-memory", "random", "neighbours-of-top-3", "prefer-untried-family"]
+ACTOR, VERIFIER, DREAM = "adult-income", "adult-income-verifier", "adult-income-meta-dream"
+POLICIES = "static,obey-memory,random,neighbours-of-top-3,prefer-untried-family"
 
 
-def static_log(tmp_path):
-    """One static run of the actor on T1, then the dream meta booted on that log."""
-    actor, meta = steps.workspace(HERE, ACTOR, META, into=tmp_path / "w")
-    checks.run_pack(actor, T1, FakeModel(), tmp_path / "run", arm="control", memory_off=True)
-    dream = harness.boot(meta, T1, run_dir=tmp_path / "run", target=actor, arm="meta")
-    return actor, dream
+def problem_one(tmp_path):
+    actor, verifier, dream = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER, DREAM)
+    d = tmp_path / "tasks"
+    d.mkdir()
+    curriculum, _ = tasks.test_curriculum()
+    paths = []
+    for t in curriculum:
+        p = d / f"{t['index']:02d}_{t['name']}.json"
+        p.write_text(json.dumps(t), encoding="utf-8")
+        paths.append(p)
+    testing.play_arm(actor, paths[0], arm="control", memory_off=True)
+    testing.play_arm(actor, paths[0])
+    testing.play_verifier(actor, paths[0], verifier)
+    return actor, verifier, dream, paths
 
 
-def test_rank_policies_makes_zero_fits(tmp_path):
-    actor, dream = static_log(tmp_path)
-    fits_before = len(TraceLog(tmp_path / "run" / "traces.jsonl").rows("fit"))
-    result = json.loads(execute(dream, checks.call("rank_policies", names=POLICIES)))
-    assert result["fits_spent"] == 0 and dream.budget.used == 0 and dream.budget.n == 0
-    assert len(TraceLog(tmp_path / "run" / "traces.jsonl").rows("fit")) == fits_before
-    assert execute(dream, checks.call("fit_recipe", recipe=recipe.BASELINE)).startswith("Error: fit_recipe is not in this pack's tools.md")
-    assert [e["policy"] for e in result["ranking"]] and len(result["ranking"]) == 5
+def rank(dream, actor, task_path):
+    return testing.tool("rank_policies", "--pack", dream, "--task", task_path, "--target", actor, "--policies", POLICIES)
 
 
-def test_a_policy_preferring_unvisited_recipes_scores_unknown(tmp_path):
-    actor, dream = static_log(tmp_path)
-    result = json.loads(execute(dream, checks.call("rank_policies", names=POLICIES)))
-    by = {e["policy"]: e for e in result["ranking"]}
-    log_best = max(r["val_score"] for r in TraceLog(tmp_path / "run" / "traces.jsonl").rows("fit"))
-    assert by["static"]["unknown"] == 0 and by["static"]["visited"] == 24 and by["static"]["best_logged_val"] == log_best
-    assert by["random"]["unknown"] > 0 and by["random"]["visited"] + by["random"]["unknown"] == 24
-    assert by["random"]["best_logged_val"] <= log_best                                   # the log cannot credit what it never saw
-    assert not result["saturated"]
-    assert execute(dream, checks.call("rank_policies", names=["walk-on-water"])).startswith("Error: unknown search policy")
+def test_rank_policies_spends_zero_fits_and_marks_unknown(tmp_path):
+    actor, verifier, dream, paths = problem_one(tmp_path)
+    state_before = json.loads((tmp_path / "runs" / ACTOR / tasks.load_task(paths[0])["name"] / "state.json").read_text(encoding="utf-8"))
+    out = rank(dream, actor, paths[0])
+    state_after = json.loads((tmp_path / "runs" / ACTOR / tasks.load_task(paths[0])["name"] / "state.json").read_text(encoding="utf-8"))
+    assert out["fits_spent"] == 0 and state_before == state_after and out["log_size"] == 24
+    by = {e["policy"]: e for e in out["ranking"]}
+    assert by["static"]["unknown"] == 0 and by["static"]["visited"] == 24          # the log is the static walk
+    assert by["random"]["unknown"] > 0 and by["neighbours-of-top-3"]["unknown"] > 0    # they leave the log (prefer-untried-family walks the static list first: 0 unknown here)
+    assert by["obey-memory"]["best_logged_val"] is not None and out["saturated"] is False
+    assert out["current_policy"] == "static"
+    assert "not in adult-income-meta-dream's tools.md" in testing.tool("fit_recipe", "--pack", dream, "--task", paths[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
 
 
-def test_the_winner_is_proposed_and_the_next_lap_visits_new_recipes(tmp_path):
-    run_dir = tmp_path / "run"
-    curve, actor, _ = run_generations(FakeModel(), [T1, T3], run_dir, human=Human(["y", "y"]), into=tmp_path / "w")
-    trace = TraceLog(run_dir / "traces.jsonl")
-    ranking = trace.rows("rank_policies")[0]["info"]["ranking"]
-    winner = ranking[0]["policy"]
-    assert winner != "static" and curve[0]["meta"]["patch"]["landed"]
-    line = next(l.strip() for l in (actor / "SKILL.md").read_text(encoding="utf-8").splitlines() if "Search policy:" in l)
-    assert line.startswith("Search policy:") and trace.rows("rank_policies")[1]["info"]["ranking"][0]["policy"] in POLICIES
-    lap1 = {recipe.key(r["recipe"]) for r in trace.rows("fit", problem=T1["name"])}
-    lap2 = {recipe.key(r["recipe"]) for r in trace.rows("fit", problem=T3["name"], arm="memory")}
-    assert lap2 - lap1, "the next lap must visit recipes the log had never seen"
-    assert (run_dir / "versions" / "gen_001" / "SKILL.md").exists()
+def test_winner_becomes_the_policy_line_and_the_next_lap_visits_new_recipes(tmp_path):
+    actor, verifier, dream, paths = problem_one(tmp_path)
+    out = rank(dream, actor, paths[0])
+    winner = out["winner"]
+    files = {"SKILL.md": packs.read_pack(actor)["SKILL.md"].replace("Search policy: static", f"Search policy: {winner}")}
+    rows = testing.tool("read_traces", "--pack", actor, "--task", paths[0], "--scope", "problem")["rows"]
+    evidence = max((r for r in rows if r["val_score"] is not None), key=lambda r: r["val_score"])["recipe"]
+    patched = testing.tool("patch_pack", "--pack", dream, "--task", paths[0], "--target", actor, "--files", json.dumps({"SKILL.md": {"after": files["SKILL.md"]}}),
+                           "--recipe", json.dumps(evidence), "--summary", f"policy -> {winner}", "--visit", "1")
+    assert patched["landed"] and patched["approved_by"] == "gate" and patched["files"] == ["SKILL.md"]
+    assert testing.policy_line(actor) == winner != "static"
+    logged_before = {recipe.key(r["recipe"]) for r in rows}
+    testing.play_arm(actor, paths[1])
+    rows2 = testing.tool("read_traces", "--pack", actor, "--task", paths[1], "--scope", "problem")["rows"]
+    assert {recipe.key(r["recipe"]) for r in rows2} - logged_before, "the next lap visited nothing new"
+    other = testing.tool("patch_pack", "--pack", dream, "--task", paths[1], "--target", actor, "--files", json.dumps({"schema.json": {"after": "{}"}}),
+                         "--recipe", json.dumps(evidence), "--summary", "not allowed", "--visit", "2")
+    assert "may patch ['SKILL.md'] only" in other["error"]
+
+
+def test_saturated_log_is_reported(tmp_path):
+    actor, verifier, dream, paths = problem_one(tmp_path)
+    out = testing.tool("rank_policies", "--pack", dream, "--task", paths[0], "--target", actor, "--policies", "static")
+    assert out["saturated"] is True and out["ranking"][0]["unknown"] == 0
+
+
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE, timeout=3600)
+    assert "fits_spent" in text or "zero fits" in text.lower()

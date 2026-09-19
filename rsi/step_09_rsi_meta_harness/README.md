@@ -1,233 +1,272 @@
 # Lesson 09 - The RSI meta harness: a pack that patches the pack, problem by problem
 
-A third pack boots between two problems: `adult-income-meta` reads the whole
-trace, the cards and every file of the actor pack, and makes ONE proposal -
-the actor's `Search policy:` line, a `schema.json` forbid, or new cards -
-with the recipe that motivates it. The proposal goes through the same
-approval cycle as a writer's, but now the thing approved is a patch to a
-pack that already learns; and the pack ships two modes one line apart:
-`approval: human` (every generation's patch is a prompt) and
-`approval: gate` (the private split - rows the actor never sees - decides
-keep-or-rollback, and the human only reads the log). Every generation is a
-snapshot under `versions/`; a rejected patch is rolled back from it. The
-recursion is the reboot: generation n+1 boots what generation n wrote, and
-the boot checksums in the trace prove it. Under the human this is L4; under
-the gate it is the L5 *flavour* - the system revises its own improver's
-policy line behind a protected evaluator - and the archive rule and the gate
-itself stay human. `META_OFF` is the off switch.
+Lesson 06's verifier changes one file, `memory.json`, under a contract.
+This lesson adds a pack that may change the actor pack itself - its
+`Search policy:` line, its `schema.json` `forbid` list, its cards - one
+proposal per visit, between two curriculum problems. `patch_pack.py`
+snapshots the actor under `runs/adult-income/versions/gen_NNN/` before
+anything lands, refuses a second proposal per visit, a patch outside the
+meta pack's `patches:` globs, one that changes more than 20 % of the pack's
+text or removes the test rule; then who decides is one line of the meta
+pack's front matter. `approval: human` (`adult-income-meta`): the agent shows
+the diff, asks, and lands only with the user's exact words. `approval:
+gate` (`adult-income-meta-gate`): the evidence recipe is scored against the
+incumbent on the private split - rows no actor arm ever sees - and a loss
+rolls the pack back; the human reads the log and may `rollback.py`. The
+actor ships with `Search policy: static` so that the first patch is
+visible: generation 2 boots what generation 1 wrote (its boot row carries
+the patched checksums), and that reboot is the recursion. L4 under the
+human; L5 flavour under the gate. The gate itself, the archive rule and the
+off switch (`{"meta": "off"}`) stay human, and this page says so.
 
 ## Getting started
 
-Lesson 08 left the writer. This lesson adds `skills/adult-income-meta/` and
-`skills/adult-income-meta-gate/` (identical but for the `approval:` line),
-the actor pack of lesson 07 with its policy line set to `static` (the meta
-pack's first job is to flip it), and the tools `read_pack`, `patch_pack`,
-`private_score` and `rollback`. `common/curriculum.py: meta_visit` boots the
-meta pack after each problem; `common/packs.py: snapshot / rollback` are the
-version history. This is Stage 5 (Deploy): approval cycles as gates.
+Lesson 08 left the writer; this lesson's packs are lesson 07's actor (policy
+line `static`, `schema.json` with `forbid: []`), the verifier, the
+curriculum skill extended with a meta visit, and the two meta packs. Four
+scripts: `../tools/read_pack.py`, `patch_pack.py`, `private_score.py`,
+`rollback.py`. A full curriculum with the gate takes about 28 minutes
+headless; the human variant on one problem about seven. Reset after a run:
+set the actor's policy line back to `static`, `echo "[]" >
+.claude/skills/adult-income/memory.json`, mirror, `rm -rf runs`.
 
 ## How to execute it
 
-1. Under human approval - you are asked after every problem:
+1. The gate, over the whole curriculum:
+
+   ```text
+   Use the adult-income-curriculum skill with the meta pack adult-income-meta-gate: run the six curriculum problems with a gate visit after each, then the exam, and report the curve, the exam and the meta decisions.
+   ```
+
+   The meta visit's commands, after each problem's two arms and the verifier:
 
    ```bash
-   cd rsi/step_09_rsi_meta_harness
-   FAKE_MODEL=1 python run.py --approval human
-   FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y python run.py --approval human   # scripted
+   python ../tools/read_traces.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --scope all
+   python ../tools/read_memory.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json
+   python ../tools/read_pack.py --pack .claude/skills/adult-income
+   python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta-gate --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --visit 1 --files @runs/adult-income-meta-gate/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "Search policy static -> obey-memory: 4 cards active after problem 01 (rule a)"
    ```
 
-   ```powershell
-   cd rsi\step_09_rsi_meta_harness
-   $env:FAKE_MODEL = "1"; python run.py --approval human
+2. The human, on one problem (two turns):
+
+   ```text
+   On ../tasks/01_adult_income.json: use the adult-income skill for the control arm and the memory arm, then the adult-income-verifier skill, then the adult-income-meta skill (approval: human) for meta visit 1 and propose its patch to me.
    ```
 
-   At `approve p1 (patch)? [y/n/edit]` you see a unified diff and the
-   evidence recipe: `y` lands it (after a snapshot), `n` lands nothing,
-   `edit` lands your `{"files": {...}, "recipe": {...}}`.
-2. Under the private gate - no prompt; the log shows each verdict:
+   **You will be asked**: the diff of the one-line change, approve / edit /
+   reject. The agent then runs
+   `python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --proposal g1 --approved "<your words>"`.
+   Without your words the hook blocks the call and the script refuses it;
+   "no" records a rejection and lands nothing; "edit" lands your version.
 
-   ```bash
-   FAKE_MODEL=1 python run.py --approval gate
-   ```
+3. By hand: `python ../tools/rollback.py --pack .claude/skills/adult-income --list`
+   then `--version gen_001` restores the snapshot; `{"meta": "off"}` in a meta
+   pack's `config.json` makes `patch_pack.py` propose nothing (META_OFF).
 
-3. The off switch: `META_OFF=1 FAKE_MODEL=1 python run.py`. Tests:
-   `python run_tests.py rsi`.
+4. Headless: as above with `claude -p` (and `--continue "<your answer>"`
+   for the human variant), `--allowedTools "Bash,Read,Write,Edit,Skill"`.
+   Tests: `python run_tests.py rsi`.
 
 ## What it looks like
 
-`skills/adult-income-meta/SKILL.md` - the one line that moves a decision:
+`.claude/skills/adult-income-meta/SKILL.md` - one change, the first that
+applies; who decides is the front matter:
 
 ```markdown
 ---
 name: adult-income-meta
-description: Improve the actor pack between two curriculum problems - one patch per visit to its search-policy line, its schema.json forbid list or its memory cards - and put it through the approval cycle. Use after a problem's actor and verifier runs are done, before the next problem boots.
+description: Improve the actor pack adult-income between two curriculum problems - one patch per visit to its search-policy line, its schema.json forbid list or its memory cards - and put it through the human approval cycle. Use in rsi/step_09_rsi_meta_harness after a problem's actor and verifier runs are done, before the next problem boots.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "on"
   approval: human
+  patches: ["SKILL.md", "schema.json", "memory.json"]
 ---
-```
+# The RSI meta harness: a pack that patches the pack
 
-```markdown
+## Procedure
 2. Decide ONE change, the first that applies:
-   a. The actor's `Search policy:` line says `static` and at least two cards are active: change the line to `obey-memory`.
-   b. A field value lost every comparison one field apart it was in, at least three times across the log, and never won: add `{"field": ..., "value": ...}` to `schema.json` -> `forbid`. (`hyper` values are excluded: they belong to one model each.)
-   c. Otherwise: the last problem's pairs yield cards the memory does not hold yet; merge at most three of them into `memory.json`.
+   a. The actor's `Search policy:` line says `static` and at least two cards are active: change that line to `Search policy: obey-memory` (the whole `SKILL.md`, with that one line changed).
+   b. A field value lost every comparison one field apart it was in, at least three times across the whole log, and never won: add `{"field": ..., "value": ...}` to `schema.json` -> `forbid` (`hyper` values are excluded: they belong to one model each).
+   c. Otherwise: the last problem's pairs yield cards the memory does not hold yet (`read_traces.py --scope problem --tally` lists `cards_by_rule`); merge at most three of them into `memory.json`.
+   If none applies, say so and stop: nothing is proposed this visit.
 ```
 
-`skills/adult-income-meta-gate/SKILL.md` differs in the front matter only:
-
-```markdown
-  approval: gate
-```
-
-The actor's line the first generation flips:
-
-`skills/adult-income/SKILL.md`:
-
-```markdown
-   Search policy: static
-```
-
-The tool: one proposal per visit, a size cap, the test rule kept, a snapshot
-before anything lands, and the gate's rollback on a loss:
-
-`../common/tools.py`:
+`../tools/patch_pack.py` - the rules every patch meets before anyone
+decides, and the private gate:
 
 ```python
-    if run.visits.get("patch_pack", 0) >= 1:
-        raise ValueError("one proposal per visit; this visit already made one")
-```
-
-```python
-    if changed_chars > SIZE_CAP * total:
-        raise ValueError(f"the patch changes {changed_chars} of {total} characters, more than {int(SIZE_CAP * 100)} % of the pack; one small change per generation")
+    if changed > SIZE_CAP * total:
+        raise ValueError(f"the patch changes {changed} of {total} characters, more than {int(SIZE_CAP * 100)} % of the pack; one small change per generation")
     if "SKILL.md" in changes and changes["SKILL.md"]["after"] and "after FREEZE" not in changes["SKILL.md"]["after"]:
         raise ValueError("a patch may not remove the test rule from SKILL.md")
 ```
 
 ```python
-    if mode in ("gate", "both"):
-        # the private gate: snapshot, land, score the evidence recipe on the private split; a loss rolls back
-        label = land_patch(run, payload)
-        verdict = private_gate(run, rec)
-```
-
-```python
-def private_gate(run, candidate):
-    """Keep-or-rollback on the private split: the candidate recipe must not score below the incumbent."""
-    before = tasks.score_on(run.task, run.seed, incumbent_recipe(run), "private")
+def private_gate(run, target_run, candidate):
+    """Keep-or-rollback on the private split: the candidate must not score below the incumbent."""
+    before = tasks.score_on(run.task, run.seed, incumbent_recipe(target_run), "private")
     after = tasks.score_on(run.task, run.seed, candidate, "private")
     keep = after is not None and (before is None or after >= before)
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y
---approval human`; the first prompt is shown, the rest elided):
-
-```text
---- proposal p1: patch - search policy: obey the cards (>= 2 active)
---- a/SKILL.md
-+++ b/SKILL.md
-@@ -18,3 +18,3 @@
--   Search policy: static
-+   Search policy: obey-memory
-(evidence recipe: {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"})
---- end of proposal
-...
- # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
- 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034   16/16      4/0/4
- 2 breast_cancer            0.9966   0.9954 +0.0012    0.9883    0.9844    0/0       3/0/7
- 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/7
- 4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       3/1/9
- 5 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       4/1/12
- 6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    2/17      2/2/13
-  after problem 1: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_001", "files": ["SKILL.md"]}
-  after problem 2: adult-income-meta -> null
-  after problem 3: adult-income-meta -> null
-  after problem 4: adult-income-meta -> null
-  after problem 5: adult-income-meta -> {"id": "p1", "decision": "y", "gate": null, "landed": true, "version": "gen_002", "files": ["memory.json"]}
-  after problem 6: adult-income-meta -> null
-versions: ['gen_001', 'gen_002']; actor pack byte-identical to skills/: False
-actor boots (checksums of SKILL.md / schema.json / memory.json per generation):
-  adult_income     e1da1f5b2fe7 fe416aeb708b 37517e5f3dc6
-  breast_cancer    9ffc716fca7d fe416aeb708b 66d72d59372c
-  wine             9ffc716fca7d fe416aeb708b cf17a31704bc
-  digits           9ffc716fca7d fe416aeb708b cf17a31704bc
-  synth_shift_a    9ffc716fca7d fe416aeb708b f455c8ffb4e0
-  synth_shift_b    9ffc716fca7d fe416aeb708b 4cf3925c8ac1
+```python
+        if not verdict["keep"]:
+            packs.rollback(target, versions, label)
+            record.update(decision="n", approved_by="gate", applied=False)
 ```
 
-Read the last block: `SKILL.md` changes once (generation 1 flipped the
-policy line, and every later problem booted that text), `schema.json` never
-(no value lost every comparison it was in), `memory.json` on every problem
-the verifier learned something. `null` after a problem means the meta pack
-found nothing to propose and said so. Under `--approval gate` the same two
-patches land with `"gate": {"before": 0.8951, "after": 0.8951, "keep":
-true}` and `{"before": 0.9395, "after": 0.9395, "keep": true}`: the evidence
-recipe of a policy patch is the incumbent itself, so the gate holds. With
-`META_OFF=1` every line reads `META_OFF`, `versions: none`, and the curve
-is lesson 07's for problem 1 and flat after it: the actor never learned to
-obey its cards.
+`../tools/_lib/proposals.py` - the snapshot every patch takes first:
+
+```python
+def land_patch(target, versions_dir, patch):
+    """Snapshot the target under versions/gen_NNN, then write the patched files. Returns the snapshot label."""
+    versions_dir = Path(versions_dir)
+    label = f"gen_{len(list(versions_dir.glob('gen_*'))) + 1:03d}" if versions_dir.exists() else "gen_001"
+    packs.snapshot(target, versions_dir, label)
+```
+
+The recorded run under the gate (Claude Code 2.1.278, headless, 76 turns,
+1650 s; the arms' fit calls trimmed to the agent's notes):
+
+```text
+[Skill adult-income-curriculum]
+agent> The pack's policy line is static and there are no cards, so the memory arm walks the static list.
+agent> Verifier: 9 cards written, 9 new, 0 demoted (4 active prefer cards, 5 counter-only). Now meta visit 1 -
+read everything the meta pack may see.
+$ python ../tools/read_traces.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json --scope all
+$ python ../tools/read_memory.py --pack .claude/skills/adult-income --task ../tasks/01_adult_income.json
+$ python ../tools/read_pack.py --pack .claude/skills/adult-income
+agent> Rule (a) applies: the policy line is static and 4 cards are active. I write the whole SKILL.md with
+that one line changed to the patch scratch dir.
+[Write runs/adult-income-meta-gate/patch/SKILL.md]
+$ diff .claude/skills/adult-income/SKILL.md runs/adult-income-meta-gate/patch/SKILL.md; python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta-gate --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --visit 1 --files @runs/adult-income-meta-gate/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "Search policy static -> obey-memory: 4 cards active after problem 01 (rule a)"
+26c26
+<    Search policy: static
+---
+>    Search policy: obey-memory
+{"id": "g1", "decision": "y", "approved_by": "gate", "gate": {"before": 0.8951, "after": 0.8951, "keep": true}, "landed": true, "version": "gen_001", "files": ["SKILL.md"], ...}
+agent> Meta visit 1: proposal g1, gate before 0.8951 / after 0.8951, keep -> landed as gen_001. The actor's
+policy is now obey-memory.
+agent> Problem 02 control: best val 0.9954, test 0.9844, wasted 0. Re-reading the actor's policy line before
+the memory arm, then opening it.
+...
+agent> Meta visit 4: (a) no; (b) no non-hyper value has zero wins; (c) all six problem-04 cards_by_rule are
+already held in memory (2 added, 4 merged). Nothing proposed.
+agent> Meta visit 5: ... Nothing proposed.   agent> ... Meta visit 6.
+agent> Curve written; never_negative: true, gap on problem 6 (+0.0646) > problem 2 (+0.0012). Now the exam
+over five seeds ...
+agent> Done. curve.json and exam.json exist under runs/adult-income/, and both tables were produced. No pack
+file was edited by hand; cards went through write_card.py, the one patch through patch_pack.py.
+ # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
+ 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034   16/16      9/0/11
+ 2 breast_cancer            0.9966   0.9954 +0.0012    0.9883    0.9844    0/0       6/0/11
+ 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/11
+ 4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       2/1/11
+ 5 synth_shift_a            0.9531   0.9507 +0.0024    0.9178    0.9181    1/0       5/1/11
+ 6 synth_shift_b            0.8571   0.7925 +0.0646    0.9104     0.834    3/17      1/0/11
+exam: memory arm beats control on 4 of 5 seeds (3 on test score, 1 same score won by fewer wasted fits), mean test gap 0.0308; pack unchanged: True; no card written: True
+Meta decisions (adult-income-meta-gate, approval: gate):
+| 1 | adult_income | g1: rule (a) - Search policy: static -> obey-memory (4 cards active) | gate 0.8951 / 0.8951, keep -> landed | gen_001 |
+| 2 | breast_cancer | none - (a) already obey-memory; (b) only hyper 0.05 never won, and hyper is excluded; (c) all 6 cards_by_rule already in memory | nothing proposed |
+| 3-6 | ... | none - every card already held (wine: every pair tied) | nothing proposed |
+read_pack.py --checksums: versions = ['gen_001'] - one generation, one landed patch.
+[76 turns, 1650 s]
+```
+
+The recorded human visit (two turns; the arms trimmed):
+
+```text
+[Skill adult-income] ... [Skill adult-income-verifier] ... [Skill adult-income-meta]
+agent> Everything ran; here is where things stand and the patch waiting on you.
+Problem 01 (adult_income, seed 0) - both arms: control 0.9172 / test 0.9034 / 24 fits / 16 wasted; memory
+the same. Identical, as expected: memory.json was empty, so the memory arm ran the same static walk (gap_val
+= 0; the delete-the-file check holds). Test scored once per arm, after FREEZE.
+Verifier: tally checked by hand against the script's (model hgb 16-0, encode onehot 10-2, class_weight none
+8-4, scale yes 6-1, no errors). Wrote 9 cards, 9 new, 0 demoted. Four are active prefer cards for this
+profile: model=hgb, scale=yes, encode=onehot, class_weight=none.
+$ python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --files @runs/adult-income-meta/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "Search policy static -> obey-memory: 4 cards active after problem 01 (model=hgb, scale=yes, encode=onehot, class_weight=none), rule (a)"
+{"id": "g1", "decision": null, "landed": false, "diff": "--- a/SKILL.md
++++ b/SKILL.md
+@@ -25,3 +25,3 @@ ...
+-   Search policy: static
++   Search policy: obey-memory ...", "next": "Show the diff to the user. Ask: approve / edit / reject. Then: python ../tools/patch_pack.py ... --proposal g1 --approved \"<the user's exact words>\""}
+agent> Meta visit 1 - proposal g1 (snapshot taken, nothing landed). Rule (a) applied first: the actor's
+search policy is static and 4 cards are active. One change to .claude/skills/adult-income/SKILL.md:
+-   Search policy: static
++   Search policy: obey-memory
+One thing worth knowing before you decide: the cards say class_weight=none (8-4 across all pairs), but the
+single best recipe used balanced - it won only within hgb+onehot. Under obey-memory the actor will probe
+hgb/yes/onehot/none first and reach the hgb family by fit ~3 instead of fit 17, so the expected gain is in
+wasted fits, not in best val.
+approve / edit / reject? I'll run nothing until you answer, then pass your exact words to patch_pack.py --proposal g1.
+[24 turns, 218 s]
+=== user> approve
+$ python ../tools/patch_pack.py --pack .claude/skills/adult-income-meta --task ../tasks/01_adult_income.json --target .claude/skills/adult-income --proposal g1 --approved "approve"
+{"id": "g1", "decision": "y", "landed": true, "version": "gen_001", "files": ["SKILL.md"], "approved_by": "human", "words": "approve"}
+agent> Landed. Proposal g1 - approved (your words: "approve"), approved_by human. Version gen_001 - the
+pre-patch actor pack is snapshotted under runs/adult-income/versions/gen_001/; rollback can restore it.
+Files changed: .claude/skills/adult-income/SKILL.md - Search policy: static -> Search policy: obey-memory.
+```
+
+What to notice: the whole curriculum under the gate reproduces lesson 07's
+numbers to the fourth decimal - because the one patch that fires (the
+policy flip after problem 1) turns the actor into lesson 07's actor before
+problem 2, and rules (b) and (c) never fire on this curriculum (no
+non-hyper value loses every comparison; the verifier already holds every
+card the rule would merge). The gate kept the flip on a tie (0.8951 =
+0.8951: the evidence recipe *is* the incumbent), which is honest and thin;
+lesson 14 shows the same gate rolling a bad rewrite back. One `versions/`
+entry after six problems is the right number, and the page does not dress
+it up.
 
 Files:
 
 ```text
 step_09_rsi_meta_harness/
-  skills/adult-income/            lesson 07's actor with `Search policy: static` and an empty forbid list
-  skills/adult-income-verifier/   lesson 07's verifier
-  skills/adult-income-meta/
-    SKILL.md                      read log, cards, pack; one change (policy line | forbid | cards); patch_pack
-    tools.md                      Allowed: read_traces, read_memory, read_pack, patch_pack, private_score, rollback
-  skills/adult-income-meta-gate/  the same pack with `approval: gate`
-  run.py                          --approval human | gate; META_OFF; prints the curve, the generations, the boot checksums
-  test_step.py                    the claims below
-  README.md                       this lesson
-  runs/curriculum_<mode>/         (created by run.py) traces.jsonl, curve.json, versions/gen_NNN/ with CHECKSUMS.json
+├── README.md, test_step.py, .claude/settings.json
+├── .claude/skills/adult-income/              the actor, Search policy: static, schema.json forbid: []
+├── .claude/skills/adult-income-verifier/
+├── .claude/skills/adult-income-curriculum/   + the meta visit
+├── .claude/skills/adult-income-meta/         approval: human
+├── .claude/skills/adult-income-meta-gate/    approval: gate
+├── .agents/skills/...
+└── runs/adult-income/versions/gen_001/       (after a run: the snapshot before the first patch)
 ```
 
 ## Governance considerations
 
-- Who approves what: under `approval: human`, the human approves every
-  patch (a diff and the evidence recipe) - the acceptance rule is the human,
-  L4. Under `approval: gate`, the private split approves patches and the
-  human reads the log - the system revises its own improver's policy line,
-  the L5 flavour. What stays human in both: the gate itself (which split,
-  which comparison), the archive rule (every generation kept, restore by
-  label), the verifier contract, the size cap, the curriculum and the exam.
-- Off switches: `META_OFF` (no meta visit; the pack's fixed files stay
-  byte-identical); `n` at any prompt; `rollback` to any `gen_NNN`.
-- What the model may not do, and which tool enforces it: fit or score the
-  test split (`tools.md`; `execute`); a second proposal per visit
-  (`patch_pack`); a patch over 20 % of the pack or one that drops the test
-  rule (`patch_pack`); write cards directly (`write_card` is not in its
-  `tools.md`: cards go through the versioned, approved patch); look at the
-  private split more than twice per visit (`private_score`).
-- What is and is not self-modified: the actor's `SKILL.md` policy line,
-  `schema.json` forbid list and `memory.json` are. The meta pack itself,
-  the verifier, `eval.md` and the tools are not - lesson 16 is where the
-  improver's own files move, on a slower clock. Attribution: the model
-  chose the patch and, under the gate, decided to keep it; the human chose
-  what a patch may touch and what "better" means.
+- **Who approves what.** Under `approval: human`, the human, per patch, with
+  their words in the trace; under `approval: gate`, the private split, per
+  patch, with the numbers in the trace and `rollback.py` in the human's
+  hand. The rule that picks the change (a / b / c), the size cap, the
+  `patches:` list and `META_OFF` are the human's.
+- **The hook.** Blocks `patch_pack.py --proposal` without the user's words;
+  the locked test.
+- **What the script refuses.** A second proposal per visit; a file outside
+  `patches:`; more than 20 % of the pack; removing the test rule; a pack
+  patching itself; `score_test.py` / `fit_recipe.py` for the meta pack; a
+  gate loss (rolled back).
+- **What is and is not self-modified.** The actor's policy line, forbid
+  list and cards - through a snapshot. The verifier, `eval.md`, the gate and
+  the meta pack's own procedure are not (lesson 16 changes that last one).
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| generation n+1 boots the files generation n wrote (boot checksums equal the apply checksums; `versions/gen_001` holds the old text) | `test_generation_n_plus_1_boots_the_files_generation_n_wrote` |
-| under `approval: human` no patch lands without a `y` | `test_under_human_approval_nothing_lands_without_a_y` |
-| under `approval: human` an `edit` lands the human's version | `test_under_human_approval_an_edit_lands_the_humans_version` |
-| under `approval: gate` a patch that raises val and lowers `private_score` is rejected and `versions/` restores the previous pack; a second proposal per visit is refused | `test_under_the_gate_a_patch_that_raises_val_and_lowers_private_is_rejected_and_rolled_back` |
-| under `approval: gate` a patch that holds on the private split lands, and the verdict is in the log | `test_under_the_gate_a_patch_that_holds_on_private_lands` |
-| `META_OFF` leaves the pack byte-identical (its fixed files) and makes no version | `test_meta_off_leaves_the_pack_byte_identical` |
-| the meta pack cannot call `score_test`, `fit_recipe` or `write_card`; both meta packs lint | `test_the_meta_pack_cannot_call_score_test_or_fit` |
+| under `approval: human` "no" lands nothing, "yes" lands the patch as `gen_001`, and generation 2 boots the patched checksums | `test_human_no_lands_nothing_yes_lands_and_the_next_generation_boots_it` |
+| "edit" lands the user's version | `test_human_edit_lands_the_users_version` |
+| the gate keeps a good patch; a patch whose evidence recipe scores lower on the private split is rejected and `versions/` restores the pack byte for byte | `test_gate_keeps_a_good_patch_and_rolls_back_a_bad_one` |
+| `META_OFF` leaves the pack byte-identical; one proposal per visit; the 20 % cap; the test rule cannot be removed; the meta pack cannot score or fit | `test_meta_off_one_per_visit_size_cap_and_no_score_test` |
+| the offline curriculum under the gate flips the policy line on problem 1 and keeps the curve non-negative | `test_curriculum_under_the_gate_improves_the_policy_line` |
+| the pack contract | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen per problem and arm, plus per
-generation the meta visit's answer (`landed`, `version`, the gate verdict).
-Run `python run_tests.py rsi` from the repo root.
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [10 - Dream-RSI](../step_10_rsi_dream/README.md): rank search
-policies on the trace log with zero fits. Previous:
-[08 - a meta skill generates the RSI harness](../step_08_meta_generates_rsi/README.md).
+[Lesson 10 - Dream-RSI](../step_10_rsi_dream/README.md). Previous:
+[Lesson 08 - the RSI writer](../step_08_meta_generates_rsi/README.md).

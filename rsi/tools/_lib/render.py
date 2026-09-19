@@ -30,15 +30,24 @@ def values(task):
         "n_fits": str(task["budget"]["n_fits"]), "models": json.dumps(task["allowed_models"]),
         "test_rule": json.dumps(task["test_rule"]), "recipes": json.dumps(static_recipes(task), indent=1),
         "profile_keys": json.dumps(task["profile_keys"]),
+        "paths": json.dumps([{"id": f"p{i:02d}", "nodes": ["load", "scale", "encode", "model", "fit"], "bindings": r}
+                             for i, r in enumerate(static_recipes(task))], indent=1),
     }
 
 
-def render(template_dir, task):
-    """{path: text} for every file under template_dir, placeholders replaced."""
+def render(template_dir, task, subdirs=None):
+    """{path: text} for every file under template_dir, placeholders replaced. `subdirs` renames the template's
+    sub-packs (lesson 08: actor/ -> <slug>/, verifier/ -> <slug>-verifier/), so a landed pack is found by its name."""
     vals = values(task)
     out = {}
     for name, text in packs.read_pack(Path(template_dir)).items():
         for key, value in vals.items():
             text = text.replace("{{" + key + "}}", value)
+        top, _, rest = name.partition("/")
+        if subdirs and rest and top in subdirs:
+            name = subdirs[top].replace("{{slug}}", vals["slug"]) + "/" + rest
         out[name] = text
     return out
+
+
+RSI_SUBDIRS = {"actor": "{{slug}}", "verifier": "{{slug}}-verifier"}

@@ -1,192 +1,203 @@
 # Lesson 14 - The Darwin Gödel Machine lineage: the agent's own source, behind an archive and a gate
 
-The Darwin Gödel Machine (arXiv:2505.22954) is the empirical Gödel machine:
-an agent that rewrites its own code, keeps an archive of every variant with
-its benchmark score, and expands promising stepping stones rather than
-always the latest. The framework paper uses it as the attribution example -
-SWE-bench 20 -> 50 % while the archive rule and the parent choice stayed
-human-fixed. Here the source is the actor's `SKILL.md` and `loop.json` (the
-harness text and the loop), the one new tool is `archive`, and the rewrite
-is one generation deep: after each problem the current variant runs a fixed
-held-out benchmark (two synthetic tables nothing else uses), `archive add`
-stores it with its held-out gain over the static walk, `archive parent`
-picks the best-scoring variant (ties to the older one, never "the latest"
-by default), the meta pack restores that parent and proposes the next
-rewrite from it - behind the private gate *and* the human. `patches:`
-allows exactly those two files.
+The Darwin Gödel Machine (arXiv:2505.22954) keeps an archive of agent
+variants with their benchmark scores, picks parents from the archive, and
+lets an agent rewrite its own source; the framework paper's verdict on it
+(SWE-bench 20 -> 50 %, *reported*) is that the archive and the parent rule
+stayed human-fixed - autonomy attribution, not autonomy. This lesson builds
+exactly that shape: the meta pack (`dgm-meta`) runs the current actor on a
+fixed held-out benchmark (two synthetic tables no curriculum problem
+uses), archives the variant with its held-out gain (`archive.py --action
+add`), chooses the parent by score - ties to the older, never the latest by
+default (`--action parent`, `restore` when it is not the latest) - and
+proposes ONE rewrite of the parent's *source*: the `Search policy:` line of
+`SKILL.md` and the `policy` field of `loop.json`, the two files `patches:`
+allows. `approval: both`: the private gate decides keep-or-rollback first,
+then the human sees the diff. A rewrite the gate rejected never runs and
+never enters the archive. L5 flavour: the harness source is rewritten; the
+archive rule, the gate and the benchmark stay human, and the page says which
+files are self-modified and which are not.
 
 ## Getting started
 
-Lesson 13 left the skill package. This lesson adds `loop.json` to lesson
-09's actor (its `policy` field mirrors the `Search policy:` line),
-`skills/dgm-meta/` with `approval: both`, `patches: ["SKILL.md", "loop.json"]`
-and `held_out: held-out` (the benchmark directory), the tool `archive`, and
-`approval: both` in `patch_pack` (the gate decides first, then the human
-sees what the gate kept).
+Lesson 09's actor with a `loop.json` (its `policy` field mirrors the policy
+line), the verifier, and the new `.claude/skills/dgm-meta/` with
+`held-out/` (two task files, 1500 rows each). One script: `../tools/archive.py`.
+A generation is both arms and the verifier on both held-out tasks, an
+archive entry, and a rewrite through the gate and the human (about seven
+minutes headless). Reset: `git checkout -- .claude/skills`, mirror, `rm -rf runs`.
 
 ## How to execute it
 
-1. The curriculum with an archive step and a rewrite after every problem:
+1. Type the prompt:
+
+   ```text
+   Use the dgm-meta skill for generation 1: run the current actor on the held-out benchmark, archive it, choose the parent, and propose the rewrite of its source.
+   ```
+
+   After the benchmark run the meta pack's own commands are:
 
    ```bash
-   cd rsi/step_14_rsi_self_modifying
-   FAKE_MODEL=1 python run.py
-   FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y python run.py     # scripted approvals
+   python ../tools/archive.py --pack .claude/skills/dgm-meta --task .claude/skills/dgm-meta/held-out/02_pool_trees_2.json --target .claude/skills/adult-income --action add --label gen1-static --held-out .claude/skills/dgm-meta/held-out --seed 1
+   python ../tools/archive.py --pack .claude/skills/dgm-meta --task .claude/skills/dgm-meta/held-out/02_pool_trees_2.json --target .claude/skills/adult-income --action parent
+   python ../tools/patch_pack.py --pack .claude/skills/dgm-meta --task .claude/skills/dgm-meta/held-out/02_pool_trees_2.json --target .claude/skills/adult-income --files @runs/dgm-meta/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "gen2: obey-memory from gen1-static" --visit 1
    ```
 
-   ```powershell
-   cd rsi\step_14_rsi_self_modifying
-   $env:FAKE_MODEL = "1"; python run.py
-   ```
+2. **You will be asked** after the gate kept the rewrite: approve / edit /
+   reject. Then the agent runs
+   `python ../tools/patch_pack.py ... --proposal g1 --approved "<your words>"`.
+   A "no" rolls the pack back to the snapshot the gate landed on.
 
-   At each prompt the diff is a rewrite of `SKILL.md` and `loop.json` that
-   the private gate already kept; `n` rolls it back.
-2. Read `runs/curriculum/archive/archive.json`: every variant, its problem,
-   its held-out gain, its checksums.
-3. Tests: `python run_tests.py rsi`.
+3. Generation 2: the same prompt with "generation 2" (`--seed 2`); the
+   rewritten pack runs the benchmark, is archived as `gen2-obey-memory`, and
+   the parent rule picks between the two by held-out score.
+
+4. Headless: `claude -p "<the prompt>"` then `claude -p --continue "approve"`,
+   both with `--allowedTools "Bash,Read,Write,Edit,Skill"`. Tests:
+   `python run_tests.py rsi`.
 
 ## What it looks like
 
-`skills/dgm-meta/SKILL.md`:
+`.claude/skills/dgm-meta/SKILL.md`:
 
 ```markdown
 ---
 name: dgm-meta
-description: Rewrite the actor pack's own source - its SKILL.md and loop.json - one generation deep, from a parent chosen in an archive of variants scored on a fixed held-out benchmark, behind the private gate and the human cycle. Use after a problem's actor and verifier runs are done.
+description: The Darwin Goedel Machine lineage - rewrite the actor pack's own source (its SKILL.md and loop.json), one generation deep, from a parent chosen in an archive of variants scored on a fixed held-out benchmark, behind the private gate and the human cycle. Use in rsi/step_14_rsi_self_modifying, one generation per visit.
 metadata:
   type: workflow
-  version: "1.0"
+  version: "2.0"
   rsi: "on"
   approval: both
   patches: ["SKILL.md", "loop.json"]
-  held_out: held-out
 ---
+# The Darwin Goedel Machine lineage: the agent's own source, with an archive of stepping stones
+
+## Procedure - one generation
+3. Choose the parent: `python ../tools/archive.py --pack M --task T --target P --action parent`. The parent is the variant with the best held-out score, ties to the older one; it is not the latest by default. If `is_latest` is false: `python ../tools/archive.py --pack M --task T --target P --action restore --label <parent>`, then `python ../tools/read_pack.py --pack P --checksums`; you now stand on the parent.
+
+## Rules
+- One generation deep: a rewrite of the parent, never of a rewrite that has not run the benchmark.
+- A variant that lowered the held-out score is in the archive with its score; the parent rule never picks it over a better one. A rewrite the gate rejected never runs and never enters the archive.
 ```
 
-```markdown
-3. Call `archive` with action `parent`. The parent is the variant with the best held-out score, ties to the older one; it is not the latest by default. If the parent is not the latest, call `archive` with action `restore` and that label, then `read_pack` again: you now stand on the parent.
-```
-
-`skills/adult-income/loop.json` - the second self-modified file:
-
-```json
- "policy": "static",
- "body": [
-  "recipe = next recipe of the Search policy",
-  "fit_recipe(recipe)"
- ],
-```
-
-The archive's two rules, in the tool:
-
-`../common/tools.py`:
+`../tools/archive.py` - the held-out gain and the parent rule:
 
 ```python
-        # the parent is the best held-out score, ties to the older variant: never "the latest" by default
+            best = max(mine, key=lambda r: r["val_score"])["recipe"]
+            base = max(control, key=lambda r: r["val_score"])["recipe"]
+            gains[task["name"]] = round(tasks.score_on(task, a.seed, best, "private") - tasks.score_on(task, a.seed, base, "private"), 4)
+```
+
+```python
         best = max(index, key=lambda e: (e["held_out"] if e["held_out"] is not None else -1, -index.index(e)))
 ```
 
+`../tools/patch_pack.py` - `approval: both`, the gate then the human:
+
 ```python
-        # the held-out score: over every problem the arm ran, the private score of its best recipe minus the
-        # control arm's on the same problem and seed - a gain over the static walk on a fixed benchmark
+        if mode == "both":
+            proposals.save(path, record)
+            run.log("gate_kept", proposal=record["id"], version=label, gate=verdict)
+            return {"id": record["id"], "decision": None, "gate": verdict, "landed": "pending", "version": label, "diff": diff,
 ```
 
-Expected output, on this machine (`FAKE_MODEL=1 HUMAN=script:y,y,y,y,y,y`;
-the prompts are elided):
+The recorded run (Claude Code 2.1.278, headless, 27 turns + 3, 436 s + 39 s;
+the benchmark's fit calls trimmed to the agent's notes):
 
 ```text
- # problem                 mem val  ctl val     gap  mem test  ctl test wasted m/c cards +/-/act
- 1 adult_income             0.9172   0.9172 +0.0000    0.9034    0.9034   16/16      4/0/4
- 2 breast_cancer            0.9966   0.9954 +0.0012    0.9883    0.9844    0/0       3/0/7
- 3 wine                        1.0      1.0 +0.0000       1.0       1.0    0/0       0/0/4
- 4 digits                    0.999    0.999 +0.0000    0.9984    0.9984    0/0       1/1/4
- 5 synth_shift_a            0.9507   0.9507 +0.0000    0.9181    0.9181    0/0       3/0/7
- 6 synth_shift_b            0.7925   0.7925 +0.0000     0.834     0.834   17/17      1/0/5
-archive (variant, problem it ran, held-out gain over the static walk on the fixed benchmark):
-  adult_income-static                adult_income     +0.0000
-  breast_cancer-obey-memory          breast_cancer    -0.0398
-  wine-neighbours-of-top-3           wine             -0.0363
-  digits-prefer-untried-family       digits           +0.0000
-  synth_shift_a-static               synth_shift_a    +0.0000
-  synth_shift_b-static               synth_shift_b    +0.0000
-  after problem 1: {"id": "g1", "decision": "y", "gate": {"before": 0.8951, "after": 0.8951, "keep": true}, "landed": true, "version": "gen_001", "files": ["SKILL.md", "loop.json"]}
-  after problem 2: {"id": "g1", "decision": "y", "gate": {"before": 0.9973, "after": 1.0, "keep": true}, "landed": true, "version": "gen_002", "files": ["SKILL.md", "loop.json"]}
-  after problem 3: {"id": "g1", "decision": "y", "gate": {"before": 1.0, "after": 1.0, "keep": true}, "landed": true, "version": "gen_003", "files": ["SKILL.md", "loop.json"]}
-  after problem 4: null
-  after problem 5: null
-  after problem 6: null
-versions ['gen_001', 'gen_002', 'gen_003']; files the meta pack ever rewrote: ['SKILL.md', 'loop.json']; files that differ across the archive: ['SKILL.md', 'loop.json', 'memory.json']
-policy line now: Search policy: static
+[Skill dgm-meta]
+$ python ../tools/archive.py --pack .claude/skills/dgm-meta --task .claude/skills/dgm-meta/held-out/02_pool_trees_2.json --target .claude/skills/adult-income --action list
+{"action": "list", "variants": [], ...}
+agent> Empty archive. Step 1, held-out task 1, control arm: ... FREEZE. Best val: hgb,0.1,yes,ordinal,none = 0.9331.
+agent> Control arm on task 1 done (val 0.9331, test 0.9093). Now the memory arm on task 1, seed 1. The pack's
+policy is static, so read_memory --order static gives the next eight. No cards, policy static -> the memory
+arm walks the static list too.
+agent> My tally matches the script's (class_weight: balanced 10-2; encode 6-6 tie; model: hgb 16, rf 8-8,
+logreg 0-16; scale: no 4-0; no hyper pairs, no errors). Writing the six cards in one call.
+agent> Task 1 complete (verifier: 6 cards written, 6 new, 0 demoted). Now task 2, control arm: best val
+hgb,0.1,yes,onehot,balanced = 0.8837. Now the memory arm on task 2. Three cards apply now, but the pack's
+policy is still static, so the walk is unchanged by them.
+agent> Step 1 done: both arms and the verifier on both tasks (verifier task 2: 8 cards, 2 new, 1 demoted -
+scale=no was contradicted). Step 2, archive the current variant:
+$ python ../tools/archive.py ... --action add --label gen1-static --held-out .claude/skills/dgm-meta/held-out --seed 1
+{"action": "add", "label": "gen1-static", "variants": [{"label": "gen1-static", "problem": "pool_trees_2", "held_out": 0.0, "parent": null, "policy": "static"}]}
+agent> Held-out score 0.0, as expected - a static memory arm walks exactly the control's path. Step 3, choose the parent:
+$ python ../tools/archive.py ... --action parent
+{"parent": "gen1-static", "held_out": 0.0, "latest": "gen1-static", "is_latest": true, "policies_in_archive": ["static"]}
+agent> Parent gen1-static, is_latest true -> no restore needed. policies_in_archive = [static], so the rewrite
+is obey-memory. Step 4: writing both files under runs/dgm-meta/patch/. Evidence recipe: the memory arm's best
+val recipe on T was hgb,0.1,yes,onehot,balanced. Submitting the patch to the private gate:
+$ python ../tools/patch_pack.py ... --files @runs/dgm-meta/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "gen2: obey-memory from gen1-static" --visit 1
+{"id": "g1", "decision": null, "gate": {"before": 0.8737, "after": 0.8737, "keep": true}, "landed": "pending", "version": "gen_001", "diff": "--- a/SKILL.md ... -   Search policy: static\n+   Search policy: obey-memory ... --- a/loop.json ... -  \"policy\": \"static\",\n+  \"policy\": \"obey-memory\", ...", "next": "The gate kept it. Show the diff to the user, ask approve / edit / reject ..."}
+agent> The private gate kept the rewrite (proposal g1, before 0.8737 -> after 0.8737, keep: true). Per the
+skill, I now need your verdict before it lands.
+[27 turns, 436 s]
+=== user> approve
+$ python ../tools/patch_pack.py ... --proposal g1 --approved "approve"
+{"id": "g1", "decision": "y", "landed": true, "version": "gen_001", "files": ["SKILL.md", "loop.json"], "approved_by": "human", "words": "approve"}
+$ grep -n "Search policy:" .claude/skills/adult-income/SKILL.md && grep -n '"policy"' .claude/skills/adult-income/loop.json
+26:   Search policy: obey-memory
+6: "policy": "obey-memory",
+agent> Generation 1 is complete. Landed: proposal g1 - approved_by: human, words "approve", version gen_001,
+files SKILL.md + loop.json. Archive after this generation: gen1-static | static | held-out 0.0 | parent -.
+The rewritten pack (obey-memory from gen1-static) is not in the archive yet - per the one-generation-deep rule
+it enters only after it has run the benchmark. That's the next visit: generation 2 ... With three active cards
+(model=hgb, class_weight=balanced, encode=ordinal), the memory arm should probe hgb first this time rather
+than spending 16 fits on logreg and rf.
+[3 turns, 39 s]
 ```
 
-Read the archive column. The `obey-memory` rewrite ran problem 2 well
-(+0.0012 on val) but scored -0.040 on the held-out benchmark - the cards it
-obeyed came from Adult and breast cancer and did not fit two small tree
-tables - so it never became a parent; neither did `neighbours-of-top-3`
-(-0.036). The parent stayed `adult_income-static`, each rewrite started from
-it, and once every variant was in the archive the meta pack had nothing
-new to propose. Problems 5 and 6 ran the parent, `static`, and gained
-nothing: on this benchmark the lineage found no rewrite better than what it
-started with, and the archive says so with a number per variant. A negative
-result with a version history is what safe inheritance looks like.
+What to notice, honestly: generation 1's held-out score is 0.0 by
+construction (a `static` memory arm walks the control's path), and the gate
+kept the rewrite on a tie (0.8737 = 0.8737: the evidence recipe *is* the
+incumbent on generation 1). The lesson's claim is not that the rewrite wins;
+it is that the rewrite goes through an archive with a score, a parent rule
+that ignores recency, a gate, and a human - and that `SKILL.md` and
+`loop.json` are the only files it may touch. The test shows the parent rule
+skipping a newer, worse variant and the gate rolling back a rewrite whose
+evidence recipe scores lower.
 
 Files:
 
 ```text
 step_14_rsi_self_modifying/
-  skills/adult-income/
-    SKILL.md            lesson 09's actor; the Search policy line is what the rewrites change
-    loop.json           the counted loop with a `policy` field the rewrites keep in step with SKILL.md
-    tools.md, schema.json, memory.schema.json, memory.json, eval.md
-  skills/adult-income-verifier/   lesson 06's verifier
-  skills/dgm-meta/
-    SKILL.md            archive add -> parent -> restore -> one rewrite of SKILL.md + loop.json; approval: both
-    tools.md            Allowed: read_traces, read_memory, read_pack, archive, patch_pack
-    held-out/           the fixed benchmark: lesson 12's two pool tables
-  run.py                the curriculum; each generation runs the held-out benchmark under its own arm before the meta visit
-  test_step.py          the claims below
-  README.md             this lesson
-  runs/curriculum/archive/    (created by run.py) one directory per variant and archive.json
+├── README.md, test_step.py, .claude/settings.json
+├── .claude/skills/adult-income/          + loop.json (policy field); the two self-modified files
+├── .claude/skills/adult-income-verifier/
+├── .claude/skills/dgm-meta/              SKILL.md (approval: both, patches: SKILL.md, loop.json), tools.md, held-out/{01,02}_pool_trees_*.json
+├── .agents/skills/...
+└── runs/adult-income/archive/            archive.json + one snapshot per variant   (after a run)
 ```
 
 ## Governance considerations
 
-- Who approves what: the private gate first, then the human, on every
-  rewrite (`approval: both`); the human wrote the archive rule (best
-  held-out gain, ties to the older), the held-out benchmark and the
-  allow-list.
-- Off switches: `n` at any prompt (the gate's keep is rolled back);
-  `versions/`; the archive's `restore`.
-- What the model may not do, and which tool enforces it: rewrite anything
-  but `SKILL.md` and `loop.json` (`patches:`, enforced by `patch_pack`);
-  make a variant with a worse held-out score the parent (`archive parent`
-  is a rule, not a choice); score its own variants (`archive add` reads the
-  held-out arm's fits from the trace; the meta pack cannot fit); rewrite a
-  rewrite that has not run (one proposal per visit, one archive entry per
-  generation).
-- What is and is not self-modified: `SKILL.md` and `loop.json` of the
-  actor - the harness source. Not: the archive rule, the gate, the
-  benchmark, the verifier, `schema.json`, `tools.md`. Rung: L5 flavour,
-  with the DGM's own caveat spelled out - the archive rule and the parent
-  choice are the human's.
+- **Who approves what.** The gate first (the private split of the last
+  held-out task), then the human; the archive rule (best score, ties to the
+  older), the benchmark and the one-generation-deep rule are the human's.
+- **The hook.** Blocks the second `patch_pack.py` call without the user's
+  words; the locked test.
+- **What the script refuses.** A patch outside `SKILL.md` / `loop.json`; a
+  rewrite the gate scores lower (rolled back, never archived); `archive add`
+  without both arms on the benchmark; a fit or a test score for the meta pack.
+- **What is and is not self-modified.** `SKILL.md` and `loop.json` are - the
+  harness source. `schema.json`, `memory.json` (the verifier's), the
+  verifier, the archive rule and the benchmark are not.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| the archive holds every variant with its held-out score on the fixed benchmark, and the benchmark shares no problem with the curriculum | `test_the_archive_holds_every_variant_with_its_held_out_score` |
-| the parent is chosen from the archive, not always the latest | `test_the_parent_is_chosen_from_the_archive_not_always_the_latest` |
-| a rewrite that lowers the held-out score never becomes a parent | `test_a_rewrite_that_lowers_the_held_out_score_never_becomes_a_parent` |
-| `SKILL.md` and `loop.json` are the only self-modified files (every apply lists them; other files are refused; the rewrites keep the budget and lint) | `test_skill_md_and_loop_json_are_the_only_self_modified_files` |
-| the human can refuse what the gate kept, and the pack rolls back | `test_the_human_can_refuse_what_the_gate_kept` |
+| the archive holds every variant with its held-out score; the parent is chosen by score, not recency (a newer, worse variant is skipped); restore works | `test_archive_holds_every_variant_and_the_parent_is_by_score_not_recency` |
+| a rewrite whose evidence recipe scores lower on the private split is rolled back and never archived | `test_rewrite_that_lowers_the_private_score_is_rolled_back_and_never_archived` |
+| only `SKILL.md` and `loop.json` change; the human comes after the gate and a "no" rolls back; the meta pack cannot score | `test_only_skill_and_loop_are_self_modified_and_the_human_comes_after_the_gate` |
+| the held-out benchmark is disjoint from the curriculum and the exam | `test_held_out_is_disjoint_from_the_curriculum` |
+| the pack contract | `test_pack_contract` |
+| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
 
-Scorecard fields reported: all fourteen per problem and arm, plus the
-archive (label, problem, held-out gain per benchmark table) and the apply
-rows with the files each rewrite touched. Run `python run_tests.py rsi`
-from the repo root.
+Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-Next: [15 - AIDE²](../step_15_rsi_aide2/README.md): autoresearch on
-autoresearch, keep-if-better across the whole curriculum under one budget.
-Previous: [13 - Recuris](../step_13_rsi_skill_memory/README.md).
+[Lesson 15 - AIDE²](../step_15_rsi_aide2/README.md). Previous:
+[Lesson 13 - Recuris](../step_13_rsi_skill_memory/README.md).

@@ -1,0 +1,23 @@
+{
+ "kind": "counted_while",
+ "N": 24,
+ "counter": "t",
+ "error_still_counts": true,
+ "body": [
+  "path = paths[t]",
+  "walk_path.py --path path.id  (or --paths p00,...,p05: six per call)"
+ ],
+ "exit": [
+  "FREEZE",
+  "score_test",
+  "save_model",
+  "scorecard"
+ ],
+ "illegal": [
+  "change N",
+  "reorder paths",
+  "add or repair a path",
+  "a second while",
+  "score_test before FREEZE"
+ ]
+}

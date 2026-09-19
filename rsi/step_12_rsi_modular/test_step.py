@@ -1,67 +1,86 @@
-"""Step 12 - contrast names the module whose text differs; the patch touches exactly one module; validation runs
-on the pool, never the eval table; the patched module helps both fake actors."""
+"""Lesson 12 - ModularRSI: contrast names the module whose text differs between the success and the failure; the
+patch touches exactly one module file (any other file is refused); validation runs on the pool task's private
+split, never on the eval table; the patched module helps both actors (the loser's memory arm beats its control
+arm after the patch, as the winner's did before); the meta pack cannot fit.
+"""
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent))
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent / "tools"))
 
-from common import checks, harness, packs, steps, tasks  # noqa: E402
-from common.fake import FakeModel  # noqa: E402
-from common.tools import execute  # noqa: E402
-from common.trace import TraceLog  # noqa: E402
-from run import A, B, META, pool_tasks, run_pool, transfer  # noqa: E402
+from _lib import packs, recipe, testing  # noqa: E402
 
-CUR, _ = tasks.test_curriculum()
-EVAL = CUR[5]                                     # t6: trees, imbalanced - the eval table the pool must never touch
-POOL = [t["name"] for t in pool_tasks()]
+A, B, META, VERIFIER = "actor-a", "actor-b", "modular-meta", "adult-income-verifier"
+POOL = sorted((HERE / "pool").glob("*.json"))
 
 
-def pooled(tmp_path):
-    work = steps.workspace(HERE, A, B, META, into=tmp_path / "w")
-    before = transfer(work[0], EVAL, tmp_path / "before")
-    visit = run_pool(FakeModel(), work, tmp_path / "pool")
-    return work, before, visit, TraceLog(tmp_path / "pool" / "traces.jsonl")
+def pool_run(tmp_path):
+    """Both actors on the pool, memory arms, the verifier after each; the pool copied next to the packs."""
+    a, b, meta, verifier = testing.workspace(HERE, tmp_path, A, B, META, VERIFIER)
+    shutil.copytree(HERE / "pool", tmp_path / "pool")
+    pool = sorted((tmp_path / "pool").glob("*.json"))
+    for p in pool:
+        for actor in (a, b):
+            testing.play_arm(actor, p)
+            testing.play_verifier(actor, p, verifier)
+    return a, b, meta, verifier, pool
 
 
-def test_contrast_names_the_module_whose_text_differs(tmp_path):
-    work, before, visit, trace = pooled(tmp_path)
-    c = trace.rows("contrast")[-1]["info"]
-    assert c["modules_differing"] == ["modules/context.md"] and c["module"] == "modules/context.md"
-    assert c["winner"] == B and c["wins"] == {A: 0, B: 2} and [p["problem"] for p in c["pairs"]] == POOL
-    assert all(p["success"] == B and p["failure"] == A for p in c["pairs"])
-    assert "Search policy: obey-memory" in c["texts"][B] and "Search policy: static" in c["texts"][A]
+def test_contrast_names_the_differing_module_and_the_winner(tmp_path):
+    a, b, meta, verifier, pool = pool_run(tmp_path)
+    out = testing.tool("contrast", "--pack", meta, "--task", pool[-1], "--a", a, "--b", b, "--tasks", tmp_path / "pool")
+    assert out["modules_differing"] == ["modules/context.md"] and out["module"] == "modules/context.md"
+    assert out["fits_spent"] == 0
+    decided = [p for p in out["pairs"] if "success" in p]
+    assert decided and out["winner"] == B, out["pairs"]          # obey-memory beats static once the cards exist
+    assert out["pairs"][0].get("skipped") == "tie"               # pool task 1: empty memory, both static
+    assert "Search policy: obey-memory" in out["texts"][B] and "Search policy: static" in out["texts"][A]
+    assert "not in modular-meta's tools.md" in testing.tool("fit_recipe", "--pack", meta, "--task", pool[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
 
 
-def test_the_patch_touches_exactly_one_module_file(tmp_path):
-    work, before, visit, trace = pooled(tmp_path)
-    assert visit["patch"]["landed"] and visit["patch"]["version"] == "gen_001"
-    a_now, a_then = packs.read_pack(work[0]), packs.read_pack(tmp_path / "pool" / "versions" / "gen_001")
-    changed = [n for n in a_now if a_now[n] != a_then.get(n)]
-    assert changed == ["modules/context.md"] and a_now["modules/context.md"] == packs.read_pack(work[1])["modules/context.md"]
-    meta = harness.boot(work[2], pool_tasks()[-1], run_dir=tmp_path / "pool", target=work[0], arm="meta")
-    recipe = {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
-    assert execute(meta, checks.call("patch_pack", files={"SKILL.md": {"after": "x"}}, recipe=recipe, summary="not a module")) \
-        .startswith("Error: this meta pack may patch ['modules/*.md'] only, not SKILL.md")
+def test_patch_touches_exactly_one_module_validated_on_the_pool_and_helps_the_loser(tmp_path):
+    a, b, meta, verifier, pool = pool_run(tmp_path)
+    out = testing.tool("contrast", "--pack", meta, "--task", pool[-1], "--a", a, "--b", b, "--tasks", tmp_path / "pool")
+    loser, winner = (a, b) if out["winner"] == B else (b, a)
+    evidence = out["pairs"][-1]["best"][out["winner"]]["recipe"]
+    before = packs.checksums(loser)
+    other = testing.tool("patch_pack", "--pack", meta, "--task", pool[-1], "--target", loser, "--files", json.dumps({"SKILL.md": {"after": "# no\nafter FREEZE"}}),
+                         "--recipe", json.dumps(evidence), "--summary", "not a module", "--visit", "1")
+    assert "may patch ['modules/*.md'] only" in other["error"]
+    patched = testing.tool("patch_pack", "--pack", meta, "--task", pool[-1], "--target", loser, "--files", json.dumps({out["module"]: {"after": out["texts"][out["winner"]]}}),
+                           "--recipe", json.dumps(evidence), "--summary", "context <- winner", "--visit", "2")
+    assert patched["landed"] and patched["approved_by"] == "gate" and patched["files"] == ["modules/context.md"]
+    after = packs.checksums(loser)
+    assert {k for k in after if after[k] != before.get(k)} == {"modules/context.md"}
+    assert packs.read_pack(loser)["modules/context.md"] == packs.read_pack(winner)["modules/context.md"]
+    # validated on the pool: the gate row names the pool task, and no eval-table run exists anywhere
+    trace = [json.loads(l) for l in (tmp_path / "runs" / META / "pool_trees_2" / "traces.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert any(r["event"] == "gate" and r["problem"] == "pool_trees_2" for r in trace)
+    assert not any(d.name.startswith(("adult", "breast", "wine", "digits", "synth", "exam")) for d in (tmp_path / "runs").rglob("*") if d.is_dir())
+    # the patched module helps the loser too: memory arm vs control arm on the pool task, a fresh seed
+    control = testing.play_arm(loser, pool[-1], arm="control", memory_off=True, seed=1)
+    mem = testing.play_arm(loser, pool[-1], seed=1)
+    assert mem["best_val_score"] >= control["best_val_score"] and mem["wasted_fits"] <= control["wasted_fits"]
+    assert mem["best_val_score"] > control["best_val_score"] or mem["wasted_fits"] < control["wasted_fits"]
 
 
-def test_validation_runs_on_the_pool_never_the_eval_table(tmp_path):
-    work, before, visit, trace = pooled(tmp_path)
-    gate = trace.rows("gate")[-1]
-    assert gate["problem"] in POOL and visit["patch"]["gate"]["keep"]
-    assert {r["problem"] for r in trace.rows("fit")} == set(POOL)                  # the pool log holds pool tables only
-    assert EVAL["name"] not in {r["problem"] for r in trace.rows()}
-    assert all(t["name"] not in {c["name"] for c in CUR} for t in pool_tasks())     # disjoint from the curriculum by construction
+def test_pool_is_disjoint_from_the_curriculum():
+    from _lib import tasks
+    names = {t["name"] for t in tasks.all_tasks()}
+    seeds = {json.dumps(t["source"], sort_keys=True) for t in tasks.all_tasks()}
+    for p in POOL:
+        t = tasks.load_task(p)
+        assert t["name"] not in names and json.dumps(t["source"], sort_keys=True) not in seeds
 
 
-def test_the_patched_module_helps_both_fake_actors(tmp_path):
-    work, before, visit, trace = pooled(tmp_path)
-    after = transfer(work[0], EVAL, tmp_path / "after")
-    assert set(before) == set(after) == {"default", "reverse"}
-    assert all(after[s] >= before[s] for s in before) and any(after[s] > before[s] for s in before)
-    reverse_before = harness.boot(steps.workspace(HERE, A, into=tmp_path / "w2"), EVAL, arm="rev", run_dir=tmp_path / "rev", quiet=True)
-    harness.run(reverse_before, FakeModel("reverse"))
-    assert reverse_before.fits[0]["recipe"] != json.loads((HERE / "skills" / A / "schema.json").read_text(encoding="utf-8"))["recipes"][0]  # the two actors do differ
+def test_pack_contract():
+    assert testing.pack_contract(HERE) == []
+
+
+def test_live_claude_code():
+    text = testing.live(HERE, timeout=3600)
+    assert "context.md" in text
