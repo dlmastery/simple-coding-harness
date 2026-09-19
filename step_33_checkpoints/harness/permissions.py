@@ -30,6 +30,7 @@ answer is always no. Every tool outside the plan tool set is denied too.
 
 import json
 import os
+import re
 from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
@@ -54,11 +55,13 @@ BASH_RULES = {
     # read-only: let them through
     "ls*": "allow", "pwd": "allow", "cd *": "allow", "echo *": "allow",
     "sort*": "allow", "uniq*": "allow", "cut *": "allow", "basename *": "allow", "dirname *": "allow",
-    "date*": "allow", "env": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
+    "date*": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
     "wc *": "allow", "file *": "allow", "which *": "allow", "grep *": "allow", "rg *": "allow",
     "find *": "allow", "tree*": "allow",
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
     "pytest*": "allow", "python -m pytest*": "allow",
+    # `env` prints every variable, the API key included: ask
+    "env": "ask", "env *": "ask",
     # risky: never, even if the user says yes
     "rm *": "deny", "sudo *": "deny", "chmod *": "deny", "chown *": "deny",
     "curl *": "deny", "wget *": "deny",
@@ -66,8 +69,16 @@ BASH_RULES = {
 }
 
 
+SUBSTITUTIONS = ("$(", "`", "<(", ">(")  # a command inside a command: the rules cannot see it
+
+REDIRECTION = re.compile(r"(^|[^&<>])>{1,2}(?!&)")  # > or >> that is not part of 2>&1 or >&
+
+
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, && - but not inside quotes."""
+    """Split a compound command on |, ||, ;, &, &&, newlines - but not inside quotes.
+
+    An & that is part of a redirection (2>&1, >&2) is not a separator.
+    """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
         ch = command[i]
@@ -80,7 +91,9 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch in "&|;":
+        elif ch == "&" and current and current[-1] in "<>":
+            current.append(ch)  # 2>&1: a redirection, not a separator
+        elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
             while i + 1 < len(command) and command[i + 1] in "&|":
@@ -92,14 +105,38 @@ def split_command(command):
     return [p.strip() for p in parts if p.strip()]
 
 
+def unquoted(part):
+    """The part with its quoted strings blanked, so a > inside quotes is not a redirection."""
+    return re.sub(r"'[^']*'|\"[^\"]*\"", "", part)
+
+
+def writes(part):
+    """Whether an allow-rated command can still change files: a redirection, tee, or find that acts."""
+    bare = unquoted(part)
+    if REDIRECTION.search(bare) or re.search(r"(^|\s)tee(\s|$)", bare):
+        return True
+    return bare.startswith("find") and re.search(r"\s-(delete|exec|ok)\b", bare) is not None
+
+
 def decide(command):
-    """Rate every part of a compound command; the strictest verdict wins."""
+    """Rate every part of a compound command; the strictest verdict wins.
+
+    A command that carries a substitution - $(...), backticks, <(...) -
+    is asked about whole: the rules cannot see the command inside it. An
+    allow-rated part that redirects into a file, pipes into tee, or runs
+    find with -delete/-exec is downgraded to ask: reading is allowed,
+    writing is not.
+    """
+    if any(mark in command for mark in SUBSTITUTIONS):
+        return "ask"
     verdicts = []
     for part in split_command(command):
         action = "ask"
         for pattern, rule in BASH_RULES.items():
             if fnmatch(part, pattern):
                 action = rule
+        if action == "allow" and writes(part):
+            action = "ask"
         verdicts.append(action)
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
@@ -112,22 +149,42 @@ def inside_project(path):
     return resolved == PROJECT or PROJECT in resolved.parents
 
 
+def missing(name, args, key):
+    """The deny verdict for a required argument that is not there, or None."""
+    if not isinstance(args.get(key), str) or not args[key]:
+        return "deny", f"{name}: missing argument {key!r}"
+    return None
+
+
 def check(name, args):
-    """Return (action, reason). Action is allow, ask or deny."""
+    """Return (action, reason). Action is allow, ask or deny.
+
+    The arguments come from the model, so every one is read with .get: a
+    call without its required argument is denied, never a KeyError.
+    """
     if plan.MODE == "plan" and not plan.offered(name):
         return "deny", f"plan mode: {name} is not available until the plan is approved"
 
     if name in ("bash", "bash_background"):
+        if verdict := missing(name, args, "command"):
+            return verdict
         action = decide(args["command"])
         if plan.MODE == "plan" and action == "ask":
             return "deny", f"plan mode: only read-only commands run before the plan is approved: {args['command']}"
         how = "run in background" if name == "bash_background" else "run"
         return action, f"{how}: {args['command']}"
 
-    if name in ("write_file", "str_replace") and not inside_project(args["path"]):
-        return "ask", f"{name} outside {PROJECT}: {args['path']}"
+    if name in ("write_file", "str_replace"):
+        if verdict := missing(name, args, "path"):
+            return verdict
+        if not inside_project(args["path"]):
+            return "ask", f"{name} outside {PROJECT}: {args['path']}"
+        if ".git" in Path(args["path"]).resolve().parts:
+            return "ask", f"{name} inside .git: {args['path']}"
 
     if name == "browser_open":
+        if verdict := missing(name, args, "url"):
+            return verdict
         host = (urlparse(args["url"]).hostname or "").lower()
         if host in BROWSER_ALLOW:
             return "allow", None

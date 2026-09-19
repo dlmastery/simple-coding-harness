@@ -20,11 +20,16 @@ def path_for(session_id):
     return SESSION_DIR / f"{session_id}.jsonl"
 
 
+def log(session_id=None):
+    """The log file of a session, opened for appending; the directory is made on the way."""
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    return path_for(CURRENT if session_id is None else session_id).open("a", encoding="utf-8")
+
+
 def save(messages):
     """Append what is new. Never rewrite what is already on disk."""
     global WRITTEN
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+    with log() as f:
         for message in messages[WRITTEN:]:
             f.write(json.dumps(message) + "\n")
     WRITTEN = len(messages)
@@ -33,28 +38,33 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+    with log() as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
 
 
 def handoff(name):
     """Record that `name` answers from here on. The system message on disk stays; load() rewrites it."""
-    SESSION_DIR.mkdir(parents=True, exist_ok=True)
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+    with log() as f:
         f.write(json.dumps({"handoff": name}) + NL)
 
 
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
-    with path_for(CURRENT).open("a", encoding="utf-8") as f:
+    with log() as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)
 
 
-def load(session_id):
-    """Replay the log: messages accumulate, rewinds cut them back, a compaction replaces them, a handoff rewrites the prompt."""
+def load(session_id, apply_handoffs=True):
+    """Replay the log: messages accumulate, rewinds cut them back, a compaction replaces them, a handoff rewrites the prompt.
+
+    A handoff marker rewrites the system prompt and makes that agent the
+    active one - a global. With apply_handoffs=False the markers are
+    skipped, for a reader that only wants the messages (a title) and must
+    not change which agent answers the live chat.
+    """
     from . import handoff as handoffs  # here, not at the top: handoff imports llm, which imports modules that import session
 
     messages = []
@@ -68,6 +78,8 @@ def load(session_id):
         elif "compacted" in entry:
             messages = list(entry["compacted"])
         elif "handoff" in entry:
+            if not apply_handoffs:
+                continue
             try:
                 handoffs.apply(entry["handoff"], messages)
             except KeyError:
@@ -78,9 +90,12 @@ def load(session_id):
 
 
 def open_session(session_id):
-    """Switch to a past chat and become it."""
+    """Switch to a past chat and become it: the default agent first, then whatever the log hands off to."""
+    from . import handoff as handoffs  # here, not at the top: see load()
+
     global CURRENT, WRITTEN
     CURRENT = session_id
+    handoffs.reset()
     messages = load(session_id)
     WRITTEN = len(messages)
     return messages
@@ -98,4 +113,4 @@ def all_sessions():
     if not SESSION_DIR.exists():
         return []
     files = sorted(SESSION_DIR.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
-    return [{"id": p.stem, "title": title(load(p.stem))} for p in files]
+    return [{"id": p.stem, "title": title(load(p.stem, apply_handoffs=False))} for p in files]  # a listing changes no agent

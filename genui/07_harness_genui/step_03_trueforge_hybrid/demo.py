@@ -46,9 +46,11 @@ def capture(name, prompt, offline, attempts=3):
         program = genui.extract_program(reply) or ""
         wanted, got = name == "artifact", len(artifact.find_artifacts(program))
         if got == int(wanted):
+            sample.write_text(reply, encoding="utf-8")  # the recording the tests replay: only a reply that passed the check replaces it
             break
         print(f"attempt {attempt}: {got} HtmlArtifact statement(s), expected {int(wanted)}; asking a new session\n")
-    sample.write_text(reply, encoding="utf-8")
+    else:
+        print(f"(no attempt passed the check; sample_{name}.md was left as it was)")
     return reply, metrics
 
 
@@ -112,10 +114,9 @@ def screenshot_artifact(url):
         page.wait_for_selector("#surface[data-done]", timeout=20_000)
         page.wait_for_selector("iframe.artifact-frame", timeout=5_000)
         srcdoc = page.get_attribute("iframe.artifact-frame", "srcdoc")
-        head = srcdoc.lower().find("<head>")
-        first = srcdoc[head + 6:].startswith(artifact.META) if head >= 0 else srcdoc.startswith(artifact.META)
+        first = 0 <= srcdoc.lstrip().find(artifact.META) <= len("<!doctype html>")
         print(f"iframe: sandbox={page.get_attribute('iframe.artifact-frame', 'sandbox')!r}, "
-              f"referrerpolicy={page.get_attribute('iframe.artifact-frame', 'referrerpolicy')!r}, CSP meta first in <head>: {first}")
+              f"referrerpolicy={page.get_attribute('iframe.artifact-frame', 'referrerpolicy')!r}, CSP meta before any element: {first}")
 
         # Keystrokes inside the sandbox: every number field gets a 9 (a slider
         # its maximum); if the text did not change, the first button is

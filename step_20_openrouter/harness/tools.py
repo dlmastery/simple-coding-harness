@@ -3,6 +3,7 @@ entry point the main loop and the subagent both use.
 """
 
 import json
+import os
 import subprocess
 
 from . import history, sandbox
@@ -19,26 +20,31 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+        return f"Error: command timed out after {expired.timeout}s"
     return history.cap((result.stdout + result.stderr) or "(no output)")
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    with open(path) as f:
+    # utf-8 everywhere: Windows would otherwise pick cp1252 and choke on the
+    # first non-ASCII character; newline="" keeps the file's own line endings
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return history.cap(f.read())
 
 
 def write_file(path: str, content: str) -> str:
     """Create a file, or overwrite it if it already exists."""
-    with open(path, "w") as f:
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
 
 
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
-    with open(path) as f:
+    if not old_str:
+        return "Error: old_str is empty"
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
     count = content.count(old_str)
@@ -51,7 +57,7 @@ def str_replace(path, old_str, new_str, allow_multi_edit=False):
             "or set allow_multi_edit to replace them all."
         )
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content.replace(old_str, new_str))
     return f"Replaced {count} match(es) in {path}"
 
@@ -143,19 +149,43 @@ TOOLS = {
 }
 
 
-def execute(tool_call):
+def execute(tool_call, allowed=None):
     """Run one tool call through the permission layer. Returns (args, result).
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
-    exactly the same rules - it is not a way around them.
+    exactly the same rules - it is not a way around them. `allowed` is the
+    set of tool names the caller offered; a call outside it is denied, so a
+    subagent cannot run a withheld tool just by naming it.
+
+    Nothing here raises. Whatever goes wrong - arguments that are not JSON,
+    a tool that does not exist, an exception inside the tool - comes back as
+    an Error: string, so every tool_call still gets its one tool message.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as failure:  # json.JSONDecodeError is a ValueError
+        return {}, f"Error: the arguments of {name} are not a JSON object: {failure}"
+
+    if allowed is not None and name not in allowed:
+        action, reason = "deny", f"{name} is not available to this agent"
+    elif name not in TOOLS:
+        return args, f"Error: no tool named {name!r}."
+    else:
+        action, reason = check(name, args)
     if action == "deny":
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
-    return args, TOOLS[tool_call.function.name](**args)
 
+    try:
+        result = TOOLS[name](**args)
+    except Exception as failure:  # noqa: BLE001 - errors are results, never crashes
+        return args, f"Error: {type(failure).__name__}: {failure}"
+    if not isinstance(result, str):
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return args, result

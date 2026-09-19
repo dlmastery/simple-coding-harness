@@ -6,7 +6,8 @@
  * passed whole and destructured in the signature.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 
 import * as history from "./history.ts";
 import * as sandbox from "./sandbox.ts";
@@ -25,8 +26,10 @@ export async function bash({ command }: { command: string }): Promise<string> {
   } catch (failure) {
     if (failure instanceof sandbox.TimedOut) {
       // A slow command is the model's problem to work around, not a reason
-      // to take the session down. Hand the failure back as a result.
-      return `Timed out after ${failure.timeout}s and was killed. Narrow it down.`;
+      // to take the session down. Hand the failure back as a result, with
+      // what the command printed before it was killed.
+      return history.cap(`Timed out after ${failure.timeout}s and was killed. Output so far:
+${failure.output}`);
     }
     throw failure;
   }
@@ -40,6 +43,7 @@ export function readFile({ path }: { path: string }): string {
 
 /** Create a file, or overwrite it if it already exists. */
 export function writeFile({ path, content }: { path: string; content: string }): string {
+  mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content, "utf-8");
   return `Wrote ${path}`;
 }
@@ -48,6 +52,9 @@ export function writeFile({ path, content }: { path: string; content: string }):
 export function strReplace({ path, old_str, new_str, allow_multi_edit = false }: {
   path: string; old_str: string; new_str: string; allow_multi_edit?: boolean;
 }): string {
+  if (!old_str) {
+    return "Error: old_str is empty; give the exact text to replace";
+  }
   const content = readFileSync(path, "utf-8");
 
   const pieces = content.split(old_str);
@@ -152,19 +159,51 @@ export const TOOLS: Record<string, Tool> = {
   task,
 };
 
+/** The arguments of a tool call as an object, or [{}, why] when they are not one. */
+export function parseArgs(toolCall: ToolCall): [Args, string | null] {
+  let args: unknown;
+  try {
+    args = JSON.parse(toolCall.function.arguments || "{}");
+  } catch (failure) {
+    return [{}, (failure as Error).message];
+  }
+  if (typeof args !== "object" || args === null || Array.isArray(args)) {
+    return [{}, `got ${Array.isArray(args) ? "array" : typeof args}, not an object`];
+  }
+  return [args as Args, null];
+}
+
 /** Run one tool call through the permission layer. Returns [args, result].
  *
  * Shared by the main loop and by subagents, so a subagent is fenced in by
- * exactly the same rules - it is not a way around them.
+ * exactly the same rules - it is not a way around them. Nothing rejects
+ * out of here: arguments that are not a JSON object, a tool name the
+ * registry does not have and an exception inside the tool all come back
+ * as an Error: result the model can read, the way a failed command does.
+ * Every tool call gets exactly one result, so the transcript stays valid.
  */
 export async function execute(toolCall: ToolCall): Promise<[Args, string]> {
-  const args: Args = JSON.parse(toolCall.function.arguments);
-  const [action, reason] = check(toolCall.function.name, args);
+  const name = toolCall.function.name;
+  const [args, problem] = parseArgs(toolCall);
+  if (problem !== null) {
+    return [args, `Error: the arguments of ${name} are not a JSON object: ${problem}`];
+  }
+  const fn = TOOLS[name];
+  if (fn === undefined) {
+    return [args, `Error: no tool named '${name}'.`];
+  }
+  const [action, reason] = check(name, args);
   if (action === "deny") {
     return [args, `Blocked by policy: ${reason}`];
   }
   if (action === "ask" && !(await ui.approve(reason))) {
     return [args, "The user denied this tool call."];
   }
-  return [args, await TOOLS[toolCall.function.name](args)];
+  try {
+    return [args, await fn(args)];
+  } catch (failure) {
+    // a missing file or a wrong argument is the model's problem to fix
+    const error = failure as Error;
+    return [args, `Error: ${error?.name ?? "Error"}: ${error?.message ?? String(failure)}`];
+  }
 }

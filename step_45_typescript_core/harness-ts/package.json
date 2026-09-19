@@ -9,9 +9,14 @@
   },
   "scripts": {
     "start": "node --experimental-strip-types agent.ts",
-    "test": "node --experimental-strip-types --test \"tests/*.test.ts\""
+    "test": "node --experimental-strip-types --test \"tests/*.test.ts\"",
+    "typecheck": "tsc -p ."
   },
   "dependencies": {
     "openai": "^4.80.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
   }
 }

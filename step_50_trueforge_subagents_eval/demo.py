@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from client import evaluate, sessions  # noqa: E402
-from client.common import BASE_URL, connect  # noqa: E402
+from client.common import BASE_URL, REQUEST_ERRORS, connect, describe_error  # noqa: E402
 from client.threads import run_threads  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
@@ -38,12 +38,20 @@ def main(argv=None):
     cli = parser().parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # model text is not always cp1252
+    try:
+        return run(cli)
+    except REQUEST_ERRORS as error:  # server down, or a request it refused: one line, exit 1
+        print(f"request failed: {describe_error(error, cli.base_url)}", file=sys.stderr)
+        return 1
+
+
+def run(cli) -> int:
     client = connect(cli.base_url)
     if cli.threads:
-        session_id, text, metrics = run_threads(client, cli.threads)
+        session_id, text, metrics, status = run_threads(client, cli.threads)
         print(f"\nsession {session_id}")
         print(f"final answer ({len(text)} chars): {text[:200]}{'...' if len(text) > 200 else ''}")
-        return 0
+        return 0 if status == "done" else 1
     if cli.eval:
         report = evaluate.run_suite(client, cli.eval, cli.port, keep=cli.keep)
         return 0 if report["passed"] == report["runs"] else 1
@@ -55,7 +63,11 @@ def main(argv=None):
         return 0
     if cli.replay:
         session_id = cli.replay[0]
-        turn_id = cli.replay[1] if len(cli.replay) > 1 else sessions.list_turns(client, session_id)[-1].id
+        turns = sessions.list_turns(client, session_id) if len(cli.replay) < 2 else None
+        if turns is not None and not turns:
+            print(f"session {session_id} has no turns")
+            return 1
+        turn_id = cli.replay[1] if len(cli.replay) > 1 else turns[-1].id
         sessions.reconnect(client, session_id, turn_id)
         return 0
     return 2

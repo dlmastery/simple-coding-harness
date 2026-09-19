@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import sys
 
-from trueforge_sdk import AgentSpec, DynamicSubAgentsConfig, Model, RuntimeConfig, SessionAgentSpecBody, UserMessage
+from trueforge_sdk import AgentSpec, AskUserQuestionsConfig, DynamicSubAgentsConfig, Model, RuntimeConfig, SessionAgentSpecBody, UserMessage
 
 from .common import MODEL, EventIndex, arguments_of, as_dict, short, text_of, tool_calls_of
 
@@ -27,7 +27,10 @@ def build_spec(instructions: str = INSTRUCTIONS, model: str = MODEL, mcp_servers
     spec = AgentSpec(
         model=Model(name=model),
         instructions=instructions,
-        config=RuntimeConfig(dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True)),
+        config=RuntimeConfig(
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True),
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),  # on by default; nothing here answers one
+        ),
     )
     if mcp_servers:
         spec.mcp_servers = list(mcp_servers)
@@ -44,6 +47,7 @@ class ThreadPrinter:
         self.spawned: dict[str, str] = {}  # tool_call_id -> the thread it spawned
         self.final_text = ""
         self.metrics: dict = {}
+        self.status = "incomplete"  # only turn.done sets it
 
     def label(self, thread_id) -> str:
         if thread_id not in self.labels:
@@ -79,12 +83,17 @@ class ThreadPrinter:
             state = event.get("state") or {}
             output = text_of((state.get("output") or {}).get("content"))
             self.line(thread_id, f"done ({state.get('status')}): {short(output, 60)}")
+        elif kind in ("tool.approval_required", "tool.response_required"):
+            ids = ", ".join(c.get("id", "?") for c in event.get("tool_calls") or [])
+            self.line(thread_id, f"paused: {kind} for {ids} (this client does not resume it)")
         elif kind == "turn.done":
             state = event.get("state") or {}
+            self.status = state.get("status") or "incomplete"
             self.metrics = dict(state.get("metrics") or {})
             self.final_text = text_of((state.get("output") or {}).get("content"))
             tokens = ", ".join(f"{k.removeprefix('total_')}={v}" for k, v in self.metrics.items() if k.endswith("tokens") and v)
-            self.line(None, f"turn done: {state.get('status')} ({tokens})")
+            detail = state.get("message") or state.get("reason") or ""
+            self.line(None, f"turn done: {self.status} ({tokens})" + (f" {detail}" if detail else ""))
         else:
             self.line(thread_id, kind)
 
@@ -101,11 +110,11 @@ class ThreadPrinter:
 
 
 def run_threads(client, prompt: str, session_id: str | None = None, out=None, spec=None):
-    """One turn with subagents on. Returns (session_id, final_text, metrics)."""
+    """One turn with subagents on. Returns (session_id, final_text, metrics, status)."""
     if session_id is None:
         session_id = client.sessions.create(agent=spec or build_spec()).data.id
     printer = ThreadPrinter(out)
     stream = client.sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
     for event in stream:
         printer.handle(event)
-    return session_id, printer.final_text, printer.metrics
+    return session_id, printer.final_text, printer.metrics, printer.status

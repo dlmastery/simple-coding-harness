@@ -81,6 +81,9 @@ def inside_project(path):
 
 def check(name, args):
     """Return (action, reason). Action is allow, ask or deny."""
+    key = "command" if name == "bash" else "path" if name in ("write_file", "str_replace") else None
+    if key and not isinstance(args.get(key), str):  # the argument a rule reads must be there, or the call is refused
+        return "deny", f"{name}: missing argument {key!r}"
     if name == "bash":
         return decide(args["command"]), f"run: {args['command']}"
 

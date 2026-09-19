@@ -135,6 +135,50 @@ def test_spec_stream_skips_bad_lines_and_keeps_going():
     assert [reason for _, reason in stream.skipped] == ["Expecting value: line 1 column 1 (char 0)", "/nothing: not found"]
 
 
+def test_spec_stream_skips_lines_that_are_not_patch_objects():
+    """The model wraps its patches in an array, writes a bare string, or aims below a scalar: skipped, never a crash."""
+    stream = SpecStream()
+    stream.push("\n".join([
+        '[{"op":"add","path":"/root","value":"a"}]',
+        '"just a string"',
+        '{"op":"add","path":"/root","value":"card"}',
+        '{"op":"add","path":"/root/x/y","value":1}',
+        '{"op":"add","path":"","value":5}',
+        '{"op":"add","path":"/elements","value":[]}',
+        '{"op":"add","path":"/elements/card-1","value":{}}',
+    ]) + "\n")
+    assert stream.spec == {"root": "card", "elements": []}
+    assert [reason for _, reason in stream.skipped] == [
+        "a patch must be an object, got list",
+        "a patch must be an object, got str",
+        "/root/x/y: parent is not a container",
+        "the whole document must be an object",
+        "/elements/card-1: 'card-1' is not an array index",
+    ]
+    assert stream.has_root() is False  # elements is a list, root is a string: nothing to paint, no TypeError
+    stream = SpecStream()
+    stream.push('{"op":"add","path":"/root","value":{"type":"Card"}}\n')
+    assert stream.has_root() is False  # the element itself at /root: not a root id
+
+
+def test_server_ends_a_failed_stream_with_an_error_line(monkeypatch):
+    class DyingStream(FakeStream):
+        def __iter__(self):
+            yield from self.chunks
+            raise RuntimeError("upstream closed the connection")
+
+    first = FIXTURE.split("\n")[0] + "\n"
+    monkeypatch.setattr(llm, "stream_text", lambda system, user: DyingStream([first]))
+    server.LAST.clear()
+    client = TestClient(server.app)
+    with client.stream("POST", "/stream", json={"prompt": "lemonade"}) as response:
+        body = "".join(response.iter_text())
+    assert body == first + "\n" + json.dumps({"error": "RuntimeError: upstream closed the connection"}) + "\n"
+    last = client.get("/last").json()
+    assert last["error"] == "RuntimeError: upstream closed the connection"
+    assert last["spec"] == {"root": "card-1"} and last["skipped"] == []  # the error line is not a patch, and it is not counted as one
+
+
 def test_python_and_library_compile_the_fixture_to_the_same_spec():
     if NODE is None:
         pytest.skip("node is not installed")

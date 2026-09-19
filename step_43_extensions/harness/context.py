@@ -19,7 +19,10 @@ LABELS = {"M": "modified", "D": "deleted", "A": "added", "??": "new"}
 
 
 def git(command):
-    result = subprocess.run(f"git {command}", shell=True, capture_output=True, text=True)
+    try:
+        result = subprocess.run(f"git {command}", shell=True, capture_output=True, encoding="utf-8", errors="replace", timeout=10)
+    except (OSError, subprocess.SubprocessError):  # no git, or a repository that hangs: the block goes without it
+        return ""
     return result.stdout
 
 

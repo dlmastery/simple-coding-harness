@@ -1,4 +1,6 @@
-"""Stage 15 - session, unchanged since stage 14.
+"""Stage 15 - session. load() repairs a transcript that a crash left with
+tool calls that have no results, so a resumed chat is always one the API
+accepts.
 """
 
 import json
@@ -29,6 +31,7 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
@@ -37,6 +40,7 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)
@@ -56,6 +60,24 @@ def load(session_id):
             messages = list(entry["compacted"])
         else:
             messages.append(entry)
+    return repaired(messages)
+
+
+def repaired(messages):
+    """A transcript that ends in tool calls without results gets a stand-in result for each.
+
+    That is what a crash between a reply and its tool results leaves; the
+    API refuses the transcript until every call has a result.
+    """
+    index = len(messages) - 1
+    while index >= 0 and messages[index].get("role") == "tool":
+        index -= 1
+    if index < 0 or messages[index].get("role") != "assistant":
+        return messages
+    answered = {m.get("tool_call_id") for m in messages[index + 1:]}
+    for call in messages[index].get("tool_calls") or []:
+        if call["id"] not in answered:
+            messages.append({"role": "tool", "tool_call_id": call["id"], "content": "(the harness stopped before this tool ran; no result was recorded)"})
     return messages
 
 

@@ -12,6 +12,7 @@
 
 const TOKEN = /\s*(?:("(?:[^"\\]|\\.)*")|(-?\d+(?:\.\d+)?)|([A-Za-z_]\w*)|([()\[\],+=]))/y;
 const ESCAPES = { n: "\n", t: "\t", '"': '"', "\\": "\\" };
+const STATEMENT_START = /^[ \t]*[A-Za-z_]\w*[ \t]*=/; // a line that begins a new statement
 const PARTIAL_HEAD = /^\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)\(([\s\S]*)$/;
 const SCALAR = /-?\d+(?:\.\d+)?|[A-Za-z_]\w*/y;
 
@@ -129,7 +130,11 @@ export class Parser {
   }
 
   // Add a chunk. Every complete statement it finishes is parsed now; an
-  // unfinished line (open bracket, open string, no newline) is held back.
+  // unfinished line (open bracket, open string, no newline) is held back. A
+  // statement never starts inside another one's brackets, so a line that
+  // opens a new `name = ...` while the text before it is still unbalanced
+  // closes the broken statement (a parse error) instead of holding back
+  // everything after it.
   feed(text) {
     this.buffer += text;
     for (;;) {
@@ -139,6 +144,7 @@ export class Parser {
         const nl = this.buffer.indexOf("\n", start);
         if (nl === -1) return;
         if (complete(this.buffer.slice(0, nl))) cut = nl;
+        else if (start && STATEMENT_START.test(this.buffer.slice(start, nl))) cut = start - 1;
         start = nl + 1;
       }
       const line = this.buffer.slice(0, cut);
@@ -202,7 +208,8 @@ export class Parser {
     if (kind === "add") {
       const left = this.resolve(expr[1], path);
       const right = this.resolve(expr[2], path);
-      return typeof left === "string" || typeof right === "string" ? `${left}${right}` : left + right;
+      // strings concatenate; numbers add; anything else (null, a component) is text, as Python prints it
+      return typeof left === "number" && typeof right === "number" ? left + right : `${left}${right}`;
     }
     if (kind === "call") return { type: expr[1], args: expr[2].map((a) => this.resolve(a, path)) };
     const name = expr[1];

@@ -29,7 +29,7 @@ API_KEY = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "")
 MODEL = os.environ.get("MODEL", "gpt-4.1-mini")
 
 # The tests replace this with a fake whose chat.completions.create returns a scripted reply.
-client = OpenAI(base_url=BASE_URL, api_key=API_KEY) if API_KEY else None
+client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120) if API_KEY else None  # a hung upstream fails /chat, it does not hang it
 
 
 def complete(messages, tools=None):

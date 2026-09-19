@@ -9,10 +9,21 @@ test("the CSP allows only inline style and script and data: images", () => {
   assert.ok(META.startsWith('<meta http-equiv="Content-Security-Policy"'));
 });
 
-test("sandboxed() puts the CSP meta first in <head>", () => {
+test("sandboxed() puts the CSP meta right after the doctype, before any element", () => {
   const html = "<!doctype html><html><head><title>x</title></head><body>hi</body></html>";
   const out = sandboxed(html);
-  assert.ok(out.startsWith("<!doctype html><html><head>" + META + "<title>x</title>"));
+  assert.ok(out.startsWith("<!doctype html>" + META + "<html><head><title>x</title>"));
+});
+
+test("a script before <head>, or a <head> in a comment, still lands after the policy", () => {
+  const early = sandboxed("<!doctype html><script>fetch('https://x')</script><head></head>");
+  assert.ok(early.indexOf(META) < early.indexOf("<script>"));
+  assert.ok(sandboxed("<!-- <head> --><script>1</script>").startsWith(META + "<!-- <head> -->"));
+});
+
+test("a meta refresh is removed: it is a navigation the CSP cannot block", () => {
+  const out = sandboxed('<html><head><meta http-equiv="refresh" content="0;url=https://x"></head></html>');
+  assert.ok(!/refresh/i.test(out));
 });
 
 test("sandboxed() prepends the meta when there is no <head>, and drops a CSP the model wrote", () => {

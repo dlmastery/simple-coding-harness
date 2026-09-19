@@ -34,7 +34,7 @@ class UI:
     def banner(self):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text("/sessions  /rewind  ·  ctrl-d or an empty line to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text("/sessions  /rewind  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -53,7 +53,14 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    raw = call["function"]["arguments"]
+                    try:
+                        args = json.loads(raw)
+                    except ValueError:
+                        args = None
+                    if not isinstance(args, dict):  # the model wrote broken JSON that turn: show it as it was
+                        args = {"arguments": raw}
+                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -67,12 +74,13 @@ class UI:
         return int(answer) if answer.isdigit() and int(answer) < len(rows) else None
 
     def ask(self):
+        """The next line from you; None when there is no more input (EOF or ctrl-c)."""
         self.console.print()
         try:
             return input("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -140,7 +148,7 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

@@ -96,18 +96,42 @@ def test_artifact_token_share_uses_the_document_only():
     assert document_tokens > program_tokens * 0.6  # the document is most of the program
 
 
-def test_csp_policy_blocks_the_network_and_keeps_inline_code():
-    source = (HERE / "sandbox.mjs").read_text(encoding="utf-8")
-    assert 'export const CSP = "default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'; img-src data:";' in source
-    assert 'sandbox: "allow-scripts"' in (HERE / "html-artifact.mjs").read_text(encoding="utf-8")
-    assert 'referrerPolicy: "no-referrer"' in (HERE / "html-artifact.mjs").read_text(encoding="utf-8")
+def fail_midway(messages, usage=None):
+    """A model that streams one chunk, then dies (network, bad key, rate limit)."""
+    yield SCRIPTED[0]
+    raise RuntimeError("upstream closed the connection")
 
 
-def test_api_key_falls_back_to_openai_key():
-    """The env file holds OPENAI_API_KEY; llm.py maps it to API_KEY once."""
-    source = (HERE / "llm.py").read_text(encoding="utf-8")
-    assert 'os.environ["API_KEY"] = os.environ["OPENAI_API_KEY"]' in source
-    assert "print(" not in source
+def test_generate_route_ends_with_an_error_event_when_the_model_dies(monkeypatch):
+    monkeypatch.setattr(llm, "stream_completion", fail_midway)
+    srv = server.make_server(system_prompt="x")
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        request = urllib.request.Request(
+            f"http://127.0.0.1:{srv.server_port}/generate",
+            data=json.dumps({"prompt": "calculator"}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(request) as response:
+            body = response.read().decode()
+    finally:
+        srv.shutdown()
+        srv.server_close()
+    assert body.endswith('event: error\ndata: "RuntimeError: upstream closed the connection"\n\n')
+    assert "event: done" not in body
+    assert server.LAST["program"] == SCRIPTED[0]
+
+
+def test_api_key_falls_back_to_openai_key(monkeypatch):
+    """The env file holds OPENAI_API_KEY; llm.py maps it to API_KEY when API_KEY is unset."""
+    import importlib
+
+    monkeypatch.delenv("API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-from-openai")
+    monkeypatch.setattr(Path, "home", lambda: HERE / "no-such-home")  # no ~/.simple-harness/env in the way
+    assert importlib.reload(llm).API_KEY == "sk-from-openai"
+    monkeypatch.setenv("API_KEY", "explicit")
+    assert importlib.reload(llm).API_KEY == "explicit"  # a real API_KEY wins
 
 
 # ── the Node side ───────────────────────────────────────────────────────────

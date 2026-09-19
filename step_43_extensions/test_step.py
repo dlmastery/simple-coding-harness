@@ -22,7 +22,7 @@ os.environ.setdefault("API_KEY", "x")
 
 STEP = Path(__file__).resolve().parent
 
-from harness import agent, agents, checkpoint, commands, context, extensions, handoff, history, hooks, instructions, jobs, llm, mcp_client, memory, modes, permissions, plan, sandbox, session, stop, streaming, subagent, todos, tools  # noqa: E402
+from harness import agent, agents, checkpoint, commands, context, durability, extensions, handoff, history, hooks, instructions, jobs, llm, mcp_client, memory, modes, permissions, plan, sandbox, session, stop, streaming, subagent, todos, tools  # noqa: E402
 from harness import ui as ui_module  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
@@ -151,7 +151,7 @@ def test_the_result_is_still_capped(monkeypatch):
     count = history.CAP // 8 + 100  # more than CAP characters of output
     result = tools.bash(one_liner(count, 0))
     assert len(seen) == count                # every line reached the screen
-    assert history.TRIMMED in result         # the model got the capped version
+    assert history.CAPPED in result          # the model got the capped version; the whole text is on disk
     assert result.startswith("line 0\n")
     assert len(result) < history.CAP + 400
 
@@ -303,12 +303,13 @@ def test_the_builtin_loaders_are_extensions():
     loaded = extensions.EXTENSIONS
     assert all(loaded[name].status == "loaded" and loaded[name].path is None for name in ("skills", "hooks", "agents", "mcp"))
     assert loaded["skills"].summary() == "tool read_skill; section skills_section"
-    assert loaded["hooks"].summary() == "command /hooks; hook PreToolUse:write_file|str_replace"
+    assert loaded["hooks"].summary() == "command /hooks"  # the checkpoint capture runs in tools.run, not as a hook
     assert loaded["agents"].summary().startswith("tool agent_coder, agent_planner") and "agent coder, planner, reviewer, router, worker" in loaded["agents"].summary()
     assert loaded["mcp"].summary() == "command /mcp"
     assert tools.TOOLS["read_skill"]("explain-code").startswith("---") and "read_skill" in names(tools.TOOL_SCHEMAS)
     assert set(extensions.COMMANDS) >= {"/hooks", "/mcp", "/status"}
-    assert extensions.hooks_for("PreToolUse")[0]["function"].__name__ == "harness.checkpoint:pre_tool_use"
+    assert extensions.hooks_for("PreToolUse") == []  # nothing built in: the checkpoint capture is tools.run's
+    assert extensions.PERMISSIONS["read_skill"] == "allow" and extensions.PERMISSIONS["git_diff_summary"] == "allow"
     # the shipped examples, loaded from this step's .agents/extensions at import
     assert loaded["git_tools"].summary() == "tool git_diff_summary; command /status"
     assert loaded["git_tools"].path == STEP / ".agents" / "extensions" / "git_tools.py"
@@ -347,6 +348,7 @@ def test_an_extension_registers_all_five_kinds(tmp_path, monkeypatch, unloaded):
     assert schema["description"] == "Repeat the text in capitals."
     assert schema["parameters"] == {"type": "object", "properties": {"text": {"type": "string"}, "times": {"type": "integer"}}, "required": ["text"]}
     assert "shout" in names(handoff.toolset()) and "shout" in names(subagent.toolset())
+    assert permissions.check("shout", {"text": "x"}) == ("ask", 'call shout with {"text": "x"}')  # an extension tool asks unless it says permission="allow"
 
     assert extensions.COMMANDS["/hello"][0] == "say hello"
     assert commands.handle("/hello world", ["m"]) == ["m"] and seen[-1] == "hello world"
@@ -365,7 +367,7 @@ def test_an_extension_registers_all_five_kinds(tmp_path, monkeypatch, unloaded):
     extensions.unload("full")
     assert "full" not in extensions.EXTENSIONS and "shout" not in tools.TOOLS and "/hello" not in extensions.COMMANDS
     assert "greeter" not in agents.AGENTS and "agent_greeter" not in names(tools.TOOL_SCHEMAS)
-    assert extensions.hooks_for("PreToolUse")[-1]["source"] != "full" and "haiku" not in llm.build_system_prompt()
+    assert all(h["source"] != "full" for h in extensions.hooks_for("PreToolUse")) and "haiku" not in llm.build_system_prompt()
 
 
 def test_a_broken_extension_is_skipped_and_the_rest_load(tmp_path, monkeypatch, unloaded):
@@ -399,8 +401,7 @@ def test_the_extensions_command_lists_them(tmp_path, monkeypatch, unloaded):
     assert "/extensions" in commands.COMMANDS
     commands.handle("/hooks", [])  # the built-in loaders' commands run through the same path
     rows = seen[-1].splitlines()
-    assert rows[0] == f"{'PreToolUse':<18} {'write_file|str_replace':<24} harness.checkpoint:pre_tool_use  (built-in)"
-    assert rows[1] == f"{'PreToolUse':<18} {'bash':<24} no_rm  (full)"
+    assert rows[0] == f"{'PreToolUse':<18} {'bash':<24} no_rm  (full)"
     commands.handle("/mcp", [])
     assert seen[-1] == "no MCP servers configured (see .agents/mcp.json)"
     commands.handle("/nothing", [])  # the help lists the registered commands with the built-in ones
@@ -441,9 +442,120 @@ def test_the_example_tool_and_command_work(monkeypatch):
 
 def test_loop_smoke_the_model_calls_an_extension_tool(tmp_path, monkeypatch, unloaded):
     extensions.load([extension_dir(tmp_path, full=FULL)])
+    asked = []
+    monkeypatch.setattr(ui, "approve", lambda reason: asked.append(reason) or "y")  # shout did not say permission="allow", so it asks
     fake = Scripted([use(call("s1", "shout", {"text": "ok", "times": 2})), say("done")]).install(monkeypatch)
     messages = agent.turn(start(), "shout it")
     assert "shout" in fake.requests[0][0] and "git_diff_summary" in fake.requests[0][0]
     assert messages[3] == {"role": "tool", "tool_call_id": "s1", "content": "OK OK "}
+    assert asked == ['call shout with {"text": "ok", "times": 2}']
     assert messages[-1] == {"role": "assistant", "content": "done"}
     assert "Always sign off with a haiku." in messages[0]["content"]
+
+
+# ------------------------------------------------- what a bad extension cannot break
+
+
+def test_a_file_named_like_a_builtin_is_refused_and_the_builtin_stays(tmp_path, monkeypatch, unloaded):
+    seen = notes(monkeypatch)
+    folder = extension_dir(tmp_path, skills="import nothing_here\n")
+    [refused] = extensions.load([folder])
+    assert refused.status.startswith("failed: name reserved")
+    assert extensions.EXTENSIONS["skills"].status == "loaded" and "read_skill" in tools.TOOLS  # the real loader is untouched
+    assert "You have skills available" in llm.build_system_prompt()
+    assert seen[-1].startswith("extension 'skills.py' skipped: name reserved")
+    extensions.unload("skills.py")
+
+
+def test_an_extension_imports_a_helper_next_to_it(tmp_path, unloaded):
+    folder = extension_dir(tmp_path, _helpers="GREETING = 'hi'\n", uses_helper="from _helpers import GREETING\n\ndef apply(ctx):\n    ctx.prompt_section('helper says ' + GREETING)\n")
+    [loaded] = extensions.load([folder])  # _helpers.py is not an extension; uses_helper.py imports it
+    assert loaded.status == "loaded" and "helper says hi" in extensions.prompt_sections()
+    assert "harness_extension_uses_helper" in sys.modules
+
+
+def test_a_tool_that_returns_a_dict_and_a_command_that_raises_are_results_not_crashes(tmp_path, monkeypatch, unloaded):
+    seen = notes(monkeypatch)
+    folder = extension_dir(tmp_path, odd="def dicty(x: str) -> str:\n    'returns a dict'\n    return {'a': x}\n\ndef boom(messages, arg=''):\n    raise RuntimeError('no git here')\n\ndef apply(ctx):\n    ctx.tool(dicty, permission='allow')\n    ctx.command('/boom', 'raise', boom)\n")
+    extensions.load([folder])
+    Scripted([use(call("d1", "dicty", {"x": "1"})), say("done")]).install(monkeypatch)
+    messages = agent.turn(start(), "go")
+    assert messages[3] == {"role": "tool", "tool_call_id": "d1", "content": '{"a": "1"}'}  # turned into JSON, never a TypeError
+    assert commands.handle("/boom", ["m"]) == ["m"] and seen[-1] == "command /boom failed: RuntimeError: no git here"
+
+
+# ------------------------------------------------- every tool call gets its tool message
+
+
+def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_message(monkeypatch):
+    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{not json"))
+    Scripted([
+        use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"}), call("b4", "bash", {})),
+        say("done"),
+    ]).install(monkeypatch)
+    messages = agent.turn(start(), "go")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert results["b2"] == "Error: no tool named 'no_such_tool'."
+    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b4"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1] == {"role": "assistant", "content": "done"}  # the loop went on
+
+
+def test_utf8_round_trip_through_the_file_tools_and_bash(monkeypatch):
+    text = "héllo — ünïcode ✓\r\nsecond line\n"
+    assert tools.write_file("u.txt", text) == "Wrote u.txt"
+    assert Path("u.txt").read_bytes() == text.encode("utf-8")  # utf-8 whatever the locale, line endings untouched
+    assert tools.read_file("u.txt") == text
+    assert tools.str_replace("u.txt", "ünïcode", "unicode") == "Replaced 1 match(es) in u.txt"
+    assert tools.read_file("u.txt") == text.replace("ünïcode", "unicode")
+    assert tools.str_replace("u.txt", "", "x").startswith("Error: old_str is empty")
+    assert tools.write_file("deep/er/new.txt", "x") == "Wrote deep/er/new.txt" and Path("deep/er/new.txt").read_text() == "x"
+    assert tools.bash(f'{sys.executable} -c "print(chr(0x2713))"').strip() == "✓"
+
+
+def test_write_todos_with_a_bad_status_is_an_error_and_leaves_the_list_alone(monkeypatch):
+    todos.write_todos([{"content": "a", "activeForm": "doing a", "status": "in_progress"}])
+    result = todos.write_todos([{"content": "b", "activeForm": "doing b", "status": "done"}])
+    assert result == "Error: item 0 has status 'done'; use one of pending, in_progress, completed."
+    assert [t["content"] for t in todos.TODOS] == ["a"]  # unchanged
+    assert todos.write_todos("nope") == "Error: todos must be a list."
+    Scripted([use(call("t1", "write_todos", {"todos": [{"content": "b", "activeForm": "b", "status": "done"}]})), say("ok")]).install(monkeypatch)
+    messages = agent.turn(start(), "plan")  # the loop survives it, and the next reminder still renders
+    assert messages[3]["content"].startswith("Error: item 0 has status")
+    assert "[~] a" in context.reminder()["content"]
+
+
+def test_a_subagent_cannot_run_a_tool_it_was_not_offered(monkeypatch):
+    Scripted([use(call("w1", "write_file", {"path": "x.txt", "content": "no"}), call("w2", "finish", {"summary": "s"})), say("report")]).install(monkeypatch)
+    assert subagent.task("try to write") == "report"
+    assert not Path("x.txt").exists() and stop.finished() is None  # denied by name, and finish did not end the lead's turn
+
+
+def test_rewind_offers_user_messages_only_and_sessions_keeps_the_active_agent(monkeypatch):
+    Scripted([use(call("r1", "bash", {"command": "echo hi"})), say("done")]).install(monkeypatch)
+    messages = agent.turn(start(), "first")
+    messages = agent.turn(messages, "second")
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    monkeypatch.setattr(ui, "resumed", lambda *a, **k: None)
+    monkeypatch.setattr(ui, "replay", lambda m: None)
+    kept = commands.handle("/rewind", messages)
+    assert [row.split()[0] for row in offered] == ["1", "5"]  # the two user messages, by index
+    assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]  # cut before "second": no orphan
+    assert durability.unanswered(kept) == []
+    # a session listing loads every log to title it; the handoff markers in them must not change the live agent
+    session.path_for("older").write_text(json.dumps({"role": "user", "content": "hi"}) + "\n" + json.dumps({"handoff": "reviewer"}) + "\n", encoding="utf-8")
+    monkeypatch.setattr(ui, "pick", lambda title, rows: None)
+    commands.handle("/sessions", kept)
+    assert handoff.active_name() == "main"
+
+
+def test_a_failed_summariser_keeps_the_transcript(monkeypatch):
+    seen = notes(monkeypatch)
+    monkeypatch.setattr(llm, "call_llm", lambda *a, **k: (llm.StreamedMessage(content=None, failed="boom"), llm.usage_from(None)))
+    messages = start() + [{"role": "user", "content": "a"}, {"role": "assistant", "content": "b"}, {"role": "user", "content": "x" * 400_000}, {"role": "assistant", "content": "w"}]
+    assert commands.compact(messages) is messages
+    assert seen[-1] == "compaction failed (RuntimeError); transcript kept as is"

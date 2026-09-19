@@ -3,10 +3,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CSP, META, MAX_DOCUMENT_CHARS, checkDocument, sandboxed } from "./web/sandbox.mjs";
 
-test("the CSP meta tag goes first in <head>", () => {
-  const doc = '<html><head><meta charset="utf-8"><title>x</title></head><body>hi</body></html>';
-  assert.ok(sandboxed(doc).startsWith("<html><head>" + META + '<meta charset="utf-8">'));
-  assert.ok(sandboxed('<HTML><HEAD lang="en"><title>x</title></HEAD></HTML>').startsWith('<HTML><HEAD lang="en">' + META));
+test("the CSP meta tag goes right after the doctype, before any element", () => {
+  const doc = '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body>hi</body></html>';
+  assert.ok(sandboxed(doc).startsWith("<!doctype html>" + META + "<html><head>"));
+  assert.ok(sandboxed('<HTML><HEAD lang="en"><title>x</title></HEAD></HTML>').startsWith(META + "<HTML>"));
+  const early = sandboxed("<!doctype html><script>fetch('https://x')</script><head></head>");
+  assert.ok(early.indexOf(META) < early.indexOf("<script>"));  // a script before <head> still runs under the policy
+  assert.ok(!/refresh/i.test(sandboxed('<meta http-equiv="refresh" content="0;url=https://x">')));
 });
 
 test("a CSP the model wrote is removed, a fragment gets the tag in front", () => {

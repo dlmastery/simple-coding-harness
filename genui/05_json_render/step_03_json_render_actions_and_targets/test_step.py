@@ -134,6 +134,35 @@ def test_an_action_runs_the_next_turn_on_the_same_transcript_and_compiler(monkey
     assert last["skipped"] == []
 
 
+def test_action_params_are_checked_against_the_catalog(monkeypatch):
+    scripted(monkeypatch, FIRST_TURN)
+    client = TestClient(server.app)
+    read_stream(client, "POST", "/stream", json={"prompt": "lemonade"})
+    response = client.post("/action", json={"action": "show_details", "params": {}})
+    assert response.status_code == 400 and "metric" in response.json()["detail"]
+
+
+def test_a_failed_turn_keeps_the_transcript_whole(monkeypatch):
+    class DyingStream:
+        usage = None
+
+        def __iter__(self):
+            yield '{"op":"replace","path":"/state/sales/total","value":"$1"}\n'
+            raise RuntimeError("rate limited")
+
+    replies = [FakeStream(FIRST_TURN), DyingStream()]
+    monkeypatch.setattr(llm, "stream_text", lambda messages: replies.pop(0))
+    client = TestClient(server.app)
+    read_stream(client, "POST", "/stream", json={"prompt": "lemonade"})
+    status, body = read_stream(client, "POST", "/action", json={"action": "refresh_numbers", "params": {}})
+    assert status == 200 and body.endswith('\n{"error": "RuntimeError: rate limited"}\n')
+    roles = [m["role"] for m in server.SESSION["messages"]]
+    assert roles == ["system", "user", "assistant"]  # the press was removed: no user message without a reply
+    last = client.get("/last").json()
+    assert last["turns"][-1]["error"] == "RuntimeError: rate limited"
+    assert last["spec"]["state"]["sales"]["total"] == "$1"  # what arrived before the failure was applied
+
+
 def test_show_details_passes_its_params_to_the_model(monkeypatch):
     seen = scripted(monkeypatch, FIRST_TURN, '{"op":"add","path":"/state/notes","value":"Sales rose 8%."}\n')
     client = TestClient(server.app)

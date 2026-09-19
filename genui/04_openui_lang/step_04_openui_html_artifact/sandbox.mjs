@@ -14,15 +14,21 @@ export const CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'u
 export const META = `<meta http-equiv="Content-Security-Policy" content="${CSP}">`;
 
 const CSP_META_RE = /<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>/gi;
+const REFRESH_META_RE = /<meta[^>]+http-equiv\s*=\s*["']?refresh["']?[^>]*>/gi;
+const DOCTYPE_RE = /^\s*<!doctype[^>]*>/i;
 
-// Return the document with our CSP as the first thing in <head>. A CSP meta
-// tag applies only to what comes after it, so it has to be first; and any
-// CSP the model wrote itself is removed, so the document cannot loosen ours.
+// Return the document with our CSP as the first element after the doctype. A
+// CSP meta tag applies only to what comes after it, so it has to come before
+// any script. Searching for the document's own <head> is not safe: a script
+// written before <head>, or a <head> inside a comment, would put the policy
+// after the code it should govern. A <meta> before <html> is legal HTML: the
+// parser opens <html> and <head> for it. The model's own CSP and any meta
+// refresh (a navigation the policy cannot block) are removed first.
 export function sandboxed(html) {
-  const cleaned = html.replace(CSP_META_RE, "");
-  const head = /<head[^>]*>/i.exec(cleaned);
-  if (head) return cleaned.slice(0, head.index + head[0].length) + META + cleaned.slice(head.index + head[0].length);
-  return META + cleaned;
+  const cleaned = html.replace(CSP_META_RE, "").replace(REFRESH_META_RE, "");
+  const doctype = DOCTYPE_RE.exec(cleaned);
+  const at = doctype ? doctype[0].length : 0;
+  return cleaned.slice(0, at) + META + cleaned.slice(at);
 }
 
 export const MAX_DOCUMENT_CHARS = 200_000;

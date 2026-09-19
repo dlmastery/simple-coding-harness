@@ -22,7 +22,9 @@ ENV = {**os.environ, "OPENUI_TELEMETRY_DISABLED": "1", "DO_NOT_TRACK": "1"}
 
 
 def run(*args: str, timeout: int = 300) -> subprocess.CompletedProcess:
-    return subprocess.run(list(args), cwd=HERE, env=ENV, capture_output=True, text=True, encoding="utf-8", timeout=timeout)
+    if args[0] is None:
+        raise RuntimeError("node and npm must be on PATH for this step (https://nodejs.org)")
+    return subprocess.run(list(args), cwd=HERE, env=ENV, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout)
 
 
 def ensure_node_modules() -> bool:

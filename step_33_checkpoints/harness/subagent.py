@@ -40,6 +40,8 @@ MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
 WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill"}
 
+STOPPED = "(the subagent"  # every report that is not findings starts like this, so a caller can tell
+
 def build_system_prompt(cwd=None):
     """The subagent prompt for one working directory. Default: the current one."""
     cwd = cwd or os.getcwd()
@@ -98,6 +100,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
     ]
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
+    allowed = {s["function"]["name"] for s in tools} | {"load_tool"}  # rule 2, enforced: the offered set is the runnable set
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
@@ -111,10 +114,10 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
 
         # rule 4: no tool calls means it has stopped looking and started answering
         if not message.tool_calls:
-            return report or "(the subagent came back with nothing)"
+            return report or f"{STOPPED} came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        outcomes = execute_all(message.tool_calls, allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
@@ -125,13 +128,20 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
             messages.append(image_message(path, f"screenshot from tool {name}"))
 
     if report:
-        return f"(stopped after {max_turns} turns, before finishing. Partial findings below.)\n\n{report}"
-    return f"(stopped after {max_turns} turns with nothing to report.)"
+        return f"{STOPPED} stopped after {max_turns} turns, before finishing. Partial findings below.)\n\n{report}"
+    return f"{STOPPED} stopped after {max_turns} turns with nothing to report.)"
 
 
 def explore(description, tag=None):
-    """One exploration subagent: every tool but the withheld ones, twelve turns."""
-    return loop(build_system_prompt(), description, toolset(), MAX_TURNS, tag=tag)  # the cwd of this call, not of the import
+    """One exploration subagent: every tool but the withheld ones, twelve turns.
+
+    A crash inside becomes a report: the lead agent reads what went wrong,
+    and one failure never sinks the others that run beside it.
+    """
+    try:
+        return loop(build_system_prompt(), description, toolset(), MAX_TURNS, tag=tag)  # the cwd of this call, not of the import
+    except Exception as failure:  # noqa: BLE001
+        return f"Error: subagent{f' {tag}' if tag is not None else ''} failed with {type(failure).__name__}: {failure}"
 
 
 def title(description):
@@ -140,18 +150,10 @@ def title(description):
     return first if len(first) <= 60 else first[:57] + "..."
 
 
-def guarded(number, description):
-    """explore(), but a crash becomes a report: one failure must not sink the others."""
-    try:
-        return explore(description, tag=number)
-    except Exception as failure:  # noqa: BLE001
-        return f"Error: subagent {number} failed with {type(failure).__name__}: {failure}"
-
-
 def parallel(descriptions):
     """Run one subagent per description at the same time; join the reports in order."""
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL, thread_name_prefix="subagent") as pool:
-        futures = [pool.submit(guarded, number, description) for number, description in enumerate(descriptions, 1)]
+        futures = [pool.submit(explore, description, number) for number, description in enumerate(descriptions, 1)]
         reports = [future.result() for future in futures]
     return "\n\n".join(
         f"## subagent {number}: {title(description)}\n\n{report}"

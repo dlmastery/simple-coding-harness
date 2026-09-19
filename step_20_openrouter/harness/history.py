@@ -24,7 +24,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap: the rest is on disk for this turn
+TRIMMED = "[output trimmed:"  # from strip / fit: the rest is gone; stripping twice is a no-op
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
 SPILLS = []                   # temp files belonging to the current turn
 
@@ -48,9 +49,9 @@ def cap(text):
     try:
         path = spill(text)
     except OSError:
-        return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
+        return text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )
@@ -70,7 +71,8 @@ def strip(messages):
     """Shrink every tool result from finished turns. Returns how many shrank.
 
     Called after a turn ends, so "everything in the list" and "everything the
-    model no longer needs in full" are the same set.
+    model no longer needs in full" are the same set. A capped result is the
+    first candidate: its 10,000 chars are the biggest thing in the list.
     """
     shrunk = 0
     for message in messages:

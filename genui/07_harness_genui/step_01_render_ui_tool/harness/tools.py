@@ -168,11 +168,25 @@ def execute(tool_call):
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON: an error result, not a crash
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if name not in TOOLS:
+        return args, f"Error: no tool named {name!r}."
+    action, reason = check(name, args)
     if action == "deny":
         return args, f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):
         return args, "The user denied this tool call."
-    return args, TOOLS[tool_call.function.name](**args)
+    try:
+        result = TOOLS[name](**args)
+    except Exception as e:  # noqa: BLE001 - wrong arguments, a missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return args, result
 

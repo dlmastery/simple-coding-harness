@@ -29,6 +29,7 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
@@ -37,6 +38,7 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)

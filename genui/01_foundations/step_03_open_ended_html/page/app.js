@@ -26,7 +26,7 @@ window.addEventListener("message", (event) => {
 window.__replay = (text, mode) => {
   // demo.py replays a recorded prefix of the JSON to photograph a moment of the stream
   dashboard.className = mode;
-  dashboard.innerHTML = renderSpec(parsePartial(text), mode);
+  dashboard.innerHTML = renderSpec(partialSpec(text, null), mode);
   wire.textContent = text;
 };
 
@@ -38,15 +38,25 @@ async function* readSSE(response) {
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
     let end;
     while ((end = buffer.indexOf("\n\n")) >= 0) {
       const frame = buffer.slice(0, end);
       buffer = buffer.slice(end + 2);
       for (const line of frame.split("\n")) {
-        if (line.startsWith("data: ")) yield JSON.parse(line.slice(6));
+        if (line.startsWith("data:")) yield JSON.parse(line.slice(5));
       }
     }
+  }
+}
+
+export function partialSpec(text, last) {
+  // The layout so far. Text that is not JSON (a fence, a sentence before the
+  // document) keeps the last good layout instead of taking the page down.
+  try {
+    return parsePartial(text);
+  } catch {
+    return last;
   }
 }
 
@@ -64,33 +74,45 @@ export async function run(prompt, mode) {
   document.body.dataset.state = "running";
   const started = performance.now();
   let text = "";
-  const response = await fetch("/api/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, mode }),
-  });
-  for await (const message of readSSE(response)) {
-    events.push(message);
-    if (message.component) {
-      wire.textContent += JSON.stringify(message) + "\n";
-      dashboard.insertAdjacentHTML("beforeend", render(message.component, message.props));
-    } else if (message.delta !== undefined) {
-      text += message.delta;
-      timeline.push(Math.round(performance.now() - started));
-      wire.textContent = text;
-      if (mode !== "html") dashboard.innerHTML = renderSpec(parsePartial(text), mode);
-    } else if (message.done) {
-      wire.textContent += "\n" + JSON.stringify({ ...message, spec: undefined, html: undefined, raw: undefined });
-      if (message.spec) dashboard.innerHTML = renderSpec(message.spec, mode);
-      if (message.html !== undefined) mount(frame, message.html);
-      const ms = Math.round(performance.now() - started);
-      const verdict = message.valid === undefined ? "" : ` · ${message.valid ? "valid" : "invalid: " + message.errors.join("; ")}`;
-      status.textContent = `${ms} ms${verdict}`;
-    } else if (message.note !== undefined) {
-      wire.textContent += JSON.stringify(message) + "\n";
+  let spec = null;
+  try {
+    const response = await fetch("/api/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, mode }),
+    });
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+    for await (const message of readSSE(response)) {
+      events.push(message);
+      if (message.component) {
+        wire.textContent += JSON.stringify(message) + "\n";
+        dashboard.insertAdjacentHTML("beforeend", render(message.component, message.props));
+      } else if (message.delta !== undefined) {
+        text += message.delta;
+        timeline.push(Math.round(performance.now() - started));
+        wire.textContent = text;
+        if (mode !== "html") {
+          spec = partialSpec(text, spec);
+          dashboard.innerHTML = renderSpec(spec, mode);
+        }
+      } else if (message.done) {
+        wire.textContent += "\n" + JSON.stringify({ ...message, spec: undefined, html: undefined, raw: undefined });
+        if (message.spec) dashboard.innerHTML = renderSpec(message.spec, mode);
+        if (message.html !== undefined) mount(frame, message.html);
+        const ms = Math.round(performance.now() - started);
+        const verdict = message.valid === undefined ? "" : ` · ${message.valid ? "valid" : "invalid: " + message.errors.join("; ")}`;
+        status.textContent = message.error ? `${ms} ms · error: ${message.error}` : `${ms} ms${verdict}`;
+      } else if (message.note !== undefined) {
+        wire.textContent += JSON.stringify(message) + "\n";
+      }
     }
+  } catch (error) {
+    // a dead server or a cut stream: say so instead of staying "running" forever
+    events.push({ done: true, error: String(error.message ?? error) });
+    status.textContent = `error: ${error.message ?? error}`;
+  } finally {
+    document.body.dataset.state = "done";
   }
-  document.body.dataset.state = "done";
 }
 
 document.querySelector("#form").addEventListener("submit", (event) => {

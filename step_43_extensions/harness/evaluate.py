@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
+from . import agent, budget, checkpoint, context, handoff, hooks, jobs, llm, permissions, plan, sandbox, session, stop, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -139,6 +139,10 @@ def isolated(workspace, session_dir, session_id, usage):
         "turn": checkpoint.TURN,
         "rules": dict(permissions.SESSION_RULES),
         "ask_user": tools.TOOLS["ask_user"],
+        "spent": (stop.SPENT, stop.STARTED),
+        "loaded": set(tools.LOADED),
+        "warned": set(budget.WARNED),
+        "compacted": compaction_mark(),
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -155,11 +159,17 @@ def isolated(workspace, session_dir, session_id, usage):
     ui.approve = lambda reason: "y"
     permissions.SESSION_RULES.clear()
     tools.TOOLS["ask_user"] = lambda question, options=None: "No user is present during an evaluation. Decide yourself and go on."
+    stop.reset()          # the budgets are per task: one long suite must not stop every task after the first dollars
+    handoff.reset()       # the default agent answers
+    tools.LOADED.clear()  # no deferred tool is loaded yet
+    budget.WARNED.clear()
 
     def record(stats, estimate=None, cost=None):
         for key, value in (stats or {}).items():
-            if isinstance(value, (int, float)):
+            if key != "cost" and isinstance(value, (int, float)):
                 usage[key] = usage.get(key, 0) + value
+        if cost is not None:
+            usage["cost"] = usage.get("cost", 0.0) + cost  # what the run cost, priced or reported
         saved["usage"](stats, estimate, cost=cost)
 
     ui.usage = record
@@ -183,6 +193,24 @@ def isolated(workspace, session_dir, session_id, usage):
         permissions.SESSION_RULES.clear()
         permissions.SESSION_RULES.update(saved["rules"])
         tools.TOOLS["ask_user"] = saved["ask_user"]
+        stop.SPENT, stop.STARTED = saved["spent"]
+        tools.LOADED.clear()
+        tools.LOADED.update(saved["loaded"])
+        budget.WARNED.clear()
+        budget.WARNED.update(saved["warned"])
+        set_compaction_mark(saved["compacted"])
+
+
+def compaction_mark():
+    from . import compact  # here, not at the top: compact imports llm
+
+    return compact.LAST
+
+
+def set_compaction_mark(value):
+    from . import compact
+
+    compact.LAST = value
 
 
 def system_prompt_for(workspace):
@@ -230,6 +258,8 @@ def run_judge(task, workspace, answer):
         f"<workspace>\n{file_list(workspace)}\n</workspace>"
     )
     message, _ = llm.call_llm([{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": request}], tools=[])
+    if getattr(message, "failed", None):
+        return False, f"judge call failed: {message.failed}"  # no verdict is a failed run, not a pass
     verdict = (message.content or "").strip()
     first = verdict.split(None, 1)[0].strip(".:,").upper() if verdict else ""
     return first == "PASS", f"judge said: {verdict[:200] or '(nothing)'}"

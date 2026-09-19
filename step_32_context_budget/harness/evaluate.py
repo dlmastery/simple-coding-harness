@@ -27,7 +27,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos
+from . import agent, budget, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -125,6 +125,7 @@ def isolated(workspace, session_dir, session_id, usage):
         "plan": (plan.MODE, plan.PLAN, list(plan.FEEDBACK)),
         "approve": ui.approve,
         "usage": ui.usage,
+        "budget": (set(budget.WARNED), set(tools.LOADED)),
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -138,6 +139,8 @@ def isolated(workspace, session_dir, session_id, usage):
     plan.set_mode("plan")  # forgets the old plan and its feedback...
     plan.set_mode("act")   # ...and the task runs with every tool
     jobs.kill_all()
+    budget.WARNED.clear()  # the window warnings and the loaded tools are per chat, so per task
+    tools.LOADED.clear()
     ui.approve = lambda reason: True
 
     def record(stats, estimate=None):
@@ -162,6 +165,10 @@ def isolated(workspace, session_dir, session_id, usage):
         plan.MODE, plan.PLAN, plan.FEEDBACK[:] = saved["plan"]
         ui.approve = saved["approve"]
         ui.usage = saved["usage"]
+        budget.WARNED.clear()
+        budget.WARNED.update(saved["budget"][0])
+        tools.LOADED.clear()
+        tools.LOADED.update(saved["budget"][1])
 
 
 def system_prompt_for(workspace):

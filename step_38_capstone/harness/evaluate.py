@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
+from . import agent, budget, checkpoint, compact, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -139,6 +139,7 @@ def isolated(workspace, session_dir, session_id, usage):
         "turn": checkpoint.TURN,
         "rules": dict(permissions.SESSION_RULES),
         "ask_user": tools.TOOLS["ask_user"],
+        "budget": (set(budget.WARNED), set(tools.LOADED), set(tools.STUBBED), compact.COMPACTED_AT),
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -155,11 +156,15 @@ def isolated(workspace, session_dir, session_id, usage):
     ui.approve = lambda reason: "y"
     permissions.SESSION_RULES.clear()
     tools.TOOLS["ask_user"] = lambda question, options=None: "No user is present during an evaluation. Decide yourself and go on."
+    budget.WARNED.clear()   # the budget warnings, the loaded tools and the compaction mark start fresh per task
+    tools.LOADED.clear()
+    tools.STUBBED.clear()
+    compact.COMPACTED_AT = 0
 
     def record(stats, estimate=None):
         for key, value in (stats or {}).items():
             if isinstance(value, (int, float)):
-                usage[key] = usage.get(key, 0) + value
+                usage[key] = usage.get(key, 0) + value  # cost included, when the provider reports one
         saved["usage"](stats, estimate)
 
     ui.usage = record
@@ -183,6 +188,13 @@ def isolated(workspace, session_dir, session_id, usage):
         permissions.SESSION_RULES.clear()
         permissions.SESSION_RULES.update(saved["rules"])
         tools.TOOLS["ask_user"] = saved["ask_user"]
+        budget.WARNED.clear()
+        budget.WARNED.update(saved["budget"][0])
+        tools.LOADED.clear()
+        tools.LOADED.update(saved["budget"][1])
+        tools.STUBBED.clear()
+        tools.STUBBED.update(saved["budget"][2])
+        compact.COMPACTED_AT = saved["budget"][3]
 
 
 def system_prompt_for(workspace):
@@ -230,6 +242,8 @@ def run_judge(task, workspace, answer):
         f"<workspace>\n{file_list(workspace)}\n</workspace>"
     )
     message, _ = llm.call_llm([{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": request}], tools=[])
+    if getattr(message, "failed", None):
+        raise RuntimeError(f"the judge did not answer: {message.failed}")  # a run without a verdict is a failed run, not a FAIL
     verdict = (message.content or "").strip()
     first = verdict.split(None, 1)[0].strip(".:,").upper() if verdict else ""
     return first == "PASS", f"judge said: {verdict[:200] or '(nothing)'}"
@@ -254,6 +268,8 @@ def run_task(task, run=1, suite_name="suite", keep=False, workspace=None):
     the task's own workspace/, and no model turn runs: the checker grades
     the copy as it is. The answer it sees is empty.
     """
+    if workspace is not None and not Path(workspace).is_dir():
+        raise FileNotFoundError(f"workspace directory not found: {workspace}")  # grading an empty copy would fail every check for the wrong reason
     root = Path(tempfile.mkdtemp(prefix=f"eval-{task.name}-"))
     start = Path(workspace) if workspace else task.path / "workspace"
     if start.is_dir():
@@ -274,7 +290,10 @@ def run_task(task, run=1, suite_name="suite", keep=False, workspace=None):
         except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
             answer, error = "", f"run failed: {type(failed).__name__}: {failed}"
         seconds = time.perf_counter() - started
-        passed, detail = (False, error) if error else check(task, cwd, answer)
+        try:
+            passed, detail = (False, error) if error else check(task, cwd, answer)
+        except Exception as failed:  # noqa: BLE001 - a judge that never answered is a failed run too
+            passed, detail = False, f"check failed: {type(failed).__name__}: {failed}"
 
     if not keep:
         shutil.rmtree(root, ignore_errors=True)

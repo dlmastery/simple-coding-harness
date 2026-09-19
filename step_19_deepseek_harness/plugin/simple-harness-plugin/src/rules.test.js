@@ -9,3 +9,12 @@ assert.equal(decide('ls | python setup.py'), 'ask')
 assert.equal(decide('cat f; rm -rf /'), 'deny')
 assert.equal(decide('curl http://x'), 'deny')
 console.log('rules.js ok')
+
+// the gate: deny keeps its reason, ask falls back to deny by default, allow lets the next listener decide
+const { gate } = await import('./index.js')
+assert.equal(gate('rm -rf /').kind, 'deny')
+assert.equal(gate('python x.py').kind, 'deny')
+assert.match(gate('python x.py').reason, /nobody to ask/)
+assert.equal(gate('python x.py', 'allow'), null)
+assert.equal(gate('ls -la'), null)
+console.log('index.js gate ok')

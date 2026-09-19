@@ -13,6 +13,8 @@ from datetime import datetime
 from pathlib import Path
 
 SHOTS = Path.home() / ".simple-harness" / "shots"  # every screenshot lands here
+MAX_WIDTH = 1280  # a screenshot wider than this is scaled down before the model sees it: fewer tokens, same picture
+SCALE = 1.0       # screen pixels per picture pixel of the last screenshot; computer_act multiplies the model's x and y by it
 
 ACTIONS = ("click", "double_click", "right_click", "move", "drag", "type", "key", "scroll")
 
@@ -49,11 +51,18 @@ def computer_screenshot() -> str:
     except Exception as failed:
         return f"Error: could not capture the screen: {failed}"
 
+    global SCALE
+    full_width, full_height = image.size
+    SCALE = 1.0
+    if full_width > MAX_WIDTH:
+        SCALE = full_width / MAX_WIDTH
+        image = image.resize((MAX_WIDTH, round(full_height / SCALE)))
     SHOTS.mkdir(parents=True, exist_ok=True)
     path = SHOTS / f"shot-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}.png"
     image.save(path, format="PNG")
     width, height = image.size
-    return f"[[image:{path}]] Screenshot saved to {path} ({width}x{height}). Coordinates below are screen pixels."
+    note = f" The screen is {full_width}x{full_height}; the picture is scaled to {width}x{height} and computer_act takes picture coordinates." if SCALE != 1.0 else ""
+    return f"[[image:{path}]] Screenshot saved to {path} ({width}x{height}). Coordinates below are picture pixels.{note}"
 
 
 def computer_act(action: str, x: int | None = None, y: int | None = None, text: str | None = None, keys: list[str] | None = None) -> str:
@@ -68,6 +77,8 @@ def computer_act(action: str, x: int | None = None, y: int | None = None, text: 
     needs_point = action in ("click", "double_click", "right_click", "move", "drag")
     if needs_point and (x is None or y is None):
         return f"Error: {action} needs x and y."
+    if x is not None and y is not None:
+        x, y = round(x * SCALE), round(y * SCALE)  # the model measured on the scaled picture; the screen is bigger
 
     try:
         if action == "click":

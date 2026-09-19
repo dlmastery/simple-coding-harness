@@ -130,6 +130,53 @@ def test_page_files_are_served():
 def test_parse_sse_handles_split_and_comments():
     text = 'data: {"a": 1}\n\n: keepalive\n\ndata: {"b": 2}\n\n'
     assert parse_sse(text) == [{"a": 1}, {"b": 2}]
+    assert parse_sse(text.replace("\n", "\r\n")) == [{"a": 1}, {"b": 2}]  # the spec allows CRLF
+
+
+def test_stream_text_skips_chunks_without_a_delta(monkeypatch):
+    chunks = [SimpleNamespace(choices=[SimpleNamespace(delta=None)]), chunk("ok"), SimpleNamespace(choices=[])]
+    monkeypatch.setattr(llm, "client", FakeClient(chunks))
+    assert list(llm.stream_text([])) == ["ok"]
+
+
+def test_disconnect_closes_the_generator(fake):
+    """The endpoint pulls one event per step; when the page has gone it closes the run."""
+    import asyncio
+
+    import server
+
+    closed = []
+
+    class Run:
+        def __init__(self):
+            self.it = iter(agent.run(run_input()))
+
+        def __next__(self):
+            return next(self.it)
+
+        def close(self):
+            closed.append(True)
+
+    class Request:
+        headers = {}
+
+        async def is_disconnected(self):
+            return True
+
+    monkeypatch_events = Run()
+    original = server.run
+    server.run = lambda input: monkeypatch_events
+    try:
+        response = server.agent_endpoint(run_input(), Request())
+        body = response.body_iterator
+
+        async def drain():
+            return [frame async for frame in body]
+
+        frames = asyncio.run(drain())
+    finally:
+        server.run = original
+    assert frames == [] and closed == [True]
 
 
 def test_node_suite_passes():

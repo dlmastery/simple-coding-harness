@@ -20,6 +20,7 @@ from pathlib import Path
 from . import budget
 from . import checkpoint
 from . import compact as compaction
+from . import history
 from . import hooks
 from . import instructions
 from . import jobs
@@ -32,6 +33,8 @@ from . import pipeline
 from . import sandbox
 from . import session
 from . import subagent
+from . import todos
+from . import tools
 from .ui import ui
 
 COMMANDS = {
@@ -51,6 +54,7 @@ COMMANDS = {
     "/context": "show what fills the context window, category by category",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
+    "/exit": "leave the chat (so do /quit, ctrl-d, and ctrl-z then enter on Windows)",
 }
 
 INIT_QUESTION = """
@@ -79,7 +83,13 @@ def preview(message):
 
 
 def redraw(messages, label):
-    """The screen no longer matches the history, so wipe it and draw again."""
+    """The screen no longer matches the history, so wipe it and draw again.
+
+    The state the transcript implies comes back with it: the todo list it
+    last wrote and the deferred tools it loaded.
+    """
+    todos.rebuild(messages)
+    tools.rebuild_loaded(messages)
     ui.clear()
     ui.banner(sandbox.name(), modes.current())
     ui.resumed(messages, label)
@@ -88,12 +98,20 @@ def redraw(messages, label):
 
 
 def rewind(messages):
-    """Cut the transcript after the chosen message and undo the turns that began after it."""
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the transcript before a chosen user message and undo the turns that began at or after it.
+
+    Only user messages are offered: a cut there can never orphan a tool
+    call, because a reply and its results always follow a user message.
+    """
+    users = [i for i, m in enumerate(messages) if m.get("role") == "user" and not isinstance(m.get("content"), list)]
+    if not users:
+        ui.note("nothing to rewind to yet")
+        return messages
+    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(users)]
+    choice = ui.pick("rewind to before", rows)
     if choice is None:
         return messages
-    keep = choice + 1
+    keep = users[choice]
     undone = checkpoint.undo_since(keep)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
@@ -133,7 +151,13 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    return redraw(session.open_session(saved[choice]["id"]), "opened")
+    from .agent import recover  # here, not at the top: agent imports this module
+
+    opened = session.open_session(saved[choice]["id"])
+    history.strip(opened)
+    redraw(opened, "opened")
+    recover(opened)  # an old chat can end mid-turn too: every call gets its result before the next one
+    return opened
 
 
 def compact(messages):

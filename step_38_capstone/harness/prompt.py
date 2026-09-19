@@ -41,7 +41,7 @@ def read(prompt="> "):
     """
     global SESSION
     if not sys.stdin.isatty():
-        return input(prompt)
+        return plain(prompt)
     if SESSION is None:
         HISTORY.parent.mkdir(parents=True, exist_ok=True)
         try:
@@ -49,5 +49,12 @@ def read(prompt="> "):
         except Exception:  # noqa: BLE001 - e.g. NoConsoleScreenBufferError on Windows
             SESSION = False
     if not SESSION:
-        return input(prompt)
+        return plain(prompt)
     return SESSION.prompt(HTML(f"<prompt>{prompt}</prompt>"))
+
+
+def plain(prompt):
+    """input() with the prompt on stderr: in -p mode stdout carries only the answer."""
+    sys.stderr.write(prompt)
+    sys.stderr.flush()
+    return input()

@@ -11,8 +11,14 @@ pytest.importorskip("deepseek_harness")
 
 import harness  # noqa: E402
 from deepseek_harness import Notification  # noqa: E402
+from deepseek_harness.errors import TransportClosedError  # noqa: E402
 
 PLUGIN_DIR = Path(__file__).parent / "plugin" / "simple-harness-plugin"
+
+
+def event(kind, data):
+    """A notification the way the runtime sends it: method session.event, the event under payload."""
+    return Notification(method="session.event", payload={"sessionId": "s", "event": {"type": kind, "seq": 1, "data": data}})
 
 
 def test_patch_mounts_the_plugin_by_absolute_path():
@@ -28,16 +34,31 @@ def test_client_builds_without_launching(tmp_path):
     assert h.config.profile == "sdk-minimal" and h.config.model == "deepseek-v4-flash"
     assert h.config.patches == (str(tmp_path / "p.yml"),)
     assert h.config.dsh_home == str(harness.HOME)
+    assert h.config.request_timeout_seconds == harness.REQUEST_TIMEOUT
 
 
-def test_summarize_picks_the_events_worth_showing():
-    call = Notification(method="session/event", payload={"event": {"type": "tool/call", "data": {"name": "bash", "arguments": {"command": "ls"}}}})
-    assert harness.summarize(call) == "  tool> bash {'command': 'ls'}"
-    result = Notification(method="session/event", payload={"event": {"type": "tool/result", "data": {"content": [{"type": "text", "text": "a.py\nb.py"}]}}})
+def test_summarize_reads_the_runtime_event_shapes():
+    call = event("tool/call", {"callId": "c1", "name": "bash", "arguments": '{"command": "ls"}'})
+    assert harness.summarize(call) == '  tool> bash {"command": "ls"}'
+    # the tool message lives under data.message, as the session log stores it
+    result = event("tool/result", {"callId": "c1", "message": {"role": "tool", "content": [{"type": "text", "text": "a.py\nb.py"}]}})
     assert harness.summarize(result).strip() == "a.py b.py"
-    end = Notification(method="session/event", payload={"event": {"type": "turn/end", "data": {"reason": {"kind": "completed"}}}})
+    failed = event("tool/result", {"callId": "c1", "message": {"role": "tool", "content": [{"type": "text", "text": "no such file"}]}, "error": {"name": "ENOENT", "code": "fs"}})
+    assert harness.summarize(failed).strip() == "error ENOENT: no such file"
+    end = event("turn/end", {"turn": 1, "reason": {"kind": "completed"}})
     assert harness.summarize(end) == "  turn ended: completed"
-    assert harness.summarize(Notification(method="agent/status", payload={"state": "busy"})) is None
+    assert harness.summarize(event("compaction/end", {"compactionId": "x", "turn": 1})) == "  compacted"
+    assert harness.summarize(event("compaction/start", {"compactionId": "x", "turn": 1})) is None
+    assert harness.summarize(Notification(method="session.status", payload={"sessionId": "s", "status": "busy"})) is None
+
+
+def test_turn_survives_a_dead_runtime(capsys):
+    class DeadHarness:
+        def run(self, text, **kwargs):
+            raise TransportClosedError("runtime exited")
+
+    harness.turn(DeadHarness(), "hi", "s1")  # no exception escapes
+    assert "TransportClosedError: runtime exited" in capsys.readouterr().out
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
@@ -46,4 +67,4 @@ def test_plugin_is_valid_javascript_and_its_rules_match_step_12():
         subprocess.run(["node", "--check", f], cwd=PLUGIN_DIR, check=True)
     out = subprocess.run(["node", "src/rules.test.js"], cwd=PLUGIN_DIR, capture_output=True, text=True)
     assert out.returncode == 0, out.stderr
-    assert "rules.js ok" in out.stdout
+    assert "rules.js ok" in out.stdout and "index.js gate ok" in out.stdout

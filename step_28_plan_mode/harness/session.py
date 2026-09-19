@@ -1,4 +1,7 @@
-"""Stage 15 - session, unchanged since stage 14.
+"""Stage 15 - session, unchanged since stage 14, plus one repair on load:
+a transcript that ends in an assistant message whose tool calls never got
+their results (a crash or a ctrl-c between the two) gets a placeholder
+result per call, so the model can be called again.
 """
 
 import json
@@ -29,6 +32,7 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
@@ -37,6 +41,7 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)
@@ -56,6 +61,23 @@ def load(session_id):
             messages = list(entry["compacted"])
         else:
             messages.append(entry)
+    return repair(messages)
+
+
+UNANSWERED = "(the harness stopped before this tool ran; no result was recorded)"
+
+
+def repair(messages):
+    """Answer the tool calls of a final assistant message that got no results.
+
+    The API refuses a transcript where an assistant's tool_calls are not
+    each followed by a tool message. A crash or a ctrl-c between the call
+    and its result leaves exactly that; a placeholder result closes it.
+    """
+    if not messages or messages[-1].get("role") != "assistant":
+        return messages
+    for call in messages[-1].get("tool_calls") or []:
+        messages.append({"role": "tool", "tool_call_id": call["id"], "content": UNANSWERED})
     return messages
 
 

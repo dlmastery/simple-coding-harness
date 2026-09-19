@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from types import SimpleNamespace
@@ -6,7 +7,7 @@ import pytest
 
 os.environ.setdefault("API_KEY", "x")
 
-from harness import browse, browser, llm, permissions, session, subagent, tools  # noqa: E402
+from harness import agent, browse, browser, llm, permissions, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 
@@ -72,7 +73,10 @@ class FakePage:
         pass
 
     def inner_text(self, selector):
-        return self.text
+        return self.text if self.url != "about:blank" else ""  # nothing to read before a page is open
+
+    def is_closed(self):
+        return False
 
     def screenshot(self, path):
         Path(path).write_bytes(b"\x89PNG fake")
@@ -144,11 +148,12 @@ def test_errors_come_back_as_results(monkeypatch):
 
 def test_long_page_text_is_capped_like_any_tool_output(monkeypatch):
     long_page = FakePage(text="word " * 5000)
+    long_page.url = "https://long.test/"
     monkeypatch.setattr(browser, "_page", long_page)
     monkeypatch.setattr(browser, "page", lambda: long_page)
     monkeypatch.setattr(browser.history, "spill", lambda text: "SPILLED")
     out = browser.browser_read()
-    assert len(out) < 12_000 and browser.history.TRIMMED in out
+    assert len(out) < 12_000 and browser.history.CAPPED in out
 
 
 # ---------------------------------------------------------------- toolsets
@@ -213,6 +218,80 @@ def test_runaway_browse_is_cut_off_at_its_own_limit(fake_page, quiet, monkeypatc
     out = browse.browse("q")
     assert out.startswith("(stopped after 2 turns") and "still reading" in out
     assert subagent.MAX_TURNS == 12 and browse.TOOLS  # task keeps its own cap
+
+
+def test_close_resets_the_handles_even_when_the_browser_is_already_dead(monkeypatch):
+    class Dead:
+        def close(self):
+            raise RuntimeError("Target closed")
+
+        def is_connected(self):
+            return False
+
+    monkeypatch.setattr(browser, "_browser", Dead())
+    monkeypatch.setattr(browser, "_playwright", None)
+    monkeypatch.setattr(browser, "_page", FakePage())
+    assert browser.browser_close().startswith("Error: Target closed")
+    assert browser._page is None and browser._browser is None  # the next call starts fresh
+
+
+def test_browser_calls_in_one_reply_run_in_order(fake_page, quiet, monkeypatch):
+    """open then read in one reply: the read must see the opened page, not about:blank."""
+    monkeypatch.setattr(permissions, "BROWSER_ALLOW", {"example.test"})
+    calls = [call("b1", "browser_open", '{"url": "https://example.test/"}'), call("b2", "browser_read", "{}")]
+    outcomes = tools.execute_all(calls)
+    assert outcomes[0][1].startswith("Opened https://example.test/")
+    assert "Hello\nworld" in outcomes[1][1]
+    assert fake_page.log[0] == ("goto", "https://example.test/")
+
+
+def test_browse_subagent_cannot_run_bash_or_browse_by_naming_them(fake_page, quiet, monkeypatch):
+    requests = []
+    replies = [
+        FakeMessage(content=None, tool_calls=[call("x1", "bash", '{"command": "ls"}'), call("x2", "browse", '{"task": "again"}')]),
+        FakeMessage(content="refused", tool_calls=None),
+    ]
+
+    def fake(messages, tools=None, on_delta=None):
+        requests.append([dict(m) for m in messages])
+        return replies.pop(0), {}
+
+    monkeypatch.setattr(llm, "call_llm", fake)
+    browse.browse("try to escape")
+    fed_back = [m["content"] for m in requests[1] if m["role"] == "tool"]
+    assert fed_back == ["Blocked by policy: bash is not available to this agent", "Blocked by policy: browse is not available to this agent"]
+
+
+def test_every_tool_call_gets_a_tool_message_even_when_it_fails(quiet, monkeypatch):
+    replies = [
+        FakeMessage(content=None, tool_calls=[call("a", "bash", '{"command": "ls'), call("b", "nope", "{}"), call("c", "browser_open", "{}")]),
+        FakeMessage(content="all failed", tool_calls=None),
+    ]
+    monkeypatch.setattr(agent, "call_llm", lambda messages, tools=None, on_delta=None: (replies.pop(0), {}))
+    monkeypatch.setattr(ui, "injection", lambda text: None)
+    monkeypatch.setattr(ui, "usage", lambda stats: None)
+    out = agent.turn([{"role": "system", "content": "s"}], "go")
+    fed = [(m["tool_call_id"], m["content"]) for m in out if m["role"] == "tool"]
+    assert [i for i, _ in fed] == ["a", "b", "c"]
+    assert fed[2][1] == "Blocked by policy: browser_open: missing argument 'url'"
+
+
+def test_write_todos_rejects_bad_items_and_session_load_repairs(tmp_path, monkeypatch):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "Old", "status": "pending"}]
+    assert todos.write_todos([{"content": "a", "activeForm": "A", "status": "done"}]).startswith("Error: item 0")
+    assert todos.TODOS[0]["content"] == "old"
+    todos.TODOS.clear()
+    monkeypatch.setattr(session, "SESSION_DIR", tmp_path)
+    lines = [{"role": "user", "content": "go"}, {"role": "assistant", "content": None, "tool_calls": [{"id": "t9", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]}]
+    (tmp_path / "x.jsonl").write_text("\n".join(json.dumps(l) for l in lines) + "\n", encoding="utf-8")
+    assert session.load("x")[-1] == {"role": "tool", "tool_call_id": "t9", "content": session.UNANSWERED}
+
+
+def test_utf8_round_trip_and_hardened_permissions(tmp_path):
+    target = tmp_path / "sub" / "n.txt"
+    tools.write_file(str(target), "héllo ✓\r\n")
+    assert tools.read_file(str(target)) == "héllo ✓\r\n"
+    assert permissions.decide("cat a > b") == "ask" and permissions.decide("ls $(x)") == "ask" and permissions.decide("ls 2>&1") == "allow"
 
 
 # ----------------------------------------------------------------- live

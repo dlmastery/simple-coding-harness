@@ -13,6 +13,10 @@ mechanisms, cheapest first. Only the first two live here; the expensive one
           cached prefix in front of it survives.
 3. fit    a single request is still too big: throw tool results away whole,
           oldest first, until it fits. The panic button.
+
+Two markers tell them apart: a capped result still has its full text on
+disk for the rest of the turn; a trimmed one is gone for good, and strip
+and fit leave it alone.
 """
 
 import json
@@ -24,7 +28,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap: the rest is in a temp file until the turn ends
+TRIMMED = "[output trimmed:"  # from strip and fit: the rest is gone; stripping twice is a no-op
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
 SPILLS = []                   # temp files belonging to the current turn
 
@@ -48,9 +53,9 @@ def cap(text):
     try:
         path = spill(text)
     except OSError:
-        return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
+        return text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )

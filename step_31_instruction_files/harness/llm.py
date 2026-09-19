@@ -184,29 +184,32 @@ class StreamedMessage:
     role: str = "assistant"
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and tool_calls when there are any.
+
+        `content` stays even when it is None: the API wants the key on an
+        assistant message, and nothing else of the reply is echoed back.
+        """
+        entry = {"role": self.role, "content": self.content}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 
 
 def usage_from(chunk_usage):
     """The same usage dict the non-streaming call produced. All None if no usage came."""
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
+        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
+        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": getattr(chunk_usage, "cost", None),  # dollars, when the provider (OpenRouter) reports it
     }
 
 
@@ -218,6 +221,8 @@ def call_llm(messages, tools=None, on_delta=None):
     text as it arrives.
     """
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
+    if "openrouter" in config.BASE_URL:
+        request["extra_body"] = {"usage": {"include": True}}  # OpenRouter then reports the cost with the usage
     schemas = TOOL_SCHEMAS if tools is None else tools
     if schemas:
         request["tools"] = schemas
@@ -225,14 +230,18 @@ def call_llm(messages, tools=None, on_delta=None):
 
     parts = []          # text deltas, in order
     calls = {}          # tool call index -> StreamedToolCall
+    order = []          # the indexes in the order they first appeared
     final_usage = None  # arrives with the last chunk, which has no choices
+    finish = None       # the finish_reason of the last chunk that carried one
 
     for chunk in stream:
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
             continue
-        delta = chunk.choices[0].delta
+        choice = chunk.choices[0]
+        finish = getattr(choice, "finish_reason", None) or finish
+        delta = choice.delta
         if delta is None:
             continue
 
@@ -242,7 +251,10 @@ def call_llm(messages, tools=None, on_delta=None):
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            key = piece.index if getattr(piece, "index", None) is not None else piece.id  # some providers send no index
+            if key not in calls:
+                order.append(key)
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -253,9 +265,14 @@ def call_llm(messages, tools=None, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
+    tool_calls = [calls[key] for key in order]
+    if finish == "length" and tool_calls:
+        # the reply hit max_tokens: a half-written tool call is not one to run
+        parts.append("\n(reply cut off by max_tokens)")
+        tool_calls = []
     message = StreamedMessage(
         content="".join(parts) or None,
-        tool_calls=[calls[index] for index in sorted(calls)] or None,
+        tool_calls=tool_calls or None,
     )
     return message, usage_from(final_usage)
 

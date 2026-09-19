@@ -1,6 +1,7 @@
 """Step 33 - hooks, with a built-in list. BUILTIN holds the hooks the
-harness registers itself; they run before every hook from the config
-files, for the same events and in the same shape. Step 33 adds one: the
+harness registers itself, in the same shape as a config entry. They run
+through run_builtin(), which tools.run() calls once a call is allowed,
+so a built-in sees only the calls that really run. Step 33 adds one: the
 checkpoint capture on PreToolUse. The rest is step 27.
 
 A hook is configured, not coded into the harness. Two files are read,
@@ -25,10 +26,11 @@ reported with a note and ignored. The loop never dies because of a hook.
 import importlib
 import json
 import os
+import signal
 import subprocess
 import sys
 from dataclasses import dataclass
-from fnmatch import fnmatch
+from fnmatch import fnmatchcase
 from pathlib import Path
 
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd")
@@ -42,7 +44,12 @@ TIMEOUT = 30  # seconds a command hook may take before it is killed and ignored
 
 BLOCK_EXIT_CODE = 2  # a command hook exits with this to block; stderr is the reason
 
-EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "prompt", "cwd")
+EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd")
+
+# the command starts its own process group, so a timeout can kill all of it
+NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+
+CACHE = {}  # config path -> (mtime, parsed hooks); the files are read again only when they change
 
 SESSION_CONTEXT = []  # what the SessionStart hooks asked to add to every late block
 
@@ -68,11 +75,14 @@ def load_config(paths=None):
         if not path.exists():
             continue
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
+            mtime = path.stat().st_mtime
+            if path not in CACHE or CACHE[path][0] != mtime:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                CACHE[path] = (mtime, data if isinstance(data, dict) else {})
         except (OSError, ValueError) as failed:
             _note(f"hook config {path} skipped: {failed}")
             continue
-        for event, hooks in data.items():
+        for event, hooks in CACHE[path][1].items():
             if event in merged and isinstance(hooks, list):
                 merged[event] += [h for h in hooks if isinstance(h, dict)]
     return merged
@@ -83,7 +93,7 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatch(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
 
 
 def describe(hook):
@@ -104,6 +114,14 @@ def resolve_python(command):
     return command
 
 
+def kill_tree(pid):
+    """Kill a process and everything it started."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+    else:
+        os.killpg(pid, signal.SIGKILL)
+
+
 def run_command(command, event):
     """Run a shell hook with the event on stdin. Returns a reply dict or None.
 
@@ -111,21 +129,26 @@ def run_command(command, event):
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
     stderr as the reason; anything else is reported and ignored.
     """
-    completed = subprocess.run(
+    process = subprocess.Popen(
         resolve_python(command),
         shell=True,
-        input=json.dumps(event),
-        capture_output=True,
-        text=True,
-        timeout=TIMEOUT,
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace",
         cwd=event.get("cwd") or None,
+        **NEW_GROUP,
     )
-    if completed.returncode == BLOCK_EXIT_CODE:
-        return {"block": completed.stderr.strip() or "blocked by hook"}
-    if completed.returncode != 0:
-        _note(f"hook `{command}` exited {completed.returncode} and was ignored: {completed.stderr.strip()[:200]}")
+    try:
+        stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        kill_tree(process.pid)
+        process.communicate()
+        raise
+    if process.returncode == BLOCK_EXIT_CODE:
+        return {"block": stderr.strip() or "blocked by hook"}
+    if process.returncode != 0:
+        _note(f"hook `{command}` exited {process.returncode} and was ignored: {stderr.strip()[:200]}")
         return None
-    output = completed.stdout.strip()
+    output = stdout.strip()
     if not output:
         return None
     reply = json.loads(output)
@@ -160,8 +183,23 @@ def run_hook(hook, event):
     return None
 
 
+def run_builtin(event_name, event=None):
+    """Run the harness's own hooks for the event. They never block.
+
+    The checkpoint capture is one of them, and it runs from tools.run(),
+    after the permission check and the user's answer: a write the user
+    declined is never captured.
+    """
+    event = {key: None for key in EVENT_KEYS} | (event or {})
+    event["event"] = event_name
+    event["cwd"] = event["cwd"] or os.getcwd()
+    for hook in BUILTIN.get(event_name, []):
+        if matches(hook, event.get("tool_name")):
+            run_hook(hook, event)
+
+
 def run_hooks(event_name, event=None):
-    """Run every hook registered for the event, built-in first, then config order.
+    """Run every hook from the config files for the event, in config order.
 
     Returns a HookOutcome. The first hook that blocks ends the run.
     Otherwise the last `result` wins and every `context` is kept, one per
@@ -172,7 +210,7 @@ def run_hooks(event_name, event=None):
     event["cwd"] = event["cwd"] or os.getcwd()
 
     outcome = HookOutcome()
-    for hook in BUILTIN.get(event_name, []) + load_config().get(event_name, []):
+    for hook in load_config().get(event_name, []):
         if not matches(hook, event.get("tool_name")):
             continue
         reply = run_hook(hook, event)

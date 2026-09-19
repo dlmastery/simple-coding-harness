@@ -11,19 +11,26 @@ model or runs a tool.
 
 import json
 
-from .llm import StreamedFunction, StreamedToolCall
-
 REPEAT_LIMIT = 3
 REPEATED = "Repeated call detected; change approach or ask the user"
 
 
-def parse_args(tool_call):
-    """The arguments of a tool call as a dict; an empty dict when the JSON is broken."""
+def parse_args(tool_call, why=False):
+    """The arguments of a tool call as a dict; an empty dict when the JSON is broken.
+
+    With `why`, returns (args, problem): the problem is None when the
+    arguments are a JSON object, else one line that says what is wrong.
+    Works on the SDK's tool-call objects and on the dicts of a transcript.
+    """
+    function = tool_call["function"] if isinstance(tool_call, dict) else tool_call.function
+    raw = function["arguments"] if isinstance(function, dict) else function.arguments
     try:
-        args = json.loads(tool_call.function.arguments or "{}")
-    except json.JSONDecodeError:
-        return {}
-    return args if isinstance(args, dict) else {}
+        args = json.loads(raw or "{}")
+    except json.JSONDecodeError as broken:
+        return ({}, str(broken)) if why else {}
+    if not isinstance(args, dict):
+        return ({}, f"got {type(args).__name__}, not an object") if why else {}
+    return (args, None) if why else args
 
 
 def signature(tool_call):
@@ -52,6 +59,8 @@ def unanswered(messages):
     tool results. The calls come back as StreamedToolCall objects, the same
     shape the loop hands to execute_all.
     """
+    from .llm import StreamedFunction, StreamedToolCall  # here, not at the top: llm imports tools, tools imports this module
+
     index = len(messages) - 1
     while index >= 0 and messages[index].get("role") == "tool":
         index -= 1

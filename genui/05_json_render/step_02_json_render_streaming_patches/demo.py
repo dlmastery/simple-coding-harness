@@ -23,8 +23,12 @@ STEP_1_FIRST_PAINT = 5.8  # the complete-spec number recorded in step 1's README
 def start_server():
     config = uvicorn.Config(server.app, host="127.0.0.1", port=PORT, log_level="warning")
     instance = uvicorn.Server(config)
-    threading.Thread(target=instance.run, daemon=True).start()
-    while not instance.started:
+    thread = threading.Thread(target=instance.run, daemon=True)
+    thread.start()
+    deadline = time.time() + 10
+    while not instance.started:  # uvicorn exits its thread when the port is taken: never spin on a dead thread
+        if not thread.is_alive() or time.time() > deadline:
+            raise RuntimeError(f"the server did not start on 127.0.0.1:{PORT}; is the port free?")
         time.sleep(0.05)
     return instance
 

@@ -79,3 +79,23 @@ Every step: `python server.py` to use it, `python demo.py` to record the
 README's demo (needs a key), `python -m pytest test_step.py` for the offline
 tests, `npm test` for the JavaScript tests alone. From the repository root,
 `python run_tests.py genui/01` runs all four.
+
+## What every step guarantees
+
+The same three rules hold in all four steps, so a reader who diffs step N
+and N+1 sees only that step's idea:
+
+- Every SSE stream ends with a terminal frame. On success it is
+  `{"done": true, ...}`; when the model call fails after the headers have
+  left it is `{"done": true, "error": "<type>: <message>"}`. The page
+  always reaches `data-state="done"`, also when the server is down or
+  answers 4xx/5xx, and the demos stop with the error instead of waiting.
+- A tool call is assembled by index until the stream ends, so interleaved
+  pieces and a missing index cannot corrupt it.
+- The page renders what the model wrote as text, never as markup: every
+  prop goes through `esc()`, array props through `list()`, component
+  names through `Object.hasOwn`, and model-written HTML only ever lands in
+  a sandboxed iframe.
+
+The demos wait ten seconds for the server to start and raise if it does
+not (a port in use, an import error); they never spin.

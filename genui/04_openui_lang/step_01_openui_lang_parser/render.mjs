@@ -22,7 +22,8 @@ const RENDERERS = {
   Table: (p) => {
     const table = el("table", "table");
     table.append(el("thead", "", el("tr", "", ...(p.columns ?? []).map((c) => el("th", "", String(c))))));
-    table.append(el("tbody", "", ...(p.rows ?? []).map((row) => el("tr", "", ...row.map((cell) => el("td", "", String(cell)))))));
+    // a row that is not a list (the model wrote a string) becomes a one-cell row instead of a thrown error
+    table.append(el("tbody", "", ...(p.rows ?? []).map((row) => el("tr", "", ...(Array.isArray(row) ? row : [row]).map((cell) => el("td", "", String(cell)))))));
     return table;
   },
   BarChart: (p) => {

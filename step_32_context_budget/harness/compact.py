@@ -10,8 +10,8 @@ is folded into the system prompt. The transcript then has to fill from 35%
 back to 85% before the next compaction, so the system prompt stays the same
 in between and the cached prefix survives.
 
-The same note is saved as a memory named handoff-<session id>, so the next
-session can recall where this one left off.
+The same note is saved as the memory handoff-latest, so the next session
+can recall where this one left off.
 """
 
 import re
@@ -62,8 +62,17 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
+LAST = None  # how many messages the last compaction left; None before the first
+
+
+def needed(usage, messages=None):
+    """Has the last request grown past the point where we rebuild?
+
+    Not again right after a compaction: when the transcript has not grown
+    since the last one, another pass would summarise the summary.
+    """
+    if messages is not None and LAST is not None and len(messages) <= LAST:
+        return False
     return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
 
 
@@ -102,20 +111,21 @@ def summarize(messages, previous=""):
         [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": render(messages, previous)}],
         tools=[],
     )
-    return message.content or "(the summariser returned nothing)"
+    if getattr(message, "failed", None) or not message.content:
+        # never fold an empty note into the prompt: the caller keeps the transcript as it is
+        raise RuntimeError(getattr(message, "failed", None) or "the summariser returned nothing")
+    return message.content
 
 
 def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
     A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    only safe cut points are the user messages that open a fresh exchange.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user" and isinstance(messages[index].get("content"), str):
+            return index  # a user turn opens a fresh exchange; an image message is a tool's, not the user's
     return len(messages)
 
 
@@ -130,9 +140,9 @@ def tail_start(messages, budget):
 
 
 def remember_handoff(summary):
-    """Save the handoff note as a project memory, keyed by the session id."""
+    """Save the handoff note as the project's one handoff memory; the newest session wins."""
     return memory.remember(
-        f"handoff-{session.CURRENT}",
+        "handoff-latest",
         f"handoff note from session {session.CURRENT}",
         summary,
         type="project",
@@ -153,4 +163,6 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    global LAST
+    LAST = len(kept)
     return kept

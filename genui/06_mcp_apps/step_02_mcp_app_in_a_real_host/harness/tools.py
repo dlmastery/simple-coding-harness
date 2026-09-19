@@ -167,14 +167,29 @@ def decide(tool_call):
     Nothing runs here. This is the half of execute() that must stay on the
     main thread, because an `ask` verdict turns into a prompt.
     """
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON: an error result, not a crash
+        return {}, "error", f"Error: the arguments of {name} are not a JSON object: {e}"
+    if name not in TOOLS:
+        return args, "error", f"Error: no tool named {name!r}."
+    action, reason = check(name, args)
     return args, action, reason
 
 
 def run(tool_call, args):
-    """Run the tool with already-parsed arguments. No permission check here."""
-    return TOOLS[tool_call.function.name](**args)
+    """Run the tool with already-parsed arguments. No permission check here. Never raises:
+    whatever the tool throws becomes its result, so every call gets its tool message."""
+    try:
+        result = TOOLS[tool_call.function.name](**args)
+    except Exception as e:  # noqa: BLE001 - wrong arguments, a missing file, anything the tool raises
+        return f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return result
 
 
 def settle(action, reason):
@@ -184,6 +199,8 @@ def settle(action, reason):
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
+    if action == "error":
+        return reason  # decide() could not even parse the call: the message is the result
     if action == "deny":
         return f"Blocked by policy: {reason}"
     if action == "ask" and not ui.approve(reason):

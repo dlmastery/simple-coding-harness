@@ -35,7 +35,7 @@ API_KEY = os.environ.get("API_KEY") or os.environ.get("OPENAI_API_KEY", "")
 MODEL = os.environ.get("MODEL", "gpt-4.1-mini")
 
 # The tests replace this with a fake whose chat.completions.create returns a scripted reply.
-client = OpenAI(base_url=BASE_URL, api_key=API_KEY) if API_KEY else None
+client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120) if API_KEY else None  # a hung upstream fails the call, it does not hang it
 
 
 def complete(messages, tools=None):
@@ -68,8 +68,10 @@ def generate(messages):
     if client is None:
         raise RuntimeError("no API key: set API_KEY (or OPENAI_API_KEY) in the environment or ~/.simple-harness/env")
     response = client.chat.completions.create(model=MODEL, messages=messages)
-    usage = response.usage
+    if not response.choices:
+        raise RuntimeError(f"empty reply: {getattr(response, 'error', None)}")
+    usage = response.usage  # some proxies send none: the reply is still good
     return {
         "content": response.choices[0].message.content or "",
-        "usage": {"prompt_tokens": usage.prompt_tokens, "completion_tokens": usage.completion_tokens},
+        "usage": {"prompt_tokens": getattr(usage, "prompt_tokens", None), "completion_tokens": getattr(usage, "completion_tokens", None)},
     }

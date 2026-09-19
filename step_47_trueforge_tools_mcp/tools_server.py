@@ -11,6 +11,8 @@ Results are strings and errors are results, as in stage 5.
 """
 
 import argparse
+import os
+import signal
 import subprocess
 from pathlib import Path
 
@@ -63,6 +65,8 @@ def write_file(path: str, content: str) -> str:
 
 def str_replace(path: str, old_str: str, new_str: str, allow_multi_edit: bool = False) -> str:
     """Replace exact text in a file. old_str must appear exactly once unless allow_multi_edit is set."""
+    if not old_str:
+        return "Error: old_str is empty"
     try:
         target = resolve(path)
         content = target.read_text(encoding="utf-8")
@@ -80,13 +84,41 @@ def str_replace(path: str, old_str: str, new_str: str, allow_multi_edit: bool = 
     return f"Replaced {count} match(es) in {path}"
 
 
+TIMEOUT = 60
+# no pagers, no credential prompts: the command has no terminal to answer on
+BASH_ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
+# the command starts its own process group, so a timeout can kill all of it
+NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+
+
+def kill_tree(pid: int) -> None:
+    """Kill a process and everything it started."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+    else:
+        os.killpg(pid, signal.SIGKILL)
+
+
 def bash(command: str) -> str:
-    """Run a shell command in the project directory and return its combined stdout and stderr."""
+    """Run a shell command in the project directory and return its combined stdout and stderr.
+
+    `shell=True` is the OS shell: /bin/sh on Linux and macOS, cmd.exe on
+    Windows, where single quotes are not quotes. Step 50 resolves a real bash.
+    """
+    proc = subprocess.Popen(
+        command, shell=True, cwd=PROJECT,
+        stdin=subprocess.DEVNULL,  # no stdin: an interactive command ends, it does not wait
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace",  # never a UnicodeDecodeError on odd output
+        env=BASH_ENV, **NEW_GROUP,
+    )
     try:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=60, cwd=PROJECT)
+        out, err = proc.communicate(timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
-        return "Error: command timed out after 60 seconds"
-    return (result.stdout + result.stderr) or "(no output)"
+        kill_tree(proc.pid)
+        proc.communicate()
+        return f"Error: command timed out after {TIMEOUT}s"
+    return (out + err) or "(no output)"
 
 
 TOOLS = [

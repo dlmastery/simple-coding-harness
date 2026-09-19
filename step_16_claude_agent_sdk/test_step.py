@@ -76,3 +76,32 @@ def test_run_tests_tool_runs_pytest(tmp_path):
     (tmp_path / "test_ok.py").write_text("def test_ok():\n    assert True\n")
     out = harness.run_tests_impl(str(tmp_path))
     assert "1 passed" in out
+
+
+def test_run_tests_tool_reports_the_exit_code(tmp_path):
+    (tmp_path / "test_bad.py").write_text("def test_bad():\n    assert False\n")
+    out = harness.run_tests_impl(str(tmp_path))
+    assert "1 failed" in out and out.endswith("exit code 1")
+
+
+def test_the_two_policy_layers_agree_and_the_hook_wins_first():
+    # a deny is final in the hook, before can_use_tool or any prompt is reached
+    hook = asyncio.run(harness.deny_dangerous({"tool_name": "Bash", "tool_input": {"command": "cat f; sudo x"}}, "t", None))
+    assert hook["hookSpecificOutput"]["permissionDecision"] == "deny"
+    # read-only built-ins are pre-approved: they never reach can_use_tool at all
+    assert {"Read", "Glob", "Grep"} <= set(harness.build_options().allowed_tools)
+
+
+def test_turn_ends_on_result_or_compact_boundary_and_survives_sdk_errors(capsys):
+    from claude_agent_sdk import ClaudeSDKError, ResultMessage, SystemMessage
+
+    assert harness.ended(SystemMessage(subtype="compact_boundary", data={}))
+    assert not harness.ended(SystemMessage(subtype="init", data={}))
+    assert harness.ended(ResultMessage(subtype="success", duration_ms=1, duration_api_ms=1, is_error=False, num_turns=1, session_id="s"))
+
+    class DeadClient:
+        async def query(self, text):
+            raise ClaudeSDKError("the CLI went away")
+
+    asyncio.run(harness.turn(DeadClient(), "hi"))  # no exception escapes
+    assert "the CLI went away" in capsys.readouterr().out

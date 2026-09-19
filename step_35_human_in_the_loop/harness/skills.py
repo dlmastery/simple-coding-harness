@@ -1,9 +1,12 @@
 """Stage 15 - skills, unchanged since stage 9.
 """
 
+import re
 from pathlib import Path
 
 import yaml
+
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
 
 SKILL_DIRS = [
     Path.home() / ".agents" / "skills",  # your skills
@@ -16,15 +19,19 @@ def find_skills():
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
-            text = path.read_text(encoding="utf-8")
-            if not text.startswith("---"):
+            try:
+                text = path.read_text(encoding="utf-8-sig")
+                match = FRONT_MATTER.match(text)
+                if not match:
+                    continue
+                meta = yaml.safe_load(match.group(1)) or {}
+            except (OSError, yaml.YAMLError, ValueError):
+                continue  # one broken skill file must not stop the harness from starting
+            if not isinstance(meta, dict):
                 continue
-            _, frontmatter, _ = text.split("---", 2)
-            meta = yaml.safe_load(frontmatter) or {}
-            if "name" not in meta:
-                continue
+            name = str(meta.get("name") or path.parent.name)
             description = " ".join(str(meta.get("description", "")).split())
-            skills[meta["name"]] = {"description": description, "path": path}
+            skills[name] = {"description": description, "path": path}
     return skills
 
 

@@ -29,6 +29,7 @@ results.
 """
 
 import argparse
+import sys
 import time
 
 from . import browser
@@ -48,10 +49,12 @@ from . import prompt
 from . import sandbox
 from . import session
 from . import stop
+from . import todos
+from .ask_user import NO_ANSWER
 from .context import reminder
 from .llm import build_system_prompt, call_llm, with_mode
 from .todos import active_form
-from .tools import INTERRUPTED, active_schemas, execute_all
+from .tools import INTERRUPTED, TOOLS, active_schemas, execute_all, reload_from
 from .ui import ui
 
 STEER_WINDOW = 2.0  # seconds: a second Ctrl-C within this many after the first exits
@@ -97,8 +100,10 @@ def turn(messages, user_input, cli=None):
     checkpoint.begin_turn(len(messages))  # where /undo cuts back to, and what the captures are keyed by
     start = len(messages)  # the Stop hooks read the turn from here
     messages.append({"role": "user", "content": user_input})
+    session.save(messages)  # on disk now, with its own time: a crash during the model call keeps the question
     detector = durability.LoopDetector()
     stop.begin_turn()  # the clock starts; the last turn's finish and blocks are forgotten
+    handoff.begin_turn()  # and the handoff count
     calls = 0  # model calls so far in this turn
     usage = {}
 
@@ -188,7 +193,7 @@ def turn(messages, user_input, cli=None):
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
 
-    if compact.needed(usage):
+    if compact.needed(usage, messages):
         messages = commands.compact(messages)
     return messages
 
@@ -269,8 +274,10 @@ def recover(messages):
     pending = durability.unanswered(messages)
     if not pending:
         return 0
-    # the edits belong to the turn that crashed, so /undo takes them back with it
-    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(len(messages))
+    # the edits belong to the turn that crashed, so /undo takes them back with it:
+    # the turn began at the last user message before the unanswered reply
+    turn_start = max((i for i, m in enumerate(messages) if m.get("role") == "user" and not isinstance(m.get("content"), list)), default=len(messages))
+    checkpoint.TURN = max(checkpoint.turns(), default=0) or checkpoint.begin_turn(turn_start)
     run_results(messages, pending)
     handoff.switch(messages)  # one of them may have been a handoff_to
     count = len(pending)
@@ -320,6 +327,25 @@ def main(argv=None):
         hooks.run_hooks("SessionEnd")
 
 
+def unattended():
+    """Nobody can answer a prompt: every ask is declined with a note, and a question to the user gets no answer."""
+    def deny(reason):
+        ui.note(f"auto-denied (no terminal to ask on): {reason}")
+        return "n"
+
+    ui.approve = deny
+    TOOLS["ask_user"] = lambda question, options=None: NO_ANSWER
+
+
+def reopen(messages):
+    """What a transcript that came off disk needs before the loop runs on it."""
+    history.strip(messages)
+    todos.rebuild(messages)   # the list as the last write_todos left it
+    reload_from(messages)     # the deferred tools the model had loaded
+    recover(messages)         # a crash mid-turn left tool calls without results: run them now
+    return messages
+
+
 def chat(cli):
     if cli.mode:
         modes.set_mode(cli.mode)  # before the banner and the first check
@@ -327,41 +353,47 @@ def chat(cli):
         ui.headless()
     else:
         ui.banner(sandbox.name(), modes.current())
+    if not sys.stdin.isatty():
+        unattended()  # piped input: no prompt can be answered, so nothing waits on one
     mcp_client.connect_all()  # external tools join the registry before the first turn
     hooks.session_start()     # SessionStart hooks; their context stays in the late block
 
     messages = [{"role": "system", "content": build_system_prompt()}]  # after connect_all: the deferred list is complete
+
+    if cli.resume:
+        saved = session.all_sessions()
+        if saved:
+            messages = reopen(session.open_session(saved[0]["id"]))
+            if not cli.print:
+                ui.resumed(messages)
+                ui.replay(messages)
 
     if cli.print:
         try:
             messages = turn(messages, cli.print, cli)
         except KeyboardInterrupt:
             raise SystemExit(130)  # the exit code a shell gives an interrupted command
-        print(last_reply(messages))
-        raise SystemExit(0)
-
-    if cli.resume:
-        saved = session.all_sessions()
-        if saved:
-            messages = session.open_session(saved[0]["id"])
-            history.strip(messages)
-            ui.resumed(messages)
-            ui.replay(messages)
-            recover(messages)  # a crash mid-turn left tool calls without results: run them now
+        answer = last_reply(messages)
+        print(answer)
+        raise SystemExit(0 if answer.strip() else 1)  # no answer - a dead model, a budget, a denied call - is a failure the shell can see
 
     while True:
         user_input = ui.ask()
+        if user_input is None or user_input in ("/exit", "/quit"):
+            break  # ctrl-d, ctrl-c at the prompt, or the command: the transcript is saved
         if not user_input:
-            break
-
-        if user_input.startswith("/"):
-            messages = commands.handle(user_input, messages)
-            session.save(messages)
-            continue
+            continue  # an empty line is not a message
 
         try:
-            messages = turn(messages, user_input, cli)
+            if user_input.startswith("/"):
+                messages = commands.handle(user_input, messages)
+                session.save(messages)
+            else:
+                messages = turn(messages, user_input, cli)
         except KeyboardInterrupt:
+            if user_input.startswith("/"):
+                ui.note("interrupted")  # a command was cut short; the transcript on disk is still valid
+                continue
             break  # a second Ctrl-C, or Ctrl-D at the steer prompt: the transcript is saved
 
     ui.summary()

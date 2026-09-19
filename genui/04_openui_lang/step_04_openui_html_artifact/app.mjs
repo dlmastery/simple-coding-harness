@@ -17,13 +17,15 @@ import { library } from "./library.mjs";
 import { isEvent } from "./sandbox.mjs";
 
 // Read the SSE stream from /generate; call onDelta with every text piece.
-// The final `event: done` carries the API's token usage.
+// The final `event: done` carries the API's token usage; `event: error` or a
+// non-200 answer rejects, so the page always reaches a terminal state.
 async function generate(prompt, onDelta) {
   const response = await fetch("/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
   });
+  if (!response.ok) throw new Error(`server answered ${response.status}: ${(await response.text()).slice(0, 200)}`);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -37,6 +39,7 @@ async function generate(prompt, onDelta) {
       buffer = buffer.slice(end + 2);
       const data = event.split("\n").filter((l) => l.startsWith("data: ")).map((l) => l.slice(6)).join("\n");
       if (event.startsWith("event: done")) return data ? JSON.parse(data) : {};
+      if (event.startsWith("event: error")) throw new Error(data ? JSON.parse(data) : "the model call failed");
       if (data) onDelta(JSON.parse(data));
     }
   }
@@ -50,12 +53,15 @@ function App() {
   const [parse, setParse] = useState(null);
   const [usage, setUsage] = useState(null);
   const [events, setEvents] = useState([]);
+  const [error, setError] = useState("");
 
-  // Messages from the artifact iframe: keep the one accepted shape, drop the rest.
+  // Messages from the artifact iframe: only from a frame on this page, only the
+  // one accepted shape, and never more than the last MAX_EVENTS of them.
   useEffect(() => {
     const onMessage = (e) => {
       if (!isEvent(e.data)) return;
-      setEvents((list) => [...list, e.data.name]);
+      if (![...document.querySelectorAll("iframe.artifact-frame")].some((f) => f.contentWindow === e.source)) return;
+      setEvents((list) => [...list, e.data.name].slice(-MAX_EVENTS));
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -65,11 +71,14 @@ function App() {
     setResponse("");
     setUsage(null);
     setEvents([]);
+    setError("");
     setStreaming(true);
     let program = "";
     try {
       const done = await generate(text, (delta) => { program += delta; setResponse(program); });
       setUsage(done.usage ?? null);
+    } catch (failure) {
+      setError(failure.message);  // the stream ended early: say so next to what did arrive
     } finally {
       setStreaming(false);
       window.openui.lastResponse = program;
@@ -88,7 +97,8 @@ function App() {
       h("h1", null, "OpenUI html artifact"),
       h("input", { id: "prompt", value: prompt, onChange: (e) => setPrompt(e.target.value) }),
       h("button", { id: "generate", onClick: () => run(prompt), disabled: streaming }, streaming ? "Streaming" : "Generate"),
-      h("span", { id: "status", "data-streaming": String(streaming) }, status)),
+      h("span", { id: "status", "data-streaming": String(streaming) }, status),
+      error ? h("span", { id: "error" }, error) : null),
     h("main", null,
       h("section", { id: "ui" },
         h(Renderer, { response, library, isStreaming: streaming, onParseResult: setParse,
@@ -100,5 +110,6 @@ function App() {
         h("pre", { id: "events" }, events.length ? events.join("\n") : "(none)"))));
 }
 
+const MAX_EVENTS = 200;
 window.openui = { lastResponse: "" };
 createRoot(document.getElementById("app")).render(h(App));

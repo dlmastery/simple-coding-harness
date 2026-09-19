@@ -9,6 +9,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
 
@@ -17,6 +19,14 @@ from convert import c1_text, js_numbers, to_jsonl, to_spec, to_yaml  # noqa: E40
 from openui_parse import parse  # noqa: E402
 
 SCENARIOS = benchmark.SCENARIOS
+
+
+def need_encoding():
+    """tiktoken fetches o200k_base from the network the first time; offline, the token tests are skipped, not failed."""
+    try:
+        benchmark.encoding()
+    except Exception as error:  # noqa: BLE001 - whatever the download raised
+        pytest.skip(f"o200k_base is not available: {type(error).__name__}")
 
 
 def sample(scenario):
@@ -53,6 +63,7 @@ def test_yaml_projection_matches_the_report_files():
 
 
 def test_token_counts_reproduce_the_report_table():
+    need_encoding()
     for scenario in SCENARIOS:
         texts = benchmark.projections(sample(scenario))
         counted = {fmt: benchmark.count(texts[fmt]) for fmt in ("oui", "yaml", "c1", "jsonl")}
@@ -68,6 +79,7 @@ def test_generated_files_are_current():
 
 
 def test_first_paint_is_one_line_for_openui_lang_only():
+    need_encoding()
     texts = benchmark.projections(sample("contact-form"))
     paint = benchmark.first_paint_tokens(texts)
     assert paint["oui"] == benchmark.count('root = Stack([title, form], "column", "l")\n')
@@ -120,6 +132,11 @@ def test_yaml_multiline_string_is_a_literal_block():
     source = r'root = MarkDownRenderer("- one\n- two")' + "\n"  # the string holds a \n escape
     yaml = to_yaml(to_spec(parse(source, benchmark.CATALOG).root))
     assert "textMarkdown: |-\n        - one\n        - two" in yaml
+
+
+def test_a_sample_that_does_not_parse_is_one_clear_error():
+    with pytest.raises(ValueError, match="did not parse cleanly"):
+        benchmark.projections("root = Stack([missing])\n")
 
 
 def test_numbers_print_like_javascript():

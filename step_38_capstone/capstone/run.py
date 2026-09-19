@@ -65,7 +65,7 @@ PRICES = {
 
 NOISE = {"__pycache__", ".pytest_cache"}  # left behind by pytest, not written by the agent
 
-ERROR_MARKS = ("Error", "Timed out", "Blocked by hook", "The user denied", "The user interrupted", "repeated")
+ERROR_MARKS = ("Error", "Timed out", "Blocked by", "The user denied", "The user interrupted", "Repeated call")
 PROBLEM_RE = re.compile(
     r"Traceback \(most recent call last\)|\b\d+ (failed|error)\b|=+ (FAILURES|ERRORS) =+|\bERROR: "
     r"|is not recognized as an internal or external command|No such file or directory|command not found"
@@ -157,6 +157,8 @@ def summarise_transcript(messages):
         for call in message.get("tool_calls") or []:
             name = call["function"]["name"]
             result = str(results.get(call["id"], ""))
+            for marker in (history.CAPPED, history.TRIMMED):  # the last line of the output itself, not of the cut notice
+                result = result.split(marker)[0]
             last = result.strip().splitlines()[-1] if result.strip() else "(empty)"  # pytest and tracebacks say it last
             calls.append({
                 "tool": name,
@@ -179,7 +181,7 @@ def why_continue(messages):
     """
     last = messages[-1]
     if last["role"] == "tool":
-        return "the turn stopped at MAX_CALLS"
+        return "the turn stopped at MAX_CALLS"  # or the model call failed for good right after the tool results
     if last["role"] == "user":
         return "the model call failed"
     if last["role"] == "assistant" and (last.get("content") or "").rstrip().endswith("?"):
@@ -225,6 +227,15 @@ def run(brief=TASK, evals=EVALS, out=HERE, keep=False, max_turns=MAX_TURNS):
     out = Path(out)
     root = Path(tempfile.mkdtemp(prefix="capstone-"))
     state = Path(tempfile.mkdtemp(prefix="capstone-state-"))  # sessions and the manifest live apart from the run
+    try:
+        return _run(brief, evals, out, keep, max_turns, root, state)
+    finally:
+        if not keep:  # whatever happened - a crash, a Ctrl-C - the temp directories go
+            shutil.rmtree(root, ignore_errors=True)
+            shutil.rmtree(state, ignore_errors=True)
+
+
+def _run(brief, evals, out, keep, max_turns, root, state):
     workspace = root / "workspace"
     workspace.mkdir()
     plant_outside(root)
@@ -280,9 +291,6 @@ def run(brief=TASK, evals=EVALS, out=HERE, keep=False, max_turns=MAX_TURNS):
     (out / TRANSCRIPT).write_text(transcript(messages), encoding="utf-8")
     if keep:
         report["kept"] = str(root)
-    else:
-        shutil.rmtree(root, ignore_errors=True)
-        shutil.rmtree(state, ignore_errors=True)
     return report
 
 

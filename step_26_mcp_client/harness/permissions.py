@@ -24,11 +24,15 @@ Every call asks, unless the tool's full name matches a glob in MCP_ALLOW.
 
 import json
 import os
+import re
 from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
 
 PROJECT = Path.cwd().resolve()
+
+# arguments a tool cannot run without; a call that lacks one is denied, not crashed
+REQUIRED = {"bash": ("command",), "write_file": ("path",), "str_replace": ("path",), "browser_open": ("url",)}
 
 # hosts the browser may open without asking, e.g. BROWSER_ALLOW=docs.python.org,pypi.org
 BROWSER_ALLOW = {host.strip().lower() for host in os.environ.get("BROWSER_ALLOW", "").split(",") if host.strip()}
@@ -46,7 +50,7 @@ BASH_RULES = {
     # read-only: let them through
     "ls*": "allow", "pwd": "allow", "cd *": "allow", "echo *": "allow",
     "sort*": "allow", "uniq*": "allow", "cut *": "allow", "basename *": "allow", "dirname *": "allow",
-    "date*": "allow", "env": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
+    "date*": "allow", "env": "ask", "cat *": "allow", "head *": "allow", "tail *": "allow",
     "wc *": "allow", "file *": "allow", "which *": "allow", "grep *": "allow", "rg *": "allow",
     "find *": "allow", "tree*": "allow",
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
@@ -58,8 +62,17 @@ BASH_RULES = {
 }
 
 
+# a part the rules would allow is still asked about when it writes somewhere
+WRITES = re.compile(r"(?<![0-9&])>|\btee\b|\bfind\b.*\s-(delete|exec|ok)\b")
+# and a command we cannot see the parts of is asked about as a whole
+HIDDEN = ("$(", "`", "<(", ">(")
+
+
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, && - but not inside quotes."""
+    """Split a compound command on |, ||, ;, &, &&, newline - but not inside quotes.
+
+    The & of a redirection such as 2>&1 or >& does not split.
+    """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
         ch = command[i]
@@ -72,7 +85,9 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch in "&|;":
+        elif ch == "&" and current and current[-1] == ">":
+            current.append(ch)  # part of a redirection, not a separator
+        elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
             while i + 1 < len(command) and command[i + 1] in "&|":
@@ -84,14 +99,23 @@ def split_command(command):
     return [p.strip() for p in parts if p.strip()]
 
 
+def unquoted(part):
+    """The part with its quoted strings blanked out, so a > inside quotes does not count."""
+    return re.sub(r"'[^']*'|\"[^\"]*\"", "", part)
+
+
 def decide(command):
     """Rate every part of a compound command; the strictest verdict wins."""
+    if any(marker in command for marker in HIDDEN):
+        return "ask"  # $(...) and friends hide a command the rules cannot see
     verdicts = []
     for part in split_command(command):
         action = "ask"
         for pattern, rule in BASH_RULES.items():
             if fnmatch(part, pattern):
                 action = rule
+        if action == "allow" and WRITES.search(unquoted(part)):
+            action = "ask"  # a read-only command with a redirection is a write
         verdicts.append(action)
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
@@ -106,11 +130,17 @@ def inside_project(path):
 
 def check(name, args):
     """Return (action, reason). Action is allow, ask or deny."""
+    for key in ("command", "path", "url"):
+        if key in REQUIRED.get(name, ()) and not args.get(key):
+            return "deny", f"{name}: missing argument {key!r}"
     if name == "bash":
         return decide(args["command"]), f"run: {args['command']}"
 
-    if name in ("write_file", "str_replace") and not inside_project(args["path"]):
-        return "ask", f"{name} outside {PROJECT}: {args['path']}"
+    if name in ("write_file", "str_replace"):
+        if not inside_project(args["path"]):
+            return "ask", f"{name} outside {PROJECT}: {args['path']}"
+        if ".git" in Path(args["path"]).parts:
+            return "ask", f"{name} inside .git: {args['path']}"
 
     if name == "browser_open":
         host = (urlparse(args["url"]).hostname or "").lower()

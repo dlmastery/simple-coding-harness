@@ -6,6 +6,8 @@ SessionEnd on the way out. The tool hooks live in tools.py.
 
 import argparse
 
+import openai
+
 from . import browser
 from . import commands
 from . import compact
@@ -16,9 +18,13 @@ from . import sandbox
 from . import session
 from .context import reminder
 from .llm import SYSTEM_PROMPT, call_llm
-from .todos import active_form
+from .todos import active_form, restore
 from .tools import execute_all
 from .ui import ui
+
+MAX_CALLS = 40  # model calls one turn may make before the harness stops it
+
+INTERRUPTED = "(interrupted before this tool ran)"
 
 
 def turn(messages, user_input, cli=None):
@@ -26,16 +32,40 @@ def turn(messages, user_input, cli=None):
 
     Returns the message list, which compaction may have replaced.
     """
-    debug = getattr(cli, "debug", False)
 
     submitted = hooks.run_hooks("UserPromptSubmit", {"prompt": user_input})
     if submitted.blocked:
         ui.note(f"prompt blocked by hook: {submitted.reason}")
         return messages
     messages.append({"role": "user", "content": user_input})
+    session.save(messages)  # the prompt is on disk even if the first model call fails
+
+    try:
+        return turn_body(messages, cli, hook_context=submitted.context)
+    except KeyboardInterrupt:
+        # ctrl-c mid-turn: answer the tool calls that never ran, so the
+        # transcript stays valid, and hand control back to the prompt
+        last = messages[-1]
+        if last.get("role") == "assistant":
+            for call in last.get("tool_calls") or []:
+                messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
+        session.save(messages)
+        ui.note("interrupted")
+        return messages
+
+
+def turn_body(messages, cli, hook_context=""):
+    """Every model call and tool call of one turn. Returns the message list."""
+    debug = getattr(cli, "debug", False)
+    calls = 0
+    usage = {}  # of the last model call; empty when none succeeded
 
     while True:
-        injection = reminder(hook_context=submitted.context)
+        if calls >= MAX_CALLS:
+            ui.note(f"stopped after {MAX_CALLS} model calls in one turn; say 'continue' to go on")
+            break
+        calls += 1
+        injection = reminder(hook_context=hook_context)
         ui.injection(injection["content"])
 
         if history.fit(messages):
@@ -52,8 +82,12 @@ def turn(messages, user_input, cli=None):
                 streamed = True
             ui.stream_delta(text)
 
-        with spinner:
-            message, usage = call_llm(messages + [injection], on_delta=on_delta)
+        try:
+            with spinner:
+                message, usage = call_llm(messages + [injection], on_delta=on_delta)
+        except (openai.APIError, RuntimeError) as failed:
+            ui.note(f"model call failed: {failed}")  # the transcript is valid as it is: the user message stays
+            break
 
         messages.append(message.model_dump(exclude_none=True))
         session.save(messages)
@@ -93,7 +127,7 @@ def turn(messages, user_input, cli=None):
     history.sweep()          # the turn is over: bin its temp files...
     history.strip(messages)  # ...and shrink the tool output it produced
 
-    if compact.needed(usage):
+    if compact.needed(usage, messages):
         messages = commands.compact(messages)
     return messages
 
@@ -141,13 +175,16 @@ def chat():
         if saved:
             messages = session.open_session(saved[0]["id"])
             history.strip(messages)
+            restore(messages)  # the todo list, from the last write_todos in the transcript
             ui.resumed(messages)
             ui.replay(messages)
 
     while True:
         user_input = ui.ask()
-        if not user_input:
+        if user_input is None or user_input in ("/exit", "/quit"):
             break
+        if not user_input:
+            continue
 
         if user_input.startswith("/"):
             messages = commands.handle(user_input, messages)

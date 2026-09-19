@@ -65,13 +65,14 @@ test("the inner policy allows inline style and script and nothing else", () => {
   assert.match(META, /^<meta http-equiv="Content-Security-Policy"/);
 });
 
-test("the csp meta lands first in head, or first in the document", () => {
+test("the csp meta lands right after the doctype, before any element", () => {
   const doc = "<!doctype html><html><head><title>x</title></head><body></body></html>";
   const out = sandboxed(doc);
-  assert.ok(out.indexOf(META) < out.indexOf("<title>"));
-  assert.ok(out.startsWith("<!doctype html><html><head><meta http-equiv"));
+  assert.ok(out.startsWith("<!doctype html>" + META + "<html><head><title>"));
   assert.ok(sandboxed("<p>no head</p>").startsWith(META));
-  assert.ok(sandboxed("<HEAD lang=en>a</HEAD>").startsWith("<HEAD lang=en><meta http-equiv"));
+  const early = sandboxed("<script>fetch('https://x')</script><head></head>");
+  assert.ok(early.indexOf(META) < early.indexOf("<script>"));  // a script before <head> still runs under the policy
+  assert.ok(!/refresh/i.test(sandboxed('<meta http-equiv="refresh" content="0;url=https://x">')));
 });
 
 test("only one message shape crosses the inner boundary", () => {

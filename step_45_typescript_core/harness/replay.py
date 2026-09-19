@@ -104,12 +104,13 @@ def replay(session_id, speed=1.0, step=False, sleep=time.sleep, wait=wait_for_en
     previous = None
     turns = 0
     for event in events:
-        if event.kind == "user":
+        prompt_ = event.kind == "user" and not str(event.data.get("content") or "").startswith("Stop blocked:")  # a Stop hook's block is not a turn
+        if prompt_:
             turns += 1
             if step and turns > 1:
                 wait()
         pause = delay(previous, event, speed)
-        if pause and not (step and event.kind == "user"):
+        if pause and not (step and prompt_):
             sleep(pause)
         draw(event, pending)
         previous = event

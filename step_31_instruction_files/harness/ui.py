@@ -5,6 +5,8 @@ eval_table() draws the result of an eval run.
 
 import json
 import sys
+import threading
+from contextlib import nullcontext
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -47,7 +49,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /init  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /init  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -67,7 +69,7 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -81,8 +83,15 @@ class UI:
         return int(answer) if answer.isdigit() and int(answer) < len(rows) else None
 
     def approve(self, reason):
-        """Stage 11: stop and ask before a tool call the rules rate as 'ask'."""
+        """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
+
+        Headless (-p) there is nobody to ask: the call is denied with a note
+        on stderr, so a script never hangs on a prompt it cannot see.
+        """
         self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+        if not self.live:
+            self.console.print(Padding(Text("denied: no terminal to ask on (headless mode)", style=MUTED), (0, 0, 0, 2)))
+            return False
         try:
             answer = prompt.read("  allow? (y/n)> ").strip()
         except (EOFError, KeyboardInterrupt):
@@ -116,12 +125,13 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
+        """The next message. None means leave: ctrl-d, ctrl-z+enter on Windows, or ctrl-c at the prompt."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -157,7 +167,7 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
+        if name == "write_todos" and args.get("todos") and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -174,13 +184,13 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -224,7 +234,13 @@ class UI:
         )
 
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Off the main thread it is a no-op: rich allows one live display, and
+        a subagent on a thread must not fight the main loop for it.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            return nullcontext()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
@@ -278,13 +294,21 @@ class UI:
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
 
+    def _parse_args(self, arguments):
+        """The arguments of a saved tool call, or the raw string when they never were JSON."""
+        try:
+            args = json.loads(arguments or "{}")
+        except ValueError:
+            return {"arguments": arguments}
+        return args if isinstance(args, dict) else {"arguments": args}
+
     def _format_args(self, args):
         if len(args) == 1:
             return str(next(iter(args.values())))
-        return json.dumps(args)
+        return json.dumps(args, default=str)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

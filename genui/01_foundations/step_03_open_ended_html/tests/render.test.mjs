@@ -76,3 +76,16 @@ test("a flat map with a cycle or a missing root does not loop", () => {
   assert.match(renderFlat({ root: "a", elements: { a: { type: "Row", props: {}, children: ["a"] } } }), /pending/);
   assert.match(renderFlat({ root: "x", elements: {} }), /pending/);
 });
+
+test("array props and children that are not arrays render as empty, not as a crash", () => {
+  assert.match(renderFlat({ root: "r", elements: { r: { type: "Row", props: {}, children: "a" } } }), /class="row"><\/div>/);
+  assert.match(renderTree({ type: "Row", props: {}, children: { a: 1 } }), /class="row"><\/div>/);
+  assert.match(Table({ columns: "Day", rows: "x" }), /<tbody><\/tbody>/);
+  assert.doesNotMatch(Chart({ kind: "bar", labels: ["a"], values: [-5] }), /height="-/);
+});
+
+test("prototype names are not components", () => {
+  assert.match(render("constructor", {}), /unknown component: constructor/);
+  assert.match(renderTree({ type: "toString", props: {} }), /pending/);
+  assert.match(renderFlat({ root: "constructor", elements: {} }), /pending/);
+});

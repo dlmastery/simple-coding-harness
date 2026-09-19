@@ -131,11 +131,13 @@ def browser_close() -> str:
     global _playwright, _browser, _page
     if _page is None:
         return "No browser was open."
-    if _browser is not None:
-        _browser.close()
-    if _playwright is not None:
-        _playwright.stop()
-    _playwright = _browser = _page = None
+    try:
+        if _browser is not None:
+            _browser.close()
+        if _playwright is not None:
+            _playwright.stop()
+    finally:
+        _playwright = _browser = _page = None  # a close that fails still forgets the dead browser
     return "Browser closed."
 
 

@@ -31,6 +31,19 @@ def test_read_file_tool(tmp_path):
     assert {s["function"]["name"] for s in tools.TOOL_SCHEMAS} == {"bash", "read_file"} == set(tools.TOOLS)
 
 
+def test_read_file_is_utf8_and_keeps_line_endings(tmp_path):
+    f = tmp_path / "u.txt"
+    f.write_bytes("café ✓\r\nline two\n".encode("utf-8"))
+    assert tools.read_file(f.as_posix()) == "café ✓\r\nline two\n"   # not the console code page, CRLF kept
+    f.write_bytes(b"ok \xff bad byte")
+    assert tools.read_file(f.as_posix()) == "ok � bad byte"                 # replaced, not raised
+
+
+def test_missing_file_is_an_error_string(tmp_path):
+    args, result = tools.run_tool(call("read_file", '{"path": "%s"}' % (tmp_path / "nope.txt").as_posix()))
+    assert result.startswith("Error: FileNotFoundError:")
+
+
 def test_script_reads_itself(monkeypatch, capsys):
     fake = FakeClient([SimpleNamespace(content=None, tool_calls=[call("read_file", '{"path": "llm.py"}')])])
     monkeypatch.setattr(openai, "OpenAI", lambda **kw: fake)

@@ -27,13 +27,20 @@ export const RESTRICTIVE_CSP = {
   "base-uri": ["'self'"],
 };
 
-/** The CSP string for a resource: the restrictive default plus what `_meta.ui.csp` declares. */
+/** A declared domain is an origin, nothing else: no `;` or space that would smuggle a directive into the policy. */
+export function isDomain(value) {
+  if (typeof value !== "string" || /[;\s'"]/.test(value)) return false;
+  try { return Boolean(new URL(value.includes("://") ? value : `https://${value}`).hostname); } catch { return false; }
+}
+
+/** The CSP string for a resource: the restrictive default plus what `_meta.ui.csp` declares. Malformed entries are dropped. */
 export function cspFor(uiMeta = {}) {
   const csp = uiMeta.csp ?? {};
   const directives = Object.fromEntries(Object.entries(RESTRICTIVE_CSP).map(([k, v]) => [k, [...v]]));
   const allow = (name, domains) => {
-    if (!domains?.length) return;
-    directives[name] = directives[name].filter((v) => v !== "'none'").concat(domains);
+    const clean = (Array.isArray(domains) ? domains : []).filter(isDomain);
+    if (!clean.length) return;
+    directives[name] = directives[name].filter((v) => v !== "'none'").concat(clean);
   };
   allow("connect-src", csp.connectDomains);
   for (const name of ["script-src", "style-src", "img-src", "font-src", "media-src"]) allow(name, csp.resourceDomains);
@@ -42,12 +49,14 @@ export function cspFor(uiMeta = {}) {
   return Object.entries(directives).map(([name, values]) => `${name} ${values.join(" ")}`).join("; ");
 }
 
-/** The view's HTML with the CSP as the first element of <head>, so it applies before any script. */
+/** The view's HTML with the CSP right after the doctype, before any element: a script written before
+ *  <head>, or a <head> inside a comment, would otherwise run ahead of the policy. A <meta> before <html>
+ *  is legal HTML; the parser opens <html> and <head> for it. */
 export function withCsp(html, csp) {
   const meta = `<meta http-equiv="Content-Security-Policy" content="${csp.replaceAll('"', "&quot;")}">`;
-  const head = html.match(/<head[^>]*>/i);
-  if (head) return html.slice(0, head.index + head[0].length) + meta + html.slice(head.index + head[0].length);
-  return meta + html;
+  const doctype = /^\s*<!doctype[^>]*>/i.exec(html);
+  const at = doctype ? doctype[0].length : 0;
+  return html.slice(0, at) + meta + html.slice(at);
 }
 
 /** `_meta.ui` for a resource: the content item wins, the listing entry is the fallback. */
@@ -56,9 +65,10 @@ export function uiMetaOf(content, listing) {
 }
 
 export class HostBridge {
-  constructor({ send, tool, callTool, readResource, onMessage, onOpenLink, onModelContext, onSizeChanged, onLog, hostContext = {} }) {
+  constructor({ send, tool, tools, callTool, readResource, onMessage, onOpenLink, onModelContext, onSizeChanged, onLog, hostContext = {} }) {
     this.send = send;                      // (message) => void, towards the view
     this.tool = tool;                      // the tool definition the view was opened for
+    this.tools = tools ?? (tool ? [tool] : []);  // every tool the view may call: the server's list, checked on each call
     this.callTool = callTool;              // (name, args) => Promise<CallToolResult>
     this.readResource = readResource;      // (uri) => Promise<ReadResourceResult>
     this.onMessage = onMessage;            // ui/message: the view speaks into the chat
@@ -101,11 +111,16 @@ export class HostBridge {
     };
   }
 
-  /** One message from the view. Returns the response to send back, or undefined for a notification. */
+  /** One message from the view. Returns the response to send back, or undefined for a notification.
+   *  The shape is checked first: a JSON-RPC id is a string or a number, a method is a string, params an
+   *  object. Anything else is dropped without an answer. */
   async handle(message) {
-    if (!message || message.jsonrpc !== "2.0") return;
+    if (!message || typeof message !== "object" || message.jsonrpc !== "2.0") return;
+    const { id, method } = message;
+    const params = message.params !== null && typeof message.params === "object" ? message.params : {};
+    if (id !== undefined && typeof id !== "string" && typeof id !== "number") return;
+    if (method !== undefined && typeof method !== "string") return;
     this.onLog?.("view->host", message);
-    const { id, method, params = {} } = message;
     if (method === undefined) {  // a response to a host request, such as ui/resource-teardown
       this.pending.get(id)?.(message.result ?? message.error);
       this.pending.delete(id);
@@ -122,6 +137,14 @@ export class HostBridge {
     }
   }
 
+  /** The tool a view may call: one the server listed, whose `_meta.ui.visibility` includes "app". Throws otherwise. */
+  allowedTool(name) {
+    const tool = this.tools.find((t) => t.name === name);
+    if (!tool) throw new Error(`the view may not call ${name}: not a tool of this server`);
+    if (!(tool._meta?.ui?.visibility ?? ["model", "app"]).includes("app")) throw new Error(`the view may not call ${name}: visibility is model-only`);
+    return tool;
+  }
+
   notification(method, params) {
     if (method === "ui/notifications/initialized") {
       this.initialized = true;
@@ -136,8 +159,10 @@ export class HostBridge {
       case "ui/initialize":
         return this.initializeResult();
       case "tools/call":
-        return this.callTool(params.name, params.arguments ?? {});
+        this.allowedTool(params.name);  // the allowlist runs before the call, so a refusal and a failure look the same to the view: an error reply
+        return this.callTool(params.name, params.arguments !== null && typeof params.arguments === "object" ? params.arguments : {});
       case "resources/read":
+        if (typeof params.uri !== "string" || !params.uri.startsWith("ui://")) throw new Error("the view may read ui:// resources only");
         return this.readResource(params.uri);
       case "ui/message":
         await this.onMessage?.(params);
@@ -174,6 +199,7 @@ export class HostBridge {
   async teardown(reason) {
     if (this.initialized) await this.request("ui/resource-teardown", { reason });
     this.initialized = false;
+    if (this.detach) this.detach();  // the window listener goes with the frame
   }
 
   /** A notification to the view; held back until the view has said initialized. */
@@ -193,13 +219,15 @@ export class HostBridge {
     }
   }
 
-  /** Wire the bridge to an iframe: only messages from that frame are read. */
+  /** Wire the bridge to an iframe: only messages from that frame are read, and the listener is removed at teardown. */
   attach(iframe) {
-    this.send = (message) => iframe.contentWindow.postMessage(message, "*");
-    window.addEventListener("message", (event) => {
+    this.send = (message) => iframe.contentWindow?.postMessage(message, "*");
+    const onMessage = (event) => {
       if (event.source !== iframe.contentWindow) return;
       this.handle(event.data).then((reply) => reply && this.post(reply));
-    });
+    };
+    window.addEventListener("message", onMessage);
+    this.detach = () => window.removeEventListener("message", onMessage);
     return this;
   }
 }

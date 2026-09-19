@@ -11,7 +11,7 @@ import json
 def parse_sse(text):
     """Split raw SSE text into the JSON objects it carries, in order."""
     events = []
-    for block in text.split("\n\n"):
+    for block in text.replace("\r\n", "\n").split("\n\n"):  # the spec allows either line ending
         data = [line[5:].lstrip() for line in block.splitlines() if line.startswith("data:")]
         if data:
             events.append(json.loads("\n".join(data)))

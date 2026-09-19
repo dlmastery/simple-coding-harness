@@ -26,6 +26,7 @@ optional dependency, and the rest of the harness must import without it.
 import asyncio
 import json
 import os
+import re
 import sys
 import threading
 from pathlib import Path
@@ -47,6 +48,8 @@ CALL_TIMEOUT = 120    # seconds one tool call may take
 
 SERVERS = {}  # name -> {"status": "connected" | "failed: ...", "tools": [names]}
 
+TOOL_NAME = re.compile(r"[^a-zA-Z0-9_-]")  # what a tool name may not carry, per the API; the rest becomes _
+
 CONTEXT = None  # the mcp extension's context, kept by apply() for the tools that join when a server starts
 
 _client = None
@@ -67,14 +70,22 @@ def load_config(paths=None):
     for path in paths or CONFIG_PATHS:
         if not path.exists():
             continue
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for name, spec in data.get("servers", {}).items():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError) as failed:
+            _note(f"mcp config {path} skipped: {failed}")
+            continue
+        if not isinstance(data, dict):
+            continue
+        table = data.get("servers") or data.get("mcpServers") or {}  # the key other clients use is fine too
+        for name, spec in table.items():
+            if not isinstance(spec, dict):
+                continue
             command = spec.get("command", "")
             if command in ("python", "python3"):
                 command = sys.executable
             args = [resolve_arg(arg) for arg in spec.get("args", [])]
-            env = {**os.environ, **spec["env"]} if spec.get("env") else None
-            servers[name] = {"command": command, "args": args, "env": env}
+            servers[name] = {"command": command, "args": args, "env": spec.get("env") or None}
     return servers
 
 
@@ -109,7 +120,11 @@ class Client:
         from mcp.client.stdio import StdioServerParameters, stdio_client
 
         try:
-            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=spec.get("env"))
+            from mcp.client.stdio import get_default_environment
+
+            # the server gets PATH, HOME and the like plus the entries the config names - not every secret in this shell
+            env = {**get_default_environment(), **(spec.get("env") or {})}
+            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=env)
             async with stdio_client(params) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
@@ -173,7 +188,8 @@ def client():
 
 
 def tool_name(server, tool):
-    return f"mcp__{server}__{tool}"
+    """mcp__<server>__<tool>, with every character the API refuses turned into _, cut to 64."""
+    return TOOL_NAME.sub("_", f"mcp__{server}__{tool}")[:64]
 
 
 def describe(error):
@@ -246,6 +262,12 @@ def connect_all(config=None):
             continue
         SERVERS[name] = {"status": "connected", "tools": register(name, tools)}
     return SERVERS
+
+
+def _note(text):
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+    ui.note(text)
 
 
 def list_command(messages, arg=""):

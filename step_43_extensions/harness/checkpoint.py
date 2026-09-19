@@ -8,12 +8,13 @@ yet is recorded as such, so undoing the turn deletes it. A file is
 captured once per turn: the first copy is the state before the turn, which
 is the one an undo must bring back.
 
-The capture is the built-in PreToolUse hook `pre_tool_use`. The hook
-system runs it before every hook from hooks.json; the tool code does not
-know about checkpoints. `agent.turn` calls `begin_turn` once per user
-message, which numbers the turn and records where the transcript stood.
-`/undo` and `/rewind` use that record to cut the transcript and to restore
-the files together.
+The capture runs from `tools.run`, after the permission check and the
+approval, so a declined call captures nothing; `before(tool, args)` is
+the one call the tool code makes, and a capture that fails is a loud
+note naming the file, never a silent gap in the manifest. `agent.turn`
+calls `begin_turn` once per user message, which numbers the turn and
+records where the transcript stood. `/undo` and `/rewind` use that
+record to cut the transcript and to restore the files together.
 """
 
 import hashlib
@@ -110,13 +111,24 @@ def capture(path, tool=None):
     return entry
 
 
+def before(tool, args):
+    """Capture the target of an edit tool before it runs. Any other tool: nothing. A failure is a note, not an exception."""
+    if tool not in EDIT_TOOLS:
+        return
+    path = (args or {}).get("path")
+    if not path:
+        return
+    try:
+        capture(path, tool=tool)
+    except OSError as failed:
+        from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+        ui.note(f"checkpoint: could not capture {path} before {tool}: {failed}; /undo will not restore it")
+
+
 def pre_tool_use(event):
-    """The built-in PreToolUse hook: capture the target of an edit tool. Never blocks."""
-    if event.get("tool_name") not in EDIT_TOOLS:
-        return None
-    path = (event.get("tool_input") or {}).get("path")
-    if path:
-        capture(path, tool=event["tool_name"])
+    """The same capture as a PreToolUse hook, for a hooks.json that wants it there: `"python": "harness.checkpoint:pre_tool_use"`."""
+    before(event.get("tool_name"), event.get("tool_input"))
     return None
 
 

@@ -329,6 +329,52 @@ def test_schema_endpoint_and_page():
     assert 'sandbox="allow-scripts"' in page and 'value="html"' in page
 
 
+
+
+def test_text_that_is_not_json_raises_and_cut_documents_never_do():
+    import pytest as _pytest
+
+    for bad in ("```json\n{", '{"a": 1., "b": 2}', '{"a": @}', "[" * 100):
+        with _pytest.raises(ValueError):
+            parse_partial(bad)
+    bs = chr(92)
+    with _pytest.raises(ValueError):
+        parse_partial('{"a": "' + bs + 'uZZZZ"}')
+    assert parse_partial('{"a": "' + bs + 'u00e9"}') == {"a": "\u00e9"}
+    assert parse_partial('{"a": 1.5e3, "b": -2}') == {"a": 1500.0, "b": -2}
+
+
+def test_progress_survives_a_shape_mix_up_and_non_json_chunks():
+    mixed = {"root": "r", "elements": {"r": {"type": "Row", "props": {}, "children": [{"type": "Text", "props": {"text": "x"}}]}}}
+    assert progress.measure(mixed, "flat") == {"complete": 1, "skeleton": True}
+    replay = progress.replay(["```json", "\n", json.dumps(FLAT)], "flat")
+    assert replay["chunks"] == 3 and replay["first_paint_chunk"] is None  # the fence never parses
+
+
+def test_a_model_failure_ends_every_mode_with_an_error_frame(monkeypatch):
+    def boom(**request):
+        raise RuntimeError("model down")
+
+    monkeypatch.setattr(llm, "client", SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=boom))))
+    for mode in ("static", "tree", "flat", "html"):
+        done = frames(TestClient(server.app).post("/api/run", json={"prompt": "x", "mode": mode}).text)[-1]
+        assert done == {"done": True, "error": "RuntimeError: model down"}
+
+
+def test_interleaved_pieces_and_missing_indexes_still_assemble(fake):
+    fake([
+        call_chunk(0, cid="c1", name="show_metric", arguments='{"title": "a", '),
+        call_chunk(1, cid="c2", name="show_chart", arguments='{"kind": "bar", '),
+        call_chunk(0, arguments='"value": "1", "delta": "+1"}'),
+        call_chunk(None, cid="c2", arguments='"labels": [], "values": []}'),
+        usage_chunk(),
+    ])
+    calls = [e for e in llm.stream_chat([], tools=catalog.TOOL_SCHEMAS) if e["type"] == "tool_call"]
+    assert [c["name"] for c in calls] == ["show_metric", "show_chart"]
+    assert json.loads(calls[0]["arguments"]) == {"title": "a", "value": "1", "delta": "+1"}
+    assert json.loads(calls[1]["arguments"]) == {"kind": "bar", "labels": [], "values": []}
+
+
 # ------------------------------------------------------------- node tests
 
 

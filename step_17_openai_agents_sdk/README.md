@@ -1,13 +1,29 @@
 # Step 17 - The same harness on the OpenAI Agents SDK
 
-**What this step adds:** the SDK owns the loop, sessions, approvals and
-agents-as-tools. The coding tools are ours again. The stage 5 functions come
-back verbatim and get *wrapped* instead of hand-registered. The late
-injection and stripping logic becomes one request filter.
+**What this step adds:** a general agent framework under a coding agent.
+The SDK owns the loop, sessions, approvals and agents-as-tools. The coding
+tools are ours again: the stage 5 functions come back verbatim and get
+*wrapped* instead of hand-registered. The late injection and stripping
+logic becomes one request filter.
 
 `pip install openai-agents`. It works against any OpenAI-compatible endpoint
 through `OpenAIChatCompletionsModel`, so the same `BASE_URL` / `API_KEY` /
 `MODEL` as stages 1-15.
+
+## Why
+
+Step 16 handed everything to a vendor's coding agent. That is the most you
+can delegate, and the least you can change: the tools are theirs, the prompt
+preset is theirs. The other end of the range is a framework that knows
+nothing about code. It gives you a loop, a session store, a pause-and-resume
+for approvals and a way to nest agents, and leaves every tool to you.
+
+Without this step you would not see which of the fifteen ideas are
+*generic agent mechanics* (the loop, sessions, approvals, subagents) and
+which are *coding-agent policy* (which commands run, what gets injected,
+how output is trimmed). Here the split is exact: the SDK has the first
+group, `harness.py` has the second, and the tools from stage 5 are copied
+in unchanged.
 
 ## Files
 
@@ -31,9 +47,9 @@ step_17_openai_agents_sdk/
 | 7 | file freshness | same filter, same git hash diff | us |
 | 8 | JSONL sessions, `/rewind` | `SQLiteSession(id, db_path)`; `session.pop_item()` for rewind | SDK; we wire `--resume`, `/sessions`, `/rewind` |
 | 10 | `write_todos`, re-injected plan | `write_todos` tool with a `TypedDict` schema; re-injected by the filter | us |
-| 11 | allow / ask / deny, timeouts | `tool_input_guardrails` (deny becomes the tool result), `needs_approval` (ask pauses the run: `result.interruptions`, `state.approve()`), `timeout=60` on the tool | us (rules), SDK (mechanics) |
-| 14 | cap / strip / fit / compaction | strip in the filter; no built-in summariser (the SDK has session trimming settings, not a compaction agent) | us |
-| 15 | `task` subagent | `explorer.as_tool(tool_name="task", max_turns=12)` - fresh run, own context, only `final_output` returns | SDK |
+| 11 | allow / ask / deny, timeouts | `tool_input_guardrails` (deny becomes the tool result), `needs_approval` (ask pauses the run: `result.interruptions`, `state.approve()`); the timeout is ours, in `run_command` | us (rules, timeout), SDK (mechanics) |
+| 14 | cap / strip / fit / compaction | `cap` in the tools, `strip` in the filter; no built-in summariser (the SDK ships `ToolOutputTrimmer`, not a compaction agent) | us |
+| 15 | `task` subagent | `explorer.as_tool(tool_name="task", max_turns=12, hooks=..., run_config=...)` - fresh run, own context, only `final_output` returns | SDK |
 
 ## The code, piece by piece
 
@@ -52,19 +68,47 @@ async def _bash(command: str) -> str:
     Args:
         command: The command to run.
     """
-    # async so the SDK can enforce `timeout=` on it (sync handlers cannot be timed out)
-    result = await asyncio.to_thread(subprocess.run, command, shell=True, capture_output=True, text=True)
-    return (result.stdout + result.stderr) or "(no output)"
+    # async so the SDK loop keeps serving hooks and approvals while it runs
+    return await asyncio.to_thread(run_command, command)
 ```
 
 The `Args:` section of the docstring becomes the parameter description.
-The type hint becomes the JSON type. The function is async for one reason:
-the SDK can only time out an async handler.
+The type hint becomes the JSON type. The function is async so the event
+loop - which also serves approvals and hooks - is never blocked by a
+running command. The command itself runs in `run_command`:
 
 `harness.py`:
 
 ```python
-bash = function_tool(_bash, name_override="bash", needs_approval=bash_needs_approval, tool_input_guardrails=[policy_gate], timeout=60)
+def run_command(command):
+    """The subprocess itself, with the timeout enforced here - the SDK's timeout
+    only stops waiting; a child left running would keep a worker thread busy."""
+    proc = subprocess.Popen(
+        command, shell=True, stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace", env=BASH_ENV, **NEW_GROUP,
+    )
+    try:
+        out, err = proc.communicate(timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        kill_tree(proc.pid)
+        proc.communicate()
+        return f"Error: command timed out after {TIMEOUT}s"
+    return cap((out + err) or "(no output)")
+```
+
+`function_tool` has a `timeout=` of its own, and the first version used it.
+It stops *waiting* for the tool; it cannot stop a thread. A hung command
+kept its worker thread, and after a few of them the thread pool was full and
+the approval prompt - which also needs a thread - never appeared. So the
+timeout lives with the process: a new process group, `kill_tree` on
+expiry, and the result is an `Error:` string the model reads. `cap` is
+stage 14's cap: ten thousand characters inline, the rest cut.
+
+`harness.py`:
+
+```python
+bash = function_tool(_bash, name_override="bash", needs_approval=bash_needs_approval, tool_input_guardrails=[policy_gate])
 read_file = function_tool(_read_file, name_override="read_file")
 write_file = function_tool(_write_file, name_override="write_file", needs_approval=edit_needs_approval)
 str_replace = function_tool(_str_replace, name_override="str_replace", needs_approval=edit_needs_approval)
@@ -74,9 +118,8 @@ write_todos = function_tool(_write_todos, name_override="write_todos")
 
 Registration is decoration. This replaces the `TOOLS` dict and `schema()`
 of stage 2.2. Policy hangs off the same call: a guardrail for structural
-denies, a predicate for asks, and a timeout that turns a hang into a
-result. The tool bodies, the skill loader and the todo list are still ours.
-The SDK has no coding tools of its own.
+denies and a predicate for asks. The tool bodies, the skill loader and the
+todo list are still ours. The SDK has no coding tools of its own.
 
 ### 2. Deny is a guardrail, ask is a predicate
 
@@ -110,7 +153,8 @@ async def edit_needs_approval(ctx, params, call_id) -> bool:
 `reject_content` makes the reason the tool result, so the model reads it
 and moves on. This is the "errors as results" rule of stage 5 applied to
 policy. Both functions call the same `rules.py` as stage 11. The verdict
-table is ours. The SDK owns where in the call each check runs.
+table is ours. The SDK owns where in the call each check runs: the
+predicate first, the guardrail after an approval, so a `deny` never asks.
 
 ### 3. Approval is a pause, not a callback
 
@@ -122,16 +166,25 @@ the interruption. When `needs_approval` returns true the run stops and
 
 ```python
 async def turn(agent, session, text, hooks, config):
-    """One user message. Approvals pause the run; we answer and resume it."""
-    result = await Runner.run(agent, text, session=session, hooks=hooks, run_config=config, max_turns=40)
-    while result.interruptions:
-        state = result.to_state()
-        for item in result.interruptions:
-            if await asyncio.to_thread(confirm, f"{item.name} {item.arguments}"):
-                state.approve(item)
-            else:
-                state.reject(item, rejection_message="The user declined this tool call.")
-        result = await Runner.run(agent, state, session=session, hooks=hooks, run_config=config, max_turns=40)
+    """One user message. Approvals pause the run; we answer and resume it.
+
+    Nothing raises past here: a model that never stops (MaxTurnsExceeded), broken
+    tool JSON (ModelBehaviorError) or a dead endpoint end the turn with one line.
+    """
+    try:
+        result = await Runner.run(agent, text, session=session, hooks=hooks, run_config=config, max_turns=40)
+        while result.interruptions:
+            state = result.to_state()
+            for item in result.interruptions:
+                if await asyncio.to_thread(confirm, f"{item.name} {item.arguments}"):
+                    state.approve(item)
+                else:
+                    state.reject(item, rejection_message="The user declined this tool call.")
+            result = await Runner.run(agent, state, session=session, hooks=hooks, run_config=config, max_turns=40)
+    except AgentsException as failure:
+        return f"(turn stopped: {type(failure).__name__}: {failure})"
+    except Exception as failure:  # noqa: BLE001 - openai.APIError and friends: the endpoint, not us
+        return f"(model call failed: {type(failure).__name__}: {failure})"
     return result.final_output
 ```
 
@@ -139,7 +192,8 @@ async def turn(agent, session, text, hooks, config):
 approve or reject each item on that state and pass it back to `Runner.run`
 to continue. The state serialises, so the approval could happen in another
 process. That is the design difference from the inline prompt of stage 11.
-The `confirm` function and the loop around interruptions are ours.
+The `confirm` function and the loop around interruptions are ours, and so
+is the rule that a turn ends with a line, never a traceback.
 
 ### 4. A subagent is an agent used as a tool
 
@@ -150,6 +204,8 @@ The SDK primitive is `Agent.as_tool()`.
 
 ```python
 explorer = Agent(name="explorer", instructions=SUBAGENT_PROMPT, tools=[bash, read_file, read_skill], model_settings=ModelSettings())
+# A nested run inherits nothing we do not pass: without hooks= its tool calls
+# are invisible, and without run_config= it would inherit the parent's filter.
 task = explorer.as_tool(
     tool_name="task",
     tool_description=(
@@ -158,6 +214,8 @@ task = explorer.as_tool(
         "include every detail it needs. It reads and reports; it never edits."
     ),
     max_turns=12,
+    hooks=CONSOLE,
+    run_config=RunConfig(call_model_input_filter=shape_subagent_request),
 )
 ```
 
@@ -166,6 +224,13 @@ list with no `write_file` and no `task`, so it cannot edit and cannot
 recurse. Each call is a fresh run with its own context. `max_turns` is the
 cap. Only `final_output` crosses back. The empty `ModelSettings()` is
 explained in the caveats below.
+
+Two arguments are easy to leave out, and the first version did. A nested
+run gets no hooks unless `hooks=` names them, so the explorer's tool calls
+printed nothing. And when `run_config=` is missing the nested run inherits
+the parent's, filter included - so the explorer received the main agent's
+`<todos>` and file notes, and consumed the file-change diff meant for the
+main agent. `shape_subagent_request` gives it the strip and nothing else.
 
 ### 5. One filter shapes every request
 
@@ -184,12 +249,7 @@ def shape_request(data: CallModelData) -> ModelInputData:
       inject - the late block goes on the end, and only on the wire (step 6)
     The session on disk is untouched; this is the request, not the record.
     """
-    items = [dict(item) for item in data.model_data.input]
-    outputs = [item for item in items if item.get("type") == "function_call_output"]
-    for item in outputs[:-KEEP_FULL]:
-        out = item.get("output")
-        if isinstance(out, str) and len(out) > STUB:
-            item["output"] = out[:STUB] + f"\n[output trimmed: {len(out) - STUB} more chars. Run the command again if you need them.]"
+    items = strip(data.model_data.input)
     # A system item, not a user message: when a run resumes after an approval
     # the reminder is the newest thing in the list, and as a user message the
     # model answers it instead of finishing the task it was approved for.
@@ -197,13 +257,45 @@ def shape_request(data: CallModelData) -> ModelInputData:
     return ModelInputData(input=items, instructions=data.model_data.instructions)
 ```
 
-The first loop is `strip` from stage 14: old tool outputs shrink to a stub,
-the newest three stay whole. The last line is the late injection of stage
-6. `reminder()` builds the `<env>` block, the `<todos>` block of stage 10
-and the changed-files note of stage 7. The session on disk never sees any
-of it. That is the request-versus-record split the hand-built harness
-enforced by hand. The filter body is entirely ours. The SDK only promises
-to call it.
+`strip` is stage 14's strip on a copy of the list: old tool outputs shrink
+to a stub, the newest three stay whole. The last line is the late injection
+of stage 6. `reminder()` builds the `<env>` block, the `<todos>` block of
+stage 10 and the changed-files note of stage 7. The session on disk never
+sees any of it. That is the request-versus-record split the hand-built
+harness enforced by hand. The filter body is entirely ours. The SDK only
+promises to call it - before *every* model call: the first one, the one
+after an approval resumes the run, and, had we not given it its own, the
+explorer's.
+
+That last point has a consequence for side effects. The filter runs before
+the request goes out, so anything it changes is changed even if the request
+then fails. The file-change note used to move its baseline when it was
+built; a rate-limited call lost the note for good.
+
+`harness.py`:
+
+```python
+def changes_note():
+    """Pure: computes the diff and remembers what it was against. mark_seen() commits it,
+    so a request that fails after the filter ran does not lose the note."""
+    global PENDING
+    now = git_state()
+    changed = {p: v[0] for p, v in now.items() if LAST.get(p) != v}
+    PENDING = now
+    if not changed:
+        return ""
+    lines = "\n".join(f"{LABELS.get(c, c)}: {p}" for p, c in changed.items())
+    return f"\n<system-reminder>\nThese files changed since your last turn. Read them again before editing:\n{lines}\n</system-reminder>"
+
+
+def mark_seen():
+    global LAST, PENDING
+    if PENDING is not None:
+        LAST, PENDING = PENDING, None
+```
+
+`mark_seen()` is called from `on_llm_end`, which only fires once the model
+has answered. A filter should compute; a hook should commit.
 
 ### 6. Presentation is a hooks subclass
 
@@ -232,11 +324,15 @@ class Console(RunHooks):
         u = getattr(response, "usage", None)
         if u:
             print(f"  {u.input_tokens:,} in · {u.output_tokens:,} out")
+        if agent.name == "harness":
+            mark_seen()  # the model saw the reminder; only now does the file baseline move
 ```
 
 The agent name tells us whether a call belongs to the subagent, so the
-indent of stage 15 is one comparison. `on_llm_end` carries the usage. The
-SDK fires the events. Every line printed is ours.
+indent of stage 15 is one comparison - provided the same `Console` instance
+is handed to the nested run, which `CONSOLE` in `as_tool(hooks=...)` does.
+`on_llm_end` carries the usage. The SDK fires the events. Every line
+printed is ours.
 
 ### 7. Sessions are SQLite rows; rewind pops them
 
@@ -263,36 +359,114 @@ One turn is everything back to and including the last user message, so we
 pop until one goes. The SDK stores and returns items. The definition of a
 turn is ours. `last_session_id` and `all_session_ids` read the same
 database directly to list sessions, because the SDK has no listing call.
+The in-memory todo list is not rewound with the session; the next
+`write_todos` replaces it anyway.
 
 ## Run it
 
+Prerequisites: Python 3.10+, `pip install openai-agents` (brings `openai`),
+and an OpenAI-compatible endpoint. Tracing is switched off in the file, so
+no OpenAI account is needed for a third-party endpoint.
+
+bash:
+
 ```bash
 pip install openai-agents
-export BASE_URL=... API_KEY=... MODEL=...
+export BASE_URL=https://openrouter.ai/api/v1 API_KEY=sk-or-... MODEL=openai/gpt-4.1-mini
 python harness.py
-you> use the task tool to find where approvals are handled, then add a comment there
-you> /rewind
 ```
 
-Offline tests: `python -m pytest test_step.py` (tools, policy, the request
-filter, rewind on a real `SQLiteSession`).
+PowerShell:
 
-## Two things the live run taught
+```powershell
+pip install openai-agents
+$env:BASE_URL = "https://openrouter.ai/api/v1"; $env:API_KEY = "sk-or-..."; $env:MODEL = "openai/gpt-4.1-mini"
+python harness.py
+```
+
+Then:
+
+```text
+> use the task tool to find where approvals are handled, then add a comment there
+> /rewind
+```
+
+### Expected output
+
+```text
+  simple coding harness · openai agents sdk · session 20260918-104201-3f9a1c · /sessions, /rewind
+  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> use the task tool to find where approvals are handled, then add a comment there
+  2,214 in · 41 out
+  tool> task {"input": "In harness.py, find where tool approvals are handled…"}
+      subagent · own context
+        tool> bash {"command": "grep -n approve harness.py"}
+              362:                    state.approve(item) / 358:async def turn(agent, …
+  1,180 in · 62 out
+        Approvals are handled in turn() at harness.py:358-366 …
+  2,431 in · 88 out
+  tool> str_replace {"path": "harness.py", "old_str": "async def turn(", "new_str": "# approvals…
+        Replaced 1 occurrence(s) in harness.py
+  2,602 in · 35 out
+
+  agent> Added a comment above turn() explaining the interruption loop.
+```
+
+Indented lines are the explorer's. A command the rules rate as `ask` pauses
+the run with `bash {"command": "python x.py"}` / `allow? (y/n)>`; `n` sends
+`The user declined this tool call.` back to the model.
+
+Offline tests: `python -m pytest test_step.py` (tools including the timeout
+and UTF-8 round trip, policy, the two filters, the change-note baseline,
+`turn()`'s error path, rewind on a real `SQLiteSession`).
+
+## Error handling
+
+- **A bad tool call.** `function_tool` validates the arguments against the
+  schema; broken JSON or a missing argument becomes an error result the
+  model reads. An exception inside a tool (a missing file, say) is turned
+  into a result by the SDK's default `failure_error_function`.
+- **A failing command.** stdout and stderr come back whatever the exit
+  code; after 60 seconds the process group is killed and the result is
+  `Error: command timed out after 60s`; output over 10,000 characters is
+  capped.
+- **A denied call.** The guardrail's `Blocked by policy: ...` or the
+  rejection message is the tool result.
+- **A dead model call, a runaway model.** `turn()` returns
+  `(model call failed: ...)` or `(turn stopped: MaxTurnsExceeded: ...)` and
+  the prompt is back. The SDK drops unanswered tool calls from the stored
+  session on the next run, so the transcript stays valid.
+- **ctrl-c at the approval prompt** answers no. **ctrl-c while the model
+  runs** ends the process (the SDK's loop does not catch it); start again
+  with `--resume` and the session picks up.
+- **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
+  the prompt. An empty line does nothing.
+
+## Gotchas / what this is not
 
 - **Inject as `system`, not `user`.** The first version appended the late
   block as a user message. After an approval pause the run resumes with
   that block as the newest item, and the model answered it instead of
   finishing the approved tool call. As a `system` item it is context, not
-  a turn.
+  a turn. Some OpenAI-compatible endpoints reject a system message that is
+  not the first message (Mistral, some vLLM templates); for those, use
+  `"role": "developer"` or a user item whose text starts with "Automated
+  context".
 - **Give the subagent explicit `ModelSettings()`.** An `Agent` built
   without a model assumes the SDK default (GPT-5) and pre-fills
   `verbosity="low"` / `reasoning=none`; assigning a model later does not
   reset them, and `gpt-4.1-mini` rejects `verbosity` with a 400. The
   explorer also needs the same model bound, or its nested run falls back
   to the default client and `OPENAI_API_KEY`.
+- **Give the subagent its own `hooks=` and `run_config=`** (section 4).
+- The tool named `bash` runs through `cmd.exe` on Windows and `/bin/sh`
+  elsewhere. No sandbox on any platform in this step.
+- Coding tools, skills, a compaction agent, and any opinion about the
+  screen: none of it is the SDK's. It is a general agent framework. The
+  "coding" in coding agent is still your tools and your prompt.
 
-## What the SDK does not give you
+## What the next step adds
 
-Coding tools, skills, a compaction agent, and any opinion about the screen.
-It is a general agent framework. The "coding" in coding agent is still your
-tools and your prompt.
+Step 18 rebuilds the harness on the Google Antigravity SDK, where the whole
+runtime, coding tools included, lives in a binary that Python configures.

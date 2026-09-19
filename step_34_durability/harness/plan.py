@@ -13,7 +13,7 @@ from . import todos
 
 MODE = "act"
 
-READ_ONLY = ("bash", "read_file", "read_skill", "task", "load_tool")  # offered in plan mode, in this order
+READ_ONLY = ("bash", "read_file", "read_skill", "task", "recall", "load_tool")  # offered in plan mode, in this order
 
 PLAN = None     # the approved plan, kept until the todos are all completed
 FEEDBACK = []   # what the user said to each rejected plan, newest last
@@ -157,6 +157,8 @@ def submit_plan(plan):
     """Validate the plan, show it, and ask the user. Returns the result for the model."""
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
+    if MODE != "plan":
+        return "Error: not in plan mode"
     problems = validate(plan)
     if problems:
         return "Error: the plan is invalid:\n" + "\n".join(f"- {p}" for p in problems)
@@ -183,7 +185,7 @@ def set_mode(mode):
 
 def done():
     """True once every todo is completed, or the list is empty."""
-    return all(t["status"] == "completed" for t in todos.TODOS)
+    return all(t.get("status") == "completed" for t in todos.TODOS)
 
 
 def plan_note():

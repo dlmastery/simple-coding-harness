@@ -20,11 +20,15 @@ withheld list stays withheld whatever the definition says.
 """
 
 import os
+import re
 from pathlib import Path
 
 import yaml
 
 from . import subagent
+from .skills import front_matter
+
+NAME = re.compile(r"^[A-Za-z0-9_-]{1,50}$")  # a definition name becomes a tool name: letters, digits, _ and -
 
 AGENT_DIRS = [
     Path.home() / ".agents" / "agents",  # your agents
@@ -44,6 +48,13 @@ def parse(text):
     return yaml.safe_load(front) or {}, body.strip()
 
 
+def as_list(value):
+    """A front matter list, or a comma-separated string, as a list of strings; None when absent."""
+    if isinstance(value, str):
+        value = [part.strip() for part in value.split(",") if part.strip()]
+    return [str(item) for item in value] if isinstance(value, list) else None
+
+
 def find_agents(dirs=None):
     """Read every <name>.md under the agent dirs; name -> definition.
 
@@ -54,17 +65,24 @@ def find_agents(dirs=None):
     agents = {}
     for directory in dirs or AGENT_DIRS:
         for path in sorted(directory.glob("*.md")):
-            meta, body = parse(path.read_text(encoding="utf-8"))
-            if not meta or "name" not in meta:
+            meta = front_matter(path)  # a broken file is a note, not a crash at import
+            if not meta:
                 continue
-            tools = meta.get("tools")
-            handoffs = meta.get("handoffs")
-            agents[str(meta["name"])] = {
-                "name": str(meta["name"]),
+            name = str(meta.get("name") or path.stem)
+            if not NAME.match(name):
+                print(f"skipped {path}: agent name {name!r} is not letters, digits, _ and - (50 at most)")
+                continue
+            try:
+                max_turns = int(meta.get("max_turns") or DEFAULT_MAX_TURNS)
+            except (TypeError, ValueError):
+                max_turns = DEFAULT_MAX_TURNS
+            _, body = parse(path.read_text(encoding="utf-8-sig", errors="replace"))
+            agents[name] = {
+                "name": name,
                 "description": " ".join(str(meta.get("description", "")).split()),
-                "tools": [str(t) for t in tools] if isinstance(tools, list) else None,
-                "handoffs": [str(h) for h in handoffs] if isinstance(handoffs, list) else None,
-                "max_turns": int(meta.get("max_turns") or DEFAULT_MAX_TURNS),
+                "tools": as_list(meta.get("tools")),
+                "handoffs": as_list(meta.get("handoffs")),
+                "max_turns": max_turns,
                 "prompt": body,
                 "path": path,
             }

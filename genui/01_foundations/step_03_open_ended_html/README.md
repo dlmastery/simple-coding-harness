@@ -7,6 +7,16 @@ only way back out is `postMessage`. The demo runs the same prompt in static,
 declarative and open-ended mode and counts the tokens each one cost, which
 is the report's "5 to 10 times" claim, checked.
 
+## Why: what breaks without it
+
+The catalog of step 02 cannot draw a gauge, a map or a sparkline the
+product never built. Open-ended generation can, because the model writes
+the code. The cost is trust: `dashboard.innerHTML = modelHtml` would run
+the model's `<script>` with the host's cookies and DOM, and a model that
+was prompt-injected through the data it summarises would run someone
+else's script. So the document must run in a box, and this step is about
+the box as much as the mode.
+
 ## Quick demo
 
 ```bash
@@ -42,10 +52,10 @@ step_03_open_ended_html/
 ├── tokens.py         counts what each mode made the model write, with tiktoken's o200k_base
 ├── page/
 │   ├── index.html    the page shell with the sandbox iframe and the inbox panel
-│   ├── app.js        four modes; mounts the finished document and listens for postMessage
+│   ├── app.js        four modes; mounts the finished document and listens for postMessage; always ends in data-state=done
 │   ├── partial-json.mjs   the step 02 parser in JavaScript
 │   ├── render.mjs    the step 02 renderers and walkers
-│   └── sandbox.mjs   the box: sandbox="allow-scripts", the CSP meta tag, isEvent()
+│   └── sandbox.mjs   the box: sandbox="allow-scripts", the CSP meta tag first in <head>, meta refresh stripped, isEvent()
 ├── tests/
 │   ├── partial-json.test.mjs   node --test for the parser
 │   ├── render.test.mjs         node --test for the renderers
@@ -69,10 +79,14 @@ components, so every reply looks different.
 This step keeps the first two problems visible and solves the second one.
 The sandbox is two layers. The iframe attribute `sandbox="allow-scripts"`
 gives the document a unique origin and denies forms, popups and navigation
-of the host. The CSP injected into the document denies every network
-request, so inline code can compute but cannot phone home. What the
-document can still do is post a message to its parent, and the host accepts
-exactly one shape.
+of the host. The CSP injected into the document denies fetches, scripts,
+styles, images and connections from anywhere, so inline code can compute
+but cannot load or send. What CSP does not govern is the iframe navigating
+itself: a link or `location.href` can still take the sandbox to a URL of
+the model's choosing, so the guarantee is the unique origin, not silence.
+`sandboxed()` strips a `<meta http-equiv="refresh">`, the one way out that
+needs no click. What the document can do is post a message to its parent,
+and the host accepts exactly one shape.
 
 ## The code, piece by piece
 
@@ -118,7 +132,10 @@ export const META = `<meta http-equiv="Content-Security-Policy" content="${CSP}"
 
 export function sandboxed(html) {
   // Put the CSP meta tag first in <head>, or first in the document if there is no <head>.
-  const head = /<head[^>]*>/i.exec(html);
+  // \b: <header> is not <head>, and a CSP tag inside <body> is ignored by the browser.
+  // A meta refresh is the one way a document can leave without a click; it goes.
+  html = html.replace(/<meta[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, "");
+  const head = /<head\b[^>]*>/i.exec(html);
   if (head) return html.slice(0, head.index + head[0].length) + META + html.slice(head.index + head[0].length);
   return META + html;
 }
@@ -178,6 +195,9 @@ the sandbox is clicked with Playwright and the host's inbox is read.
 
 ## Run it
 
+Prerequisites: step 02's plus `tiktoken` (optional: the table falls back
+to the API's counts without it).
+
 ```bash
 python server.py            # http://127.0.0.1:8010, pick "open-ended" in the page
 python demo.py              # the token table, the bridge event, demo.png
@@ -185,8 +205,56 @@ python -m pytest test_step.py
 npm test
 ```
 
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest test_step.py
+npm test
+```
+
+Expected output: in html mode the wire panel fills with the document for
+20 to 40 seconds while the iframe stays blank, then the page mounts it and
+the status line reads `32512 ms`. Clicking a button in the generated page
+adds one `{"type": "event", ...}` line to the inbox panel. The quick demo
+above prints the token table for the three modes.
+
 If tiktoken cannot load its vocabulary (it is fetched once and cached), the
 table falls back to the API's `completion_tokens` and says so.
+
+## Error handling
+
+- The model call fails, in any mode: the last frame is
+  `{"done": true, "error": "..."}`, the status line shows it, the page
+  reaches `data-state=done`; `demo.py` raises with the error text.
+- The server is down or answers 4xx/5xx: the page records the error frame
+  itself.
+- The model wraps the document in a code fence: `FENCE` strips it from the
+  finished text; `raw` keeps the fence so the token count is honest.
+- The generated document throws: the error stays inside the iframe (its
+  own console), the host is untouched.
+- The iframe posts something that is not `{type: "event", name}`: dropped
+  by `isEvent`; a message from any other window is dropped by the source
+  check.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- The CSP covers loads and connections, not navigation. A generated `<a
+  href="https://...">` still opens when the user clicks it, inside the
+  sandbox; `location.href` does the same without a click. Only the meta
+  refresh is stripped. Treat the sandbox as "cannot touch the host", not
+  "cannot make a request".
+- `sandboxed` needs to find `<head>` to put the policy where the browser
+  reads it; without one the tag goes first in the document, which browsers
+  also accept. A document with only a `<header>` gets the same treatment.
+- The document is mounted once, complete. There is no partial render in
+  html mode because a half-written document is not a document.
+- The prompt asks for no external resources because the CSP blocks them;
+  a model that ignores the prompt gets a page with missing fonts and
+  images, not a network request.
 
 ## What to notice
 
@@ -204,6 +272,12 @@ table falls back to the API's `completion_tokens` and says so.
   model turn.
 - `sandbox="allow-scripts"` without `allow-same-origin` is the important
   half. With both, the document could reach the host's cookies and DOM.
+
+## What the next step adds
+
+The hybrid: the step 02 catalog plus one `GeneratedView` component whose
+prop is model-written HTML rendered in this step's sandbox, and a `Button`
+whose click becomes the next model turn.
 
 ## Diff from the previous step
 

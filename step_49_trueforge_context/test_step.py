@@ -57,6 +57,24 @@ def question_turn():
     ]
 
 
+def errored_question_turn():
+    """The question was asked, then the turn died: the pending call must not be answered."""
+    events = question_turn()
+    events[-1] = {"type": "turn.done", "id": "e8", "thread_id": None, "created_at": "2026-01-01T00:00:00Z",
+                  "state": {"status": "error", "message": "You have reached iteration limit of 8, please request again",
+                            "completed_at": "2026-01-01T00:00:00Z",
+                            "metrics": {"total_input_tokens": 1091, "total_output_tokens": 33, "total_tokens": 1124}}}
+    return events
+
+
+def other_tool_turn():
+    """A pending client-side tool that is not a question."""
+    events = question_turn()
+    events[2] = {"type": "model.message.delta", "id": MSG_Q, "thread_id": "main", "tool_calls": [
+        {"index": 0, "id": CALL, "type": "function", "function": {"name": "open_browser", "arguments": ""}}]}
+    return events
+
+
 def answer_turn():
     """The events of the resume turn: a plain text reply."""
     usage = dict(USAGE, input_tokens=1131, output_tokens=54)
@@ -91,8 +109,19 @@ class FakeTrueForge(BaseHTTPRequestHandler):
                                  "title": None, "created_by": "fake", "created_at": "2026-01-01T00:00:00Z",
                                  "updated_at": "2026-01-01T00:00:00Z"}})
         elif self.path == f"/api/v1/sessions/{SESSION}/turns":
-            kinds = {item.get("type") for item in body.get("input") or []}
-            events = answer_turn() if "user.tool_response" in kinds else question_turn()
+            items = body.get("input") or []
+            kinds = {item.get("type") for item in items}
+            prompt = items[0].get("content", "") if items else ""
+            if "user.tool_response" in kinds:
+                events = question_turn() if self.server.keep_asking else answer_turn()
+            elif prompt == "fail":
+                events = errored_question_turn()
+            elif prompt == "cut":
+                events = question_turn()[:4]  # the connection drops mid-message: no turn.done
+            elif prompt == "other-tool":
+                events = other_tool_turn()
+            else:
+                events = question_turn()
             self._sse(events)
         else:
             self.send_response(404)
@@ -120,6 +149,7 @@ class FakeTrueForge(BaseHTTPRequestHandler):
 def server():
     httpd = HTTPServer(("127.0.0.1", 0), FakeTrueForge)
     httpd.requests = []
+    httpd.keep_asking = False  # when True every resume is answered with the same question again
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     yield httpd
@@ -134,6 +164,7 @@ def client(server):
 @pytest.fixture(autouse=True)
 def fresh_requests(server):
     server.requests.clear()
+    server.keep_asking = False
 
 
 # --- the spec ---------------------------------------------------------------
@@ -146,6 +177,7 @@ def test_spec_sets_every_limit():
     assert body["config"]["context_management"]["large_tool_response"] == {"enabled": True}
     assert body["config"]["iteration_limit"] == 7
     assert body["config"]["ask_user_questions"] == {"enabled": True}
+    assert body["config"]["dynamic_sub_agents"] == {"enabled": False}  # one thread only in this step
     assert body["model"] == {"name": context.MODEL}
     assert body["instructions"] == "be brief"
 
@@ -201,9 +233,13 @@ def test_stream_turn_collects_the_pending_question(client):
 
 
 def test_ask_maps_a_number_to_its_option(capsys):
+    def closed(_):
+        raise EOFError
+
     assert questions.ask("Which?", ["python", "node"], read=lambda _: "2") == "node"
     assert questions.ask("Which?", ["python", "node"], read=lambda _: "rust") == "rust"
     assert questions.ask("Which?", [], read=lambda _: "") == "(no answer given)"
+    assert questions.ask("Which?", ["python"], read=closed) == "(no answer given)"  # ctrl-d is an answer too
     out = capsys.readouterr().out
     assert "? Which?" in out and "  1. python" in out and "  2. node" in out
 
@@ -220,6 +256,44 @@ def test_run_resumes_with_one_tool_response(client, server):
     assert resume["input"] == [{"type": "user.tool_response", "thread_id": "main",
                                 "tool_call_id": CALL, "content": "python"}]
     assert first["stream"] is True
+
+
+def test_a_question_in_an_errored_turn_is_not_answered(client, server):
+    asked = []
+    turns = questions.run(client, SESSION, "fail", read=lambda p: asked.append(p) or "1")
+    assert len(turns) == 1 and turns[0].status == "error"
+    assert asked == []
+    assert len([1 for path, _ in server.requests if path.endswith("/turns")]) == 1
+    assert context.status_line(turns[0].state).startswith("status: error - You have reached iteration limit")
+
+
+def test_a_cut_stream_is_incomplete(client):
+    turns = questions.run(client, SESSION, "cut", read=lambda _: "1")
+    assert len(turns) == 1 and turns[0].status == "incomplete"
+    assert context.status_line(turns[0].state) == "status: incomplete - the stream ended before turn.done"
+
+
+def test_a_pending_tool_that_is_not_a_question_is_declined(client, server):
+    turns = questions.run(client, SESSION, "other-tool", read=lambda _: "1")
+    assert len(turns) == 2
+    resume = [body for path, body in server.requests if path.endswith("/turns")][1]
+    assert resume["input"] == [{"type": "user.tool_response", "thread_id": "main", "tool_call_id": CALL,
+                                "content": "Error: this client cannot run open_browser"}]
+
+
+def test_the_question_loop_is_capped(client, server, monkeypatch):
+    monkeypatch.setattr(questions, "MAX_ROUNDS", 3)
+    server.keep_asking = True
+    turns = questions.run(client, SESSION, "set up a project for me", read=lambda _: "1")
+    assert len(turns) == 4  # the first turn and three resumes
+    assert turns[-1].status == "error" and "still asking after 3" in turns[-1].state["message"]
+
+
+def test_sum_metrics_adds_every_turn():
+    a = context.Turn(state={"status": "done", "metrics": {"total_input_tokens": 1, "total_tokens": 2}})
+    b = context.Turn(state={"status": "done", "metrics": {"total_input_tokens": 10, "total_output_tokens": 5}})
+    assert context.sum_metrics([a, b]) == {"total_input_tokens": 11, "total_tokens": 2, "total_output_tokens": 5}
+    assert context.sum_metrics([context.Turn()]) == {}
 
 
 # --- the usage table --------------------------------------------------------
@@ -257,5 +331,20 @@ def test_demo_asks_answers_and_prints_the_table(server, capsys):
     assert "For a Python project: main.py, README.md" in out
     assert "2 turn(s), 2 model call(s)" in out
     assert "all              2,576" in out
-    assert "metrics: 1,131 in, 54 out, 1,185 total" in out
+    assert "metrics: 2,222 in, 87 out, 2,309 total" in out  # both turns added up
     assert out.rstrip().endswith("status: done")
+
+
+def test_demo_exits_1_on_an_errored_turn(server, capsys):
+    assert demo.main(["fail", "--answer", "python", "--base-url", f"http://127.0.0.1:{server.server_port}"]) == 1
+    out = capsys.readouterr().out
+    assert "status: error - You have reached iteration limit" in out
+    assert "answer>" not in out  # the question in the dead turn was not asked
+
+
+def test_demo_reports_a_dead_server_in_one_line(capsys, monkeypatch):
+    from trueforge_sdk import TrueForge
+
+    monkeypatch.setattr(context, "connect", lambda url: TrueForge(base_url=url, max_retries=0))
+    assert demo.main(["--base-url", "http://127.0.0.1:1"]) == 1
+    assert capsys.readouterr().err.startswith("request failed: http://127.0.0.1:1 is not answering")

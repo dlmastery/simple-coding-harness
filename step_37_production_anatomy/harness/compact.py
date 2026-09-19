@@ -62,8 +62,17 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
+COMPACTED_AT = 0  # the transcript length right after the last compaction
+
+
+def needed(usage, size=None):
+    """Has the last request grown past the point where we rebuild?
+
+    Not again right after a compaction: the usage of the request that
+    triggered it is stale until the transcript has grown past `size`.
+    """
+    if size is not None and size <= COMPACTED_AT:
+        return False
     return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
 
 
@@ -102,20 +111,20 @@ def summarize(messages, previous=""):
         [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": render(messages, previous)}],
         tools=[],
     )
-    return message.content or "(the summariser returned nothing)"
+    if getattr(message, "failed", None) or not message.content:
+        raise RuntimeError(getattr(message, "failed", None) or "the summariser returned nothing")  # never replace the transcript with nothing
+    return message.content
 
 
 def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
     A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    only safe cut points are the user messages that open a fresh exchange.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user" and isinstance(messages[index].get("content"), str):
+            return index  # a user message opens an exchange; an image message belongs to the tool call before it
     return len(messages)
 
 
@@ -130,9 +139,9 @@ def tail_start(messages, budget):
 
 
 def remember_handoff(summary):
-    """Save the handoff note as a project memory, keyed by the session id."""
+    """Save the handoff note as the one project memory `handoff-latest`, so the notes do not pile up."""
     return memory.remember(
-        f"handoff-{session.CURRENT}",
+        "handoff-latest",
         f"handoff note from session {session.CURRENT}",
         summary,
         type="project",

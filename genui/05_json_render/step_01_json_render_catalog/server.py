@@ -27,7 +27,10 @@ class GenerateRequest(BaseModel):
 
 @app.post("/generate")
 def generate(request: GenerateRequest):
-    spec, usage, seconds = llm.complete_spec(system_prompt(), request.prompt)
+    try:
+        spec, usage, seconds = llm.complete_spec(system_prompt(), request.prompt)
+    except Exception as error:  # noqa: BLE001 - the model call failed: the page gets one sentence, not a traceback
+        raise HTTPException(status_code=502, detail={"problems": [f"model call failed: {type(error).__name__}: {error}"], "spec": None})
     problems = check_spec(spec, catalog_json())
     if problems:
         raise HTTPException(status_code=502, detail={"problems": problems, "spec": spec})

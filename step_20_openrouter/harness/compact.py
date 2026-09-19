@@ -59,9 +59,17 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
-    return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+LAST_SIZE = 0  # estimate() of the transcript at the last compaction
+
+
+def needed(usage, messages=()):
+    """Has the last request grown past the point where we rebuild?
+
+    A compaction that changed nothing (nothing old enough to cut) must not
+    fire again on the very next turn: the transcript has to grow first.
+    """
+    over = (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+    return over and estimate(messages) > LAST_SIZE
 
 
 def previous_summary(system_content):
@@ -104,13 +112,11 @@ def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
     A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    only safe cut points are user messages: each one opens a fresh exchange.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user":
+            return index
     return len(messages)
 
 
@@ -126,8 +132,10 @@ def tail_start(messages, budget):
 
 def compact(messages):
     """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
+    global LAST_SIZE
     cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
     if cut <= 1:
+        LAST_SIZE = estimate(messages)  # nothing to cut: do not try again until it grows
         return messages
 
     system = messages[0]["content"]
@@ -137,4 +145,5 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    LAST_SIZE = estimate(kept)
     return kept

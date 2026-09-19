@@ -34,7 +34,7 @@ class UI:
     def banner(self):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text("/sessions  /rewind  ·  ctrl-d or an empty line to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text("/sessions  /rewind  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -48,12 +48,12 @@ class UI:
         results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
         for message in messages:
             if message["role"] == "user":
-                self.user(message["content"])
+                self.user(str(message.get("content") or ""))
             elif message["role"] == "assistant":
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], self._parse_args(call["function"]["arguments"]), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -67,12 +67,13 @@ class UI:
         return int(answer) if answer.isdigit() and int(answer) < len(rows) else None
 
     def ask(self):
+        """One line from the user; None when they are leaving (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return input("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -134,13 +135,21 @@ class UI:
             Padding(Panel(Text(text, style=MUTED), title=Text(title, style=f"italic {MUTED}"), title_align="left", border_style=border, padding=(0, 1)), (1, 2, 0, 2))
         )
 
+    def _parse_args(self, arguments):
+        """Stored arguments may be broken JSON (a cut-off reply); show them raw then."""
+        try:
+            args = json.loads(arguments)
+        except (json.JSONDecodeError, TypeError):
+            return {"raw": arguments}
+        return args if isinstance(args, dict) else {"raw": arguments}
+
     def _format_args(self, args):
         if len(args) == 1:
             return str(next(iter(args.values())))
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

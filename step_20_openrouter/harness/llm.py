@@ -62,23 +62,40 @@ def call_llm(messages, tools=None):
         request["tools"] = schemas
     response = client.chat.completions.create(**request)
 
+    if not response.choices:  # some providers answer an error as an empty reply
+        raise RuntimeError(getattr(response, "error", None) or "empty reply")
     message = response.choices[0].message
 
-    completion_details = getattr(response.usage, "completion_tokens_details", None)
-    prompt_details = getattr(response.usage, "prompt_tokens_details", None)
+    return message, usage_from(response)
 
+
+def usage_from(response):
+    """The numbers we keep per call. usage can be missing, and so can its details."""
+    u = response.usage
     usage = {
-        "prompt_tokens": response.usage.prompt_tokens,
-        "completion_tokens": response.usage.completion_tokens,
-        "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-        "cached_tokens": getattr(prompt_details, "cached_tokens", None),
-        "cost": openrouter.cost_of(response.usage),
+        "prompt_tokens": getattr(u, "prompt_tokens", None),
+        "completion_tokens": getattr(u, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(u, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(u, "prompt_tokens_details", None), "cached_tokens", None),
+        "cost": openrouter.cost_of(u),
         # OpenRouter sets this to the model that actually answered, so a
         # fallback shows up here rather than passing silently.
         "model": getattr(response, "model", None),
     }
+    return usage
 
-    return message, usage
+
+def entry(message):
+    """The transcript entry for a reply: role, content, tool calls - and nothing else.
+
+    `message.model_dump()` would also echo reasoning, annotations and other
+    provider extras back on the next request, and a fallback provider may
+    reject them.
+    """
+    record = {"role": "assistant", "content": message.content}
+    if message.tool_calls:
+        record["tool_calls"] = [c.model_dump(exclude_none=True) for c in message.tool_calls]
+    return record
 
 
 if __name__ == "__main__":

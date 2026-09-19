@@ -59,8 +59,17 @@ def load_config(paths=None):
     for path in paths or CONFIG_PATHS:
         if not path.exists():
             continue
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for name, spec in data.get("servers", {}).items():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as broken:
+            _note(f"MCP config {path} skipped: {broken}")
+            continue
+        if not isinstance(data, dict):
+            continue
+        table = data.get("servers") if isinstance(data.get("servers"), dict) else data.get("mcpServers", {})  # both spellings
+        for name, spec in (table or {}).items():
+            if not isinstance(spec, dict):
+                continue
             command = spec.get("command", "")
             if command in ("python", "python3"):
                 command = sys.executable
@@ -68,6 +77,12 @@ def load_config(paths=None):
             env = {**os.environ, **spec["env"]} if spec.get("env") else None
             servers[name] = {"command": command, "args": args, "env": env}
     return servers
+
+
+def _note(text):
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+    ui.note(text)
 
 
 def resolve_arg(arg):

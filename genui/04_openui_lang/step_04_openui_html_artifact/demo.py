@@ -77,9 +77,9 @@ def main() -> None:
         page.wait_for_selector("iframe.artifact-frame")
         report(ARTIFACT_PROMPT)
         srcdoc = page.get_attribute("iframe.artifact-frame", "srcdoc")
-        head = srcdoc.lower().find("<head>")
+        first = srcdoc.lstrip().lower().find("<meta http-equiv=\"content-security-policy\"")
         print(f"iframe: sandbox={page.get_attribute('iframe.artifact-frame', 'sandbox')!r}, "
-              f"CSP meta first in <head>: {srcdoc[head + 6:].startswith('<meta http-equiv=\"Content-Security-Policy\"')}")
+              f"CSP meta before any element: {0 <= first <= len('<!doctype html>')}")
 
         # A click inside the sandbox: find the first button or range input in
         # the document, change it, and show that the document's text changed.

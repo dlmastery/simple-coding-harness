@@ -25,7 +25,10 @@ import threading
 from . import sandbox
 
 TIMEOUT = 60      # seconds a foreground command may run before it is killed
-JOIN_GRACE = 2    # seconds to wait for the reader after the process has ended
+JOIN_GRACE = 2    # seconds to wait for the reader after a kill; a child that kept the pipe open cannot hold the caller
+
+# no pagers and no credential prompts: the command has no terminal to answer on
+ENV = {"PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0", "PYTHONIOENCODING": "utf-8"}
 
 
 def popen(command):
@@ -43,9 +46,10 @@ def popen(command):
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1,
+        encoding="utf-8",
         errors="replace",
+        bufsize=1,
+        env={**os.environ, **ENV},
         **group_options(),
     )
 
@@ -82,12 +86,15 @@ class Reader:
                 if self.lines is not None:
                     self.lines.append(raw)
                 if self.on_line is not None:
-                    self.on_line(raw.rstrip("\r\n"))
+                    try:
+                        self.on_line(raw.rstrip("\r\n"))
+                    except Exception:  # noqa: BLE001 - a screen that cannot draw must not stop the reading
+                        pass
         finally:
             self.process.stdout.close()
 
-    def join(self, timeout=JOIN_GRACE):
-        """Wait for the last lines. A child that kept the pipe open cannot hold the caller for long."""
+    def join(self, timeout=None):
+        """Wait for the last lines. After a kill, give a timeout: a child that kept the pipe open cannot hold the caller for long."""
         self.thread.join(timeout)
 
     def text(self):
@@ -134,10 +141,10 @@ def run(command, timeout=None, on_line=None):
         process.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
         kill(process)
-        reader.join()
-        raise
+        reader.join(JOIN_GRACE)
+        raise subprocess.TimeoutExpired(command, timeout, output=reader.text())  # what it printed before the kill rides along
     except BaseException:
         kill(process)
         raise
-    reader.join()
+    reader.join()  # a normal exit closed the pipe; the last lines are moments away
     return reader.text()

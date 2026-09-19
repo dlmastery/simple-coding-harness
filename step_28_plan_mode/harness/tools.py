@@ -11,6 +11,7 @@ both, and the MCP tools join both when their servers start.
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 from . import browser, computer, history, hooks, memory, plan, sandbox
 from .browse import BROWSE_SCHEMA, browse
@@ -27,26 +28,30 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+        partial = (expired.output or "") + (expired.stderr or "")
+        return history.cap(f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}")
     return history.cap((result.stdout + result.stderr) or "(no output)")
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    with open(path) as f:
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return history.cap(f.read())
 
 
 def write_file(path: str, content: str) -> str:
     """Create a file, or overwrite it if it already exists."""
-    with open(path, "w") as f:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
 
 
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
-    with open(path) as f:
+    if not old_str:
+        return "Error: old_str is empty; give the exact text to replace"
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
     count = content.count(old_str)
@@ -59,7 +64,7 @@ def str_replace(path, old_str, new_str, allow_multi_edit=False):
             "or set allow_multi_edit to replace them all."
         )
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content.replace(old_str, new_str))
     return f"Replaced {count} match(es) in {path}"
 
@@ -163,17 +168,36 @@ MAX_WORKERS = 4  # tool calls of one reply that may run at the same time
 
 DENIED = "The user denied this tool call."
 
+# tools that must run one at a time on the calling thread: they prompt the
+# user, or drive a browser or desktop whose call order matters
+SERIAL = {"task", "browse", "submit_plan", "ask_user", "handoff_to", "finish"}
 
-def decide(tool_call):
+
+def serial(name):
+    return name in SERIAL or name.startswith(("browser_", "computer_"))
+
+
+def decide(tool_call, allowed=None):
     """Parse the arguments and rate the call. Returns (args, action, reason).
 
     Nothing runs here. This is the half of execute() that must stay on the
-    main thread, because an `ask` verdict turns into a prompt. The verdict
+    main thread, because an `ask` verdict turns into a prompt. Arguments
+    that are not a JSON object are the verdict `error`: the call never runs
+    and the reason becomes its result. `allowed`, when given, is the set of
+    tool names this caller was offered; anything else is denied. The verdict
     is allow, ask or deny from the rules, or `blocked` from a PreToolUse
     hook. A denied call is not offered to the hooks: the rules said no first.
     """
-    args = json.loads(tool_call.function.arguments)
-    action, reason = check(tool_call.function.name, args)
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError(f"got {type(args).__name__}")
+    except ValueError as failed:
+        return {}, "error", f"Error: the arguments of {name} are not a JSON object: {failed}"
+    if allowed is not None and name not in allowed:
+        return args, "deny", f"{name} is not available to this agent"
+    action, reason = check(name, args)
     if action == "deny":
         return args, action, reason
     outcome = hooks.run_hooks("PreToolUse", {"tool_name": tool_call.function.name, "tool_input": args})
@@ -182,13 +206,31 @@ def decide(tool_call):
     return args, action, reason
 
 
+def call(name, args):
+    """Call the tool function itself. Returns a string, whatever happens.
+
+    A tool that raises does not take the loop down: the exception becomes an
+    Error: result the model can read, the way a failed command does.
+    """
+    tool = TOOLS.get(name)
+    if tool is None:
+        return f"Error: no tool named {name!r}."
+    try:
+        result = tool(**args)
+    except Exception as failed:  # noqa: BLE001 - a missing file or a wrong argument is the model's problem to fix
+        return f"Error: {type(failed).__name__}: {failed}"
+    if not isinstance(result, str):
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return result
+
+
 def run(tool_call, args):
     """Run the tool with already-parsed arguments, then the PostToolUse hooks.
 
     No permission check here. A hook that answers with a result replaces
     what the tool returned; the model sees the hook's version.
     """
-    result = TOOLS[tool_call.function.name](**args)
+    result = call(tool_call.function.name, args)
     outcome = hooks.run_hooks("PostToolUse", {"tool_name": tool_call.function.name, "tool_input": args, "tool_result": result})
     if outcome.result is not None:
         return outcome.result if isinstance(outcome.result, str) else json.dumps(outcome.result)
@@ -198,11 +240,14 @@ def run(tool_call, args):
 def settle(action, reason):
     """Turn a verdict into a result string, or None when the call may run.
 
+    An `error` is a call that could not be parsed; its reason is the result.
     A `deny` never runs, and neither does a call a hook `blocked`. An `ask`
     prompts the user and runs only on yes.
     """
     from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
 
+    if action == "error":
+        return reason
     if action == "deny":
         return f"Blocked by policy: {reason}"
     if action == "blocked":
@@ -212,39 +257,46 @@ def settle(action, reason):
     return None
 
 
-def execute(tool_call):
+def execute(tool_call, allowed=None):
     """Run one tool call through the permission layer. Returns (args, result).
 
     Shared by the main loop and by subagents, so a subagent is fenced in by
     exactly the same rules - it is not a way around them. This is decide,
     settle and run in one step, for callers that want the direct path.
     """
-    args, action, reason = decide(tool_call)
+    args, action, reason = decide(tool_call, allowed)
     result = settle(action, reason)
     if result is not None:
         return args, result
     return args, run(tool_call, args)
 
 
-def execute_all(tool_calls):
+def execute_all(tool_calls, allowed=None):
     """Run every tool call of one reply. Returns [(args, result)] in the same order.
 
     One call takes the direct path. Several calls are decided first, one at a
     time on this thread, so the prompts appear in order. Then the allowed
     ones run together in a thread pool. A denied or declined call gets its
-    message as the result and never runs.
+    message as the result and never runs. A batch that holds a SERIAL tool
+    runs one call after another on this thread instead: those tools prompt
+    the user or drive one browser, and neither works from a pool.
     """
-    if len(tool_calls) == 1:
-        return [execute(tool_calls[0])]
+    if len(tool_calls) == 1 or any(serial(c.function.name) for c in tool_calls):
+        return [execute(tool_call, allowed) for tool_call in tool_calls]
 
     outcomes = []  # (args, result) per call; result is None until it has run
     for tool_call in tool_calls:
-        args, action, reason = decide(tool_call)
+        args, action, reason = decide(tool_call, allowed)
         outcomes.append((args, settle(action, reason)))
 
     pending = [i for i, (_, result) in enumerate(outcomes) if result is None]
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+    pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+    try:
         futures = {i: pool.submit(run, tool_calls[i], outcomes[i][0]) for i in pending}
         for i, future in futures.items():
             outcomes[i] = (outcomes[i][0], future.result())
+    except KeyboardInterrupt:
+        pool.shutdown(wait=False, cancel_futures=True)  # queued calls never start
+        raise
+    pool.shutdown(wait=True)
     return outcomes

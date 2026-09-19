@@ -32,7 +32,7 @@ export const { registry } = defineRegistry(catalog, {
       <table>
         <thead><tr>${(props.columns ?? []).map((c) => html`<th key=${c}>${c}</th>`)}</tr></thead>
         <tbody>
-          ${(props.rows ?? []).map((row, i) => html`<tr key=${i}>${row.map((cell, j) => html`<td key=${j}>${cell}</td>`)}</tr>`)}
+          ${(props.rows ?? []).map((row, i) => html`<tr key=${i}>${(Array.isArray(row) ? row : [row]).map((cell, j) => html`<td key=${j}>${String(cell ?? "")}</td>`)}</tr>`)}
         </tbody>
       </table>`,
     Chart: ({ props }) => {

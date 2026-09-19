@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from . import agent, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
+from . import agent, budget, checkpoint, context, hooks, jobs, llm, permissions, plan, sandbox, session, todos, tools
 from .ui import ui
 
 CHECKERS = ("check.py", "expect.txt", "judge.md")
@@ -139,6 +139,8 @@ def isolated(workspace, session_dir, session_id, usage):
         "turn": checkpoint.TURN,
         "rules": dict(permissions.SESSION_RULES),
         "ask_user": tools.TOOLS["ask_user"],
+        "warned": set(budget.WARNED),
+        "loaded": set(tools.LOADED),
     }
     workspace = Path(workspace).resolve()
     os.chdir(workspace)
@@ -155,12 +157,14 @@ def isolated(workspace, session_dir, session_id, usage):
     ui.approve = lambda reason: "y"
     permissions.SESSION_RULES.clear()
     tools.TOOLS["ask_user"] = lambda question, options=None: "No user is present during an evaluation. Decide yourself and go on."
+    budget.WARNED.clear()  # every task gets its context warnings afresh...
+    tools.LOADED.clear()   # ...and loads its own deferred tools
 
-    def record(stats, estimate=None):
+    def record(stats, estimate=None, **rest):
         for key, value in (stats or {}).items():
             if isinstance(value, (int, float)):
-                usage[key] = usage.get(key, 0) + value
-        saved["usage"](stats, estimate)
+                usage[key] = usage.get(key, 0) + value  # cost included, when the usage carries one
+        saved["usage"](stats, estimate, **rest)
 
     ui.usage = record
     try:
@@ -183,6 +187,10 @@ def isolated(workspace, session_dir, session_id, usage):
         permissions.SESSION_RULES.clear()
         permissions.SESSION_RULES.update(saved["rules"])
         tools.TOOLS["ask_user"] = saved["ask_user"]
+        budget.WARNED.clear()
+        budget.WARNED.update(saved["warned"])
+        tools.LOADED.clear()
+        tools.LOADED.update(saved["loaded"])
 
 
 def system_prompt_for(workspace):
@@ -204,7 +212,7 @@ def run_check_py(task, workspace):
     try:
         completed = subprocess.run(
             [sys.executable, str(task.path / "check.py")],
-            cwd=workspace, capture_output=True, text=True, timeout=CHECK_TIMEOUT,
+            cwd=workspace, capture_output=True, encoding="utf-8", errors="replace", timeout=CHECK_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
         return False, f"check.py took more than {CHECK_TIMEOUT}s"
@@ -230,6 +238,8 @@ def run_judge(task, workspace, answer):
         f"<workspace>\n{file_list(workspace)}\n</workspace>"
     )
     message, _ = llm.call_llm([{"role": "system", "content": JUDGE_SYSTEM}, {"role": "user", "content": request}], tools=[])
+    if getattr(message, "failed", None):
+        return False, f"judge call failed: {message.failed}"  # no verdict is a failed run, not a pass
     verdict = (message.content or "").strip()
     first = verdict.split(None, 1)[0].strip(".:,").upper() if verdict else ""
     return first == "PASS", f"judge said: {verdict[:200] or '(nothing)'}"

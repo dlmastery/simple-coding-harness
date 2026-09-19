@@ -35,7 +35,6 @@ from . import handoff
 from . import hooks
 from . import instructions
 from . import jobs
-from . import llm
 from . import plan
 from . import memory
 from . import modes
@@ -44,6 +43,7 @@ from . import sandbox
 from . import session
 from . import stop
 from . import subagent
+from . import todos
 from .ui import ui
 
 COMMANDS = {
@@ -65,6 +65,7 @@ COMMANDS = {
     "/cost": "show what this session has cost and the budgets that stop a turn",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
+    "/exit": "leave the chat (so do ctrl-d, or ctrl-z then enter on Windows, and ctrl-c at the prompt)",
 }
 
 INIT_QUESTION = """
@@ -102,18 +103,28 @@ def redraw(messages, label):
 
 
 def rewind(messages):
-    """Cut the transcript after the chosen message and undo the turns that began after it."""
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the transcript before the chosen user message and undo the turns that began at or after it.
+
+    Only user messages are offered: a cut anywhere else could leave a tool
+    call without its result, and the API refuses such a transcript.
+    """
+    turns = [i for i, m in enumerate(messages) if m.get("role") == "user" and not isinstance(m.get("content"), list)]
+    if not turns:
+        ui.note("nothing to rewind to yet")
+        return messages
+    choice = ui.pick("rewind to before", [f"{i:<4} {preview(messages[i])}" for i in turns])
     if choice is None:
         return messages
-    keep = choice + 1
+    keep = turns[choice]
     undone = checkpoint.undo_since(keep)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
         ui.note(f"{len(undone)} turn(s) undone, {len(restored)} file(s) restored")
+    session.save(messages)  # a chat that has not been saved yet gets its file before the marker goes in
     session.rewind_to(keep)
-    return redraw(messages[:keep], "rewound")
+    kept = messages[:keep]
+    todos.rebuild(kept)  # the list as it stood at that point
+    return redraw(kept, "rewound")
 
 
 def undo(messages):
@@ -128,7 +139,9 @@ def undo(messages):
         ui.note("that turn's place in the transcript is not known; the messages stay")
         return messages
     session.rewind_to(start)
-    return redraw(messages[:start], "undone")
+    kept = messages[:start]
+    todos.rebuild(kept)
+    return redraw(kept, "undone")
 
 
 def checkpoint_list(messages):
@@ -147,7 +160,9 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    return redraw(session.open_session(saved[choice]["id"]), "opened")
+    from . import agent  # here, not at the top: agent imports this module
+
+    return redraw(agent.reopen(session.open_session(saved[choice]["id"])), "opened")
 
 
 def compact(messages):
@@ -192,10 +207,18 @@ def extension_list(messages):
 
 
 def registered(command, messages):
-    """Run a command an extension registered, or return None when none matches."""
+    """Run a command an extension registered, or return None when none matches.
+
+    A command that raises is a note, not the end of the chat: the messages
+    come back as they were.
+    """
     for name, (_, fn) in extensions.COMMANDS.items():
         if command == name or command.startswith(name + " "):
-            result = fn(messages, command[len(name):].strip())
+            try:
+                result = fn(messages, command[len(name):].strip())
+            except Exception as failed:  # noqa: BLE001 - an extension's bug must not take the loop down
+                ui.note(f"command {name} failed: {type(failed).__name__}: {failed}")
+                return messages
             return messages if result is None else result
     return None
 
@@ -276,7 +299,8 @@ def init(messages):
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")
     if messages and messages[0].get("role") == "system":
-        messages[0]["content"] = llm.build_system_prompt()  # discovery runs again, so the new file is in the prefix
+        summary = compaction.previous_summary(messages[0]["content"])  # a compaction note in the prefix stays
+        messages[0]["content"] = handoff.system_prompt(handoff.ACTIVE) + ("\n\n" + summary if summary else "")  # discovery runs again, for the active agent
     ui.note(f"wrote {target}; it is in the system prompt from the next call on")
     return messages
 

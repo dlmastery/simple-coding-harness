@@ -327,3 +327,44 @@ def test_loop_smoke_the_turn_logs_its_calls_and_the_trace_reads_them_back(fresh,
     seen = drawn(monkeypatch)
     replay.replay("test-session", sleep=lambda s: None)
     assert [s[0] for s in seen] == ["user", "usage", "tool", "agent", "usage"]
+
+
+# ------------------------------------------------------------ the log is honest
+
+
+def test_the_user_message_is_stamped_when_it_is_sent_not_when_the_reply_comes(monkeypatch):
+    Scripted([use(call("b1", "bash", {"command": "echo hi"})), say("hi was echoed")]).install(monkeypatch)
+    agent.turn([{"role": "system", "content": llm.build_system_prompt()}], "echo hi")
+    stamps = {}
+    for e in lines():
+        stamps.setdefault(e.get("role", "usage"), e["ts"])  # the first entry of each kind
+    assert stamps["user"] < stamps["assistant"] < stamps["tool"]  # the wait for the model sits between the prompt and the reply, where it happened
+    events = replay.timeline(replay.entries("test-session"))
+    assert replay.delay(events[0], events[1], 1.0) > 0  # so a replay pauses after the prompt, not before it
+
+
+def test_listing_sessions_does_not_change_the_active_agent(monkeypatch):
+    write_session()
+    session.SESSION_DIR.mkdir(parents=True, exist_ok=True)
+    session.path_for("older").write_text(json.dumps(ASK) + "\n" + json.dumps({"handoff": "reviewer"}) + "\n", encoding="utf-8")
+    assert [s["id"] for s in session.all_sessions()] and handoff.active_name() == "main"  # titles come from load(apply_handoffs=False)
+    assert replay.resolve("last") in ("test-session", "older") and handoff.active_name() == "main"
+    session.open_session("older")  # opening a chat is what hands off
+    assert handoff.active_name() == "reviewer"
+
+
+def test_bad_arguments_an_unknown_tool_and_a_raising_tool_each_get_one_tool_message_and_a_trace_row(monkeypatch, tmp_path):
+    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{not json"))
+    Scripted([use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"})), say("done")]).install(monkeypatch)
+    messages = agent.turn([{"role": "system", "content": "sys"}], "go")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert results["b2"] == "Error: no tool named 'no_such_tool'."
+    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert messages[-1] == {"role": "assistant", "content": "done"}
+    result = trace.write("test-session", tmp_path / "t.html")  # the trace shows the broken call as it was, and every result
+    assert [t["result"][:6] for t in result.calls[0].tool_calls] == ["Error:", "Error:", "Error:"]
+    assert result.calls[0].tool_calls[0]["arguments"] == "{not json"
+    seen = drawn(monkeypatch)
+    replay.replay("test-session", sleep=lambda s: None)  # and the replay draws it without parsing it
+    assert ("tool", "bash", {"raw": "{not json"}, results["b1"]) in seen

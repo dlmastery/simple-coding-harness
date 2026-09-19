@@ -10,6 +10,7 @@ draws the breakdown /context asks for.
 
 import json
 import sys
+import threading
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -52,7 +53,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -72,7 +73,7 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    self.tool(call["function"]["name"], parse_args(call["function"].get("arguments")), results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -140,12 +141,13 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
+        """The next line from the user: None when they want out (ctrl-d, ctrl-c), "" for an empty line."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -181,7 +183,9 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
+        result = result if isinstance(result, str) else str(result)
+        args = args if isinstance(args, dict) else {"args": args}
+        if name == "write_todos" and isinstance(args.get("todos"), list) and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -198,13 +202,14 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        todos = [t for t in todos if isinstance(t, dict)]
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -248,13 +253,20 @@ class UI:
         )
 
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Off the main thread (a subagent in a pool) there is no spinner: rich
+        draws one live display at a time, and the main thread owns it.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            return Quiet()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats, estimate=None):
         """One line per model call. estimate is the harness's count of the prompt it sent."""
+        stats = {k: v for k, v in (stats or {}).items() if k != "cost"}  # cost has its own place on the line
         for key, value in stats.items():
             self._totals[key] = self._totals.get(key, 0) + (value or 0)
         parts = []
@@ -331,13 +343,35 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)
         if hidden > 0:
             body.append(f"\n… {hidden} more lines", style=f"italic {TOOL}")
         return body
+
+
+class Quiet:
+    """A spinner that draws nothing: what working() returns off the main thread."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def stop(self):
+        pass
+
+
+def parse_args(arguments):
+    """The arguments of a logged tool call as a dict; the raw text under "raw" when they are not JSON."""
+    try:
+        args = json.loads(arguments or "{}")
+    except (ValueError, TypeError):
+        return {"raw": str(arguments)}
+    return args if isinstance(args, dict) else {"raw": str(arguments)}
 
 
 ui = UI()

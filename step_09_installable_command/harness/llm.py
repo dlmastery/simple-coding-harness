@@ -1,14 +1,13 @@
 """Stage 9 - call_llm reads its credentials from config.py.
 """
 
-import json
 import os
 
 from openai import OpenAI
 
 from . import config
 from .skills import skills_prompt
-from .tools import TOOLS, TOOL_SCHEMAS
+from .tools import TOOL_SCHEMAS
 
 client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
 MODEL = config.MODEL
@@ -28,26 +27,38 @@ If a skill matches what the user wants, call read_skill first and follow it.
 """
 
 
+def entry(message):
+    """The transcript entry for a reply: role, content and tool_calls, nothing else.
+
+    Providers attach extras (reasoning, annotations) that must not be sent
+    back on the next call, so the whole message is never dumped as it is.
+    """
+    saved = {"role": "assistant", "content": message.content}
+    if message.tool_calls:
+        saved["tool_calls"] = [call.model_dump(exclude_none=True) for call in message.tool_calls]
+    return saved
+
+
+def usage_from(usage):
+    """Token counts as a plain dict. Some proxies send no usage at all."""
+    return {
+        "prompt_tokens": getattr(usage, "prompt_tokens", None),
+        "completion_tokens": getattr(usage, "completion_tokens", None),
+        "reasoning_tokens": getattr(getattr(usage, "completion_tokens_details", None), "reasoning_tokens", None),
+        "cached_tokens": getattr(getattr(usage, "prompt_tokens_details", None), "cached_tokens", None),
+    }
+
+
 def call_llm(messages):
     response = client.chat.completions.create(
         model=MODEL,
         messages=messages,
         tools=TOOL_SCHEMAS,
     )
+    if not response.choices:  # some providers answer an error as an empty reply
+        raise RuntimeError(getattr(response, "error", None) or "empty reply")
 
-    message = response.choices[0].message
-
-    completion_details = response.usage.completion_tokens_details
-    prompt_details = response.usage.prompt_tokens_details
-
-    usage = {
-        "prompt_tokens": response.usage.prompt_tokens,
-        "completion_tokens": response.usage.completion_tokens,
-        "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-        "cached_tokens": getattr(prompt_details, "cached_tokens", None),
-    }
-
-    return message, usage
+    return response.choices[0].message, usage_from(response.usage)
 
 
 if __name__ == "__main__":
@@ -59,12 +70,5 @@ if __name__ == "__main__":
     ])
 
     print("\nAgent: ", message.content, "\n")
-
-    if message.tool_calls:
-        tool_call = message.tool_calls[0]
-        args = json.loads(tool_call.function.arguments)
-        result = TOOLS[tool_call.function.name](**args)
-        print("Tool: ", tool_call.function.name, args)
-        print(result, "\n")
-
+    print(entry(message))
     print(usage)

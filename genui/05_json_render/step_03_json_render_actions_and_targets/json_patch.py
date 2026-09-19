@@ -65,6 +65,8 @@ def _parent(doc, pointer, create=False):
         raise PatchError("the root cannot be a target of this operation")
     parent = doc
     for index, key in enumerate(parts[:-1]):
+        if not isinstance(parent, (dict, list)):  # `/root/x` after `/root` was set to a string
+            raise PatchError(f"{pointer}: parent is not a container")
         key = _step(parent, key, pointer)
         missing = key not in parent if isinstance(parent, dict) else not (isinstance(parent, list) and key < len(parent))
         if missing and create:
@@ -78,6 +80,8 @@ def _parent(doc, pointer, create=False):
             parent = parent[key]
         except (KeyError, IndexError, TypeError):
             raise PatchError(f"{pointer}: parent not found") from None
+    if not isinstance(parent, (dict, list)):
+        raise PatchError(f"{pointer}: parent is not a container")
     return parent, _step(parent, parts[-1], pointer)
 
 
@@ -102,7 +106,9 @@ def _remove(doc, pointer):
 
 
 def apply_patch(doc, patch):
-    """Apply one operation in place. Returns doc."""
+    """Apply one operation in place. Returns doc. A bad patch raises PatchError, nothing else."""
+    if not isinstance(patch, dict):  # a JSON array or string on the line: not a patch
+        raise PatchError(f"a patch must be an object, got {type(patch).__name__}")
     op = patch.get("op")
     if op not in OPS:
         raise PatchError(f"unknown op {op!r}")
@@ -116,6 +122,8 @@ def apply_patch(doc, patch):
 
     if op == "add":
         if path == "":
+            if not isinstance(patch["value"], dict):
+                raise PatchError("the whole document must be an object")
             doc.clear()
             doc.update(patch["value"])
         else:
@@ -174,13 +182,14 @@ class SpecStream:
             try:
                 patch = json.loads(line)
                 apply_patch(self.spec, patch)
-            except (ValueError, PatchError) as error:
-                self.skipped.append((line, str(error)))
+            except Exception as error:  # noqa: BLE001 - not JSON, not a patch, or a patch that does not fit: skip the line, keep the stream
+                self.skipped.append((line, f"{type(error).__name__}: {error}" if not isinstance(error, (PatchError, ValueError)) else str(error)))
                 continue
             self.patches.append(patch)
             applied.append(patch)
         return applied
 
     def has_root(self):
-        """True once the page has something to paint: /root and its element."""
-        return self.spec.get("root") in self.spec.get("elements", {})
+        """True once the page has something to paint: /root names an element that exists."""
+        root, elements = self.spec.get("root"), self.spec.get("elements")
+        return isinstance(root, str) and isinstance(elements, dict) and root in elements

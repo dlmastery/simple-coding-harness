@@ -9,6 +9,7 @@ the manifest the settings API wants.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import yaml
@@ -21,11 +22,20 @@ LOCAL_COPY = Path(__file__).resolve().parent.parent / "skills" / "explain-code" 
 
 
 def front_matter(text: str) -> dict:
-    """The YAML between the two `---` lines of a SKILL.md, as stage 4 read it."""
-    if not text.startswith("---"):
+    """The YAML between the two `---` lines of a SKILL.md, as stage 4 read it.
+
+    A file without a closed front-matter block, or with YAML that does not
+    parse, gives `{}` rather than an exception.
+    """
+    match = re.match(r"^---\r?\n(.*?)\r?\n---\r?\n", text, re.S)
+    if not match:
         return {}
-    _, meta, _ = text.split("---", 2)
-    data = yaml.safe_load(meta) or {}
+    try:
+        data = yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
     data["description"] = " ".join(str(data.get("description", "")).split())
     return data
 

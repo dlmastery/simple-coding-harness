@@ -7,25 +7,36 @@
 """
 
 import argparse
+import sys
 from pathlib import Path
 
 from trueforge_sdk.core.api_error import ApiError
 
-from client.sandbox import connect, download_file, list_events, open_session, run_turn, sandbox_root
+from client.sandbox import BASE_URL, REQUEST_ERRORS, connect, download_file, list_events, open_session, run_turn, sandbox_root
 from client.skills import SKILL_NAME
 
 PROMPT = "create hello.py that prints hello, run it, and report the python version"
 
 
-def main() -> None:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("prompt", nargs="?", default=PROMPT)
     parser.add_argument("--download", default="hello.py", help="file to fetch from the sandbox afterwards")
     parser.add_argument("--skill", action="store_true", help=f"attach the {SKILL_NAME} skill")
     parser.add_argument("--keep", action="store_true", help="do not delete the session at the end")
-    args = parser.parse_args()
+    parser.add_argument("--base-url", default=BASE_URL)
+    args = parser.parse_args(argv)
 
-    client = connect()
+    try:
+        return run(args)
+    except REQUEST_ERRORS as error:  # server down, or a request it refused: one line, exit 1
+        detail = f"answered {error.status_code}: {str(error.body)[:200]}" if isinstance(error, ApiError) else f"is not answering ({type(error).__name__}: {error})"
+        print(f"request failed: {args.base_url} {detail}", file=sys.stderr)
+        return 1
+
+
+def run(args) -> int:
+    client = connect(args.base_url)
     session_id = open_session(client, skills=[SKILL_NAME] if args.skill else ())
     print(f"session {session_id}" + (f"  skills=[{SKILL_NAME}]" if args.skill else ""))
     print(f"> {args.prompt}")
@@ -33,14 +44,17 @@ def main() -> None:
     result = run_turn(client, session_id, args.prompt)
     print()
     print(result["text"] or "(no final message)")
+    if result["status"] != "done":  # error, cancelled, or a stream that ended early
+        print(f"turn {result['status']}: {result['detail'] or 'the stream ended before turn.done'}")
 
-    events = list_events(client, session_id, result["turn_id"])
-    print(f"\nstored events: {' '.join(e.type for e in events)}")
+    if result["turn_id"]:  # a stream cut before turn.created has nothing to list
+        events = list_events(client, session_id, result["turn_id"])
+        print(f"\nstored events: {' '.join(e.type for e in events)}")
     if args.skill:
         print(f"skill index in the prompt: {result['skills_tokens']} tokens")
 
     root = sandbox_root(result["sandbox_id"])
-    if root and args.download:
+    if root and args.download and result["turn_id"]:
         dest = Path("downloads") / Path(args.download).name
         try:
             download_file(client, session_id, result["turn_id"], f"{root}/{args.download}", dest)
@@ -49,11 +63,14 @@ def main() -> None:
         except ApiError as error:  # the file was never written, or the sandbox is gone
             message = getattr(getattr(error.body, "error", None), "message", error.body)
             print(f"download failed ({error.status_code}): {message}")
+    elif args.download and not root:
+        print(f"no download: the sandbox id {result['sandbox_id']!r} is not a local one, so its path is unknown")
 
     if not args.keep:
         client.sessions.delete(session_id=session_id)
         print("session deleted")
+    return 0 if result["status"] == "done" else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

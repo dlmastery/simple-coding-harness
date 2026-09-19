@@ -29,17 +29,28 @@ class Handler(SimpleHTTPRequestHandler):
         url = urlparse(self.path)
         if url.path != "/stream":
             return super().do_GET()
-        delay = int(parse_qs(url.query).get("delay", ["0"])[0]) / 1000
+        delay = clamp_delay(parse_qs(url.query).get("delay", ["0"])[0])
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
-        for line in program_lines():
-            self.wfile.write(f"data: {json.dumps(line)}\n\n".encode())
+        try:
+            for line in program_lines():
+                self.wfile.write(f"data: {json.dumps(line)}\n\n".encode())
+                self.wfile.flush()
+                time.sleep(delay)
+            self.wfile.write(b"event: done\ndata: {}\n\n")
             self.wfile.flush()
-            time.sleep(delay)
-        self.wfile.write(b"event: done\ndata: {}\n\n")
-        self.wfile.flush()
+        except (ConnectionError, OSError):
+            pass  # the tab closed mid-stream: nothing to report, nobody to report it to
+
+
+def clamp_delay(raw: str, limit_ms: int = 5000) -> float:
+    """`?delay=` in milliseconds as seconds: not a number is 0, never more than 5 s per line."""
+    try:
+        return min(max(int(raw), 0), limit_ms) / 1000
+    except ValueError:
+        return 0.0
 
 
 def make_server(port: int = 0) -> ThreadingHTTPServer:

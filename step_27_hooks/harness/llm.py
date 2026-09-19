@@ -19,6 +19,9 @@ from .tools import TOOLS, TOOL_SCHEMAS
 client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
 MODEL = config.MODEL
 
+# OpenRouter reports the price of a call in usage when asked for it
+EXTRA = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
+
 SYSTEM_PROMPT = f"""
 You are a coding agent. Your job is to code. Always code.
 Use the bash tool to inspect files.
@@ -116,29 +119,37 @@ class StreamedMessage:
     role: str = "assistant"
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and the
+        tool calls when there are any. Nothing else the provider streamed
+        (reasoning, annotations) goes back, and content is always present:
+        an assistant message needs content or tool calls, so an empty reply
+        is an empty string rather than a missing key.
+        """
+        entry = {"role": self.role, "content": self.content or ""}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 
 
 def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came."""
+    """The same usage dict the non-streaming call produced. All None if no usage came.
+
+    `cost` is what OpenRouter charged for the call, in dollars, when the
+    request asked for it (EXTRA); None from any other provider.
+    """
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
+        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
+        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": getattr(chunk_usage, "cost", None),
     }
 
 
@@ -153,18 +164,27 @@ def call_llm(messages, tools=None, on_delta=None):
     schemas = TOOL_SCHEMAS if tools is None else tools
     if schemas:
         request["tools"] = schemas
+    if EXTRA:
+        request["extra_body"] = EXTRA
     stream = client.chat.completions.create(**request)
 
     parts = []          # text deltas, in order
     calls = {}          # tool call index -> StreamedToolCall
     final_usage = None  # arrives with the last chunk, which has no choices
+    cut_off = False     # the provider stopped the reply at max_tokens
+    error = None        # some providers stream an error object instead of choices
 
     for chunk in stream:
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
+        if getattr(chunk, "error", None):
+            error = chunk.error
         if not chunk.choices:
             continue
-        delta = chunk.choices[0].delta
+        choice = chunk.choices[0]
+        if getattr(choice, "finish_reason", None) == "length":
+            cut_off = True
+        delta = choice.delta
         if delta is None:
             continue
 
@@ -173,8 +193,9 @@ def call_llm(messages, tools=None, on_delta=None):
             if on_delta:
                 on_delta(delta.content)
 
-        for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+        for n, piece in enumerate(delta.tool_calls or []):
+            key = piece.index if piece.index is not None else (piece.id or n)  # some providers send no index
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -185,9 +206,16 @@ def call_llm(messages, tools=None, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
+    if error and not parts and not calls:
+        raise RuntimeError(f"the model returned an error instead of a reply: {error}")
+    if cut_off:
+        # a tool call cut in half is unusable; say what happened instead
+        calls.clear()
+        parts.append("\n(reply cut off by max_tokens)")
+
     message = StreamedMessage(
         content="".join(parts) or None,
-        tool_calls=[calls[index] for index in sorted(calls)] or None,
+        tool_calls=[calls[key] for key in sorted(calls, key=lambda k: (isinstance(k, str), k))] or None,
     )
     return message, usage_from(final_usage)
 

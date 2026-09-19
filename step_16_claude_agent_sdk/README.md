@@ -1,13 +1,29 @@
 # Step 16 - The same harness on the Claude Agent SDK
 
-**What this step adds:** the loop, the tools, sessions, compaction and
-subagents are now the SDK's. We write about 150 lines of *policy and
-presentation* instead of about 1,200 lines of harness.
+**What this step adds:** the harness as a library instead of a program.
+The loop, the tools, sessions, compaction and subagents are now the SDK's.
+We write about 150 lines of *policy and presentation* instead of about
+1,200 lines of harness.
 
 The Claude Agent SDK (`pip install claude-agent-sdk`) is Claude Code packaged
 as a library. It spawns the `claude` CLI as a subprocess and speaks to it
 over JSON. Every mechanism from stages 1-15 has a counterpart. The table says
 which ones you configure and which ones you never see again.
+
+## Why
+
+Stages 1-15 built one harness, and every idea in it - the loop, permissions,
+late injection, sessions, compaction, subagents - cost a module. Each of
+those modules now has to be maintained, and none of them is the interesting
+part of *your* agent. What is yours is the policy: which commands run
+without asking, what context gets injected, which subagent exists, what the
+screen shows.
+
+Without an SDK, a change to the vendor's tool set or context format means
+rewriting your harness. With it, you keep the fifteen ideas and hand the
+mechanics to the vendor; the diff between "our harness" and "the SDK" is a
+map of which ideas were mechanics all along. Steps 16-19 draw that map four
+times, on four SDKs. This is the first.
 
 ## Files
 
@@ -23,17 +39,17 @@ step_16_claude_agent_sdk/
 
 | Step | We built | Claude Agent SDK | Who writes it now |
 |-----:|----------|------------------|-------------------|
-| 1-2.4 | `messages` list, the two loops | `ClaudeSDKClient.query()` / `receive_response()` | SDK |
+| 1-2.4 | `messages` list, the two loops | `ClaudeSDKClient.query()` / `receive_messages()` | SDK |
 | 2.1-2.2 | `bash`, `read_file`, registry | built-in `Bash`, `Read`, `Glob`, `Grep`; custom tools via `@tool` + `create_sdk_mcp_server` | SDK, plus one `@tool` of ours (`run_tests`) |
 | 3 | rich UI, usage line | message stream: `AssistantMessage`, `ToolUseBlock`, `ResultMessage.usage` / `total_cost_usd` | us (`show()`) |
 | 4 | `.agents/skills`, `read_skill` | `.claude/skills/*/SKILL.md` via `setting_sources=["project"]`, `skills="all"`, built-in `Skill` tool | SDK; we ship the skill |
 | 5 | `write_file`, `str_replace`, errors as results | built-in `Write`, `Edit`; tool errors are already results | SDK |
 | 6 | late-injected `<env>` block | `UserPromptSubmit` hook returning `additionalContext` | us (`env_context`) |
 | 7 | file freshness reminders | built in: Claude Code injects its own `<system-reminder>` on changed files | SDK |
-| 8 | JSONL sessions, `/rewind`, `--resume` | sessions on disk; `list_sessions()`, `ClaudeAgentOptions(resume=...)`, `resume_session_at` | SDK; we wire `--resume`, `/sessions`, `/resume <id>` |
+| 8 | JSONL sessions, `/rewind`, `--resume` | sessions on disk; `list_sessions()`, `ClaudeAgentOptions(resume=...)` | SDK; we wire `--resume`, `/sessions`, `/resume <id>` |
 | 10 | `write_todos`, re-injected plan | built-in `TodoWrite`; the plan is re-injected by Claude Code | SDK |
 | 11 | allow / ask / deny, OS sandbox | `PreToolUse` hook (`permissionDecision: "deny"`) + `can_use_tool` callback; `sandbox={"enabled": True}` | us (rules), SDK (sandbox) |
-| 14 | cap / strip / fit / compaction | automatic compaction; `PreCompact` hook; `/compact` passes through as a prompt | SDK |
+| 14 | cap / strip / fit / compaction | automatic compaction; `PreCompact` hook; `/compact` sent as a prompt | SDK |
 | 15 | `task` subagent | `agents={"explorer": AgentDefinition(...)}` used by the built-in `Task` tool | us (definition), SDK (loop) |
 
 ## The code, piece by piece
@@ -74,7 +90,9 @@ Read the fields as a map of the hand-built harness. `system_prompt` uses
 the `claude_code` preset and appends our rules. The preset already carries
 the operating rules for the built-in tools. `setting_sources` and `skills`
 replace the skill scanner of stage 4. `allowed_tools` pre-approves the
-read-only tools, so they never reach the permission callback. `hooks` and
+read-only tools, so they never reach the permission callback - that is what
+the `CanUseToolShadowedWarning` the file silences is about, and it means
+`Read`, `Task`, `TodoWrite` and `Skill` are never prompted for. `hooks` and
 `can_use_tool` are where our policy plugs in. `agents` is the subagent of
 stage 15. `resume` is the session of stage 8. The sandbox of stage 12 is
 one flag, and it is skipped on Windows.
@@ -199,7 +217,9 @@ SERVER = create_sdk_mcp_server(name="harness", version="1.0.0", tools=[run_tests
 The decorator takes the name, the description and the argument types. The
 result is an MCP content list. The tool is registered as
 `mcp__harness__run_tests`, and that name in `allowed_tools` pre-approves it.
-The implementation in `run_tests_impl` is plain Python and is ours.
+The implementation in `run_tests_impl` is plain Python and is ours; it
+returns the last 30 lines and the exit code, so an empty run is still
+readable.
 
 ### 6. Presentation is a type switch
 
@@ -237,6 +257,25 @@ lifetime.
 `harness.py`:
 
 ```python
+def ended(message):
+    """Does this message close the turn? A ResultMessage always does; so does the
+    compact boundary, because a bare `/compact` may not be followed by a result."""
+    return isinstance(message, ResultMessage) or (isinstance(message, SystemMessage) and message.subtype == "compact_boundary")
+
+
+async def turn(client, text):
+    """Send one prompt and draw everything that comes back. Never raises past here."""
+    try:
+        await client.query(text)
+        async for message in client.receive_messages():
+            show(message)
+            if ended(message):
+                break
+    except ClaudeSDKError as failure:  # the CLI died or the connection dropped: say so, keep the prompt
+        print(f"  error: {type(failure).__name__}: {failure}")
+```
+
+```python
     while True:  # reconnect loop: /resume swaps the session underneath
         async with ClaudeSDKClient(options=build_options(resume)) as client:
             while True:
@@ -244,8 +283,10 @@ lifetime.
                     text = input("\n> ").strip()
                 except (EOFError, KeyboardInterrupt):
                     return
-                if not text:
+                if text in ("/exit", "/quit"):
                     return
+                if not text:
+                    continue
                 if text == "/sessions":
                     for s in sessions_here():
                         print(f"  {s.session_id}  {(s.summary or '')[:60]}")
@@ -254,34 +295,102 @@ lifetime.
                     resume = text.split(maxsplit=1)[1]
                     break  # leave the client; the outer loop reconnects with resume=
                 # /compact and other built-in slash commands go straight through
-                await client.query(text)
-                async for message in client.receive_response():
-                    show(message)
+                await turn(client, text)
 ```
 
-`query()` sends a prompt. `receive_response()` yields messages until the
-turn ends. The session id is fixed when the client opens, so `/resume`
-leaves the client and the outer loop opens a new one. `/compact` is not
-handled here at all. The CLI treats it as a built-in command, which
-replaces the compaction agent of stage 14.
+`query()` sends a prompt. `receive_messages()` yields messages until we
+stop reading; `ended()` decides when. The SDK's own `receive_response()`
+stops at a `ResultMessage` and *only* there, and it never ends if none
+arrives, so the loop also stops at the `compact_boundary` system message
+that a `/compact` produces. The session id is fixed when the client opens,
+so `/resume` leaves the client and the outer loop opens a new one.
+`/compact` is not handled here at all. The CLI treats it as a built-in
+command, which replaces the compaction agent of stage 14.
 
 ## Run it
 
+Prerequisites: Python 3.10+, `pip install claude-agent-sdk` (the wheel bundles
+its own `claude` binary under `claude_agent_sdk/_bundled/`), and either a
+logged-in `claude` CLI or `ANTHROPIC_API_KEY`.
+
+bash:
+
 ```bash
-pip install claude-agent-sdk          # needs the `claude` CLI on PATH
-claude login                          # or export ANTHROPIC_API_KEY
+pip install claude-agent-sdk
+export ANTHROPIC_API_KEY=sk-ant-...   # or: claude login
 python harness.py
-you> where does the permission decision get made in this file? then add a comment there
-you> /sessions
-you> /compact
 ```
 
-Offline tests (`python -m pytest test_step.py`) cover the policy, the hooks
-and the option wiring without launching Claude.
+PowerShell:
 
-## What the SDK does not give you
+```powershell
+pip install claude-agent-sdk
+$env:ANTHROPIC_API_KEY = "sk-ant-..."
+python harness.py
+```
 
-The screen. Every message arrives as a typed object and you decide how it
-looks, which is what `show()` does in forty lines. And the policy: the
-default permission mode prompts through the SDK, so without `can_use_tool`
-and the hook you get Claude Code's defaults, not yours.
+Then:
+
+```text
+> where does the permission decision get made in this file? then add a comment there
+> /sessions
+> /compact
+```
+
+### Expected output
+
+```text
+  simple coding harness · claude agent sdk · /sessions, /resume <id>, /compact
+  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> where does the permission decision get made in this file? then add a comment there
+  tool> Task {"description": "find permission decision", "prompt": "In harness.py, where…
+        agent> can_use_tool at harness.py:122 returns PermissionResultAllow/Deny; deny_dangerous…
+  tool> Edit {"file_path": "C:\\...\\harness.py", "old_string": "async def can_use_tool", "new_str…
+      The file has been updated…
+  agent> Added a comment above `can_use_tool` explaining the two layers.
+
+  12,410 in · 318 out · 11,776 cached · $0.0231 · session 7f0c…
+```
+
+The indented lines are the explorer subagent. The last line is the
+`ResultMessage`: real token counts, the dollar cost, and the session id
+that `--resume` or `/resume <id>` picks up.
+
+Offline tests (`python -m pytest test_step.py`) cover the policy, the hooks,
+the option wiring, the turn-ending rule and the error path, without
+launching Claude.
+
+## Error handling
+
+- **A bad or failing tool call.** The SDK owns the tools, and Claude Code
+  already returns tool errors as results; the model reads them. Our
+  `run_tests` tool returns its output and exit code whatever pytest did, and
+  `Error: command timed out after 300s` if it hung.
+- **A denied call.** A hook deny or a `PermissionResultDeny` reaches the
+  model as the tool result, with the reason.
+- **A dead CLI or connection.** `turn()` catches `ClaudeSDKError`, prints
+  `error: <type>: <message>` and returns to the prompt; the client is still
+  open. If the CLI itself is gone, the next prompt fails the same way -
+  restart with `--resume` to continue the session.
+- **ctrl-c at the approval prompt** answers no. **ctrl-c at the main prompt**
+  leaves.
+- **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
+  the prompt. An empty line does nothing.
+
+## Gotchas / what this is not
+
+- The screen is not the SDK's. Every message arrives as a typed object and
+  you decide how it looks; that is what `show()` does in forty lines.
+- The policy is not the SDK's either. Without `can_use_tool` and the hook you
+  get Claude Code's default permission prompts, not your rules.
+- `/compact` goes to the CLI as a prompt. If a CLI version answers it without
+  a `ResultMessage`, `ended()` is what keeps the loop from waiting forever.
+- `rules.PROJECT` is the directory the harness started in, and `cwd=` hands
+  the same directory to the CLI. Start the harness in the project root.
+- The sandbox flag is skipped on Windows; there is no OS sandbox there.
+
+## What the next step adds
+
+Step 17 rebuilds the same harness on the OpenAI Agents SDK, where the loop
+and sessions are the SDK's but the coding tools are ours again.

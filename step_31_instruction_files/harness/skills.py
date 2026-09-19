@@ -1,9 +1,12 @@
 """Stage 15 - skills, unchanged since stage 9.
 """
 
+import re
 from pathlib import Path
 
 import yaml
+
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
 
 SKILL_DIRS = [
     Path.home() / ".agents" / "skills",  # your skills
@@ -16,15 +19,17 @@ def find_skills():
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
-            text = path.read_text(encoding="utf-8")
-            if not text.startswith("---"):
+            try:
+                match = FRONT_MATTER.match(path.read_text(encoding="utf-8", errors="replace"))
+                meta = yaml.safe_load(match.group(1)) if match else None
+            except (OSError, yaml.YAMLError, ValueError) as failed:  # one broken skill must not stop the start-up
+                print(f"skill {path} skipped: {type(failed).__name__}: {failed}")
                 continue
-            _, frontmatter, _ = text.split("---", 2)
-            meta = yaml.safe_load(frontmatter) or {}
-            if "name" not in meta:
+            if not isinstance(meta, dict):
                 continue
-            description = " ".join(str(meta.get("description", "")).split())
-            skills[meta["name"]] = {"description": description, "path": path}
+            name = str(meta.get("name") or path.parent.name)
+            description = " ".join(str(meta.get("description") or "").split())
+            skills[name] = {"description": description, "path": path}
     return skills
 
 
@@ -40,7 +45,7 @@ def read_skill(name: str) -> str:
     """Open a skill and return its full instructions."""
     if name not in SKILLS:
         return f"No skill named '{name}'."
-    return SKILLS[name]["path"].read_text(encoding="utf-8")
+    return SKILLS[name]["path"].read_text(encoding="utf-8", errors="replace")
 
 
 if __name__ == "__main__":

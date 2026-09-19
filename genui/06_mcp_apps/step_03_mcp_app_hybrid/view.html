@@ -151,7 +151,11 @@
   // --- the interactive phase: the view calls the tool through the host -----
   async function recall(args) {
     status.textContent = `asking the server for ${JSON.stringify(args)}...`;
-    show(await request("tools/call", { name: "lemonade_report", arguments: { days: app.latest?.days ?? 7, focus: app.latest?.focus, ...args } }));
+    try {
+      show(await request("tools/call", { name: "lemonade_report", arguments: { days: app.latest?.days ?? 7, focus: app.latest?.focus, ...args } }));
+    } catch (error) {
+      status.textContent = `the host refused or the call failed: ${error.message}`;
+    }
   }
   for (const button of document.querySelectorAll("button[data-days]")) {
     button.addEventListener("click", () => recall({ days: Number(button.dataset.days) }));

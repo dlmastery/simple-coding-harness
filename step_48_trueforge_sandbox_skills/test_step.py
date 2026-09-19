@@ -9,12 +9,14 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 
 STEP = Path(__file__).resolve().parent
 sys.path.insert(0, str(STEP))
 
+import demo  # noqa: E402
 from client import sandbox, skills  # noqa: E402
 
 SANDBOX_ID = "v1:local:/tmp/sandboxes/sess-1/box-1"
@@ -56,6 +58,15 @@ def turn_events():
     ]
 
 
+def errored_turn():
+    """The same turn, but the second model call fails: turn.done carries `error` and a message."""
+    events = turn_events()[:7]  # up to and including the first tool.response
+    events.append({"type": "turn.done", "id": "d1", "thread_id": None, "created_at": "2026-01-01T00:00:00Z",
+                   "state": {"status": "error", "message": "model unavailable", "completed_at": "2026-01-01T00:00:00Z",
+                             "metrics": {"total_input_tokens": 100, "total_output_tokens": 5, "total_tokens": 105}}})
+    return events
+
+
 def stored_events():
     """The same turn as the server keeps it: no deltas, each model.message already merged."""
     merged = {
@@ -76,6 +87,7 @@ class FakeTrueForge(BaseHTTPRequestHandler):
 
     requests: list = []
     skills_store: dict = {}
+    page_size = 4  # stored events come back in pages of four, so list_events must follow the cursor
 
     def log_message(self, *args):  # keep pytest output clean
         pass
@@ -99,10 +111,16 @@ class FakeTrueForge(BaseHTTPRequestHandler):
             self.reply(201, {"data": {"id": "sess-1", "agent": {"type": "inline", "spec": payload["agent"]["spec"]},
                                       "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-01T00:00:00Z"}})
         elif self.path == "/api/v1/sessions/sess-1/turns":
+            prompt = payload["input"][0]["content"]
+            events = turn_events()
+            if prompt == "fail":
+                events = errored_turn()
+            if prompt == "cut":  # the connection drops after sandbox.created: no turn.done
+                events = events[:6]
             self.send_response(200)
             self.send_header("content-type", "text/event-stream")
             self.end_headers()
-            for seq, event in enumerate(turn_events(), 1):
+            for seq, event in enumerate(events, 1):
                 self.wfile.write(sse(event, seq))
             self.wfile.flush()
         else:
@@ -118,12 +136,24 @@ class FakeTrueForge(BaseHTTPRequestHandler):
         else:
             self.reply(404, {"error": {"message": "no route"}})
 
+    def do_DELETE(self):
+        self.requests.append((self.command, self.path, None))
+        self.send_response(204)
+        self.end_headers()
+
     def do_GET(self):
         self.requests.append((self.command, self.path, None))
         if self.path == "/api/v1/settings/skills":
             self.reply(200, {"data": [{"name": n, "manifest": m} for n, m in self.skills_store.items()]})
         elif self.path.startswith("/api/v1/sessions/sess-1/turns/turn-1/events"):
-            self.reply(200, {"data": stored_events(), "next_page_token": None})
+            # the SDK's shape: `data` plus `pagination.next_page_token`, a cursor into the stored list
+            query = parse_qs(urlparse(self.path).query)
+            start = int(query.get("page_token", ["0"])[0])
+            events = stored_events()
+            page = events[start:start + self.page_size]
+            after = start + self.page_size
+            self.reply(200, {"data": page, "pagination": {"limit": self.page_size,
+                                                          "next_page_token": str(after) if after < len(events) else None}})
         elif self.path.startswith("/api/v1/sessions/sess-1/turns/turn-1/download-sandbox-file"):
             if "path=%2Ftmp%2Fsandboxes%2Fsess-1%2Fbox-1%2Fhello.py" not in self.path:
                 self.reply(400, {"error": {"message": f"Path must be absolute: {self.path}"}})
@@ -168,6 +198,9 @@ def test_agent_spec_turns_the_sandbox_on():
     assert spec.config.sandbox.file_downloads is True
     assert spec.model.name == sandbox.MODEL
     assert spec.skills is None
+    # the two server defaults this client does not handle are off
+    assert spec.config.ask_user_questions.enabled is False
+    assert spec.config.dynamic_sub_agents.enabled is False
 
 
 def test_agent_spec_attaches_skills_by_name_without_preload(client):
@@ -214,14 +247,36 @@ def test_tool_output_reads_results_and_errors():
     assert sandbox.tool_output('{"success":true,"response":{"exitCode":1,"result":""}}') == "exit 1  (no output)"
     assert sandbox.tool_output('{"error":[{"type":"text","text":"Sandbox initialization failed:\\n  git failed"}]}') == "error  Sandbox initialization failed: git failed"
     assert sandbox.tool_output("plain text") == "plain text"
+    assert sandbox.tool_output('"just a string"') == '"just a string"'  # valid JSON that is not an object
+    assert sandbox.tool_output("[1, 2]") == "[1, 2]"
 
 
-def test_list_events_returns_the_stored_merged_events(client):
+def test_run_turn_reports_an_errored_turn(client):
+    lines = []
+    result = sandbox.run_turn(client, "sess-1", "fail", out=lines.append)
+    assert result["status"] == "error"
+    assert result["detail"] == "model unavailable"
+    assert result["text"] == ""
+    assert result["metrics"].total_tokens == 105  # the work before the error is still counted
+    assert lines[-1] == "turn.done        error  in=100 out=5  model unavailable"
+
+
+def test_a_cut_stream_is_incomplete(client):
+    result = sandbox.run_turn(client, "sess-1", "cut", out=lambda _: None)
+    assert result["status"] == "incomplete"
+    assert result["turn_id"] == "turn-1" and result["sandbox_id"] == SANDBOX_ID
+    assert result["metrics"] is None
+
+
+def test_list_events_follows_the_pagination_cursor(client):
+    """Six stored events in pages of four: the second page must be fetched too."""
     events = sandbox.list_events(client, "sess-1", "turn-1")
     types = [e.type for e in events]
     assert "model.message.delta" not in types
     assert types == ["turn.created", "model.message", "sandbox.created", "tool.response", "model.message", "turn.done"]
     assert events[1].tool_calls[0].function.name == "exec"
+    pages = [path for method, path, _ in FakeTrueForge.requests if "/events" in path]
+    assert len(pages) == 2 and "page_token=4" in pages[1]
 
 
 # --- the file ------------------------------------------------------------------
@@ -252,6 +307,9 @@ def test_skill_front_matter_parses():
     assert meta["description"].startswith("How to explain a piece of code to a beginner.")
     assert "\n" not in meta["description"]
     assert skills.front_matter("# no front matter") == {}
+    assert skills.front_matter("---\nname: open\n# never closed") == {}
+    assert skills.front_matter("---\nname: [broken\n---\nbody\n") == {}
+    assert skills.front_matter("---\r\nname: crlf\r\n---\r\nbody")["name"] == "crlf"
 
 
 def test_skill_manifest_points_at_the_public_repo():
@@ -271,3 +329,31 @@ def test_register_puts_the_manifest_and_lists_it(client):
     assert (method, path) == ("PUT", "/api/v1/settings/skills")
     assert payload["manifest"]["type"] == "git"
     assert payload["manifest"]["path"] == "step_04_skills/.agents/skills/explain-code"
+
+
+# --- the demo ------------------------------------------------------------------
+
+
+def test_demo_runs_downloads_and_deletes_the_session(server, client, capsys, monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)  # downloads/ lands here
+    assert demo.main(["--base-url", server]) == 0
+    out = capsys.readouterr().out
+    assert "stored events: turn.created model.message sandbox.created" in out
+    assert "downloaded hello.py -> " in out and 'print("hello")' in out
+    assert out.rstrip().endswith("session deleted")
+    assert ("DELETE", "/api/v1/sessions/sess-1", None) in FakeTrueForge.requests
+
+
+def test_demo_exits_1_on_an_errored_turn_and_keeps_the_session(server, client, capsys):
+    assert demo.main(["fail", "--keep", "--base-url", server]) == 1
+    out = capsys.readouterr().out
+    assert "turn error: model unavailable" in out
+    assert not any(method == "DELETE" for method, _, _ in FakeTrueForge.requests)
+
+
+def test_demo_reports_a_dead_server_in_one_line(capsys, monkeypatch):
+    from trueforge_sdk import TrueForge
+
+    monkeypatch.setattr(demo, "connect", lambda url: TrueForge(base_url=url, max_retries=0))
+    assert demo.main(["--base-url", "http://127.0.0.1:1"]) == 1
+    assert capsys.readouterr().err.startswith("request failed: http://127.0.0.1:1 is not answering")

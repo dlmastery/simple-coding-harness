@@ -80,7 +80,7 @@ def label(path, cwd=None):
 
 def read_instructions(path):
     """The file's text, cut at MAX_CHARS with a note that says so."""
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = path.read_text(encoding="utf-8-sig", errors="replace")  # -sig: a BOM from a Windows editor is not part of the text
     if len(text) <= MAX_CHARS:
         return text
     return (

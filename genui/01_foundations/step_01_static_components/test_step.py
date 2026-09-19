@@ -80,11 +80,20 @@ def test_stream_chat_assembles_tool_calls_in_order(fake):
     assert [t["function"]["name"] for t in client.requests[0]["tools"]] == ["show_metric", "show_table", "show_chart"]
 
 
-def test_first_call_is_emitted_as_soon_as_the_second_starts(fake):
-    fake(SCRIPT)
-    stream = llm.stream_chat([], tools=catalog.TOOL_SCHEMAS)
-    first = next(stream)  # arrives before the chart's arguments are read
-    assert first["type"] == "tool_call" and first["name"] == "show_metric"
+def test_interleaved_pieces_and_missing_indexes_still_assemble(fake):
+    # two calls streamed in alternation (some providers do this), then a piece with no index
+    fake([
+        call_chunk(0, cid="c1", name="show_metric", arguments='{"title": "a", '),
+        call_chunk(1, cid="c2", name="show_chart", arguments='{"kind": "bar", '),
+        call_chunk(0, arguments='"value": "1", "delta": "+1"}'),
+        call_chunk(None, cid="c2", arguments='"labels": [], "values": []}'),
+        usage_chunk(),
+    ])
+    events = list(llm.stream_chat([], tools=catalog.TOOL_SCHEMAS))
+    calls = [e for e in events if e["type"] == "tool_call"]
+    assert [c["name"] for c in calls] == ["show_metric", "show_chart"]
+    assert json.loads(calls[0]["arguments"]) == {"title": "a", "value": "1", "delta": "+1"}
+    assert json.loads(calls[1]["arguments"]) == {"kind": "bar", "labels": [], "values": []}
 
 
 def test_text_deltas_come_through(fake):
@@ -94,9 +103,22 @@ def test_text_deltas_come_through(fake):
     assert events[-1]["type"] == "usage"
 
 
-def test_env_file_is_never_printed_and_key_is_mapped():
-    assert "API_KEY" in llm.__doc__ and "never printed" in llm.__doc__
-    assert llm.BASE_URL.startswith("http")
+def test_env_file_fills_the_environment_and_openai_api_key_is_an_alias(monkeypatch, tmp_path):
+    import importlib
+
+    (tmp_path / ".simple-harness").mkdir()
+    lines = ["# comment", "OPENAI_API_KEY=from-file", "MODEL=m-file"]
+    (tmp_path / ".simple-harness" / "env").write_text("\n".join(lines), encoding="utf-8")
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    for key in ("API_KEY", "OPENAI_API_KEY", "MODEL"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("MODEL", "m-env")  # the environment wins over the file
+    fresh = importlib.reload(llm)
+    try:
+        assert fresh.API_KEY == "from-file" and fresh.MODEL == "m-env"
+        assert fresh.BASE_URL.startswith("http")
+    finally:
+        importlib.reload(llm)
 
 
 # --------------------------------------------------------------- catalog.py
@@ -146,6 +168,23 @@ def test_prose_becomes_a_note_not_a_component(fake):
     messages = frames(client.post("/api/run", json={"prompt": "x"}).text)
     assert messages[:2] == [{"note": "Sure, "}, {"note": "here."}]
     assert messages[-1]["done"] is True
+
+
+def test_a_model_failure_ends_the_stream_with_an_error_frame(monkeypatch):
+    def boom(**request):
+        raise RuntimeError("model down")
+
+    monkeypatch.setattr(llm, "client", SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=boom))))
+    response = TestClient(server.app).post("/api/run", json={"prompt": "x"})
+    assert response.status_code == 200  # the headers were already out; the error is the last frame
+    messages = frames(response.text)
+    assert messages[-1] == {"done": True, "error": "RuntimeError: model down"}
+
+
+def test_no_api_key_is_an_error_frame_not_a_cut_stream(monkeypatch):
+    monkeypatch.setattr(llm, "client", None)
+    done = frames(TestClient(server.app).post("/api/run", json={"prompt": "x"}).text)[-1]
+    assert done["done"] is True and "no API key" in done["error"]
 
 
 def test_system_prompt_forbids_prose(fake):

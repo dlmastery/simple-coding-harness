@@ -73,16 +73,19 @@ export function splitStatements(text) {
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (esc) esc = false;
-    else if (inStr) {
+    else if (inStr && c !== "\n") {
       if (c === "\\") esc = true;
       else if (c === '"') inStr = false;
     } else if (c === '"') inStr = true;
     else if ("([{".includes(c)) depth++;
     else if (")]}".includes(c)) depth = Math.max(0, depth - 1);
-    else if (c === "\n" && depth === 0) {
-      const line = text.slice(start, i).trim();
-      if (line) complete.push(line);
-      start = i + 1;
+    else if (c === "\n") {
+      if (inStr) { inStr = false; depth = 0; } // an unclosed string: the line is broken, end it here whatever the brackets say
+      if (depth === 0) {
+        const line = text.slice(start, i).trim();
+        if (line) complete.push(line);
+        start = i + 1;
+      }
     }
   }
   return { complete, pending: text.slice(start) };
@@ -176,6 +179,7 @@ export function resolve(program, catalog, root = "root") {
   const unresolved = new Set();
   const errors = [...program.errors];
   const visiting = new Set();
+  const resolved = new Map(); // a statement referenced twice is resolved once
 
   function value(node) {
     switch (node.k) {
@@ -198,6 +202,7 @@ export function resolve(program, catalog, root = "root") {
   }
 
   function reference(name) {
+    if (resolved.has(name)) return resolved.get(name);
     if (!program.statements.has(name) || visiting.has(name)) {
       unresolved.add(name);
       return { type: "placeholder", name };
@@ -206,6 +211,7 @@ export function resolve(program, catalog, root = "root") {
     let result;
     try { result = value(program.statements.get(name)); } finally { visiting.delete(name); }
     if (result && result.type === "element") result.statementId = name;
+    resolved.set(name, result);
     return result;
   }
 

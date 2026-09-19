@@ -13,6 +13,7 @@ dependency, and the rest of the harness must import without it.
 
 import functools
 import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -25,6 +26,7 @@ _playwright = None
 _browser = None
 _page = None
 _worker = None  # the one thread every Playwright object belongs to
+_worker_lock = threading.Lock()  # two parallel browse calls must not each start a worker
 
 
 def headless():
@@ -35,14 +37,17 @@ def headless():
 def on_worker(fn, *args):
     """Run fn on the browser thread and wait for its result."""
     global _worker
-    if _worker is None:
-        _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
+    with _worker_lock:
+        if _worker is None:
+            _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
     return _worker.submit(fn, *args).result()
 
 
 def page():
     """The page, launched on first use. Only ever called on the browser thread."""
     global _playwright, _browser, _page
+    if _page is not None and _page.is_closed():  # the window was closed by hand: start over
+        _page = None
     if _page is None:
         try:
             from playwright.sync_api import sync_playwright
@@ -131,11 +136,13 @@ def browser_close() -> str:
     global _playwright, _browser, _page
     if _page is None:
         return "No browser was open."
-    if _browser is not None:
-        _browser.close()
-    if _playwright is not None:
-        _playwright.stop()
-    _playwright = _browser = _page = None
+    try:
+        if _browser is not None:
+            _browser.close()
+        if _playwright is not None:
+            _playwright.stop()
+    finally:
+        _playwright = _browser = _page = None  # a close that failed halfway must not leave a dead page behind
     return "Browser closed."
 
 

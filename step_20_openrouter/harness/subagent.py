@@ -57,9 +57,12 @@ def task(description: str) -> str:
     """Run a fresh agent on one question and return only its final answer."""
     # Imported here, not at the top: tools imports us, and we need tools.
     from .history import fit
-    from .llm import call_llm
+    from .llm import call_llm, entry
     from .tools import execute
     from .ui import ui
+
+    offered = toolset()
+    allowed = {s["function"]["name"] for s in offered}  # what it may run == what it was shown
 
     # rule 1: two messages, born here, dead at the return
     messages = [
@@ -74,8 +77,8 @@ def task(description: str) -> str:
         fit(messages)  # its context can overflow too, and nobody compacts it
 
         with ui.working("subagent exploring"):
-            message, usage = call_llm(messages, tools=toolset())  # rule 2
-        messages.append(message.model_dump(exclude_none=True))
+            message, usage = call_llm(messages, tools=offered)  # rule 2
+        messages.append(entry(message))
         ui.usage(usage)
         report = message.content or report
 
@@ -85,7 +88,7 @@ def task(description: str) -> str:
 
         for tool_call in message.tool_calls:
             # the same executor as the main loop: same permissions, same sandbox
-            args, result = execute(tool_call)
+            args, result = execute(tool_call, allowed)
             ui.tool(tool_call.function.name, args, result, nested=True)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import budget
 from . import compact as compaction
+from . import history
 from . import hooks
 from . import instructions
 from . import jobs
@@ -18,6 +19,7 @@ from . import memory
 from . import sandbox
 from . import session
 from . import subagent
+from . import todos
 from .ui import ui
 
 COMMANDS = {
@@ -33,6 +35,7 @@ COMMANDS = {
     "/context": "show what fills the context window, category by category",
     "/init": "survey the project with a subagent and write AGENTS.md",
     "/instructions": "list the instruction files in the system prompt",
+    "/exit": "leave (so do /quit, ctrl-d, ctrl-z then enter on Windows, and ctrl-c at the prompt)",
 }
 
 INIT_QUESTION = """
@@ -61,7 +64,12 @@ def preview(message):
 
 
 def redraw(messages, label):
-    """The screen no longer matches the history, so wipe it and draw again."""
+    """The screen no longer matches the history, so wipe it and draw again.
+
+    The todo list lives outside the transcript; it is rebuilt from the
+    last write_todos call that the transcript still holds.
+    """
+    todos.from_transcript(messages)
     ui.clear()
     ui.banner(sandbox.name(), plan.MODE)
     ui.resumed(messages, label)
@@ -69,13 +77,21 @@ def redraw(messages, label):
     return messages
 
 
+def turn_starts(messages):
+    """The indexes of the user messages: the only places a transcript can be cut without orphaning a tool call."""
+    return [i for i, m in enumerate(messages) if m.get("role") == "user" and isinstance(m.get("content"), str)]
+
+
 def rewind(messages):
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the transcript before a user message the user picks: the turn it opened is forgotten."""
+    starts = turn_starts(messages)
+    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(starts)]
+    choice = ui.pick("rewind to before", rows)
     if choice is None:
         return messages
-    session.rewind_to(choice + 1)
-    return redraw(messages[: choice + 1], "rewound")
+    keep = starts[choice]
+    session.rewind_to(keep)
+    return redraw(messages[:keep], "rewound")
 
 
 def sessions(messages):
@@ -87,7 +103,9 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    return redraw(session.open_session(saved[choice]["id"]), "opened")
+    opened = session.open_session(saved[choice]["id"])
+    history.strip(opened)  # its old tool output shrinks, the way --resume shrinks it
+    return redraw(opened, "opened")
 
 
 def compact(messages):
@@ -108,6 +126,7 @@ def compact(messages):
         ui.note("nothing old enough to compact yet")
         return messages
     session.compacted(compacted)
+    budget.WARNED.clear()  # the window is mostly free again: the 50% and 75% notes may fire once more
     ui.compacted(before, compacted)
     return compacted
 
@@ -174,7 +193,7 @@ def init(messages):
     target = Path.cwd() / "AGENTS.md"
     report = subagent.task(INIT_QUESTION.strip())
     ui.agent(report)
-    if report.startswith("(") or report.startswith("Error:"):
+    if report.startswith(subagent.STOPPED) or report.startswith("Error:"):
         ui.note("the subagent did not produce a guide; nothing written")
         return messages
     if not ui.confirm(f"write {target.name}" + (" (it exists; this replaces it)" if target.exists() else "")):
@@ -182,7 +201,9 @@ def init(messages):
         return messages
     target.write_text(report.strip() + "\n", encoding="utf-8")
     if messages and messages[0].get("role") == "system":
-        messages[0]["content"] = llm.build_system_prompt()  # discovery runs again, so the new file is in the prefix
+        # discovery runs again, so the new file is in the prefix; a handoff note from a compaction stays at its end
+        summary = compaction.previous_summary(messages[0]["content"])
+        messages[0]["content"] = llm.build_system_prompt() + (f"\n\n{summary}" if summary else "")
     ui.note(f"wrote {target}; it is in the system prompt from the next call on")
     return messages
 
@@ -193,8 +214,8 @@ def instruction_list(messages):
         ui.note("no instruction files loaded (AGENTS.md or CLAUDE.md in ~/.simple-harness, the git root, or below)")
         return messages
     rows = []
-    for path in instructions.LOADED:
-        size = len(path.read_text(encoding="utf-8", errors="replace"))
+    for path in instructions.LOADED:  # the files the prompt was built from, not what is on disk now
+        size = len(path.read_text(encoding="utf-8-sig", errors="replace"))
         cut = f"  (cut at {instructions.MAX_CHARS:,})" if size > instructions.MAX_CHARS else ""
         rows.append(f"{instructions.label(path):<40} {size:>7,} chars{cut}")
     ui.note("\n".join(rows))

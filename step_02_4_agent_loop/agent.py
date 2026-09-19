@@ -8,24 +8,35 @@ calls.
 Run:   python agent.py
 """
 
-import json
+import sys
 
-from llm import SYSTEM_PROMPT, call_llm
-from tools import TOOLS
+import openai
 
-user_input = input("Enter your prompt> ")
+from llm import SYSTEM_PROMPT, call_llm, entry
+from tools import run_tool
+
+MAX_CALLS = 40  # model calls per question; a model that never stops calling tools stops here
+
+try:
+    user_input = input("Enter your prompt> ")
+except (EOFError, KeyboardInterrupt):
+    sys.exit("\nno prompt given")
 
 messages = [
     {"role": "system", "content": SYSTEM_PROMPT},
     {"role": "user", "content": user_input},
 ]
 
-while True:
+for _ in range(MAX_CALLS):
     # 1. the model sees the whole transcript so far
-    message, usage = call_llm(messages)
+    try:
+        message, usage = call_llm(messages)
+    except (openai.APIError, RuntimeError) as e:
+        sys.exit(f"model call failed: {e}")
     # 2. its reply joins the transcript - tool calls included, because every
     #    "tool" message must follow the assistant message that asked for it
-    messages.append(message.model_dump(exclude_none=True))
+    messages.append(entry(message))
+    print(usage)
 
     if message.content:
         print("\nAgent: ", message.content, "\n")
@@ -34,10 +45,10 @@ while True:
     if not message.tool_calls:
         break
 
-    # 4. otherwise run each call and feed the result back, tied to the call by id
+    # 4. otherwise run each call and feed the result back, tied to the call by id.
+    #    run_tool never raises, so every call gets its tool message, error or not
     for tool_call in message.tool_calls:
-        args = json.loads(tool_call.function.arguments)
-        result = TOOLS[tool_call.function.name](**args)
+        args, result = run_tool(tool_call)
         print("Tool: ", tool_call.function.name, args)
         print(result, "\n")
 
@@ -46,5 +57,5 @@ while True:
             "tool_call_id": tool_call.id,
             "content": result,
         })
-
-    print(usage)
+else:
+    print(f"stopped after {MAX_CALLS} model calls; the model kept calling tools")

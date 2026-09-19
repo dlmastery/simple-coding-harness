@@ -45,7 +45,7 @@ def stream_completion(messages: list[dict], usage: dict | None = None) -> Iterat
     """
     from openai import OpenAI
 
-    client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120)  # a hung upstream ends the stream, it does not hang the page
     stream = client.chat.completions.create(
         model=MODEL, messages=messages, stream=True, temperature=0,
         stream_options={"include_usage": True},

@@ -67,6 +67,25 @@ def test_parse_errors_are_collected_not_raised():
     assert op.parse("a = b\nb = a\n").tree("a") == {"type": "Cycle", "ref": "a"}
 
 
+def test_one_unbalanced_line_does_not_hold_back_the_rest():
+    """A stray bracket closes at the next statement; it is an error, and the lines after it still parse."""
+    parsed = op.parse('a = Stack([x)\nb = TextContent("hi")\nroot = Stack([a, b])\n')
+    assert list(parsed.statements) == ["b", "root"] and len(parsed.errors) == 1
+    assert parsed.tree()["args"][0][1] == {"type": "TextContent", "args": ["hi"]}
+    assert parsed.tree()["args"][0][0] == {"type": "Pending", "ref": "a"}
+
+
+def test_plus_on_anything_but_numbers_is_text():
+    parsed = op.parse('root = Stack([x, y])\nx = null + 1\ny = 2 + 3\n')
+    assert parsed.tree()["args"][0] == ["None1", 5]
+
+
+def test_a_turn_that_does_not_end_done_is_an_error(fake_trueforge, monkeypatch):
+    monkeypatch.setattr(FakeTrueForge, "status", "failed")
+    with pytest.raises(RuntimeError, match="the turn ended 'failed'"):
+        genui.ask("show a report", on_delta=None)
+
+
 def test_outline_is_the_terminal_view():
     lines = op.outline(op.parse(PROGRAM).tree())
     assert lines[0] == "Stack('column', 'l')" and lines[1] == "  TextContent('Lemonade stand', 'large-heavy')"
@@ -109,6 +128,7 @@ def event(**fields):
 
 class FakeTrueForge(BaseHTTPRequestHandler):
     requests = []
+    status = "done"  # a test sets "failed" to end the turn without a reply
 
     def log_message(self, *args):
         pass
@@ -129,7 +149,8 @@ class FakeTrueForge(BaseHTTPRequestHandler):
         self.wfile.write(event(type="model.message.delta", id="sub-1", thread_id="sub", content="ignored: not the main thread"))
         output = {"type": "model.message", "id": "msg-1", "thread_id": "main", "content": REPLY, "finish_reason": "stop", "created_at": "2026-09-14T10:00:01.000Z"}
         metrics = {"total_input_tokens": 120, "total_output_tokens": 30, "total_tokens": 150}
-        self.wfile.write(event(type="turn.done", state={"status": "done", "completed_at": "2026-09-14T10:00:02.000Z", "output": output, "metrics": metrics, "required_actions": []}))
+        state = {"status": self.status, "completed_at": "2026-09-14T10:00:02.000Z", "output": output, "metrics": metrics, "required_actions": []}
+        self.wfile.write(event(type="turn.done", state=state))
         self.wfile.flush()
 
     def json(self, payload):
@@ -181,6 +202,8 @@ def test_page_server_streams_one_line_per_event_then_null():
         for name in ("/app.js", "/openui-parse.mjs", "/render.mjs"):
             conn.request("GET", name)
             assert conn.getresponse().status == 200
+        conn.request("GET", "/../server.py")
+        assert conn.getresponse().status == 404  # nothing outside web/ is served
         conn.request("GET", "/reply")
         assert conn.getresponse().read() == b"raw reply text"
         conn.request("GET", "/events")

@@ -26,6 +26,7 @@ from harness.ui import ui  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 PROMPT = "show me a dashboard for a lemonade stand"
+MAX_CALLS = 40  # model calls per turn; a model that never stops calling tools stops here
 
 # What the model is expected to send: a json-render element map from the catalog.
 SAMPLE_SPEC = {
@@ -57,7 +58,7 @@ def run_turn(prompt):
     """The agent loop for one user message: call, execute tools, repeat until text only."""
     messages = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": prompt}]
     ui.user(prompt)
-    while True:
+    for _ in range(MAX_CALLS):
         with ui.working():
             message, usage = llm.call_llm(messages)
         messages.append(message.model_dump(exclude_none=True))
@@ -70,6 +71,8 @@ def run_turn(prompt):
             args, result = execute(tool_call)
             ui.tool(tool_call.function.name, args, result)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
+    ui.note(f"stopped after {MAX_CALLS} model calls in one turn")
+    return messages
 
 
 def screenshot(url, path):

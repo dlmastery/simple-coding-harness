@@ -15,7 +15,10 @@ from datetime import datetime
 
 
 def git_branch():
-    result = subprocess.run("git branch --show-current", shell=True, capture_output=True, text=True)
+    result = subprocess.run("git branch --show-current", shell=True, capture_output=True,
+                            encoding="utf-8", errors="replace")
+    if result.returncode != 0:  # no git, or not a repository: say so instead of guessing
+        return "(not a git repository)"
     return result.stdout.strip() or "(detached)"
 
 

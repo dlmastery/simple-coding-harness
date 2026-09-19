@@ -86,9 +86,17 @@
       for (const resource of (await state.client.request("resources/list")).resources) state.listing.set(resource.uri, resource);
     } catch { /* a server may omit ui:// resources from the listing */ }
     $("tools").replaceChildren(...state.tools.map((tool) => {
+      // the tool name and the resource URI are the server's strings: text, never markup
       const li = document.createElement("li");
-      li.innerHTML = `<code>${tool.name}</code>`;
-      if (uiResourceUri(tool)) li.innerHTML += ` <span class="badge">UI ${uiResourceUri(tool)}</span>`;
+      const code = document.createElement("code");
+      code.textContent = tool.name;
+      li.append(code);
+      if (uiResourceUri(tool)) {
+        const badge = document.createElement("span");
+        badge.className = "badge";
+        badge.textContent = `UI ${uiResourceUri(tool)}`;
+        li.append(" ", badge);
+      }
       const button = document.createElement("button");
       button.textContent = "call with defaults";
       button.onclick = () => runTool(tool.name, {});
@@ -100,6 +108,7 @@
   // --- 2. a tool call: if the tool has a view, mount it while the call runs
   async function runTool(name, args) {
     const tool = state.tools.find((t) => t.name === name);
+    if (!tool) throw new Error(`no tool named ${JSON.stringify(name)} on this server`);
     const resultPromise = state.client.callTool(name, args);
     const uri = uiResourceUri(tool);
     if (uri) await mount(tool, uri, args, resultPromise);
@@ -120,10 +129,11 @@
     iframe.className = meta.prefersBorder ? "bordered" : "";
     const bridge = state.bridge = new HostBridge({
       tool,
+      tools: state.tools,  // the allowlist for tools/call from the view
       callTool: (n, a) => state.client.callTool(n, a),
       readResource: (u) => state.client.readResource(u),
       onMessage: ({ content }) => { chat(content.text); },  // answered at once; the next turn runs on its own
-      onOpenLink: (url) => window.open(url, "_blank", "noopener,noreferrer"),
+      onOpenLink: (url) => { if (/^https?:\/\//i.test(String(url))) window.open(url, "_blank", "noopener,noreferrer"); else throw new Error("only http(s) links open"); },
       onModelContext: (params) => { state.modelContext = params; },
       onSizeChanged: ({ height }) => { if (height) iframe.style.height = `${Math.min(height, 800)}px`; },
       onLog: log,
@@ -135,15 +145,18 @@
   }
 
   // --- 3. the agent loop: the model picks the tool, the page runs it -------
+  const MAX_HOPS = 4;  // model calls per user message; a model that keeps calling tools stops here, with a whole transcript
+
   async function chat(text) {
     state.messages.push({ role: "user", content: text });
     bubble("user", text);
-    for (let hop = 0; hop < 4; hop++) {
+    $("note").textContent = "";
+    for (let hop = 0; hop < MAX_HOPS; hop++) {
       const response = await fetch("/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: state.messages, tools: toolsForModel(state.tools) }),
       });
-      if (!response.ok) { $("note").textContent = "no model available: call a tool from the list instead"; return; }
+      if (!response.ok) { $("note").textContent = `the model call failed (${response.status}): ${(await response.text()).slice(0, 200)}`; return; }
       const reply = await response.json();
       state.messages.push({
         role: "assistant", content: reply.content,
@@ -152,13 +165,22 @@
       if (reply.content) bubble("assistant", reply.content);
       if (!reply.tool_calls.length) return;
       for (const call of reply.tool_calls) {
-        const args = JSON.parse(call.arguments || "{}");
-        bubble("tool", `${call.name}(${JSON.stringify(args)})`);
-        const result = await runTool(call.name, args);
-        const summary = result.content.filter((c) => c.type === "text").map((c) => c.text).join("\n");
+        // every tool_call gets exactly one tool message, error or not: a transcript with a call and no
+        // answer is refused by the API on the next turn, and the chat would be dead from then on
+        let summary;
+        try {
+          const args = JSON.parse(call.arguments || "{}");
+          bubble("tool", `${call.name}(${JSON.stringify(args)})`);
+          const result = await runTool(call.name, args);
+          summary = (result.content ?? []).filter((c) => c.type === "text").map((c) => c.text).join("\n") || "(no content)";
+        } catch (error) {
+          summary = `Error: ${error.message}`;
+          bubble("tool", `${call.name}: ${summary}`);
+        }
         state.messages.push({ role: "tool", tool_call_id: call.id, content: summary });  // the model reads text only
       }
     }
+    $("note").textContent = `stopped after ${MAX_HOPS} tool rounds in one turn; ask again to continue`;
   }
 
   $("connect").onclick = () => connect().catch((error) => { $("server").textContent = error.message; });

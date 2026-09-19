@@ -25,10 +25,12 @@ from claude_agent_sdk import (
     CanUseToolShadowedWarning,
     ClaudeAgentOptions,
     ClaudeSDKClient,
+    ClaudeSDKError,
     HookMatcher,
     PermissionResultAllow,
     PermissionResultDeny,
     ResultMessage,
+    SystemMessage,
     TextBlock,
     ToolResultBlock,
     ToolUseBlock,
@@ -74,16 +76,16 @@ EXPLORER = AgentDefinition(
 
 
 def run_tests_impl(path: str = ".") -> str:
-    """Run pytest on a path and return the last 30 lines of output."""
+    """Run pytest on a path and return the last 30 lines of output, plus the exit code."""
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", path],
-            capture_output=True, text=True, timeout=300,
+            capture_output=True, encoding="utf-8", errors="replace", timeout=300,
         )
     except subprocess.TimeoutExpired:
-        return "Timed out after 300s and was killed."
+        return "Error: command timed out after 300s"
     lines = (result.stdout + result.stderr).strip().splitlines()
-    return "\n".join(lines[-30:]) or "(no output)"
+    return ("\n".join(lines[-30:]) or "(no output)") + f"\nexit code {result.returncode}"
 
 
 @tool("run_tests", "Run the project's pytest suite and return the last 30 lines.", {"path": str})
@@ -123,6 +125,7 @@ async def can_use_tool(tool_name, tool_input, context):
     if tool_name == "Bash":
         verdict, reason = rules.check_bash(tool_input.get("command", ""))
     elif tool_name in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
+        # the CLI sends absolute paths; rules.PROJECT is the directory the harness started in
         verdict, reason = rules.check_edit(tool_input.get("file_path", ""))
     else:
         verdict, reason = "allow", None
@@ -140,7 +143,7 @@ async def can_use_tool(tool_name, tool_input, context):
 
 
 def git(args):
-    result = subprocess.run(f"git {args}", shell=True, capture_output=True, text=True)
+    result = subprocess.run(f"git {args}", shell=True, capture_output=True, encoding="utf-8", errors="replace")
     return result.stdout if result.returncode == 0 else ""
 
 
@@ -221,6 +224,24 @@ def sessions_here():
     return list_sessions(directory=os.getcwd(), limit=20)
 
 
+def ended(message):
+    """Does this message close the turn? A ResultMessage always does; so does the
+    compact boundary, because a bare `/compact` may not be followed by a result."""
+    return isinstance(message, ResultMessage) or (isinstance(message, SystemMessage) and message.subtype == "compact_boundary")
+
+
+async def turn(client, text):
+    """Send one prompt and draw everything that comes back. Never raises past here."""
+    try:
+        await client.query(text)
+        async for message in client.receive_messages():
+            show(message)
+            if ended(message):
+                break
+    except ClaudeSDKError as failure:  # the CLI died or the connection dropped: say so, keep the prompt
+        print(f"  error: {type(failure).__name__}: {failure}")
+
+
 async def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -235,7 +256,8 @@ async def main():
             resume = recent[0].session_id
             print(f"  resuming {resume}")
 
-    print("\n  simple coding harness · claude agent sdk · /sessions, /resume <id>, /compact, ctrl-d to exit")
+    print("\n  simple coding harness · claude agent sdk · /sessions, /resume <id>, /compact")
+    print("  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave")
     while True:  # reconnect loop: /resume swaps the session underneath
         async with ClaudeSDKClient(options=build_options(resume)) as client:
             while True:
@@ -243,8 +265,10 @@ async def main():
                     text = input("\n> ").strip()
                 except (EOFError, KeyboardInterrupt):
                     return
-                if not text:
+                if text in ("/exit", "/quit"):
                     return
+                if not text:
+                    continue
                 if text == "/sessions":
                     for s in sessions_here():
                         print(f"  {s.session_id}  {(s.summary or '')[:60]}")
@@ -253,10 +277,11 @@ async def main():
                     resume = text.split(maxsplit=1)[1]
                     break  # leave the client; the outer loop reconnects with resume=
                 # /compact and other built-in slash commands go straight through
-                await client.query(text)
-                async for message in client.receive_response():
-                    show(message)
+                await turn(client, text)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:  # ctrl-c mid-turn: leave without a traceback
+        print("\n  interrupted")

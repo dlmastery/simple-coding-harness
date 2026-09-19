@@ -1,9 +1,10 @@
 """Step 34 - call_llm retries. A rate limit, a connection failure, a
-timeout or a 5xx answer is tried again after a wait from BACKOFF, up to
-MAX_TRIES times, with a note per retry. The request and the whole read of
-its stream sit inside the retry in stream_once(), so a stream that breaks
-halfway starts over. retryable(error) draws the line: a 4xx is never
-retried. When the tries run out, call_llm returns a StreamedMessage whose
+timeout, a 5xx answer or a connection that drops mid-stream is tried
+again after a wait from BACKOFF, up to MAX_TRIES times, with a note per
+retry. The client is made with max_retries=0, so these are the only
+retries there are. The request and the whole read of its stream sit
+inside the retry in stream_once(), so a stream that breaks halfway
+starts over. retryable(error) draws the line: a 4xx is never retried. When the tries run out, call_llm returns a StreamedMessage whose
 `failed` field carries the reason instead of raising, so the loop can show
 it and go on. The rest is step 32: build_system_prompt lists the deferred
 tools; PLAN_PROMPT and with_mode() are step 28; call_llm streams.
@@ -17,6 +18,11 @@ from dataclasses import dataclass, field
 import openai
 from openai import OpenAI
 
+try:
+    import httpx2 as httpx_lib  # the http library the SDK ships with, as of openai 3.x
+except ImportError:  # older SDKs use httpx itself
+    import httpx as httpx_lib
+
 from . import config
 from . import plan
 from .instructions import instructions_prompt
@@ -24,7 +30,7 @@ from .skills import skills_prompt
 from .tools import TOOLS, active_schemas, deferred_names
 from .ui import ui
 
-client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
+client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY, max_retries=0)  # the retry policy is ours, below
 MODEL = config.MODEL
 
 BACKOFF = (0.5, 1.0, 2.0, 4.0)  # seconds to wait before retry 1, 2, 3 and 4
@@ -207,38 +213,47 @@ class StreamedMessage:
     failed: str | None = None  # why no reply came, when every try failed; never part of the transcript
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and tool_calls when there are any.
+
+        `content` stays even when it is None: the API wants the key on an
+        assistant message, and nothing else of the reply is echoed back.
+        """
+        entry = {"role": self.role, "content": self.content}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 
 
 def usage_from(chunk_usage):
     """The same usage dict the non-streaming call produced. All None if no usage came."""
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
+        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
+        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": getattr(chunk_usage, "cost", None),  # dollars, when the provider (OpenRouter) reports it
     }
+
+
+TRANSIENT_CODES = {408, 409, 429, 500, 502, 503, 504, 529}  # from an error event inside a stream
 
 
 def retryable(error):
     """True when a failed request may succeed on a retry.
 
-    Rate limits, connection failures and timeouts pass. A status error
-    passes only for a 5xx answer: a 4xx is the request's fault and comes
-    back the same every time.
+    Rate limits, connection failures, timeouts and a connection that drops
+    while the stream is being read all pass. A status error passes only
+    for a 5xx answer: a 4xx is the request's fault and comes back the same
+    every time. An error the provider sends as an event inside the stream
+    arrives as a plain APIError with a body; it passes when the body names
+    a transient code or says the model is overloaded.
     """
     if isinstance(error, openai.RateLimitError):
         return True
@@ -246,6 +261,13 @@ def retryable(error):
         return True
     if isinstance(error, openai.APIStatusError):
         return error.status_code >= 500
+    if isinstance(error, httpx_lib.HTTPError):  # the SDK wraps the request, not the read of the stream
+        return True
+    if isinstance(error, openai.APIError):
+        body = error.body if isinstance(error.body, dict) else {}
+        code = body.get("code") or body.get("status")
+        text = f"{body.get('message', '')} {error}".lower()
+        return code in TRANSIENT_CODES or "overloaded" in text or "rate limit" in text
     return False
 
 
@@ -266,14 +288,18 @@ def stream_once(request, on_delta=None):
 
     parts = []          # text deltas, in order
     calls = {}          # tool call index -> StreamedToolCall
+    order = []          # the indexes in the order they first appeared
     final_usage = None  # arrives with the last chunk, which has no choices
+    finish = None       # the finish_reason of the last chunk that carried one
 
     for chunk in stream:
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
             continue
-        delta = chunk.choices[0].delta
+        choice = chunk.choices[0]
+        finish = getattr(choice, "finish_reason", None) or finish
+        delta = choice.delta
         if delta is None:
             continue
 
@@ -283,7 +309,10 @@ def stream_once(request, on_delta=None):
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            key = piece.index if getattr(piece, "index", None) is not None else piece.id  # some providers send no index
+            if key not in calls:
+                order.append(key)
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -294,19 +323,26 @@ def stream_once(request, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
+    tool_calls = [calls[key] for key in order]
+    if finish == "length" and tool_calls:
+        # the reply hit max_tokens: a half-written tool call is not one to run
+        parts.append("\n(reply cut off by max_tokens)")
+        tool_calls = []
     message = StreamedMessage(
         content="".join(parts) or None,
-        tool_calls=[calls[index] for index in sorted(calls)] or None,
+        tool_calls=tool_calls or None,
     )
     return message, usage_from(final_usage)
 
 
-def call_llm(messages, tools=None, on_delta=None):
+def call_llm(messages, tools=None, on_delta=None, on_restart=None):
     """One streamed request, retried on transient failures. Returns (message, usage).
 
     tools=None means the full registry with its deferred tools as stubs;
     tools=[] means no tools (the compaction agent). on_delta, if given, is
-    called with every piece of text as it arrives.
+    called with every piece of text as it arrives; on_restart, if given, is
+    called before a retry that follows a stream which had already produced
+    text, so the caller can say that the part on screen is discarded.
 
     A rate limit, a connection failure, a timeout or a 5xx answer is tried
     again after a wait from BACKOFF, up to MAX_TRIES times in all, with a
@@ -317,14 +353,23 @@ def call_llm(messages, tools=None, on_delta=None):
     the session goes on.
     """
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
+    if "openrouter" in config.BASE_URL:
+        request["extra_body"] = {"usage": {"include": True}}  # OpenRouter then reports the cost with the usage
     schemas = active_schemas() if tools is None else tools
     if schemas:
         request["tools"] = schemas
 
     for attempt in range(1, MAX_TRIES + 1):
+        seen = []  # what this try streamed, so a retry can say it starts over
+
+        def deltas(text):
+            seen.append(text)
+            if on_delta:
+                on_delta(text)
+
         try:
-            return stream_once(request, on_delta)
-        except openai.APIError as error:
+            return stream_once(request, deltas)
+        except (openai.APIError, httpx_lib.HTTPError) as error:
             if not retryable(error):
                 reason = f"model call failed and will not be retried ({describe(error)}): {error}"
                 break
@@ -333,6 +378,8 @@ def call_llm(messages, tools=None, on_delta=None):
                 break
             wait = BACKOFF[attempt - 1]
             ui.note(f"model call failed ({describe(error)}); retry {attempt} of {MAX_TRIES - 1} in {wait:g}s")
+            if seen and on_restart:
+                on_restart()  # the partial reply on screen is not the reply
             sleep(wait)
 
     return StreamedMessage(content=None, failed=reason), usage_from(None)

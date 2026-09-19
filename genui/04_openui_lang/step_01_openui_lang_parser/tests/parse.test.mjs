@@ -22,6 +22,20 @@ test("a newline inside brackets does not end the statement", () => {
   assert.equal(complete.length, 1);
 });
 
+test("a stray quote ends with its line; the next line still parses", () => {
+  const result = parse('root = Stack([a, b])\na = Text("unclosed\nb = Text("B")\n', catalog);
+  assert.equal(result.root.props.children[1].props.text, "B");
+  assert.deepEqual(result.root.props.children[0], { type: "placeholder", name: "a" }); // the broken line is an error, not a sink
+  assert.equal(result.errors.length, 1);
+});
+
+test("a statement referenced twice resolves to the same node once", () => {
+  const result = parse('root = Stack([a, a])\na = Text("A")\n', catalog);
+  const [first, second] = result.root.props.children;
+  assert.equal(first, second);
+  assert.equal(first.statementId, "a");
+});
+
 test("forward references resolve; missing ones become placeholders", () => {
   const result = parse('root = Stack([a, b])\na = Text("A")\n', catalog);
   assert.equal(result.root.props.children[0].typeName, "Text");

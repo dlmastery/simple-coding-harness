@@ -12,6 +12,12 @@ export function esc(value) {
     .replaceAll('"', "&quot;");
 }
 
+export function list(value) {
+  // A prop that should be an array. The schema says so, but the page renders
+  // the document before it is validated, and not every endpoint enforces it.
+  return Array.isArray(value) ? value : [];
+}
+
 export function Metric({ title, value, delta }) {
   const sign = String(delta ?? "").trim().startsWith("-") ? "down" : "up";
   return `<div class="card metric">
@@ -21,18 +27,18 @@ export function Metric({ title, value, delta }) {
   </div>`;
 }
 
-export function Table({ columns = [], rows = [] }) {
-  const head = columns.map((c) => `<th>${esc(c)}</th>`).join("");
-  const body = rows
-    .map((row) => `<tr>${(row ?? []).map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`)
+export function Table({ columns, rows }) {
+  const head = list(columns).map((c) => `<th>${esc(c)}</th>`).join("");
+  const body = list(rows)
+    .map((row) => `<tr>${list(row).map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`)
     .join("");
   return `<div class="card table"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
-export function Chart({ kind = "bar", labels = [], values = [] }) {
+export function Chart({ kind = "bar", labels, values }) {
   // A small inline SVG: bars or a polyline, scaled to the largest value.
   const width = 420, height = 160, pad = 24;
-  const numbers = values.map((v) => Number(v) || 0);
+  const numbers = list(values).map((v) => Math.max(0, Number(v) || 0)); // a bar cannot have a negative height
   const max = Math.max(1, ...numbers);
   const step = (width - 2 * pad) / Math.max(1, numbers.length);
   const y = (v) => height - pad - ((height - 2 * pad) * v) / max;
@@ -45,7 +51,7 @@ export function Chart({ kind = "bar", labels = [], values = [] }) {
       .map((v, i) => `<rect x="${pad + step * i + step * 0.15}" y="${y(v)}" width="${step * 0.7}" height="${height - pad - y(v)}" rx="2"/>`)
       .join("");
   }
-  const axis = labels
+  const axis = list(labels)
     .map((label, i) => `<text x="${pad + step * (i + 0.5)}" y="${height - 6}" text-anchor="middle">${esc(label)}</text>`)
     .join("");
   return `<div class="card chart"><svg viewBox="0 0 ${width} ${height}" class="${esc(kind)}">${marks}${axis}</svg></div>`;
@@ -76,22 +82,22 @@ export const RENDERERS = { Card, Row, Column, Text, Metric, Table, Chart, Button
 
 export function render(component, props, children = "") {
   // The page never trusts the name: an unknown component becomes a visible stub.
-  const renderer = RENDERERS[component];
-  if (!renderer) return `<div class="card unknown">unknown component: ${esc(component)}</div>`;
-  return renderer(props ?? {}, children);
+  // hasOwn, not `in`: "constructor" and "toString" are not components.
+  if (!Object.hasOwn(RENDERERS, component)) return `<div class="card unknown">unknown component: ${esc(component)}</div>`;
+  return RENDERERS[component](props ?? {}, children);
 }
 
 const PENDING = `<div class="card pending"></div>`;
 
 function isComponent(node) {
-  return node !== null && typeof node === "object" && node.type in RENDERERS && typeof node.props === "object";
+  return node !== null && typeof node === "object" && Object.hasOwn(RENDERERS, node.type) && typeof node.props === "object";
 }
 
 export function renderTree(node) {
   // A nested tree. A node still open in the stream renders as pending, with
   // whatever closed children it already has inside it.
   if (!isComponent(node)) return node ? PENDING : "";
-  const children = (node.children ?? []).map(renderTree).join("");
+  const children = list(node.children).map(renderTree).join("");
   const html = render(node.type, node.props, children);
   return isPartial(node) ? `<div class="pending-wrap">${html}</div>` : html;
 }
@@ -99,11 +105,12 @@ export function renderTree(node) {
 export function renderFlat(spec, id = spec?.root, seen = new Set()) {
   // A flat element map. A child id whose element has not arrived yet renders
   // as a pending slot, so the layout holds still while the details stream in.
-  const node = spec?.elements?.[id];
+  const elements = spec?.elements;
+  const node = typeof id === "string" && elements && typeof elements === "object" && Object.hasOwn(elements, id) ? elements[id] : undefined;
   if (node === undefined || seen.has(id)) return PENDING;
   seen.add(id);
   if (!isComponent(node)) return PENDING;
-  const children = (node.children ?? []).map((child) => renderFlat(spec, child, seen)).join("");
+  const children = list(node.children).map((child) => renderFlat(spec, child, seen)).join("");
   const html = render(node.type, node.props, children);
   return isPartial(node) ? `<div class="pending-wrap">${html}</div>` : html;
 }

@@ -71,6 +71,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
     ]
     ui.subagent(request)
     report = None  # newest thing it has said, kept in case we run out of turns
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(max_turns):
@@ -87,7 +88,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
             return report or "(the subagent came back with nothing)"
 
         # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             ui.tool(tool_call.function.name, args, result, nested=True)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})

@@ -18,7 +18,7 @@ os.environ.setdefault("API_KEY", "x")
 
 STEP = Path(__file__).resolve().parent
 
-from harness import agent, checkpoint, commands, context, hooks, instructions, jobs, mcp_client, memory, modes, permissions, plan, prompt, sandbox, session, todos, tools  # noqa: E402
+from harness import agent, checkpoint, commands, context, hooks, instructions, jobs, llm, mcp_client, memory, modes, permissions, plan, prompt, sandbox, session, subagent, todos, tools  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 USAGE = {"prompt_tokens": 10, "completion_tokens": 4, "reasoning_tokens": None, "cached_tokens": 3}
@@ -58,6 +58,7 @@ def fresh(tmp_path, monkeypatch):
     monkeypatch.setattr(session, "SESSION_DIR", tmp_path / "sessions")
     monkeypatch.setattr(session, "CURRENT", "test-session")
     monkeypatch.setattr(session, "WRITTEN", 0)
+    monkeypatch.setattr(session, "ENABLED", True)
     monkeypatch.setattr(hooks, "CONFIG_PATHS", [tmp_path / "hooks.json"])
     monkeypatch.setattr(mcp_client, "CONFIG_PATHS", [tmp_path / "mcp.json"])
     monkeypatch.setattr(plan, "MODE", "act")
@@ -299,3 +300,164 @@ def test_loop_smoke_accept_edits_then_read_only(fresh, monkeypatch):
     assert (fresh / "hello.py").read_text(encoding="utf-8") == "print('hi')\n"
     assert len(prompts) == 1  # read-only never asked
     assert "read-only mode:" in seen[-1] or seen[-1].startswith("accept-edits mode:")
+
+
+# ------------------------------------------------- round 2: every call gets a result
+
+
+def scripted_model(monkeypatch, replies):
+    """A fake call_llm that answers from a list, repeating the last reply."""
+    replies = list(replies)
+    requests = []
+
+    def fake(messages, tools=None, on_delta=None):
+        requests.append(messages)
+        return (replies.pop(0) if len(replies) > 1 else replies[0]), dict(USAGE)
+
+    monkeypatch.setattr(agent, "call_llm", fake)
+    monkeypatch.setattr(llm, "call_llm", fake)
+    return requests
+
+
+def test_bad_tool_calls_each_get_a_result_and_the_loop_goes_on(fresh, monkeypatch):
+    """Malformed arguments, an unknown tool and a raising tool: one tool message each, then the model answers."""
+    broken = SimpleNamespace(id="b1", function=SimpleNamespace(name="bash", arguments="{broken"))
+    scripted_model(monkeypatch, [
+        use(broken, call("b2", "no_such_tool", {"x": 1}), call("b3", "read_file", {"path": "missing.txt"}), call("b4", "bash", {})),
+        say("all four came back as errors"),
+    ])
+    messages = agent.turn([{"role": "system", "content": "s"}], "go")
+    results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+    assert results["b1"].startswith("Error: the arguments of bash are not a JSON object:")
+    assert results["b2"] == "Error: no tool named 'no_such_tool'."
+    assert results["b3"].startswith("Error: FileNotFoundError:")
+    assert results["b4"] == "Blocked by policy: bash: missing argument 'command'"
+    assert messages[-1] == {"role": "assistant", "content": "all four came back as errors"}
+    assert [m["role"] for m in messages] == ["system", "user", "assistant", "tool", "tool", "tool", "tool", "assistant"]
+
+
+def test_utf8_round_trip_through_the_file_tools_and_bash(fresh, monkeypatch):
+    monkeypatch.setattr(ui, "approve", lambda reason: "y")  # python -c is rated ask
+    text = "héllo ✓ — ünïcode\r\nline two\n"
+    assert tools.write_file("u.txt", text) == "Wrote u.txt"
+    assert tools.read_file("u.txt") == text  # newline="" keeps the CRLF as it was
+    assert (fresh / "u.txt").read_bytes() == text.encode("utf-8")
+    out = tools.bash(f'{sys.executable} -c "print(\'h\\u00e9llo \\u2713\')"')
+    assert out.strip() == "héllo ✓"
+    assert tools.write_file("deep/er/new.txt", "x") == "Wrote deep/er/new.txt" and (fresh / "deep" / "er" / "new.txt").exists()
+    assert tools.str_replace("u.txt", "", "y").startswith("Error: old_str is empty")
+
+
+def test_a_timeout_returns_the_output_so_far(fresh, monkeypatch):
+    monkeypatch.setattr(ui, "approve", lambda reason: "y")
+    run = sandbox.run
+    monkeypatch.setattr(tools.sandbox, "run", lambda command: run(command, timeout=1))
+    result = tools.bash(f'{sys.executable} -c "print(\'first line\', flush=True); import time; time.sleep(30)"')
+    assert result.startswith("Timed out after 1s and was killed. Output so far:")
+    assert "first line" in result
+
+
+def test_write_todos_rejects_a_bad_list_and_keeps_the_old_one(fresh):
+    todos.TODOS[:] = [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+    assert todos.write_todos([{"content": "x", "activeForm": "y", "status": "sideways"}]).startswith("Error: item 0 has status 'sideways'")
+    assert todos.write_todos([{"content": "x"}]).startswith("Error: item 0 needs a string 'activeForm'")
+    assert todos.write_todos("nope") == "Error: todos must be a list of items."
+    assert todos.TODOS == [{"content": "old", "activeForm": "keeping", "status": "in_progress"}]
+    assert todos.write_todos([]) == "Todo list cleared." and todos.TODOS == []
+
+
+def test_rewind_offers_user_messages_only_so_no_tool_call_is_orphaned(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "one"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "t1", "type": "function", "function": {"name": "bash", "arguments": "{}"}}]},
+        {"role": "tool", "tool_call_id": "t1", "content": "r"},
+        {"role": "assistant", "content": "done one"},
+        {"role": "user", "content": "two"},
+        {"role": "assistant", "content": "done two"},
+    ]
+    session.save(messages)
+    offered = []
+    monkeypatch.setattr(ui, "pick", lambda title, rows: offered.extend(rows) or 1)
+    monkeypatch.setattr(ui, "clear", lambda: None)
+    monkeypatch.setattr(ui, "replay", lambda m: None)
+    monkeypatch.setattr(ui, "resumed", lambda m, label="": None)
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    kept = commands.handle("/rewind", messages)
+    assert offered == ["turn 1    one", "turn 2    two"]  # only user rows
+    assert [m["role"] for m in kept] == ["system", "user", "assistant", "tool", "assistant"]
+    for i, m in enumerate(kept):
+        if m.get("tool_calls"):
+            assert kept[i + 1]["role"] == "tool"
+
+
+def test_recover_turns_a_failure_into_error_results(fresh, monkeypatch):
+    messages = [
+        {"role": "system", "content": "s"},
+        {"role": "user", "content": "go"},
+        {"role": "assistant", "content": None, "tool_calls": [{"id": "p1", "type": "function", "function": {"name": "bash", "arguments": json.dumps({"command": "ls"})}}]},
+    ]
+    monkeypatch.setattr(agent, "run_results", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    assert agent.recover(messages) == 1
+    assert messages[-1] == {"role": "tool", "tool_call_id": "p1", "content": "Error: RuntimeError: boom"}
+    assert agent.recover(messages) == 0  # nothing left unanswered
+
+
+def test_read_only_really_denies_writes_and_ignores_session_rules(fresh, monkeypatch):
+    monkeypatch.setattr(ui, "approve", lambda reason: pytest.fail(f"the approve prompt was opened: {reason}"))
+    permissions.remember("bash", {"command": "make"}, "allow")  # an `always` from before
+    modes.set_mode("read-only")
+    assert permissions.check("bash", {"command": "echo hi > pwned.txt"})[0] == "deny"
+    assert permissions.check("bash", {"command": "cat a.txt | tee b.txt"})[0] == "deny"
+    assert permissions.check("bash", {"command": "ls $(rm -rf x)"})[0] == "deny"
+    assert permissions.check("bash", {"command": "make"})[0] == "deny"  # the session rule does not apply here
+    assert permissions.check("bash", {"command": "cat a.txt 2>&1 | grep h"}) == ("allow", "run: cat a.txt 2>&1 | grep h")
+    assert permissions.check("remember", {"name": "x", "description": "d", "content": "c"})[0] == "deny"
+    assert permissions.check("recall", {"name": "x"})[0] == "allow"
+    modes.set_mode("default")
+    assert permissions.check("bash", {"command": "echo hi > out.txt"})[0] == "ask"
+    assert permissions.check("bash", {"command": "make"})[0] == "allow"  # and applies again in default
+    assert permissions.check("bash", {"command": "env"})[0] == "ask"  # env prints the API key
+    assert permissions.check("bash", {"command": "find . -name x -delete"})[0] == "ask"
+    assert permissions.split_command("a 2>&1 | b\nc") == ["a 2>&1", "b", "c"]
+
+
+def test_the_mode_is_logged_and_comes_back_on_load(fresh):
+    modes.set_mode("auto")
+    session.save([{"role": "system", "content": "s"}, {"role": "user", "content": "hi"}])
+    modes.set_mode("default", log=False)
+    loaded = session.load("test-session")
+    assert modes.CURRENT == "auto" and [m["role"] for m in loaded] == ["system", "user"]
+    assert session.all_sessions()[0]["title"] == "hi"
+
+
+def test_headless_without_a_terminal_denies_every_ask_and_exits_one_without_an_answer(fresh, monkeypatch, capsys):
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
+    monkeypatch.setattr(ui, "ask", lambda: pytest.fail("print mode must not open the input loop"))
+    scripted_model(monkeypatch, [use(call("t1", "bash", {"command": "python x.py"})), say("")])
+    monkeypatch.setattr(sys, "argv", ["harness", "-p", "run it"])
+    with pytest.raises(SystemExit) as stop:
+        agent.main()
+    assert stop.value.code == 1  # no answer text: a script can see the run gave nothing
+    assert not session.path_for(session.CURRENT).exists()  # a one-off question leaves no session file
+    err = capsys.readouterr().err
+    assert "denied (no terminal to ask on)" in err
+
+
+def test_exit_words_and_eof_end_the_chat(fresh, monkeypatch):
+    answers = iter(["", "/exit"])
+    monkeypatch.setattr(ui, "ask", lambda: next(answers))
+    monkeypatch.setattr(ui, "banner", lambda *a, **k: None)
+    monkeypatch.setattr(ui, "summary", lambda: None)
+    monkeypatch.setattr(agent, "turn", lambda *a, **k: pytest.fail("an empty line must not start a turn"))
+    agent.chat(agent.parser().parse_args([]))
+    monkeypatch.setattr(ui, "ask", lambda: None)  # ctrl-d
+    agent.chat(agent.parser().parse_args([]))
+
+
+def test_a_subagent_may_only_run_what_it_was_offered(fresh, monkeypatch):
+    scripted_model(monkeypatch, [use(call("s1", "write_file", {"path": "a.txt", "content": "x"})), say("blocked")])
+    assert subagent.task("write a.txt") == "blocked"
+    assert not (fresh / "a.txt").exists()
+    args, result = tools.execute(call("s2", "write_file", {"path": "a.txt", "content": "x"}), allowed={"bash"})
+    assert result == "Blocked by policy: write_file is not available to this agent"

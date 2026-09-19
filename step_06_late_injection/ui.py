@@ -37,15 +37,16 @@ class UI:
     def banner(self):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text("ctrl-d or an empty line to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text("ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def ask(self):
+        """The next line from you; None when there is no more input (EOF or ctrl-c)."""
         self.console.print()
         try:
             return input("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -65,6 +66,9 @@ class UI:
                 (1, 2, 0, 2),
             )
         )
+
+    def note(self, text):
+        self.console.print(Padding(Text(text, style=MUTED), (1, 0, 0, 2)))
 
     @contextmanager
     def working(self, label="thinking"):
@@ -100,7 +104,7 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

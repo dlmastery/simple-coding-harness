@@ -47,9 +47,12 @@ from fnmatch import fnmatch
 from pathlib import Path
 from urllib.parse import urlparse
 
-from . import modes, plan
+from . import extensions, modes, plan
 
 PROJECT = Path.cwd().resolve()
+
+# a command the rules cannot read: another command inside it, or output sent to a file
+HIDDEN = ("$(", "`", "<(", ">(")
 
 # hosts the browser may open without asking, e.g. BROWSER_ALLOW=docs.python.org,pypi.org
 BROWSER_ALLOW = {host.strip().lower() for host in os.environ.get("BROWSER_ALLOW", "").split(",") if host.strip()}
@@ -67,9 +70,10 @@ BASH_RULES = {
     # read-only: let them through
     "ls*": "allow", "pwd": "allow", "cd *": "allow", "echo *": "allow",
     "sort*": "allow", "uniq*": "allow", "cut *": "allow", "basename *": "allow", "dirname *": "allow",
-    "date*": "allow", "env": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
+    "date*": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
     "wc *": "allow", "file *": "allow", "which *": "allow", "grep *": "allow", "rg *": "allow",
     "find *": "allow", "tree*": "allow",
+    "env": "ask",  # prints every secret in the environment: ask
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
     "pytest*": "allow", "python -m pytest*": "allow",
     # risky: never, even if the user says yes
@@ -79,7 +83,7 @@ BASH_RULES = {
 }
 
 
-SESSION_RULES = {}  # (tool, first word) -> "allow" or "deny", from the a and never answers of this session
+SESSION_RULES = {}  # (tool, what was asked) -> "allow" or "deny", from the a and never answers of this session
 
 
 def first_word(command):
@@ -89,9 +93,18 @@ def first_word(command):
 
 
 def session_keys(name, args):
-    """The SESSION_RULES keys one call is filed under: one per command part for bash, one for any other tool."""
+    """The SESSION_RULES keys one call is filed under: what the prompt asked about.
+
+    bash: one key per command part, by its first word. An edit outside the
+    project: (tool, "outside"), so an always for one stray path does not
+    unlock every path. browser_open: the host. Anything else: the tool.
+    """
     if name in ("bash", "bash_background"):
         return [("bash", first_word(part)) for part in split_command(args.get("command", ""))]
+    if name in ("write_file", "str_replace") and not inside_project(args.get("path", "")):
+        return [(name, "outside")]
+    if name == "browser_open":
+        return [(name, (urlparse(args.get("url", "")).hostname or "").lower())]
     return [(name, "")]
 
 
@@ -105,7 +118,11 @@ def remember(name, args, verdict):
 
 
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, && - but not inside quotes."""
+    """Split a compound command on |, ||, ;, &, &&, and newlines - but not inside quotes.
+
+    The & of a redirection (`2>&1`, `>&2`) is part of its command, not a
+    separator.
+    """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
         ch = command[i]
@@ -118,7 +135,9 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch in "&|;":
+        elif ch == "&" and current and current[-1] == ">":
+            current.append(ch)  # 2>&1: a redirection, not a background job
+        elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
             while i + 1 < len(command) and command[i + 1] in "&|":
@@ -130,21 +149,54 @@ def split_command(command):
     return [p.strip() for p in parts if p.strip()]
 
 
+def writes(part):
+    """Whether an otherwise read-only command part writes somewhere the rules cannot see.
+
+    An unquoted > or >> sends output to a file; `tee` writes its input; a
+    find with -delete, -exec or -ok changes what it finds.
+    """
+    quote = None
+    for ch in part:
+        if quote:
+            quote = None if ch == quote else quote
+        elif ch in "\"'":
+            quote = ch
+        elif ch == ">":
+            return True
+    words = part.split()
+    if "tee" in words:
+        return True
+    return words[:1] == ["find"] and any(flag in words for flag in ("-delete", "-exec", "-execdir", "-ok", "-okdir"))
+
+
 def rate(part):
-    """One command's verdict: a session rule first, then BASH_RULES. A deny in BASH_RULES wins."""
+    """One command's verdict: BASH_RULES, then a session rule. A deny in BASH_RULES wins.
+
+    An allow that writes somewhere (writes()) becomes an ask: `ls > out` is
+    not the `ls` the rule meant. Session rules do not apply in plan mode:
+    nothing the user allowed in act mode is an exploration.
+    """
     action = "ask"
     for pattern, rule in BASH_RULES.items():
         if fnmatch(part, pattern):
             action = rule
-    remembered = SESSION_RULES.get(("bash", first_word(part)))
+    if action == "allow" and writes(part):
+        action = "ask"
+    remembered = SESSION_RULES.get(("bash", first_word(part))) if plan.MODE != "plan" else None
     if remembered and action != "deny":
         action = remembered
     return action
 
 
 def decide(command):
-    """Rate every part of a compound command; the strictest verdict wins."""
+    """Rate every part of a compound command; the strictest verdict wins.
+
+    A command with a command inside it - $(...), backticks, <(...) - is an
+    ask whatever its parts say: the rules cannot see the inner one.
+    """
     verdicts = [rate(part) for part in split_command(command)]
+    if any(marker in command for marker in HIDDEN):
+        verdicts.append("ask")
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
             return strictest
@@ -163,17 +215,30 @@ def describe(name, args):
     return name
 
 
+def missing(name, args, *keys):
+    """The deny verdict for a required argument the call did not carry, or None."""
+    for key in keys:
+        if args.get(key) is None:
+            return "deny", f"{name}: missing argument {key!r}"
+    return None
+
+
 def check(name, args):
     """Return (action, reason). Action is allow, ask or deny.
 
     The mode is consulted first. Plan mode denies every tool outside the
-    plan tool set before the rules see the call. Then the rules rate the
-    call, and the mode's table rewrites an allow or an ask; a deny is
-    final. When the mode changed the verdict, the reason says which mode.
+    plan tool set before the rules see the call, and an agent definition
+    with a `tools:` list gets only those. Then the rules rate the call,
+    and the mode's table rewrites an allow or an ask; a deny is final.
+    When the mode changed the verdict, the reason says which mode.
     """
+    from . import handoff  # here, not at the top: handoff imports the agents, which import the tools
+
     mode = modes.current()
     if mode == "plan" and not plan.offered(name):
         return "deny", f"plan mode: {name} is not available until the plan is approved"
+    if not handoff.offered(name):
+        return "deny", f"{name} is not available to the {handoff.active_name()} agent"
     action, reason = rules(name, args)
     final = modes.apply(mode, modes.category(name, args, inside_project), action)
     if final != action:
@@ -182,20 +247,43 @@ def check(name, args):
 
 
 def rules(name, args):
-    """The verdict of the rules alone: (action, reason), as check() gave it before step 39."""
+    """The verdict of the rules alone: (action, reason), as check() gave it before step 39.
+
+    A call without a required argument is denied with a reason that names
+    it, so the model fixes the call instead of the harness crashing on it.
+    A session rule is read under the key the prompt filed it under, and
+    never in plan mode.
+    """
     if name in ("bash", "bash_background"):
+        problem = missing(name, args, "command")
+        if problem:
+            return problem
         action = decide(args["command"])
         if plan.MODE == "plan" and action == "ask":
             return "deny", f"plan mode: only read-only commands run before the plan is approved: {args['command']}"
         how = "run in background" if name == "bash_background" else "run"
         return action, f"{how}: {args['command']}"
 
-    remembered = SESSION_RULES.get((name, ""))
-    if remembered:
-        return remembered, f"{remembered} for this session: {name}"
+    if name in ("write_file", "str_replace"):
+        problem = missing(name, args, "path")
+        if problem:
+            return problem
+    if name == "browser_open":
+        problem = missing(name, args, "url")
+        if problem:
+            return problem
+
+    if plan.MODE != "plan":
+        for key in session_keys(name, args):
+            remembered = SESSION_RULES.get(key)
+            if remembered:
+                return remembered, f"{remembered} for this session: {' '.join(part for part in key if part)}"
 
     if name in ("write_file", "str_replace") and not inside_project(args["path"]):
         return "ask", f"{name} outside {PROJECT}: {args['path']}"
+
+    if name in ("write_file", "str_replace") and ".git" in Path(args["path"]).parts:
+        return "ask", f"{name} inside .git: {args['path']}"
 
     if name == "browser_open":
         host = (urlparse(args["url"]).hostname or "").lower()
@@ -212,5 +300,8 @@ def rules(name, args):
         if any(fnmatch(name, pattern) for pattern in MCP_ALLOW):
             return "allow", None
         return "ask", f"call MCP tool {name} with {json.dumps(args)[:200]}"
+
+    if extensions.PERMISSIONS.get(name) == "ask":  # an extension tool that did not declare itself read-only
+        return "ask", f"call {name} with {json.dumps(args)[:200]}"
 
     return "allow", None

@@ -31,7 +31,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # marker cap() leaves: the whole text is on disk for this turn
+TRIMMED = "[output trimmed:"  # marker strip() and fit() leave: the rest is gone for good; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
@@ -57,9 +58,9 @@ def cap(text):
     try:
         path = spill(text)
     except OSError:
-        return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
+        return text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )

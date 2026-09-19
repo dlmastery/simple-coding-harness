@@ -47,7 +47,8 @@ def parse_provider(sort):
 
 
 # The ordered route. MODELS[0] is the primary; MODELS[1:] are the fallbacks.
-MODELS = parse_route(os.environ.get("MODELS"))
+# MODEL (singular) has been the setting since stage 1; a one-model route honours it.
+MODELS = parse_route(os.environ.get("MODELS") or os.environ.get("MODEL"))
 
 # Optional provider preferences, sent as extra_body["provider"].
 PROVIDER = parse_provider(os.environ.get("OPENROUTER_PROVIDER_SORT"))

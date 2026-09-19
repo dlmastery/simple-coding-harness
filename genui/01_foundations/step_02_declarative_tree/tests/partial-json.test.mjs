@@ -42,3 +42,12 @@ test("cut scalars are dropped, cut strings are kept", () => {
   assert.deepEqual(parsePartial('{"ti'), {});
   assert.equal(parsePartial("   "), null);
 });
+
+test("text that is not JSON throws; the page keeps its last render", () => {
+  const BS = String.fromCharCode(92);
+  for (const bad of ["```json\n{", '{"a": 1., "b": 2}', '{"a": @}', "[".repeat(100), `{"a": "${BS}uZZZZ"}`]) {
+    assert.throws(() => parsePartial(bad));
+  }
+  assert.deepEqual(parsePartial(`{"a": "${BS}u00e9"}`), { a: "\u00e9" });
+  assert.deepEqual(parsePartial('{"a": 1.5e3, "b": -2}'), { a: 1500, b: -2 });
+});

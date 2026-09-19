@@ -1,18 +1,33 @@
 # Step 19 - The same harness on DeepSeek Harness (dsh)
 
-**What this step adds:** the harness is a tree of plugins. The loop, the
-tool registry, the model adapter, sessions, compaction, subagents and the
-permission gate are each a Cordis plugin composed by a *profile*. Our policy
-becomes one more plugin in that tree. The Python side is a thin JSON-RPC
-client.
+**What this step adds:** policy as a plugin inside the runtime. The harness
+is a tree of plugins: the loop, the tool registry, the model adapter,
+sessions, compaction, subagents and the permission gate are each a Cordis
+plugin composed by a *profile*. Our policy becomes one more plugin in that
+tree, running inside the runtime's process. The Python side is a thin
+JSON-RPC client.
 
 Install the Python SDK (pre-release as of September 2026; it pulls the
-matching runtime wheel, so no Node.js is needed to run it):
+matching runtime wheel - about 240 MB, a single-file Node executable - so no
+Node.js is needed to run it):
 
 ```bash
 pip install --pre deepseek-harness-sdk
 export DEEPSEEK_API_KEY=sk-...
 ```
+
+## Why
+
+Steps 16-18 kept our policy on our side of a boundary: a callback the SDK
+invokes. Every decision costs a round trip to the host process, and the
+host has to be alive to answer. dsh takes the other position: the policy
+runs *inside* the runtime, as a listener on the same event the built-in
+gate listens on, with no privilege the built-in has that ours does not.
+
+Without this step, "plugin" would still mean "a callback the vendor calls".
+Here it means a row in the profile that composes the runtime. That is the
+most invasive of the four integrations and the one where our code can
+break the runtime - which the caveats say.
 
 ## Files
 
@@ -24,7 +39,7 @@ step_19_deepseek_harness/
 │   └── src/
 │       ├── index.js           the policy plugin: a tools/pre-execute gate
 │       ├── rules.js           the stage 11 rules, ported to JavaScript
-│       └── rules.test.js      plain node unit test of decide() and splitCommand()
+│       └── rules.test.js      plain node unit test of decide(), splitCommand() and the gate
 └── test_step.py       offline tests: patch, client config, renderer, plugin via node
 ```
 
@@ -46,12 +61,12 @@ plugin/simple-harness-plugin/
 |-----:|----------|------------------|-------------------|
 | 1-2.4 | the two loops | `core/agent-loop` plugin; `harness.run(prompt)` waits from inbox receipt to idle | runtime |
 | 2.1-2.2, 5 | `bash`, read, edit, registry | `dsh-base`: persistent `bash` (`pwsh` on Windows), `read` / `write` / `edit`, `str_replace_editor` opt-in; `ctx.tools.register(defineTool(...))` for your own | runtime |
-| 3 | UI | `on_notification` callback: the session event stream (`tool/call`, `tool/result`, `turn/end`) | us (`summarize`) |
+| 3 | UI | `on_notification` callback: the session event stream (`tool/call`, `tool/result`, `turn/end`, `compaction/end`) | us (`summarize`) |
 | 4 | skills | `skill/` package: skill provider registry + loader tool | runtime |
 | 6, 7 | late injection, freshness | `context/` request-context plugins; `agent.inject()` for durable context | runtime |
 | 8 | JSONL sessions | append-only `SessionEvent` log under `<home>/sessions`; `session_id=` to continue | runtime; we list them |
 | 10 | todos | `todo/` package (`todo_write`) | runtime |
-| 11 | allow / ask / deny, sandbox | `tools/pre-execute` waterfall: return `{kind: 'deny'}` / `{kind: 'ask'}` or `next()`; `interaction/` handles asks; fs and subprocess *providers* are the sandbox seam | us (the plugin), runtime (mechanics) |
+| 11 | allow / ask / deny, sandbox | `tools/pre-execute` waterfall: return `{kind: 'deny'}` / `{kind: 'ask'}` or `next()`; the approval service answers asks - or fails closed when nobody can; fs and subprocess *providers* are the sandbox seam | us (the plugin), runtime (mechanics) |
 | 14 | compaction | `compaction/` capability + provider | runtime |
 | 15 | subagents | `subagent/` capability; providers range from a child agent to delegating a turn to Claude Code or Codex | runtime |
 
@@ -71,20 +86,48 @@ export function apply(ctx) {
   ctx.on('tools/pre-execute', async (exec, next) => {
     if (!SHELL_TOOLS.has(exec.name)) return next()
     const command = commandOf(exec)
-    const verdict = decide(command)
-    if (verdict === 'deny') return { kind: 'deny', reason: `Blocked by policy: ${command}` }
-    if (verdict === 'ask') return { kind: 'ask', reason: `run: ${command}` }
+    const decision = gate(command)
+    if (decision) return decision
+    if (decide(command) === 'ask') console.error(`[simple-harness-policy] ask, allowed without a human: ${command}`)
     return next()
   })
 ```
 
 `apply(ctx)` is the plugin entry point. `ctx` is the Cordis context the
 loader hands every plugin. A `deny` return means the call never runs and
-the reason becomes the tool result. An `ask` return hands off to the
-interaction plugin, which prompts the user. `next()` lets the next
-listener, or the default policy, decide. This is the `execute()` hook of
-stage 11 as an event listener. The plugin needs no imports beyond its own
-rules file, so it loads from a raw path.
+the reason becomes the tool result. `next()` lets the next listener, or the
+default policy, decide. This is the `execute()` hook of stage 11 as an
+event listener.
+
+The decision itself is a function, so the node test can drive it:
+
+`src/index.js`:
+
+```javascript
+export function gate(command, askFallback = ASK_FALLBACK) {
+  const verdict = decide(command)
+  if (verdict === 'deny') return { kind: 'deny', reason: `Blocked by policy: ${command}` }
+  if (verdict === 'ask' && askFallback === 'deny') {
+    return { kind: 'deny', reason: `needs approval, and this profile has nobody to ask: ${command}. Only allow-listed commands run.` }
+  }
+  return null // allow, or ask-as-allow: let the next listener decide
+}
+```
+
+Here is the honest part. The waterfall contract has a third answer,
+`{ kind: 'ask' }`, which hands the call to the runtime's approval service.
+That service asks its *answerers*, and in the SDK profiles there are none:
+the JSON-RPC server never sends a question back to the Python client (the
+runtime's own README calls server-to-client requests "a dead capability"),
+so the service fails closed and the model reads `requires approval, but no
+approval channel is available`. The first version of this plugin returned
+`ask` and believed the interaction plugin would prompt. It cannot. So
+`ASK_FALLBACK` decides what an `ask` verdict becomes: `'deny'`, the
+default, keeps the stage 11 line and tells the model why in plain words;
+`'allow'` lets those commands through with an audit line on stderr, which
+is what `sdk-minimal`'s `danger-full-access` sandbox mode already permits.
+Neither is a human saying yes. Add commands to the allow list in `rules.js`
+if you want them to run without one.
 
 `src/index.js`:
 
@@ -100,8 +143,8 @@ rules file, so it loads from a raw path.
 
 The same plugin listens to `session/event` and logs each tool call to
 stderr. That is the audit line of stage 3, from inside the runtime
-process. Both listeners are ours. The event vocabulary and the waterfall
-are the runtime's.
+process. Stderr, never stdout: stdout is the JSON-RPC transport, and a
+stray `console.log` breaks the framing.
 
 ### 2. The rules, ported to JavaScript
 
@@ -127,8 +170,8 @@ export function decide(command) {
 `BASH_RULES` is the same list as the Python `rules.py` in steps 16-18, as
 an ordered array so last match wins. `splitCommand` is the quote-aware
 splitter of stage 11. `globMatch` stands in for `fnmatch`. The unit test
-in `rules.test.js` checks the same verdicts as the Python tests. Nothing
-here is the runtime's. It is the policy, and policy is ours.
+in `rules.test.js` checks the same verdicts as the Python tests, plus the
+gate. Nothing here is the runtime's. It is the policy, and policy is ours.
 
 ### 3. The patch: how a plugin enters the tree
 
@@ -180,13 +223,16 @@ def build(minimal=False, model=None, patch=None):
         dsh_home=str(HOME),
         profile="sdk-minimal" if minimal else "sdk",
         patches=(str(patch),) if patch else (),
+        request_timeout_seconds=REQUEST_TIMEOUT,
     )
 ```
 
 `dsh_home` is an isolated harness home under `~/.simple-harness`, so the
 profile, plugins and sessions of this step never touch a global dsh
 install. `profile` picks the plugin tree. `patches` adds ours to it. The
-runtime launches on the first `run()` call.
+runtime launches on the first `run()` call. `request_timeout_seconds`
+bounds how long the runtime may take to *acknowledge* a request; the turn
+itself is bounded by the runtime's own timeouts.
 
 ### 5. Presentation: the event stream
 
@@ -198,32 +244,42 @@ happens, and we pick which ones to show.
 
 ```python
 def summarize(note: Notification):
-    """One line for the events worth a person's eyes, None for the rest."""
+    """One line for the events worth a person's eyes, None for the rest.
+
+    The shapes are the runtime's session-event contract: `tool/call` carries
+    `{name, arguments}`, `tool/result` carries the tool message under
+    `message.content` (and `error` when it failed), compaction is a
+    start / end pair.
+    """
     payload = note.payload or {}
     event = payload.get("event", payload)
-    kind = event.get("type") or note.method
+    kind = event.get("type") if isinstance(event, dict) else None
     data = event.get("data", {}) if isinstance(event, dict) else {}
     if kind == "tool/call":
-        name = data.get("name") or data.get("tool") or "?"
-        args = data.get("arguments") or data.get("args") or ""
-        return f"  tool> {name} {str(args)[:90]}"
+        return f"  tool> {data.get('name', '?')} {str(data.get('arguments', ''))[:90]}"
     if kind == "tool/result":
-        content = data.get("content") or data.get("result") or ""
+        error = data.get("error")
+        content = (data.get("message") or {}).get("content") or []
         text = " ".join(str(c.get("text", "")) if isinstance(c, dict) else str(c) for c in content) if isinstance(content, list) else str(content)
+        if error:
+            text = f"error {error.get('name', '')}: {text}" if isinstance(error, dict) else f"error: {text}"
         return f"        {' '.join(text.split())[:110] or '(no output)'}"
     if kind == "turn/end":
         reason = (data.get("reason") or {}).get("kind") if isinstance(data.get("reason"), dict) else data.get("reason")
         return f"  turn ended: {reason}" if reason else None
-    if kind == "compaction":
+    if kind == "compaction/end":
         return "  compacted"
     return None
 ```
 
 Four event kinds get a line: a tool call, its result, the end of a turn,
-and a compaction. Everything else returns `None` and is not printed. The
-compaction line replaces the orange panel of stage 14. The runtime
-compacts on its own and only tells us it happened. The event shapes are
-the runtime's. The choice of what to show is ours.
+and the end of a compaction. Everything else returns `None` and is not
+printed. The notifications arrive with method `session.event` and the
+event under `payload["event"]`; a tool result is a whole tool *message*,
+so its text is under `data.message.content`, and a failed tool adds an
+`error` object beside it. The compaction line replaces the orange panel of
+stage 14. The runtime compacts on its own and only tells us it happened.
+The event shapes are the runtime's. The choice of what to show is ours.
 
 ### 6. Sessions are JSONL logs under the harness home
 
@@ -255,61 +311,123 @@ sends the prompt and returns after the agent goes idle.
 `harness.py`:
 
 ```python
-    with build(minimal=cli.minimal, patch=patch) as harness:
-        while True:
-            try:
-                text = input("\n> ").strip()
-            except (EOFError, KeyboardInterrupt):
-                break
-            if not text:
-                break
-            if text == "/sessions":
-                for sid in list_sessions():
-                    print(f"  {sid}")
-                continue
-            result = harness.run(
-                text,
-                session_id=session_id,
-                on_notification=lambda n: (line := summarize(n)) and print(line),
-            )
-            print(f"\n  agent> {result.final_response}")
-            print(f"  finish: {result.finish_reason} · {len(result.events)} events")
+def turn(harness, text, session_id):
+    """One prompt in, the final answer out. A runtime failure is one line, not a crash."""
+    try:
+        result = harness.run(
+            text,
+            session_id=session_id,
+            on_notification=lambda n: (line := summarize(n)) and print(line),
+        )
+    except (HarnessError, TimeoutError) as failure:
+        print(f"\n  error: {type(failure).__name__}: {failure}")
+        return
+    print(f"\n  agent> {result.final_response}")
+    print(f"  finish: {result.finish_reason} · {len(result.events)} events")
 ```
 
 `final_response` is the last assistant text. `finish_reason` is the
-`turn/end` kind: `completed`, `max-tokens` or `error`. `events` is the
-root-session log for that interval. Subagent traffic arrives through
-notifications but cannot replace the root answer. The input loop and the
-`/sessions` command are ours. Everything between the prompt and the
-answer is the runtime's.
+`turn/end` kind: `completed`, `max-tokens`, `error`, `interrupted` or
+`aborted`. `events` is the root-session log for that interval. Subagent
+traffic arrives through notifications but cannot replace the root answer.
+The input loop and the `/sessions` command are ours. Everything between
+the prompt and the answer is the runtime's.
 
 ## Run it
 
+Prerequisites: Python 3.10+, `pip install --pre deepseek-harness-sdk`, a
+DeepSeek key. `node` is only needed for the plugin's own unit test.
+
+bash:
+
 ```bash
+export DEEPSEEK_API_KEY=sk-...
 python harness.py                  # full `sdk` profile: files, shell, skills, subagents, compaction
 python harness.py --minimal        # `sdk-minimal`: shell + editor only, no policy plugins of its own
-you> find where the permission gate runs and add a comment there
-you> /sessions
-python harness.py --resume 20260910-153000
+python harness.py --resume 20260910-153000-a1b2c3
 ```
 
+PowerShell:
+
+```powershell
+$env:DEEPSEEK_API_KEY = "sk-..."
+python harness.py
+```
+
+Then:
+
+```text
+> find where the permission gate runs and add a comment there
+> /sessions
+```
+
+### Expected output
+
+```text
+  simple coding harness · deepseek harness · profile sdk · session 20260918-104201-3f9a1c · /sessions
+  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> find where the permission gate runs and add a comment there
+  tool> bash {"command":"grep -n \"tools/pre-execute\" -r plugin"}
+        plugin/simple-harness-plugin/src/index.js:46: ctx.on('tools/pre-execute', async (exec, next) => {
+  tool> read {"path":"plugin/simple-harness-plugin/src/index.js"}
+        // @ts-check /** * simple-harness-policy: the step 11 permission layer as a dsh plugin. …
+  tool> edit {"path":"plugin/simple-harness-plugin/src/index.js","old":"  ctx.on('tools/pre-execute'…
+        edited
+  turn ended: completed
+
+  agent> The gate is the tools/pre-execute listener in src/index.js; I added a comment above it.
+  finish: completed · 14 events
+```
+
+A command outside the allow list shows up as
+`tool> bash {"command":"python x.py"}` followed by
+`Error: needs approval, and this profile has nobody to ask: python x.py. Only allow-listed commands run.`
+- see section 1.
+
 Offline tests: `python -m pytest test_step.py` (patch, client config,
-renderer, and the plugin syntax-checked plus unit-tested with `node`).
+renderer against the runtime's event shapes, `turn()`'s error path, and the
+plugin syntax-checked plus unit-tested with `node`).
 
-## What the SDK does not give you
+## Error handling
 
-A policy of its own that matches yours, and a screen. The `sdk` profile
-ships a default gate; ours sits in front of it and the default still runs
-when we call `next()`. The `sdk-minimal` profile ships no policy plugins at
-all. What to print from the event stream is our decision.
+- **A bad or failing tool call.** The runtime's tools return their errors
+  as tool messages; `summarize` prints them as `error <name>: ...`.
+- **A denied call.** The plugin's `deny` reason is the tool result.
+- **A dead runtime.** `harness.run()` raises `TransportClosedError`
+  (`HarnessError`) when the subprocess exits; `turn()` prints one line and
+  returns to the prompt. The next prompt fails the same way - leave and
+  start again with `--resume`.
+- **A slow acknowledgement** raises `TimeoutError` after `REQUEST_TIMEOUT`
+  seconds, printed the same way. A turn that the runtime never finishes is
+  not bounded on the Python side; ctrl-c ends the process and closes the
+  runtime.
+- **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
+  the prompt. An empty line does nothing.
 
-## Caveats
+## Gotchas / what this is not
 
-Developer preview: the runtime is `0.1.5rc`, the README warns of breaking
-changes, and the `sdk-minimal` profile pins `danger-full-access` - use a
-disposable checkout. The exact argument key of the shell tool is read
-defensively in `commandOf()`; if a rule never fires, log `exec.arguments`.
-The plugin is plain ESM JavaScript with no imports so it loads from a raw
-path; a plugin that uses `defineTool` from `@deepseek-ai/dsh-tools` should be
-installed with `dsh plugin --profile sdk add file:<dir>` so its imports
-resolve.
+- **No prompt for `ask`.** The runtime cannot ask the Python client
+  anything in this SDK version (section 1). `ASK_FALLBACK` in `index.js`
+  is the switch; the default is deny.
+- The `sdk` profile ships a default gate; ours sits in front of it and the
+  default still runs when we call `next()`. The `sdk-minimal` profile ships
+  no policy plugins at all and pins `danger-full-access` - use a disposable
+  checkout.
+- The plugin loads from a raw path and imports `./rules.js` relative to
+  itself. On Windows the path in the patch is `C:/...`; if the loader
+  refuses it, install the plugin with `dsh plugin --profile sdk add
+  file:<dir>` instead. A plugin that uses `defineTool` from
+  `@deepseek-ai/dsh-tools` needs that route in any case, so its imports
+  resolve.
+- Developer preview: the runtime is `0.1.5rc` and the README warns of
+  breaking changes. The shell tool is `bash` on Linux and macOS and `pwsh`
+  on Windows; both are in `SHELL_TOOLS`. If a rule never fires, log
+  `exec.arguments` from the plugin (to stderr).
+- The screen is ours: what to print from the event stream is our decision.
+
+## What the next step adds
+
+Step 20 goes back to the hand-built harness of stage 15 and points it at
+OpenRouter: one key, a route of models with fallbacks, and the cost of
+every call.

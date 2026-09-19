@@ -36,3 +36,15 @@ test("only {type: 'event', name} messages count as events", () => {
   assert.equal(isEvent("event"), false);
   assert.equal(isEvent(null), false);
 });
+
+test("<header> is not <head>: the tag still goes before the body", () => {
+  const out = sandboxed("<!doctype html><html><body><header>x</header></body></html>");
+  assert.ok(out.startsWith(META), "a CSP tag inside <body> would be ignored by the browser");
+  assert.doesNotMatch(out, /<header><meta/);
+});
+
+test("a meta refresh is stripped: it is the one way out that needs no click", () => {
+  const out = sandboxed('<head><meta http-equiv="refresh" content="0;url=https://evil.example/"></head><p>x</p>');
+  assert.doesNotMatch(out, /refresh/);
+  assert.match(out, /<head><meta http-equiv="Content-Security-Policy"/);
+});

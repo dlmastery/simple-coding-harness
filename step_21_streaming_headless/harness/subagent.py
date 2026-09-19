@@ -68,13 +68,15 @@ def task(description: str) -> str:
     ]
     ui.subagent(description)
     report = None  # newest thing it has said, kept in case we run out of turns
+    tools = toolset()
+    allowed = {s["function"]["name"] for s in tools}  # what it may run == what it was offered
 
     # rule 3: the loop from agent.py, pointed at a different list
     for _ in range(MAX_TURNS):
         fit(messages)  # its context can overflow too, and nobody compacts it
 
         with ui.working("subagent exploring"):
-            message, usage = call_llm(messages, tools=toolset())  # rule 2
+            message, usage = call_llm(messages, tools=tools)  # rule 2
         messages.append(message.model_dump(exclude_none=True))
         ui.usage(usage)
         report = message.content or report
@@ -85,7 +87,7 @@ def task(description: str) -> str:
 
         for tool_call in message.tool_calls:
             # the same executor as the main loop: same permissions, same sandbox
-            args, result = execute(tool_call)
+            args, result = execute(tool_call, allowed=allowed)
             ui.tool(tool_call.function.name, args, result, nested=True)
             messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": result})
 

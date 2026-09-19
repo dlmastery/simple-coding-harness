@@ -4,7 +4,7 @@ An extension is a Python module with one function, `apply(ctx)`. The
 harness imports the module, builds a Context for it and calls `apply`.
 The context offers five registrations:
 
-    ctx.tool(fn, schema=None)          a tool the model may call
+    ctx.tool(fn, schema=None, permission="ask")   a tool the model may call
     ctx.command(name, help, fn)        a slash command for the prompt line
     ctx.hook(event, fn, matcher="*")   a hook, called with the event dict
     ctx.prompt_section(text)           a paragraph of the system prompt
@@ -13,7 +13,14 @@ The context offers five registrations:
 Every registration is recorded on the extension, so `/extensions` can
 list what each one added and `unload` can take it back. A module that
 fails to import, has no `apply`, or raises inside it is skipped with a
-note; the registrations it made before the failure are removed.
+note; the registrations it made before the failure are removed. A file
+named like a built-in loader (skills.py, hooks.py, agents.py, mcp.py) is
+refused, so a broken copy cannot take the real one down.
+
+A tool an extension registers is rated `ask` by permissions.check unless
+the extension says permission="allow": the rules cannot read what a tool
+they have never seen does. The shipped git_diff_summary is read-only and
+says so.
 
 Two kinds of extension exist. The built-in ones are the harness's own
 loaders - skills, hooks, agents and MCP - which used to write into the
@@ -35,6 +42,8 @@ agents.AGENTS, where the rest of the harness already reads them.
 import importlib
 import importlib.util
 import inspect
+import sys
+import typing
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -58,6 +67,9 @@ EXTENSIONS = {}      # name -> Extension, in load order
 COMMANDS = {}        # "/name" -> (help, fn); fn(messages, arg) returns the messages
 HOOKS = {}           # event -> [{"matcher": ..., "function": fn, "source": extension name}]
 PROMPT_SECTIONS = []  # (extension name, text or callable) in registration order
+PERMISSIONS = {}     # tool name -> "ask" or "allow": how permissions.check rates a registered tool
+
+RESERVED = tuple(name for name, _ in BUILTIN)  # file stems a project or user extension may not use
 
 
 @dataclass
@@ -110,14 +122,21 @@ class Context:
     def __init__(self, extension):
         self.extension = extension
 
-    def tool(self, fn, schema=None):
-        """Register a tool. Without a schema, one is built from the signature and the docstring."""
+    def tool(self, fn, schema=None, permission="ask"):
+        """Register a tool. Without a schema, one is built from the signature and the docstring.
+
+        permission is how the rules rate a call: "ask" (the default: the
+        user approves each call) or "allow" for a tool that only reads.
+        """
         from . import tools as registry  # here, not at the top: tools imports this module
 
+        if permission not in ("ask", "allow"):
+            raise ValueError(f"permission must be 'ask' or 'allow', not {permission!r}")
         schema = schema or schema_from(fn)
         name = schema["function"]["name"]
-        previous = (registry.TOOLS.get(name), find_schema(name))  # what unload puts back
+        previous = (registry.TOOLS.get(name), find_schema(name), PERMISSIONS.get(name))  # what unload puts back
         registry.TOOLS[name] = fn
+        PERMISSIONS[name] = permission
         for i, existing in enumerate(registry.TOOL_SCHEMAS):
             if existing["function"]["name"] == name:
                 registry.TOOL_SCHEMAS[i] = schema  # in place: the tool keeps its position
@@ -159,7 +178,7 @@ class Context:
         previous = agents.AGENTS.get(name)  # what unload puts back
         agents.AGENTS[name] = definition
         self.extension.record("agent", name, previous)
-        return self.tool(agents.make_tool(name), agents.schema(name))
+        return self.tool(agents.make_tool(name), agents.schema(name), permission="allow")  # the agent's own calls are checked one by one
 
 
 def find_schema(name):
@@ -173,8 +192,14 @@ def schema_from(fn):
     """A tool schema from a function: the name, the first docstring line, and the typed parameters."""
     properties = {}
     required = []
+    try:
+        hints = typing.get_type_hints(fn)  # resolves string annotations (from __future__ import annotations)
+    except Exception:  # noqa: BLE001 - a hint that cannot be resolved is a string parameter
+        hints = {}
     for parameter in inspect.signature(fn).parameters.values():
-        kind = TYPES.get(parameter.annotation, "string")
+        if parameter.kind in (parameter.VAR_POSITIONAL, parameter.VAR_KEYWORD):
+            continue  # *args and **kwargs are not something the model can fill
+        kind = TYPES.get(hints.get(parameter.name, parameter.annotation), "string")
         properties[parameter.name] = {"type": kind}
         if parameter.default is inspect.Parameter.empty:
             required.append(parameter.name)
@@ -216,14 +241,28 @@ def apply_module(name, module, path=None):
 
 
 def load_file(path):
-    """Import one extension file and apply it. Its name is the file's stem."""
+    """Import one extension file and apply it. Its name is the file's stem.
+
+    The file's directory is on sys.path while it imports, so it can import a
+    `_helpers.py` next to it, and the module is registered in sys.modules
+    under `harness_extension_<name>`, as a real import would. A stem that
+    names a built-in loader is refused: the record of the real one stays.
+    """
     name = path.stem
+    if name in RESERVED:
+        return _failed(Extension(path.name, path), f"name reserved: {name} is a built-in loader; rename the file")
+    module_name = f"harness_extension_{name}"
+    sys.path.insert(0, str(path.parent))
     try:
-        spec = importlib.util.spec_from_file_location(f"harness_extension_{name}", path)
+        spec = importlib.util.spec_from_file_location(module_name, path)
         module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
         spec.loader.exec_module(module)
     except Exception as failed:  # noqa: BLE001 - a file that does not import is a failed extension
+        sys.modules.pop(module_name, None)
         return _failed(Extension(name, path), f"{type(failed).__name__}: {failed}")
+    finally:
+        sys.path.remove(str(path.parent))
     return apply_module(name, module, path)
 
 
@@ -253,10 +292,13 @@ def unload(name):
         return
     for registration in reversed(extension.registrations):
         if registration.kind == "tool":
-            fn, schema = registration.entry  # the tool the name had before, or (None, None)
+            fn, schema, permission = registration.entry  # the tool the name had before, or (None, None, None)
             registry.TOOLS.pop(registration.name, None)
+            PERMISSIONS.pop(registration.name, None)
             if fn is not None:
                 registry.TOOLS[registration.name] = fn
+            if permission is not None:
+                PERMISSIONS[registration.name] = permission
             for i, existing in enumerate(registry.TOOL_SCHEMAS):
                 if existing["function"]["name"] == registration.name:
                     if schema is None:
@@ -280,11 +322,18 @@ def unload(name):
 
 
 def _failed(extension, why):
-    """Mark an extension failed, drop what it registered so far, and say so."""
-    unload(extension.name)
+    """Mark an extension failed, drop what it registered so far, and say so.
+
+    Only the failed record's own registrations go: an older extension of
+    the same name that is still loaded is left alone, and the failed row
+    is filed under its file name next to it.
+    """
+    if EXTENSIONS.get(extension.name) is extension:
+        unload(extension.name)
     extension.status = f"failed: {why}"
     extension.registrations = []
-    EXTENSIONS[extension.name] = extension
+    key = extension.name if extension.name not in EXTENSIONS else extension.source
+    EXTENSIONS[key] = extension
     _note(f"extension {extension.name!r} skipped: {why}")
     return extension
 

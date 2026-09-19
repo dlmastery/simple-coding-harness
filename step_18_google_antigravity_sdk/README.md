@@ -1,21 +1,36 @@
 # Step 18 - The same harness on the Google Antigravity SDK
 
-**What this step adds:** the whole runtime lives in a binary that ships
-inside the `google-antigravity` wheel: loop, coding tools, subagents,
-compaction, sessions, skills. Python configures it. Our contribution is a
-policy list, three hooks, one subagent definition and two tools.
+**What this step adds:** a runtime you configure instead of call. The whole
+agent lives in a binary that ships inside the `google-antigravity` wheel:
+loop, coding tools, subagents, compaction, sessions, skills. Python
+configures it. Our contribution is a policy list, three hooks, one subagent
+definition and two tools.
 
 `pip install google-antigravity` (Apache-2.0, Python 3.10+, wheels for
 Linux, macOS and Windows). Auth is `GEMINI_API_KEY`, or Vertex credentials.
 The runtime can also be pointed at an OpenAI-compatible endpoint with
 `LocalOpenAIAgentConfig(base_url=...)`. Same harness, different model.
 
+## Why
+
+Steps 16 and 17 were libraries in our process: our event loop, our
+threads, our prompts. Here the agent is another process. Every decision we
+still make - allow this call, deny that one, ask about the third - crosses
+a process boundary as a hook callback, and everything we do not decide is
+decided by the binary.
+
+Without this step the codelab would suggest that "using an SDK" means one
+thing. It means three so far: a coding agent as a library (16), a generic
+loop with your tools (17), and an opaque runtime with hook points (18).
+The policy list survives all three unchanged, which is the argument for
+keeping policy as data.
+
 ## Files
 
 ```text
 step_18_google_antigravity_sdk/
 ├── .agents/skills/explain-code/SKILL.md   the stage 4 skill, loaded via skills_paths
-├── harness.py         Agent config, policy hook, three hooks, one subagent, two tools
+├── harness.py         Agent config, policy list, three hooks, one subagent, two tools
 ├── rules.py           the stage 11 allow / ask / deny table, unchanged
 └── test_step.py       offline tests: policy, hooks, config; the runtime never starts
 ```
@@ -34,7 +49,7 @@ step_18_google_antigravity_sdk/
 | 10 | todos | no built-in; `write_todos` tool + re-injection in `late_block()` | us |
 | 11 | allow / ask / deny, sandbox, timeout | policy list (`allow` / `ask_user` / `deny` with `when=` predicates) compiled by `enforce()`; `@pre_tool_call_decide` hook; `RunCommandConfig(timeout_seconds, enable_sandbox)` | us (rules), runtime (mechanics) |
 | 14 | cap / strip / fit / compaction | runtime compaction (`compaction_threshold`), `@on_compaction` hook | runtime |
-| 15 | `task` subagent | `SubagentConfig` with `SubagentCapabilities(enabled_tools=read-only)`; built-in `start_subagent` | us (definition), runtime (loop) |
+| 15 | `task` subagent | `SubagentConfig` with `SubagentCapabilities(enabled_tools=READ_ONLY)`; built-in `start_subagent` | us (definition), runtime (loop) |
 
 ## The code, piece by piece
 
@@ -50,9 +65,10 @@ list into a decide hook with `enforce()`.
 ```python
 def build_policies(handler=confirm):
     return [
-        *[allow(t.value) for t in BuiltinTools.read_only()],
+        *[allow(t.value) for t in READ_ONLY],
         allow("ask_question"), allow("start_subagent"),
-        # the shell: the strictest verdict of the compound command decides
+        # the shell: the strictest verdict of the compound command decides.
+        # (enforce() sorts deny before ask before allow whatever the order here)
         deny("run_command", when=is_denied, name="denied by rules"),
         ask_user("run_command", handler=handler, when=needs_ask, name="ask by rules"),
         allow("run_command", when=is_plain, name="read-only command"),
@@ -71,6 +87,25 @@ outside it. Network tools are denied, which draws the same line the
 `curl` and `wget` rules drew in stage 11. The predicates are ours and call
 the stage 11 `rules.decide` unchanged.
 
+One thing to know about the list: `enforce()` does not read it top to
+bottom. It sorts - specific tool before wildcard, and within a tool deny
+before ask before allow - and then takes the first match. The three
+`run_command` rows are written in that order so the file reads the way it
+runs, but a `deny` placed last would still win.
+
+`harness.py`:
+
+```python
+# The runtime's own read-only set includes read_url_content. That is the
+# network, which the stage 11 rules deny (curl, wget), so it is left out here
+# for both the policy list and the subagent.
+READ_ONLY = [t for t in BuiltinTools.read_only() if t is not BuiltinTools.READ_URL_CONTENT]
+```
+
+`BuiltinTools.read_only()` is the runtime's idea of read-only, and it
+includes fetching a URL. Ours does not. The same list feeds the subagent
+below, so the explorer cannot reach the network either.
+
 `harness.py`:
 
 ```python
@@ -86,9 +121,11 @@ def is_plain(call: ToolCall) -> bool:
     return rules.decide(command_of(call)) == "allow"
 ```
 
-`command_of` reads the command out of `ToolCall.args`. It accepts several
-key spellings because the runtime, not us, names the arguments. The offline
-test compiles the policy list and checks the same verdicts as stage 11.
+`command_of` reads the command out of `ToolCall.args`; the runtime names it
+`CommandLine`, and two common spellings are accepted after it. For paths
+the connection layer already normalises the argument into
+`ToolCall.canonical_path`, so `path_of` reads that first. The offline test
+compiles the policy list and checks the same verdicts as stage 11.
 
 ### 2. Hooks: a second deny layer and an audit line
 
@@ -121,6 +158,20 @@ stay directly callable, so the test for `block_dangerous` is one line.
 The third hook, `note_compaction`, prints one line when the runtime
 compacts. That replaces the whole compaction agent of stage 14.
 
+The approval prompt is a hook too, and it runs on the runtime's event loop:
+
+`harness.py`:
+
+```python
+async def confirm(call: ToolCall) -> bool:
+    """The handler runs on the runtime's event loop; input() must not block it."""
+    return await asyncio.to_thread(prompt, call)
+```
+
+A blocking `input()` there would freeze the loop that also carries the
+connection to the runtime while you read the question. Step 16 made the
+same move for the same reason.
+
 ### 3. Custom tools are just functions
 
 Stage 2.2 registered each tool with a hand-written schema. Here the SDK
@@ -134,26 +185,28 @@ def run_tests(path: str = ".") -> str:
     """Run the project's pytest suite on a path and return the last 30 lines."""
     try:
         result = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", path],
-                                capture_output=True, text=True, timeout=300)
+                                capture_output=True, encoding="utf-8", errors="replace", timeout=300)
     except subprocess.TimeoutExpired:
-        return "Timed out after 300s and was killed."
+        return "Error: command timed out after 300s"
     lines = (result.stdout + result.stderr).strip().splitlines()
-    return "\n".join(lines[-30:]) or "(no output)"
+    return ("\n".join(lines[-30:]) or "(no output)") + f"\nexit code {result.returncode}"
 ```
 
 ```python
 def write_todos(todos: list[str]) -> str:
-    """Replace the plan. One line per item, prefixed [ ] pending, [~] in progress, [x] done. Keep exactly one [~]."""
+    """Replace the plan. One line per item, prefixed [ ] pending, [~] in progress, [x] done. Keep at most one [~]."""
+    if not isinstance(todos, list) or not all(isinstance(t, str) for t in todos):
+        return "Error: todos must be a list of strings"
     if sum(1 for t in todos if t.startswith("[~]")) > 1:
-        return "Error: keep exactly one item marked [~]."
+        return "Error: keep at most one item marked [~]."
     TODOS[:] = todos
     return "\n".join(TODOS) or "Todo list cleared."
 ```
 
 There is no schema to write. `write_todos` is the tool of stage 10, with a
 simpler shape: one string per item. The runtime has no todo tool, so this
-one and its re-injection are ours. The "exactly one in progress" rule is
-enforced by the tool, as before.
+one and its re-injection are ours. The "at most one in progress" rule is
+enforced by the tool, as before, and a bad list leaves the old one in place.
 
 ### 4. A subagent is a config object
 
@@ -171,12 +224,12 @@ EXPLORER = SubagentConfig(
         "codebase, then report in under 150 words: paths with line numbers, names, values. "
         "You cannot edit anything. Say plainly what you could not find."
     ),
-    # withheld: edits, run_command and start_subagent - so it cannot write and cannot recurse
-    capabilities=SubagentCapabilities(enabled_tools=list(BuiltinTools.read_only())),
+    # withheld: edits, run_command, the network and start_subagent - so it cannot write, cannot fetch and cannot recurse
+    capabilities=SubagentCapabilities(enabled_tools=list(READ_ONLY)),
 )
 ```
 
-`enabled_tools` is the read-only set. Edits, the shell and
+`enabled_tools` is our read-only set. Edits, the shell, the network and
 `start_subagent` are absent, so the subagent cannot write and cannot
 recurse. The four rules of stage 15 are fields. The prompt and the
 description are ours. The loop, the fresh context and the return of only
@@ -217,6 +270,12 @@ of stage 12. `skills_paths` points at the same directory stage 4 scanned.
 `save_dir` and `conversation_id` are the sessions of stage 8. The runtime
 stores and resumes them. We only pass the id.
 
+`workspaces` does more than name a directory: the runtime restricts its
+file tools to the workspaces on its own side ("enforced at the platform
+layer", in the SDK's words). So an edit outside the project is denied by
+the runtime whatever our `ask_user` rows answer; those rows are the stage
+11 shape, but in this SDK the runtime's containment gets there first.
+
 ### 6. Late injection and the chat loop
 
 Stage 6 attached an `<env>` block to the newest user message. The runtime
@@ -233,44 +292,112 @@ def late_block():
 ```
 
 ```python
-            response = await agent.chat(late_block() + text)
-            print("\n  agent> ", end="", flush=True)
-            async for token in response:
-                sys.stdout.write(str(token))
-                sys.stdout.flush()
-            print()
-            usage = response.usage_metadata
-            if usage:
-                print(f"  {usage}")
+async def turn(agent, text):
+    """One prompt in, the streamed reply out. A runtime failure is one line, not a crash."""
+    try:
+        response = await agent.chat(late_block() + text)
+        print("\n  agent> ", end="", flush=True)
+        async for token in response:
+            sys.stdout.write(str(token))
+            sys.stdout.flush()
+        print()
+        print(f"  {usage_line(response.usage_metadata)}")
+    except (AntigravityConnectionError, AntigravityExecutionError, RuntimeError) as failure:
+        print(f"\n  error: {type(failure).__name__}: {failure}")
 ```
 
 `agent.chat()` is the loop of stage 2.4. The response streams tokens, and
-`usage_metadata` gives the usage line of stage 3. The block carries the
-todo list of stage 10 as well. This is the one place where the runtime
-gives us less than the hand-built harness had. The block lands in the
-stored conversation, because the runtime sees it as part of the prompt.
+`usage_metadata` gives the usage line of stage 3 (`usage_line` formats the
+runtime's `UsageMetadata` fields). The block carries the todo list of
+stage 10 as well. This is the one place where the runtime gives us less
+than the hand-built harness had. The block lands in the stored
+conversation, because the runtime sees it as part of the prompt.
+
+The conversation id is the runtime's, and it exists only once the runtime
+has answered: `agent.conversation_id` is `None` before the first reply.
+The loop prints it after every turn, so the value `--resume` needs is on
+the screen when you leave.
 
 ## Run it
+
+Prerequisites: Python 3.10+, `pip install google-antigravity` (the wheel
+carries the runtime binary), and a Gemini key - or
+`GOOGLE_GENAI_USE_VERTEXAI=true` with a project and location for Vertex.
+
+bash:
 
 ```bash
 pip install google-antigravity
 export GEMINI_API_KEY=...
 python harness.py
-you> start the explorer subagent to find where policies are built, then add a comment there and run the tests
 ```
 
-The conversation id is printed at start; `python harness.py --resume <id>`
-picks it up. Offline tests: `python -m pytest test_step.py`.
+PowerShell:
 
-## What the SDK does not give you
+```powershell
+pip install google-antigravity
+$env:GEMINI_API_KEY = "..."
+python harness.py
+```
 
-A todo tool, a late-injection hook, and the screen. The plan and its
-re-injection are ours. The `<env>` block rides inside the prompt. Tool
-lines and the usage line are printed by our hooks and our loop.
+Then:
 
-## Caveats
+```text
+> start the explorer subagent to find where policies are built, then add a comment there and run the tests
+```
 
-The SDK is at 0.1.x. The tool argument names the runtime uses
-(`command`, `path`, ...) are read defensively in `arg()`; if a policy never
-fires, print the `ToolCall.args` in `audit` and adjust the keys. The sandbox
-flag is skipped on Windows.
+### Expected output
+
+```text
+  simple coding harness · antigravity sdk
+  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave
+
+> start the explorer subagent to find where policies are built, then add a comment there and run the tests
+  tool> start_subagent  build_policies is at harness.py:96-113; it returns a list of allow/ask_user/deny …
+  tool> view_file  92: def build_policies(handler=confirm): / 93:     return [
+  tool> edit_file  harness.py updated
+  tool> run_tests  8 passed in 3.41s / exit code 0
+
+  agent> Added a comment above build_policies explaining that enforce() sorts the rows. Tests pass.
+  18,240 in · 312 out · 16,100 cached
+  conversation 0f2c6d1e-…
+```
+
+`python harness.py --resume 0f2c6d1e-…` picks the conversation up.
+Offline tests: `python -m pytest test_step.py`.
+
+## Error handling
+
+- **A bad or failing tool call.** The runtime owns its tools and returns
+  their errors to the model; `audit` prints `result.error` when there is
+  one. Our two tools return strings whatever happens: `run_tests` ends with
+  the exit code, `write_todos` answers `Error: ...` to a bad list.
+- **A denied call.** The policy hook's `Denied by policy '...'` or
+  `block_dangerous`'s `Blocked by policy: ...` is the tool result.
+- **A dead runtime.** `turn()` catches the SDK's connection and execution
+  errors, prints `error: <type>: <message>` and returns to the prompt.
+- **ctrl-c at the approval prompt** answers no. **ctrl-c while the runtime
+  works** ends the process; `--resume <id>` continues the conversation.
+- **Leaving.** `/exit`, ctrl-d (ctrl-z then enter on Windows) or ctrl-c at
+  the prompt. An empty line does nothing.
+
+## Gotchas / what this is not
+
+- A todo tool, a late-injection hook, and the screen are not the SDK's.
+  The plan and its re-injection are ours. The `<env>` block rides inside
+  the prompt. Tool lines and the usage line are printed by our hooks and
+  our loop.
+- The SDK is at 0.1.x. The shell tool's argument is `CommandLine`; if a
+  policy never fires on a future version, print `ToolCall.args` in `audit`
+  and adjust `command_of`.
+- `BuiltinTools.read_only()` includes `read_url_content`; use `READ_ONLY`
+  from this file when you mean "no network".
+- Policies are sorted, not scanned in order (section 1).
+- Edits outside `workspaces` are denied by the runtime before any prompt
+  (section 5).
+- The sandbox flag is skipped on Windows; there is no OS sandbox there.
+
+## What the next step adds
+
+Step 19 rebuilds the harness on DeepSeek Harness, where the runtime is a
+tree of plugins and our policy becomes one more plugin in that tree.

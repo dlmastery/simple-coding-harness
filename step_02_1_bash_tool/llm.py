@@ -11,8 +11,11 @@ Needs: BASE_URL, API_KEY (and optionally MODEL) in the environment.
 
 import json
 import os
+import signal
 import subprocess
+import sys
 
+import openai
 from openai import OpenAI
 
 client = OpenAI(
@@ -22,7 +25,10 @@ client = OpenAI(
 
 MODEL = os.environ.get("MODEL", "deepseek/deepseek-v4-flash")
 
-user_input = input("Enter your prompt> ")
+try:
+    user_input = input("Enter your prompt> ")
+except (EOFError, KeyboardInterrupt):
+    sys.exit("\nno prompt given")
 
 SYSTEM_PROMPT = """
 You are a coding agent. Your job is to code. Always code.
@@ -50,41 +56,74 @@ BASH_TOOL = {
     },
 }
 
+TIMEOUT = 60
+# no pagers, no credential prompts: the command has no terminal to answer on
+BASH_ENV = {**os.environ, "PAGER": "cat", "GIT_PAGER": "cat", "GIT_TERMINAL_PROMPT": "0"}
+# the command starts its own process group, so a timeout can kill all of it
+NEW_GROUP = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == "nt" else {"start_new_session": True}
+
+
+def kill_tree(pid):
+    """Kill a process and everything it started."""
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True)
+    else:
+        os.killpg(pid, signal.SIGKILL)
+
 
 def bash(command):
-    """The Python behind the schema. subprocess.run executes what the model chose."""
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    return result.stdout + result.stderr
+    """The Python behind the schema. A subprocess executes what the model chose."""
+    proc = subprocess.Popen(
+        command, shell=True, stdin=subprocess.DEVNULL,  # no stdin: an interactive command ends, it does not wait
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        encoding="utf-8", errors="replace",             # never a UnicodeDecodeError on odd output
+        env=BASH_ENV, **NEW_GROUP,
+    )
+    try:
+        out, err = proc.communicate(timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        kill_tree(proc.pid)
+        proc.communicate()
+        return f"Error: command timed out after {TIMEOUT}s"
+    return (out + err) or "(no output)"
 
 
-response = client.chat.completions.create(
-    model=MODEL,
-    messages=[
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_input},
-    ],
-    tools=[BASH_TOOL],  # the only change to the request
-)
+try:
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_input},
+        ],
+        tools=[BASH_TOOL],  # the only change to the request
+    )
+except openai.APIError as e:
+    sys.exit(f"model call failed: {e}")
+
+if not response.choices:
+    sys.exit(f"empty reply: {getattr(response, 'error', None)}")
 
 message = response.choices[0].message
 output = message.content
 
-completion_details = response.usage.completion_tokens_details
-prompt_details = response.usage.prompt_tokens_details
-
+u = response.usage
 usage = {
-    "prompt_tokens": response.usage.prompt_tokens,
-    "completion_tokens": response.usage.completion_tokens,
-    "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
-    "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+    "prompt_tokens": getattr(u, "prompt_tokens", None),
+    "completion_tokens": getattr(u, "completion_tokens", None),
+    "reasoning_tokens": getattr(getattr(u, "completion_tokens_details", None), "reasoning_tokens", None),
+    "cached_tokens": getattr(getattr(u, "prompt_tokens_details", None), "cached_tokens", None),
 }
 print("\nAgent: ", output, "\n")
 
 # content is None and tool_calls is set: the model answered with a call,
 # a function name plus JSON arguments. We parse it and run the function.
+# This stage runs the first call only; 2.4 runs them all.
 if message.tool_calls:
     tool_call = message.tool_calls[0]
-    command = json.loads(tool_call.function.arguments)["command"]
+    try:
+        command = json.loads(tool_call.function.arguments)["command"]
+    except (ValueError, KeyError, TypeError) as e:  # the model can produce broken JSON
+        sys.exit(f"Error: the arguments of bash are not a JSON object: {e}")
     print("Tool: bash", command)
     print(bash(command), "\n")
 

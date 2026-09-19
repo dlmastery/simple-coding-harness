@@ -15,7 +15,10 @@ LABELS = {"M": "modified", "D": "deleted", "A": "added", "??": "new"}
 
 
 def git(command):
-    result = subprocess.run(f"git {command}", shell=True, capture_output=True, text=True)
+    try:
+        result = subprocess.run(f"git {command}", shell=True, capture_output=True, encoding="utf-8", errors="replace", timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return ""  # no git, or a repository that is slow to answer: the block just says less
     return result.stdout
 
 

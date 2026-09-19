@@ -14,9 +14,19 @@ try:
 except ImportError:
     pass
 
+import httpx
 from trueforge_sdk import TrueForge
+from trueforge_sdk.core.api_error import ApiError
 
 BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
+REQUEST_ERRORS = (httpx.HTTPError, ApiError)  # the server is unreachable, or it answered with an error status
+
+
+def describe_error(error, base_url: str = BASE_URL) -> str:
+    """One line for a failed request: the server and what came back."""
+    if isinstance(error, ApiError):
+        return f"{base_url} answered {error.status_code}: {str(error.body)[:200]}"
+    return f"{base_url} is not answering ({type(error).__name__}: {error})"
 
 
 def connect(base_url: str = BASE_URL, timeout: float = 600) -> TrueForge:

@@ -17,12 +17,15 @@ try:
 except ImportError:
     pass
 
+import httpx
 from trueforge_sdk import AgentSpec, Model, SessionAgentSpecBody, TrueForge, UserMessage
+from trueforge_sdk.core.api_error import ApiError
 
 BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
 MODEL = os.environ.get("TRUEFORGE_MODEL", "openai/gpt-4-1-mini")
 INSTRUCTIONS = "You are a concise coding assistant. Answer in plain text, in a few sentences."
-TIMEOUT = 600  # seconds; a turn holds one HTTP connection open for as long as it runs
+TIMEOUT = 600  # seconds between two bytes of the stream (httpx read timeout), not per turn
+REQUEST_ERRORS = (httpx.HTTPError, ApiError)  # connection failures and non-2xx replies from the server
 
 _client = None
 
@@ -49,11 +52,13 @@ def print_delta(text):
 
 
 def chat(prompt, session_id=None, on_delta=print_delta):
-    """Run one turn. Return (session_id, text, metrics).
+    """Run one turn. Return (session_id, text, metrics, status).
 
     A new session is opened when `session_id` is None. Passing an id back
     continues that conversation: the server chains the new turn onto the last
     one (`previous_turn_id` defaults to "auto"), so no history is resent.
+    `status` is "done", "cancelled" or "error" from `turn.done`, or
+    "incomplete" when the stream ended before that event arrived.
     """
     if session_id is None:
         session_id = open_session()
@@ -61,33 +66,41 @@ def chat(prompt, session_id=None, on_delta=print_delta):
     pieces = []
     text = None
     metrics = {}
-    for event in stream.with_metadata():
-        data = event.data
-        if data.type == "model.message.delta" and data.thread_id == "main" and data.content:
-            pieces.append(data.content)
+    status = "incomplete"  # only turn.done can change it
+    for event in stream:
+        if event.type == "model.message.delta" and event.thread_id == "main" and event.content:
+            pieces.append(event.content)
             if on_delta:
-                on_delta(data.content)
-        elif data.type == "turn.done":
-            text, metrics = finish(data.state)
+                on_delta(event.content)
+        elif event.type == "turn.done":
+            text, metrics, status = finish(event.state)
     if text is None:
         text = "".join(pieces)
-    return session_id, text, metrics
+    return session_id, text, metrics, status
 
 
 def finish(state):
-    """Read the final text and the metrics out of a turn.done state.
+    """Read the final text, the metrics and the status out of a turn.done state.
 
     `done` carries the final model.message in `output` (None when the turn
     paused for an approval) and the whole turn's token totals in `metrics`.
-    `cancelled` and `error` carry a reason or a message instead.
+    `cancelled` and `error` carry a reason or a message instead, and the
+    metrics of the work done before the turn stopped.
     """
+    metrics = state.metrics.dict(exclude_none=True) if getattr(state, "metrics", None) is not None else {}
     if state.status != "done":
         detail = getattr(state, "reason", None) or getattr(state, "message", None) or ""
-        return f"[turn {state.status}: {detail}]", {}
+        return f"[turn {state.status}: {detail}]", metrics, state.status
     output = state.output
     text = output.content if output is not None and isinstance(output.content, str) else None
-    metrics = state.metrics.dict(exclude_none=True) if state.metrics is not None else {}
-    return text, metrics
+    return text, metrics, "done"
+
+
+def describe_error(error):
+    """One line for a failed request: the server it was sent to and what came back."""
+    if isinstance(error, ApiError):
+        return f"{BASE_URL} answered {error.status_code}: {str(error.body)[:200]}"
+    return f"{BASE_URL} is not answering ({type(error).__name__}: {error})"
 
 
 METRIC_LABELS = {

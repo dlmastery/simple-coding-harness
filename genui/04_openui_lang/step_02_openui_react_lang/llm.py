@@ -37,7 +37,7 @@ def stream_completion(messages: list[dict]) -> Iterator[str]:
     """Yield the text deltas of one streamed chat completion."""
     from openai import OpenAI
 
-    client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120)  # a hung upstream ends the stream, it does not hang the page
     stream = client.chat.completions.create(model=MODEL, messages=messages, stream=True, temperature=0)
     for chunk in stream:
         if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:

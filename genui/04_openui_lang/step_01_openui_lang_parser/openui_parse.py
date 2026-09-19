@@ -118,7 +118,9 @@ def split_statements(text: str) -> tuple[list[str], str]:
 
     A statement ends at a newline that is outside every bracket and string.
     Text after the last such newline is held back as `pending`: it is a line
-    the model has not finished yet.
+    the model has not finished yet. A string never spans lines: a line with
+    an unclosed string ends at its newline (and is reported as an error), so
+    one bad line cannot swallow the rest of the program.
     """
     complete: list[str] = []
     depth, in_str, esc = 0, False, False
@@ -126,7 +128,7 @@ def split_statements(text: str) -> tuple[list[str], str]:
     for i, c in enumerate(text):
         if esc:
             esc = False
-        elif in_str:
+        elif in_str and c != "\n":
             if c == "\\":
                 esc = True
             elif c == '"':
@@ -137,11 +139,14 @@ def split_statements(text: str) -> tuple[list[str], str]:
             depth += 1
         elif c in ")]}":
             depth = max(0, depth - 1)
-        elif c == "\n" and depth == 0:
-            line = text[start:i].strip()
-            if line:
-                complete.append(line)
-            start = i + 1
+        elif c == "\n":
+            if in_str:  # an unclosed string: the line is broken, end it here whatever the brackets say
+                in_str, depth = False, 0
+            if depth == 0:
+                line = text[start:i].strip()
+                if line:
+                    complete.append(line)
+                start = i + 1
     return complete, text[start:]
 
 
@@ -249,7 +254,7 @@ def parse_program(text: str) -> Program:
         try:
             name, expr = parse_statement(line)
             program.statements[name] = expr
-        except (ParseError, json.JSONDecodeError) as err:
+        except (ParseError, json.JSONDecodeError, RecursionError) as err:  # RecursionError: brackets nested past the interpreter's limit
             program.errors.append(f"{line[:40]!r}: {err}")
     return program
 
@@ -282,6 +287,7 @@ def resolve(program: Program, catalog: dict[str, list[str]], root: str = "root")
     unresolved: list[str] = []
     errors: list[str] = list(program.errors)
     visiting: set[str] = set()
+    resolved: dict[str, object] = {}  # a statement referenced twice is resolved once
 
     def value(node: dict) -> object:
         k = node["k"]
@@ -302,6 +308,8 @@ def resolve(program: Program, catalog: dict[str, list[str]], root: str = "root")
         raise ParseError(f"unknown node kind {k}")
 
     def reference(name: str) -> object:
+        if name in resolved:
+            return resolved[name]
         if name not in program.statements or name in visiting:
             unresolved.append(name)
             return {"type": "placeholder", "name": name}
@@ -312,6 +320,7 @@ def resolve(program: Program, catalog: dict[str, list[str]], root: str = "root")
             visiting.discard(name)
         if isinstance(result, dict) and result.get("type") == "element":
             result["statementId"] = name
+        resolved[name] = result
         return result
 
     def element(node: dict) -> object:

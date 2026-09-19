@@ -25,6 +25,7 @@ import argparse
 import re
 from pathlib import Path
 
+import anyio
 from mcp import types
 from mcp.server.fastmcp import FastMCP
 
@@ -46,11 +47,13 @@ server = FastMCP("lemonade", host="127.0.0.1", port=PORT, json_response=True, lo
 
 
 @server.tool(meta={"ui": {"resourceUri": VIEW_URI}})
-def lemonade_report(days: int = 7, focus: str = report.DEFAULT_FOCUS) -> types.CallToolResult:
+async def lemonade_report(days: int = 7, focus: str = report.DEFAULT_FOCUS) -> types.CallToolResult:
     """Sales report for the lemonade stand over the last `days` days (1 to 28), with one interactive region about `focus`, such as 'a what-if price slider'."""
     days = max(1, min(int(days), 28))
     rows = data.sales(days)
-    generated = report.generate_region(days, rows, focus)  # the server's own model call
+    # the server's own model call takes seconds: on a worker thread, so the host's parallel
+    # resources/read (and every other client) is answered while it runs
+    generated = await anyio.to_thread.run_sync(report.generate_region, days, rows, focus)
     text = data.as_text(days, rows) + f"\nThe interface also shows {focus} ({generated['source']})."
     return types.CallToolResult(
         content=[types.TextContent(type="text", text=text)],

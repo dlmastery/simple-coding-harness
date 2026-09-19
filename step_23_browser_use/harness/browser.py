@@ -13,6 +13,7 @@ dependency, and the rest of the harness must import without it.
 
 import functools
 import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -25,6 +26,7 @@ _playwright = None
 _browser = None
 _page = None
 _worker = None  # the one thread every Playwright object belongs to
+_worker_lock = threading.Lock()  # two first calls at once must not start two threads
 
 
 def headless():
@@ -35,14 +37,31 @@ def headless():
 def on_worker(fn, *args):
     """Run fn on the browser thread and wait for its result."""
     global _worker
-    if _worker is None:
-        _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
+    with _worker_lock:
+        if _worker is None:
+            _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="browser")
     return _worker.submit(fn, *args).result()
 
 
+def dead():
+    """True when the window was closed or the browser process is gone."""
+    try:
+        return _page.is_closed() or not _browser.is_connected()
+    except Exception:  # noqa: BLE001 - even asking failed: treat it as dead
+        return True
+
+
 def page():
-    """The page, launched on first use. Only ever called on the browser thread."""
+    """The page, launched on first use - or again, after the window was closed or the browser died.
+
+    Only ever called on the browser thread.
+    """
     global _playwright, _browser, _page
+    if _page is not None and dead():
+        try:
+            _forget()
+        except Exception:  # noqa: BLE001 - it is already gone; start over anyway
+            pass
     if _page is None:
         try:
             from playwright.sync_api import sync_playwright
@@ -125,17 +144,27 @@ def browser_screenshot(path: str = "screenshot.png") -> str:
     return f"Saved screenshot to {target}"
 
 
-@tool
+def _forget():
+    """Drop the handles, whatever state they are in. Runs on the browser thread."""
+    global _playwright, _browser, _page
+    try:
+        if _browser is not None:
+            _browser.close()
+        if _playwright is not None:
+            _playwright.stop()
+    finally:
+        _playwright = _browser = _page = None  # even when close() raised: never keep a dead page
+
+
 def browser_close() -> str:
     """Close the browser. The next browser tool call starts a fresh one."""
-    global _playwright, _browser, _page
     if _page is None:
-        return "No browser was open."
-    if _browser is not None:
-        _browser.close()
-    if _playwright is not None:
-        _playwright.stop()
-    _playwright = _browser = _page = None
+        return "No browser was open."  # without touching the browser thread, which may not exist
+    return tool(_close)()
+
+
+def _close():
+    _forget()
     return "Browser closed."
 
 

@@ -10,7 +10,7 @@ LABELS = {"M": "modified", "D": "deleted", "A": "added", "??": "new"}
 
 
 def git(command):
-    result = subprocess.run(f"git {command}", shell=True, capture_output=True, text=True)
+    result = subprocess.run(f"git {command}", shell=True, capture_output=True, encoding="utf-8", errors="replace")
     return result.stdout
 
 
@@ -20,15 +20,23 @@ def git_status():
 
 
 LAST_STATUS = git_status()
+PENDING = None  # the status the model is about to see; becomes LAST_STATUS once it has
 
 
 def file_changes():
     """What git sees as different since the previous call."""
-    global LAST_STATUS
+    global PENDING
     now = git_status()
     changed = {p: c for p, c in now.items() if LAST_STATUS.get(p) != c}
-    LAST_STATUS = now
+    PENDING = now
     return changed
+
+
+def mark_seen():
+    """The model saw the note: only now does the baseline move. A failed call keeps it."""
+    global LAST_STATUS, PENDING
+    if PENDING is not None:
+        LAST_STATUS, PENDING = PENDING, None
 
 
 def changes_note():

@@ -1,6 +1,8 @@
 """Stage 13 - skills, unchanged since stage 9.
 """
 
+import re
+import sys
 from pathlib import Path
 
 import yaml
@@ -10,21 +12,31 @@ SKILL_DIRS = [
     Path.cwd() / ".agents" / "skills",   # this project's skills
 ]
 
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
+
 
 def find_skills():
-    """Glob SKILL.md under every skill dir; name -> {description, path}."""
+    """Glob SKILL.md under every skill dir; name -> {description, path}.
+
+    One broken skill file must not stop the harness from starting, so a
+    file without front matter or with bad YAML is skipped with a note.
+    """
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
-            text = path.read_text(encoding="utf-8")
-            if not text.startswith("---"):
+            match = FRONT_MATTER.match(path.read_text(encoding="utf-8", errors="replace"))
+            if not match:
                 continue
-            _, frontmatter, _ = text.split("---", 2)
-            meta = yaml.safe_load(frontmatter) or {}
-            if "name" not in meta:
+            try:
+                meta = yaml.safe_load(match.group(1)) or {}
+            except yaml.YAMLError as bad:
+                print(f"skipping {path}: {bad}", file=sys.stderr)
                 continue
+            if not isinstance(meta, dict):
+                continue
+            name = str(meta.get("name") or path.parent.name)
             description = " ".join(str(meta.get("description", "")).split())
-            skills[meta["name"]] = {"description": description, "path": path}
+            skills[name] = {"description": description, "path": path}
     return skills
 
 
@@ -40,7 +52,7 @@ def read_skill(name: str) -> str:
     """Open a skill and return its full instructions."""
     if name not in SKILLS:
         return f"No skill named '{name}'."
-    return SKILLS[name]["path"].read_text(encoding="utf-8")
+    return SKILLS[name]["path"].read_text(encoding="utf-8", errors="replace")
 
 
 if __name__ == "__main__":

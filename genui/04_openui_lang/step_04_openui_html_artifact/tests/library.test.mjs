@@ -49,14 +49,14 @@ test("<Renderer> shows the status line and the raw source while streaming", () =
   assert.ok(!html.includes("<iframe"));
 });
 
-test("<Renderer> mounts the sandboxed iframe with the CSP first in <head> once streaming ends", () => {
+test("<Renderer> mounts the sandboxed iframe with the CSP before any element once streaming ends", () => {
   const html = renderToString(h(Renderer, { response: PROGRAM, library, isStreaming: false }));
   assert.ok(html.includes('<div class="markdown"><p class="md-p">A <strong>counter</strong>:</p></div>'));
   const iframe = /<iframe[^>]*>/.exec(html)[0];
   assert.match(iframe, /sandbox="allow-scripts"/);
   assert.match(iframe, /referrerpolicy="no-referrer"/i);  // React writes the camelCase name; HTML attributes are case-insensitive
   const srcdoc = /srcdoc="([^"]*)"/i.exec(iframe)[1].replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
-  assert.ok(srcdoc.startsWith("<!doctype html><html><head>" + META + "<style>"), srcdoc.slice(0, 160));
+  assert.ok(srcdoc.startsWith("<!doctype html>" + META + "<html><head><style>"), srcdoc.slice(0, 160));
   assert.ok(html.includes('class="tab active" data-view="rendered"'));
 });
 

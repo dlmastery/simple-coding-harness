@@ -40,10 +40,10 @@ export const components = {
   Row: ({ children }) => h(Box, { flexDirection: "row", gap: 2 }, children),
   Text: ({ element }) =>
     h(Text, { dimColor: element.props.tone === "muted", bold: element.props.tone === "strong" }, element.props.text),
-  Metric: ({ element }) =>
+  Metric: ({ element }) =>  // label and value may be $state that has not arrived: default them like the arrays below
     h(Box, { flexDirection: "column", marginRight: 2 },
-      h(Text, { dimColor: true }, element.props.label.toUpperCase()),
-      h(Text, { bold: true }, String(element.props.value)),
+      h(Text, { dimColor: true }, String(element.props.label ?? "").toUpperCase()),
+      h(Text, { bold: true }, String(element.props.value ?? "")),
       element.props.delta ? h(Text, { color: "green" }, element.props.delta) : null),
   Table: ({ element }) =>
     h(Box, { flexDirection: "column" },

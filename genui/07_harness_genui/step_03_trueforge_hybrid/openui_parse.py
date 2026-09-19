@@ -32,6 +32,7 @@ TOKEN = re.compile(
     r'\s*(?:(?P<str>"(?:[^"\\]|\\.)*")|(?P<num>-?\d+(?:\.\d+)?)|(?P<id>[A-Za-z_]\w*)|(?P<punct>[()\[\],+=]))'
 )
 STRING_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
+STATEMENT_START = re.compile(r"[ \t]*[A-Za-z_]\w*[ \t]*=")  # a line that begins a new statement
 PARTIAL_HEAD = re.compile(r"\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)\((.*)$", re.DOTALL)
 SCALAR = re.compile(r"-?\d+(?:\.\d+)?|[A-Za-z_]\w*")
 
@@ -177,10 +178,16 @@ class Parser:
         self.errors = []
 
     def feed(self, text):
-        """Add a chunk. Every complete statement it finishes is parsed now."""
+        """Add a chunk. Every complete statement it finishes is parsed now.
+
+        A statement ends at the first newline where the text before it is
+        balanced. A statement never starts inside another one's brackets, so
+        a line that opens a new `name = ...` while the text before it is still
+        unbalanced closes the broken statement (it becomes a parse error)
+        instead of holding back everything after it.
+        """
         self.buffer += text
         while True:
-            # the first newline at which the text before it is balanced ends a statement
             start, cut = 0, None
             while cut is None:
                 nl = self.buffer.find("\n", start)
@@ -188,6 +195,8 @@ class Parser:
                     return  # the rest is an unfinished line: hold it back
                 if complete(self.buffer[:nl]):
                     cut = nl
+                elif start and STATEMENT_START.match(self.buffer, start):
+                    cut = start - 1  # the broken statement ends before the line that starts a new one
                 start = nl + 1
             line, self.buffer = self.buffer[:cut], self.buffer[cut + 1:]
             self.add_line(line.replace("\n", " "))
@@ -255,7 +264,10 @@ class Parser:
             left, right = self.resolve(expr[1], path), self.resolve(expr[2], path)
             if isinstance(left, str) or isinstance(right, str):
                 return f"{left}{right}"
-            return left + right
+            try:
+                return left + right
+            except TypeError:  # null + 1, or two components: text, as the page's JS would print it
+                return f"{left}{right}"
         if kind == "call":
             return {"type": expr[1], "args": [self.resolve(a, path) for a in expr[2]]}
         name = expr[1]

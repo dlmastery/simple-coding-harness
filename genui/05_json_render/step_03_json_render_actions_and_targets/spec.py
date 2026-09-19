@@ -54,16 +54,29 @@ def check_spec(spec, catalog):
         problems.append(f"root {spec['root']!r} is not in elements")
     components = catalog["components"]
     for element_id, element in elements.items():
+        # the model writes the elements: every shape is checked before it is trusted, and a wrong
+        # shape is a sentence in the list, never an exception out of the check
+        if not isinstance(element, dict):
+            problems.append(f"{element_id}: an element must be an object")
+            continue
         kind = element.get("type")
         if kind not in components:
             problems.append(f"{element_id}: unknown type {kind!r}")
             continue
-        for child in element.get("children", []):
+        children = element.get("children") or []
+        if not isinstance(children, list) or not all(isinstance(c, str) for c in children):
+            problems.append(f"{element_id}: children must be a list of element ids")
+            children = []
+        for child in children:
             if child not in elements:
                 problems.append(f"{element_id}: child {child!r} is not in elements")
-        for event, binding in (element.get("on") or {}).items():
+        if not isinstance(element.get("props", {}), dict):
+            problems.append(f"{element_id}: props must be an object")
+            continue
+        bindings = element.get("on") or {}
+        for event, binding in (bindings.items() if isinstance(bindings, dict) else []):
             for one in binding if isinstance(binding, list) else [binding]:
-                action = (one or {}).get("action")
+                action = one.get("action") if isinstance(one, dict) else None
                 if action not in catalog.get("actions", {}) and action not in catalog.get("builtInActions", []):
                     problems.append(f"{element_id}: on.{event}: unknown action {action!r}")
         props = {k: v for k, v in element.get("props", {}).items() if not is_expression(v)}
@@ -72,18 +85,34 @@ def check_spec(spec, catalog):
         for error in validator.iter_errors(props):
             where = "/".join(str(p) for p in error.path) or "props"
             problems.append(f"{element_id}: {kind}.{where}: {error.message}")
+    if not problems:
+        problems += cycles(spec)
     return problems
 
 
-def walk(spec):
-    """Yield (depth, id, element) from the root down, in render order."""
+def cycles(spec):
+    """An element that contains itself: the renderer would nest it until it gives up."""
 
-    def visit(element_id, depth):
+    def visit(element_id, path):
+        if element_id in path:
+            return [f"{element_id}: element contains itself"]
+        found = []
+        for child in spec["elements"].get(element_id, {}).get("children") or []:
+            found += visit(child, path | {element_id})
+        return found
+
+    return visit(spec["root"], frozenset()) if isinstance(spec.get("root"), str) else []
+
+
+def walk(spec):
+    """Yield (depth, id, element) from the root down, in render order; a cycle is visited once."""
+
+    def visit(element_id, depth, path):
         element = spec["elements"].get(element_id)
-        if element is None:
+        if element is None or element_id in path:
             return
         yield depth, element_id, element
-        for child in element.get("children", []):
-            yield from visit(child, depth + 1)
+        for child in element.get("children") or []:
+            yield from visit(child, depth + 1, path | {element_id})
 
-    yield from visit(spec["root"], 0)
+    yield from visit(spec["root"], 0, frozenset())

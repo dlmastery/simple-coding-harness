@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
+import demo
 import register
 import tools_server
 from client import approve
@@ -65,7 +66,18 @@ def test_errors_are_results(project):
     tools_server.write_file("twice.txt", "a a")
     assert tools_server.str_replace("twice.txt", "a", "b").startswith("Error: old_str matches 2 times")
     assert tools_server.str_replace("twice.txt", "a", "b", allow_multi_edit=True) == "Replaced 2 match(es) in twice.txt"
+    assert tools_server.str_replace("twice.txt", "", "b") == "Error: old_str is empty"
     assert not (project.parent / "outside.txt").exists()
+
+
+def test_utf8_round_trip_and_bash_timeout(project, monkeypatch):
+    """Non-ASCII text survives write_file, read_file and bash; a stuck command is killed, not waited for."""
+    assert tools_server.write_file("greek.txt", "χαίρετε\n") == "Wrote greek.txt"
+    assert tools_server.read_file("greek.txt") == "χαίρετε\n"
+    raw = "python -c \"import sys; sys.stdout.buffer.write(open('greek.txt', 'rb').read())\""  # the bytes as written
+    assert "χαίρετε" in tools_server.bash(raw)
+    monkeypatch.setattr(tools_server, "TIMEOUT", 1)
+    assert tools_server.bash('python -c "import time; time.sleep(30)"') == "Error: command timed out after 1s"
 
 
 # --- a fake TrueForge server -------------------------------------------------
@@ -97,6 +109,10 @@ FINISHED = [
     ev("model.message.delta", "m2", content="one edit."),
     ev("turn.done", "e9", thread_id=None, state={"status": "done", "output": ev("model.message", "m2", content="Done, one edit."), "metrics": {"total_input_tokens": 200, "total_output_tokens": 20, "total_tokens": 220}, **DONE}),
 ]
+ERRORED = PAUSED[:5] + [  # the approval event streamed, then the turn died
+    ev("turn.done", "e9", thread_id=None, state={"status": "error", "message": "model unavailable", "completed_at": "2026-01-01T00:00:01Z"}),
+]
+TRUNCATED = PAUSED[:4]  # the connection drops: no approval event, no turn.done
 TOOLS = [
     {"name": "read_file", "annotations": {"readOnlyHint": True, "destructiveHint": False}},
     {"name": "bash", "annotations": {"readOnlyHint": False, "destructiveHint": True}},
@@ -166,13 +182,16 @@ def test_register_sends_a_remote_manifest_without_auth(fake):
 
 def test_agent_spec_attaches_the_server_deferred():
     spec = approve.agent_spec().spec
-    assert spec.model.name == "openai/gpt-4-1-mini"
+    assert spec.model.name == approve.MODEL
     server = spec.mcp_servers[0]
     assert server.name == "s47-tools"
     assert server.preload is False
     assert server.preload_tools == ["read_file", "str_replace"]
     assert server.require_approval_for_tools is None  # the default: @write and @destructive
     assert spec.config.iteration_limit == 12
+    # the two server defaults this client does not handle are switched off
+    assert spec.config.ask_user_questions.enabled is False
+    assert spec.config.dynamic_sub_agents.enabled is False
 
 
 def test_merge_delta_assembles_text_and_tool_calls():
@@ -230,3 +249,50 @@ def test_always_answers_the_next_pause_itself(fake):
     assert posts[1]["input"][0]["approval"] == {"status": "allow"}
     assert posts[2]["input"][0]["approval"] == {"status": "allow"}
     assert approver.always == {"str_replace"}
+
+
+def test_a_pause_in_an_errored_turn_is_reported_not_resumed(fake):
+    """The approval event arrived, then the turn ended in error: no prompt, no resume POST."""
+    FakeTrueForge.turns = [ERRORED, FINISHED]
+    asked = []
+    result = approve.chat(fake, "sess-1", "edit it", approve.Approver(lambda p: asked.append(p) or "y"), out=quiet)
+    assert result.status == "error"
+    assert asked == []
+    assert len([r for r in FakeTrueForge.requests if r[0] == "POST"]) == 1
+
+
+def test_a_cut_stream_is_incomplete_not_done(fake):
+    FakeTrueForge.turns = [TRUNCATED]
+    result = approve.chat(fake, "sess-1", "edit it", approve.Approver(scripted([])), out=quiet)
+    assert result.status == "incomplete"
+    assert result.pending == [] and result.metrics is None
+
+
+def test_the_approval_loop_is_capped(fake, monkeypatch):
+    """A server that re-pauses on every resume cannot keep an 'always' approver busy forever."""
+    monkeypatch.setattr(approve, "MAX_ROUNDS", 4)
+    FakeTrueForge.turns = [PAUSED] * 10
+    result = approve.chat(fake, "sess-1", "edit it", approve.Approver(scripted(["a"])), out=quiet)
+    assert result.status == "approval-loop"
+    assert len([r for r in FakeTrueForge.requests if r[0] == "POST"]) == 4
+    assert FakeTrueForge.turns  # scripts left over: the loop stopped before the server did
+
+
+def test_eof_at_the_prompt_denies(fake, capsys):
+    def closed_stdin(prompt):
+        raise EOFError
+
+    FakeTrueForge.turns = [PAUSED, FINISHED]
+    approve.chat(fake, "sess-1", "edit it", approve.Approver(closed_stdin), out=quiet)
+    second = [r[2] for r in FakeTrueForge.requests if r[0] == "POST"][1]
+    assert second["input"][0]["approval"] == {"status": "deny", "reason": "The user gave no answer."}
+
+
+def test_demo_reports_a_dead_server_in_one_line(capsys, monkeypatch):
+    from trueforge_sdk import TrueForge
+
+    monkeypatch.setattr(demo, "start_tools_server", lambda project: type("P", (), {"terminate": lambda self: None})())
+    monkeypatch.setattr(demo, "connect", lambda url: TrueForge(base_url=url, max_retries=0))  # no 3s backoff in the test
+    assert demo.main(["hi", "--base-url", "http://127.0.0.1:1"]) == 1
+    _, err = capsys.readouterr()
+    assert err.startswith("request failed: http://127.0.0.1:1 is not answering")

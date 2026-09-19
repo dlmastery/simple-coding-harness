@@ -25,13 +25,13 @@ PROMPT = "In one short sentence, what makes good lemonade?"
 def start_server():
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=PORT, log_level="warning"))
     threading.Thread(target=server.run, daemon=True).start()
-    for _ in range(50):
+    for _ in range(100):
         try:
             urllib.request.urlopen(URL, timeout=1)
             return server
         except OSError:
             time.sleep(0.1)
-    raise RuntimeError("server did not start")
+    raise RuntimeError(f"server did not start on port {PORT} (in use?)")
 
 
 def show_wire():
@@ -46,8 +46,9 @@ def show_wire():
         raw = "".join(r.iter_text())
     lines = [line for line in raw.splitlines() if line.strip()]
     content = [i for i, line in enumerate(lines) if '"TEXT_MESSAGE_CONTENT"' in line]
+    fold = len(content) > 5  # a short reply is printed whole
     for i, line in enumerate(lines):
-        if content and content[3] <= i <= content[-2]:
+        if fold and content[3] <= i <= content[-2]:
             if i == content[3]:
                 print(f"... {len(content) - 4} more TEXT_MESSAGE_CONTENT events ...")
             continue

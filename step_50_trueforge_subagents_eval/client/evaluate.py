@@ -20,7 +20,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from trueforge_sdk import AgentSpec, DynamicSubAgentsConfig, McpServer, Model, RemoteMcpServerManifest, RuntimeConfig, SessionAgentSpecBody, UserMessage
+from trueforge_sdk import AgentSpec, AskUserQuestionsConfig, DynamicSubAgentsConfig, McpServer, Model, RemoteMcpServerManifest, RuntimeConfig, SessionAgentSpecBody, UserMessage
 
 from .common import MODEL, EventIndex, as_dict, text_of
 
@@ -53,6 +53,7 @@ class Result:
     metrics: dict = field(default_factory=dict)
     session_id: str = ""
     turn_id: str = ""
+    status: str = "incomplete"  # the turn's terminal status; "incomplete" when no turn.done was seen
 
 
 def find_checker(task_dir: Path) -> str | None:
@@ -86,13 +87,22 @@ def build_spec(model: str = MODEL) -> SessionAgentSpecBody:
         model=Model(name=model),
         instructions=INSTRUCTIONS,
         mcp_servers=[tools],
-        config=RuntimeConfig(dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True), iteration_limit=40),
+        config=RuntimeConfig(
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=True),
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),  # nobody answers during an eval; a question would pause the turn for good
+            iteration_limit=40,
+        ),
     ))
 
 
 def run_turn(client, session_id: str, prompt: str, on_event=None):
-    """Stream one turn. Returns (turn_id, answer, metrics); `answer` is the final message's text."""
-    index, turn_id, answer, metrics = EventIndex(), "", "", {}
+    """Stream one turn. Returns (turn_id, answer, metrics, status); `answer` is the final message's text.
+
+    `status` is the `turn.done` status, "paused" when the turn ended waiting
+    for a client action nobody will take, and "incomplete" when the stream
+    ended before `turn.done`.
+    """
+    index, turn_id, answer, metrics, status = EventIndex(), "", "", {}, "incomplete"
     stream = client.sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
     for event in stream:
         event = as_dict(event)
@@ -107,12 +117,16 @@ def run_turn(client, session_id: str, prompt: str, on_event=None):
                 answer = text_of(merged["content"])  # the last main-thread text is the answer
         elif kind == "turn.done":
             state = event.get("state") or {}
+            status = state.get("status") or "incomplete"
             metrics = dict(state.get("metrics") or {})
             output = text_of((state.get("output") or {}).get("content"))
             answer = output or answer
-            if state.get("status") != "done":
-                answer = answer or f"turn ended {state.get('status')}: {state.get('reason') or state.get('message') or ''}"
-    return turn_id, answer, metrics
+            if state.get("required_actions"):  # an approval or a question: the eval answers neither
+                status = "paused"
+                answer = answer or "turn paused: " + ", ".join(a.get("type", "?") for a in state["required_actions"])
+            elif status != "done":
+                answer = answer or f"turn ended {status}: {state.get('reason') or state.get('message') or ''}"
+    return turn_id, answer, metrics, status
 
 
 def run_check_py(task: Task, workspace: Path):
@@ -152,19 +166,28 @@ def run_task(client, task: Task, port: int, keep: bool = False, on_event=None, s
         workspace.mkdir()
 
     started = time.perf_counter()
+    session_id = turn_id = answer = ""
+    metrics, status = {}, "incomplete"
     try:
         with ToolsServer(workspace, port=port) as tools:
             register_tools(client, tools.url)
             session_id = client.sessions.create(agent=spec or build_spec()).data.id
-            turn_id, answer, metrics = run_turn(client, session_id, task.prompt, on_event)
-        passed, detail = check(task, workspace, answer)
+            turn_id, answer, metrics, status = run_turn(client, session_id, task.prompt, on_event)
+        if status == "done":
+            passed, detail = check(task, workspace, answer)
+        else:  # error, cancelled, paused or a cut stream: the checker would only add noise
+            passed, detail = False, f"turn {status}: {answer}"
     except Exception as failed:  # noqa: BLE001 - one broken run must not end the suite
-        session_id, turn_id, answer, metrics = "", "", "", {}
         passed, detail = False, f"run failed: {type(failed).__name__}: {failed}"
     seconds = round(time.perf_counter() - started, 3)
     if not keep:
         shutil.rmtree(root, ignore_errors=True)
-    return Result(task.name, passed, detail, answer, seconds, metrics, session_id, turn_id)
+        if session_id:  # the server keeps sessions forever otherwise; the report keeps the id
+            try:
+                client.sessions.delete(session_id=session_id)
+            except Exception as failed:  # noqa: BLE001 - a leftover session is worth one line, not a failed task
+                detail += f" (session {session_id} not deleted: {type(failed).__name__})"
+    return Result(task.name, passed, detail, answer, seconds, metrics, session_id, turn_id, status)
 
 
 def summarise(results: list[Result]) -> dict:

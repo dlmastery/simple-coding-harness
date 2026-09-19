@@ -11,22 +11,27 @@ pending. `usage_table` draws the per-call token breakdown as a table.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 
+import httpx
 from trueforge_sdk import SessionAgentSpecBody, TrueForge
+from trueforge_sdk.core.api_error import ApiError
 from trueforge_sdk.types import (
     AgentSpec,
     AskUserQuestionsConfig,
     CompactionConfig,
     ContextManagementConfig,
+    DynamicSubAgentsConfig,
     InputTokensCompactionTrigger,
     LargeToolResponseConfig,
     Model,
     RuntimeConfig,
 )
 
-BASE_URL = "http://localhost:8790"
-MODEL = "openai/gpt-4-1-mini"
+BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
+MODEL = os.environ.get("TRUEFORGE_MODEL", "openai/gpt-4-1-mini")
+REQUEST_ERRORS = (httpx.HTTPError, ApiError)  # the server is unreachable, or it answered with an error status
 
 COMPACT_AT = 20_000     # input tokens that trigger compaction (stage 14's threshold)
 ITERATION_LIMIT = 8     # model calls one turn may make (step 34's MAX_CALLS, step 41's budget)
@@ -63,6 +68,7 @@ def build_spec(instructions: str, model: str = MODEL,
             ),
             iteration_limit=iteration_limit,
             ask_user_questions=AskUserQuestionsConfig(enabled=True),
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=False),  # on by default; one thread keeps the table honest
         ),
     )
 
@@ -92,7 +98,12 @@ class Turn:
     events: dict[str, dict] = field(default_factory=dict)   # id -> merged non-delta event
     messages: list[dict] = field(default_factory=list)      # the model.message events, in order
     pending: list[dict] = field(default_factory=list)       # tool.response_required events
-    state: dict = field(default_factory=dict)               # turn.done state
+    state: dict = field(default_factory=lambda: {"status": "incomplete"})  # turn.done state; only that event replaces it
+
+    @property
+    def status(self) -> str:
+        """"done", "error", "cancelled", or "incomplete" when the stream ended before turn.done."""
+        return self.state.get("status") or "incomplete"
 
     @property
     def text(self) -> str:
@@ -204,11 +215,23 @@ def metrics_line(metrics: dict) -> str:
 
 def status_line(state: dict) -> str:
     """How the turn ended. An iteration limit ends it with status `error` and a message."""
-    status = state.get("status") or "unknown"
+    status = state.get("status") or "incomplete"
     if status == "done":
         return "status: done"
     detail = state.get("message") or state.get("reason") or ""
+    if status == "incomplete":
+        detail = "the stream ended before turn.done"
     return f"status: {status} - {detail}".rstrip(" -")
+
+
+def sum_metrics(turns) -> dict:
+    """The `metrics` of several turns added up, key by key."""
+    total: dict = {}
+    for turn in turns:
+        for key, value in turn.metrics.items():
+            if isinstance(value, (int, float)):
+                total[key] = total.get(key, 0) + value
+    return total
 
 
 def arguments_of(call: dict) -> dict:

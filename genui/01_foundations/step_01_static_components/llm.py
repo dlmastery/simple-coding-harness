@@ -39,22 +39,17 @@ def usage_from(chunk_usage):
     return {"prompt_tokens": chunk_usage.prompt_tokens, "completion_tokens": chunk_usage.completion_tokens}
 
 
-def finished(calls):
-    """Pop every assembled tool call, in index order, as a tool_call event."""
-    for index in sorted(calls):
-        call = calls.pop(index)
-        yield {"type": "tool_call", **call}
-
-
 def stream_chat(messages, tools=None):
     """One streamed request, as a generator of events.
 
     {"type": "text", "text": ...}                            one per text delta
-    {"type": "tool_call", "id", "name", "arguments"}         when a call is complete
+    {"type": "tool_call", "id", "name", "arguments"}         one per call, in index order, after the stream
     {"type": "usage", "prompt_tokens", "completion_tokens"}  last
 
-    A tool call streams as pieces with one index. The model writes calls in
-    order, so a piece with a new index means every earlier call is complete.
+    A tool call streams as pieces that share an index. Pieces of different
+    calls may interleave and some providers omit the index, so every call is
+    assembled until the stream ends; a piece without an index joins the call
+    with its id, or the last one opened.
     """
     if client is None:
         raise RuntimeError("no API key: set API_KEY (or OPENAI_API_KEY) in the environment or ~/.simple-harness/env")
@@ -63,8 +58,9 @@ def stream_chat(messages, tools=None):
         request["tools"] = tools
     stream = client.chat.completions.create(**request)
 
-    calls = {}          # tool call index -> {"id", "name", "arguments"} still being assembled
+    calls = {}          # tool call index -> {"id", "name", "arguments"} being assembled
     final_usage = None  # arrives with the last chunk, which has no choices
+    last_index = None
 
     for chunk in stream:
         if getattr(chunk, "usage", None) is not None:
@@ -79,10 +75,12 @@ def stream_chat(messages, tools=None):
             yield {"type": "text", "text": delta.content}
 
         for piece in delta.tool_calls or []:
-            if piece.index not in calls:
-                yield from finished(calls)
-                calls[piece.index] = {"id": "", "name": "", "arguments": ""}
-            call = calls[piece.index]
+            index = piece.index
+            if index is None:  # no index: the piece belongs to the call with its id, else the last one
+                index = next((i for i, c in calls.items() if piece.id and c["id"] == piece.id), last_index)
+                index = len(calls) if index is None else index
+            call = calls.setdefault(index, {"id": "", "name": "", "arguments": ""})
+            last_index = index
             if piece.id:
                 call["id"] = piece.id
             function = getattr(piece, "function", None)
@@ -93,5 +91,6 @@ def stream_chat(messages, tools=None):
             if function.arguments:
                 call["arguments"] += function.arguments
 
-    yield from finished(calls)
+    for index in sorted(calls):
+        yield {"type": "tool_call", **calls[index]}
     yield {"type": "usage", **usage_from(final_usage)}

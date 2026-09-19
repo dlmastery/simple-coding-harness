@@ -9,6 +9,7 @@ While the chunks pass through, the same text feeds a SpecStream, so the server
 holds the complete spec at the end and knows when the first paint was possible.
 """
 
+import json
 import time
 from pathlib import Path
 
@@ -32,18 +33,29 @@ class StreamRequest(BaseModel):
 
 
 def relay(prompt):
-    """Forward each chunk as it arrives, and compile a copy on the way."""
+    """Forward each chunk as it arrives, and compile a copy on the way.
+
+    When the model call fails part-way, the stream ends with one more line,
+    {"error": "..."}: not a patch (the compilers skip it), but the page reads
+    it and stops with the reason instead of waiting forever.
+    """
     started = time.perf_counter()
-    stream = llm.stream_text(system_prompt(), prompt)
     compiler = SpecStream()
     timings = {"first_chunk": None, "first_paint": None, "complete": None}
-    for chunk in stream:
-        if timings["first_chunk"] is None:
-            timings["first_chunk"] = time.perf_counter() - started
-        compiler.push(chunk)
-        if timings["first_paint"] is None and compiler.has_root():
-            timings["first_paint"] = time.perf_counter() - started
-        yield chunk
+    error, usage = None, None
+    try:
+        stream = llm.stream_text(system_prompt(), prompt)
+        for chunk in stream:
+            if timings["first_chunk"] is None:
+                timings["first_chunk"] = time.perf_counter() - started
+            compiler.push(chunk)
+            if timings["first_paint"] is None and compiler.has_root():
+                timings["first_paint"] = time.perf_counter() - started
+            yield chunk
+        usage = stream.usage
+    except Exception as failure:  # noqa: BLE001 - the model call failed: say so on the wire and in /last
+        error = f"{type(failure).__name__}: {failure}"
+        yield "\n" + json.dumps({"error": error}) + "\n"
     compiler.finish()
     timings["complete"] = time.perf_counter() - started
     LAST.update(
@@ -52,7 +64,8 @@ def relay(prompt):
         skipped=compiler.skipped,
         problems=check_spec(compiler.spec, catalog_json()),
         timings={k: round(v, 2) if v is not None else None for k, v in timings.items()},
-        usage=stream.usage,
+        usage=usage,
+        error=error,
     )
 
 

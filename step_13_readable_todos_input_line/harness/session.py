@@ -10,6 +10,8 @@ SESSION_DIR = Path.home() / ".simple-harness" / "sessions" / PROJECT
 CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
 
+STOPPED = "(the harness stopped before this tool ran; no result was recorded)"
+
 
 def path_for(session_id):
     return SESSION_DIR / f"{session_id}.jsonl"
@@ -28,9 +30,26 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
+
+
+def repair(messages, note):
+    """Answer every tool call in the last reply that has no result. Returns how many.
+
+    A crash or ctrl-c between a reply and its tool results leaves a transcript
+    the API refuses; a placeholder result per unanswered call makes it valid.
+    """
+    last = next((m for m in reversed(messages) if m["role"] != "tool"), None)
+    if not last or last["role"] != "assistant" or not last.get("tool_calls"):
+        return 0
+    answered = {m["tool_call_id"] for m in messages if m["role"] == "tool"}
+    missing = [call["id"] for call in last["tool_calls"] if call["id"] not in answered]
+    for call_id in missing:
+        messages.append({"role": "tool", "tool_call_id": call_id, "content": note})
+    return len(missing)
 
 
 def load(session_id):
@@ -45,6 +64,7 @@ def load(session_id):
             del messages[entry["rewind_to"]:]
         else:
             messages.append(entry)
+    repair(messages, STOPPED)
     return messages
 
 

@@ -61,10 +61,17 @@ work so far, not as something the user told you.
 SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
+LAST = None  # how long the transcript was after the last compaction, so one that cut nothing is not tried again at once
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
-    return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+
+def needed(usage, messages=None):
+    """Has the last request grown past the point where we rebuild?
+
+    Not when the transcript is no longer than it was after the last
+    compaction: another pass would summarise the same tail again.
+    """
+    grown = messages is None or LAST is None or len(messages) > LAST
+    return grown and (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
 
 
 def previous_summary(system_content):
@@ -97,26 +104,34 @@ def render(messages, previous=""):
 
 
 def summarize(messages, previous=""):
-    """One model call, no tools. Returns the handoff note."""
+    """One model call, no tools. Returns the handoff note, or raises when there is none.
+
+    A summariser that failed every retry, or answered with nothing, must
+    not replace the transcript: the caller keeps the messages as they are.
+    """
     message, usage = llm.call_llm(
         [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": render(messages, previous)}],
         tools=[],
     )
     stop.record(usage)  # the summary costs money too
-    return message.content or "(the summariser returned nothing)"
+    if getattr(message, "failed", None):
+        raise RuntimeError(message.failed)
+    if not (message.content or "").strip():
+        raise RuntimeError("the summariser returned nothing")
+    return message.content
 
 
 def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
-    A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    A tool result has to keep the assistant message that asked for it, so
+    the only safe cut points are user messages: the ones that open a
+    fresh exchange. A picture is a user message too, but it answers a
+    tool call, so it does not count.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user" and not isinstance(messages[index].get("content"), list):
+            return index
     return len(messages)
 
 
@@ -131,9 +146,9 @@ def tail_start(messages, budget):
 
 
 def remember_handoff(summary):
-    """Save the handoff note as a project memory, keyed by the session id."""
+    """Save the handoff note as the project's `handoff-latest` memory: one note, the newest, not one per session."""
     return memory.remember(
-        f"handoff-{session.CURRENT}",
+        "handoff-latest",
         f"handoff note from session {session.CURRENT}",
         summary,
         type="project",
@@ -154,4 +169,6 @@ def compact(messages):
         *messages[cut:],
     ]
     strip(kept)  # the tail is old news too; shrink it now, while the prefix is already rebuilt
+    global LAST
+    LAST = len(kept)
     return kept

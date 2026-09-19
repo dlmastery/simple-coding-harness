@@ -54,6 +54,32 @@ def test_newline_inside_brackets_does_not_end_the_statement():
     assert pending == ""
 
 
+def test_stray_quote_ends_with_its_line():
+    """One unclosed string must not swallow the rest of the program."""
+    result = parse('root = Stack([a, b])\na = Text("unclosed\nb = Text("B")\n', CATALOG)
+    children = result.root["props"]["children"]
+    assert children[0] == {"type": "placeholder", "name": "a"}  # the broken line is an error, not a sink
+    assert children[1]["props"]["text"] == "B"
+    assert len(result.errors) == 1 and result.errors[0].startswith("'a = Text(\"unclosed'")
+
+
+def test_deep_nesting_is_an_error_line_not_a_crash():
+    program = parse_program("x = " + "[" * 5000 + "]" * 5000 + "\n")
+    assert program.statements == {} and len(program.errors) == 1
+
+
+def test_shared_reference_is_resolved_once():
+    result = parse('root = Stack([a, a])\na = Text("A")\n', CATALOG)
+    first, second = result.root["props"]["children"]
+    assert first is second and first["statementId"] == "a"
+
+
+def test_stream_delay_is_clamped():
+    from server import clamp_delay
+
+    assert clamp_delay("400") == 0.4 and clamp_delay("abc") == 0.0 and clamp_delay("99999") == 5.0
+
+
 def test_forward_reference_resolves_and_missing_becomes_placeholder():
     result = parse('root = Stack([a, b])\na = Text("A")\n', CATALOG)
     children = result.root["props"]["children"]

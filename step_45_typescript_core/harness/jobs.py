@@ -31,6 +31,7 @@ from . import sandbox, streaming
 TAIL_LINES = 20     # lines of the log a status report shows
 KILL_GRACE = 2      # seconds a job gets to end on its own before the next, harder step
 DEFAULT_WAIT = 60   # seconds job_wait blocks when the model gives no timeout
+MAX_WAIT = 300      # the longest one job_wait call may block, whatever the model asks for
 
 JOBS = {}                 # job id -> Job, in start order
 _lock = threading.Lock()  # guards the counter: tool calls can come from a thread pool
@@ -62,7 +63,7 @@ class Job:
     def settle(self):
         """Wait for the reader's last lines once the process has ended, so the log is complete."""
         if self.reader is not None and not self.running():
-            self.reader.join()
+            self.reader.join(streaming.JOIN_GRACE)  # a child the job left behind may still hold the pipe
 
     def tail(self):
         """The last TAIL_LINES lines of the log, or a note that there are none."""
@@ -189,6 +190,7 @@ def job_wait(job_id: str, timeout: int = DEFAULT_WAIT) -> str:
         return job
     from .ui import ui  # here, not at the top: ui is built on top of the tools
 
+    timeout = max(1, min(int(timeout or DEFAULT_WAIT), MAX_WAIT))  # a wait is bounded, whatever the model asked for
     with ui.streaming(job.id, {"command": job.command}) as show:  # the wait is the one time someone is watching
         job.on_line = show
         try:

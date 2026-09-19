@@ -33,7 +33,7 @@ from contextlib import nullcontext
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill"}
+WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "computer_act", "computer_screenshot", "remember", "forget"}
 
 SYSTEM_PROMPT = f"""
 You are an exploration subagent. You were given one question by a lead agent
@@ -61,10 +61,11 @@ not find; a gap is useful, a guess is not.
 
 
 def toolset():
-    """Every tool schema except the withheld ones."""
+    """Every tool schema except the withheld ones, and only what the mode allows."""
+    from . import plan
     from .tools import TOOL_SCHEMAS
 
-    return [s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD]
+    return [s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD and plan.offered(s["function"]["name"])]
 
 
 def loop(system_prompt, request, tools, max_turns, label="subagent exploring", tag=None):
@@ -85,6 +86,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": request},
     ]
+    allowed = {s["function"]["name"] for s in tools}
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
 
@@ -102,8 +104,9 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         if not message.tool_calls:
             return report or "(the subagent came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        # the same executor as the main loop: same permissions, same sandbox, same
+        # pool - and only the tools this loop was offered, whatever the model names
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
@@ -134,7 +137,8 @@ def guarded(number, description):
     try:
         return explore(description, tag=number)
     except Exception as failure:  # noqa: BLE001
-        return f"Error: subagent {number} failed with {type(failure).__name__}: {failure}"
+        who = f"subagent {number}" if number is not None else "the subagent"
+        return f"Error: {who} failed with {type(failure).__name__}: {failure}"
 
 
 def parallel(descriptions):
@@ -158,7 +162,7 @@ def task(description: str = None, descriptions: list = None) -> str:
     if descriptions:
         return parallel([str(d) for d in descriptions])
     if description:
-        return explore(description)
+        return guarded(None, str(description))  # a crash is a report here too
     return "Error: give a description, or a list of descriptions to run several subagents at once."
 
 
@@ -199,7 +203,6 @@ TASK_SCHEMA = {
                     ),
                 },
             },
-            "anyOf": [{"required": ["description"]}, {"required": ["descriptions"]}],
         },
     },
 }

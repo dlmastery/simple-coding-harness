@@ -37,35 +37,43 @@ async function runAgent(text) {
     forwardedProps: {},
     state: {},
   };
-  const response = await fetch("/agent", {
-    method: "POST",
-    headers: { "content-type": "application/json", accept: "text/event-stream" },
-    body: JSON.stringify(input),
-  });
-
   let current = null; // the assistant message being streamed
-  for await (const event of readEvents(response)) {
-    wire.textContent += JSON.stringify(event) + "\n";
-    switch (event.type) {
-      case "TEXT_MESSAGE_START":
-        current = { id: event.messageId, role: event.role, content: "" };
-        current.element = addMessage(event.role, "", event.messageId);
-        break;
-      case "TEXT_MESSAGE_CONTENT":
-        current.content += event.delta;
-        current.element.textContent = current.content;
-        break;
-      case "TEXT_MESSAGE_END":
-        messages.push({ id: current.id, role: current.role, content: current.content });
-        current = null;
-        break;
-      case "RUN_FINISHED":
-        status.textContent = "finished";
-        break;
-      case "RUN_ERROR":
-        status.textContent = `error: ${event.message}`;
-        break;
+  try {
+    const response = await fetch("/agent", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "text/event-stream" },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+
+    for await (const event of readEvents(response)) {
+      wire.textContent += JSON.stringify(event) + "\n";
+      switch (event.type) {
+        case "TEXT_MESSAGE_START":
+          current = { id: event.messageId, role: event.role, content: "" };
+          current.element = addMessage(event.role, "", event.messageId);
+          break;
+        case "TEXT_MESSAGE_CONTENT":
+          if (!current) break; // a delta for a message that never started: this page does not verify order
+          current.content += event.delta;
+          current.element.textContent = current.content;
+          break;
+        case "TEXT_MESSAGE_END":
+          if (current) messages.push({ id: current.id, role: current.role, content: current.content });
+          current = null;
+          break;
+        case "RUN_FINISHED":
+          status.textContent = "finished";
+          break;
+        case "RUN_ERROR":
+          status.textContent = `error: ${event.message}`;
+          break;
+      }
     }
+    if (status.textContent === "running") status.textContent = "error: the stream ended without RUN_FINISHED";
+  } catch (error) {
+    // a dead server, a 4xx/5xx, a cut stream: a final status, never "running" forever
+    status.textContent = `error: ${error.message ?? error}`;
   }
 }
 

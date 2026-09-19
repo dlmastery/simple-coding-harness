@@ -41,6 +41,14 @@ test("streaming feed holds back unfinished lines and marks pending", () => {
   assert.equal(parser.tree().args[0][1].args[0].length, 2);
 });
 
+test("one unbalanced line does not hold back the rest; + on non-numbers is text", () => {
+  const parsed = parse('a = Stack([x)\nb = TextContent("hi")\nroot = Stack([a, b])\n');
+  assert.deepEqual([...parsed.statements.keys()], ["b", "root"]);
+  assert.equal(parsed.errors.length, 1);
+  assert.deepEqual(parsed.tree().args[0][1], { type: "TextContent", args: ["hi"] });
+  assert.deepEqual(parse("root = Stack([x, y])\nx = null + 1\ny = 2 + 3\n").tree().args[0], ["null1", 5]);
+});
+
 test("errors are collected, cycles are marked", () => {
   const parsed = parse("a = Card(1))\nb = 1\nc = ?\nd = a\n");
   assert.equal(parsed.errors.length, 2);

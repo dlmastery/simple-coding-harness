@@ -61,11 +61,19 @@ def outline(steps):
     return "\n".join(f"{s.number}. {s.title}" + (" [parallel]" if s.parallel else "") for s in steps)
 
 
+VERDICT_RE = re.compile(r"^\W*(?:verdict|result)?\W*(PASS|FAIL)\b", re.I)  # PASS, **PASS**, "Verdict: PASS"
+
+
 def verdict_of(review):
-    """PASS or FAIL from the first word of the review; anything else is FAIL."""
-    words = (review or "").strip().split()
-    first = words[0].strip(":.,*#-").upper() if words else ""
-    return "PASS" if first == "PASS" else "FAIL"
+    """PASS or FAIL from the first non-empty line of the review; anything else is FAIL."""
+    lines = [line for line in (review or "").splitlines() if line.strip()]
+    match = VERDICT_RE.match(lines[0]) if lines else None
+    return "PASS" if match and match.group(1).upper() == "PASS" else "FAIL"
+
+
+def missing_agents():
+    """The pipeline's agents that have no definition, so the command can stop before the first model call."""
+    return [name for name in ("planner", "worker", "reviewer") if name not in agents.AGENTS]
 
 
 def work_request(task, steps, step, notes=None):
@@ -109,6 +117,9 @@ def guarded_step(task, steps, step, tag=None):
 
 def run(task):
     """Plan the task, work and review every step, and return (plan text, steps)."""
+    missing = missing_agents()
+    if missing:
+        return f"Error: no agent named {', '.join(repr(m) for m in missing)}.", []
     plan = agents.run("planner", task, tag="planner")
     steps = parse_plan(plan)
     for wave in waves(steps):

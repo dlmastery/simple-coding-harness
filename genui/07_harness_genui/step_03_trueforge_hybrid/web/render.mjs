@@ -15,6 +15,7 @@ import { checkDocument, sandboxed } from "./sandbox.mjs";
 
 const RENDERERS = {
   HtmlArtifact([title = "Artifact", document = ""], partial) {
+    document = typeof document === "string" ? document : "";  // a reference or a number in the document slot is not a document
     const box = el("section", "artifact");
     box.dataset.state = partial ? "streaming" : "ready";
     const head = el("div", "artifact-head");

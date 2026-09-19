@@ -58,6 +58,18 @@ def test_partial_handles_scalars_and_ignores_lines_that_are_not_a_call():
     assert parser.tree("n") == 42
 
 
+def test_one_unbalanced_line_does_not_hold_back_the_rest():
+    parsed = op.parse('a = Stack([x)\nb = TextContent("hi")\nroot = Stack([a, b])\n')
+    assert list(parsed.statements) == ["b", "root"] and len(parsed.errors) == 1
+    assert parsed.tree()["args"][0][1] == {"type": "TextContent", "args": ["hi"]}
+
+
+def test_a_turn_that_does_not_end_done_is_an_error(fake_trueforge, monkeypatch):
+    monkeypatch.setattr(FakeTrueForge, "status", "failed")
+    with pytest.raises(RuntimeError, match="the turn ended 'failed'"):
+        genui.ask("build me a counter", on_delta=None)
+
+
 def test_step_02_behaviour_is_unchanged():
     parsed = op.parse(PROGRAM)
     assert parsed.errors == [] and parsed.pending() == []
@@ -89,10 +101,13 @@ def test_find_artifacts_walks_statements_and_the_partial_line():
     assert artifact.find_artifacts('root = TextContent("no artifact")\n') == []
 
 
-def test_csp_is_injected_first_in_head_and_replaces_the_models_own():
-    doc = '<html><head><meta charset="utf-8"><title>x</title></head><body>hi</body></html>'
+def test_csp_is_injected_before_any_element_and_replaces_the_models_own():
+    doc = '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body>hi</body></html>'
     out = artifact.sandboxed(doc)
-    assert out.startswith("<html><head>" + artifact.META + '<meta charset="utf-8">')
+    assert out.startswith("<!doctype html>" + artifact.META + "<html><head>")
+    early = artifact.sandboxed("<script>fetch('https://x')</script><head></head>")
+    assert early.index(artifact.META) < early.index("<script>")  # a script before <head> still runs under the policy
+    assert "refresh" not in artifact.sandboxed('<meta http-equiv="refresh" content="0;url=https://x">')
     loosened = '<html><head><meta http-equiv="Content-Security-Policy" content="default-src *"></head><body></body></html>'
     out = artifact.sandboxed(loosened)
     assert out.count("Content-Security-Policy") == 1 and "default-src *" not in out
@@ -239,6 +254,8 @@ def test_page_server_streams_chunks_then_null_and_serves_the_sandbox_module():
         for name in ("/app.js", "/openui-parse.mjs", "/render.mjs", "/sandbox.mjs"):
             conn.request("GET", name)
             assert conn.getresponse().status == 200, name
+        conn.request("GET", "/../server.py")
+        assert conn.getresponse().status == 404  # nothing outside web/ is served
         conn.request("GET", "/reply")
         assert conn.getresponse().read() == b"raw reply text"
         conn.request("GET", "/events")

@@ -19,7 +19,8 @@ import openui_parse
 CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:"
 META = f'<meta http-equiv="Content-Security-Policy" content="{CSP}">'
 CSP_META_RE = re.compile(r"""<meta[^>]+http-equiv\s*=\s*["']?content-security-policy["']?[^>]*>""", re.IGNORECASE)
-HEAD_RE = re.compile(r"<head[^>]*>", re.IGNORECASE)
+REFRESH_META_RE = re.compile(r"""<meta[^>]+http-equiv\s*=\s*["']?refresh["']?[^>]*>""", re.IGNORECASE)
+DOCTYPE_RE = re.compile(r"^\s*<!doctype[^>]*>", re.IGNORECASE)
 MAX_DOCUMENT_CHARS = 200_000
 
 
@@ -63,12 +64,11 @@ def find_artifacts(parser_or_program):
 
 
 def sandboxed(html):
-    """The document with our CSP first in <head>; any CSP the model wrote is removed."""
-    cleaned = CSP_META_RE.sub("", html)
-    head = HEAD_RE.search(cleaned)
-    if head:
-        return cleaned[: head.end()] + META + cleaned[head.end():]
-    return META + cleaned
+    """The document with our CSP right after the doctype, before any element; the model's own CSP and any meta refresh are removed."""
+    cleaned = REFRESH_META_RE.sub("", CSP_META_RE.sub("", html))
+    doctype = DOCTYPE_RE.match(cleaned)
+    at = doctype.end() if doctype else 0
+    return cleaned[:at] + META + cleaned[at:]
 
 
 def check_document(html):

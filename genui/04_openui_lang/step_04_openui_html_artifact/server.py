@@ -3,7 +3,8 @@
 GET  /            index.html, style.css, static/bundle.js
 POST /generate    {"prompt": "..."} -> SSE stream of the model's text deltas,
                   each as `data: <json string>`, then `event: done` whose
-                  data carries the API's token usage
+                  data carries the API's token usage; when the model call
+                  fails part-way, `event: error` with the reason
 
 The system prompt is prompt.txt, generated from library.mjs by prompt.mjs.
 The server never parses the OpenUI Lang; the page does that with
@@ -43,19 +44,29 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_error(404)
             return
         length = int(self.headers.get("Content-Length", "0"))
-        body = json.loads(self.rfile.read(length) or b"{}")
+        try:
+            body = json.loads(self.rfile.read(length) or b"{}")
+        except ValueError:
+            self.send_error(400, "the body is not JSON")
+            return
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
         self.send_header("Cache-Control", "no-cache")
         self.send_header("Connection", "close")  # the stream ends when the socket closes
         self.end_headers()
         program, usage = [], {}
-        for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt), usage):
-            program.append(delta)
-            self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
-            self.wfile.flush()
-        LAST["program"], LAST["usage"] = "".join(program), usage
-        self.wfile.write(f"event: done\ndata: {json.dumps({'usage': usage})}\n\n".encode())
+        try:
+            for delta in llm.stream_completion(messages_for(body.get("prompt", ""), self.system_prompt), usage):
+                program.append(delta)
+                self.wfile.write(f"data: {json.dumps(delta)}\n\n".encode())
+                self.wfile.flush()
+            LAST["program"], LAST["usage"] = "".join(program), usage
+            self.wfile.write(f"event: done\ndata: {json.dumps({'usage': usage})}\n\n".encode())
+        except (ConnectionError, OSError):
+            return  # the tab closed; nothing to report
+        except Exception as error:  # noqa: BLE001 - the model call failed part-way: the page must hear why, not guess
+            LAST["program"], LAST["usage"] = "".join(program), usage
+            self.wfile.write(f"event: error\ndata: {json.dumps(f'{type(error).__name__}: {error}')}\n\n".encode())
         self.wfile.flush()
 
 

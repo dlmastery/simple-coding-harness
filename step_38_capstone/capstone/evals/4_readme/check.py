@@ -1,4 +1,4 @@
-"""Step 38 - check 4: README.md exists and a run section names the uvicorn command."""
+"""Step 38 - check 4: README.md exists and one of its run sections names the uvicorn command."""
 
 import re
 import sys
@@ -20,9 +20,9 @@ run_headings = [(pos, title) for pos, title in headings if re.search(r"\brun", t
 if not run_headings:
     fail(f"no heading mentions run; headings are {[title for _, title in headings]}")
 
-start, title = run_headings[0]
-following = [pos for pos, _ in headings if pos > start]
-section = text[start:following[0] if following else len(text)]
-if "uvicorn" not in section:
-    fail(f"the section {title!r} does not name the uvicorn command")
-ok(f"README.md has a {title!r} section with the uvicorn command")
+for start, title in run_headings:  # any run section will do: "Run the tests" may come before "Run the server"
+    following = [pos for pos, _ in headings if pos > start]
+    section = text[start:following[0] if following else len(text)]
+    if "uvicorn" in section:
+        ok(f"README.md has a {title!r} section with the uvicorn command")
+fail(f"no run section names the uvicorn command; run headings are {[title for _, title in run_headings]}")

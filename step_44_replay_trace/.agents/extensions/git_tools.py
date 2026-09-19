@@ -9,7 +9,10 @@ import subprocess
 
 def git(*args):
     """Run one git command in the current directory and return its output without the trailing newline."""
-    completed = subprocess.run(["git", *args], capture_output=True, text=True)
+    try:
+        completed = subprocess.run(["git", *args], capture_output=True, encoding="utf-8", errors="replace", timeout=30)
+    except (OSError, subprocess.SubprocessError) as failed:  # no git on this machine, or it hung
+        return f"Error: git did not run: {failed}"
     return (completed.stdout + completed.stderr).rstrip()
 
 
@@ -29,5 +32,5 @@ def status(messages, arg=""):
 
 
 def apply(ctx):
-    ctx.tool(git_diff_summary)  # the schema is built from the signature and the docstring
+    ctx.tool(git_diff_summary, permission="allow")  # the schema is built from the signature and the docstring; read-only, so no prompt
     ctx.command("/status", "show the git branch and the changed files", status)

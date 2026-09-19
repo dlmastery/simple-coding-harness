@@ -27,6 +27,10 @@ the event dict). Both answer the same way: nothing, to let the loop
 continue; `{"block": "reason"}` to stop the action; `{"result": ...}` to
 replace a tool result; `{"context": ...}` to add text to the late block. A
 command may also block by exiting with code 2, with stderr as the reason.
+A PostToolUse event carries `ok`: False when the tool answered with an
+Error: result, so a hook can tell a failed call from a good one. A block
+on PostToolUse cannot undo the call; it tells the model the hook refused
+the result.
 
 A hook that crashes, times out or prints something that is not JSON is
 reported with a note and ignored. The loop never dies because of a hook.
@@ -38,10 +42,10 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
-from fnmatch import fnmatch
+from fnmatch import fnmatchcase
 from pathlib import Path
 
-from . import extensions
+from . import extensions, streaming
 
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd", "Stop")
 
@@ -54,12 +58,14 @@ TIMEOUT = 30  # seconds a command hook may take before it is killed and ignored
 
 BLOCK_EXIT_CODE = 2  # a command hook exits with this to block; stderr is the reason
 
-EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # the last four: Stop
+EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd", "answer", "calls", "blocks", "ended_by")  # ok: PostToolUse; the last four: Stop
+
+CONFIG_CACHE = {}  # path -> (mtime, parsed hooks): the files are read again only when they changed
 
 SESSION_CONTEXT = []  # what the SessionStart hooks asked to add to every late block
 
-BUILTIN = {  # the harness's own hooks; same shape as a config entry, registered by apply() and run first
-    "PreToolUse": [{"matcher": "write_file|str_replace", "python": "harness.checkpoint:pre_tool_use"}],
+BUILTIN = {  # the harness's own hooks; same shape as a config entry, registered by apply() and run first.
+    # Empty since the checkpoint capture moved into tools.run(), after the approval: a declined call captures nothing.
 }
 
 
@@ -92,17 +98,28 @@ class HookOutcome:
 
 
 def load_config(paths=None):
-    """Merge every hooks.json that exists. Returns {event name: [hook, ...]}."""
+    """Merge every hooks.json that exists. Returns {event name: [hook, ...]}.
+
+    Called on every event, so a file is parsed once per change: the cache
+    holds it by modification time.
+    """
     merged = {event: [] for event in EVENTS}
     for path in paths if paths is not None else CONFIG_PATHS:
-        if not path.exists():
-            continue
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as failed:
-            _note(f"hook config {path} skipped: {failed}")
-            continue
-        for event, hooks in data.items():
+            stamp = path.stat().st_mtime
+        except OSError:
+            continue  # no such file
+        cached = CONFIG_CACHE.get(path)
+        if cached is None or cached[0] != stamp:
+            try:
+                data = json.loads(path.read_text(encoding="utf-8-sig"))
+            except (OSError, ValueError) as failed:
+                _note(f"hook config {path} skipped: {failed}")
+                data = {}
+            if not isinstance(data, dict):
+                data = {}
+            cached = CONFIG_CACHE[path] = (stamp, data)
+        for event, hooks in cached[1].items():
             if event in merged and isinstance(hooks, list):
                 merged[event] += [h for h in hooks if isinstance(h, dict)]
     return merged
@@ -113,7 +130,7 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatch(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
 
 
 def describe(hook):
@@ -140,23 +157,31 @@ def run_command(command, event):
 
     shell=True so `python .agents/check.py` works the same on Windows and
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
-    stderr as the reason; anything else is reported and ignored.
+    stderr as the reason; anything else is reported and ignored. The hook
+    gets a process group of its own, so a timeout kills what it started.
     """
-    completed = subprocess.run(
+    process = subprocess.Popen(
         resolve_python(command),
         shell=True,
-        input=json.dumps(event),
-        capture_output=True,
-        text=True,
-        timeout=TIMEOUT,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
         cwd=event.get("cwd") or None,
+        **streaming.group_options(),
     )
-    if completed.returncode == BLOCK_EXIT_CODE:
-        return {"block": completed.stderr.strip() or "blocked by hook"}
-    if completed.returncode != 0:
-        _note(f"hook `{command}` exited {completed.returncode} and was ignored: {completed.stderr.strip()[:200]}")
+    try:
+        stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        streaming.kill(process)
+        raise
+    if process.returncode == BLOCK_EXIT_CODE:
+        return {"block": stderr.strip() or "blocked by hook"}
+    if process.returncode != 0:
+        _note(f"hook `{command}` exited {process.returncode} and was ignored: {stderr.strip()[:200]}")
         return None
-    output = completed.stdout.strip()
+    output = stdout.strip()
     if not output:
         return None
     reply = json.loads(output)

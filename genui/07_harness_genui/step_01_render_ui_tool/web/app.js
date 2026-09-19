@@ -37,7 +37,7 @@ const RENDERERS = {
     const body = table.createTBody();
     for (const row of props.rows) {
       const tr = body.insertRow();
-      for (const cell of row) tr.append(el("td", "", String(cell)));
+      for (const cell of Array.isArray(row) ? row : [row]) tr.append(el("td", "", String(cell)));
     }
     return table;
   },

@@ -64,7 +64,7 @@ def breakdown(messages):
     with every request, so they are counted from their sources.
     """
     # here, not at the top: tools imports llm, and llm imports this module
-    from .instructions import instructions_prompt
+    from .instructions import LOADED, render
     from .memory import memory_index
     from .skills import skills_prompt
     from .tools import active_schemas
@@ -74,7 +74,7 @@ def breakdown(messages):
     if messages and messages[0].get("role") == "system":
         system = messages[0].get("content") or ""
         rest = messages[1:]
-    instructions = part_of(system, instructions_prompt())
+    instructions = part_of(system, render(LOADED))  # the files the prompt was built from; no new discovery here
     skills = part_of(system, skills_prompt())
 
     text = results = images = 0

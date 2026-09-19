@@ -5,13 +5,18 @@ strings are closed, open objects and arrays are closed, a key without a
 value is dropped, a number or literal cut in the middle is dropped. Every
 container that had to be closed by the parser comes back as a PartialDict
 or PartialList, so a renderer can tell "closed by the model" from "closed
-by us". The same rules live in page/partial-json.mjs.
+by us". Text that is not JSON at all (a code fence, prose) raises
+ValueError: the caller keeps what it last rendered. The same rules live in
+page/partial-json.mjs.
 """
 
 import re
 
 NUMBER = re.compile(r"[-+0-9.eE]+")
+JSON_NUMBER = re.compile(r"-?\d+(\.\d+)?([eE][-+]?\d+)?")
+HEX4 = re.compile(r"[0-9a-fA-F]{4}")
 LITERALS = {"true": True, "false": False, "null": None}
+MAX_DEPTH = 64  # deeper than any layout; a runaway stream cannot overflow the stack
 
 
 class PartialDict(dict):
@@ -34,6 +39,7 @@ class Parser:
     def __init__(self, text):
         self.text = text
         self.i = 0
+        self.depth = 0
 
     def at_end(self):
         return self.i >= len(self.text)
@@ -50,10 +56,14 @@ class Parser:
         if self.at_end():
             raise Incomplete
         c = self.peek()
-        if c == "{":
-            return self.obj()
-        if c == "[":
-            return self.arr()
+        if c in "{[":
+            self.depth += 1
+            if self.depth > MAX_DEPTH:
+                raise ValueError(f"nested deeper than {MAX_DEPTH} at {self.i}")
+            try:
+                return self.obj() if c == "{" else self.arr()
+            finally:
+                self.depth -= 1
         if c == '"':
             return self.string()[0]
         if c in "tfn":
@@ -128,6 +138,8 @@ class Parser:
                     hex_digits = self.text[self.i + 2 : self.i + 6]
                     if len(hex_digits) < 4:
                         break
+                    if not HEX4.fullmatch(hex_digits):
+                        raise ValueError(f"bad unicode escape at {self.i}")
                     parts.append(chr(int(hex_digits, 16)))
                     self.i += 6
                     continue
@@ -145,6 +157,8 @@ class Parser:
         self.i = match.end()
         if self.at_end() and raw[-1] in "-+.eE":
             raise Incomplete  # "-", "1.", "2e": more digits are coming
+        if not JSON_NUMBER.fullmatch(raw):
+            raise ValueError(f"bad number at {self.i}")  # "1.", "1-2": the same verdict as the page's parser
         return int(raw) if re.fullmatch(r"-?\d+", raw) else float(raw)
 
     def literal(self):

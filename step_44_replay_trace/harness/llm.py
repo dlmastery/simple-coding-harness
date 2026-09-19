@@ -33,6 +33,11 @@ from dataclasses import dataclass, field
 import openai
 from openai import OpenAI
 
+try:  # openai 3.x ships its own copy of httpx; the transport errors come from whichever it uses
+    import httpx2 as httpx
+except ImportError:
+    import httpx
+
 from . import config
 from . import extensions
 from . import plan
@@ -42,8 +47,11 @@ from .instructions import instructions_prompt
 from .tools import TOOLS, active_schemas, deferred_names
 from .ui import ui
 
-client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
+client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY, max_retries=0)  # the retries are call_llm's, with a note each
 MODEL = config.MODEL
+
+# OpenRouter reports the dollars of a call in the usage when asked; other servers ignore the field
+EXTRA_BODY = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else None
 
 BACKOFF = (0.5, 1.0, 2.0, 4.0)  # seconds to wait before retry 1, 2, 3 and 4
 MAX_TRIES = len(BACKOFF) + 1    # the first try plus one per wait
@@ -256,45 +264,62 @@ class StreamedMessage:
     failed: str | None = None  # why no reply came, when every try failed; never part of the transcript
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and the tool calls when there are any.
+
+        Three keys and nothing else, whatever the server sent along:
+        reasoning, annotations and the like are never echoed back to it.
+        `content` stays, None included, so the entry on disk has the shape
+        the API sends.
+        """
+        entry = {"role": self.role, "content": self.content}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 
 
 def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came."""
+    """The same usage dict the non-streaming call produced. All None if no usage came.
+
+    `cost` is the dollars OpenRouter reports when EXTRA_BODY asked for
+    them, else None; stop.cost_of prices the tokens itself then.
+    """
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
+    cost = getattr(chunk_usage, "cost", None)
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
+        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
+        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": float(cost) if isinstance(cost, (int, float)) else None,
     }
 
 
 def retryable(error):
     """True when a failed request may succeed on a retry.
 
-    Rate limits, connection failures and timeouts pass. A status error
-    passes only for a 5xx answer: a 4xx is the request's fault and comes
-    back the same every time.
+    Rate limits, connection failures and timeouts pass, and so does a
+    transport error from inside the stream (httpx raises those after the
+    headers came). A status error passes only for a 5xx answer: a 4xx is
+    the request's fault and comes back the same every time. An error the
+    server put inside the stream is judged by the code it carries.
     """
     if isinstance(error, openai.RateLimitError):
         return True
     if isinstance(error, openai.APIConnectionError):  # APITimeoutError is a subclass
         return True
+    if isinstance(error, httpx.HTTPError):  # the connection dropped mid-stream
+        return True
     if isinstance(error, openai.APIStatusError):
         return error.status_code >= 500
+    if isinstance(error, openai.APIError):  # an error object inside the stream: see stream_once
+        code = str((error.body or {}).get("code", "")) if isinstance(error.body, dict) else ""
+        return code in ("429", "overloaded") or code.startswith("5")
     return False
 
 
@@ -314,15 +339,22 @@ def stream_once(request, on_delta=None):
     stream = client.chat.completions.create(**request)
 
     parts = []          # text deltas, in order
-    calls = {}          # tool call index -> StreamedToolCall
+    calls = {}          # tool call index (or id, when the server sends no index) -> StreamedToolCall
+    order = []          # the keys of `calls` in order of first appearance
     final_usage = None  # arrives with the last chunk, which has no choices
+    finish = None       # the finish_reason of the last chunk that had one
 
     for chunk in stream:
+        error = getattr(chunk, "error", None)  # some servers put an error object in the stream instead of a status
+        if isinstance(error, dict):
+            raise openai.APIError(str(error.get("message") or error), request=None, body=error)
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
             continue
-        delta = chunk.choices[0].delta
+        choice = chunk.choices[0]
+        finish = getattr(choice, "finish_reason", None) or finish
+        delta = choice.delta
         if delta is None:
             continue
 
@@ -332,7 +364,10 @@ def stream_once(request, on_delta=None):
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            key = piece.index if piece.index is not None else piece.id
+            if key not in calls:
+                order.append(key)
+            call = calls.setdefault(key, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -343,11 +378,15 @@ def stream_once(request, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
-    message = StreamedMessage(
-        content="".join(parts) or None,
-        tool_calls=[calls[index] for index in sorted(calls)] or None,
-    )
-    return message, usage_from(final_usage)
+    content = "".join(parts) or None
+    tool_calls = [calls[key] for key in order] or None
+    if finish == "length":  # the reply hit max_tokens: its tool calls are cut off and cannot be run
+        content = (content or "") + "\n(reply cut off by max_tokens)"
+        tool_calls = None
+    if content is None and tool_calls is None and final_usage is None:
+        raise openai.APIError("empty reply: the stream carried no content, no tool calls and no usage", request=None, body=None)
+
+    return StreamedMessage(content=content, tool_calls=tool_calls), usage_from(final_usage)
 
 
 def call_llm(messages, tools=None, on_delta=None):
@@ -366,6 +405,8 @@ def call_llm(messages, tools=None, on_delta=None):
     the session goes on.
     """
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
+    if EXTRA_BODY:
+        request["extra_body"] = EXTRA_BODY
     schemas = active_schemas() if tools is None else tools
     if schemas:
         request["tools"] = schemas
@@ -373,7 +414,7 @@ def call_llm(messages, tools=None, on_delta=None):
     for attempt in range(1, MAX_TRIES + 1):
         try:
             return stream_once(request, on_delta)
-        except openai.APIError as error:
+        except (openai.APIError, httpx.HTTPError) as error:
             if not retryable(error):
                 reason = f"model call failed and will not be retried ({describe(error)}): {error}"
                 break
@@ -399,8 +440,12 @@ if __name__ == "__main__":
 
     if message.tool_calls:
         tool_call = message.tool_calls[0]
-        args = json.loads(tool_call.function.arguments)
-        result = TOOLS[tool_call.function.name](**args)
+        try:
+            args = json.loads(tool_call.function.arguments)
+        except ValueError as bad:
+            args, result = {}, f"Error: the arguments of {tool_call.function.name} are not a JSON object: {bad}"
+        else:
+            result = TOOLS[tool_call.function.name](**args)
         print("Tool: ", tool_call.function.name, args)
         print(result, "\n")
 

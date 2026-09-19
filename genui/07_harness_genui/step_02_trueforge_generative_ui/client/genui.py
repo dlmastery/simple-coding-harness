@@ -76,18 +76,23 @@ def ask(prompt, session_id=None, on_delta=print_delta):
         session_id = open_session()
     stream = client().sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
     pieces, text, metrics = [], None, {}
+    status = "incomplete"  # only turn.done can change it: a stream that ends without it is a failure, not a reply
     for event in stream.with_metadata():
         data = event.data
         if data.type == "model.message.delta" and data.thread_id == "main" and data.content:
             pieces.append(data.content)
             if on_delta:
                 on_delta(data.content)
-        elif data.type == "turn.done" and data.state.status == "done":
-            output = data.state.output
-            if output is not None and isinstance(output.content, str):
-                text = output.content
-            if data.state.metrics is not None:
-                metrics = data.state.metrics.dict(exclude_none=True)
+        elif data.type == "turn.done":
+            status = data.state.status
+            if status == "done":
+                output = data.state.output
+                if output is not None and isinstance(output.content, str):
+                    text = output.content
+                if data.state.metrics is not None:
+                    metrics = data.state.metrics.dict(exclude_none=True)
+    if status != "done":
+        raise RuntimeError(f"the turn ended {status!r} after {len(''.join(pieces))} streamed characters")
     return session_id, text if text is not None else "".join(pieces), metrics
 
 

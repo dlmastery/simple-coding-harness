@@ -11,6 +11,8 @@ CURRENT = datetime.now().strftime("%Y%m%d-%H%M%S")
 WRITTEN = 0  # how many messages are already on disk
 NL = "\n"
 
+INTERRUPTED = "(the harness stopped before this tool ran; no result was recorded)"
+
 
 def path_for(session_id):
     return SESSION_DIR / f"{session_id}.jsonl"
@@ -29,6 +31,7 @@ def save(messages):
 def rewind_to(count):
     """Record a rewind as an entry, so the old messages stay in the file."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"rewind_to": count}) + "\n")
     WRITTEN = count
@@ -37,9 +40,20 @@ def rewind_to(count):
 def compacted(messages):
     """Compaction rewrites history, so record the result and start from it."""
     global WRITTEN
+    SESSION_DIR.mkdir(parents=True, exist_ok=True)
     with path_for(CURRENT).open("a", encoding="utf-8") as f:
         f.write(json.dumps({"compacted": messages}) + NL)
     WRITTEN = len(messages)
+
+
+def repair(messages):
+    """A transcript that ends mid tool call is invalid to send: give each
+    unanswered tool_call a result saying so, then the chat can go on."""
+    if not messages or messages[-1]["role"] != "assistant":
+        return messages
+    for call in messages[-1].get("tool_calls") or []:
+        messages.append({"role": "tool", "tool_call_id": call["id"], "content": INTERRUPTED})
+    return messages
 
 
 def load(session_id):
@@ -64,8 +78,8 @@ def open_session(session_id):
     global CURRENT, WRITTEN
     CURRENT = session_id
     messages = load(session_id)
-    WRITTEN = len(messages)
-    return messages
+    WRITTEN = len(messages)   # the repair below is new: the next save writes it
+    return repair(messages)
 
 
 def title(messages):

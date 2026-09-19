@@ -57,6 +57,10 @@ export interface Client {
 }
 
 export type Args = Record<string, any>;
-export type Tool = (args: Args) => string | Promise<string>;
+/** One tool: an object of named arguments in, text out. `any` on purpose: each tool
+ * destructures its own shape ({ command }, { path, content }, ...), and under
+ * strictFunctionTypes a narrower parameter would not fit a shared signature. The
+ * model's JSON is untyped anyway; execute() catches what does not fit at run time. */
+export type Tool = (args: any) => string | Promise<string>;
 export type Action = "allow" | "ask" | "deny";
 export type Todo = { content: string; activeForm: string; status: "pending" | "in_progress" | "completed" };

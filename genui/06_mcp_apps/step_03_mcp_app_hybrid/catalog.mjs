@@ -19,14 +19,18 @@ export function Metric({ title, value, delta }) {
   return `<div class="card"><div class="muted">${esc(title)}</div><div class="value">${esc(value)}</div><div class="muted">${esc(delta)}</div></div>`;
 }
 
+// The spec is the server's data: a prop that should be a list but is not becomes a list, never a thrown error.
+const list = (value) => (Array.isArray(value) ? value : value === undefined || value === null ? [] : [value]);
+
 export function Table({ columns = [], rows = [] }) {
-  const head = columns.map((c, i) => `<th class="${i ? "num" : ""}">${esc(c)}</th>`).join("");
-  const body = rows.map((row) => `<tr>${(row ?? []).map((cell, i) => `<td class="${i ? "num" : ""}">${esc(cell)}</td>`).join("")}</tr>`).join("");
+  const head = list(columns).map((c, i) => `<th class="${i ? "num" : ""}">${esc(c)}</th>`).join("");
+  const body = list(rows).map((row) => `<tr>${list(row).map((cell, i) => `<td class="${i ? "num" : ""}">${esc(cell)}</td>`).join("")}</tr>`).join("");
   return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
 export function BarChart({ labels = [], values = [] }) {
-  const numbers = values.map((v) => Number(v) || 0);
+  labels = list(labels);
+  const numbers = list(values).map((v) => Number(v) || 0);
   const most = Math.max(1, ...numbers);
   const bars = numbers.map((v, i) => {
     const label = labels.length <= 14 ? `<span>${esc(labels[i] ?? "")}</span>` : "";
@@ -50,6 +54,7 @@ export function render(component, props) {
 
 export function renderComponents(components = []) {
   // Metrics sit in one row of cards; everything else stacks in order.
+  components = list(components);
   const metrics = components.filter((c) => c?.component === "Metric");
   const rest = components.filter((c) => c?.component !== "Metric");
   const cards = metrics.length ? `<div class="cards">${metrics.map((c) => render(c.component, c.props)).join("")}</div>` : "";

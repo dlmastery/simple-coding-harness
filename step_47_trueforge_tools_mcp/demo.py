@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 from client import approve
-from client.connect import BASE_URL, connect
+from client.connect import BASE_URL, REQUEST_ERRORS, connect, describe_error
 from register import TOOLS_URL, list_tools, print_tools, register
 
 HERE = Path(__file__).parent
@@ -64,12 +64,12 @@ def ask(prompt: str) -> str:
     return answer
 
 
-def main() -> None:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="One coding turn on TrueForge through s47-tools.")
     parser.add_argument("prompt")
     parser.add_argument("--project", help="use this directory instead of a temp project (kept afterwards)")
     parser.add_argument("--base-url", default=BASE_URL)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     temporary = args.project is None
     project = Path(tempfile.mkdtemp(prefix="s47_")) if temporary else Path(args.project).resolve()
@@ -77,8 +77,9 @@ def main() -> None:
         (project / "hello.py").write_text(HELLO, encoding="utf-8")
     print(f"project: {short(project)}")
 
-    server = start_tools_server(project)
+    server = None
     try:
+        server = start_tools_server(project)
         client = connect(args.base_url)
         register(client, TOOLS_URL)
         tools = list_tools(client)
@@ -94,11 +95,16 @@ def main() -> None:
         if temporary:
             print("hello.py now:")
             print((project / "hello.py").read_text(encoding="utf-8").rstrip())
+        return 0 if result.status == "done" else 1
+    except REQUEST_ERRORS as error:  # server down or a refused request: one line, exit 1
+        print(f"request failed: {describe_error(error, args.base_url)}", file=sys.stderr)
+        return 1
     finally:
-        server.terminate()
+        if server is not None:
+            server.terminate()
         if temporary:
             shutil.rmtree(project, ignore_errors=True)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

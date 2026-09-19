@@ -6,6 +6,7 @@ parallel subagents can be told apart. The rest is step 28.
 
 import json
 import sys
+import threading
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -27,6 +28,10 @@ MUTED = "#565f89"
 
 MAX_TOOL_OUTPUT_LINES = 12
 
+APPROVE_LOCK = threading.Lock()  # one question at a time: subagents ask from threads
+
+LEAVE = "ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave"
+
 TODO_STYLES = {"completed": f"{MUTED} strike", "in_progress": f"bold {ACCENT}", "pending": MUTED}
 
 
@@ -37,6 +42,7 @@ class UI:
         self.console = Console()
         self.live = True  # False in headless mode: no streamed text, panels on stderr
         self._totals = {}
+        self._totals_lock = threading.Lock()
 
     def headless(self):
         """Print mode: progress goes to stderr, so stdout carries only the answer."""
@@ -48,7 +54,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /sessions  /rewind  ·  alt-enter for a newline  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /sessions  /rewind  ·  alt-enter for a newline  ·  {LEAVE}", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -68,7 +74,11 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    try:
+                        args = json.loads(call["function"]["arguments"])
+                    except ValueError:
+                        args = {"arguments": call["function"]["arguments"]}  # broken JSON: show it raw
+                    self.tool(call["function"]["name"], args if isinstance(args, dict) else {"arguments": args}, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -82,13 +92,18 @@ class UI:
         return int(answer) if answer.isdigit() and int(answer) < len(rows) else None
 
     def approve(self, reason):
-        """Stage 11: stop and ask before a tool call the rules rate as 'ask'."""
-        self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
-        try:
-            answer = prompt.read("  allow? (y/n)> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            return False
-        return answer.lower().startswith("y")
+        """Stage 11: stop and ask before a tool call the rules rate as 'ask'.
+
+        Under a lock: parallel subagents ask from their own threads, and the
+        terminal can hold one question at a time.
+        """
+        with APPROVE_LOCK:
+            self.console.print(Padding(Text(reason, style=f"bold {TOOL}"), (1, 0, 0, 2)))
+            try:
+                answer = prompt.read("  allow? (y/n)> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                return False
+            return answer.lower().startswith("y")
 
     def approve_plan(self):
         """Step 28: the plan is on screen; ask for a yes, or a no with feedback.
@@ -96,24 +111,26 @@ class UI:
         Returns (approved, feedback). Feedback is empty on yes, and on a no
         it is whatever the user typed at the second prompt.
         """
-        try:
-            answer = prompt.read("  approve? (y/n)> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            return False, ""
-        if answer.lower().startswith("y"):
-            return True, ""
-        try:
-            return False, prompt.read("  feedback> ").strip()
-        except (EOFError, KeyboardInterrupt):
-            return False, ""
+        with APPROVE_LOCK:
+            try:
+                answer = prompt.read("  approve? (y/n)> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                return False, ""
+            if answer.lower().startswith("y"):
+                return True, ""
+            try:
+                return False, prompt.read("  feedback> ").strip()
+            except (EOFError, KeyboardInterrupt):
+                return False, ""
 
     def ask(self):
+        """The next message. None means the user is leaving; "" is an empty line."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -149,7 +166,7 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
+        if name == "write_todos" and args.get("todos") and not str(result).startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -166,13 +183,14 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            status = todo.get("status")
+            style = TODO_STYLES.get(status, MUTED)
+            rows.add_row(Text(MARKS.get(status, "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -216,15 +234,22 @@ class UI:
         )
 
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Off the main thread it is a no-op with the same shape: rich allows one
+        live display, and parallel subagents would fight over it.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            return _Quiet()
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
 
     def usage(self, stats):
-        for key, value in stats.items():
-            self._totals[key] = self._totals.get(key, 0) + (value or 0)
-        parts = " · ".join(f"{value:,} {key.replace('_tokens', '')}" for key, value in stats.items() if value)
+        with self._totals_lock:  # subagent threads report too
+            for key, value in stats.items():
+                self._totals[key] = self._totals.get(key, 0) + (value or 0)
+        parts = " · ".join(f"${value:.4f}" if key == "cost" else f"{value:,} {key.replace('_tokens', '')}" for key, value in stats.items() if value)
         self.console.print(Padding(Text(parts, style=MUTED), (1, 0, 0, 2)))
 
     def summary(self):
@@ -234,7 +259,7 @@ class UI:
         table.add_column(style=MUTED)
         table.add_column(style=f"bold {ACCENT}", justify="right")
         for key, value in self._totals.items():
-            table.add_row(key.replace("_", " "), f"{value:,}")
+            table.add_row(key.replace("_", " "), f"${value:.4f}" if key == "cost" else f"{value:,}")
         self.console.print(Padding(table, (1, 2)))
         self.console.print(Rule(style=MUTED))
         self.console.print()
@@ -252,13 +277,26 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)
         if hidden > 0:
             body.append(f"\n… {hidden} more lines", style=f"italic {TOOL}")
         return body
+
+
+class _Quiet:
+    """A spinner that does nothing: what working() hands out off the main thread."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return False
+
+    def stop(self):
+        pass
 
 
 ui = UI()

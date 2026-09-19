@@ -25,6 +25,7 @@ import os
 import time
 from dataclasses import dataclass, field
 
+import httpx
 import openai
 from openai import OpenAI
 
@@ -37,8 +38,11 @@ from .skills import skills_prompt
 from .tools import TOOLS, active_schemas, deferred_names
 from .ui import ui
 
-client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY)
+client = OpenAI(base_url=config.BASE_URL, api_key=config.API_KEY, max_retries=0)  # call_llm does the retrying, with notes
 MODEL = config.MODEL
+
+# OpenRouter reports the price of a call in the usage when asked; other hosts ignore the field
+USAGE_EXTRA = {"usage": {"include": True}} if "openrouter" in config.BASE_URL else {}
 
 BACKOFF = (0.5, 1.0, 2.0, 4.0)  # seconds to wait before retry 1, 2, 3 and 4
 MAX_TRIES = len(BACKOFF) + 1    # the first try plus one per wait
@@ -254,29 +258,37 @@ class StreamedMessage:
     failed: str | None = None  # why no reply came, when every try failed; never part of the transcript
 
     def model_dump(self, exclude_none=True):
-        """The dict the loop appends to the transcript."""
-        entry = {"role": self.role, "content": self.content, "tool_calls": None}
+        """The dict the loop appends to the transcript: role, content, and tool_calls when there are any.
+
+        Always these keys and nothing else. `content` stays even when it is
+        None, because the API wants it; `failed` and anything a provider
+        adds (reasoning, annotations) never go back on the wire.
+        """
+        entry = {"role": self.role, "content": self.content}
         if self.tool_calls:
             entry["tool_calls"] = [
                 {"id": c.id, "type": c.type, "function": {"name": c.function.name, "arguments": c.function.arguments}}
                 for c in self.tool_calls
             ]
-        if exclude_none:
-            entry = {k: v for k, v in entry.items() if v is not None}
         return entry
 
 
 def usage_from(chunk_usage):
-    """The same usage dict the non-streaming call produced. All None if no usage came."""
+    """The same usage dict the non-streaming call produced. All None if no usage came.
+
+    `cost` is the dollars OpenRouter reports when USAGE_EXTRA asked for it;
+    None elsewhere, and the caller prices the tokens itself.
+    """
     if chunk_usage is None:
-        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None}
+        return {"prompt_tokens": None, "completion_tokens": None, "reasoning_tokens": None, "cached_tokens": None, "cost": None}
     completion_details = getattr(chunk_usage, "completion_tokens_details", None)
     prompt_details = getattr(chunk_usage, "prompt_tokens_details", None)
     return {
-        "prompt_tokens": chunk_usage.prompt_tokens,
-        "completion_tokens": chunk_usage.completion_tokens,
+        "prompt_tokens": getattr(chunk_usage, "prompt_tokens", None),
+        "completion_tokens": getattr(chunk_usage, "completion_tokens", None),
         "reasoning_tokens": getattr(completion_details, "reasoning_tokens", None),
         "cached_tokens": getattr(prompt_details, "cached_tokens", None),
+        "cost": getattr(chunk_usage, "cost", None),
     }
 
 
@@ -289,10 +301,13 @@ def retryable(error):
     """
     if isinstance(error, openai.RateLimitError):
         return True
-    if isinstance(error, openai.APIConnectionError):  # APITimeoutError is a subclass
+    if isinstance(error, (openai.APIConnectionError, httpx.HTTPError)):  # APITimeoutError is a subclass; httpx: a drop mid-stream
         return True
     if isinstance(error, openai.APIStatusError):
         return error.status_code >= 500
+    if isinstance(error, openai.APIError):  # a bare error inside the stream: retry when it names an overload
+        text = str(error).lower()
+        return any(word in text for word in ("overloaded", "rate limit", "429", "500", "502", "503", "504"))
     return False
 
 
@@ -314,12 +329,16 @@ def stream_once(request, on_delta=None):
     parts = []          # text deltas, in order
     calls = {}          # tool call index -> StreamedToolCall
     final_usage = None  # arrives with the last chunk, which has no choices
+    finish = None       # the finish_reason of the last chunk that carried one
+    seen = False        # whether any chunk carried a choice at all
 
     for chunk in stream:
         if getattr(chunk, "usage", None) is not None:
             final_usage = chunk.usage
         if not chunk.choices:
             continue
+        seen = True
+        finish = chunk.choices[0].finish_reason or finish
         delta = chunk.choices[0].delta
         if delta is None:
             continue
@@ -330,7 +349,8 @@ def stream_once(request, on_delta=None):
                 on_delta(delta.content)
 
         for piece in delta.tool_calls or []:
-            call = calls.setdefault(piece.index, StreamedToolCall())
+            index = piece.index if piece.index is not None else piece.id  # some hosts send no index: the id is the key
+            call = calls.setdefault(index, StreamedToolCall())
             if piece.id:
                 call.id = piece.id
             function = getattr(piece, "function", None)
@@ -341,11 +361,17 @@ def stream_once(request, on_delta=None):
             if function.arguments:
                 call.function.arguments += function.arguments
 
-    message = StreamedMessage(
-        content="".join(parts) or None,
-        tool_calls=[calls[index] for index in sorted(calls)] or None,
-    )
-    return message, usage_from(final_usage)
+    if not seen:  # some providers answer an error as a stream with no choices at all
+        raise openai.APIError(str(getattr(stream, "error", None) or "empty reply: no choices in the stream"), request=None, body=None)
+
+    tool_calls = [calls[index] for index in sorted(calls, key=str)] or None
+    content = "".join(parts) or None
+    if finish == "length" and tool_calls:  # cut off mid-call: the arguments are not JSON, the call is unusable
+        tool_calls = None
+        content = (content or "") + "\n(reply cut off by max_tokens; the tool calls were incomplete and dropped)"
+    elif finish == "length":
+        content = (content or "") + "\n(reply cut off by max_tokens)"
+    return StreamedMessage(content=content, tool_calls=tool_calls), usage_from(final_usage)
 
 
 def call_llm(messages, tools=None, on_delta=None):
@@ -364,6 +390,8 @@ def call_llm(messages, tools=None, on_delta=None):
     the session goes on.
     """
     request = {"model": MODEL, "messages": messages, "stream": True, "stream_options": {"include_usage": True}}
+    if USAGE_EXTRA:
+        request["extra_body"] = USAGE_EXTRA
     schemas = active_schemas() if tools is None else tools
     if schemas:
         request["tools"] = schemas
@@ -371,7 +399,7 @@ def call_llm(messages, tools=None, on_delta=None):
     for attempt in range(1, MAX_TRIES + 1):
         try:
             return stream_once(request, on_delta)
-        except openai.APIError as error:
+        except (openai.APIError, httpx.HTTPError) as error:
             if not retryable(error):
                 reason = f"model call failed and will not be retried ({describe(error)}): {error}"
                 break

@@ -29,6 +29,7 @@ from . import sandbox
 TAIL_LINES = 20     # lines of the log a status report shows
 KILL_GRACE = 2      # seconds a job gets to end on its own before the next, harder step
 DEFAULT_WAIT = 60   # seconds job_wait blocks when the model gives no timeout
+MAX_WAIT = 300      # the most one job_wait may block, whatever the model asks for
 
 JOBS = {}                 # job id -> Job, in start order
 _lock = threading.Lock()  # guards the counter: tool calls can come from a thread pool
@@ -79,23 +80,10 @@ def start(command):
     handle.close()
     log = Path(handle.name)
 
-    sandboxed = sandbox.wrap(command)  # argv inside the OS sandbox, or None for a plain shell
-    options = {}
-    if sys.platform == "win32":
-        # its own process group, so job_kill can signal the whole tree at once
-        options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
-    else:
-        options["start_new_session"] = True  # the same idea: a group of its own
-
+    # the same start as a foreground command: the sandbox wrapper, no stdin, and a
+    # process group of its own so job_kill can signal the whole tree at once
     with open(log, "wb") as out:
-        process = subprocess.Popen(
-            sandboxed or command,
-            shell=sandboxed is None,
-            stdin=subprocess.DEVNULL,
-            stdout=out,
-            stderr=subprocess.STDOUT,
-            **options,
-        )
+        process = sandbox.popen(command, stdout=out, stderr=subprocess.STDOUT)
     job = Job(next_id(), command, process, log, time.time())
     JOBS[job.id] = job
     return job
@@ -183,6 +171,7 @@ def job_wait(job_id: str, timeout: int = DEFAULT_WAIT) -> str:
     job = find(job_id)
     if isinstance(job, str):
         return job
+    timeout = max(1, min(int(timeout or DEFAULT_WAIT), MAX_WAIT))  # a wait is bounded, whatever the model asks for
     try:
         job.process.wait(timeout=timeout)
     except subprocess.TimeoutExpired:

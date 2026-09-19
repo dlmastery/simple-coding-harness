@@ -28,7 +28,6 @@ window.openui = {
 document.getElementById("render-all").onclick = async () => {
   window.openui.reset();
   const text = await (await fetch("/program.oui")).text();
-  render(parse(text, catalog), ui);
   parser.buffer = text;
   show(parse(text, catalog));
 };
@@ -36,6 +35,8 @@ document.getElementById("render-all").onclick = async () => {
 document.getElementById("stream").onclick = () => {
   window.openui.reset();
   const events = new EventSource("/stream?delay=400");
+  events.onopen = () => { if (parser.buffer) window.openui.reset(); };  // a reconnect replays from line 1: start over, do not append
   events.onmessage = (event) => window.openui.push(JSON.parse(event.data) + "\n");
   events.addEventListener("done", () => { events.close(); window.openui.finish(); });
+  events.onerror = () => { status.textContent = "stream lost, reconnecting"; };
 };

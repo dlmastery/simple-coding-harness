@@ -1,12 +1,14 @@
-"""Stage 11 - commands, unchanged since stage 9.
+"""Stage 11 - commands, unchanged since stage 10.
 """
 
 from . import session
+from .todos import restore
 from .ui import ui
 
 COMMANDS = {
-    "/rewind": "jump back to an earlier point in this chat",
+    "/rewind": "jump back to before one of your messages",
     "/sessions": "open a past chat",
+    "/exit": "leave (ctrl-d and ctrl-c do the same)",
 }
 
 
@@ -22,16 +24,24 @@ def redraw(messages, label):
     ui.banner()
     ui.resumed(messages, label)
     ui.replay(messages)
+    restore(messages)  # the plan lives outside the transcript; rebuild it from this one
     return messages
 
 
 def rewind(messages):
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the chat back to just before one of your messages.
+
+    Only user messages are offered: a cut there can never separate a tool
+    call from its result, which the API would refuse on the next call.
+    """
+    users = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [preview(messages[i]) for i in users])
     if choice is None:
         return messages
-    session.rewind_to(choice + 1)
-    return redraw(messages[: choice + 1], "rewound")
+    count = users[choice]
+    session.save(messages)  # a fresh chat may not be on disk yet
+    session.rewind_to(count)
+    return redraw(messages[:count], "rewound")
 
 
 def sessions(messages):

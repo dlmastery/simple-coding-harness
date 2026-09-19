@@ -14,13 +14,13 @@ async function* readSSE(response) {
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n");
     let end;
     while ((end = buffer.indexOf("\n\n")) >= 0) {
       const frame = buffer.slice(0, end);
       buffer = buffer.slice(end + 2);
       for (const line of frame.split("\n")) {
-        if (line.startsWith("data: ")) yield JSON.parse(line.slice(6));
+        if (line.startsWith("data:")) yield JSON.parse(line.slice(5));
       }
     }
   }
@@ -31,17 +31,25 @@ export async function run(prompt) {
   wire.textContent = "";
   events.length = 0;
   document.body.dataset.state = "running";
-  const response = await fetch("/api/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
-  for await (const message of readSSE(response)) {
-    events.push(message);
-    wire.textContent += JSON.stringify(message) + "\n";
-    if (message.component) dashboard.insertAdjacentHTML("beforeend", render(message.component, message.props));
+  try {
+    const response = await fetch("/api/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+    for await (const message of readSSE(response)) {
+      events.push(message);
+      wire.textContent += JSON.stringify(message) + "\n";
+      if (message.component) dashboard.insertAdjacentHTML("beforeend", render(message.component, message.props));
+    }
+  } catch (error) {
+    // a dead server or a cut stream: say so instead of staying "running" forever
+    events.push({ done: true, error: String(error.message ?? error) });
+    wire.textContent += `error: ${error.message ?? error}\n`;
+  } finally {
+    document.body.dataset.state = "done";
   }
-  document.body.dataset.state = "done";
 }
 
 document.querySelector("#form").addEventListener("submit", (event) => {

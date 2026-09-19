@@ -357,6 +357,28 @@ def test_ui_text_renders_any_json():
     assert ui_text.title_of("<title> T </title>") == "T" and ui_text.title_of("<p>x</p>") is None
 
 
+def test_every_tool_call_gets_one_tool_message_even_on_error(lemonade, registry, monkeypatch):
+    """Broken JSON, an unknown tool and a raising tool are results, never exceptions out of execute()."""
+    from types import SimpleNamespace as NS
+
+    monkeypatch.setattr(ui, "approve", lambda reason: True)  # MCP calls ask by default; no prompt under pytest
+
+    call = lambda name, arguments: NS(id="c", function=NS(name=name, arguments=arguments))  # noqa: E731
+    args, result = tools.execute(call("mcp__lemonade__ping", "{not json"))
+    assert args == {} and result.startswith("Error: the arguments of mcp__lemonade__ping are not a JSON object:")
+    args, result = tools.execute(call("no_such_tool", "{}"))
+    assert result == "Error: no tool named 'no_such_tool'."
+    monkeypatch_tool = registry.TOOLS["mcp__lemonade__ping"]
+    registry.TOOLS["mcp__lemonade__ping"] = lambda **kw: (_ for _ in ()).throw(ValueError("boom"))
+    try:
+        args, result = tools.execute(call("mcp__lemonade__ping", "{}"))
+    finally:
+        registry.TOOLS["mcp__lemonade__ping"] = monkeypatch_tool
+    assert result == "Error: ValueError: boom"
+    args, result = tools.execute(call("bash", "{}"))
+    assert result == "Blocked by policy: bash: missing argument 'command'"
+
+
 def test_the_real_server_over_stdio(registry, cards):
     """The harness starts server.py --stdio as a child, like .agents/mcp.json says, and renders its app."""
     spec = {"command": sys.executable, "args": [str(STEP / "server.py"), "--stdio"], "env": None}

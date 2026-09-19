@@ -22,6 +22,7 @@ import json
 import sys
 import threading
 from collections import deque
+from contextlib import nullcontext
 
 from rich.console import Console, Group
 from rich.errors import LiveError
@@ -35,6 +36,7 @@ from rich.table import Table
 from rich.text import Text
 
 from . import prompt
+from .durability import parse_args_of
 from .history import caption_of
 from .todos import MARKS
 
@@ -147,7 +149,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /agent  /handoff  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /mode  /plan  /act  /agent  /handoff  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -167,7 +169,8 @@ class UI:
                 if message.get("content"):
                     self.agent(message["content"])
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    args = parse_args_of(call["function"]["arguments"]) or {"raw": call["function"]["arguments"]}  # broken JSON is shown as it is
+                    self.tool(call["function"]["name"], args, results.get(call["id"], ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -235,12 +238,13 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
+        """The next line from the user: "" for an empty line, None when they want out (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -276,8 +280,9 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
-            return self.todos(args["todos"])
+        args = args if isinstance(args, dict) else {"raw": args}
+        if name == "write_todos" and isinstance(args.get("todos"), list) and not str(result).startswith("Error"):
+            return self.todos(args["todos"])  # a list the tool accepted is drawn as the checklist; a refused one shows the error
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
         self.console.print(
@@ -298,13 +303,13 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -352,8 +357,12 @@ class UI:
 
         One live display at a time: a tool panel that opens while the
         spinner turns stops it, and a spinner started while a panel is
-        open shows nothing. The panel stands in for it either way.
+        open shows nothing. The panel stands in for it either way. Off the
+        main thread (a parallel subagent) there is no spinner at all: rich
+        draws live displays from one thread only.
         """
+        if threading.current_thread() is not threading.main_thread():
+            return nullcontext()
         return Spinner(self, self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT))
 
     # ------------------------------------------------------- tool streaming
@@ -374,8 +383,7 @@ class UI:
                 if stream is None:
                     stream = self.stream_open(ToolStream(self, name, {}))
             stream.lines.append(line)
-            stream.count += 1
-            self._redraw()
+            stream.count += 1  # the live display redraws on its own clock; a line only has to be in the deque
 
     def stream_open(self, stream):
         """Put a stream's panel on screen. The live display starts with the first one."""
@@ -396,22 +404,27 @@ class UI:
                 self._redraw()
 
     def _render_streams(self):
-        return Group(*(stream.render() for stream in self._streams))
+        with self._streams_lock:
+            return Group(*(stream.render() for stream in self._streams))
 
     def _redraw(self):
-        """Draw every open panel. Starts the live display when none is running and the screen is free."""
+        """Start the live display when a panel is open, none is running and the screen is free.
+
+        The display renders the open panels itself, on its own clock
+        (get_renderable), so the reader threads never draw: they append a
+        line and the next refresh shows it.
+        """
         if not self.live or not self._streams:
             return
         if self._live is None:
             if self._spinner is not None:
                 self._spinner.stop()  # the panel takes over from the spinner
-            live = Live(self._render_streams(), console=self.console, transient=True, refresh_per_second=8)
+            live = Live(get_renderable=self._render_streams, console=self.console, transient=True, refresh_per_second=8)
             try:
                 live.start()
             except LiveError:
-                return  # another live display has the screen for now; the next line tries again
+                return  # another live display has the screen for now; the next panel tries again
             self._live = live
-        self._live.update(self._render_streams())
 
     # ---------------------------------------------------------------- usage
 
@@ -491,12 +504,14 @@ class UI:
         )
 
     def _format_args(self, args):
+        if not isinstance(args, dict):
+            return str(args)
         if len(args) == 1:
             return str(next(iter(args.values())))
-        return json.dumps(args)
+        return json.dumps(args, default=str)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

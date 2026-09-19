@@ -37,8 +37,19 @@ answer is always no. Every tool outside the plan tool set is denied too.
 Step 35 adds the session rules. An `a` at the approve prompt means always:
 the tool, and for bash the first word of the command, is allowed for the
 rest of the session. A `never` denies it the same way. SESSION_RULES holds
-these answers and is consulted before BASH_RULES, one command part at a
+these answers and is consulted after BASH_RULES, one command part at a
 time. A deny in BASH_RULES still wins: no answer at the prompt unlocks rm.
+The key is what was asked: an edit outside the project is filed under
+(tool, "outside"), a browser_open under its host. In plan mode and in
+read-only mode the session rules are not consulted: the mode's answer is
+always no, and an `always` from act mode must not unlock a command there.
+
+The rules only see the command text, so a few shapes they cannot read are
+rated ask whatever the first word: a command substitution `$(...)` or a
+backtick, a process substitution, and an allowed command that redirects
+its output with `>` or pipes it into tee. `find` with -delete or -exec asks
+too. That is what makes read-only and plan mode really read-only: the ask
+becomes a deny there.
 """
 
 import json
@@ -64,10 +75,10 @@ def computer_auto():
 
 BASH_RULES = {
     "*": "ask",
-    # read-only: let them through
+    # read-only: let them through (env is not here: it prints the API key)
     "ls*": "allow", "pwd": "allow", "cd *": "allow", "echo *": "allow",
     "sort*": "allow", "uniq*": "allow", "cut *": "allow", "basename *": "allow", "dirname *": "allow",
-    "date*": "allow", "env": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
+    "date*": "allow", "cat *": "allow", "head *": "allow", "tail *": "allow",
     "wc *": "allow", "file *": "allow", "which *": "allow", "grep *": "allow", "rg *": "allow",
     "find *": "allow", "tree*": "allow",
     "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git show*": "allow", "git ls-files*": "allow",
@@ -89,10 +100,24 @@ def first_word(command):
 
 
 def session_keys(name, args):
-    """The SESSION_RULES keys one call is filed under: one per command part for bash, one for any other tool."""
+    """The SESSION_RULES keys one call is filed under: what the prompt asked about.
+
+    One per command part for bash; (tool, "outside") for an edit outside
+    the project, so an always for one file outside does not unlock the
+    tool inside; the host for browser_open; the tool name for the rest.
+    """
     if name in ("bash", "bash_background"):
         return [("bash", first_word(part)) for part in split_command(args.get("command", ""))]
+    if name in ("write_file", "str_replace") and not inside_project(args.get("path", "")):
+        return [(name, "outside")]
+    if name == "browser_open":
+        return [(name, (urlparse(args.get("url", "")).hostname or "").lower())]
     return [(name, "")]
+
+
+def session_rules_apply():
+    """Whether an always/never answer counts now: not in plan mode, not in read-only mode."""
+    return modes.current() not in ("plan", "read-only")
 
 
 def remember(name, args, verdict):
@@ -105,7 +130,11 @@ def remember(name, args, verdict):
 
 
 def split_command(command):
-    """Split a compound command on |, ||, ;, &, && - but not inside quotes."""
+    """Split a compound command on |, ||, ;, &, &&, newline - but not inside quotes.
+
+    The & of a redirection (`2>&1`, `>&2`) is part of the redirection, not
+    a separator.
+    """
     parts, current, quote, i = [], [], None, 0
     while i < len(command):
         ch = command[i]
@@ -118,7 +147,9 @@ def split_command(command):
         elif ch in "\"'":
             quote = ch
             current.append(ch)
-        elif ch in "&|;":
+        elif ch == "&" and current and current[-1] == ">":
+            current.append(ch)  # 2>&1: a redirection, not a background &
+        elif ch in "&|;\n":
             parts.append("".join(current))
             current = []
             while i + 1 < len(command) and command[i + 1] in "&|":
@@ -130,13 +161,44 @@ def split_command(command):
     return [p.strip() for p in parts if p.strip()]
 
 
+def unquoted(part, chars):
+    """Whether any of `chars` appears in the part outside quotes. `2>&1` does not count as a `>`."""
+    quote = None
+    for i, ch in enumerate(part):
+        if quote:
+            quote = None if ch == quote else quote
+        elif ch in "\"'":
+            quote = ch
+        elif ch in chars and not (ch == ">" and part[i + 1 : i + 2] == "&"):
+            return True
+    return False
+
+
+def writes(part):
+    """Whether an otherwise read-only command would write: a redirection, tee, or find that deletes or execs."""
+    if unquoted(part, ">") or first_word(part) == "tee":
+        return True
+    return first_word(part) == "find" and any(w in ("-delete", "-exec", "-execdir", "-ok", "-okdir") for w in part.split())
+
+
+def opaque(command):
+    """Whether the command hides a command inside another: $(...), backticks, <(...), >(...)."""
+    return any(marker in command for marker in ("$(", "`", "<(", ">("))
+
+
 def rate(part):
-    """One command's verdict: a session rule first, then BASH_RULES. A deny in BASH_RULES wins."""
+    """One command's verdict: BASH_RULES, then a session rule. A deny in BASH_RULES wins.
+
+    An allowed command that writes - a redirection, tee, find -delete - is
+    an ask: the rules know cat, not cat > file.
+    """
     action = "ask"
     for pattern, rule in BASH_RULES.items():
         if fnmatch(part, pattern):
             action = rule
-    remembered = SESSION_RULES.get(("bash", first_word(part)))
+    if action == "allow" and writes(part):
+        action = "ask"
+    remembered = SESSION_RULES.get(("bash", first_word(part))) if session_rules_apply() else None
     if remembered and action != "deny":
         action = remembered
     return action
@@ -144,6 +206,8 @@ def rate(part):
 
 def decide(command):
     """Rate every part of a compound command; the strictest verdict wins."""
+    if opaque(command):
+        return "ask"  # a command inside a command: the parts cannot be read
     verdicts = [rate(part) for part in split_command(command)]
     for strictest in ("deny", "ask"):
         if strictest in verdicts:
@@ -154,6 +218,12 @@ def decide(command):
 def inside_project(path):
     resolved = Path(path).resolve()
     return resolved == PROJECT or PROJECT in resolved.parents
+
+
+def inside_git(path):
+    """Whether a path is under a .git directory: an edit there asks."""
+    resolved = Path(path).resolve()
+    return any(parent.name == ".git" for parent in [resolved, *resolved.parents])
 
 
 def describe(name, args):
@@ -181,8 +251,19 @@ def check(name, args):
     return final, reason
 
 
+def required(name, args):
+    """The argument a rule reads and the model left out, or None."""
+    needs = {"bash": "command", "bash_background": "command", "write_file": "path", "str_replace": "path", "browser_open": "url"}
+    key = needs.get(name)
+    return key if key is not None and not isinstance(args.get(key), str) else None
+
+
 def rules(name, args):
     """The verdict of the rules alone: (action, reason), as check() gave it before step 39."""
+    missing = required(name, args)
+    if missing is not None:
+        return "deny", f"{name}: missing argument {missing!r}"
+
     if name in ("bash", "bash_background"):
         action = decide(args["command"])
         if plan.MODE == "plan" and action == "ask":
@@ -190,9 +271,12 @@ def rules(name, args):
         how = "run in background" if name == "bash_background" else "run"
         return action, f"{how}: {args['command']}"
 
-    remembered = SESSION_RULES.get((name, ""))
+    remembered = SESSION_RULES.get(session_keys(name, args)[0]) if session_rules_apply() else None
     if remembered:
         return remembered, f"{remembered} for this session: {name}"
+
+    if name in ("write_file", "str_replace") and inside_git(args["path"]):
+        return "ask", f"{name} inside .git: {args['path']}"
 
     if name in ("write_file", "str_replace") and not inside_project(args["path"]):
         return "ask", f"{name} outside {PROJECT}: {args['path']}"

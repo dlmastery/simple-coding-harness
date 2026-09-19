@@ -6,6 +6,7 @@ from . import llm
 from . import openrouter
 from . import sandbox
 from . import session
+from . import todos
 from .ui import ui
 
 COMMANDS = {
@@ -27,6 +28,7 @@ def preview(message):
 
 def redraw(messages, label):
     """The screen no longer matches the history, so wipe it and draw again."""
+    todos.rebuild(messages)  # the plan lives outside the transcript; rebuild it from it
     ui.clear()
     ui.banner(sandbox.name())
     ui.resumed(messages, label)
@@ -35,12 +37,17 @@ def redraw(messages, label):
 
 
 def rewind(messages):
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut before a user message. Only user rows are offered: cutting inside a
+    tool exchange would leave a tool_call without its result."""
+    session.save(messages)  # a fresh session may have nothing on disk yet
+    turns = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    rows = [f"turn {n + 1:<4} {preview(messages[i])}" for n, i in enumerate(turns)]
+    choice = ui.pick("rewind to before", rows)
     if choice is None:
         return messages
-    session.rewind_to(choice + 1)
-    return redraw(messages[: choice + 1], "rewound")
+    cut = turns[choice]
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 
 
 def sessions(messages):

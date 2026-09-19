@@ -80,9 +80,10 @@ def remember(name: str, description: str, content: str, type: str = "project", s
         return f"Error: type must be one of {', '.join(TYPES)}."
     if scope not in SCOPES:
         return f"Error: scope must be one of {', '.join(SCOPES)}."
+    name = slug(name)  # the name in the index is the file name, so recall and forget find it
     directory = MEMORY_DIRS[SCOPES.index(scope)]
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{slug(name)}.md"
+    path = directory / f"{name}.md"
     existed = path.exists()
     front = yaml.safe_dump({"name": name, "description": description, "type": type}, sort_keys=False, allow_unicode=True)
     path.write_text(f"---\n{front}---\n\n{content.strip()}\n", encoding="utf-8")

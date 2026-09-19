@@ -5,17 +5,20 @@ declarative run keeps its transcript in a session, and the done message
 carries the session id. POST /api/action {"session": ..., "action": ...,
 "payload": {...}} appends the event to that transcript as a user message
 and runs the next model turn, streaming the updated layout the same way.
+A failed model call ends any stream with {"done": true, "error": "..."}.
 GET / serves the page.
 """
 
 import json
 import mimetypes
 import re
+import threading
 import uuid
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -24,7 +27,9 @@ import catalog
 import llm
 
 HERE = Path(__file__).parent
-mimetypes.add_type("text/javascript", ".mjs")  # module scripts need this type; not every OS registers it
+# module scripts need this type; Windows may register .js as text/plain
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("text/javascript", ".mjs")
 
 STATIC_PROMPT = """You build dashboards out of prebuilt components.
 You cannot write prose or markup. The only way to answer is to call the show_* tools.
@@ -50,8 +55,9 @@ EVENT_PROMPT = (
 
 FENCE = re.compile(r"^\s*```(?:json|html)?\s*|\s*```\s*$")
 
-# session id -> {"shape": ..., "messages": [...]}: the transcript a later action continues
+# session id -> {"shape": ..., "turn": ..., "lock": ..., "messages": [...]}: the transcript a later action continues
 SESSIONS: dict[str, dict] = {}
+MAX_SESSIONS = 100  # in memory, for one person: the oldest goes when the hundred-and-first starts
 
 app = FastAPI(title="genui step 04: hybrid escape hatch")
 
@@ -122,11 +128,17 @@ def declarative_turn(session_id):
     """
     session = SESSIONS[session_id]
     shape = session["shape"]
-    for item in stream_text(session["messages"], response_format={"type": "json_object"}):
-        if isinstance(item, dict):
-            yield item
-            continue
-        text, usage = item
+    with session["lock"]:  # one turn at a time per transcript: a double click must not interleave two
+        try:
+            for item in stream_text(session["messages"], response_format={"type": "json_object"}):
+                if isinstance(item, dict):
+                    yield item
+                    continue
+                text, usage = item
+        except Exception:
+            if session["messages"][-1]["role"] == "user":
+                session["messages"].pop()  # the turn never happened: no dangling user message
+            raise
         session["messages"].append({"role": "assistant", "content": text})
         spec = parse_spec(text)
         errors = ["the reply is not JSON"] if spec is None else catalog.validate(spec, shape)
@@ -139,8 +151,10 @@ def declarative_turn(session_id):
 def new_session(prompt, shape):
     """Start a transcript with the catalog prompt and the user's request."""
     session_id = uuid.uuid4().hex[:12]
+    while len(SESSIONS) >= MAX_SESSIONS:
+        SESSIONS.pop(next(iter(SESSIONS)))
     SESSIONS[session_id] = {
-        "shape": shape, "turn": 1,
+        "shape": shape, "turn": 1, "lock": threading.Lock(),
         "messages": [{"role": "system", "content": catalog.system_prompt(shape)}, {"role": "user", "content": prompt}],
     }
     return session_id
@@ -165,25 +179,46 @@ def run_mode(prompt, mode):
     return declarative_turn(new_session(prompt, mode))
 
 
-def stream(messages):
-    frames = (sse(message) for message in messages)
-    return StreamingResponse(frames, media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+def guarded(messages):
+    """The messages, then a terminal frame on failure: the page must never wait for one that is not coming."""
+    try:
+        yield from messages
+    except Exception as error:  # noqa: BLE001 - the error is the frame
+        yield {"done": True, "error": f"{type(error).__name__}: {error}"}
+
+
+async def frames(messages, request):
+    """Encode the messages as they come; stop pulling from the model when the page has gone."""
+    pending = iter(guarded(messages))
+    try:
+        while (message := await run_in_threadpool(next, pending, None)) is not None:
+            if await request.is_disconnected():
+                break
+            yield sse(message)
+    finally:
+        pending.close()  # closes the generator chain, and with it the model stream
+
+
+def stream(messages, request):
+    return StreamingResponse(frames(messages, request), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
 @app.post("/api/run")
-def run(body: Run):
-    return stream(run_mode(body.prompt, body.mode))
+def run(body: Run, request: Request):
+    return stream(run_mode(body.prompt, body.mode), request)
 
 
 @app.post("/api/action")
-def action(body: Action):
+def action(body: Action, request: Request):
     """The loop closes: the event becomes a user message, the model answers with the next layout."""
     session = SESSIONS.get(body.session)
     if session is None:
         raise HTTPException(404, "unknown session")
+    if session["lock"].locked():
+        raise HTTPException(409, "a turn is still running on this session")
     session["turn"] += 1
     session["messages"].append({"role": "user", "content": EVENT_PROMPT.format(action=body.action, payload=json.dumps(body.payload))})
-    return stream(declarative_turn(body.session))
+    return stream(declarative_turn(body.session), request)
 
 
 @app.get("/api/schema/{shape}")

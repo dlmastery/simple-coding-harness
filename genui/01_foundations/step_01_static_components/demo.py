@@ -25,11 +25,15 @@ def free_port():
 
 
 def serve(port):
-    """Run uvicorn on a daemon thread and return once it accepts connections."""
+    """Run uvicorn on a daemon thread and return once it accepts connections, or fail loudly."""
     config = uvicorn.Config(server.app, host="127.0.0.1", port=port, log_level="warning")
     instance = uvicorn.Server(config)
-    threading.Thread(target=instance.run, daemon=True).start()
+    thread = threading.Thread(target=instance.run, daemon=True)
+    thread.start()
+    deadline = time.monotonic() + 10
     while not instance.started:
+        if not thread.is_alive() or time.monotonic() > deadline:  # bind failure: the thread just ends
+            raise RuntimeError(f"the server did not start on port {port}")
         time.sleep(0.05)
     return instance
 

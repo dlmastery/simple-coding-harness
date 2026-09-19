@@ -2,7 +2,8 @@
 // Mirrors partial_json.py: open strings, objects and arrays are closed; a key
 // without a value, or a number or literal cut in the middle, is dropped.
 // Containers the parser had to close are recorded in PARTIAL, so a renderer
-// can tell "closed by the model" from "closed by us".
+// can tell "closed by the model" from "closed by us". Text that is not JSON
+// at all (a code fence, prose) throws: the caller keeps its last render.
 
 export const PARTIAL = new WeakSet();
 
@@ -14,11 +15,15 @@ class Incomplete extends Error {}
 
 const LITERALS = { true: true, false: false, null: null };
 const ESCAPES = { n: "\n", t: "\t", r: "\r", b: "\b", f: "\f" };
+const JSON_NUMBER = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/;
+const HEX4 = /^[0-9a-fA-F]{4}$/;
+export const MAX_DEPTH = 64; // deeper than any layout; a runaway stream cannot overflow the stack
 
 class Parser {
   constructor(text) {
     this.text = text;
     this.i = 0;
+    this.depth = 0;
   }
   atEnd() { return this.i >= this.text.length; }
   peek() { return this.text[this.i]; }
@@ -28,8 +33,10 @@ class Parser {
     this.skipWs();
     if (this.atEnd()) throw new Incomplete();
     const c = this.peek();
-    if (c === "{") return this.obj();
-    if (c === "[") return this.arr();
+    if (c === "{" || c === "[") {
+      if (++this.depth > MAX_DEPTH) throw new Error(`nested deeper than ${MAX_DEPTH} at ${this.i}`);
+      try { return c === "{" ? this.obj() : this.arr(); } finally { this.depth -= 1; }
+    }
     if (c === '"') return this.string()[0];
     if ("tfn".includes(c)) return this.literal();
     if (c === "-" || (c >= "0" && c <= "9")) return this.number();
@@ -84,6 +91,7 @@ class Parser {
         if (e === "u") {
           const hex = this.text.slice(this.i + 2, this.i + 6);
           if (hex.length < 4) break;
+          if (!HEX4.test(hex)) throw new Error(`bad unicode escape at ${this.i}`);
           parts += String.fromCharCode(parseInt(hex, 16));
           this.i += 6;
           continue;
@@ -104,12 +112,9 @@ class Parser {
     match.lastIndex = this.i;
     const raw = match.exec(this.text)[0];
     this.i += raw.length;
-    const n = Number(raw);
-    if (Number.isNaN(n) || /[-+.eE]$/.test(raw)) {
-      if (this.atEnd()) throw new Incomplete(); // "-", "1.", "2e": more digits are coming
-      throw new Error(`bad number at ${this.i}`);
-    }
-    return n;
+    if (/[-+.eE]$/.test(raw) && this.atEnd()) throw new Incomplete(); // "-", "1.", "2e": more digits are coming
+    if (!JSON_NUMBER.test(raw)) throw new Error(`bad number at ${this.i}`);
+    return Number(raw);
   }
 
   literal() {

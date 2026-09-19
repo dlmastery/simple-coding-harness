@@ -19,6 +19,9 @@ function redraw() {
 }
 
 const source = new EventSource("/events");
+source.onopen = () => {  // a reconnect replays the program from the start: begin again, do not append
+  if (parser.statements.size || parser.buffer) { parser.statements.clear(); parser.buffer = ""; parser.errors.length = 0; program.replaceChildren(); }
+};
 source.onmessage = (event) => {
   const line = JSON.parse(event.data);
   if (line === null) {

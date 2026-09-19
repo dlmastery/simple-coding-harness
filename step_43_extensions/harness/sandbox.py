@@ -40,9 +40,10 @@ def temp_dir():
 def wrap(command):
     """Wrap a shell command in an OS sandbox. None means we have no sandbox."""
     if sys.platform == "darwin":
-        profile = Path(tempfile.gettempdir()) / "simple-harness.sb"
-        profile.write_text(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
-        return ["sandbox-exec", "-f", str(profile), "/bin/sh", "-c", command]
+        # one profile file per command: parallel tool calls must not write the same file at the same time
+        with tempfile.NamedTemporaryFile("w", prefix="simple-harness-", suffix=".sb", delete=False, encoding="utf-8") as profile:
+            profile.write(PROFILE.format(project=Path(PROJECT).resolve(), tmp=temp_dir()))
+        return ["sandbox-exec", "-f", profile.name, "/bin/sh", "-c", command]
 
     if sys.platform.startswith("linux") and shutil.which("bwrap"):
         return [

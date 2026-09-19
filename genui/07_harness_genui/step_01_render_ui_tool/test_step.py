@@ -10,6 +10,7 @@ import io
 import json
 import os
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 os.environ.setdefault("API_KEY", "offline")
@@ -22,6 +23,7 @@ from harness import genui, llm, subagent, tools, web  # noqa: E402
 from harness.ui import ui  # noqa: E402
 
 SPEC = demo.SAMPLE_SPEC
+HERE_DIR = Path(__file__).resolve().parent
 
 
 def call(name, arguments):
@@ -51,6 +53,36 @@ def test_validator_names_each_problem():
     assert "takes no children" in genui.validate(broken(lambda e: e["sold"].update(children=["revenue"])))[0]
     assert "same length" in genui.validate(broken(lambda e: e["sales"]["props"].update(values=[1])))[0]
     assert genui.validate(broken(lambda e: e["kpis"]["children"].append("dash"))) == ["dash: element contains itself"]
+
+
+def test_validator_reports_wrong_shapes_instead_of_raising():
+    """Every shape the model can send is a sentence, never an exception out of validate()."""
+    text = {"type": "Text", "props": {"text": "x"}}
+    assert genui.validate({"root": ["a"], "elements": {"a": text}}) == ["root ['a'] is not an element id"]
+    assert genui.validate({"root": "a", "elements": {"a": {"type": "Card", "children": [{"id": "b"}]}}}) == ["a: children must be a list of element ids"]
+    assert genui.validate({"root": "a", "elements": {"a": {"type": "Text", "props": ["text"]}}}) == ["a: props must be an object"]
+    chart = {"root": "c", "elements": {"c": {"type": "Chart", "props": {"kind": "bar", "labels": ["x"], "values": ["abc"]}}}}
+    assert genui.validate(chart) == ["c: values must be numbers"]
+    table = {"root": "t", "elements": {"t": {"type": "Table", "props": {"columns": ["x"], "rows": [1, 2]}}}}
+    assert genui.validate(table) == ["t: every row must be a list of cells"]
+
+
+def test_execute_answers_every_call_even_when_it_cannot_run():
+    """Broken JSON, an unknown tool, a raising tool and a missing argument are results, never exceptions."""
+    args, result = tools.execute(SimpleNamespace(id="c", function=SimpleNamespace(name="render_ui", arguments="{not json")))
+    assert args == {} and result.startswith("Error: the arguments of render_ui are not a JSON object:")
+    assert tools.execute(call("no_such_tool", {}))[1] == "Error: no tool named 'no_such_tool'."
+    assert tools.execute(call("read_file", {"path": str(HERE_DIR / "missing.txt")}))[1].startswith("Error: FileNotFoundError:")
+    assert tools.execute(call("bash", {}))[1] == "Blocked by policy: bash: missing argument 'command'"
+
+
+def test_a_denied_render_ui_is_not_drawn(monkeypatch):
+    """The terminal draws the spec only when the tool ran; a denied call shows the denial panel."""
+    buffer = io.StringIO()
+    monkeypatch.setattr(ui, "console", Console(file=buffer, width=100, force_terminal=False, color_system=None))
+    ui.tool("render_ui", {"spec": SPEC}, "The user denied this tool call.")
+    text = buffer.getvalue()
+    assert "The user denied this tool call." in text and "████" not in text
 
 
 def test_catalog_reaches_the_model_as_prompt_and_schema():
@@ -107,6 +139,8 @@ def test_web_surface_serves_page_and_replays_latest_spec_over_sse(monkeypatch):
         assert b"EventSource" in conn.getresponse().read()
         conn.request("GET", "/nope.txt")
         assert conn.getresponse().status == 404
+        conn.request("GET", "/../harness/web.py")
+        assert conn.getresponse().status == 404  # nothing outside web/ is served
         conn.close()
 
         web.publish(SPEC)

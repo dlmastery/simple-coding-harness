@@ -14,6 +14,7 @@ const html = htm.bind(React.createElement);
 const { useState, useEffect, useMemo } = React;
 
 async function* chunks(response) {
+  if (!response.ok) throw new Error(`server answered ${response.status}: ${(await response.text()).slice(0, 200)}`);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   while (true) {
@@ -21,6 +22,14 @@ async function* chunks(response) {
     if (done) return;
     yield decoder.decode(value, { stream: true });
   }
+}
+
+// The server ends a failed stream with one line {"error": "..."}: not a patch, so
+// the compiler skips it; the page reads it and stops with the reason.
+function errorLine(text) {
+  const last = text.trimEnd().split("\n").at(-1) ?? "";
+  if (!last.startsWith('{"error"')) return null;
+  try { return JSON.parse(last).error; } catch { return null; }
 }
 
 function App() {
@@ -33,31 +42,42 @@ function App() {
   const state = useMemo(() => ({ ...(spec?.state ?? {}) }), [spec]);
 
   async function run() {
+    if (loading) return;
     const started = performance.now();
     const seconds = () => ((performance.now() - started) / 1000).toFixed(2);
     let firstPaint = null;
+    let text = "";
     setLoading(true);
     setStatus("streaming...");
     const compiler = createSpecStreamCompiler();
-    const response = await fetch("/stream", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
-    for await (const chunk of chunks(response)) {
-      const { result, newPatches } = compiler.push(chunk);
-      if (newPatches.length === 0) continue;
-      // The first patch sets /root alone; Renderer reads spec.elements[spec.root]
-      // with no guard, so give it an empty map until /elements arrives.
-      setSpec(result.elements ? result : { ...result, elements: {} });
-      if (firstPaint === null && result.root && result.elements?.[result.root]) {
-        firstPaint = seconds();
-        setStatus(`first paint at ${firstPaint} s`);
+    try {
+      const response = await fetch("/stream", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      for await (const chunk of chunks(response)) {
+        text += chunk;
+        const { result, newPatches } = compiler.push(chunk);
+        if (newPatches.length === 0) continue;
+        // The first patch sets /root alone; Renderer reads spec.elements[spec.root]
+        // with no guard, so give it an empty map until /elements arrives.
+        setSpec(result.elements ? result : { ...result, elements: {} });
+        if (firstPaint === null && result.root && result.elements?.[result.root]) {
+          firstPaint = seconds();
+          setStatus(`first paint at ${firstPaint} s`);
+        }
       }
+      setSpec(compiler.getResult()); // applies a last line that had no newline
+      const failed = errorLine(text);
+      setStatus(failed
+        ? `stopped after ${compiler.getPatches().length} patches: ${failed}`
+        : `first paint at ${firstPaint} s, complete at ${seconds()} s, ${compiler.getPatches().length} patches`);
+    } catch (error) {
+      setStatus(`stream failed: ${error.message}`); // a dead server or a lost connection: a terminal state, not "streaming..." forever
+    } finally {
+      setLoading(false);
     }
-    setSpec(compiler.getResult()); // applies a last line that had no newline
-    setLoading(false);
-    setStatus(`first paint at ${firstPaint} s, complete at ${seconds()} s, ${compiler.getPatches().length} patches`);
   }
 
   // ?last=1 shows the spec the server streamed most recently; ?auto=1 starts a stream on load.
@@ -70,7 +90,7 @@ function App() {
   return html`
     <div className="toolbar">
       <input value=${prompt} onChange=${(e) => setPrompt(e.target.value)} />
-      <button onClick=${run}>Generate</button>
+      <button onClick=${run} disabled=${loading}>Generate</button>
       <span className="status" id="status">${status}</span>
     </div>
     <main id="surface">

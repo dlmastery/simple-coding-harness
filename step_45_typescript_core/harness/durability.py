@@ -11,17 +11,31 @@ model or runs a tool.
 
 import json
 
-from .llm import StreamedFunction, StreamedToolCall
-
 REPEAT_LIMIT = 3
 REPEATED = "Repeated call detected; change approach or ask the user"
 
 
-def parse_args(tool_call):
-    """The arguments of a tool call as a dict; an empty dict when the JSON is broken."""
+def parse_args(tool_call, why=False):
+    """The arguments of a tool call as a dict; an empty dict when the JSON is broken.
+
+    With why=True the answer is (args, problem): problem is None when the
+    arguments were a JSON object, else one line that says what was wrong,
+    for the result the model reads.
+    """
     try:
         args = json.loads(tool_call.function.arguments or "{}")
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, TypeError) as bad:
+        return ({}, str(bad)) if why else {}
+    if not isinstance(args, dict):
+        return ({}, f"got {type(args).__name__}, not an object") if why else {}
+    return (args, None) if why else args
+
+
+def parse_args_of(arguments):
+    """parse_args for a call already in the transcript: the JSON string, not the object."""
+    try:
+        args = json.loads(arguments or "{}")
+    except (json.JSONDecodeError, TypeError):
         return {}
     return args if isinstance(args, dict) else {}
 

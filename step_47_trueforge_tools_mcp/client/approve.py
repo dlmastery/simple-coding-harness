@@ -9,6 +9,7 @@ terminal, and starts the next turn with one `user.tool_approval` per call.
 """
 
 import json
+import os
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -16,6 +17,8 @@ from trueforge_sdk import (
     AgentSpec,
     ApprovalAllow,
     ApprovalDeny,
+    AskUserQuestionsConfig,
+    DynamicSubAgentsConfig,
     McpServer,
     Model,
     RuntimeConfig,
@@ -24,8 +27,9 @@ from trueforge_sdk import (
     UserToolApprovalEvent,
 )
 
-MODEL = "openai/gpt-4-1-mini"
+MODEL = os.environ.get("TRUEFORGE_MODEL", "openai/gpt-4-1-mini")
 TOOLS_SERVER = "s47-tools"
+MAX_ROUNDS = 20  # approval turns one chat() may run; a server that keeps re-pausing cannot loop forever
 INSTRUCTIONS = (
     "You are a coding agent. Your only tools live on the s47-tools MCP server. "
     "Paths are relative to the project root. Read a file before you edit it, edit "
@@ -48,7 +52,12 @@ def agent_spec(
         model=Model(name=model),
         instructions=instructions,
         mcp_servers=[tools],
-        config=RuntimeConfig(iteration_limit=iteration_limit),
+        config=RuntimeConfig(
+            iteration_limit=iteration_limit,
+            # both default to on; this client handles neither questions nor subagent threads
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=False),
+        ),
     )
     return SessionAgentSpecBody(spec=spec)
 
@@ -88,7 +97,7 @@ class TurnResult:
     text: str = ""
     pending: list = field(default_factory=list)
     metrics: dict | None = None
-    status: str = "done"
+    status: str = "incomplete"  # only turn.done sets it; a dropped stream stays incomplete
 
 
 def run_turn(client, session_id: str, inputs: list, events: dict, out: Callable = print) -> TurnResult:
@@ -135,7 +144,11 @@ class Approver:
             print(f"  allow? {label} -> always")
             return ApprovalAllow()
         while True:
-            answer = self.ask(f"  allow? {label} (y/n/a=always)> ").strip().lower()
+            try:
+                answer = self.ask(f"  allow? {label} (y/n/a=always)> ").strip().lower()
+            except (EOFError, KeyboardInterrupt):  # stdin closed or ctrl-c: never allow by accident
+                print()
+                return ApprovalDeny(reason="The user gave no answer.")
             if answer in ("y", "yes"):
                 return ApprovalAllow()
             if answer in ("a", "always"):
@@ -160,16 +173,23 @@ def approvals_for(pending: list, events: dict, approver: Approver) -> list:
 
 
 def chat(client, session_id: str, prompt: str, approver: Approver | None = None, out: Callable = print) -> TurnResult:
-    """One user message, then as many approval rounds as the agent needs. Metrics are summed over the turns."""
+    """One user message, then as many approval rounds as the agent needs. Metrics are summed over the turns.
+
+    A pause is only answered when the turn ended in `done`: an `error` or
+    `cancelled` turn that streamed an approval event is reported, not resumed.
+    """
     approver = approver or Approver()
     events: dict = {}
     totals: dict = {}
     inputs = [UserMessage(content=prompt)]
-    while True:
+    for _round in range(MAX_ROUNDS):
         result = run_turn(client, session_id, inputs, events, out)
         for key, value in (result.metrics or {}).items():
             totals[key] = totals.get(key, 0) + value
-        if not result.pending:
+        if result.status != "done" or not result.pending:
             result.metrics = totals or None
             return result
         inputs = approvals_for(result.pending, events, approver)
+    result.status = "approval-loop"  # MAX_ROUNDS pauses in one chat: something keeps re-asking
+    result.metrics = totals or None
+    return result

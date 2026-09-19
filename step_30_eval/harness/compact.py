@@ -62,9 +62,18 @@ SUMMARY_BLOCK = re.compile(r"\n*<summary>.*?</summary>", re.S)
 ROLES = {"user": "USER", "assistant": "ASSISTANT", "tool": "TOOL RESULT"}
 
 
-def needed(usage):
-    """Has the last request grown past the point where we rebuild?"""
-    return (usage.get("prompt_tokens") or 0) > config.CONTEXT_WINDOW * config.COMPACT_AT
+LAST_SIZE = 0  # how many messages the transcript had when compaction last ran
+
+
+def needed(usage, messages=None):
+    """Has the last request grown past the point where we rebuild?
+
+    Not twice for the same transcript: when compaction found nothing old
+    enough to fold, the next turn must add messages before it is tried again.
+    """
+    if (usage.get("prompt_tokens") or 0) <= config.CONTEXT_WINDOW * config.COMPACT_AT:
+        return False
+    return messages is None or len(messages) != LAST_SIZE
 
 
 def previous_summary(system_content):
@@ -102,20 +111,23 @@ def summarize(messages, previous=""):
         [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": render(messages, previous)}],
         tools=[],
     )
-    return message.content or "(the summariser returned nothing)"
+    if not message.content:
+        raise RuntimeError("the summariser returned nothing")  # keep the transcript rather than replace it with a blank
+    return message.content
 
 
 def safe_boundary(messages, start):
     """First index at or after `start` where cutting cannot orphan a tool call.
 
-    A tool result has to keep the assistant message that asked for it, so the
-    only safe cut points are the messages that open a fresh exchange.
+    A tool result has to keep the assistant message that asked for it, and an
+    assistant message its user message, so the only safe cut points are the
+    user messages that open a fresh exchange. An image message is a user
+    message too, but it belongs to the tool result before it, so it is not
+    a cut point.
     """
     for index in range(max(start, 1), len(messages)):
-        previous = messages[index - 1]
-        if messages[index]["role"] == "tool" or previous.get("tool_calls"):
-            continue
-        return index
+        if messages[index]["role"] == "user" and not isinstance(messages[index].get("content"), list):
+            return index
     return len(messages)
 
 
@@ -130,9 +142,9 @@ def tail_start(messages, budget):
 
 
 def remember_handoff(summary):
-    """Save the handoff note as a project memory, keyed by the session id."""
+    """Save the handoff note as the project memory handoff-latest, replacing the last one."""
     return memory.remember(
-        f"handoff-{session.CURRENT}",
+        "handoff-latest",
         f"handoff note from session {session.CURRENT}",
         summary,
         type="project",
@@ -141,6 +153,8 @@ def remember_handoff(summary):
 
 def compact(messages):
     """[system + summary, ...recent tail]. Unchanged if nothing is old enough."""
+    global LAST_SIZE
+    LAST_SIZE = len(messages)
     cut = tail_start(messages, config.CONTEXT_WINDOW * config.COMPACT_TO)
     if cut <= 1:
         return messages

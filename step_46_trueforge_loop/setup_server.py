@@ -18,7 +18,9 @@ try:
 except ImportError:
     pass
 
+import httpx
 from trueforge_sdk import ConfiguredModel, ModelProperties, ModelProviderAuth, OpenAiModelProvider, TrueForge
+from trueforge_sdk.core.api_error import ApiError
 
 BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
 ENV_FILE = Path.home() / ".simple-harness" / "env"
@@ -64,8 +66,13 @@ def main():
         print(f"no OPENAI_API_KEY in the environment or in {ENV_FILE}", file=sys.stderr)
         return 1
     client = TrueForge(base_url=BASE_URL, timeout=60)
-    client.settings.model_providers.create_or_update(manifest=manifest(key))
-    for provider in client.settings.model_providers.list().data:
+    try:
+        client.settings.model_providers.create_or_update(manifest=manifest(key))
+        providers = client.settings.model_providers.list().data
+    except (httpx.HTTPError, ApiError) as error:  # server down or a rejected manifest: one line, exit 1
+        print(f"request failed: {BASE_URL}: {type(error).__name__}: {str(error)[:200]}", file=sys.stderr)
+        return 1
+    for provider in providers:
         for model in provider.manifest.models:
             print(f"{provider.name}/{model.name}  ->  {model.model_id}  (context {model.properties.context_length:,})")
     return 0

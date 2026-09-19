@@ -39,7 +39,8 @@ def complete_in_flat(spec, element_id=None, seen=None):
         return 0
     seen.add(element_id)
     count = 0 if is_partial(node) or is_partial(node["props"]) else 1
-    return count + sum(complete_in_flat(spec, child, seen) for child in node.get("children") or [])
+    children = [c for c in node.get("children") or [] if isinstance(c, str)]  # a nested node here is a shape mix-up
+    return count + sum(complete_in_flat(spec, child, seen) for child in children)
 
 
 def skeleton_known(spec, shape):
@@ -63,7 +64,10 @@ def replay(chunks, shape):
     first_paint = skeleton = None
     for index, chunk in enumerate(chunks, 1):
         text += chunk
-        spec = parse_partial(text)
+        try:
+            spec = parse_partial(text)
+        except ValueError:
+            spec = None  # not JSON (a fence, prose): nothing to paint yet
         got = measure(spec, shape)
         if first_paint is None and got["complete"]:
             first_paint = index

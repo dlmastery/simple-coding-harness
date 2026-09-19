@@ -2,7 +2,9 @@
 rule: every name in WITHHELD, and every tool that starts with AGENT_PREFIX,
 so a subagent built from a definition cannot start another one. A caller
 may let some withheld names through; the worker definition does that for
-the edit tools. gather(functions) is the thread pool that has run parallel
+the edit tools. Withheld means denied: loop() hands execute_all the names
+it offered, and a call to any other name comes back as Blocked by policy.
+gather(functions) is the thread pool that has run parallel
 subagents since step 29, made generic so the pipeline can run its parallel
 steps on it. The rest is unchanged. Step 35: ask_user is withheld from
 subagents: a subagent cannot see the conversation, so a question to the
@@ -23,8 +25,9 @@ Four rules, and the code below is really just these:
   1. it starts from an empty history           - none of the chat context
      the user had with the main agent is shared with the subagent
   2. it holds every tool but a few             - task, browse, write_todos,
-     str_replace, write_file and the job tools are withheld; no recursion,
-     one subagent deep, and no process that outlives the report
+     str_replace, write_file, ask_user, the job, memory and computer tools
+     are withheld; no recursion, one subagent deep, and no process that
+     outlives the report. Withheld means denied, not just not offered.
   3. it runs the same loop as the main agent   - call_llm, append, execute_all,
      and a tool result that carries an image marker becomes an image message
   4. only its final message.content comes back - none of the subagent's
@@ -48,7 +51,10 @@ from functools import partial
 MAX_TURNS = 12     # a runaway explorer is worse than a missing answer
 MAX_PARALLEL = 4   # subagents of one task call that run at the same time
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill", "ask_user"}
+WITHHELD = {
+    "task", "browse", "write_todos", "str_replace", "write_file", "bash_background", "job_status", "job_wait", "job_kill",
+    "ask_user", "computer_act", "computer_screenshot", "remember", "forget", "handoff_to", "finish",
+}
 AGENT_PREFIX = "agent_"  # the tools built from agent definitions; withheld like task, so agents do not nest
 
 
@@ -112,6 +118,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": request},
     ]
+    allowed = {schema["function"]["name"] for schema in tools} | {"load_tool"}  # rule 2, enforced: what was offered is what may run
     ui.subagent(request, tag=tag)
     report = None  # newest thing it has said, kept in case we run out of turns
 
@@ -131,8 +138,9 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring", t
         if not message.tool_calls:
             return report or "(the subagent came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        # the same executor as the main loop: same permissions, same sandbox, same pool;
+        # a call to a tool that was not offered - task, write_file, an agent - is denied, not run
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)
@@ -233,7 +241,7 @@ TASK_SCHEMA = {
                     ),
                 },
             },
-            "anyOf": [{"required": ["description"]}, {"required": ["descriptions"]}],
+            # no top-level anyOf: the OpenAI API rejects one, and task() checks that one of the two came
         },
     },
 }

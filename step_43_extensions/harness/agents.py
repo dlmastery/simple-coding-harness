@@ -27,11 +27,15 @@ withheld list stays withheld whatever the definition says.
 """
 
 import os
+import re
 from pathlib import Path
 
 import yaml
 
 from . import extensions, subagent
+
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
+NAME = re.compile(r"^[A-Za-z0-9_-]{1,50}$")  # an agent name is also a tool name: the API's characters only
 
 AGENT_DIRS = [
     Path.home() / ".agents" / "agents",  # your agents
@@ -44,11 +48,15 @@ EDIT_TOOLS = ("write_file", "str_replace")  # withheld from the exploration suba
 
 
 def parse(text):
-    """Split a definition file into its front matter dict and its body."""
-    if not text.startswith("---"):
+    """Split a definition file into its front matter dict and its body. None when there is no front matter, or it is not YAML."""
+    match = FRONT_MATTER.match(text)
+    if not match:
         return None, text
-    _, front, body = text.split("---", 2)
-    return yaml.safe_load(front) or {}, body.strip()
+    try:
+        meta = yaml.safe_load(match.group(1))
+    except yaml.YAMLError:
+        return None, text
+    return (meta if isinstance(meta, dict) else {}), text[match.end():].strip()
 
 
 def normalise(definition):
@@ -60,8 +68,15 @@ def normalise(definition):
     """
     tools = definition.get("tools")
     handoffs = definition.get("handoffs")
+    if isinstance(tools, str):
+        tools = [t.strip() for t in tools.split(",") if t.strip()]  # `tools: bash, read_file` is a list too
+    if isinstance(handoffs, str):
+        handoffs = [h.strip() for h in handoffs.split(",") if h.strip()]
+    name = str(definition["name"])
+    if not NAME.match(name):
+        raise ValueError(f"agent name {name!r} must match [A-Za-z0-9_-] and be at most 50 characters")
     return {
-        "name": str(definition["name"]),
+        "name": name,
         "description": " ".join(str(definition.get("description", "")).split()),
         "tools": [str(t) for t in tools] if isinstance(tools, list) else None,
         "handoffs": [str(h) for h in handoffs] if isinstance(handoffs, list) else None,
@@ -81,12 +96,22 @@ def find_agents(dirs=None):
     agents = {}
     for directory in dirs or AGENT_DIRS:
         for path in sorted(directory.glob("*.md")):
-            meta, body = parse(path.read_text(encoding="utf-8"))
-            if not meta or "name" not in meta:
+            try:
+                meta, body = parse(path.read_text(encoding="utf-8-sig"))
+                if not meta or "name" not in meta:
+                    continue
+                definition = normalise({**meta, "prompt": body, "path": path})
+            except (OSError, ValueError) as failed:  # a file that cannot be read or has a bad name: one note, the rest load
+                _note(f"agent definition {path.name} skipped: {failed}")
                 continue
-            definition = normalise({**meta, "prompt": body, "path": path})
             agents[definition["name"]] = definition
     return agents
+
+
+def _note(text):
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+    ui.note(text)
 
 
 AGENTS = find_agents()

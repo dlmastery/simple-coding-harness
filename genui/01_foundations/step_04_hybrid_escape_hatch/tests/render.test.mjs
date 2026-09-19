@@ -77,6 +77,19 @@ test("a flat map with a cycle or a missing root does not loop", () => {
   assert.match(renderFlat({ root: "x", elements: {} }), /pending/);
 });
 
+test("array props and children that are not arrays render as empty, not as a crash", () => {
+  assert.match(renderFlat({ root: "r", elements: { r: { type: "Row", props: {}, children: "a" } } }), /class="row"><\/div>/);
+  assert.match(renderTree({ type: "Row", props: {}, children: { a: 1 } }), /class="row"><\/div>/);
+  assert.match(Table({ columns: "Day", rows: "x" }), /<tbody><\/tbody>/);
+  assert.doesNotMatch(Chart({ kind: "bar", labels: ["a"], values: [-5] }), /height="-/);
+});
+
+test("prototype names are not components", () => {
+  assert.match(render("constructor", {}), /unknown component: constructor/);
+  assert.match(renderTree({ type: "toString", props: {} }), /pending/);
+  assert.match(renderFlat({ root: "constructor", elements: {} }), /pending/);
+});
+
 test("GeneratedView puts the html in a sandboxed iframe with the CSP, escaped as an attribute", () => {
   const html = `<div style="color:red">gauge</div><script>parent.postMessage({type:"event",name:"x"},"*")</script>`;
   const out = RENDERERS.GeneratedView({ html });
@@ -85,4 +98,13 @@ test("GeneratedView puts the html in a sandboxed iframe with the CSP, escaped as
   assert.match(out, /&lt;div style=&quot;color:red&quot;&gt;/);
   assert.match(out, /Content-Security-Policy/);
   assert.match(render("GeneratedView", {}), /srcdoc="&lt;meta http-equiv/); // no html: an empty sandboxed document
+});
+
+test("a GeneratedView whose html is still streaming is a pending slot, not a half-mounted document", () => {
+  const cut = parsePartial('{"root": "g", "elements": {"g": {"type": "GeneratedView", "props": {"html": "<script>alert(');
+  const html = renderFlat(cut);
+  assert.doesNotMatch(html, /<iframe/);
+  assert.match(html, /class="card pending"/);
+  const whole = parsePartial('{"root": "g", "elements": {"g": {"type": "GeneratedView", "props": {"html": "<b>x</b>"}}}}');
+  assert.match(renderFlat(whole), /<iframe/);
 });

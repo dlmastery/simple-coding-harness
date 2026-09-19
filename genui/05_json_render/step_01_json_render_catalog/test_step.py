@@ -80,6 +80,27 @@ def test_check_spec_reports_each_problem():
     assert check_spec({"root": "x"}, catalog_json()) == ["spec needs a root id and an elements map"]
 
 
+def test_check_spec_reports_wrong_shapes_and_cycles_instead_of_raising():
+    catalog = catalog_json()
+    assert check_spec({"root": "a", "elements": {"a": "oops"}}, catalog) == ["a: an element must be an object"]
+    assert check_spec({"root": "a", "elements": {"a": {"type": "Card", "props": ["x"], "children": []}}}, catalog) == ["a: props must be an object"]
+    problems = check_spec({"root": "a", "elements": {"a": {"type": "Card", "props": {"title": "t"}, "children": [{"id": "b"}]}}}, catalog)
+    assert problems == ["a: children must be a list of element ids"]
+    loop = {"root": "a", "elements": {"a": {"type": "Card", "props": {"title": "t"}, "children": ["a"]}}}
+    assert check_spec(loop, catalog) == ["a: element contains itself"]
+    assert [eid for _, eid, _ in walk(loop)] == ["a"]  # walk() visits a cycle once, it does not recurse forever
+
+
+def test_server_turns_a_model_failure_into_a_502(monkeypatch):
+    def broken(system_prompt, user_prompt):
+        raise ValueError("the model reply is not JSON: Expecting value")
+
+    monkeypatch.setattr(llm, "complete_spec", broken)
+    response = TestClient(server.app).post("/generate", json={"prompt": "x"})
+    assert response.status_code == 502
+    assert response.json()["detail"]["problems"] == ["model call failed: ValueError: the model reply is not JSON: Expecting value"]
+
+
 def test_walk_visits_the_tree_in_render_order():
     order = [(depth, element_id) for depth, element_id, _ in walk(SPEC)]
     assert order == [(0, "card-1"), (1, "row-1"), (2, "metric-1"), (2, "metric-2"), (1, "table-1")]

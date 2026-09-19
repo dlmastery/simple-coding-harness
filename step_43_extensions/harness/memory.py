@@ -57,7 +57,7 @@ def find_memories():
             continue
         for path in sorted(directory.glob("*.md")):
             meta, _ = parse(path.read_text(encoding="utf-8"))
-            name = str(meta.get("name") or path.stem)
+            name = slug(str(meta.get("name") or path.stem))  # the file name is the key; the front matter may spell it differently
             if name in memories:
                 continue
             memories[name] = {
@@ -80,9 +80,10 @@ def remember(name: str, description: str, content: str, type: str = "project", s
         return f"Error: type must be one of {', '.join(TYPES)}."
     if scope not in SCOPES:
         return f"Error: scope must be one of {', '.join(SCOPES)}."
+    name = slug(name)  # the name the index shows is the file name, so recall finds what remember wrote
     directory = MEMORY_DIRS[SCOPES.index(scope)]
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{slug(name)}.md"
+    path = directory / f"{name}.md"
     existed = path.exists()
     front = yaml.safe_dump({"name": name, "description": description, "type": type}, sort_keys=False, allow_unicode=True)
     path.write_text(f"---\n{front}---\n\n{content.strip()}\n", encoding="utf-8")
@@ -91,6 +92,7 @@ def remember(name: str, description: str, content: str, type: str = "project", s
 
 def recall(name: str) -> str:
     """Return the body of a memory."""
+    name = slug(name)
     memories = find_memories()
     if name not in memories:
         return f"No memory named '{name}'."
@@ -100,6 +102,7 @@ def recall(name: str) -> str:
 
 def forget(name: str) -> str:
     """Delete a memory."""
+    name = slug(name)
     memories = find_memories()
     if name not in memories:
         return f"No memory named '{name}'."

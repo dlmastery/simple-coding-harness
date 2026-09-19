@@ -33,3 +33,14 @@ test("render falls back to a visible stub for an unknown component", () => {
   assert.match(render("Gauge", {}), /unknown component: Gauge/);
   assert.match(render("Metric", { title: "t", value: "v", delta: "+1" }), /class="card metric"/);
 });
+
+test("array props that are not arrays render as empty, not as a crash", () => {
+  assert.match(Table({ columns: "Day", rows: "x" }), /<tbody><\/tbody>/);
+  assert.match(Chart({ kind: "bar", labels: null, values: "1,2" }), /<svg/);
+  assert.doesNotMatch(Chart({ kind: "bar", labels: ["a"], values: [-5] }), /height="-/);
+});
+
+test("prototype names are not components", () => {
+  assert.match(render("constructor", {}), /unknown component: constructor/);
+  assert.match(render("toString", {}), /unknown component/);
+});

@@ -31,7 +31,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # from cap(): the rest of the text is on disk for this turn
+TRIMMED = "[output trimmed:"  # from strip() and fit(): the rest is gone for good; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
@@ -59,7 +60,7 @@ def cap(text):
     except OSError:
         return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )
@@ -89,6 +90,10 @@ def strip(messages):
             shrunk += 1
             continue
         if message["role"] != "tool" or TRIMMED in content or len(content) <= STUB:
+            continue
+        cut = content.find(CAPPED)  # a capped result: the pointer to the temp file dies with the turn
+        content = content[:cut].rstrip() if cut >= 0 else content
+        if len(content) <= STUB:
             continue
         message["content"] = (
             content[:STUB] + f"\n\n{TRIMMED} {len(content) - STUB} more chars. "

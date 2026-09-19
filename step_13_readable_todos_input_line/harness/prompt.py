@@ -7,6 +7,7 @@ the text is longer than the screen. It also gives persistent history and
 alt-enter for a newline.
 """
 
+import html
 import sys
 from pathlib import Path
 
@@ -50,4 +51,4 @@ def read(prompt="> "):
             SESSION = False
     if not SESSION:
         return input(prompt)
-    return SESSION.prompt(HTML(f"<prompt>{prompt}</prompt>"))
+    return SESSION.prompt(HTML(f"<prompt>{html.escape(prompt)}</prompt>"))

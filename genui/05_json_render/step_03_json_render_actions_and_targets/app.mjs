@@ -14,6 +14,7 @@ const html = htm.bind(React.createElement);
 const { useState, useEffect, useMemo, useRef } = React;
 
 async function* chunks(response) {
+  if (!response.ok) throw new Error(`server answered ${response.status}: ${(await response.text()).slice(0, 200)}`);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   while (true) {
@@ -21,6 +22,14 @@ async function* chunks(response) {
     if (done) return;
     yield decoder.decode(value, { stream: true });
   }
+}
+
+// The server ends a failed turn with one line {"error": "..."}: not a patch, so
+// the compiler skips it; the page reads it and reports the reason.
+function errorLine(text) {
+  const last = text.trimEnd().split("\n").at(-1) ?? "";
+  if (!last.startsWith('{"error"')) return null;
+  try { return JSON.parse(last).error; } catch { return null; }
 }
 
 function App() {
@@ -38,47 +47,65 @@ function App() {
     setLog((lines) => [...lines, line]);
   }
 
-  // Read one JSONL stream into the shared compiler. Returns the patch count.
+  // Read one JSONL stream into the shared compiler. Returns the patch count;
+  // throws with the server's reason when the stream ended in an error line.
   async function consume(response) {
     const before = compiler.current.getPatches().length;
+    let text = "";
     for await (const chunk of chunks(response)) {
+      text += chunk;
       const { result, newPatches } = compiler.current.push(chunk);
       if (newPatches.length === 0) continue;
       setSpec(result.elements ? result : { ...result, elements: {} });
     }
     setSpec(compiler.current.getResult());
+    const failed = errorLine(text);
+    if (failed) throw new Error(failed);
     return compiler.current.getPatches().length - before;
   }
 
   async function run() {
+    if (loading) return;
     const started = performance.now();
     compiler.current.reset();
     setLoading(true);
     setStatus("streaming...");
-    const response = await fetch("/stream", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
-    const patches = await consume(response);
-    setLoading(false);
-    setStatus(`complete at ${((performance.now() - started) / 1000).toFixed(2)} s, ${patches} patches`);
+    try {
+      const response = await fetch("/stream", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const patches = await consume(response);
+      setStatus(`complete at ${((performance.now() - started) / 1000).toFixed(2)} s, ${patches} patches`);
+    } catch (error) {
+      setStatus(`stream failed: ${error.message}`); // a terminal state, never "streaming..." forever
+    } finally {
+      setLoading(false);
+    }
   }
 
   // A catalog action: tell the server which button was pressed, then apply
-  // the model's patches to the spec that is already on screen.
+  // the model's patches to the spec that is already on screen. One turn at a
+  // time: a press during a turn is logged and dropped.
   async function serverAction(action, params) {
+    if (loading) { note(`${action}: ignored, a turn is still running`); return; }
     const started = performance.now();
     note(`${action} ${JSON.stringify(params)} -> server`);
     setLoading(true);
-    const response = await fetch("/action", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action, params }),
-    });
-    const patches = await consume(response);
-    setLoading(false);
-    note(`${action}: ${patches} patches applied in ${((performance.now() - started) / 1000).toFixed(2)} s`);
+    try {
+      const response = await fetch("/action", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action, params }),
+      });
+      const patches = await consume(response);
+      note(`${action}: ${patches} patches applied in ${((performance.now() - started) / 1000).toFixed(2)} s`);
+    } catch (error) {
+      note(`${action}: failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handlers = {
@@ -101,7 +128,7 @@ function App() {
   return html`
     <div className="toolbar">
       <input value=${prompt} onChange=${(e) => setPrompt(e.target.value)} />
-      <button onClick=${run}>Generate</button>
+      <button onClick=${run} disabled=${loading}>Generate</button>
       <span className="status" id="status">${status}</span>
     </div>
     <main id="surface">

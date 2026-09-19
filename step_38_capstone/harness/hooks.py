@@ -1,7 +1,8 @@
 """Step 33 - hooks, with a built-in list. BUILTIN holds the hooks the
 harness registers itself; they run before every hook from the config
-files, for the same events and in the same shape. Step 33 adds one: the
-checkpoint capture on PreToolUse. The rest is step 27.
+files, for the same events and in the same shape. The checkpoint capture
+of step 33 is no longer one of them: it runs inside tools.run(), after the
+approval, so a call the user declines captures nothing. The rest is step 27.
 
 A hook is configured, not coded into the harness. Two files are read,
 `~/.simple-harness/hooks.json` and `./.agents/hooks.json`, and their lists
@@ -20,6 +21,8 @@ command may also block by exiting with code 2, with stderr as the reason.
 
 A hook that crashes, times out or prints something that is not JSON is
 reported with a note and ignored. The loop never dies because of a hook.
+The PostToolUse event carries `ok`, false when the result starts with
+Error:, so a hook can react to a failed call.
 """
 
 import importlib
@@ -28,8 +31,10 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
-from fnmatch import fnmatch
+from fnmatch import fnmatchcase
 from pathlib import Path
+
+from . import sandbox
 
 EVENTS = ("PreToolUse", "PostToolUse", "UserPromptSubmit", "PreCompact", "SessionStart", "SessionEnd")
 
@@ -42,13 +47,13 @@ TIMEOUT = 30  # seconds a command hook may take before it is killed and ignored
 
 BLOCK_EXIT_CODE = 2  # a command hook exits with this to block; stderr is the reason
 
-EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "prompt", "cwd")
+EVENT_KEYS = ("event", "tool_name", "tool_input", "tool_result", "ok", "prompt", "cwd")
 
 SESSION_CONTEXT = []  # what the SessionStart hooks asked to add to every late block
 
-BUILTIN = {  # the harness's own hooks; same shape as a config entry, run first
-    "PreToolUse": [{"matcher": "write_file|str_replace", "python": "harness.checkpoint:pre_tool_use"}],
-}
+BUILTIN = {}  # the harness's own hooks; same shape as a config entry, run first (none since the capture moved into tools.run)
+
+CACHE = {}  # config path -> (mtime, parsed): a hooks.json is read once per change, not once per tool call
 
 
 @dataclass
@@ -68,9 +73,16 @@ def load_config(paths=None):
         if not path.exists():
             continue
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
+            stamp = path.stat().st_mtime_ns
+            if path in CACHE and CACHE[path][0] == stamp:
+                data = CACHE[path][1]
+            else:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                CACHE[path] = (stamp, data)
         except (OSError, ValueError) as failed:
             _note(f"hook config {path} skipped: {failed}")
+            continue
+        if not isinstance(data, dict):
             continue
         for event, hooks in data.items():
             if event in merged and isinstance(hooks, list):
@@ -83,7 +95,7 @@ def matches(hook, tool_name):
     pattern = str(hook.get("matcher") or "*")
     if tool_name is None:  # an event without a tool: every hook of that event runs
         return True
-    return any(fnmatch(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
+    return any(fnmatchcase(tool_name, part.strip()) for part in pattern.split("|") if part.strip())
 
 
 def describe(hook):
@@ -111,15 +123,24 @@ def run_command(command, event):
     elsewhere. Exit 0 with JSON on stdout is a reply; exit 2 blocks with
     stderr as the reason; anything else is reported and ignored.
     """
-    completed = subprocess.run(
+    process = subprocess.Popen(
         resolve_python(command),
         shell=True,
-        input=json.dumps(event),
-        capture_output=True,
-        text=True,
-        timeout=TIMEOUT,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        errors="replace",
         cwd=event.get("cwd") or None,
+        **sandbox.NEW_GROUP,  # its own process group, so a timeout kills what it started too
     )
+    try:
+        stdout, stderr = process.communicate(json.dumps(event), timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        sandbox.kill_tree(process.pid)
+        process.communicate()
+        raise
+    completed = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
     if completed.returncode == BLOCK_EXIT_CODE:
         return {"block": completed.stderr.strip() or "blocked by hook"}
     if completed.returncode != 0:

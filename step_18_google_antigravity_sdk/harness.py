@@ -20,6 +20,8 @@ from google.antigravity import Agent, BuiltinTools, CapabilitiesConfig, LocalAge
 from google.antigravity.hooks import on_compaction, post_tool_call, pre_tool_call_decide
 from google.antigravity.hooks.policy import allow, ask_user, deny
 from google.antigravity.types import (
+    AntigravityConnectionError,
+    AntigravityExecutionError,
     HookResult,
     RunCommandConfig,
     SessionContinuationMode,
@@ -33,10 +35,15 @@ import rules
 
 HOME = Path.home() / ".simple-harness" / "antigravity"
 
+# The runtime's own read-only set includes read_url_content. That is the
+# network, which the stage 11 rules deny (curl, wget), so it is left out here
+# for both the policy list and the subagent.
+READ_ONLY = [t for t in BuiltinTools.read_only() if t is not BuiltinTools.READ_URL_CONTENT]
+
 # --- reading tool calls -----------------------------------------------------------
-# The runtime names the shell tool `run_command` and the edit tools
-# `edit_file` / `create_file`. Argument keys are the runtime's; we accept the
-# common spellings so the rules see the command and the path.
+# The runtime names the shell tool `run_command` (argument `CommandLine`) and
+# the edit tools `edit_file` / `create_file`. For paths the connection layer
+# fills ToolCall.canonical_path; the argument names are the fallback.
 
 
 def arg(call: ToolCall, *names):
@@ -48,11 +55,11 @@ def arg(call: ToolCall, *names):
 
 
 def command_of(call):
-    return arg(call, "command", "CommandLine", "cmd")
+    return arg(call, "CommandLine", "command", "cmd")
 
 
 def path_of(call):
-    return arg(call, "path", "file_path", "AbsolutePath", "TargetFile")
+    return call.canonical_path or arg(call, "path", "file_path", "TargetFile", "output_path")
 
 
 # --- step 11: policy as data. `enforce()` compiles this into a decide hook. -------
@@ -78,18 +85,24 @@ def edit_inside(call: ToolCall) -> bool:
     return rules.inside_project(path_of(call))
 
 
-def confirm(call: ToolCall) -> bool:
+def prompt(call: ToolCall) -> bool:
     try:
         return input(f"\n  {call.name} {command_of(call) or path_of(call)}\n  allow? (y/n)> ").strip().lower().startswith("y")
     except (EOFError, KeyboardInterrupt):
         return False
 
 
+async def confirm(call: ToolCall) -> bool:
+    """The handler runs on the runtime's event loop; input() must not block it."""
+    return await asyncio.to_thread(prompt, call)
+
+
 def build_policies(handler=confirm):
     return [
-        *[allow(t.value) for t in BuiltinTools.read_only()],
+        *[allow(t.value) for t in READ_ONLY],
         allow("ask_question"), allow("start_subagent"),
-        # the shell: the strictest verdict of the compound command decides
+        # the shell: the strictest verdict of the compound command decides.
+        # (enforce() sorts deny before ask before allow whatever the order here)
         deny("run_command", when=is_denied, name="denied by rules"),
         ask_user("run_command", handler=handler, when=needs_ask, name="ask by rules"),
         allow("run_command", when=is_plain, name="read-only command"),
@@ -132,20 +145,22 @@ def run_tests(path: str = ".") -> str:
     """Run the project's pytest suite on a path and return the last 30 lines."""
     try:
         result = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", path],
-                                capture_output=True, text=True, timeout=300)
+                                capture_output=True, encoding="utf-8", errors="replace", timeout=300)
     except subprocess.TimeoutExpired:
-        return "Timed out after 300s and was killed."
+        return "Error: command timed out after 300s"
     lines = (result.stdout + result.stderr).strip().splitlines()
-    return "\n".join(lines[-30:]) or "(no output)"
+    return ("\n".join(lines[-30:]) or "(no output)") + f"\nexit code {result.returncode}"
 
 
 TODOS: list[str] = []
 
 
 def write_todos(todos: list[str]) -> str:
-    """Replace the plan. One line per item, prefixed [ ] pending, [~] in progress, [x] done. Keep exactly one [~]."""
+    """Replace the plan. One line per item, prefixed [ ] pending, [~] in progress, [x] done. Keep at most one [~]."""
+    if not isinstance(todos, list) or not all(isinstance(t, str) for t in todos):
+        return "Error: todos must be a list of strings"
     if sum(1 for t in todos if t.startswith("[~]")) > 1:
-        return "Error: keep exactly one item marked [~]."
+        return "Error: keep at most one item marked [~]."
     TODOS[:] = todos
     return "\n".join(TODOS) or "Todo list cleared."
 
@@ -160,13 +175,13 @@ EXPLORER = SubagentConfig(
         "codebase, then report in under 150 words: paths with line numbers, names, values. "
         "You cannot edit anything. Say plainly what you could not find."
     ),
-    # withheld: edits, run_command and start_subagent - so it cannot write and cannot recurse
-    capabilities=SubagentCapabilities(enabled_tools=list(BuiltinTools.read_only())),
+    # withheld: edits, run_command, the network and start_subagent - so it cannot write, cannot fetch and cannot recurse
+    capabilities=SubagentCapabilities(enabled_tools=list(READ_ONLY)),
 )
 
 SYSTEM = f"""You are a coding agent. Explore with the built-in file tools, read a file before
 you edit it, and run the tests with run_tests after you change code. For tasks with
-several steps call write_todos first and keep exactly one item marked [~]; the
+several steps call write_todos first and keep at most one item marked [~]; the
 current list is repeated to you every turn. To understand how something works,
 start the explorer subagent instead of searching yourself; it reads, you edit.
 Be concise. Working directory: {Path.cwd()}"""
@@ -197,7 +212,7 @@ def build_config(resume=None, handler=confirm):
 
 
 def git(args):
-    result = subprocess.run(f"git {args}", shell=True, capture_output=True, text=True)
+    result = subprocess.run(f"git {args}", shell=True, capture_output=True, encoding="utf-8", errors="replace")
     return result.stdout if result.returncode == 0 else ""
 
 
@@ -205,6 +220,32 @@ def late_block():
     branch = git("branch --show-current").strip() or "(no git)"
     todos = ("\n<todos>\n" + "\n".join(TODOS) + "\n</todos>") if TODOS else ""
     return f"<env>\ntime: {datetime.now():%Y-%m-%d %H:%M}\ngit branch: {branch}\n</env>{todos}\n\n"
+
+
+def usage_line(usage):
+    """The stage 3 numbers from the runtime's UsageMetadata."""
+    if not usage:
+        return ""
+    parts = [f"{usage.prompt_token_count or 0:,} in", f"{usage.candidates_token_count or 0:,} out"]
+    if usage.cached_content_token_count:
+        parts.append(f"{usage.cached_content_token_count:,} cached")
+    if usage.thoughts_token_count:
+        parts.append(f"{usage.thoughts_token_count:,} thinking")
+    return " · ".join(parts)
+
+
+async def turn(agent, text):
+    """One prompt in, the streamed reply out. A runtime failure is one line, not a crash."""
+    try:
+        response = await agent.chat(late_block() + text)
+        print("\n  agent> ", end="", flush=True)
+        async for token in response:
+            sys.stdout.write(str(token))
+            sys.stdout.flush()
+        print()
+        print(f"  {usage_line(response.usage_metadata)}")
+    except (AntigravityConnectionError, AntigravityExecutionError, RuntimeError) as failure:
+        print(f"\n  error: {type(failure).__name__}: {failure}")
 
 
 async def main():
@@ -216,24 +257,24 @@ async def main():
     HOME.mkdir(parents=True, exist_ok=True)
 
     async with Agent(build_config(cli.resume)) as agent:
-        print(f"\n  simple coding harness · antigravity sdk · conversation {agent.conversation_id} · ctrl-d to exit")
+        print("\n  simple coding harness · antigravity sdk")
+        print("  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave")
         while True:
             try:
                 text = input("\n> ").strip()
             except (EOFError, KeyboardInterrupt):
                 break
-            if not text:
+            if text in ("/exit", "/quit"):
                 break
-            response = await agent.chat(late_block() + text)
-            print("\n  agent> ", end="", flush=True)
-            async for token in response:
-                sys.stdout.write(str(token))
-                sys.stdout.flush()
-            print()
-            usage = response.usage_metadata
-            if usage:
-                print(f"  {usage}")
+            if not text:
+                continue
+            await turn(agent, text)
+            # the runtime assigns the id with the first reply; this is what --resume takes
+            print(f"  conversation {agent.conversation_id}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:  # ctrl-c mid-turn: leave without a traceback
+        print("\n  interrupted")

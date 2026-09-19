@@ -20,6 +20,7 @@ optional dependency, and the rest of the harness must import without it.
 import asyncio
 import json
 import os
+import re
 import sys
 import threading
 from pathlib import Path
@@ -42,6 +43,7 @@ CALL_TIMEOUT = 120    # seconds one tool call may take
 SERVERS = {}  # name -> {"status": "connected" | "failed: ...", "tools": [names]}
 
 _client = None
+_client_lock = threading.Lock()  # tool calls come from a pool: one client, not two
 
 
 # --- configuration -----------------------------------------------------------
@@ -53,19 +55,30 @@ def load_config(paths=None):
     A later file overrides an earlier one, server by server. The command
     `python` becomes this interpreter, and a relative argument that names an
     existing file becomes its absolute path, so a shipped server starts
-    from any working directory and on Windows.
+    from any working directory and on Windows. The table may be called
+    `servers` or, as in other clients' files, `mcpServers`. A file that is
+    not JSON is noted and skipped; the session goes on without it.
     """
+    from .ui import ui
+
     servers = {}
     for path in paths or CONFIG_PATHS:
         if not path.exists():
             continue
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for name, spec in data.get("servers", {}).items():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            table = data.get("servers") or data.get("mcpServers") or {}
+        except (OSError, ValueError, AttributeError) as failed:
+            ui.note(f"mcp config {path} skipped: {type(failed).__name__}: {failed}")
+            continue
+        for name, spec in table.items():
+            if not isinstance(spec, dict):
+                continue
             command = spec.get("command", "")
             if command in ("python", "python3"):
                 command = sys.executable
-            args = [resolve_arg(arg) for arg in spec.get("args", [])]
-            env = {**os.environ, **spec["env"]} if spec.get("env") else None
+            args = [resolve_arg(str(arg)) for arg in spec.get("args", [])]
+            env = {str(k): os.path.expandvars(str(v)) for k, v in (spec.get("env") or {}).items()}
             servers[name] = {"command": command, "args": args, "env": env}
     return servers
 
@@ -92,16 +105,27 @@ class Client:
         self.stops = {}     # server name -> the Event that ends its task
 
     def submit(self, coro, timeout):
-        """Run a coroutine on the loop thread and wait here for its result."""
-        return asyncio.run_coroutine_threadsafe(coro, self.loop).result(timeout)
+        """Run a coroutine on the loop thread and wait here for its result.
+
+        A call that outlives the timeout is cancelled, so it does not keep
+        running on the loop and hold up the next call to the same server.
+        """
+        future = asyncio.run_coroutine_threadsafe(coro, self.loop)
+        try:
+            return future.result(timeout)
+        except TimeoutError:
+            future.cancel()
+            raise TimeoutError(f"no answer within {timeout}s")
 
     async def serve(self, name, spec, ready, stop):
         """The one task that owns a server: connect, report the tools, wait, close."""
         from mcp import ClientSession
-        from mcp.client.stdio import StdioServerParameters, stdio_client
+        from mcp.client.stdio import StdioServerParameters, get_default_environment, stdio_client
 
         try:
-            params = StdioServerParameters(command=spec["command"], args=spec["args"], env=spec.get("env"))
+            # the server sees a minimal environment plus what the config names,
+            # never the harness's own keys: ${VAR} in a value is expanded from ours
+            params = StdioServerParameters(command=spec["command"], args=spec["args"], env={**get_default_environment(), **(spec.get("env") or {})})
             async with stdio_client(params) as (read, write):
                 async with ClientSession(read, write) as session:
                     await session.initialize()
@@ -156,8 +180,9 @@ class Client:
 
 def client():
     global _client
-    if _client is None:
-        _client = Client()
+    with _client_lock:
+        if _client is None:
+            _client = Client()
     return _client
 
 
@@ -165,7 +190,13 @@ def client():
 
 
 def tool_name(server, tool):
-    return f"mcp__{server}__{tool}"
+    """mcp__<server>__<tool>, made of the characters a function name may hold.
+
+    The API accepts ^[a-zA-Z0-9_-]{1,64}$; a server name with a space or a
+    tool name with a dot would fail every request of the session.
+    """
+    name = re.sub(r"[^a-zA-Z0-9_-]", "_", f"mcp__{server}__{tool}")
+    return name[:64]
 
 
 def describe(error):
@@ -204,6 +235,8 @@ def register(server, tools):
     names = []
     for tool in tools:
         name = tool_name(server, tool.name)
+        if name in registry.TOOLS:  # two tools that sanitise to the same name
+            name = f"{name[:60]}_{len(names) + 1}"
 
         def wrapper(_tool=tool.name, **args):
             return call_tool(server, _tool, args)

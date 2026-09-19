@@ -80,6 +80,8 @@ def turn(messages, user_input, cli=None):
             })
             session.save(messages)  # after every message, so a crash loses nothing
 
+        mcp_client.PENDING_APPS.clear()  # a card nobody drew (a subagent's call) must not surface under a later call
+
         # the pictures go after the last result, so no tool message is orphaned
         for name, path in pictures:
             messages.append(history.image_message(path, f"screenshot from tool {name}"))

@@ -6,6 +6,9 @@ That is generative UI as state: the model chooses components and fills
 their props, but what travels is a patch to one `dashboard` object.
 """
 
+import inspect
+import json
+
 
 def initial_state():
     return {"dashboard": {"metrics": [], "table": None, "chart": None, "purchases": []}}
@@ -69,12 +72,27 @@ TOOL_SCHEMAS = [
 ]
 
 
-def execute(name, args):
-    """Run one server tool. Returns (result text for the model, patch operations)."""
+def execute(name, arguments):
+    """Run one server tool on the JSON arguments the model wrote.
+
+    Returns (result text for the model, patch operations) and never raises:
+    a bad name, arguments that are not a JSON object, a missing argument or
+    a tool that fails all come back as an "Error: ..." result, so the model
+    can try again and the run goes on.
+    """
     if name not in TOOLS:
-        return f"Error: no tool named {name}", []
+        return f"Error: no tool named {name!r}.", []
     try:
-        operations = TOOLS[name](**args)
+        args = json.loads(arguments or "{}")
+    except json.JSONDecodeError as error:
+        return f"Error: the arguments of {name} are not a JSON object: {error}", []
+    if not isinstance(args, dict):
+        return f"Error: the arguments of {name} are not a JSON object: got {type(args).__name__}", []
+    try:
+        inspect.signature(TOOLS[name]).bind(**args)  # a missing or unknown argument, before the tool runs
     except TypeError as error:
         return f"Error: {error}", []
-    return "ok", operations
+    try:
+        return "ok", TOOLS[name](**args)
+    except Exception as error:  # noqa: BLE001 - the error is the result
+        return f"Error: {type(error).__name__}: {error}", []

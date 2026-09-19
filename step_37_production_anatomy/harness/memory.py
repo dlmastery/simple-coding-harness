@@ -75,7 +75,8 @@ def memory_index():
 
 
 def remember(name: str, description: str, content: str, type: str = "project", scope: str = "project") -> str:
-    """Write a memory, replacing one of the same name in the same scope."""
+    """Write a memory, replacing one of the same name in the same scope. The name is kept as its slug, the file's name."""
+    name = slug(name)  # the index key and the file name agree, so recall finds what remember wrote
     if type not in TYPES:
         return f"Error: type must be one of {', '.join(TYPES)}."
     if scope not in SCOPES:

@@ -5,7 +5,8 @@ answers with an SSE stream. Static mode is step 01, tree and flat are step
 02. Html mode streams the model's document as {"delta": "..."} chunks and
 ends with {"done": true, "html": ...}; the page mounts it in a sandboxed
 iframe. Every done message carries "raw", the exact text the model wrote,
-so the demo can count tokens per mode. GET / serves the page.
+so the demo can count tokens per mode. A failed model call ends any mode
+with {"done": true, "error": "..."}. GET / serves the page.
 """
 
 import json
@@ -14,7 +15,8 @@ import re
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -23,7 +25,9 @@ import catalog
 import llm
 
 HERE = Path(__file__).parent
-mimetypes.add_type("text/javascript", ".mjs")  # module scripts need this type; not every OS registers it
+# module scripts need this type; Windows may register .js as text/plain
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("text/javascript", ".mjs")
 
 STATIC_PROMPT = """You build dashboards out of prebuilt components.
 You cannot write prose or markup. The only way to answer is to call the show_* tools.
@@ -130,10 +134,29 @@ def run_mode(prompt, mode):
     return declarative_layout(prompt, mode)
 
 
+def guarded(messages):
+    """The messages, then a terminal frame on failure: the page must never wait for one that is not coming."""
+    try:
+        yield from messages
+    except Exception as error:  # noqa: BLE001 - the error is the frame
+        yield {"done": True, "error": f"{type(error).__name__}: {error}"}
+
+
+async def stream(messages, request):
+    """Encode the messages as they come; stop pulling from the model when the page has gone."""
+    pending = iter(guarded(messages))
+    try:
+        while (message := await run_in_threadpool(next, pending, None)) is not None:
+            if await request.is_disconnected():
+                break
+            yield sse(message)
+    finally:
+        pending.close()  # closes the generator chain, and with it the model stream
+
+
 @app.post("/api/run")
-def run(body: Run):
-    frames = (sse(message) for message in run_mode(body.prompt, body.mode))
-    return StreamingResponse(frames, media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+def run(body: Run, request: Request):
+    return StreamingResponse(stream(run_mode(body.prompt, body.mode), request), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/api/schema/{shape}")

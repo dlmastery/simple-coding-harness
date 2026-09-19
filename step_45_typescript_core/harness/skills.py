@@ -6,9 +6,12 @@ skills_prompt() inside the prompt template. The finding of the skills is
 unchanged since step 4.
 """
 
+import re
 from pathlib import Path
 
 import yaml
+
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the first two --- lines
 
 SKILL_DIRS = [
     Path.home() / ".agents" / "skills",  # your skills
@@ -37,16 +40,24 @@ def find_skills():
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
-            text = path.read_text(encoding="utf-8")
-            if not text.startswith("---"):
+            try:
+                match = FRONT_MATTER.match(path.read_text(encoding="utf-8-sig"))
+                meta = yaml.safe_load(match.group(1)) if match else None
+            except (OSError, yaml.YAMLError) as failed:  # one bad file is a note, not a start-up failure
+                _note(f"skill {path.parent.name} skipped: {failed}")
                 continue
-            _, frontmatter, _ = text.split("---", 2)
-            meta = yaml.safe_load(frontmatter) or {}
-            if "name" not in meta:
+            if not isinstance(meta, dict):
                 continue
+            name = str(meta.get("name") or path.parent.name)  # the folder names the skill when the front matter does not
             description = " ".join(str(meta.get("description", "")).split())
-            skills[meta["name"]] = {"description": description, "path": path}
+            skills[name] = {"description": description, "path": path}
     return skills
+
+
+def _note(text):
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports this module
+
+    ui.note(text)
 
 
 SKILLS = find_skills()
@@ -66,12 +77,12 @@ def read_skill(name: str) -> str:
     """Open a skill and return its full instructions."""
     if name not in SKILLS:
         return f"No skill named '{name}'."
-    return SKILLS[name]["path"].read_text(encoding="utf-8")
+    return SKILLS[name]["path"].read_text(encoding="utf-8-sig", errors="replace")
 
 
 def apply(ctx):
     """The skills extension: the read_skill tool, and the skill index in the system prompt."""
-    ctx.tool(read_skill, READ_SKILL_SCHEMA)
+    ctx.tool(read_skill, READ_SKILL_SCHEMA, permission="allow")  # reads a file the project shipped: no prompt
     ctx.prompt_section(skills_section)  # a function: rendered when the prompt is built
 
 

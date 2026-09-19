@@ -10,11 +10,15 @@ events are listed and a file the agent produced is downloaded through
 from __future__ import annotations
 
 import json
+import os
 import typing
 from pathlib import Path
 
+import httpx
 from trueforge_sdk import (
     AgentSpec,
+    AskUserQuestionsConfig,
+    DynamicSubAgentsConfig,
     Model,
     RuntimeConfig,
     SandboxConfig,
@@ -23,9 +27,11 @@ from trueforge_sdk import (
     TrueForge,
     UserMessage,
 )
+from trueforge_sdk.core.api_error import ApiError
 
-BASE_URL = "http://localhost:8790"
-MODEL = "openai/gpt-4-1-mini"
+BASE_URL = os.environ.get("TRUEFORGE_BASE_URL", "http://localhost:8790")
+MODEL = os.environ.get("TRUEFORGE_MODEL", "openai/gpt-4-1-mini")
+REQUEST_ERRORS = (httpx.HTTPError, ApiError)  # the server is unreachable, or it answered with an error status
 INSTRUCTIONS = (
     "You are a coding agent with a sandbox. Write files and run commands there. "
     "Report command output verbatim."
@@ -54,7 +60,12 @@ def agent_spec(skills: typing.Sequence[str] = ()) -> AgentSpec:
     spec = AgentSpec(
         model=Model(name=MODEL),
         instructions=INSTRUCTIONS,
-        config=RuntimeConfig(sandbox=SandboxConfig(enabled=True, file_downloads=True)),
+        config=RuntimeConfig(
+            sandbox=SandboxConfig(enabled=True, file_downloads=True),
+            # on by default; this client answers no questions and labels no subagent threads
+            ask_user_questions=AskUserQuestionsConfig(enabled=False),
+            dynamic_sub_agents=DynamicSubAgentsConfig(enabled=False),
+        ),
     )
     if skills:  # an explicit `skills: null` is rejected, so the key is set only when needed
         spec.skills = [SkillRef(name=name) for name in skills]
@@ -74,6 +85,8 @@ def tool_output(content: str) -> str:
     try:
         body = json.loads(content)
     except ValueError:
+        return content.strip()
+    if not isinstance(body, dict):  # a bare JSON string, list or number: show it as it is
         return content.strip()
     if "error" in body:
         parts = body["error"] if isinstance(body["error"], list) else [body["error"]]
@@ -133,7 +146,8 @@ def describe(event, index: dict) -> list[str]:
         state = event.state
         metrics = getattr(state, "metrics", None)
         tokens = f"  in={metrics.total_input_tokens} out={metrics.total_output_tokens}" if metrics else ""
-        return [f"turn.done        {state.status}{tokens}"]
+        detail = getattr(state, "message", None) or getattr(state, "reason", None)  # error and cancelled carry one
+        return [f"turn.done        {state.status}{tokens}" + (f"  {detail}" if detail else "")]
     return []
 
 
@@ -141,8 +155,13 @@ def describe(event, index: dict) -> list[str]:
 
 
 def run_turn(client: TrueForge, session_id: str, prompt: str, out=print) -> dict:
-    """Stream one turn, print every event, and return the ids, the final text and the metrics."""
-    result = {"turn_id": None, "sandbox_id": None, "text": "", "metrics": None, "status": None, "skills_tokens": 0}
+    """Stream one turn, print every event, and return the ids, the final text, the metrics and the status.
+
+    `status` is "done", "cancelled" or "error" from `turn.done`, and stays
+    "incomplete" when the stream ends before that event.
+    """
+    result = {"turn_id": None, "sandbox_id": None, "text": "", "metrics": None, "status": "incomplete",
+              "detail": "", "skills_tokens": 0}
     index: dict = {}
     stream = client.sessions.create_turn_stream(session_id=session_id, input=[UserMessage(content=prompt)])
     for event in stream:
@@ -153,6 +172,7 @@ def run_turn(client: TrueForge, session_id: str, prompt: str, out=print) -> dict
         elif event.type == "turn.done":
             result["status"] = event.state.status
             result["metrics"] = getattr(event.state, "metrics", None)
+            result["detail"] = getattr(event.state, "message", None) or getattr(event.state, "reason", None) or ""
             output = getattr(event.state, "output", None)
             result["text"] = (output.content if output and isinstance(output.content, str) else "") or ""
         for line in describe(event, index):
@@ -167,7 +187,7 @@ def list_events(client: TrueForge, session_id: str, turn_id: str) -> list:
     while True:
         page = client.sessions.list_turn_events(session_id=session_id, turn_id=turn_id, page_token=token)
         events.extend(page.data)
-        token = getattr(page, "next_page_token", None)
+        token = page.pagination.next_page_token  # the cursor lives under `pagination`, not on the page
         if not token:
             return events
 

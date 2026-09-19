@@ -16,6 +16,7 @@ import json
 import time
 from pathlib import Path
 
+import jsonschema
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -47,29 +48,44 @@ class ActionRequest(BaseModel):
 
 
 def relay(messages, label):
-    """Run one model turn on the transcript, forward its chunks, compile them."""
+    """Run one model turn on the transcript, forward its chunks, compile them.
+
+    When the model call fails part-way, the stream ends with one more line,
+    {"error": "..."}, the transcript keeps no half turn (the user message that
+    started it is removed), and the turn is recorded with the error.
+    """
     started = time.perf_counter()
-    stream = llm.stream_text(messages)
     compiler = SESSION["compiler"]
     before = len(compiler.patches)
     text = []
     first_paint = None
-    for chunk in stream:
-        text.append(chunk)
-        compiler.push(chunk)
-        if first_paint is None and compiler.has_root():
-            first_paint = time.perf_counter() - started
-        yield chunk
+    error, usage = None, None
+    try:
+        stream = llm.stream_text(messages)
+        for chunk in stream:
+            text.append(chunk)
+            compiler.push(chunk)
+            if first_paint is None and compiler.has_root():
+                first_paint = time.perf_counter() - started
+            yield chunk
+        usage = stream.usage
+    except Exception as failure:  # noqa: BLE001 - the model call failed: say so on the wire, keep the transcript whole
+        error = f"{type(failure).__name__}: {failure}"
+        yield "\n" + json.dumps({"error": error}) + "\n"
     compiler.finish()
     reply = "".join(text)
-    messages.append({"role": "assistant", "content": reply})
+    if error is None:
+        messages.append({"role": "assistant", "content": reply})
+    elif messages and messages[-1]["role"] == "user":
+        messages.pop()  # no reply came: the next turn must not start with two user messages
     SESSION["turns"].append({
         "label": label,
         "patches": compiler.patches[before:],
         "seconds": round(time.perf_counter() - started, 2),
         "first_paint": round(first_paint, 2) if first_paint is not None else None,
-        "usage": stream.usage,
+        "usage": usage,
         "lines": [line for line in reply.splitlines() if line.strip()],
+        "error": error,
     })
     LAST.update(
         spec=compiler.spec,
@@ -77,6 +93,7 @@ def relay(messages, label):
         skipped=compiler.skipped,
         problems=check_spec(compiler.spec, catalog_json()),
         turns=SESSION["turns"],
+        error=error,
     )
 
 
@@ -96,9 +113,13 @@ def stream(request: StreamRequest):
 def action(request: ActionRequest):
     if SESSION["compiler"] is None:
         raise HTTPException(status_code=409, detail="no spec on screen yet; POST /stream first")
-    known = set(catalog_json()["actions"])
-    if request.action not in known:
-        raise HTTPException(status_code=400, detail=f"unknown action {request.action!r}; the catalog has {sorted(known)}")
+    actions = catalog_json()["actions"]
+    if request.action not in actions:
+        raise HTTPException(status_code=400, detail=f"unknown action {request.action!r}; the catalog has {sorted(actions)}")
+    # the params carry the Zod schema the catalog declared, exported as JSON Schema: check them here
+    # so the model is never asked about a press whose params are not what the catalog promised
+    for problem in jsonschema.Draft202012Validator(actions[request.action]["params"]).iter_errors(request.params):
+        raise HTTPException(status_code=400, detail=f"{request.action} params: {problem.message}")
     SESSION["messages"].append({"role": "user", "content": ACTION_TURN.format(action=request.action, params=json.dumps(request.params))})
     return StreamingResponse(relay(SESSION["messages"], request.action), media_type="application/x-ndjson")
 

@@ -7,6 +7,16 @@ a `RunAgentInput`, calls a model, and streams five kinds of event back:
 and renders the text as it arrives. No client library yet: the point is to
 see the wire.
 
+## Why: what breaks without it
+
+Sub-theme 01's streams were ad hoc: `{"component"}`, `{"delta"}`,
+`{"done"}`, invented per step, readable by that step's page and nothing
+else. A second front end, a test harness, a product's existing chat
+component: each would need its own parser for each server. A transport
+fixes the vocabulary once. With AG-UI, the page in this step is
+interchangeable with `@ag-ui/client` (step 03), and the server is
+interchangeable with any AG-UI agent.
+
 ## Quick demo
 
 ```bash
@@ -40,8 +50,8 @@ step_01_ag_ui_server/
 ├── llm.py            one streaming chat completion; settings from the env or ~/.simple-harness/env
 ├── sse.py            SSE reader in Python, used by the tests and demo.py
 ├── index.html        the page shell: prompt, rendered chat, the wire panel
-├── app.js            hand-written AG-UI client: posts RunAgentInput, renders TEXT_MESSAGE_* events, keeps the history
-├── sse.mjs           SSE reader for the page: fetch() body stream to JSON events
+├── app.js            hand-written AG-UI client: posts RunAgentInput, renders TEXT_MESSAGE_* events, keeps the history, always ends in a final status
+├── sse.mjs           SSE reader for the page: fetch() body stream to JSON events, LF or CRLF
 ├── sse.test.mjs      node --test for parseBlock and readEvents
 ├── test_step.py      offline pytest: fake model, event sequence, wire format, endpoint, Python SSE reader
 ├── demo.py           starts the server, posts one run, prints the wire, drives the page, saves demo.png
@@ -141,10 +151,18 @@ with a fake that yields scripted chunks.
 def agent_endpoint(input: RunAgentInput, request: Request):
     """Encode every event of the run and stream it as text/event-stream."""
     encoder = EventEncoder(accept=request.headers.get("accept"))
+    events = run(input)
 
-    def stream():
-        for event in run(input):
-            yield encoder.encode(event)
+    async def stream():
+        # The generator runs in a worker thread, one event per pull; when the
+        # page has gone it is closed, and the model stream with it.
+        try:
+            while (event := await run_in_threadpool(next, events, None)) is not None:
+                if await request.is_disconnected():
+                    break
+                yield encoder.encode(event)
+        finally:
+            events.close()
 
     return StreamingResponse(stream(), media_type=encoder.get_content_type())
 ```
@@ -153,7 +171,10 @@ FastAPI validates the body against `RunAgentInput`. `EventEncoder` from
 `ag_ui.encoder` turns each event into `data: {...}\n\n`, with the field
 names in camelCase and optional fields left out. The response is a
 `StreamingResponse`, so the first event leaves before the model has
-finished.
+finished. The generator is pulled one event at a time from a worker
+thread; when the browser navigates away the endpoint closes it, which
+closes the model stream instead of leaving it open until garbage
+collection.
 
 ### 5. Reading the stream in the page
 
@@ -167,7 +188,7 @@ export async function* readEvents(response) {
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n"); // the spec allows either ending
     let cut;
     while ((cut = buffer.indexOf("\n\n")) >= 0) {
       const block = buffer.slice(0, cut);
@@ -184,32 +205,38 @@ export async function* readEvents(response) {
 The browser's `EventSource` only does GET. AG-UI needs a POST with a JSON
 body, so the page uses `fetch` and reads the body stream by hand. A chunk
 can end in the middle of an event; the buffer holds the remainder until
-the next blank line.
+the next blank line. The reader handles `data:` lines and blank-line
+framing with either `\n` or `\r\n`; it ignores `event:` and `id:`
+fields, which AG-UI does not use.
 
 ### 6. Rendering by event type
 
 `app.js`:
 
 ```js
-  for await (const event of readEvents(response)) {
-    wire.textContent += JSON.stringify(event) + "\n";
-    switch (event.type) {
-      case "TEXT_MESSAGE_START":
-        current = { id: event.messageId, role: event.role, content: "" };
-        current.element = addMessage(event.role, "", event.messageId);
-        break;
-      case "TEXT_MESSAGE_CONTENT":
-        current.content += event.delta;
-        current.element.textContent = current.content;
-        break;
-      case "TEXT_MESSAGE_END":
-        messages.push({ id: current.id, role: current.role, content: current.content });
-        current = null;
-        break;
+    for await (const event of readEvents(response)) {
+      wire.textContent += JSON.stringify(event) + "\n";
+      switch (event.type) {
+        case "TEXT_MESSAGE_START":
+          current = { id: event.messageId, role: event.role, content: "" };
+          current.element = addMessage(event.role, "", event.messageId);
+          break;
+        case "TEXT_MESSAGE_CONTENT":
+          if (!current) break; // a delta for a message that never started: this page does not verify order
+          current.content += event.delta;
+          current.element.textContent = current.content;
+          break;
+        case "TEXT_MESSAGE_END":
+          if (current) messages.push({ id: current.id, role: current.role, content: current.content });
+          current = null;
+          break;
 ```
 
 The page keeps `messages`, the AG-UI history. A finished assistant message
-joins it, so the next run sends the whole conversation back.
+joins it, so the next run sends the whole conversation back. The whole
+run sits in a `try`: a non-200 answer, a dead server or a stream that ends
+without a terminal event all become an `error: ...` status, never a page
+stuck on `running`.
 
 ## Run it
 
@@ -218,8 +245,21 @@ pip install ag-ui-protocol fastapi uvicorn openai
 python server.py
 ```
 
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."     # or OPENAI_API_KEY=... in ~\.simple-harness\env
+python server.py
+```
+
 Open http://127.0.0.1:8021, type a question and press Run. The left panel
 fills in word by word; the right panel shows every event as it arrived.
+
+Expected output: the status line goes `running` then `finished`; the
+wire panel lists `RUN_STARTED`, `TEXT_MESSAGE_START`, one
+`TEXT_MESSAGE_CONTENT` per delta, `TEXT_MESSAGE_END`, `RUN_FINISHED`, each
+as one line of camelCase JSON. The quick demo above shows the same run
+posted with `httpx`, raw.
 
 Tests, offline:
 
@@ -227,6 +267,33 @@ Tests, offline:
 python -m pytest -q test_step.py
 npm test
 ```
+
+`demo.py` needs `playwright` (`python -m playwright install chromium`)
+and `httpx`; it uses the fixed port 8021 and stops with an error if the
+port is in use.
+
+## Error handling
+
+- The model call fails (wrong key, wrong URL, model down): the run ends
+  with `RUN_ERROR` carrying the exception text, no `RUN_FINISHED`; the
+  status line shows `error: ...`.
+- The server is down or answers 4xx/5xx (a body that is not a
+  `RunAgentInput` is a 422): the page sets `error: 422 ...` itself.
+- The stream ends without a terminal event (the server process died
+  mid-run): `error: the stream ended without RUN_FINISHED`.
+- The browser leaves mid-run: the endpoint closes the generator at the
+  next event, and with it the model stream.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- This page does not verify event order; a `TEXT_MESSAGE_CONTENT` before
+  its `START` is dropped, nothing more. `@ag-ui/client` in step 03 raises
+  on an illegal sequence.
+- The server is stateless: the page sends the whole history every run,
+  and the server prepends its own system prompt to whatever it gets. A
+  client-sent `system` message is kept, after the server's.
+- No authentication, one process, 127.0.0.1: a local demo.
 
 ## What to notice
 
@@ -238,3 +305,8 @@ npm test
   already knows, but read with `fetch` so the request can carry a body.
 - The state field is already in the input. It is empty here; step 02
   fills it.
+
+## What the next step adds
+
+Tool calls as `TOOL_CALL_*` events and shared state as `STATE_SNAPSHOT`
+plus `STATE_DELTA` JSON Patches; a client tool the page executes.

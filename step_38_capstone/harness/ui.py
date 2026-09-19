@@ -10,6 +10,8 @@ draws the breakdown /context asks for.
 
 import json
 import sys
+import threading
+from contextlib import nullcontext
 
 from rich.console import Console, Group
 from rich.json import JSON
@@ -52,7 +54,7 @@ class UI:
     def banner(self, sandbox_name="none", mode="act"):
         self.console.print()
         self.console.print(Rule(Text(" coding agent ", style=f"bold {ACCENT}"), style=MUTED))
-        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d to exit", style=MUTED), (0, 0, 0, 2)))
+        self.console.print(Padding(Text(f"mode: {mode}  ·  sandbox: {sandbox_name}  ·  /plan  /act  /init  /sessions  /rewind  /undo  /pipeline  ·  alt-enter for a newline  ·  ctrl-c to steer  ·  ctrl-d (ctrl-z then enter on Windows), ctrl-c or /exit to leave", style=MUTED), (0, 0, 0, 2)))
 
     def clear(self):
         self.console.clear()
@@ -63,16 +65,21 @@ class UI:
 
     def replay(self, messages):
         """Redraw a loaded transcript so the screen matches the history."""
-        results = {m["tool_call_id"]: m["content"] for m in messages if m["role"] == "tool"}
+        results = {m.get("tool_call_id"): str(m.get("content") or "") for m in messages if m.get("role") == "tool"}
         for message in messages:
-            if message["role"] == "user":
-                content = message["content"]
-                self.user(caption_of(content) if isinstance(content, list) else content)
-            elif message["role"] == "assistant":
+            if message.get("role") == "user":
+                content = message.get("content") or ""
+                self.user(caption_of(content) if isinstance(content, list) else str(content))
+            elif message.get("role") == "assistant":
                 if message.get("content"):
-                    self.agent(message["content"])
+                    self.agent(str(message["content"]))
                 for call in message.get("tool_calls") or []:
-                    self.tool(call["function"]["name"], json.loads(call["function"]["arguments"]), results.get(call["id"], ""))
+                    try:
+                        args = json.loads(call["function"]["arguments"] or "{}")
+                        args = args if isinstance(args, dict) else {"arguments": args}
+                    except (ValueError, KeyError):
+                        args = {"arguments": str(call.get("function", {}).get("arguments", ""))}  # broken JSON: show it raw
+                    self.tool(call["function"]["name"], args, results.get(call.get("id"), ""))
 
     def pick(self, title, rows):
         """Numbered list; returns the chosen index or None."""
@@ -140,12 +147,13 @@ class UI:
         return answer.lower().startswith("y")
 
     def ask(self):
+        """The input line: the text typed, "" for an empty line, None when the user wants out (ctrl-d, ctrl-c)."""
         self.console.print()
         try:
             return prompt.read("> ").strip()
         except (EOFError, KeyboardInterrupt):
             self.console.print()
-            return ""
+            return None
 
     # --------------------------------------------------------------- output
 
@@ -181,7 +189,8 @@ class UI:
 
     def tool(self, name, args, result, nested=False, tag=None):
         """One tool call and its result. tag names the subagent, when several run at once."""
-        if name == "write_todos" and args.get("todos"):
+        result = str(result)
+        if name == "write_todos" and isinstance(args.get("todos"), list) and not result.startswith("Error"):
             return self.todos(args["todos"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         title = Text(f"subagent {tag}", style=f"italic {MUTED}") if tag is not None else None
@@ -198,13 +207,13 @@ class UI:
 
     def todos(self, todos):
         """The plan as a checklist. The raw tool output is never worth showing."""
-        done = sum(1 for t in todos if t["status"] == "completed")
+        done = sum(1 for t in todos if t.get("status") == "completed")
         rows = Table.grid(padding=(0, 1))
         rows.add_column(no_wrap=True)
         rows.add_column(overflow="fold")
         for todo in todos:
-            style = TODO_STYLES[todo["status"]]
-            rows.add_row(Text(MARKS[todo["status"]], style=style), Text(todo["content"], style=style))
+            style = TODO_STYLES.get(todo.get("status"), MUTED)
+            rows.add_row(Text(MARKS.get(todo.get("status"), "[?]"), style=style), Text(str(todo.get("content", "")), style=style))
         self.console.print(
             Padding(Panel(rows, title=Text(f"todos {done}/{len(todos)}", style=f"bold {TOOL}"), title_align="left", border_style=MUTED, padding=(0, 1)), (1, 2, 0, 2))
         )
@@ -248,7 +257,15 @@ class UI:
         )
 
     def working(self, label="thinking"):
-        """The spinner. Use it as a context manager; call .stop() to end it early."""
+        """The spinner. Use it as a context manager; call .stop() to end it early.
+
+        Off the main thread - a subagent on the pool - it is a no-op: rich
+        allows one live display per console, and two would raise.
+        """
+        if threading.current_thread() is not threading.main_thread():
+            spinner = nullcontext()
+            spinner.stop = lambda: None
+            return spinner
         return self.console.status(Text(label, style=MUTED), spinner="dots", spinner_style=ACCENT)
 
     # ---------------------------------------------------------------- usage
@@ -331,7 +348,7 @@ class UI:
         return json.dumps(args)
 
     def _format_result(self, result):
-        lines = result.strip().splitlines() or ["(no output)"]
+        lines = str(result).strip().splitlines() or ["(no output)"]
         shown = lines[:MAX_TOOL_OUTPUT_LINES]
         body = Text("\n".join(shown), style=MUTED)
         hidden = len(lines) - len(shown)

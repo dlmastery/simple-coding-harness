@@ -1,12 +1,17 @@
-"""Stage 12 - bash runs inside the OS sandbox with a timeout.
+"""Stage 12 - bash runs inside the OS sandbox; the timeout and process group move to sandbox.run().
+
+Every tool returns a string. run_tool turns a tool call into (args, result)
+and never raises, so the model always gets a result it can read.
 """
 
+import json
+import os
 import subprocess
 
 from . import sandbox
+from .permissions import check
 from .skills import read_skill
 from .todos import TODO_SCHEMA, write_todos
-
 
 def bash(command: str) -> str:
     """Run a shell command and return its combined stdout and stderr."""
@@ -15,26 +20,36 @@ def bash(command: str) -> str:
     except subprocess.TimeoutExpired as expired:
         # A slow command is the model's problem to work around, not a reason
         # to take the session down. Hand the failure back as a result.
-        return f"Timed out after {expired.timeout}s and was killed. Narrow it down."
+        partial = (expired.stdout or "") + (expired.stderr or "")
+        return f"Timed out after {expired.timeout}s and was killed. Output so far:\n{partial}"
     return (result.stdout + result.stderr) or "(no output)"
 
 
 def read_file(path: str) -> str:
     """Read a file and return its contents."""
-    with open(path) as f:
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         return f.read()
 
 
 def write_file(path: str, content: str) -> str:
     """Create a file, or overwrite it if it already exists."""
-    with open(path, "w") as f:
+    parent = os.path.dirname(path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content)
     return f"Wrote {path}"
 
 
 def str_replace(path, old_str, new_str, allow_multi_edit=False):
     """Swap exact text in a file. old_str must match exactly once."""
-    with open(path) as f:
+    if not old_str:
+        return "Error: old_str is empty."
+    if not os.path.isfile(path):
+        return f"Error: {path} is not a file."
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
         content = f.read()
 
     count = content.count(old_str)
@@ -47,7 +62,7 @@ def str_replace(path, old_str, new_str, allow_multi_edit=False):
             "or set allow_multi_edit to replace them all."
         )
 
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(content.replace(old_str, new_str))
     return f"Replaced {count} match(es) in {path}"
 
@@ -135,3 +150,36 @@ TOOLS = {
     "read_skill": read_skill,
     "write_todos": write_todos,
 }
+
+
+def run_tool(tool_call):
+    """Turn one tool call into (args, result). Never raises: whatever goes
+    wrong becomes the result string, so the model reads it and tries again.
+
+    Stage 11: the rules are consulted first. The verdict becomes the result
+    too - "Blocked by policy" or "The user denied this tool call" - so the
+    model adapts instead of the session dying.
+    """
+    from .ui import ui  # here, not at the top: ui imports todos, tools imports ui
+
+    name = tool_call.function.name
+    try:
+        args = json.loads(tool_call.function.arguments or "{}")
+        if not isinstance(args, dict):
+            raise ValueError("not an object")
+    except ValueError as e:  # the model wrote broken JSON
+        return {}, f"Error: the arguments of {name} are not a JSON object: {e}"
+    if name not in TOOLS:  # a name that is not in the table
+        return args, f"Error: no tool named {name!r}."
+    action, reason = check(name, args)
+    if action == "deny":
+        return args, f"Blocked by policy: {reason}"
+    if action == "ask" and not ui.approve(reason):
+        return args, "The user denied this tool call."
+    try:
+        result = TOOLS[name](**args)  # name -> function, JSON -> kwargs
+    except Exception as e:  # wrong arguments, missing file, anything the tool raises
+        return args, f"Error: {type(e).__name__}: {e}"
+    if not isinstance(result, str):  # a tool message must be text
+        result = "(no output)" if result is None else json.dumps(result, default=str)
+    return args, result

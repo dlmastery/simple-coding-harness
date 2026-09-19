@@ -11,6 +11,7 @@ import argparse
 import sys
 
 from client import context, questions
+from trueforge_sdk.core.api_error import ApiError
 
 INSTRUCTIONS = (
     "You set up new projects. Before you plan anything, call ask_user_question once "
@@ -27,6 +28,15 @@ def main(argv=None) -> int:
     parser.add_argument("--base-url", default=context.BASE_URL)
     args = parser.parse_args(argv)
 
+    try:
+        return run(args)
+    except context.REQUEST_ERRORS as error:  # server down, or a request it refused: one line, exit 1
+        detail = f"answered {error.status_code}: {str(error.body)[:200]}" if isinstance(error, ApiError) else f"is not answering ({type(error).__name__}: {error})"
+        print(f"request failed: {args.base_url} {detail}", file=sys.stderr)
+        return 1
+
+
+def run(args) -> int:
     client = context.connect(args.base_url)
     spec = context.build_spec(INSTRUCTIONS)
     print(context.describe_spec(spec))
@@ -42,9 +52,9 @@ def main(argv=None) -> int:
     messages = [message for turn in turns for message in turn.messages]
     print(f"\n{len(turns)} turn(s), {len(messages)} model call(s)")
     print(context.usage_table(messages))
-    print(context.metrics_line(turns[-1].metrics))
+    print(context.metrics_line(context.sum_metrics(turns)))  # every turn of this run added up
     print(context.status_line(turns[-1].state))
-    return 0
+    return 0 if turns[-1].status == "done" else 1
 
 
 def scripted(answer: str):

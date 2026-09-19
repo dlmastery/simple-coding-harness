@@ -11,6 +11,7 @@ from pathlib import Path
 from . import budget
 from . import checkpoint
 from . import compact as compaction
+from . import history
 from . import hooks
 from . import instructions
 from . import jobs
@@ -21,6 +22,8 @@ from . import memory
 from . import sandbox
 from . import session
 from . import subagent
+from . import todos
+from . import tools
 from .ui import ui
 
 COMMANDS = {
@@ -75,12 +78,20 @@ def redraw(messages, label):
 
 
 def rewind(messages):
-    """Cut the transcript after the chosen message and undo the turns that began after it."""
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the transcript before a chosen user message and undo the turns that began at or after it.
+
+    Only user messages are offered: a cut anywhere else could leave a tool
+    call without its result, which the API refuses.
+    """
+    starts = [i for i, m in enumerate(messages) if m.get("role") == "user"]
+    rows = [f"{i:<4} {preview(messages[i])}" for i in starts]
+    if not rows:
+        ui.note("nothing to rewind to yet")
+        return messages
+    choice = ui.pick("rewind to before message", rows)
     if choice is None:
         return messages
-    keep = choice + 1
+    keep = starts[choice]
     undone = checkpoint.undo_since(keep)
     restored = [path for _, _, paths in undone for path in paths]
     if undone:
@@ -120,7 +131,14 @@ def sessions(messages):
     choice = ui.pick("open chat", rows)
     if choice is None:
         return messages
-    return redraw(session.open_session(saved[choice]["id"]), "opened")
+    from . import agent  # here, not at the top: agent imports this module
+
+    opened = session.open_session(saved[choice]["id"])
+    history.strip(opened)
+    todos.reload_from(opened)
+    tools.reload_from(opened)
+    agent.recover(opened)  # the chat may have ended mid-turn; finish its tool calls before the first request
+    return redraw(opened, "opened")
 
 
 def compact(messages):
@@ -142,6 +160,7 @@ def compact(messages):
         return messages
     session.compacted(compacted)
     checkpoint.compacted(before, len(compacted))  # the turn starts move with the messages
+    compaction.COMPACTED_AT = len(compacted)      # needed() waits for the transcript to grow past this
     ui.compacted(before, compacted)
     return compacted
 
@@ -241,6 +260,10 @@ def handle(command, messages):
         return init(messages)
     if command == "/instructions":
         return instruction_list(messages)
+    missing = pipeline.missing_agents()
+    if missing:
+        ui.note(f"the pipeline needs the {', '.join(missing)} definition(s) in .agents/agents; none ran")
+        return messages
     if command == "/plan":
         return set_mode(messages, "plan")
     if command == "/act":

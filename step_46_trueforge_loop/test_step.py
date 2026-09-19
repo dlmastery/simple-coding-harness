@@ -4,6 +4,7 @@ import json
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import httpx
 import pytest
 
 import demo
@@ -29,8 +30,12 @@ def turn_script(prompt, session_id):
     state = {"status": "done", "output": output, "required_actions": [], "completed_at": "2026-01-01T00:00:01Z",
              "metrics": {"total_input_tokens": 1000 + len(prompt), "total_output_tokens": 7, "total_tokens": 1007 + len(prompt)}}
     if prompt == "fail":
-        state = {"status": "error", "message": "model unavailable", "completed_at": "2026-01-01T00:00:01Z"}
-    return [
+        state = {"status": "error", "message": "model unavailable", "completed_at": "2026-01-01T00:00:01Z",
+                 "metrics": {"total_input_tokens": 1004, "total_output_tokens": 7, "total_tokens": 1011}}
+    if prompt == "cancel":
+        state = {"status": "cancelled", "reason": "server-execution-timeout", "completed_at": "2026-01-01T00:00:01Z",
+                 "metrics": {"total_input_tokens": 500, "total_tokens": 500}}
+    events = [
         {"type": "turn.created", "id": "ev-1", "thread_id": None, "turn_id": f"turn-{session_id}", "previous_turn_id": None,
          "input": [{"type": "user.message", "content": prompt}], "state": {"status": "running"}, "created_at": "2026-01-01T00:00:00Z"},
         {"type": "model.message", "id": message_id, "thread_id": "main", "created_at": "2026-01-01T00:00:00Z"},
@@ -38,6 +43,9 @@ def turn_script(prompt, session_id):
         {"type": "model.message.delta", "id": message_id, "thread_id": "main", "content": second},
         {"type": "turn.done", "id": "ev-9", "thread_id": None, "created_at": "2026-01-01T00:00:01Z", "state": state},
     ]
+    if prompt == "truncated":  # the connection drops after the first delta: no turn.done ever arrives
+        return events[:3]
+    return events
 
 
 class FakeTrueForge(BaseHTTPRequestHandler):
@@ -126,11 +134,12 @@ def fake(server):
 
 def test_chat_streams_deltas_and_returns_text_and_metrics(fake):
     seen = []
-    session_id, text, metrics = loop.chat("hello", on_delta=seen.append)
+    session_id, text, metrics, status = loop.chat("hello", on_delta=seen.append)
     assert session_id == "s46-fake-1"
     assert seen == ["Echo: ", "hello"]
     assert text == "Echo: hello"
     assert metrics == {"total_input_tokens": 1005, "total_output_tokens": 7, "total_tokens": 1012}
+    assert status == "done"
 
 
 def test_chat_opens_a_session_with_an_inline_spec(fake):
@@ -146,8 +155,8 @@ def test_chat_opens_a_session_with_an_inline_spec(fake):
 
 
 def test_second_chat_reuses_the_session(fake):
-    session_id, _, _ = loop.chat("first", on_delta=None)
-    again, text, _ = loop.chat("second", session_id=session_id, on_delta=None)
+    session_id, _, _, _ = loop.chat("first", on_delta=None)
+    again, text, _, _ = loop.chat("second", session_id=session_id, on_delta=None)
     assert again == session_id
     assert text == "Echo: second"
     assert fake.sessions == 1
@@ -156,15 +165,38 @@ def test_second_chat_reuses_the_session(fake):
 
 
 def test_chat_falls_back_to_the_joined_deltas_when_output_is_missing(fake):
-    _, text, metrics = loop.chat("no-output", on_delta=None)
+    _, text, metrics, status = loop.chat("no-output", on_delta=None)
     assert text == "Echo: no-output"
     assert metrics["total_output_tokens"] == 7
+    assert status == "done"
 
 
-def test_chat_reports_an_error_state(fake):
-    _, text, metrics = loop.chat("fail", on_delta=None)
+def test_chat_reports_an_error_state_with_its_metrics(fake):
+    _, text, metrics, status = loop.chat("fail", on_delta=None)
     assert text == "[turn error: model unavailable]"
+    assert status == "error"
+    assert metrics["total_tokens"] == 1011  # the tokens spent before the error are kept
+
+
+def test_chat_reports_a_cancelled_state(fake):
+    _, text, metrics, status = loop.chat("cancel", on_delta=None)
+    assert (text, status) == ("[turn cancelled: server-execution-timeout]", "cancelled")
+    assert metrics == {"total_input_tokens": 500, "total_tokens": 500}
+
+
+def test_a_stream_without_turn_done_is_incomplete_not_done(fake):
+    """A dropped connection must not look like a finished turn."""
+    _, text, metrics, status = loop.chat("truncated", on_delta=None)
+    assert status == "incomplete"
+    assert text == "Echo: "  # what arrived before the drop
     assert metrics == {}
+
+
+def test_describe_error_names_the_server(fake):
+    from trueforge_sdk.core.api_error import ApiError
+
+    assert loop.describe_error(ApiError(status_code=404, headers={}, body={"error": "no such session"})).startswith(f"{loop.BASE_URL} answered 404")
+    assert loop.describe_error(httpx.ConnectError("refused")).startswith(f"{loop.BASE_URL} is not answering")
 
 
 def test_usage_line():
@@ -201,6 +233,15 @@ def test_repl_runs_turns_until_exit(fake, capsys, monkeypatch):
     assert out.count("[1,00") == 2
     assert "python demo.py --resume s46-fake-1" in out
     assert fake.sessions == 1
+
+
+def test_repl_ends_on_eof_and_shows_a_failed_turn(fake, capsys, monkeypatch):
+    prompts = iter(["fail"])
+    monkeypatch.setattr("builtins.input", lambda _: next(prompts, None) or (_ for _ in ()).throw(EOFError()))
+    assert demo.main([]) == 0
+    out, _ = capsys.readouterr()
+    assert "[turn error: model unavailable]" in out
+    assert "python demo.py --resume s46-fake-1" in out
 
 
 # ------------------------------------------------------------ setup_server.py

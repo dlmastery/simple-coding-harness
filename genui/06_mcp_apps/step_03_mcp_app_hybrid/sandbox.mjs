@@ -11,11 +11,16 @@ export const CSP = "default-src 'none'; style-src 'unsafe-inline'; script-src 'u
 
 export const META = `<meta http-equiv="Content-Security-Policy" content="${CSP}">`;
 
+const REFRESH_META_RE = /<meta[^>]+http-equiv\s*=\s*["']?refresh["']?[^>]*>/gi;
+
 export function sandboxed(html) {
-  // Put the CSP meta tag first in <head>, or first in the document if there is no <head>.
-  const head = /<head[^>]*>/i.exec(html);
-  if (head) return html.slice(0, head.index + head[0].length) + META + html.slice(head.index + head[0].length);
-  return META + html;
+  // The CSP meta tag right after the doctype, before any element: a script written before <head>,
+  // or a <head> inside a comment, would otherwise run ahead of the policy. A meta refresh is a
+  // navigation the policy cannot block, so it is removed.
+  const cleaned = html.replace(REFRESH_META_RE, "");
+  const doctype = /^\s*<!doctype[^>]*>/i.exec(cleaned);
+  const at = doctype ? doctype[0].length : 0;
+  return cleaned.slice(0, at) + META + cleaned.slice(at);
 }
 
 export function mount(iframe, html) {

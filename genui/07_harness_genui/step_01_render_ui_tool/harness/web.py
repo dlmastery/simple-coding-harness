@@ -36,9 +36,9 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/events":
             return self.events()
         name = "index.html" if self.path in ("/", "") else self.path.lstrip("/")
-        file = WEB_DIR / name
-        if not file.is_file() or file.suffix not in CONTENT_TYPES:
-            self.send_error(404)
+        file = (WEB_DIR / name).resolve()
+        if WEB_DIR.resolve() not in file.parents or not file.is_file() or file.suffix not in CONTENT_TYPES:
+            self.send_error(404)  # only the page's own files: `..` in the path stays inside web/
             return
         body = file.read_bytes()
         self.send_response(200)

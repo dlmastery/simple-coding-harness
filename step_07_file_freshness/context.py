@@ -13,18 +13,27 @@ import os
 import subprocess
 from datetime import datetime
 
-SEEN = {}  # path -> mtime when the agent last read or wrote it
+SEEN = {}  # absolute path -> mtime when the agent last read or wrote it
 
 
 def note_seen(path):
     """Called by the read and write tools: remember the file as the agent saw it."""
+    path = os.path.abspath(path)  # "a.txt", "./a.txt" and the full path are one file
     if os.path.exists(path):
         SEEN[path] = os.path.getmtime(path)
 
 
 def stale_files():
-    """Files whose mtime on disk no longer matches what the agent saw."""
-    return [p for p, mtime in SEEN.items() if not os.path.exists(p) or os.path.getmtime(p) != mtime]
+    """Files whose mtime on disk no longer matches what the agent saw. A deleted
+    file is reported once and then forgotten: there is nothing left to re-read."""
+    stale = []
+    for path, mtime in list(SEEN.items()):
+        if not os.path.exists(path):
+            stale.append(f"{path} (deleted)")
+            del SEEN[path]
+        elif os.path.getmtime(path) != mtime:
+            stale.append(path)
+    return stale
 
 
 def stale_note():
@@ -40,7 +49,10 @@ def stale_note():
 
 
 def git_branch():
-    result = subprocess.run("git branch --show-current", shell=True, capture_output=True, text=True)
+    result = subprocess.run("git branch --show-current", shell=True, capture_output=True,
+                            encoding="utf-8", errors="replace")
+    if result.returncode != 0:  # no git, or not a repository: say so instead of guessing
+        return "(not a git repository)"
     return result.stdout.strip() or "(detached)"
 
 

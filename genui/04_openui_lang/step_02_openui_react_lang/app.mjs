@@ -15,12 +15,14 @@ import { createRoot } from "react-dom/client";
 import { library } from "./library.mjs";
 
 // Read the SSE stream from /generate; call onDelta with every text piece.
+// Resolves on `event: done`, rejects on `event: error` or a non-200 answer.
 async function generate(prompt, onDelta) {
   const response = await fetch("/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
   });
+  if (!response.ok) throw new Error(`server answered ${response.status}: ${(await response.text()).slice(0, 200)}`);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -34,6 +36,7 @@ async function generate(prompt, onDelta) {
       buffer = buffer.slice(end + 2);
       const data = event.split("\n").filter((l) => l.startsWith("data: ")).map((l) => l.slice(6)).join("\n");
       if (event.startsWith("event: done")) return;
+      if (event.startsWith("event: error")) throw new Error(data ? JSON.parse(data) : "the model call failed");
       if (data) onDelta(JSON.parse(data));
     }
   }
@@ -44,13 +47,17 @@ function App() {
   const [response, setResponse] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [parse, setParse] = useState(null);
+  const [error, setError] = useState("");
 
   async function run(text) {
     setResponse("");
+    setError("");
     setStreaming(true);
     let program = "";
     try {
       await generate(text, (delta) => { program += delta; setResponse(program); });
+    } catch (failure) {
+      setError(failure.message);  // the stream ended early: say so next to what did arrive
     } finally {
       setStreaming(false);
       window.openui.lastResponse = program;
@@ -68,7 +75,8 @@ function App() {
       h("h1", null, "OpenUI Lang with @openuidev/react-lang"),
       h("input", { id: "prompt", value: prompt, onChange: (e) => setPrompt(e.target.value) }),
       h("button", { id: "generate", onClick: () => run(prompt), disabled: streaming }, streaming ? "Streaming" : "Generate"),
-      h("span", { id: "status", "data-streaming": String(streaming) }, status)),
+      h("span", { id: "status", "data-streaming": String(streaming) }, status),
+      error ? h("span", { id: "error" }, error) : null),
     h("main", null,
       h("section", { id: "ui" },
         h(Renderer, { response, library, isStreaming: streaming, onParseResult: setParse,

@@ -9,7 +9,7 @@ export async function* readEvents(response) {
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n"); // the spec allows either ending
     let cut;
     while ((cut = buffer.indexOf("\n\n")) >= 0) {
       const block = buffer.slice(0, cut);

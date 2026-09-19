@@ -6,6 +6,8 @@ the system prompt. The body is read on demand with the read_skill tool,
 and that is the only time the model sees the full instructions.
 """
 
+import re
+import sys
 from pathlib import Path
 
 import yaml
@@ -15,21 +17,28 @@ SKILL_DIRS = [
     Path.cwd() / ".agents" / "skills",   # this project's skills
 ]
 
+FRONT_MATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)  # the block between the two --- lines
+
 
 def find_skills():
-    """Glob SKILL.md under every skill dir; name -> {description, path}."""
+    """Glob SKILL.md under every skill dir; name -> {description, path}.
+    A broken file is skipped with a note: one bad skill must not stop the agent."""
     skills = {}
     for directory in SKILL_DIRS:
         for path in sorted(directory.glob("*/SKILL.md")):
-            text = path.read_text(encoding="utf-8")
-            if not text.startswith("---"):
+            match = FRONT_MATTER.match(path.read_text(encoding="utf-8"))
+            if not match:
                 continue
-            _, frontmatter, _ = text.split("---", 2)
-            meta = yaml.safe_load(frontmatter) or {}
-            if "name" not in meta:
+            try:
+                meta = yaml.safe_load(match.group(1)) or {}
+            except yaml.YAMLError as e:
+                print(f"skipping {path}: bad front matter ({e})", file=sys.stderr)
                 continue
+            if not isinstance(meta, dict):
+                continue
+            name = str(meta.get("name") or path.parent.name)
             description = " ".join(str(meta.get("description", "")).split())
-            skills[meta["name"]] = {"description": description, "path": path}
+            skills[name] = {"description": description, "path": path}  # later dirs override earlier ones
     return skills
 
 

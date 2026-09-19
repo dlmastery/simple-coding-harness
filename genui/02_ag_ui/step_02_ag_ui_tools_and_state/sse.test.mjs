@@ -28,3 +28,10 @@ test("readEvents joins chunks that split an event", async () => {
   }
   assert.deepEqual(events, ["TEXT_MESSAGE_START", "TEXT_MESSAGE_CONTENT"]);
 });
+
+test("readEvents accepts CRLF line endings, which the SSE spec allows", async () => {
+  const wire = 'data: {"type":"RUN_STARTED"}\r\n\r\ndata: {"type":"RUN_FINISHED"}\r\n\r\n';
+  const events = [];
+  for await (const event of readEvents(responseFrom([wire]))) events.push(event.type);
+  assert.deepEqual(events, ["RUN_STARTED", "RUN_FINISHED"]);
+});

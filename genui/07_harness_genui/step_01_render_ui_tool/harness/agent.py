@@ -26,8 +26,11 @@ def main():
 
     ui.banner(sandbox.name())
     if cli.web is not None:
-        _, url = web.serve(cli.web)
-        ui.note(f"web surface: open {url} in a browser")
+        try:
+            _, url = web.serve(cli.web)
+            ui.note(f"web surface: open {url} in a browser")
+        except OSError as error:  # the port is taken: the terminal surface still works
+            ui.note(f"web surface not started on port {cli.web}: {error}")
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     if cli.resume:

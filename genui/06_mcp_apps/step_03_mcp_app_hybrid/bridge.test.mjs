@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { HostBridge, cspFor, withCsp, uiMetaOf, RESTRICTIVE_CSP } from "./bridge.mjs";
+import { HostBridge, cspFor, withCsp, uiMetaOf, isDomain, RESTRICTIVE_CSP } from "./bridge.mjs";
 import { McpHttpClient, parseBody, uiResourceUri, toolsForModel, UI_EXTENSION, APP_MIME_TYPE } from "./mcp-http.mjs";
 
 // --- CSP -------------------------------------------------------------------
@@ -25,10 +25,22 @@ test("declared domains widen exactly the matching directives", () => {
   assert.match(csp, /frame-src 'none'/);
 });
 
-test("the csp meta tag lands first in head", () => {
+test("a declared domain that is not an origin is dropped, so it cannot smuggle a directive", () => {
+  assert.equal(isDomain("https://api.example.com"), true);
+  assert.equal(isDomain("cdn.example.com"), true);
+  assert.equal(isDomain("https://a; frame-src *"), false);
+  const csp = cspFor({ csp: { connectDomains: ["https://a; frame-src *", "https://ok.example"], resourceDomains: "not-a-list" } });
+  assert.match(csp, /connect-src https:\/\/ok\.example/);
+  assert.match(csp, /frame-src 'none'/);
+  assert.equal(csp.split("; ").length, Object.keys(RESTRICTIVE_CSP).length);
+});
+
+test("the csp meta tag lands right after the doctype, before any element", () => {
   const html = withCsp("<!doctype html><html><head><title>x</title></head><body></body></html>", "default-src 'none'");
-  assert.match(html, /<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'"><title>/);
+  assert.match(html, /^<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'"><html><head><title>/);
   assert.match(withCsp("<p>no head</p>", "x"), /^<meta http-equiv/);
+  const early = withCsp("<!doctype html><script>1</script><head></head>", "x");
+  assert.ok(early.indexOf("<meta") < early.indexOf("<script>"));  // a script before <head> still runs under the policy
 });
 
 test("content-level _meta.ui wins over the listing entry", () => {
@@ -82,11 +94,35 @@ test("a failed tool call becomes ui/notifications/tool-cancelled", async () => {
   assert.equal(sent.at(-1).params.reason, "server gone");
 });
 
+test("the view may call the server's app-visible tools only, and read ui:// resources only", async () => {
+  const { b } = bridge({ tools: [
+    { name: "lemonade_dashboard", inputSchema: { type: "object" } },
+    { name: "audit", inputSchema: { type: "object" }, _meta: { ui: { visibility: ["model"] } } },
+  ] });
+  const other = await b.handle({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "delete_everything", arguments: {} } });
+  assert.match(other.error.message, /not a tool of this server/);
+  const hidden = await b.handle({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "audit", arguments: {} } });
+  assert.match(hidden.error.message, /model-only/);
+  const file = await b.handle({ jsonrpc: "2.0", id: 3, method: "resources/read", params: { uri: "file:///etc/passwd" } });
+  assert.match(file.error.message, /ui:\/\/ resources only/);
+  const ok = await b.handle({ jsonrpc: "2.0", id: 4, method: "tools/call", params: { name: "lemonade_dashboard", arguments: "not an object" } });
+  assert.equal(ok.result.content[0].text, "lemonade_dashboard {}");
+});
+
+test("a message with a wrong shape is dropped without an answer", async () => {
+  const { b, sent } = bridge();
+  assert.equal(await b.handle({ jsonrpc: "2.0", id: { nested: 1 }, method: "ping" }), undefined);
+  assert.equal(await b.handle({ jsonrpc: "2.0", id: 1, method: 42 }), undefined);
+  assert.equal(await b.handle("ping"), undefined);
+  assert.equal(sent.length, 0);
+});
+
 test("tools/call and resources/read are proxied; unknown methods are refused", async () => {
   const { b } = bridge();
   const call = await b.handle({ jsonrpc: "2.0", id: 5, method: "tools/call", params: { name: "lemonade_dashboard", arguments: { days: 14 } } });
   assert.equal(call.result.content[0].text, 'lemonade_dashboard {"days":14}');
   const read = await b.handle({ jsonrpc: "2.0", id: 6, method: "resources/read", params: { uri: "ui://x" } });
+  assert.equal(read.result.contents[0].uri, "ui://x");
   assert.equal(read.result.contents[0].mimeType, APP_MIME_TYPE);
   const bad = await b.handle({ jsonrpc: "2.0", id: 7, method: "ui/request-display-mode", params: { mode: "fullscreen" } });
   assert.equal(bad.error.code, -32000);

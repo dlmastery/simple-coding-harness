@@ -12,7 +12,7 @@ the browser, in mcp-http.mjs. The key never reaches the page.
 import argparse
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -50,7 +50,10 @@ def index():
 
 @app.get("/{name}.mjs")
 def module(name: str):
-    return FileResponse(HERE / f"{name}.mjs", media_type="text/javascript")
+    file = HERE / f"{name}.mjs"
+    if not file.is_file():
+        raise HTTPException(status_code=404, detail=f"no module {name}.mjs")
+    return FileResponse(file, media_type="text/javascript")
 
 
 def main():

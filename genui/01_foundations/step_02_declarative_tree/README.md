@@ -9,6 +9,17 @@ tolerant partial-JSON parser. The document comes in two shapes, a nested
 tree and a flat element map with ids, and the demo measures why the flat
 shape, the one A2UI and json-render chose, streams better.
 
+## Why: what breaks without it
+
+Step 01's model could only pick components; the page put them in a grid.
+Ask it for "the metrics in a row above the chart" and nothing happens: no
+tool says "row". Letting the model write the layout as one JSON document
+gives it composition, but a document arrives over seconds. Wait for the
+last byte and the page is blank for the whole stream; parse each chunk
+with `JSON.parse` and every chunk but the last throws. The tolerant parser
+is what makes "render while it streams" possible, and the document's
+shape decides whether what streams first is the layout or the details.
+
 ## Quick demo
 
 ```bash
@@ -45,9 +56,9 @@ step_02_declarative_tree/
 ├── progress.py       per chunk: how many components are closed and whether the root's children are final
 ├── page/
 │   ├── index.html    the page shell with a mode select and the layout styles
-│   ├── app.js        three modes on one page; re-parses and re-renders after every delta
+│   ├── app.js        three modes on one page; re-parses and re-renders after every delta, keeps the last good layout
 │   ├── partial-json.mjs   the tolerant parser, mirrored in JavaScript
-│   └── render.mjs    the catalog renderers plus renderTree and renderFlat
+│   └── render.mjs    the catalog renderers plus renderTree and renderFlat, array props through list()
 ├── tests/
 │   ├── partial-json.test.mjs   node --test for the parser
 │   └── render.test.mjs         node --test for the renderers and walkers
@@ -158,7 +169,19 @@ The tolerant parser is a normal recursive-descent JSON parser with one
 difference: running out of text is not an error. An open object or array
 is returned as it stands, typed `PartialDict` or `PartialList` so a
 renderer can tell "closed by the model" from "closed by the parser". The
-same rules live in `page/partial-json.mjs`; here is `partial_json.py`:
+same rules live in `page/partial-json.mjs`, and the two agree on every
+verdict:
+
+| the text ends in | Python | JavaScript |
+|---|---|---|
+| an open string, `"Lemon` | kept: `"Lemon"` | kept |
+| a cut number or literal, `1.`, `tr` | dropped | dropped |
+| an open object or array | returned, marked partial | returned, marked partial |
+| a key with no value | the key is dropped | dropped |
+| `\u` with fewer than four digits | the escape waits | waits |
+| not JSON: a fence, `1.` before a comma, `\uZZZZ`, 65 nested `[` | `ValueError` | throws `Error` |
+
+Here is `partial_json.py`:
 
 ```python
     def obj(self):
@@ -202,7 +225,7 @@ export function renderTree(node) {
   // A nested tree. A node still open in the stream renders as pending, with
   // whatever closed children it already has inside it.
   if (!isComponent(node)) return node ? PENDING : "";
-  const children = (node.children ?? []).map(renderTree).join("");
+  const children = list(node.children).map(renderTree).join("");
   const html = render(node.type, node.props, children);
   return isPartial(node) ? `<div class="pending-wrap">${html}</div>` : html;
 }
@@ -210,28 +233,51 @@ export function renderTree(node) {
 export function renderFlat(spec, id = spec?.root, seen = new Set()) {
   // A flat element map. A child id whose element has not arrived yet renders
   // as a pending slot, so the layout holds still while the details stream in.
-  const node = spec?.elements?.[id];
+  const elements = spec?.elements;
+  const node = typeof id === "string" && elements && typeof elements === "object" && Object.hasOwn(elements, id) ? elements[id] : undefined;
   if (node === undefined || seen.has(id)) return PENDING;
   seen.add(id);
   if (!isComponent(node)) return PENDING;
-  const children = (node.children ?? []).map((child) => renderFlat(spec, child, seen)).join("");
+  const children = list(node.children).map((child) => renderFlat(spec, child, seen)).join("");
   const html = render(node.type, node.props, children);
   return isPartial(node) ? `<div class="pending-wrap">${html}</div>` : html;
 }
 ```
 
+The walkers render a document that has not been validated yet, so they
+trust nothing: `list()` turns a `children` that is not an array into no
+children, `Object.hasOwn` keeps `"constructor"` from being a component, a
+node whose `type` is not in the catalog renders as a pending slot, and
+`seen` stops a cycle in the flat map.
+
 `page/app.js`: the loop. Static messages are appended as in step 01. Deltas
-are accumulated, parsed and re-rendered on every chunk.
+are accumulated, parsed and re-rendered on every chunk. The page parses
+the raw deltas, so text that is not JSON (a code fence, a sentence before
+the document) must not take the run down: `partialSpec` keeps the last good
+layout until the JSON starts.
 
 ```js
-    } else if (message.delta !== undefined) {
-      text += message.delta;
-      timeline.push(Math.round(performance.now() - started));
-      wire.textContent = text;
-      dashboard.innerHTML = renderSpec(parsePartial(text), mode);
-    } else if (message.done) {
-      wire.textContent += "\n" + JSON.stringify({ ...message, spec: undefined });
-      if (message.spec) dashboard.innerHTML = renderSpec(message.spec, mode);
+export function partialSpec(text, last) {
+  // The layout so far. Text that is not JSON (a fence, a sentence before the
+  // document) keeps the last good layout instead of taking the page down.
+  try {
+    return parsePartial(text);
+  } catch {
+    return last;
+  }
+}
+```
+
+```js
+      } else if (message.delta !== undefined) {
+        text += message.delta;
+        timeline.push(Math.round(performance.now() - started));
+        wire.textContent = text;
+        spec = partialSpec(text, spec);
+        dashboard.innerHTML = renderSpec(spec, mode);
+      } else if (message.done) {
+        wire.textContent += "\n" + JSON.stringify({ ...message, spec: undefined });
+        if (message.spec) dashboard.innerHTML = renderSpec(message.spec, mode);
 ```
 
 `progress.py`: the measurement. After each chunk it asks two questions:
@@ -252,6 +298,9 @@ def skeleton_known(spec, shape):
 
 ## Run it
 
+Prerequisites: step 01's plus `jsonschema`; `pillow` is optional (the demo
+writes two files instead of one composite when it is missing).
+
 ```bash
 python server.py            # http://127.0.0.1:8010, pick a mode in the page
 python demo.py              # both shapes, the table, demo.png and demo_streaming.png
@@ -259,9 +308,58 @@ python -m pytest test_step.py
 npm test                    # the parser and renderer tests alone
 ```
 
+PowerShell:
+
+```powershell
+$env:API_KEY = "sk-..."
+python server.py
+python demo.py
+python -m pytest test_step.py
+npm test
+```
+
+Expected output: the page in flat mode shows the card with dashed pending
+slots within a second, fills them as the elements arrive, and the status
+line ends in `3410 ms · valid` (your numbers will differ). The wire panel
+holds the raw JSON, then the `done` frame without the spec. The quick demo
+above prints the same run as a table.
+
 `GET /api/schema/flat` and `/api/schema/tree` return the generated
 schemas. The request sets `response_format: {"type": "json_object"}` so the
-model does not wrap the JSON in a code fence; the server strips one anyway.
+model does not wrap the JSON in a code fence; the server strips one from
+the finished text anyway, and the page keeps its last good layout through
+any prefix that does not parse.
+
+## Error handling
+
+- The model call fails, in any mode: the last frame is
+  `{"done": true, "error": "..."}`; the status line shows it and the page
+  reaches `data-state=done`.
+- The server is down or answers 4xx/5xx: the page records the error frame
+  itself; `demo.py` raises with the error text instead of waiting.
+- The reply is not JSON: `done` carries `"spec": null`, `"valid": false`
+  and `"errors": ["the reply is not JSON"]`; the page keeps the last layout
+  it managed to render.
+- The reply is JSON but not the catalog: `valid` is false and `errors` names
+  the path (`elements/r/children/0: ... is not of type 'string'`). The page
+  still renders the final spec, unknown types as pending slots.
+- A `children` that is not a list, a `rows` that is a string, a node named
+  `constructor`: rendered as empty, never thrown.
+- Leave `python server.py` with ctrl-c.
+
+## Gotchas / what this is not
+
+- Validation happens on the finished document. The page renders the partial
+  one on trust: unknown component names render as pending slots, not as the
+  "unknown component" stub (that stub is for static mode's frames).
+- The parser is strict about what it accepts: `1.` before a comma or a bad
+  `\u` escape is an error on both sides, so the two implementations agree.
+  It is not a JSON repair tool; the SDKs in sub-themes 03 and 05 have those.
+- Nesting deeper than 64 levels is refused, so a runaway stream cannot
+  overflow the stack.
+- The numbers in the demo (chunk 33 of 266, 408 of 408) are one run; the
+  tests check the property (the flat root closes before a quarter of the
+  stream, the tree root with the last chunk), not the numbers.
 
 ## What to notice
 
@@ -281,7 +379,12 @@ model does not wrap the JSON in a code fence; the server strips one anyway.
   allows an empty list there; the validator's messages name the exact path
   when something else is wrong, so a bad layout is reported, not hidden.
 - Validation happens on the finished document. The page renders the
-  partial one on trust, with unknown component names shown as stubs.
+  partial one on trust, with unknown component names shown as pending slots.
+
+## What the next step adds
+
+The third mode: no catalog, the model writes the whole page as HTML, and
+the host mounts it in a sandboxed iframe with a Content Security Policy.
 
 ## Diff from the previous step
 

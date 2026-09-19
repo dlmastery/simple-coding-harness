@@ -36,7 +36,7 @@ def client():
     """The client, created on first use so importing this module needs no key."""
     global _client
     if _client is None:
-        _client = OpenAI(base_url=BASE_URL, api_key=API_KEY)
+        _client = OpenAI(base_url=BASE_URL, api_key=API_KEY, timeout=120)  # a hung upstream fails the request, it does not hang the page
     return _client
 
 

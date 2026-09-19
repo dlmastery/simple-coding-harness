@@ -63,8 +63,11 @@ def reconnect(client, session_id: str, turn_id: str, after_sequence_number: int 
         stream = client.sessions.subscribe_to_turn(session_id=session_id, turn_id=turn_id, after_sequence_number=after_sequence_number)
         for event in stream:
             printer.handle(event)
-        return printer
-    out.write(f"turn {turn_id} is {turn.state.status}; replaying its stored events\n")
+        if printer.status != "incomplete":
+            return printer
+        out.write("the live stream ended before turn.done; replaying the stored events\n")  # it finished in between
+    else:
+        out.write(f"turn {turn_id} is {turn.state.status}; replaying its stored events\n")
     return replay(list_events(client, session_id, turn_id), out)
 
 

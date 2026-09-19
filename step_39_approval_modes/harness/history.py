@@ -4,10 +4,11 @@ Tool call output is the main reason a transcript explodes. Three
 mechanisms, cheapest first. Only the first two live here; the expensive one
 (the compaction agent) is compact.py.
 
-1. cap    a fresh tool result is trimmed at 10,000 characters and the full
+1. cap    a fresh tool result is cut at 10,000 characters and the full
           text parked in a temp file the agent can page through with head,
           tail, sed or grep. The file lives only until the turn ends; then
-          it is deleted.
+          it is deleted. Its marker is CAPPED, so strip and fit still act
+          on a capped result: TRIMMED is theirs, and means gone for good.
 2. strip  once a turn is over, its tool results shrink to a stub. Strip
           touches past turns only. The edit lands at the tail, so the
           cached prefix in front of it survives.
@@ -31,7 +32,8 @@ from . import config
 CAP = 10_000  # chars of a fresh tool result the agent sees inline
 STUB = 300    # chars kept once the turn that produced it is over
 
-TRIMMED = "[output trimmed:"  # marker, so stripping twice is a no-op
+CAPPED = "[output capped:"    # cap() marker: the full text is on disk for the rest of the turn
+TRIMMED = "[output trimmed:"  # strip()/fit() marker: the text is gone for good; stripping twice is a no-op
 IMAGE = re.compile(r"\[\[image:(.+?)\]\]")  # marker a tool result carries when it made a picture
 IMAGE_TOKENS = 1_500          # what one picture costs, whatever its byte size
 SUMMARY = "<summary>"         # marks the handoff note compaction leaves in the system prompt
@@ -57,9 +59,9 @@ def cap(text):
     try:
         path = spill(text)
     except OSError:
-        return text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} chars cut and could not be saved.]"
+        return text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} chars cut and could not be saved.]"
     return (
-        text[:CAP] + f"\n\n{TRIMMED} {len(text) - CAP} of {len(text)} chars cut. "
+        text[:CAP] + f"\n\n{CAPPED} {len(text) - CAP} of {len(text)} chars cut. "
         f"The whole output is at {path} - page through it with head, tail, "
         "sed -n or grep. It is deleted when this turn ends.]"
     )

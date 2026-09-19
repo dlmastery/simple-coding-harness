@@ -8,8 +8,10 @@ Four rules, and the code below is really just these:
 
   1. it starts from an empty history           - none of the chat context
      the user had with the main agent is shared with the subagent
-  2. it holds every tool but five              - task, browse, write_todos,
-     str_replace and write_file are withheld; no recursion, one subagent deep
+  2. it holds every tool but a few             - task, browse, write_todos,
+     str_replace, write_file, the computer actions and the memory writes are
+     withheld; no recursion, one subagent deep, and nothing it does outlives
+     the report
   3. it runs the same loop as the main agent   - call_llm, append, execute_all,
      and a tool result that carries an image marker becomes an image message
   4. only its final message.content comes back - none of the subagent's
@@ -23,7 +25,7 @@ import os
 
 MAX_TURNS = 12  # a runaway explorer is worse than a missing answer
 
-WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file"}
+WITHHELD = {"task", "browse", "write_todos", "str_replace", "write_file", "computer_act", "computer_screenshot", "remember", "forget"}
 
 SYSTEM_PROMPT = f"""
 You are an exploration subagent. You were given one question by a lead agent
@@ -51,10 +53,11 @@ not find; a gap is useful, a guess is not.
 
 
 def toolset():
-    """Every tool schema except the withheld ones."""
+    """Every tool schema except the withheld ones, and only what the mode allows."""
+    from . import plan
     from .tools import TOOL_SCHEMAS
 
-    return [s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD]
+    return [s for s in TOOL_SCHEMAS if s["function"]["name"] not in WITHHELD and plan.offered(s["function"]["name"])]
 
 
 def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
@@ -70,6 +73,7 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": request},
     ]
+    allowed = {s["function"]["name"] for s in tools}
     ui.subagent(request)
     report = None  # newest thing it has said, kept in case we run out of turns
 
@@ -87,8 +91,9 @@ def loop(system_prompt, request, tools, max_turns, label="subagent exploring"):
         if not message.tool_calls:
             return report or "(the subagent came back with nothing)"
 
-        # the same executor as the main loop: same permissions, same sandbox, same pool
-        outcomes = execute_all(message.tool_calls)
+        # the same executor as the main loop: same permissions, same sandbox, same
+        # pool - and only the tools this loop was offered, whatever the model names
+        outcomes = execute_all(message.tool_calls, allowed=allowed)
         pictures = []
         for tool_call, (args, result) in zip(message.tool_calls, outcomes):
             result, paths = split_images(result)

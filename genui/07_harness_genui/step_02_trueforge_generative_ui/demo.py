@@ -34,7 +34,11 @@ def capture(prompt, offline):
     print(f"> {prompt}\n")
     _, reply, metrics = genui.ask(prompt)
     print()
-    SAMPLE.write_text(reply, encoding="utf-8")
+    program = genui.extract_program(reply)
+    if program is not None and not openui_parse.parse(program).errors:
+        SAMPLE.write_text(reply, encoding="utf-8")  # the recording the tests replay: only a clean reply replaces it
+    else:
+        print("(the reply did not parse cleanly; sample_reply.md was left as it was)")
     return reply, metrics
 
 

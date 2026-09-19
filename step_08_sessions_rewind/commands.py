@@ -4,8 +4,9 @@ import session
 from ui import ui
 
 COMMANDS = {
-    "/rewind": "jump back to an earlier point in this chat",
+    "/rewind": "jump back to before one of your messages",
     "/sessions": "open a past chat",
+    "/exit": "leave (so do ctrl-d and ctrl-c)",
 }
 
 
@@ -25,12 +26,17 @@ def redraw(messages, label):
 
 
 def rewind(messages):
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Offer your own messages and cut just before the one you pick. Cutting anywhere
+    else could strand a tool call without its result, which the API refuses."""
+    session.save(messages)  # so a fresh chat is on disk before its first marker
+    turns = [i for i, m in enumerate(messages) if m["role"] == "user"]
+    rows = [f"{i:<4} {preview(messages[i])}" for i in turns]
+    choice = ui.pick("rewind to before", rows)
     if choice is None:
         return messages
-    session.rewind_to(choice + 1)
-    return redraw(messages[: choice + 1], "rewound")
+    count = turns[choice]
+    session.rewind_to(count)
+    return redraw(messages[:count], "rewound")
 
 
 def sessions(messages):
@@ -46,6 +52,7 @@ def sessions(messages):
 
 
 def handle(command, messages):
+    """One function: take the list, return the list to continue with."""
     if command == "/rewind":
         return rewind(messages)
     if command == "/sessions":

@@ -31,6 +31,10 @@ MAIN = "main"     # the name of the default coding agent, which has no definitio
 ACTIVE = None     # the active definition, or None for the default agent
 PENDING = None    # the name a handoff_to call asked for, until switch() applies it
 LAST_REASON = ""  # the reason the model gave for the pending handoff
+MAX_HANDOFFS = 4  # handoffs one turn may make; two agents passing the conversation back and forth stop here
+HANDOFFS = 0      # handoffs made this turn
+
+ALWAYS = ("handoff_to", "finish", "submit_plan", "load_tool")  # offered to every agent, whatever its tools: list says
 
 HANDOFF_SCHEMA = {
     "type": "function",
@@ -69,6 +73,18 @@ def active_name():
 def definition(name):
     """The definition behind a name, or None. `main` has none."""
     return agents.AGENTS.get(name)
+
+
+def offered(name):
+    """Whether the active agent may run a tool: everything, or its `tools:` list plus ALWAYS."""
+    wanted = None if ACTIVE is None else ACTIVE.get("tools")
+    return wanted is None or name in wanted or name in ALWAYS
+
+
+def begin_turn():
+    """A new turn: the handoff count starts over."""
+    global HANDOFFS
+    HANDOFFS = 0
 
 
 def targets(active=None):
@@ -125,6 +141,8 @@ def handoff_to(agent: str, reason: str) -> str:
     global PENDING, LAST_REASON
     if agent == active_name():
         return f"Error: {agent} is already the active agent."
+    if HANDOFFS >= MAX_HANDOFFS:
+        return f"Error: {HANDOFFS} handoffs this turn already (MAX_HANDOFFS={MAX_HANDOFFS}); answer the user yourself."
     allowed = targets()
     if agent not in allowed:
         if definition(agent) is None and agent != MAIN:
@@ -162,7 +180,7 @@ def switch(messages, name=None, reason=None):
     happens when there is none. A name that is not a definition, and is
     not `main`, is refused with a note.
     """
-    global PENDING, LAST_REASON
+    global PENDING, LAST_REASON, HANDOFFS
     from . import session
     from .ui import ui
 
@@ -177,6 +195,7 @@ def switch(messages, name=None, reason=None):
         return None
     previous = active_name()
     apply(name, messages)
+    HANDOFFS += 1
     session.handoff(name)
     ui.handoff(previous, name, reason)
     return name
@@ -184,7 +203,8 @@ def switch(messages, name=None, reason=None):
 
 def reset():
     """Back to the default agent, with nothing pending. Used at session start and by tests."""
-    global ACTIVE, PENDING, LAST_REASON
+    global ACTIVE, PENDING, LAST_REASON, HANDOFFS
     ACTIVE = None
     PENDING = None
     LAST_REASON = ""
+    HANDOFFS = 0

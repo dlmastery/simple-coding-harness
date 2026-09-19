@@ -4,12 +4,14 @@
 from . import compact as compaction
 from . import sandbox
 from . import session
+from . import todos
 from .ui import ui
 
 COMMANDS = {
     "/rewind": "jump back to an earlier point in this chat",
     "/sessions": "open a past chat",
     "/compact": "summarise the history so far and free up the context window",
+    "/exit": "leave (ctrl-d, or ctrl-z then enter on Windows, does the same)",
 }
 
 
@@ -25,16 +27,20 @@ def redraw(messages, label):
     ui.banner(sandbox.name())
     ui.resumed(messages, label)
     ui.replay(messages)
+    todos.restore(messages)  # the plan belongs to the transcript now on screen
     return messages
 
 
 def rewind(messages):
-    rows = [f"{m['role']:<9} {preview(m)}" for m in messages]
-    choice = ui.pick("rewind to", rows)
+    """Cut the chat back to just before a user message - never between a call and its result."""
+    session.save(messages)  # a fresh chat has no file yet; the rewind entry needs one
+    rows = [(i, m) for i, m in enumerate(messages) if m["role"] == "user"]
+    choice = ui.pick("rewind to before", [f"{i:<3} {preview(m)}" for i, m in rows])
     if choice is None:
         return messages
-    session.rewind_to(choice + 1)
-    return redraw(messages[: choice + 1], "rewound")
+    cut = rows[choice][0]
+    session.rewind_to(cut)
+    return redraw(messages[:cut], "rewound")
 
 
 def sessions(messages):

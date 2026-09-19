@@ -104,7 +104,7 @@ class UI:
     def tool(self, name, args, result, nested=False):
         if name == "write_todos" and args.get("todos"):
             return self.todos(args["todos"])
-        if name == "render_ui" and not validate(args.get("spec")):
+        if name == "render_ui" and result.startswith("Rendered "):  # drawn only when the tool ran: a denied or failed call is a panel, not a picture
             return self.render(args["spec"])
         header = Text.assemble((f"{name} ", f"bold {TOOL}"), (self._format_args(args), MUTED))
         self.console.print(
@@ -158,7 +158,7 @@ class UI:
             for column in props["columns"]:
                 table.add_column(str(column))
             for row in props["rows"]:
-                table.add_row(*[str(cell) for cell in row])
+                table.add_row(*[str(cell) for cell in (row if isinstance(row, list) else [row])])
             return table
         if kind == "Chart":
             return self._chart(props)

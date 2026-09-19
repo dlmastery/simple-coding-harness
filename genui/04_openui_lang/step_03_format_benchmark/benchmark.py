@@ -39,12 +39,20 @@ REPORT = {
     "e-commerce-product": {"yaml": 2145, "jsonl": 2449, "c1": 2381, "oui": 1166},
 }
 
-ENCODING = tiktoken.get_encoding("o200k_base")
 CATALOG = load_catalog(HERE / "samples" / "schema.json")
+_encoding = None
+
+
+def encoding():
+    """o200k_base, loaded on first use: tiktoken downloads the vocabulary once and caches it."""
+    global _encoding
+    if _encoding is None:
+        _encoding = tiktoken.get_encoding("o200k_base")
+    return _encoding
 
 
 def count(text: str) -> int:
-    return len(ENCODING.encode(text))
+    return len(encoding().encode(text))
 
 
 def projections(oui: str) -> dict[str, str]:
@@ -145,4 +153,7 @@ def print_report_files() -> None:
 
 
 if __name__ == "__main__":
-    run(write="--write" in sys.argv)
+    try:
+        run(write="--write" in sys.argv)
+    except Exception as error:  # noqa: BLE001 - a missing vocabulary (offline) or a bad sample: one line, no traceback
+        sys.exit(f"benchmark failed: {type(error).__name__}: {error}")
