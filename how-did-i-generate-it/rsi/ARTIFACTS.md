@@ -29,6 +29,8 @@ Earlier planning drafts were overwritten before the first Git checkpoint and are
 
 ## Implementation artifacts
 
+The [clean journey](validation/CLEAN-JOURNEY-RESULTS.md) retains a fresh-clone protocol, authored drivers, generated learner artifacts, command logs, negative outcomes, charts, progress records, and a budget-persistence repair. Its coverage table distinguishes mechanism execution from full learner validation.
+
 The [cross-platform record](validation/CROSS-PLATFORM-CHECKS.md) separates the dedicated RSI checks from repository-wide failures. The workflow and its eventual run links preserve the scope of each compatibility claim.
 
 The [organization/emergence walkthrough](../../rsi/evidence/2026-09-20/organization-and-emergence/README.md) retains eight synthetic runs, their protocol, input tables, event CSVs, metrics, interpretation review, and source hash. Its [driver](scripts/run-organization-walkthrough.py) is agent-written; students use the lesson prompts. The [validation note](validation/SELF-STAR-WALKTHROUGH-CHECKS.md) identifies what was exercised.

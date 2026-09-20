@@ -12,6 +12,7 @@ import io
 import json
 import os
 import platform
+import re
 import sys
 import time
 from contextlib import contextmanager
@@ -153,12 +154,42 @@ def workspace_lock(workspace: Path):
 def check_contract(workspace: Path, task: str) -> None:
     path = workspace / "CONTRACT.md"
     expected = contract_text(task)
+    if path.exists():
+        verify_contract_record(workspace)
     if path.exists() and path.read_text(encoding="utf-8") != expected:
         raise Refusal("Frozen contract differs from this tool/task. Keep this workspace; start a new one.")
     if not path.exists():
         write(path, expected)
+        write(workspace / "CONTRACT.sha256", hashlib.sha256(expected.encode("utf-8")).hexdigest() + "\n")
     if (workspace / "FINAL-LOCK.md").exists():
         raise Refusal("Final evaluation already started. This workspace is closed to further selection.")
+
+
+def verify_contract_record(workspace: Path) -> str:
+    text = (workspace / "CONTRACT.md").read_text(encoding="utf-8")
+    checksum = workspace / "CONTRACT.sha256"
+    if not checksum.exists() or checksum.read_text(encoding="utf-8").strip() != hashlib.sha256(text.encode("utf-8")).hexdigest():
+        raise Refusal("Frozen contract integrity check failed. Preserve this workspace; do not repair the checksum to continue.")
+    return text
+
+
+def configure_attempt_limit(workspace: Path, requested: int | None = None) -> None:
+    """Recover the same lesson budget in each CLI process; do not reset on resume."""
+    global MAX_ATTEMPTS
+    if requested is not None and not 1 <= requested <= 12:
+        raise Refusal("Attempt limit must be between 1 and the shared ceiling of 12.")
+    path = workspace / "CONTRACT.md"
+    if path.exists():
+        text = verify_contract_record(workspace)
+        values = re.findall(r"^- max_attempts: (\d+)$", text, re.MULTILINE)
+        if len(values) != 1 or not 1 <= int(values[0]) <= 12:
+            raise Refusal("Invalid attempt limit in the frozen contract.")
+        recorded = int(values[0])
+        if requested is not None and requested != recorded:
+            raise Refusal("Frozen attempt limit cannot change on resume. Use a new experiment.")
+        MAX_ATTEMPTS = recorded
+    elif requested is not None:
+        MAX_ATTEMPTS = requested
 
 
 def records(workspace: Path) -> list[dict]:
@@ -363,6 +394,7 @@ def main(argv=None) -> int:
         if name in ("inspect", "run"):
             command.add_argument("--task", choices=DATA, default="bike")
         if name == "run":
+            command.add_argument("--attempt-limit", type=int, help="Freeze a lesson limit on the first run; later processes recover it.")
             command.add_argument("--model", default="constant")
             command.add_argument("--features", default="all")
             command.add_argument("--seed", type=int, default=17)
@@ -375,6 +407,8 @@ def main(argv=None) -> int:
     domain.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if args.command in ("run", "compare", "final"):
+            configure_attempt_limit(args.workspace, getattr(args, "attempt_limit", None))
         if args.command == "inspect":
             args.workspace.mkdir(parents=True, exist_ok=True)
             print(inspect_data(args.task, args.workspace))

@@ -42,4 +42,6 @@ The dedicated RSI workflow later passed on Linux, macOS, and Windows with clean 
 
 ## Organization and emergence
 
+The later [clean-workspace journey](clean-journey/README.md) starts from a fresh clone and environment and links actual artifacts across task framing, fixed processes, skills, loops, graphs, domain meaning, and a fixed system. It found and prompted a repair to lesson-budget persistence. It remains an author walkthrough with explicit gaps, not all 101 completed student activities.
+
 The [synthetic scheduling walkthrough](organization-and-emergence/README.md) executes eight cases for labs 07.05 and 07.06, including their optional counterexamples. Dynamic dispatch can help or hurt under different overhead assumptions. Grouping similar jobs can reduce total completion time while increasing lateness. The randomized-history control retains much of the grouping, which limits the causal claim about accurate memory. Read [the interpretation review](organization-and-emergence/REVIEW.md). All durations are invented simulation inputs; no model or agent worker is trained.

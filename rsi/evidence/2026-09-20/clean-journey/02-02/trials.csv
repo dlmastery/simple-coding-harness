@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.119043,not supplied,Test constant with calendar under the unchanged bike task.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.100767,not supplied,Test linear with calendar under the unchanged bike task.
+trial-003,ok,bike,tree,calendar,17,125.04948805895863,0.133419,not supplied,Test tree with calendar under the unchanged bike task.

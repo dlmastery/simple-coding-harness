@@ -1,0 +1,6 @@
+flowchart TD
+  frame["Frame task"] -->|TASK.md| inspect["Inspect data"]
+  inspect -->|DATA-REPORT.md| split["Check partitions"]
+  split -->|row identities| fit["Fit recipe"]
+  fit -->|predictions.csv| check["Recompute MAE"]
+  check -->|CHECK.md| report["Write report"]

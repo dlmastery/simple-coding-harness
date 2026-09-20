@@ -127,3 +127,11 @@ Rechecked the revised overview on published GitHub in dark mode and the first le
 Ran eight small scheduling simulations for labs 07.05 and 07.06. Retained every input and event trace. The examples show dynamic dispatch losing under extra overhead and clustered work increasing urgent-job lateness. The randomized-history control still clustered, so the interpretation explicitly avoids claiming that accurate memory uniquely caused the pattern.
 
 A focused, month-filtered search supported a self-play terminology correction. Read selected SQL-Zero methods, comparison details, and limitations. Labelled the existing proposer–critic activity as an interaction analogy without training. Updated its diagram, quiz, glossary entry, and the reusable skill's RSI preset. The source inventory now has 27 papers and five reports; three other returned titles remain unreviewed leads. No additional paper reproduction or native agent execution is claimed.
+
+## 20 September: follow the main path from a clean workspace
+
+Checkpoint `75e998848730c268849f67514e249a186bad86da` was pushed and verified; its dedicated three-platform CI passed. The user approved the next execution pass. Cloned that checkpoint from GitHub into a new directory and installed a fresh environment. Read the student entry and skills. Recorded the route and its same-context limitations before execution.
+
+Ran the foundation and structure stages: 17 total ML fits, 38 foundation child commands, and 25 graph/domain checks. Saved every result, expected refusal, input copy, source hash, and process-restart checkpoint. Copied 257 generated files into evidence and verified every copy. Inspected the rendered data chart and labelled dependency graph.
+
+The pass found a misleading shared budget display. Added persistent lesson limits and a contract checksum to the shared runner, with a subprocess regression test. Sixteen tests passed. The original journey clone stays fixed so its existing contracts remain valid. The next stage is generated harnesses, followed by a bounded old/new improver comparison; learner participation and independent contexts remain untested.

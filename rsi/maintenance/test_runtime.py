@@ -1,6 +1,7 @@
 """Behavioral checks for the small public teaching runtime."""
 import importlib.util
 import sys
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -73,7 +74,7 @@ def test_final_refits_selected_recipe_and_closes_search(tmp_path):
 
 
 def test_interrupted_attempt_is_not_silently_resumed(tmp_path):
-    lab.write(tmp_path / "CONTRACT.md", lab.contract_text("bike"))
+    lab.check_contract(tmp_path, "bike")
     row = dict.fromkeys(lab.FIELDS, "")
     row.update(candidate="trial-001", status="running", seconds=0)
     lab.save_records(tmp_path, [row])
@@ -94,3 +95,27 @@ def test_workspace_lock_blocks_concurrent_writers(tmp_path):
             with lab.workspace_lock(tmp_path):
                 pass
     assert not (tmp_path / ".running").exists()
+
+
+def test_lesson_budget_survives_new_cli_processes(tmp_path):
+    def invoke(*arguments):
+        return subprocess.run([sys.executable, str(TOOLS), *map(str, arguments)],
+                              capture_output=True, text=True, timeout=60)
+
+    first = invoke("run", "--workspace", tmp_path, "--attempt-limit", 1,
+                   "--model", "constant", "--hypothesis", "One-fit lesson")
+    assert first.returncode == 0, first.stderr
+    compared = invoke("compare", "--workspace", tmp_path)
+    assert compared.returncode == 0, compared.stderr
+    assert "Attempts: 1 / 1" in (tmp_path / "COMPARISON.md").read_text(encoding="utf-8")
+    exhausted = invoke("run", "--workspace", tmp_path, "--model", "linear",
+                       "--hypothesis", "Attempt after restart")
+    assert exhausted.returncode == 2 and "budget exhausted" in exhausted.stderr
+    changed = invoke("run", "--workspace", tmp_path, "--attempt-limit", 2,
+                     "--hypothesis", "Try to increase the budget")
+    assert changed.returncode == 2 and "cannot change" in changed.stderr
+    assert len(lab.records(tmp_path)) == 1
+    contract = tmp_path / "CONTRACT.md"
+    contract.write_text(contract.read_text(encoding="utf-8").replace("max_attempts: 1", "max_attempts: 12"), encoding="utf-8")
+    modified = invoke("compare", "--workspace", tmp_path)
+    assert modified.returncode == 2 and "integrity" in modified.stderr

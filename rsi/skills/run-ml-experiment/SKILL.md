@@ -9,7 +9,7 @@ Read the task data card, current lesson, [tool notes](../../tools/README.md), an
 
 Write a one-sentence hypothesis. Name the one intentional difference from the comparison candidate. Use the supplied tool for standard models. Generate additional code only when the lesson needs it; keep that code and its contract in the learner workspace. Do not edit the shared evaluator to improve a score.
 
-Use project-local Python. Invoke one `run` operation with explicit task, model, features, seed, hypothesis, and absolute workspace. If following a retained skill, read it first and pass its path for a snapshot. Record in `DECISION.md` which instruction caused which choice. A snapshot alone proves only which file was recorded.
+Use project-local Python. Invoke one `run` operation with explicit task, model, features, seed, hypothesis, and absolute workspace. On the first fit, pass the lesson's total workspace budget through `--attempt-limit`. Later processes recover that frozen limit; do not increase it on resume. If following a retained skill, read it first and pass its path for a snapshot. Record in `DECISION.md` which instruction caused which choice. A snapshot alone proves only which file was recorded.
 
 Apply a 60-second command timeout. If interrupted, inspect the process and preserve the attempt. Never run concurrent writes into one workspace. Never delete failed trials or refund their costs. Limit this skill invocation to one candidate unless the learner explicitly requests the lab's bounded loop.
 
