@@ -4,3 +4,5 @@ run,linear,calendar,1,2,0,0.192325,Checked trial-002; score 109.807668.
 run,tree,calendar,2,3,0,0.178342,Checked trial-003; score 125.049488.
 run,forest,calendar,3,3,1,0.001966,REFUSED: Attempt budget exhausted. Keep the evidence and stop.
 compare,constant,calendar,3,3,0,0.086063,Selected trial-002.
+final,constant,calendar,3,3,0,0.162131,Final score 120.448340.
+run,forest,calendar,3,3,1,0.001839,REFUSED: Final evaluation already started. This workspace is closed to further selection.

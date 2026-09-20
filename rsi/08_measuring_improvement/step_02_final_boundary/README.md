@@ -16,6 +16,8 @@ Complete [08.01: Distinguish a result from a reliable comparison](../step_01_rep
 
 Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/08-02</code> and reports its absolute path. It checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
 
+Use 08-02 for the selection decision and lesson notes. Run final evaluation in the original experiment workspace, where its contract and candidate ledger already exist. Do not create a replacement experiment or reset its attempts.
+
 **Starting state:** A completed selection ledger and one preselected candidate. Use its original workspace.
 
 **Budget:** One final evaluation; no subsequent selection in that workspace. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.

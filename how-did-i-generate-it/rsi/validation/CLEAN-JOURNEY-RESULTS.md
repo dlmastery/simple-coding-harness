@@ -29,4 +29,28 @@ The comparison output used the shared twelve-attempt ceiling even for a three-at
 
 A meaningful regression test starts a one-attempt experiment, compares it in another process, tries another fit, tries a higher limit, and alters the recorded budget. It checks the correct displayed limit and each refusal. The complete local suite passed **16 tests in 17.05 seconds**; the publication check had no issues. These checks use the revised authoring source, separate from the unmodified journey clone. Older contracts continue only with their original tool version.
 
-Next: generate complete task-specific harness packages from the prose briefs, execute their refusals and classification adaptation, then perform the bounded improver comparison and final claim audit.
+## Generated harnesses
+
+Executed the principal package-building activities of 06.01–06.06. The [driver](../scripts/run-clean-journey-harnesses.py) retains both prose briefs, the unchanged builder identity, generated packages, task-specific constraints, workflows, recovery instructions, dependency requirements, acceptance descriptions, and provenance. The packages import the pinned shared tool; they are not standalone applications or autonomous builder revisions.
+
+Fourteen child commands produced five model fits: one bike baseline, two wine fits, and one recreated baseline per task. A leaked-feature request failed before fitting and consumed the second bike attempt. Wrong-task, exhausted-budget, and nonexistent-candidate requests were refused. No final evaluation started in these packages. Recreated baseline prediction bytes match the original package runs. This recreates saved generated code in fresh output state; it does not independently regenerate a harness from prose in another agent.
+
+## Matched improvers
+
+The separate [protocol](MATCHED-IMPROVER-PROTOCOL.md) was written before synthetic data generation or fitting. The [driver](../scripts/run-matched-improver.py) executes a fixed tree proposal under two versioned promotion rules. A labelled numerical fixture motivates the author-guided revision. Both later arms read their exact retained version and receive identical data and task-skill candidates.
+
+Eight fits and nine child commands completed. Both arms' matched candidates have identical training and selection prediction bytes. On regression, the training-based rule promotes an overfit tree, changing final MAE from 22.739166 to 81.471065. The revised selection-based rule retains the parent and prevents that loss. On classification, both retain the tree, changing final balanced accuracy from 0.87 to 0.92. Four promotion decisions were saved and hashed before final scoring; no final refit occurred. Predictions, locally serialized models, costs, rejected edits, and command outputs remain in the [comparison](../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md).
+
+This executes the bounded comparison in 09.05 and illustrates the object, revision, inheritance, and claim distinctions in 09.01, 09.03, 09.04, and 09.07. It does not execute the sequential generations of 09.02 or 09.06. The author wrote both procedures and their interpreter; no autonomous procedure invention, independent contexts, or full research-cost equivalence is claimed. Two constructed cases and a weak control do not establish general effectiveness. The [claim audit](../../../rsi/evidence/2026-09-20/clean-journey/09-05/CLAIM-AUDIT.md) gives the counterexample and next useful test.
+
+## Final boundary and publication
+
+The [final-stage driver](../scripts/finish-clean-journey.py) selects trial-002 solely by the preserved minimum-MAE rule, records the choice, and evaluates that frozen bike recipe in its original 02.05 workspace. One final refit gives MAE 120.448340218. All 4,376 final row identities and targets match the source; MAE recomputes directly. A distinct forest request is refused by the final lock, and the original selection ledger remains unchanged. This exercises 08.02. The author had seen this public task's final score in an earlier walkthrough; this is an explicitly labelled replay, not a new blind evaluation.
+
+The selected route totals 30 selection fits plus one final bike refit. All 446 source-workspace files were copied and hash-checked. The [manifest](../../../rsi/evidence/2026-09-20/clean-journey/COPY-MANIFEST.csv) records pre-Git bytes; text line endings may normalize in Git. The [measured-outcome chart](../../../rsi/evidence/2026-09-20/clean-journey/09-05/retained-outcomes.png) was rendered with Matplotlib and visually inspected. It is a data plot, not an Imagen illustration.
+
+Added the measured promotion example to 09.05. Clarified 08.02: new lesson notes belong in 08-02, while final evaluation uses the existing experiment workspace and contract. Runtime code remains the previously tested budget repair. The dedicated RSI workflow at that repair commit also passed on all three operating systems: [e22f63c run](https://github.com/dlmastery/simple-coding-harness/actions/runs/35509649859).
+
+Remaining: activities outside this selected route, repeated recursive generations, remaining deep source reviews, requested Imagen illustrations, native other-agent and larger-backend tests, and actual learner assessment. The selected author route is complete; the whole masterclass has not passed all acceptance checks.
+
+Publication review found one relative link in the unchanged copied comparison protocol. Added a byte-identical copy of its referenced journey protocol beside it; this is an extra publication input, not one of the 446 generated workspace files. The next check passed: 101 lessons, 1,692 local links, zero publication problems. Snippet discovery found all 101 lessons and zero runnable student code blocks. Only two generated lesson READMEs changed, as intended. The measured-outcome chart is legible and its values match the retained CSV; no uncertainty bars are invented from a single split.

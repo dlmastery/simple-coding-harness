@@ -1,0 +1,2 @@
+action,model,features,attempts_before,attempts_after,exit_status,command_seconds,outcome
+run,constant,all,0,1,0,0.13685,Checked trial-001; score 0.500000.

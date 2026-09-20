@@ -24,6 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The outcome is the improvement each procedure produces from the same starting solver under comparable resources. Compare retained descendants, not the most attractive intermediate score. Use fresh contexts where available and state contamination if both procedures share one context. A small experiment can remain inconclusive.
 
+**A concrete example.** The saved [eight-fit comparison](../../evidence/2026-09-20/clean-journey/09-05/README.md) uses two synthetic tasks. A training-based promotion rule retains an overfit regression tree and raises final MAE from 22.74 to 81.47. A revised selection-based rule keeps the parent, so its gain is zero and it avoids the loss. Both rules retain a useful classification edit, raising final balanced accuracy from 0.87 to 0.92. The candidates and fit allowances match. The author prepared both procedures in one context; these two constructed cases do not establish a general improver advantage.
 
 
 ![Compare the improvements produced by the two improvers from matched starts. Do not compare only their instruction text.](../../assets/diagrams/lab-09-05.png)

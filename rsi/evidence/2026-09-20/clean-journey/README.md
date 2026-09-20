@@ -1,6 +1,6 @@
 # Clean-workspace course walkthrough
 
-The authoring agent cloned checkpoint `75e9988` from GitHub, installed the documented dependencies in a new environment, and worked in a separate sibling directory. These files are the actual outputs, copied into the course for review. All 257 copied files matched their original bytes before this index was added. Git may normalize text line endings; numerical content and source identity remain recorded.
+The authoring agent cloned checkpoint `75e9988` from GitHub, installed the documented dependencies in a new environment, and worked in a separate sibling directory. These files are the actual outputs, copied into the course for review. The first checkpoint preserved 257 files. The completed selected route preserves 446 source-workspace files; every copy matched its original bytes. The [copy manifest](COPY-MANIFEST.csv) records original file identities. Git may normalize text line endings; numerical content and source identity remain recorded.
 
 This is a selected author walkthrough. It is not a completed run of all 101 labs or a study with students. New Python processes do not create independent agent contexts. Prediction, quiz, and teach-back checkpoints were not attempted by a learner.
 
@@ -16,8 +16,11 @@ This is a selected author walkthrough. It is not a completed run of all 101 labs
 | Bounded loop and resume | [Checkpoint](02-05/CHECKPOINT-1.md), [requests](02-05/requests.csv), [comparison](02-05/COMPARISON.md) | Three attempts survived restart; fourth request refused |
 | Graph and domain | [Checks](STRUCTURE-CHECKS.md), [repair trace](03-04/ineffective/TRACE.md), [recovery](03-05/RECOVERY.md) | 25 expected checks matched; no extra fit for report repair |
 | Fixed system | [Invocation](05-01/EXECUTION.md), [leakage refusal](05-01/LEAKAGE-REFUSAL.md) | One checked baseline; leaked fixture stopped before fitting |
+| Generated harnesses | [Bike package](06-02/package/README.md), [wine package](06-05/package/README.md), [execution](HARNESS-EXECUTION.md) | Five fits; leakage, task, identity, and budget refusals; recreated baselines match |
+| Matched improvers | [Comparison](09-05/README.md), [protocol](09-05/PROTOCOL.md), [claim audit](09-05/CLAIM-AUDIT.md) | Eight fits on two synthetic tasks; one changed promotion decision |
+| Final evaluation | [Frozen choice](08-02/SELECTION-DECISION.md), [check](08-02/CHECK.md), [refusal](08-02/post-final-request.md) | Bike final MAE 120.448340; 4,376 row/target checks; further selection refused |
 
-The foundation stage ran 16 model fits and 38 child commands. The graph/domain stage added one baseline fit. No final evaluation has run in this journey yet. [Command logs](COMMANDS.md) retain expected failures and wall time; candidate ledgers separately retain fit time. Hosted-agent cost remains unknown.
+The foundation stage ran 16 model fits and 38 child commands. The graph/domain stage added one baseline fit. Generated harnesses added five fits and 14 child commands. The matched comparison added eight fits and nine child commands; its final scores use existing fitted models. The bike final check added one refit and two child commands. The route therefore ran 31 fits in total. [Foundation command logs](COMMANDS.md) and the later stage logs retain expected failures and wall time; candidate ledgers separately retain fit time. Hosted-agent cost remains unknown.
 
 ![An executed dependency plan, with the required artifact named on each arrow](03-01/workflow.png)
 
@@ -29,4 +32,4 @@ The old shared comparison report displayed a twelve-attempt ceiling even when th
 
 Several progress notes were missing from the first driver output. They were added during artifact review and explicitly labelled as reconciled notes rather than contemporaneous checkpoints. The actual resume checkpoint was saved before its later fits. The typed availability examples are synthetic; the source bike table has no archived forecast issue times.
 
-The route has not yet completed generated-harness or improver-comparison stages. Lab-by-lab coverage and remaining omissions are tracked in [the validation record](../../../../how-did-i-generate-it/rsi/validation/CLEAN-JOURNEY-RESULTS.md).
+The generated-harness and bounded improver stages are now executed. The matched comparison uses constructed synthetic tasks, a deliberately weak control, fixed proposals, and author-guided procedure revisions. It does not establish autonomous RSI or a general improver advantage. The bike final check repeats a public task whose earlier final outcome was already known to the author. No new blind evaluation is claimed. Lab-by-lab coverage and remaining omissions are tracked in [the validation record](../../../../how-did-i-generate-it/rsi/validation/CLEAN-JOURNEY-RESULTS.md).

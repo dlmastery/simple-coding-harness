@@ -66,3 +66,9 @@ All three jobs subsequently passed at `eceeeab`. Retained the actual patch versi
 Executed eight synthetic scheduling cases for organization and emergence. Preserved the input tables, protocol, complete event traces, results, driver hash, and interpretation review. Accurate local history was not uniquely necessary for grouping in this fixture: randomized history retained much of the pattern. The course now explains that limit alongside the throughput/lateness tradeoff.
 
 Corrected the self-play lesson's scope. Its bounded role exchange illustrates interaction and checking; it does not execute a learning update. Selected primary methods and limitations from SQL-Zero supply a recent contrast. Updated the glossary, diagram, quiz, and reusable RSI preset. Full source-system reproduction remains outside the claim.
+
+## Complete selected author route
+
+The fresh-clone walkthrough now reaches generated regression/classification harnesses, a bounded matched improver comparison, and final evaluation. Its 31 fits and 446 copied artifacts include rejected changes and actual refusal paths. Read [the coverage and limits](validation/CLEAN-JOURNEY-RESULTS.md). The revised shared budget tool passes 16 tests and the three-platform workflow; the old journey clone remains fixed for its existing contracts.
+
+The matched comparison is author-guided, with fixed proposals and a deliberately weak teaching control. It supports an executed change in a later promotion decision, not autonomous improver discovery or general recursive acceleration. Remaining work is listed in the steering record; the course is not yet fully accepted.

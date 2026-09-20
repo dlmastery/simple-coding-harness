@@ -135,3 +135,13 @@ Checkpoint `75e998848730c268849f67514e249a186bad86da` was pushed and verified; i
 Ran the foundation and structure stages: 17 total ML fits, 38 foundation child commands, and 25 graph/domain checks. Saved every result, expected refusal, input copy, source hash, and process-restart checkpoint. Copied 257 generated files into evidence and verified every copy. Inspected the rendered data chart and labelled dependency graph.
 
 The pass found a misleading shared budget display. Added persistent lesson limits and a contract checksum to the shared runner, with a subprocess regression test. Sixteen tests passed. The original journey clone stays fixed so its existing contracts remain valid. The next stage is generated harnesses, followed by a bounded old/new improver comparison; learner participation and independent contexts remain untested.
+
+## 20 September: complete the selected author route
+
+Pushed and verified `e22f63c6122956829bd7f7fc150b331480c65ac8`. Its dedicated RSI workflow passed on Linux, macOS, and Windows. Generated and executed separate bike and wine harness packages from readable briefs. Fourteen child commands covered five fits and the actual leakage, wrong-task, candidate-identity, and budget refusals. Recreated baseline prediction bytes matched.
+
+Recorded a comparison protocol before generating two synthetic ML tasks. Both improvers received the same parent, fixed child proposal, task data, and two fits per case. The revised rule reads selection scores instead of training scores when promoting a task-skill edit. Eight fits completed. The revised gate rejected an overfit regression tree; both gates retained a useful classification tree. Saved all four decisions before final scoring. Retained exact procedures, data, models, predictions, costs, rejected edits, and command logs. This is a constructed same-context teaching comparison, not autonomous RSI or a general performance claim.
+
+Completed the frozen bike final evaluation and checked all 4,376 prediction identities and targets. A post-final fit was refused. The author already knew the public task's earlier final outcome, which is disclosed. The selected route totals 31 fits, including the final refit. Copied and hash-checked all 446 learner-workspace files. Rendered and inspected the measured-result chart. Added its concrete teaching example to 09.05 and clarified the existing-workspace requirement in 08.02.
+
+The selected route is complete. Full 101-lab activity execution, repeated recursive generations, deeper outstanding paper reviews, requested raster illustrations, native agent/backend checks, and actual student validation remain open. Keep these distinct from the completed runtime and publication checks.

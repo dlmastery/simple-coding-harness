@@ -1,0 +1,5 @@
+task,improver,retained,parent_final,retained_final,final_gain,fits
+regression,v0,child,22.73916575556405,81.47106459568288,-58.73189884011883,2
+regression,v1,parent,22.73916575556405,22.73916575556405,0.0,2
+classification,v1,child,0.87,0.92,0.050000000000000044,2
+classification,v0,child,0.87,0.92,0.050000000000000044,2

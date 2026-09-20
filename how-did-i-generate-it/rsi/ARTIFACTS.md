@@ -31,6 +31,8 @@ Earlier planning drafts were overwritten before the first Git checkpoint and are
 
 The [clean journey](validation/CLEAN-JOURNEY-RESULTS.md) retains a fresh-clone protocol, authored drivers, generated learner artifacts, command logs, negative outcomes, charts, progress records, and a budget-persistence repair. Its coverage table distinguishes mechanism execution from full learner validation.
 
+Its later stages include [generated-harness execution](scripts/run-clean-journey-harnesses.py), the prespecified [matched comparison](validation/MATCHED-IMPROVER-PROTOCOL.md), the [comparison driver](scripts/run-matched-improver.py), the [final-stage driver](scripts/finish-clean-journey.py), and the [measured-result plotting source](scripts/plot-matched-improver.py). All 446 copied source artifacts have a [manifest](../../rsi/evidence/2026-09-20/clean-journey/COPY-MANIFEST.csv). Locally generated serialized models are retained alongside portable prediction CSVs; environment versions are recorded.
+
 The [cross-platform record](validation/CROSS-PLATFORM-CHECKS.md) separates the dedicated RSI checks from repository-wide failures. The workflow and its eventual run links preserve the scope of each compatibility claim.
 
 The [organization/emergence walkthrough](../../rsi/evidence/2026-09-20/organization-and-emergence/README.md) retains eight synthetic runs, their protocol, input tables, event CSVs, metrics, interpretation review, and source hash. Its [driver](scripts/run-organization-walkthrough.py) is agent-written; students use the lesson prompts. The [validation note](validation/SELF-STAR-WALKTHROUGH-CHECKS.md) identifies what was exercised.

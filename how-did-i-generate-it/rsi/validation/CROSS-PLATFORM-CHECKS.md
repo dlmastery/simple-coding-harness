@@ -31,3 +31,5 @@ Retained selected job logs: [Linux](ci-eceeeab-linux.txt), [macOS](ci-eceeeab-ma
 Before pushing, the local equivalent passed: 15 tests, 101 lessons, 1,599 local targets, no publication problems, and a clean generated-page diff. Snippet discovery found all 101 labs and no runnable student code blocks; it is not evidence of 101 executed activities.
 
 A passing matrix establishes the checked runtime and publishing behavior on those hosted runners. It does not establish student learning, execution of all 101 prompts, native support for another coding agent, a measured minimum laptop specification, or GPU/cluster support.
+
+The later budget-persistence repair at `e22f63c6122956829bd7f7fc150b331480c65ac8` also passed all three jobs in [run 35509649859](https://github.com/dlmastery/simple-coding-harness/actions/runs/35509649859). Its suite contains 16 tests. Linux, Windows, and macOS jobs completed in 34, 77, and 40 seconds respectively. These are whole-job times, not model-fit measurements. Existing action-runtime deprecation annotations did not fail the jobs; the workflow still has the same scoped compatibility boundary.
