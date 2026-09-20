@@ -36,12 +36,7 @@ You do not need to type Python, JSON, YAML, or scheduler syntax. The implementat
 
 ## Follow one learning path
 
-```mermaid
-%%{init: {"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef5fb","primaryTextColor":"#172b3a","primaryBorderColor":"#45667d","lineColor":"#45667d","fontFamily":"Arial"}}}%%
-flowchart TD
-A["00–04: Make one experiment trustworthy<br/>Process, loops, routes, meaning"] --> B["05–08: Build and evaluate the research system<br/>Components, generators, self-* mechanisms, evidence"]
-B --> C["09–11: Test inherited improvement<br/>Bounded RSI, recent research, independent capstones"]
-```
+![Three stages: make one experiment trustworthy, build and evaluate the research system, then test inherited improvement](assets/course-overview.png)
 
 *The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-* systems follow one universal ladder.*
 

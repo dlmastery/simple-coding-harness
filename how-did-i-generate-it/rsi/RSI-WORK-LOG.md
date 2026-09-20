@@ -107,3 +107,7 @@ Exported the pushed source and ran its 15 tests. Then created a fresh Python env
 Authored 101 technical diagrams, rendered all, inspected representative images, and revised wide layouts. Retained both galleries and their rendered outputs. Added worked examples at important conceptual transitions and corrected the general median explanation. Prepared ten detailed raster illustration prompts; the named Imagen generator remains unavailable through the exposed selector. Technical schematics are an explicit companion, not a claimed provider substitution.
 
 Updated the reusable authoring skill with lessons on concrete compute handoffs, accurate activity types, and diagram validation. The canonical package remains in the repository; its local installed copy is synchronized only after checking for divergence.
+
+## 20 September: check the published reading experience
+
+Pushed `fef74315d8de205be050a527dc1b04e8dfe5ba0e` and verified the remote hash. Inspected actual GitHub pages, including a diagram, the course map, and an explained-answer disclosure. The quiz disclosure worked. A narrow viewport exposed a too-wide introductory diagram; GitHub dark mode exposed a nonwhite live-Mermaid canvas in the overview. Retained a third first-lab diagram revision and rendered the overview as a static white image. The [visual record](visuals/REVIEW.md) states the exact scope and screenshot-retention limit.

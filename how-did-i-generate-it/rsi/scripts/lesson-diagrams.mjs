@@ -2,9 +2,9 @@
 // Arrows describe the relation stated in each caption, not measured causal effects.
 const D=(caption,body)=>({caption,body});
 export const diagrams={
-'00.01':D('Predict the hourly total from allowed inputs. The two component counts already contain the answer.',`A["Calendar and observed weather"] --> B["Predict hourly rentals"]
-C["casual + registered"] --> D["Actual cnt: outcome"]
-B --> E["Compare with outcome"]
+'00.01':D('Predict the hourly total from allowed inputs. The two component counts already contain the answer.',`A["Calendar + weather"] --> B["Predicted rentals"]
+C["casual + registered"] --> D["Actual rentals"]
+B --> E["Compare"]
 D --> E`),
 '00.02':D('Keep course sources separate from your own work. A command must produce an inspectable artifact.',`A["Read course files"] --> B["Create learner workspace"]
 B --> C["Run one command"]
@@ -249,6 +249,6 @@ export function renderDiagram(id) {
   const d=diagrams[id];
   if (!d) throw new Error(`Missing technical schematic for lab ${id}`);
   const horizontal=new Set(['00.01','00.03','00.04','01.04','03.03','03.05','03.06','04.01','04.02','05.02','05.03','05.05','06.05','07.04','07.05','07.06','07.07','08.03','08.04','09.02','09.05','09.07','10.05','10.06','10.07','10.08','10.11','10.12','10.21','10.23','10.25','10.31','10.32','10.33','10.35','11.03']);
-  const direction=horizontal.has(id)?'LR':'TD';
+  const direction=id==='00.01'?'TD':horizontal.has(id)?'LR':'TD';
   return `\`\`\`mermaid\n%%{init: {"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef5fb","primaryTextColor":"#172b3a","primaryBorderColor":"#45667d","lineColor":"#45667d","secondaryColor":"#fff3d9","tertiaryColor":"#e9f6f0","fontFamily":"Arial"}}}%%\nflowchart ${direction}\n${d.body}\n\`\`\`\n\n*Read the diagram:* ${d.caption}`;
 }
