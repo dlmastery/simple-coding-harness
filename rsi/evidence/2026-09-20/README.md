@@ -1,5 +1,7 @@
 # Author execution evidence
 
+The [ScienceBuddy classroom sequence](sciencebuddy-laptop/README.md) adds executed rubric/reporting checks, a three-case numerical policy update, a paired-state simulation, a primary-source result audit, and larger-training planning. It reuses actual wine predictions without new fits. No LLM training or paper reproduction is claimed.
+
 The [two-generation bike run](two-generations/README.md) adds twelve fits under a predeclared protocol. Both paths retained a better task skill, but neither proposed improver revision was accepted. Proposal resumption, rejected ancestry, and generation-limit refusals were executed. This is a useful negative result for RSI claims, not evidence of successful improver replacement.
 
 The later [self-play run](self-play/README.md) adds 3,000 actual tabular training games and 1,000 frozen evaluation games, including all moves, updates, failures, and a measured plot. It demonstrates learning under a fixed trainer. The entries below preserve the earlier runs and their original scope; their counts are not a current cumulative total.

@@ -13,7 +13,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Completion ledger](COURSE-COMPLETION-LEDGER.md) | Full active goal, requirement evidence, and next work | Partial completion remains explicit |
 | [README guidance coverage](validation/README-GUIDANCE-COVERAGE.md) | Per-lab presence and publication checks for examples, outputs, recovery, and hints | Editorial support complete for 101 labs; not learner validation |
-| [Required activity coverage](validation/REQUIRED-ACTIVITY-COVERAGE.md) | Every lab's core actions, additional change, acceptance, evidence, and remaining gap | 43 related execution mappings; no automatic completed-lab count |
+| [Required activity coverage](validation/REQUIRED-ACTIVITY-COVERAGE.md) | Every lab's core actions, additional change, acceptance, evidence, and remaining gap | 48 related execution mappings; no automatic completed-lab count |
 | [Original course backups](backups/README.md) | Byte-verified original README and complete tracked RSI ZIP | Extracted from pre-rewrite commit `eed9cbb`; Git history preserved |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Primary sources and reading status | Broad sweep complete; deeper reviews remain |
 | [Search log](research/SEARCH-LOG.md) | Query bodies, dates, screening, and access gaps | Recorded from the broader sweep |
@@ -34,6 +34,8 @@ Raw external website dumps are not republished. Source links, dates, reading sta
 Earlier planning drafts were overwritten before the first Git checkpoint and are not recoverable as original files here. Their consequential changes are described in the work log. Do not mistake a reconstructed narrative for an archived draft. All subsequent meaningful revisions and intermediate artifacts must be checkpointed as they are produced.
 
 ## Implementation artifacts
+
+The [ScienceBuddy laptop pack](../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md) retains six report checks, three numerical-update cases, four invented pair evaluations, source-result arithmetic, a source audit, and additional conceptual and larger-training notes. Its [protocol](validation/SCIENCEBUDDY-LAPTOP-PROTOCOL.md) and [driver](scripts/run-sciencebuddy-laptop.py) were pushed before execution. The [plot source](scripts/plot-grouped-rewards.py) reads its actual numerical outputs. All 63 original workspace files were copied and hash-checked.
 
 The [two-generation run](../../rsi/evidence/2026-09-20/two-generations/README.md) retains twelve fits, two lineages, proposal/resume checkpoints, two third-generation refusals, ancestry diagnostics, and all 153 workspace files. Its [protocol](validation/TWO-GENERATION-PROTOCOL.md), [driver](scripts/run-two-generations.py), and [command wrapper](scripts/run-two-generation-journey.ps1) were pushed before execution. Both improver proposals were rejected; the negative outcome is retained without claiming a revised improver became active. The [plotting source](scripts/plot-two-generations.py) uses its actual CSV values.
 

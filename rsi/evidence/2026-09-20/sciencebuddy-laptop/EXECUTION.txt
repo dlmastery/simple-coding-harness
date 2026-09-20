@@ -1,0 +1,2 @@
+Three numerical cases completed; gradients checked.
+Completed six report checks, three numerical cases, four paired table evaluations, and source-result arithmetic.

@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy connects scientific interactions and artifacts to improvement work. Our fixture uses familiar classification evidence. A rubric turns the correction into checks: state the label threshold, report both class recalls, preserve predictions, and avoid claiming accuracy alone establishes quality. It is a teaching fixture, not a real scientist interaction.
 
-**A concrete example.** “Do not hide failures on rare high-quality wines” becomes a check for the positive-class recall and its supporting predictions. A report that says “minority performance was reviewed” supplies no value or evidence. The rubric should distinguish a verifiable result from a statement of compliance.
+**A concrete example.** In the [executed reporting exercise](../../../evidence/2026-09-20/sciencebuddy-laptop/README.md), the majority model has 87.15% ordinary accuracy but zero recall on high-quality wines. The logistic model has lower ordinary accuracy, 73.67%, but minority recall of 75.61%. A rubric that checks class-wise evidence exposes what the larger accuracy number hides. Removing minority recall from an otherwise complete report makes the check fail.
 
 ![A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.](../../../assets/diagrams/lab-10-22.png)
 

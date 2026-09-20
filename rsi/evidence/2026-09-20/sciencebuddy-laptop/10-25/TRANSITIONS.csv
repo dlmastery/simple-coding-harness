@@ -1,0 +1,5 @@
+step,operation,model,harness,invented_score
+0,initial pair,M0,H0,0.4
+1,harness selection,M0,H1,0.7
+2,model-update placeholder; no training,M1,H1,0.6
+3,harness re-selection,M1,H0,0.8

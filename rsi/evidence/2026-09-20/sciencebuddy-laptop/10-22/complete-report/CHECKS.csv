@@ -1,0 +1,13 @@
+criterion,passed
+label_threshold,True
+complete_input_rows,True
+limit_statement,True
+declared_complete,True
+majority_evidence_link,True
+majority_recall0,True
+majority_recall1,True
+majority_balanced,True
+logistic_evidence_link,True
+logistic_recall0,True
+logistic_recall1,True
+logistic_balanced,True

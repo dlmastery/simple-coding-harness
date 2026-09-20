@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy couples harness adaptation with weight learning across repeated cycles. Our simulation represents the pair explicitly. It is constructed to show interaction: a harness may suit one model better than another. Synthetic scores illustrate the accounting and comparison, not the paper’s measured gains.
 
-**A concrete example.** Use an explicitly invented score table: model A scores 60 with harness 1 and 75 with harness 2; model B scores 80 and 65 respectively. Harness 2 is the better partner for A but the worse partner for B. These numbers demonstrate an interaction by construction; they are not trained-model evidence.
+**A concrete example.** The [executed simulation](../../../evidence/2026-09-20/sciencebuddy-laptop/10-25/PAIRS.md) uses invented scores: M0 gets 0.40 with H0 and 0.70 with H1; M1 gets 0.80 and 0.60 respectively. Selecting H1 helps M0. Changing the model label to M1 makes the inherited H1 worse than H0. Reselecting the harness then helps. The table constructs this interaction; no model was trained.
 
 ![Track model and harness versions as a pair. Changing either can alter compatibility with the other.](../../../assets/diagrams/lab-10-25.png)
 

@@ -67,6 +67,10 @@ Give named systems substantial advanced lessons. Explain hypotheses, ablations, 
 
 For every RSI claim identify what changes, what is inherited, which component performs the next improvement, what remains fixed, and what independent evidence supports effectiveness. Structural recursion, effective improvement, and sustained acceleration are different claims.
 
+Check whether a proposed improver was actually accepted. A later round can correctly inherit the unchanged parent after rejecting every revision. That validates ancestry and stopping behavior but does not demonstrate successful improver replacement. Retain such a result; do not retune the example to force the intended claim. A constrained tree need not overfit relative to the chosen linear pipeline, so verify the teaching example's premise from measurements.
+
+In numerical reward exercises, inspect action-level changes and aggregate utility separately. One incorrectly rewarded action can gain probability while total expected true reward still increases. Explain the observed distinction instead of calling every corrupted update an aggregate regression. Keep deterministic reporting-skill interpreters distinct from independent experiments on language-model behavior.
+
 ## Provenance and style
 
 Use themed directories and the full course standard. The current plan's counts are provisional, not a template requirement. Record all instructions and accepted changes in the project steering file.

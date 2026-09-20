@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-43 labs have mapped related author-execution evidence; 58 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+48 labs have mapped related author-execution evidence; 53 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1068,9 +1068,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Read a small GWAS example at the conceptual level: genetic variants are tested for association with a trait. Explain why statistical association is not a causal or clinical recommendation and why domain review is still needed.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed local ScienceBuddy teaching activities](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.
 
 **Acceptance to verify:** Fixture origin is explicit. Criteria connect to observable evidence. The test does not claim domain-expert validation.
 
@@ -1081,9 +1081,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Make the child skill longer without adding a useful requirement. Explain why more instructions need not improve the result.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed local ScienceBuddy teaching activities](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.
 
 **Acceptance to verify:** The report names a harness change and does not claim a weight update. Both positive and negative rubric cases are exercised.
 
@@ -1094,9 +1094,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Use the scale skill to draft, without launching, a real training checklist: source implementation, model license, rollout data, reward validation, GPU memory, optimizer, checkpoints, and held-out evaluation.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed local ScienceBuddy teaching activities](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.
 
 **Acceptance to verify:** The calculation is reproducible and handles zero variance. No LLM checkpoint is claimed. The report lists missing pieces of real training.
 
@@ -1107,9 +1107,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Draft a larger-compute extension that replaces the placeholder with real training and specifies how checkpoints, rewards, and paired evaluation would be recorded.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed local ScienceBuddy teaching activities](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.
 
 **Acceptance to verify:** Every simulated result names both versions. Synthetic values are never mixed with paper or classroom measurements. The fixed reflector and feedback-source distinctions are checked against the paper.
 
@@ -1120,9 +1120,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Rewrite an overbroad headline as a source-scoped statement including task family, metric, and reported-evidence status.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed local ScienceBuddy teaching activities](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.
 
 **Acceptance to verify:** The audit reports 31.1 percentage points correctly. It does not mix coverage, validation, and held-out single-attempt metrics. Feedback sources are not all called human.
 

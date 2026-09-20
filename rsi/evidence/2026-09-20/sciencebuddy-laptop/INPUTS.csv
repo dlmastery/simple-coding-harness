@@ -1,0 +1,3 @@
+model,source,sha256,rows
+majority,rsi/evidence/2026-09-20/author-wine/trial-001/predictions.csv,4010cb4ad7f4b75da32f282e6446092790f849f7933f0541e9e569f0b39a4d7d,319
+logistic,rsi/evidence/2026-09-20/author-wine/trial-002/predictions.csv,b2f22f90b4857deac8c057a339531673c09f9c98905d16b0993f1a386ab6ca8c,319

@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Keep the agent’s language-model weights fixed. Edit a learner-owned reporting skill to require class-wise evidence and a claim check. Then test the revised procedure. This isolates harness adaptation; it does not implement the paper’s weight-learning component.
 
-**A concrete example.** A child reporting skill requires both class recalls and links to predictions. With complete evidence it can produce a fuller report. With missing evidence it should identify the gap, not invent a passing number. A skill that fabricates compliance has failed even if its prose looks more polished.
+**A concrete example.** The [recorded child procedure](../../../evidence/2026-09-20/sciencebuddy-laptop/10-23/CHANGE-PROPOSAL.md) passes the complete-evidence case and reports missing evidence in the incomplete case. That refusal is correct behavior even though the requested model comparison remains unfinished. A deterministic reporter executed these instructions; this does not measure how an independent language-model session would respond to the edit.
 
 ![Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.](../../../assets/diagrams/lab-10-23.png)
 

@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A rollout is one sampled attempt. A reward scores it. In a grouped-relative illustration, subtract the group mean and divide by its standard deviation plus a small stabilizer. Above-average attempts receive positive advantages; below-average attempts receive negative ones. Real GRPO adds token probabilities, policy ratios, clipping, a reference/KL treatment as specified by the implementation, sampling, and optimization. This calculation is not that training system.
 
-**A concrete example.** For the invented reward group 0, 1, 1, 0, the mean is 0.5 and the population standard deviation is 0.5. Centering and dividing by that spread gives advantages -1, 1, 1, -1. If every reward is 1, the spread is zero: the group provides no relative ranking. The toy must handle that case explicitly. A real GRPO implementation also needs its actual objective, rollout policy, reference treatment, and training machinery.
+**A concrete example.** For rewards 0, 0, 1, 1, the mean and population spread are both 0.5, giving advantages close to -1, -1, 1, 1 with the small stabilizer. In the [executed toy update](../../../evidence/2026-09-20/sciencebuddy-laptop/10-24/INTERPRETATION.md), correct rewards increase expected true reward from 0.5 to 0.549834. One incorrect reward increases the probability of a wrong action, yet total expected true reward still rises to 0.527178. Inspect local and aggregate effects separately. Equal rewards produce no update.
 
 ![The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.](../../../assets/diagrams/lab-10-24.png)
 

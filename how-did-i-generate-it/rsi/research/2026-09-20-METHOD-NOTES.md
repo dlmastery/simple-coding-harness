@@ -59,3 +59,7 @@ The date-filtered social search did not verify a new Meta/FAIR post-only result.
 [Version 1](https://arxiv.org/html/2609.02786v1), selected methods 3.1–3.4 and Appendix D inspected. Bounded prompt or skill edits are checked in paired comparisons while the policy is frozen. Separate supervised and reinforcement-learning stages update policy weights. Appendix D explicitly leaves evolving the coordinating meta-strategy to future work; its current search and update schedules are fixed. Course consequence: use this as a contrast beside ScienceBuddy, separating coupled component updates from a revised improvement procedure inherited by later rounds. The entire evaluator, benchmark suite, and training implementation were not audited or reproduced. A classroom skill edit does not execute those weight updates.
 
 These three sources were already inside the dated inventory. This pass opened their primary full texts; it did not add new discovery queries or change the paper count. Reading status now reflects the selected sections above, not a claim that every appendix has been read.
+
+## ScienceBuddy classroom validation reading
+
+Reopened selected primary methods, evaluation, and appendix sections for the local advanced-lab execution. The concise [source-scoped audit](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/10-26/RESULTS-AUDIT.md) records what was inspected. No new source or reproduction is counted. The official glossary link in the separate conceptual note is background terminology, not a recent-paper discovery.

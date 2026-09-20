@@ -58,6 +58,11 @@ related.set('09.06', {
   label: 'Two executed improver-comparison generations',
   gap: 'Eight fits, proposal/resume checkpoints, ancestry checks, and third-generation refusal executed. Both improver proposals were rejected: this run does not prove an accepted revised improver governs the next generation. The protocol and state predate the run; the consolidated lineage was derived afterward.'
 });
+for (const id of ['10.22','10.23','10.24','10.25','10.26']) related.set(id, {
+  path: evidenceRoot+'sciencebuddy-laptop/README.md',
+  label: 'Executed local ScienceBuddy teaching activities',
+  gap: 'Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.'
+});
 
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);

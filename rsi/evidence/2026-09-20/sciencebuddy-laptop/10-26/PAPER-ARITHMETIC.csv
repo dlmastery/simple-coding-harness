@@ -1,0 +1,4 @@
+case,metric,section,before_percent,after_percent,percentage_points,relative_percent_change,origin
+coupled,single-attempt test accuracy,4.2,42.2,73.3,31.1,73.69668246445497,paper-reported rounded inputs; arithmetic only
+harness,first-response validation accuracy,4.3,31.1,51.1,20.0,64.30868167202573,paper-reported rounded inputs; arithmetic only
+model,pass-at-four problem coverage,4.4 and 7.3,48.3,67.8,19.5,40.37267080745342,paper-reported rounded inputs; arithmetic only
