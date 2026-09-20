@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-41 labs have mapped related author-execution evidence; 60 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+43 labs have mapped related author-execution evidence; 58 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -715,9 +715,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Use a rejected child as the next parent in a labelled diagnostic replay. Explain why that would contradict the recorded promotion policy.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Two executed fixed-improver generations](../../../rsi/evidence/2026-09-20/two-generations/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four fits, the same improver hash, one rejected task child, one accepted child, and a rejected-child replay are retained. Learner interpretation remains untested.
 
 **Acceptance to verify:** Both rounds use the same improver. Every retained task skill has a corresponding evaluation. The conclusion says repeated self-improvement, not automatically RSI.
 
@@ -767,9 +767,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Interrupt after a proposal but before promotion. Explain which version is active on resume and which evidence is still missing.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Two executed improver-comparison generations](../../../rsi/evidence/2026-09-20/two-generations/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Eight fits, proposal/resume checkpoints, ancestry checks, and third-generation refusal executed. Both improver proposals were rejected: this run does not prove an accepted revised improver governs the next generation. The protocol and state predate the run; the consolidated lineage was derived afterward.
 
 **Acceptance to verify:** No hidden extra generation runs. Rejected versions do not become active accidentally. The total ledger includes all attempts and known costs.
 

@@ -48,6 +48,16 @@ related.set('07.07', {
   label: 'Executed policy learning',
   gap: 'Training, frozen evaluation, and parameter traces are retained. The proposed stronger-opponent comparison is a planning exercise; it has not run.'
 });
+related.set('09.02', {
+  path: evidenceRoot+'two-generations/README.md',
+  label: 'Two executed fixed-improver generations',
+  gap: 'Four fits, the same improver hash, one rejected task child, one accepted child, and a rejected-child replay are retained. Learner interpretation remains untested.'
+});
+related.set('09.06', {
+  path: evidenceRoot+'two-generations/README.md',
+  label: 'Two executed improver-comparison generations',
+  gap: 'Eight fits, proposal/resume checkpoints, ancestry checks, and third-generation refusal executed. Both improver proposals were rejected: this run does not prove an accepted revised improver governs the next generation. The protocol and state predate the run; the consolidated lineage was derived afterward.'
+});
 
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);

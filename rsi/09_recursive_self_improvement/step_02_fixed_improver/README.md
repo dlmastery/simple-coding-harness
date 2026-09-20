@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Generation labels track ancestry. The improver reads a solver’s failures, proposes a child task skill, and applies the same acceptance procedure each time. The solver may change repeatedly while the improver remains identical. Numbering generations does not change that fact.
 
-**A concrete example.** A fixed improver first adds a row-alignment check to task skill v0, then adds an error-slice report to the retained child. Two task-skill generations now exist. If the improver’s diagnosis and selection procedure remained v0 throughout, this is repeated improvement under a fixed improver, even though its outputs changed twice.
+**A concrete example.** In the [recorded bike run](../../evidence/2026-09-20/two-generations/README.md), one unchanged improver rejected a tree in generation 1 and accepted weather features in generation 2. The retained selection MAE went from 109.81 to 109.81 to 99.18. The improver’s file and hash stayed the same. Two generations, including a useful task change, therefore did not establish a revised improver.
 
 ![Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.](../../assets/diagrams/lab-09-02.png)
 

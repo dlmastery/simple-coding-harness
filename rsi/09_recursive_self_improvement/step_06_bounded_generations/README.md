@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Each generation records the active solver, active improver, proposal, evaluation, retained versions, and spent resources. The next generation inherits only the selected versions. A rejected change remains in the archive but does not become the active parent. Stop when the budget ends even if the last result is disappointing.
 
-**A concrete example.** Generation 1 proposes improver v1, accepts it, and sets the active pointer to v1. Generation 2 must show v1 governing a later improvement action. If generation 2 proposes v2 but rejects it, v1 remains active. Two generations therefore do not imply two successful improver upgrades or accelerating progress.
+**A concrete example.** If generation 1 accepts improver v1, generation 2 must show v1 governing later improvement work. A rejected v2 must leave v1 active. The [actual bike run](../../evidence/2026-09-20/two-generations/README.md) illustrates the other possibility: both improver proposals were rejected, so v0 remained active even though the task score improved. Its saved proposals, hashes, and generation numbers did not establish successful improver replacement. Keep that negative result instead of adjusting the rule to force an upgrade.
 
 ![Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.](../../assets/diagrams/lab-09-06.png)
 
