@@ -28,9 +28,20 @@ Generation labels track ancestry. The improver reads a solver’s failures, prop
 
 **A concrete example.** In the [recorded bike run](../../evidence/2026-09-20/two-generations/README.md), one unchanged improver rejected a tree in generation 1 and accepted weather features in generation 2. The retained selection MAE went from 109.81 to 109.81 to 99.18. The improver’s file and hash stayed the same. Two generations, including a useful task change, therefore did not establish a revised improver.
 
+![Two task-skill generations use the same improver I0. Each checks a proposed child, retains either child or parent, and records proposals, decisions, and costs.](../../assets/illustrations/fixed-improver-v2.png)
+
+*I0 remains the same in both rounds. Match the Generation 1 retained skill to the named parent of Generation 2. A rejected proposal never becomes that parent. The pictured decisions are unselected possibilities; these generation numbers do not demonstrate a changed improver or guaranteed improvement.*
+
+[Open the illustration at full size](../../assets/illustrations/fixed-improver-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.](../../assets/diagrams/lab-09-02.png)
 
 *Read the diagram:* Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.
+
+</details>
 
 ## Run the lab
 

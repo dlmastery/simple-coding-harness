@@ -28,9 +28,20 @@ Each generation records the active solver, active improver, proposal, evaluation
 
 **A concrete example.** If generation 1 accepts improver v1, generation 2 must show v1 governing later improvement work. A rejected v2 must leave v1 active. The [actual bike run](../../evidence/2026-09-20/two-generations/README.md) illustrates the other possibility: both improver proposals were rejected, so v0 remained active even though the task score improved. Its saved proposals, hashes, and generation numbers did not establish successful improver replacement. Keep that negative result instead of adjusting the rule to force an upgrade.
 
+![Two generation notebooks separate active solver and improver versions from proposals, record decisions, save checkpoints, and inherit only retained versions. A stop gate ends generation two.](../../assets/illustrations/bounded-lineage-v1.png)
+
+*A finished check does not by itself promote a proposal: record the keep-or-reject decision. On resume, read the saved active versions and cumulative budget. Preserve rejected proposals as evidence without activating them. The image is a procedure; the recorded course run rejected both improver revisions and did not demonstrate a successful changed-improver lineage.*
+
+[Open the illustration at full size](../../assets/illustrations/bounded-lineage-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.](../../assets/diagrams/lab-09-06.png)
 
 *Read the diagram:* Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.
+
+</details>
 
 ## Run the lab
 

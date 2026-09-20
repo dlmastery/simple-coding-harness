@@ -116,6 +116,26 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 07.08: Make a self-modification inspectable](07_understanding_self_star/step_08_modification/README.md).
 
+## Two generations can use the same improver
+
+![Two task-skill generations use the same improver I0. Each checks a proposed child, retains either child or parent, and records proposals, decisions, and costs.](assets/illustrations/fixed-improver-v2.png)
+
+*I0 remains the same in both rounds. Match the Generation 1 retained skill to the named parent of Generation 2. A rejected proposal never becomes that parent. The pictured decisions are unselected possibilities; these generation numbers do not demonstrate a changed improver or guaranteed improvement.*
+
+[Open the illustration at full size](assets/illustrations/fixed-improver-v2.png).
+
+[Lab 09.02: Run repeated improvement with an unchanged improver](09_recursive_self_improvement/step_02_fixed_improver/README.md).
+
+## Change the rule that judges skill revisions
+
+![Candidate I1 adds a contrasting-case check to a weak I0 procedure. Two fixtures and an empty decision ledger test the changed behavior while the external cases, metric, and budget remain fixed.](assets/illustrations/improver-proposal-v1.png)
+
+*This intentionally weak I0 is a classroom example. The added internal rule changes how task-skill proposals are tested; it does not change the external evaluation contract. Notebook marks identify actions, not successful measured fixture results. Keep both versions and compare actual decisions and overhead before making a benefit claim.*
+
+[Open the illustration at full size](assets/illustrations/improver-proposal-v1.png).
+
+[Lab 09.03: Propose a change to the improver](09_recursive_self_improvement/step_03_revise_improver/README.md).
+
 ## The next round must use the change
 
 ![A proposed improver adds a contrasting-case check. Acceptance activates that same version in a later round, where the new check is executed. Rejection keeps I0 active. A later task-skill proposal can also be rejected.](assets/illustrations/inherited-improver-v1.png)
@@ -125,6 +145,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/inherited-improver-v1.png).
 
 [Lab 09.04: Use the revised improver in the next round](09_recursive_self_improvement/step_04_inherit/README.md).
+
+## Compare what each improver produces
+
+![The same parent task skill feeds two improver arms, each with two rounds, retained descendants, and complete attempt and cost records. Their outcomes are compared against the common baseline.](assets/illustrations/improver-comparison-v1.png)
+
+*Apply the declared retention rules during each round. The I0 and I1 labels on the descendant reports identify the producing improver; give task skills their own version identities. Compare retained results and all known costs, including failures. Separate folders do not establish independent contexts. Eight fits is a maximum; benefit, regression, and inconclusive outcomes are all possible.*
+
+[Open the illustration at full size](assets/illustrations/improver-comparison-v1.png).
+
+[Lab 09.05: Measure whether the revised improver helps](09_recursive_self_improvement/step_05_compare_improvers/README.md).
+
+## A proposal is not the active parent
+
+![Two generation notebooks separate active solver and improver versions from proposals, record decisions, save checkpoints, and inherit only retained versions. A stop gate ends generation two.](assets/illustrations/bounded-lineage-v1.png)
+
+*A finished check does not by itself promote a proposal: record the keep-or-reject decision. On resume, read the saved active versions and cumulative budget. Preserve rejected proposals as evidence without activating them. The image is a procedure; the recorded course run rejected both improver revisions and did not demonstrate a successful changed-improver lineage.*
+
+[Open the illustration at full size](assets/illustrations/bounded-lineage-v1.png).
+
+[Lab 09.06: Run bounded recursive generations](09_recursive_self_improvement/step_06_bounded_generations/README.md).
+
+## Three claims need different evidence
+
+![Three evidence panels distinguish structural recursion, effective improvement, and acceleration. A counterexample shows an inherited change with worse outcomes.](assets/illustrations/claim-evidence-v1.png)
+
+*Structural recursion needs executed later use of the changed improvement procedure. Benefit needs a fair comparison of what the procedures produce. Acceleration concerns an increasing progress rate across generations after accounting for resources and bottlenecks; a constant speed advantage or two favorable points is insufficient. The records are conceptual, not measured results.*
+
+[Open the illustration at full size](assets/illustrations/claim-evidence-v1.png).
+
+[Lab 09.07: State the result without overstating it](09_recursive_self_improvement/step_07_claim/README.md).
 
 ## Check the result, then write the lesson
 

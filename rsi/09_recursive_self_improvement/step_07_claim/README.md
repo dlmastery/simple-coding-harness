@@ -28,9 +28,20 @@ Structural recursion means a changed improvement procedure enters later improvem
 
 **A concrete example.** A run shows improver v1 inherited by later work, but it consumes twice the measured time and retains a worse solver. The evidence can support a structural recursion demonstration while rejecting a benefit claim for that comparison. “Recursive” describes the feedback path; it is not a synonym for successful or accelerating.
 
+![Three evidence panels distinguish structural recursion, effective improvement, and acceleration. A counterexample shows an inherited change with worse outcomes.](../../assets/illustrations/claim-evidence-v1.png)
+
+*Structural recursion needs executed later use of the changed improvement procedure. Benefit needs a fair comparison of what the procedures produce. Acceleration concerns an increasing progress rate across generations after accounting for resources and bottlenecks; a constant speed advantage or two favorable points is insufficient. The records are conceptual, not measured results.*
+
+[Open the illustration at full size](../../assets/illustrations/claim-evidence-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.](../../assets/diagrams/lab-09-07.png)
 
 *Read the diagram:* Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.
+
+</details>
 
 ## Run the lab
 

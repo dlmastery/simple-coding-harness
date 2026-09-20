@@ -20,6 +20,7 @@ This is an editorial coverage review. It does not prove that a future course mee
 | Include objectives, duration, and prerequisites near the introduction | [Early visual feedback and structure](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
 | Prioritize diagrams for feedback before full execution verification | [Illustrations and acceptance](../../skills/build-research-codelabs/references/course-standard.md) |
 | Check technical content before generation and finish within two or three attempts | [Generation discipline](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
+| Finish individual RSI and capstone lab infographics; overviews are insufficient | [Per-lab visual coverage](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
 | Create a clear, beautiful walkthrough README with context | [Structure and navigation](../../skills/build-research-codelabs/references/course-standard.md) |
 | Students work through skills, tools, and meta-harnesses | [Execution interface](../../skills/build-research-codelabs/SKILL.md) and [RSI preset](../../skills/build-research-codelabs/references/rsi-preset.md) |
 | Students do not handwrite Python or JSON; agents can generate them | [Skills as the interface](../../skills/build-research-codelabs/references/course-standard.md) |

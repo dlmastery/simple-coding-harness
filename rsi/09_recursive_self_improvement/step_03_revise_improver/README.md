@@ -28,9 +28,20 @@ Suppose the fixed improver promotes a skill after one favorable case and misses 
 
 **A concrete example.** Improver v0 tests only the case that motivated a skill edit. A proposed v1 requires one contrasting case before promotion. On a fixture where the edit helps the first case but harms the second, v1 should make a different retention decision. That verifies the changed rule’s behavior; it does not yet show better future research at matched cost.
 
+![Candidate I1 adds a contrasting-case check to a weak I0 procedure. Two fixtures and an empty decision ledger test the changed behavior while the external cases, metric, and budget remain fixed.](../../assets/illustrations/improver-proposal-v1.png)
+
+*This intentionally weak I0 is a classroom example. The added internal rule changes how task-skill proposals are tested; it does not change the external evaluation contract. Notebook marks identify actions, not successful measured fixture results. Keep both versions and compare actual decisions and overhead before making a benefit claim.*
+
+[Open the illustration at full size](../../assets/illustrations/improver-proposal-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.](../../assets/diagrams/lab-09-03.png)
 
 *Read the diagram:* An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.
+
+</details>
 
 ## Run the lab
 

@@ -18,7 +18,12 @@ const topics=[
   ['05.04','Save the state. Check the handoff.'],
   ['06.02','The builder and the system it builds'],
   ['07.08','Similar words, different changes'],
+  ['09.02','Two generations can use the same improver'],
+  ['09.03','Change the rule that judges skill revisions'],
   ['09.04','The next round must use the change'],
+  ['09.05','Compare what each improver produces'],
+  ['09.06','A proposal is not the active parent'],
+  ['09.07','Three claims need different evidence'],
   ['10.04','Check the result, then write the lesson'],
   ['10.08','Replay stops at the edge of the record'],
   ['10.10','Repair a component. Check the system.'],
@@ -48,3 +53,4 @@ const sections=topics.map(([id,title])=>{
 });
 writeFileSync(resolve(repo,'rsi/VISUAL-GUIDE.md'),`# A visual guide to the course\n\n[Course](README.md) · [Start here](START-HERE.md)\n\nUse these illustrations to preview an idea or revisit a distinction. Follow the [learning path](LEARNING-PATH.md) for the actual lesson order; this gallery does not replace the experiments, checks, or quizzes. Each figure links to the lab that explains its mechanism. Open dense figures at full size when reading on a phone.\n\nThese are conceptual illustrations. Measured results appear as separate plots with their data and execution records.\n\n${sections.join('\n\n')}\n`);
 console.log(`Published a visual companion with ${topics.length} reviewed illustrations.`);
+await import('./build-visual-coverage.mjs');

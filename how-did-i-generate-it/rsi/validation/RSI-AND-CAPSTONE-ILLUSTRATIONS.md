@@ -45,4 +45,36 @@ Selected capstone-audit-v1.png. Original source, claim and evidence, strongest s
 
 Selected capstone-teach-back-v2.png. V2 removes target rentals from model inputs and places observed rentals only in the error check. Candidate I1 adds a contrasting-case check; the later round reads I1, executes that check, and records the decision. Peer checklist remains empty. The caption distinguishes illustrative trial use from promotion and actual learner review.
 
-These five figures are embedded in their respective READMEs and the visual guide. Theme 09 still needs the five queued figures; its exact prompts are already saved and source-checked.
+At the capstone checkpoint, these five figures were embedded in their respective READMEs and the visual guide. The five theme-09 briefs were ready for the subsequent pass recorded below.
+
+## Theme-09 completion
+
+The five missing theme-09 figures are now selected: four first drafts and one second draft. Together with the earlier 09.01 and 09.04 images, all seven theme-09 labs now have a mapped generated infographic. The fixed-improver first draft incorrectly connected retained output to retained output, bypassing the next round. Its single correction removes that route and uses named handoff labels plus within-round decision arrows.
+
+### 09.02
+
+Selected fixed-improver-v2.png. V2 removes the result-to-result bypass. Each round now has active skill, proposed child, checked decision, and its own retained result. Generation two explicitly names generation one retained skill as its parent. I0 and its hash stay fixed. Neither outcome is selected; the two-fit-per-round limit and archived costs are preserved.
+
+### 09.03
+
+Selected improver-proposal-v1.png. One added contrasting-case rule distinguishes I1 from the intentionally weak I0 example. Both versions remain available; favorable and regression fixtures have an empty decision/cost ledger. Cases, metric and budget remain external and fixed. Checklist marks depict instructions, not completed fixture outcomes.
+
+### 09.05
+
+Selected improver-comparison-v1.png. Matched starting task skill forks into two improver arms; both retain descendants and all-attempt/cost ledgers, then converge on gain from the common baseline. Budget is eight fits and no outcome is selected. The caption clarifies that retention rules apply during each round and I0/I1 identify the producing improver, not task-skill version IDs.
+
+### 09.06
+
+Selected bounded-lineage-v1.png. Two generation notebooks preserve the same four-stage order, distinct active solver/improver and amber proposal, retained-only handoff, disconnected rejected archive, and explicit stop after generation two. Resumption reads the prior checkpoint and keeps retained versions while checks are pending. Four-fit-per-generation maximum is correct.
+
+### 09.07
+
+Selected claim-evidence-v1.png. Three separate evidence requirements preserve revised-rule later use, matched outcomes/cost/uncertainty, and repeated progress-rate/resource observations. No measured scores or successful acceleration curve. Harmful inheritance is an explicit counterexample to benefit. Caption tightens acceleration to an increasing progress rate, not a constant speed advantage.
+
+This batch adds ten individual lab figures from twelve outputs in total. All five capstones and all seven theme-09 labs now have generated illustrations. The rest of the course is not visually complete; the inventory records remaining lesson-specific gaps. No full runtime, source-depth, or learner verification was resumed.
+
+## Publication checks
+
+The lesson and visual-guide publishers complete successfully. The manifest verifies fifty-seven generated PNGs, their exact prompts, and thirty byte-identical selected copies. The course checker reports 101 lessons, 3,191 local links, and zero publication problems. The [coverage inventory](INFOGRAPHIC-COVERAGE.md) reports 26 mapped labs and 75 remaining. Full-size image review is recorded above; browser rendering and required-activity execution are separate pending checks.
+
+The updated reusable skill passes its validator with UTF-8 enabled. All seven installed files match the canonical package by SHA-256. The source diff passes whitespace checks.

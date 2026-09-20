@@ -111,6 +111,8 @@ An explicit user-approved alternative supersedes the provider preference for tha
 
 Every image has a teaching purpose. It should show the main idea at a glance and reward closer reading. Use a clear hierarchy, consistent colors and shapes, readable labels, meaningful arrows, and enough space. Highlight the new mechanism in an evolving diagram. Dense does not mean crowded.
 
+When individual codelab infographics are requested, an overall course map or theme overview does not satisfy that coverage. Map the appropriate generated figure directly to every requested lesson and keep an explicit list of missing figures. Count lab coverage separately from shared maps, alternative drafts, and precise companion schematics. Prioritize the specific unfinished themes the user names.
+
 When the user prefers an earlier illustration, preserve it as an explicit visual benchmark and provide it as a style reference for subsequent generation. Compare the actual images, not only their prompt wording. Preserve concrete scenes, connected explanations, crafted drawing, and meaningful detail. Repeated generic folders, chips, cards, or text boxes can weaken the teaching even when the labels are technically correct. Revise a representative weaker image before continuing a large batch. Keep necessary qualifications in nearby prose when they overwhelm the image, without removing the scientific boundary from the lesson.
 
 Show data flow, control flow, mutable and fixed components, feedback, and boundaries where those distinctions matter. Avoid decorative imagery that hides the mechanism. Use panels for a complex overview and focused figures for individual steps.

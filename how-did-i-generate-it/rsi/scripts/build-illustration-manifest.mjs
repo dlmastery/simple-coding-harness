@@ -57,7 +57,13 @@ const outputs=[
   ['capstone-portability-v1','exec-ef8c8b4f-9fb2-4302-a518-b77858a86c29.png',true],
   ['capstone-audit-v1','exec-dbd11d93-b66b-4198-bf1e-5d0f0c6321cd.png',true],
   ['capstone-teach-back-v2','exec-b17c9a38-91f3-4ff7-8721-a5823a6e1198.png',true],
-  ['capstone-teach-back-v1','exec-52c53998-eeda-4a38-b62f-1fdcf0d59f4f.png',false]
+  ['capstone-teach-back-v1','exec-52c53998-eeda-4a38-b62f-1fdcf0d59f4f.png',false],
+  ['fixed-improver-v2','exec-bb54ed08-d8a8-49c7-9749-ed21ad98c7be.png',true],
+  ['improver-proposal-v1','exec-0be52da4-e514-4eff-a1d3-0edfc6c43d13.png',true],
+  ['improver-comparison-v1','exec-f5fb2842-9b3a-4789-8710-ed07f7224e8d.png',true],
+  ['bounded-lineage-v1','exec-41ec8ba7-0eb3-49a3-bfbb-fac589101296.png',true],
+  ['claim-evidence-v1','exec-fe11ee4f-8745-4a82-8828-afcc63ed61aa.png',true],
+  ['fixed-improver-v1','exec-5c4534fc-7f94-430a-9031-54632fffb78e.png',false]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

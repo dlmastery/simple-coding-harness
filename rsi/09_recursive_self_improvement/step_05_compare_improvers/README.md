@@ -28,9 +28,20 @@ The outcome is the improvement each procedure produces from the same starting so
 
 **A concrete example.** The saved [eight-fit comparison](../../evidence/2026-09-20/clean-journey/09-05/README.md) uses two synthetic tasks. A training-based promotion rule retains an overfit regression tree and raises final MAE from 22.74 to 81.47. A revised selection-based rule keeps the parent, so its gain is zero and it avoids the loss. Both rules retain a useful classification edit, raising final balanced accuracy from 0.87 to 0.92. The candidates and fit allowances match. The author prepared both procedures in one context; these two constructed cases do not establish a general improver advantage.
 
+![The same parent task skill feeds two improver arms, each with two rounds, retained descendants, and complete attempt and cost records. Their outcomes are compared against the common baseline.](../../assets/illustrations/improver-comparison-v1.png)
+
+*Apply the declared retention rules during each round. The I0 and I1 labels on the descendant reports identify the producing improver; give task skills their own version identities. Compare retained results and all known costs, including failures. Separate folders do not establish independent contexts. Eight fits is a maximum; benefit, regression, and inconclusive outcomes are all possible.*
+
+[Open the illustration at full size](../../assets/illustrations/improver-comparison-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Compare the improvements produced by the two improvers from matched starts. Do not compare only their instruction text.](../../assets/diagrams/lab-09-05.png)
 
 *Read the diagram:* Compare the improvements produced by the two improvers from matched starts. Do not compare only their instruction text.
+
+</details>
 
 ## Run the lab
 
