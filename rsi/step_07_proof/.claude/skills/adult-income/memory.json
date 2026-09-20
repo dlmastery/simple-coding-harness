@@ -23,7 +23,7 @@
    "prefer": "logreg"
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -35,7 +35,7 @@
    "field": "model",
    "prefer": "rf"
   },
-  "evidence": 0,
+  "evidence": 1,
   "counter": 1
  },
  {
@@ -48,7 +48,7 @@
    "field": "scale",
    "prefer": "yes"
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -62,7 +62,7 @@
    "prefer": "no"
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -100,8 +100,8 @@
    "field": "class_weight",
    "prefer": "none"
   },
-  "evidence": 1,
-  "counter": 0
+  "evidence": 3,
+  "counter": 1
  },
  {
   "if": {
@@ -113,7 +113,150 @@
    "field": "class_weight",
    "prefer": "balanced"
   },
+  "evidence": 1,
+  "counter": 3
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "hgb"
+  },
+  "evidence": 1,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "rf"
+  },
+  "evidence": 2,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 0.1
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 0.05
+  },
   "evidence": 0,
   "counter": 1
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": ">=",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "none"
+  },
+  "evidence": 2,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "imbalance",
+   "op": ">=",
+   "value": 0.35
+  },
+  "then": {
+   "field": "class_weight",
+   "prefer": "balanced"
+  },
+  "evidence": 0,
+  "counter": 2
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": ">=",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": null
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": ">=",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 8
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_rows",
+   "op": "<",
+   "value": 1000
+  },
+  "then": {
+   "field": "model",
+   "prefer": "logreg"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 16
+  },
+  "evidence": 2,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_classes",
+   "op": "<",
+   "value": 3
+  },
+  "then": {
+   "field": "hyper",
+   "prefer": 8
+  },
+  "evidence": 0,
+  "counter": 2
  }
 ]

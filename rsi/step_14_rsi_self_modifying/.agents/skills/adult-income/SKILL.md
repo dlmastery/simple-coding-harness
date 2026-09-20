@@ -1,6 +1,6 @@
 ---
 name: adult-income
-description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_14_rsi_self_modifying, when the pack has memory.json, a verifier writes to it and a meta pack patches its Search policy line, its schema.json forbid list or its cards."
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_14_rsi_self_modifying, when the pack has memory.json, a verifier writes to it and the dgm-meta pack rewrites its SKILL.md and loop.json one generation at a time."
 metadata:
   type: workflow
   version: "3.0"
@@ -15,7 +15,7 @@ name another (`memory-r2`, a seed). Every helper prints one JSON object; an `err
 refusal you read.
 
 ## Boot order
-1. This file. 2. `tools.md`. 3. `loop.json`: the counted while and its `policy`, which must agree with the `Search policy:` line below. 4. `schema.json`: the recipe space (`fields`), the budget and the static list (`recipes`). 4. `memory.schema.json`: what a card is. 5. `config.md`: the off switches. 6. `memory.json`: the cards - unless the arm is the control arm (`--memory off`) or `config.md` says `memory: off`; then there are none and you search as if the file were empty. 7. `T/intent.md`.
+1. This file. 2. `tools.md`. 3. `loop.json`: the counted while and its `policy`, which must agree with the `Search policy:` line below. 4. `schema.json`: the recipe space (`fields`), the budget and the static list (`recipes`). 5. `memory.schema.json`: what a card is. 6. `config.md`: the off switches. 7. `memory.json`: the cards - unless the arm is the control arm (`--memory off`) or `config.md` says `memory: off`; then there are none and you search as if the file were empty. 8. `T/intent.md`.
 The trace log is not yours to read: the verifier reads it, you do not.
 
 ## Procedure
