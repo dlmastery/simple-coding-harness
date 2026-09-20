@@ -1,0 +1,237 @@
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	﻿2026-09-20T15:29:23.4263353Z ##[group]Run python run_tests.py
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4263560Z [36;1mpython run_tests.py[0m
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4295334Z shell: /usr/bin/bash -e {0}
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4295479Z env:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4295830Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4296117Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4296355Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4296568Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4296781Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4296998Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:29:23.4297180Z ##[endgroup]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9498516Z step_01_minimal_chat                         3 passed in 0.40s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9499026Z step_02_1_bash_tool                          3 passed in 1.36s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9499432Z step_02_2_generic_tools                      4 passed in 1.35s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9499855Z step_02_3_read_file                          4 passed in 0.32s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9500203Z step_02_4_agent_loop                         4 passed in 0.38s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9500556Z step_03_better_ui                            4 passed in 0.46s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9500852Z step_04_skills                               3 passed in 0.02s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9501084Z step_05_file_editing                         4 passed in 0.06s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9501320Z step_06_late_injection                       4 passed in 0.42s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9501553Z step_07_file_freshness                       3 passed in 0.09s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9501785Z step_08_sessions_rewind                      7 passed in 1.32s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9502027Z step_09_installable_command                  9 passed in 0.57s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9502259Z step_10_todos                                7 passed in 0.51s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9502489Z step_11_permissions                          6 passed in 0.51s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9502745Z step_12_sandbox                              7 passed, 1 skipped in 1.48s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9502997Z step_13_readable_todos_input_line            7 passed in 0.64s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9503241Z step_14_compaction                           10 passed in 0.51s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9503477Z step_15_subagents                            9 passed in 0.51s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9503714Z step_16_claude_agent_sdk                     10 passed in 0.80s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9503959Z step_17_openai_agents_sdk                    12 passed in 2.11s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9504234Z step_18_google_antigravity_sdk               8 passed, 4 warnings in 0.67s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9504497Z step_19_deepseek_harness                     5 passed in 0.14s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9504734Z step_20_openrouter                           22 passed in 0.63s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9504972Z step_21_streaming_headless                   29 passed in 1.83s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9505592Z step_22_parallel_tools                       28 passed in 1.91s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9506086Z step_23_browser_use                          18 passed, 1 skipped in 0.51s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9506334Z step_24_computer_use                         21 passed in 0.71s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9506590Z step_25_memory                               19 passed in 0.65s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9506819Z step_26_mcp_client                           21 passed in 1.41s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9507045Z step_27_hooks                                36 passed in 3.70s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9507270Z step_28_plan_mode                            20 passed in 0.66s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9507506Z step_29_jobs_parallel_subagents              24 passed in 7.34s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9507735Z step_30_eval                                 26 passed in 2.56s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9507965Z step_31_instruction_files                    23 passed in 0.61s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9508201Z step_32_context_budget                       22 passed in 0.62s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9508439Z step_33_checkpoints                          22 passed in 0.69s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9508856Z step_34_durability                           28 passed in 0.73s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9509088Z step_35_human_in_the_loop                    23 passed in 0.90s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9509324Z step_36_orchestration                        21 passed in 1.43s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9509560Z step_37_production_anatomy                   14 passed in 0.52s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9509802Z step_38_capstone                             26 passed in 20.72s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9510044Z step_39_approval_modes                       21 passed in 1.60s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9510275Z step_40_handoffs                             26 passed in 0.67s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9510507Z step_41_stop_conditions                      23 passed in 0.70s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9510747Z step_42_streaming_tool_output                19 passed in 6.10s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9510987Z step_43_extensions                           31 passed in 3.54s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9511220Z step_44_replay_trace                         22 passed in 0.64s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9511483Z step_45_typescript_core                      4 passed, 1 skipped in 2.15s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9511737Z step_46_trueforge_loop                       14 passed in 0.87s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9511974Z step_47_trueforge_tools_mcp                  16 passed in 5.71s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9512237Z step_48_trueforge_sandbox_skills             3 failed, 13 passed in 0.92s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9512431Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9512739Z     /home/runner/work/simple-coding-harness/simple-coding-harness/step_48_trueforge_sandbox_skills/test_step.py:349: 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9513092Z     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9513455Z     /home/runner/work/simple-coding-harness/simple-coding-harness/step_48_trueforge_sandbox_skills/demo.py:31: in main
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9513749Z         return run(args)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9513878Z                ^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9514171Z     /home/runner/work/simple-coding-harness/simple-coding-harness/step_48_trueforge_sandbox_skills/demo.py:51: in run
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9514510Z         events = list_events(client, session_id, result["turn_id"])
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9514730Z                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9514942Z     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9515111Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9515288Z     client = <trueforge_sdk.client.TrueForge object at 0x7faaae3179e0>
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9515510Z     session_id = 'sess-1', turn_id = 'turn-1'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9515792Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9516106Z         def list_events(client: TrueForge, session_id: str, turn_id: str) -> list:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9516464Z             """Every stored event of a finished turn, deltas already merged, across all pages."""
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9516707Z             events, token = [], None
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9516958Z             while True:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9517230Z                 page = client.sessions.list_turn_events(session_id=session_id, turn_id=turn_id, page_token=token)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9517503Z     >           events.extend(page.data)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9517665Z                               ^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9517870Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9518053Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9518359Z     /home/runner/work/simple-coding-harness/simple-coding-harness/step_48_trueforge_sandbox_skills/client/sandbox.py:189: AttributeError
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9518750Z     ----------------------------- Captured stdout call -----------------------------
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9518955Z     session sess-1
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9519070Z     > fail
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9519183Z     turn.created     turn-1
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9519344Z     model.message    exec  echo hi > hello.py
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9519556Z     sandbox.created  v1:local:/tmp/sandboxes/sess-1/box-1
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9519848Z     tool.response    exit 0  hi
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9520029Z     turn.done        error  in=100 out=5  model unavailable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9520189Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9520291Z     (no final message)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9520430Z     turn error: model unavailable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9520627Z     =========================== short test summary info ============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9521130Z     FAILED test_step.py::test_list_events_follows_the_pagination_cursor - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9521618Z     FAILED test_step.py::test_demo_runs_downloads_and_deletes_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9522112Z     FAILED test_step.py::test_demo_exits_1_on_an_errored_turn_and_keeps_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9522440Z     3 failed, 13 passed in 0.92s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9522648Z step_49_trueforge_context                    18 passed in 0.90s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9522946Z step_50_trueforge_subagents_eval             5 failed, 13 passed, 3 warnings in 9.35s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523202Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523357Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523459Z     test_step.py:499: 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523631Z     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523811Z     demo.py:42: in main
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9523934Z         return run(cli)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524052Z                ^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524170Z     demo.py:66: in run
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524386Z         turns = sessions.list_turns(client, session_id) if len(cli.replay) < 2 else None
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524626Z                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524827Z     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9524998Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9525169Z     client = <trueforge_sdk.client.TrueForge object at 0x7fbd837eeed0>
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9525363Z     session_id = 'sess-1'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9525481Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9525740Z         def list_turns(client, session_id: str) -> list:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9526074Z             """Every turn of a session in creation order, following the pagination tokens."""
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9526307Z             turns, token = [], None
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9526447Z             while True:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9526663Z                 page = client.sessions.list_turns(session_id=session_id, page_token=token)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9526895Z     >           turns.extend(page.data)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9527056Z                              ^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9527258Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9527439Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9527562Z     client/sessions.py:29: AttributeError
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9527862Z     =============================== warnings summary ===============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9528104Z     test_step.py::test_tools_server_annotations_and_project_root
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9528360Z     test_step.py::test_bash_tool_round_trips_utf8_and_kills_a_stuck_command
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9528645Z     test_step.py::test_eval_runner_uses_the_real_tools_server_through_the_fake_agent
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9529058Z       /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/contextlib.py:105: DeprecationWarning: Use `streamable_http_client` instead.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9529379Z         self.gen = func(*args, **kwds)
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9529514Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9529702Z     -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9529959Z     =========================== short test summary info ============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9530347Z     FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9530980Z     FAILED test_step.py::test_reconnect_subscribes_while_running_and_replays_when_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9531517Z     FAILED test_step.py::test_reconnect_replays_when_the_live_stream_ends_before_turn_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9532014Z     FAILED test_step.py::test_demo_threads_mode_prints_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:31:18.9532522Z     FAILED test_step.py::test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1741203Z     5 failed, 13 passed, 3 warnings in 9.35sChecked 101 lessons and 2238 local links.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1741687Z 0 publication problems.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1778462Z 
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1778956Z step_51_trueforge_comparison                 16 passed in 0.09s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1779351Z genui/01_foundations/step_01_static_components 13 passed, 1 warning in 0.54s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1779681Z genui/01_foundations/step_02_declarative_tree 21 passed, 1 warning in 0.66s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1779980Z genui/01_foundations/step_03_open_ended_html 27 passed, 1 warning in 0.69s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1780306Z genui/01_foundations/step_04_hybrid_escape_hatch 32 passed, 1 warning in 0.74s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1780602Z genui/02_ag_ui/step_01_ag_ui_server          10 passed, 1 warning in 0.68s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1780906Z genui/02_ag_ui/step_02_ag_ui_tools_and_state 2 failed, 13 passed, 1 warning in 0.72s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1781246Z     test_step.py::test_endpoint_streams_tool_events
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1781799Z       /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1782365Z         _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1782606Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1782807Z     -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1783080Z     =========================== short test summary info ============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1783521Z     FAILED test_step.py::test_tool_calls_become_events_and_state_deltas - AssertionError: assert [AddOperation...lta': '+8%'})] == [{'op': 'add'...lta': '+8%'}}]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1783864Z       
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1784367Z       At index 0 diff: AddOperation(op='add', path='/dashboard/metrics/-', value={'title': 'Cups sold', 'value': '120', 'delta': '+8%'}) != {'op': 'add', 'path': '/dashboard/metrics/-', 'value': {'title': 'Cups sold', 'value': '120', 'delta': '+8%'}}
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1784816Z       
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1784919Z       Full diff:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1785032Z         [
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1785310Z       +     AddOperation(op='add', path='/dashboard/metrics/-', value={'title': 'Cups sold', 'value': '120', 'delta': '+8%'}),
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1786361Z       -     {
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1786490Z       -         'op': 'add',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1786664Z       -         'path': '/dashboard/metrics/-',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1786828Z       -         'value': {
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1786974Z       -             'title': 'Cups sold',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1787137Z       -             'value': '120',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1787290Z       -             'delta': '+8%',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1787422Z       -         },
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1787536Z       -     },
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1787642Z         ]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1788016Z     FAILED test_step.py::test_next_run_continues_from_the_client_tool_result - AssertionError: assert [AddOperation... 'cost': 40})] == [{'op': 'add'... 'cost': 40}}]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1788388Z       
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1788788Z       At index 0 diff: AddOperation(op='add', path='/dashboard/purchases/-', value={'item': 'cooler', 'cost': 40}) != {'op': 'add', 'path': '/dashboard/purchases/-', 'value': {'item': 'cooler', 'cost': 40}}
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1789289Z       
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1789388Z       Full diff:
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1789497Z         [
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1789721Z       +     AddOperation(op='add', path='/dashboard/purchases/-', value={'item': 'cooler', 'cost': 40}),
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1789952Z       -     {
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790071Z       -         'op': 'add',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790232Z       -         'path': '/dashboard/purchases/-',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790397Z       -         'value': {
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790540Z       -             'item': 'cooler',
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790692Z       -             'cost': 40,
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790825Z       -         },
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1790935Z       -     },
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1791039Z         ]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1791170Z     2 failed, 13 passed, 1 warning in 0.72s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1791439Z genui/02_ag_ui/step_03_ag_ui_from_the_harness 1 failed, 10 passed, 1 warning in 3.29s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1791717Z     .F.........                                                              [100%]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1791952Z     =================================== FAILURES ===================================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1792201Z     _____________________ test_write_todos_becomes_state_delta _____________________
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1792389Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1792546Z     fake = <function fake.<locals>.install at 0x7f5f60378680>
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1792714Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1792856Z         def test_write_todos_becomes_state_delta(fake):
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1793043Z             fake([PLAN, DONE])
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1793212Z             events = list(bridge.run(run_input()))
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1793407Z             assert events[1].snapshot == {"todos": []}
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1793637Z             delta = next(e for e in events if e.type.value == "STATE_DELTA")
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1793931Z     >       assert delta.delta[0]["op"] == "replace" and delta.delta[0]["path"] == "/todos"
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1794190Z                    ^^^^^^^^^^^^^^^^^^^^
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1794403Z     E       TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1794593Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1794914Z     /home/runner/work/simple-coding-harness/simple-coding-harness/genui/02_ag_ui/step_03_ag_ui_from_the_harness/test_step.py:139: TypeError
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1795289Z     =============================== warnings summary ===============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1795521Z     test_step.py::test_endpoint_streams_the_harness
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1796205Z       /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1796767Z         _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1796995Z     
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1797182Z     -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1797649Z     =========================== short test summary info ============================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1798003Z     FAILED test_step.py::test_write_todos_becomes_state_delta - TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1798306Z     1 failed, 10 passed, 1 warning in 3.29s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1798549Z genui/03_a2ui/step_01_a2ui_messages_by_hand  12 passed, 1 warning in 0.74s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1798841Z genui/03_a2ui/step_02_a2ui_from_a_model      13 passed, 1 warning in 1.83s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1799120Z genui/03_a2ui/step_03_a2ui_lit_and_ag_ui     8 passed, 1 warning in 4.18s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1799395Z genui/04_openui_lang/step_01_openui_lang_parser 24 passed in 0.65s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1799658Z genui/04_openui_lang/step_02_openui_react_lang 8 passed in 3.46s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1799914Z genui/04_openui_lang/step_03_format_benchmark 15 passed in 0.38s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1800182Z genui/04_openui_lang/step_04_openui_html_artifact 10 passed in 3.06s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1800566Z genui/05_json_render/step_01_json_render_catalog 10 passed, 1 warning in 1.26s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1800890Z genui/05_json_render/step_02_json_render_streaming_patches 11 passed, 1 warning in 1.15s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1801235Z genui/05_json_render/step_03_json_render_actions_and_targets 10 passed, 1 warning in 2.66s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1801548Z genui/06_mcp_apps/step_01_mcp_app_resource   12 passed, 1 warning in 1.79s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1801846Z genui/06_mcp_apps/step_02_mcp_app_in_a_real_host 20 passed, 1 warning in 2.22s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1802137Z genui/06_mcp_apps/step_03_mcp_app_hybrid     17 passed, 1 warning in 1.79s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1802415Z genui/07_harness_genui/step_01_render_ui_tool 12 passed in 0.96s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1802691Z genui/07_harness_genui/step_02_trueforge_generative_ui 14 passed in 1.87s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1802974Z genui/07_harness_genui/step_03_trueforge_hybrid 15 passed in 1.89s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1803232Z rsi/maintenance                              20 passed in 6.11s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-20T15:32:10.1833392Z ##[error]Process completed with exit code 1.

@@ -1,13 +1,15 @@
 # GitHub checkpoints
 
-Latest verified editorial checkpoint: `0d1b2af65fe46579f065e6acb41ee098f5de49f0`, confirmed against the remote branch on 20 September. Its dedicated RSI workflow passed on Linux, macOS, and Windows (run `35514818814`). All 101 labs now have individual teaching guidance. The explicit original backups remain in ancestor `85ceecc`. Further execution and visual checks continue; these are not full-course acceptance results.
+Latest verified illustration checkpoint: `b7550be4e2173db84659addf41ed3782dc556c56`, confirmed against the remote branch on 20 September. Its dedicated RSI workflow passed (run `35519700202`). Four selected infographics, seven generated versions, exact prompts, and provider approval are now preserved. The following review-record checkpoint adds the published-page observations. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. Further execution and visual work continues. These are not full-course acceptance results.
 
-The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is an ancestor of the remote commit verified at eceeeab64aa37206355f6b840b28c4d30c938c3f. Later checkpoints appear in the branch history and work log.
+The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is in its verified history. The branch history and work log retain intermediate checkpoints.
 
 These are pushed checkpoints, not a merge into main or a claim that the whole course is finished.
 
 | Commit | Milestone |
 |---|---|
+| [b7550be](https://github.com/dlmastery/simple-coding-harness/commit/b7550be4e2173db84659addf41ed3782dc556c56) | Generate, revise, and embed the first four professional illustrations; preserve seven outputs and their prompts |
+| [42251c8](https://github.com/dlmastery/simple-coding-harness/commit/42251c86af47f825dbb6c981ebd9d2e1ed71fa82) | Teach self-* and measurement mechanisms from executed evidence, including the retained precision failure |
 | [0d1b2af](https://github.com/dlmastery/simple-coding-harness/commit/0d1b2af65fe46579f065e6acb41ee098f5de49f0) | Complete individual teaching guidance for all 101 labs and 13 research groups |
 | [afac7b5](https://github.com/dlmastery/simple-coding-harness/commit/afac7b5e28df9f862f01f63f631dc2da4b8f293e) | Expand the dated research inventory to 30 papers and five reports |
 | [61b405b](https://github.com/dlmastery/simple-coding-harness/commit/61b405b1eeb6f417e0885d977a39e46b196d8d08) | Execute and archive actual CPU self-play learning; complete themes 07–09 guidance |
