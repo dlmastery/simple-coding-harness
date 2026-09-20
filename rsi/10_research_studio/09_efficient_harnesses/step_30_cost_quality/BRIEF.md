@@ -6,7 +6,7 @@ Starting state: A baseline harness, two task fixtures, and a predeclared quality
 
 Prediction to ask: Which report step can be removed without losing evidence needed for acceptance?
 
-Execution limit: Two variants, at most two fits each. Include proposal and checking overhead.
+Execution limit: Two variants, at most two fits each, plus one checker-removal fixture with a fit stub. Include proposal and checking overhead.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A previous result can become the baseline for a new investigation. Track the result lineage separately from the researcher version. If the procedure stays fixed while solutions improve, the evidence concerns accumulated research outputs. Testing a better researcher needs a comparison of research processes.
 
+**A concrete example.** The first study produces a better feature recipe. The second uses that recipe as its baseline and finds another gain. If both studies followed the same research instructions, the results improved while the recorded researcher stayed fixed. Accumulated outputs and improved research ability need separate lineages.
+
 ![Better research outputs and a better research procedure are distinct objects of evaluation.](../../../assets/diagrams/lab-10-21.png)
 
 *Read the diagram:* Better research outputs and a better research procedure are distinct objects of evaluation.
@@ -66,6 +68,16 @@ Use audit-rsi-claim to classify your lineage. Read ScientistTwo’s evaluation s
 
 The audit names the evaluated object. It does not infer researcher self-improvement from successive task gains alone.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| DISCOVERY-LINEAGE.md | Connects hypotheses, baselines, retained results, costs, and researcher versions. |
+| Local/source audit | Names the object actually evaluated in each case. |
+| Proposed researcher comparison | Starts old and new procedures from the same fresh baseline rather than recycling their accumulated advantages. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Propose a matched experiment where old and new researcher procedures start from 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a researcher hash is unavailable, mark the missing version evidence instead of assuming it stayed fixed. Conversely, an unchanged file does not prove all context and memory stayed fixed. Record those other retained states before making a claim about the entire research system.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Compare the result artifact with the procedure that produced it. Improvement in the first does not identify a change in the second.
 
 </details>
 

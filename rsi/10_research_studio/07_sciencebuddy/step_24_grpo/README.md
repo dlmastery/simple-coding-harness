@@ -68,6 +68,16 @@ Repeat with all-equal rewards and one incorrectly scored rollout. Show zero cent
 
 The calculation is reproducible and handles zero variance. No LLM checkpoint is claimed. The report lists missing pieces of real training.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Calculation source and initial output | Show mean, population standard deviation, normalized advantages, toy objective, and learning rate. |
+| Equal-reward and wrong-reward cases | Expose zero preference signal and harmful reward direction. |
+| Training-gap note | Names missing token-level optimization and source-specific GRPO details; no LLM checkpoint is claimed. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Use the scale skill to draft, without launching, a real training checklist: sour
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If equal rewards produce NaN, inspect the zero-variance handling and preserve the failed calculation. If a toy probability update produces negative values or probabilities that do not sum to one, use an explicitly defined normalized parameterization. A working categorical illustration still does not implement the full paper training procedure.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -104,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Distinguish a score, a relative advantage, and a parameter update. They are connected operations, not interchangeable names.
 
 </details>
 

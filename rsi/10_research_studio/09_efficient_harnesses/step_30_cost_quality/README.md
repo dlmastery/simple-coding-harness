@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A baseline harness, two task fixtures, and a predeclared quality tolerance.
 
-**Budget:** Two variants, at most two fits each. Include proposal and checking overhead. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two variants, at most two fits each, plus one checker-removal fixture with a fit stub. Include proposal and checking overhead. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 SoL-Pi motivates harness search for efficiency subject to quality requirements. Our exercise removes redundant report work, then checks whether the retained evidence remains complete. Define acceptable quality before comparing cost. Lower token use alone does not establish recursive cost compounding.
+
+**A concrete example.** A harness writes the same metrics into three near-identical reports. Consolidating them may save work while retaining one verifiable record. Removing the result checker also saves work, but can violate the quality floor. The two removals need different acceptance decisions even if both shorten the trace.
 
 ![A cheaper harness is eligible only if it still meets the declared quality requirement.](../../../assets/diagrams/lab-10-30.png)
 
@@ -66,15 +68,25 @@ Run baseline and candidate on matched fixtures or tasks. Compare quality, missin
 
 The acceptance rule is unchanged. All relevant costs are included or marked unknown. The conclusion is limited to measured efficiency.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| QUALITY-COST.md | Freezes required evidence, tolerance, failure handling, and cost units. |
+| Matched variant results | Retain known costs and missing measurements across both task fixtures. |
+| Checker-removal counterexample | Uses a fit stub and exposes the lost acceptance evidence without another model fit. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Run the same comparison after removing a necessary checker in a labelled fixture. Explain why the apparent saving is not a valid win.
+Run one labelled fixture with a necessary checker removed and a fit stub in place of training. Compare its missing evidence with the declared quality floor. Explain why the apparent saving is not a valid win.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If only fit time is available, report fit-time efficiency rather than total cost superiority. If a shorter run omits required evidence, treat that as a failed quality condition. Do not adjust tolerance after learning which candidate is cheaper. Include the work spent designing and checking the edit.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+State the quality requirement first. Then ask which cost can fall while that requirement continues to hold.
 
 </details>
 

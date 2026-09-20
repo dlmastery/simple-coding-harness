@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Task transfer changes the scientific problem. Agent portability changes the host interpreting skills and operating tools. Compute portability changes execution resources. Test these dimensions separately so one successful run is not mistaken for universal support.
 
+**A concrete example.** The same skill works on bike and wine in one coding agent. That is evidence about task transfer under that host. It does not test another agent’s skill loader or a cluster scheduler. A compatibility matrix keeps those unexecuted combinations visible instead of assigning one global “portable” label.
+
 ![Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.](../../assets/diagrams/lab-11-03.png)
 
 *Read the diagram:* Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.
@@ -66,6 +68,16 @@ Run the selected smoke tests through canonical skills. Check outputs, refusal be
 
 Every support claim corresponds to a run. Task transfer, agent compatibility, and backend compatibility are not merged into one label.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| PORTABILITY.md | Separates task, host, version, backend, required capabilities, and actual status. |
+| Two small smoke-run records | Retain setup, commands, outputs, refusal/recovery behavior, and observed limits. |
+| Optional backend evidence | If executed, records job identity, cancellation, checkpoint resume, and cost; otherwise remains planned or generated. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove one host capability, such as command execution, and identify which lesson
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a target host lacks command execution, identify which course outcomes it cannot produce. If no second agent or backend is available, choose the available meaningful tests and leave other cells unexecuted. Do not invent cluster behavior from a launch file or call a new folder a new agent environment.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Change one portability dimension at a time where possible. A failure is easier to interpret when task, agent, and backend do not all change together.
 
 </details>
 

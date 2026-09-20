@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A reviewer can identify a missing baseline, confound, or unsupported generalization. Convert one valid criticism into an experiment. Automated review is useful feedback but is not a real conference acceptance decision. ScientistTwo’s automated assessment must be read with that distinction.
 
+**A concrete example.** The report says weather helps, but the reviewer notices that the weather arm also used a different estimator. A useful response compares the feature groups with one fixed estimator. If the gain disappears, the revised claim should say so. A longer defense of the first result would leave the confound unresolved.
+
 ![A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.](../../../assets/diagrams/lab-10-20.png)
 
 *Read the diagram:* A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.
@@ -66,6 +68,16 @@ Choose one criticism, predeclare a two-fit follow-up, and execute it. Write RESP
 
 The response cites actual new evidence or identifies an unresolved issue. No automated score is presented as human peer acceptance.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Agent-generated review | Separates a factual error, unsupported inference, and testable concern. |
+| Predeclared follow-up and at most two fits | Target the chosen criticism without using final feedback for selection. |
+| RESPONSE.md | Links new evidence to a corrected or narrower claim and preserves unresolved concerns. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Write a response that only restates the original claim. Explain which uncertaint
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the follow-up does not distinguish the reviewer’s explanation from yours, revise its plan before running. If the evidence supports the criticism, concede it. Keep the shared-context review label; a role switch does not create blinded review or a real conference decision.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Complete “this experiment would resolve the criticism because ___.” If the blank contains only another assertion, the uncertainty remains.
 
 </details>
 

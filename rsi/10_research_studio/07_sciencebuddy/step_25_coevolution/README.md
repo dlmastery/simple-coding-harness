@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy couples harness adaptation with weight learning across repeated cycles. Our simulation represents the pair explicitly. It is constructed to show interaction: a harness may suit one model better than another. Synthetic scores illustrate the accounting and comparison, not the paper’s measured gains.
 
+**A concrete example.** Use an explicitly invented score table: model A scores 60 with harness 1 and 75 with harness 2; model B scores 80 and 65 respectively. Harness 2 is the better partner for A but the worse partner for B. These numbers demonstrate an interaction by construction; they are not trained-model evidence.
+
 ![Track model and harness versions as a pair. Changing either can alter compatibility with the other.](../../../assets/diagrams/lab-10-25.png)
 
 *Read the diagram:* Track model and harness versions as a pair. Changing either can alter compatibility with the other.
@@ -66,6 +68,16 @@ Run one harness-selection step, one model-update placeholder, and another harnes
 
 Every simulated result names both versions. Synthetic values are never mixed with paper or classroom measurements. The fixed reflector and feedback-source distinctions are checked against the paper.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Synthetic outcome table and PAIRS.md | Identify both versions for all four values and label their constructed origin. |
+| Alternating-cycle trace | Marks each harness choice and the simulated model-update placeholder. |
+| Extension plan | States what actual checkpoints, rewards, training, and evaluation would replace the placeholder. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Draft a larger-compute extension that replaces the placeholder with real trainin
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a result names only the model, add the harness identity before interpreting it. If the simulator changes table values to force a favorable story, retain the initial table and declare a separate scenario. Do not mix these synthetic scores with the paper’s reported accuracy or your actual wine measurements.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Compare harnesses within each model row. A change in the preferred partner reveals why the pair must be evaluated together.
 
 </details>
 

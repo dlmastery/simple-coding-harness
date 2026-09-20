@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The paper reports held-out single-attempt accuracy rising from 42.2% to 73.3% across three coupled cycles: a 31.1 percentage-point gain. That is not a 31.1% relative increase. Keep this result separate from validation-only harness changes and multi-attempt coverage. Distinguish real researcher interactions, simulated procedural feedback, and rubric-derived training rewards.
 
+**A concrete example.** Moving from 42.2% to 73.3% is a gain of 31.1 percentage points. Relative to the starting value, it is about 73.7%. Neither arithmetic result makes a four-attempt coverage score comparable with single-attempt accuracy. The number of opportunities and the data split belong beside the percentage.
+
 ![Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.](../../../assets/diagrams/lab-10-26.png)
 
 *Read the diagram:* Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.
@@ -66,6 +68,16 @@ Map the reported harness and weight changes, coupled cycles, and fixed reflector
 
 The audit reports 31.1 percentage points correctly. It does not mix coverage, validation, and held-out single-attempt metrics. Feedback sources are not all called human.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| RESULTS-AUDIT.md | Records source version, metric, split, attempts, baseline, final value, and feedback origin. |
+| Arithmetic check | Separates percentage-point difference from relative change. |
+| Mechanism and reproduction boundary | Maps changed harness/model components, fixed components, and unexecuted training. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Rewrite an overbroad headline as a source-scoped statement including task family
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If two numbers come from different tables, check their metric and split definitions before subtracting them. If the paper version changed, retain both citations rather than silently mixing revisions. Human-origin requests do not make every later reward or simulated interaction human feedback.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Read a percentage as a complete sentence: percentage of what, on which cases, under how many attempts, and reported by whom?
 
 </details>
 

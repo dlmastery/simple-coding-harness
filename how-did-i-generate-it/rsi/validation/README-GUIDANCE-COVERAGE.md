@@ -2,7 +2,7 @@
 
 Generated from the current lesson source and published READMEs. This inventory checks presence and source/publication agreement. It does not establish factual correctness, visual quality, runtime completion, or student learning.
 
-75 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 77 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
+101 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 101 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
 
 The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. Editorial observations and actual execution evidence remain separate.
 
@@ -83,29 +83,29 @@ The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. 
 | [10.15](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | present | authored | specific | specific |
 | [10.16](../../../rsi/10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md) | present | authored | specific | specific |
 | [10.17](../../../rsi/10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md) | present | authored | specific | specific |
-| [10.18](../../../rsi/10_research_studio/06_scientist_two/step_18_hypothesis/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.19](../../../rsi/10_research_studio/06_scientist_two/step_19_screen_ablate/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.20](../../../rsi/10_research_studio/06_scientist_two/step_20_review_rebuttal/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.21](../../../rsi/10_research_studio/06_scientist_two/step_21_successive_results/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.22](../../../rsi/10_research_studio/07_sciencebuddy/step_22_human_task/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.23](../../../rsi/10_research_studio/07_sciencebuddy/step_23_harness_adaptation/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.24](../../../rsi/10_research_studio/07_sciencebuddy/step_24_grpo/README.md) | present | pending | generic or pending | generic or pending |
-| [10.25](../../../rsi/10_research_studio/07_sciencebuddy/step_25_coevolution/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.26](../../../rsi/10_research_studio/07_sciencebuddy/step_26_audit_results/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.27](../../../rsi/10_research_studio/08_skills_and_procedures/step_27_wiki/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.28](../../../rsi/10_research_studio/08_skills_and_procedures/step_28_procedural_graph/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.29](../../../rsi/10_research_studio/08_skills_and_procedures/step_29_gui/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.30](../../../rsi/10_research_studio/09_efficient_harnesses/step_30_cost_quality/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.31](../../../rsi/10_research_studio/09_efficient_harnesses/step_31_harness_builders/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.32](../../../rsi/10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.33](../../../rsi/10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.34](../../../rsi/10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.35](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_35_metarsi/README.md) | present | pending | generic or pending | generic or pending |
-| [10.36](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_36_harnessevolve/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.37](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_37_compare_systems/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.38](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_38_economics/README.md) | missing | pending | generic or pending | generic or pending |
-| [11.01](../../../rsi/11_capstones/step_01_new_harness/README.md) | missing | pending | generic or pending | generic or pending |
-| [11.02](../../../rsi/11_capstones/step_02_recursive_experiment/README.md) | missing | pending | generic or pending | generic or pending |
-| [11.03](../../../rsi/11_capstones/step_03_portability/README.md) | missing | pending | generic or pending | generic or pending |
-| [11.04](../../../rsi/11_capstones/step_04_external_audit/README.md) | missing | pending | generic or pending | generic or pending |
-| [11.05](../../../rsi/11_capstones/step_05_teach_back/README.md) | missing | pending | generic or pending | generic or pending |
+| [10.18](../../../rsi/10_research_studio/06_scientist_two/step_18_hypothesis/README.md) | present | authored | specific | specific |
+| [10.19](../../../rsi/10_research_studio/06_scientist_two/step_19_screen_ablate/README.md) | present | authored | specific | specific |
+| [10.20](../../../rsi/10_research_studio/06_scientist_two/step_20_review_rebuttal/README.md) | present | authored | specific | specific |
+| [10.21](../../../rsi/10_research_studio/06_scientist_two/step_21_successive_results/README.md) | present | authored | specific | specific |
+| [10.22](../../../rsi/10_research_studio/07_sciencebuddy/step_22_human_task/README.md) | present | authored | specific | specific |
+| [10.23](../../../rsi/10_research_studio/07_sciencebuddy/step_23_harness_adaptation/README.md) | present | authored | specific | specific |
+| [10.24](../../../rsi/10_research_studio/07_sciencebuddy/step_24_grpo/README.md) | present | authored | specific | specific |
+| [10.25](../../../rsi/10_research_studio/07_sciencebuddy/step_25_coevolution/README.md) | present | authored | specific | specific |
+| [10.26](../../../rsi/10_research_studio/07_sciencebuddy/step_26_audit_results/README.md) | present | authored | specific | specific |
+| [10.27](../../../rsi/10_research_studio/08_skills_and_procedures/step_27_wiki/README.md) | present | authored | specific | specific |
+| [10.28](../../../rsi/10_research_studio/08_skills_and_procedures/step_28_procedural_graph/README.md) | present | authored | specific | specific |
+| [10.29](../../../rsi/10_research_studio/08_skills_and_procedures/step_29_gui/README.md) | present | authored | specific | specific |
+| [10.30](../../../rsi/10_research_studio/09_efficient_harnesses/step_30_cost_quality/README.md) | present | authored | specific | specific |
+| [10.31](../../../rsi/10_research_studio/09_efficient_harnesses/step_31_harness_builders/README.md) | present | authored | specific | specific |
+| [10.32](../../../rsi/10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md) | present | authored | specific | specific |
+| [10.33](../../../rsi/10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md) | present | authored | specific | specific |
+| [10.34](../../../rsi/10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md) | present | authored | specific | specific |
+| [10.35](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_35_metarsi/README.md) | present | authored | specific | specific |
+| [10.36](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_36_harnessevolve/README.md) | present | authored | specific | specific |
+| [10.37](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_37_compare_systems/README.md) | present | authored | specific | specific |
+| [10.38](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_38_economics/README.md) | present | authored | specific | specific |
+| [11.01](../../../rsi/11_capstones/step_01_new_harness/README.md) | present | authored | specific | specific |
+| [11.02](../../../rsi/11_capstones/step_02_recursive_experiment/README.md) | present | authored | specific | specific |
+| [11.03](../../../rsi/11_capstones/step_03_portability/README.md) | present | authored | specific | specific |
+| [11.04](../../../rsi/11_capstones/step_04_external_audit/README.md) | present | authored | specific | specific |
+| [11.05](../../../rsi/11_capstones/step_05_teach_back/README.md) | present | authored | specific | specific |

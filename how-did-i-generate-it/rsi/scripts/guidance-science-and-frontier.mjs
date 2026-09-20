@@ -1,0 +1,126 @@
+export const scienceFrontierGuidance = {
+  '10.18': {
+    example:'Calendar inputs can explain the usual morning peak while leaving unusually quiet hours poorly predicted. The proposed weather features might reduce those errors. Compare the same linear recipe with and without that feature group. Even a lower MAE would establish a predictive association under this contract, not the causal effect of changing the weather.',
+    outputs:[['HYPOTHESIS.md','Records the observation, mechanism, intervention, alternative, and rejection condition before results.'],['Two matched fits','Differ only in the declared feature group and retain predictions and slice errors.'],['Scoped conclusion','Reports whether the expected difference appeared, including an unfavorable result.']],
+    recovery:'If the agent changes the estimator as well as the features, the result cannot isolate the proposed contribution. Preserve it as a different comparison. If an observed-weather field is called a forecast, correct the claim: this dataset does not supply historical weather forecasts available at a prior prediction time.',
+    hint:'Name the one factor changed, then list the conditions that stayed fixed. Your conclusion should be no broader than that comparison.'
+  },
+  '10.19': {
+    example:'A cheap screen on a small, earlier training subset may favor a simple model. The fuller development comparison can favor another idea because more data supports it. That disagreement is a result about the screen’s usefulness, not a reason to hide the cheaper run.',
+    outputs:[['Screening plan and runner','Freeze subset membership, preprocessing boundaries, advancement rule, and four-fit total.'],['Two screening records','Retain both ideas, proxy outcomes, and costs.'],['Confirmation and ablation','Use matching fuller conditions for the selected idea and its removed-component version.']],
+    recovery:'If the supplied runtime refuses a changed partition, keep its contract intact. The agent must generate the separate screening runner described in the plan. If the subset omits a necessary category or class, diagnose that before interpreting model quality. Count discarded screen candidates in the total research cost.',
+    hint:'A screen chooses where to spend resources. Ask whether its cheaper conditions preserve the distinction that matters in the fuller test.'
+  },
+  '10.20': {
+    example:'The report says weather helps, but the reviewer notices that the weather arm also used a different estimator. A useful response compares the feature groups with one fixed estimator. If the gain disappears, the revised claim should say so. A longer defense of the first result would leave the confound unresolved.',
+    outputs:[['Agent-generated review','Separates a factual error, unsupported inference, and testable concern.'],['Predeclared follow-up and at most two fits','Target the chosen criticism without using final feedback for selection.'],['RESPONSE.md','Links new evidence to a corrected or narrower claim and preserves unresolved concerns.']],
+    recovery:'If the follow-up does not distinguish the reviewer’s explanation from yours, revise its plan before running. If the evidence supports the criticism, concede it. Keep the shared-context review label; a role switch does not create blinded review or a real conference decision.',
+    hint:'Complete “this experiment would resolve the criticism because ___.” If the blank contains only another assertion, the uncertainty remains.'
+  },
+  '10.21': {
+    example:'The first study produces a better feature recipe. The second uses that recipe as its baseline and finds another gain. If both studies followed the same research instructions, the results improved while the recorded researcher stayed fixed. Accumulated outputs and improved research ability need separate lineages.',
+    outputs:[['DISCOVERY-LINEAGE.md','Connects hypotheses, baselines, retained results, costs, and researcher versions.'],['Local/source audit','Names the object actually evaluated in each case.'],['Proposed researcher comparison','Starts old and new procedures from the same fresh baseline rather than recycling their accumulated advantages.']],
+    recovery:'If a researcher hash is unavailable, mark the missing version evidence instead of assuming it stayed fixed. Conversely, an unchanged file does not prove all context and memory stayed fixed. Record those other retained states before making a claim about the entire research system.',
+    hint:'Compare the result artifact with the procedure that produced it. Improvement in the first does not identify a change in the second.'
+  },
+  '10.22': {
+    example:'“Do not hide failures on rare high-quality wines” becomes a check for the positive-class recall and its supporting predictions. A report that says “minority performance was reviewed” supplies no value or evidence. The rubric should distinguish a verifiable result from a statement of compliance.',
+    outputs:[['Labelled request fixture and TASK.md','State that the request was constructed for teaching.'],['RUBRIC.md and checker','Bind each requirement to observable evidence.'],['Complete/incomplete report verdicts','Show the omission being detected without another model fit.']],
+    recovery:'If the checker accepts a report because it contains the word recall, make it inspect the actual value and its evidence source. Do not fill missing numbers from a plausible guess. If the example crosses into unfamiliar scientific interpretation, separate the limited automated check from the domain judgment it cannot supply.',
+    hint:'For every rubric item, name the artifact a skeptical reader would open. A requirement without observable evidence is difficult to check.'
+  },
+  '10.23': {
+    example:'A child reporting skill requires both class recalls and links to predictions. With complete evidence it can produce a fuller report. With missing evidence it should identify the gap, not invent a passing number. A skill that fabricates compliance has failed even if its prose looks more polished.',
+    outputs:[['Parent and child reporting skills','Show the external instruction edit and unchanged rubric.'],['Four report/check pairs','Cover both skill versions on complete and incomplete evidence fixtures.'],['Adaptation report','Distinguishes measured reporting behavior from unperformed model-weight training.']],
+    recovery:'If the child passes only by manufacturing a value absent from the fixture, retain that failure and reject the edit. If the parent sees the child’s instruction in the same conversation, state that context exposure limits causal attribution. The four-check budget includes both evidence conditions; no extra fit is needed.',
+    hint:'Track which file changed and whether any optimizer updated model parameters. New instructions do not imply new language-model weights.'
+  },
+  '10.24': {
+    outputs:[['Calculation source and initial output','Show mean, population standard deviation, normalized advantages, toy objective, and learning rate.'],['Equal-reward and wrong-reward cases','Expose zero preference signal and harmful reward direction.'],['Training-gap note','Names missing token-level optimization and source-specific GRPO details; no LLM checkpoint is claimed.']],
+    recovery:'If equal rewards produce NaN, inspect the zero-variance handling and preserve the failed calculation. If a toy probability update produces negative values or probabilities that do not sum to one, use an explicitly defined normalized parameterization. A working categorical illustration still does not implement the full paper training procedure.',
+    hint:'Distinguish a score, a relative advantage, and a parameter update. They are connected operations, not interchangeable names.'
+  },
+  '10.25': {
+    example:'Use an explicitly invented score table: model A scores 60 with harness 1 and 75 with harness 2; model B scores 80 and 65 respectively. Harness 2 is the better partner for A but the worse partner for B. These numbers demonstrate an interaction by construction; they are not trained-model evidence.',
+    outputs:[['Synthetic outcome table and PAIRS.md','Identify both versions for all four values and label their constructed origin.'],['Alternating-cycle trace','Marks each harness choice and the simulated model-update placeholder.'],['Extension plan','States what actual checkpoints, rewards, training, and evaluation would replace the placeholder.']],
+    recovery:'If a result names only the model, add the harness identity before interpreting it. If the simulator changes table values to force a favorable story, retain the initial table and declare a separate scenario. Do not mix these synthetic scores with the paper’s reported accuracy or your actual wine measurements.',
+    hint:'Compare harnesses within each model row. A change in the preferred partner reveals why the pair must be evaluated together.'
+  },
+  '10.26': {
+    example:'Moving from 42.2% to 73.3% is a gain of 31.1 percentage points. Relative to the starting value, it is about 73.7%. Neither arithmetic result makes a four-attempt coverage score comparable with single-attempt accuracy. The number of opportunities and the data split belong beside the percentage.',
+    outputs:[['RESULTS-AUDIT.md','Records source version, metric, split, attempts, baseline, final value, and feedback origin.'],['Arithmetic check','Separates percentage-point difference from relative change.'],['Mechanism and reproduction boundary','Maps changed harness/model components, fixed components, and unexecuted training.']],
+    recovery:'If two numbers come from different tables, check their metric and split definitions before subtracting them. If the paper version changed, retain both citations rather than silently mixing revisions. Human-origin requests do not make every later reward or simulated interaction human feedback.',
+    hint:'Read a percentage as a complete sentence: percentage of what, on which cases, under how many attempts, and reported by whom?'
+  },
+  '10.27': {
+    example:'A proposed rule says to skip a data check that appeared redundant. A later fixture exposes a failure, so the active skill keeps the check. The notebook can still retain “this removal failed under condition C,” with a link to the trace. Rejecting the edit need not erase the evidence.',
+    outputs:[['TRACE.md, NOTEBOOK.md, and ACTIVE-SKILL.md','Separate original events, scoped interpretation, and accepted instructions.'],['Two candidate checks','Retain the evidence behind promotion or rejection.'],['Read/access record','States what the actor and improver actually saw and whether restrictions were technically enforced.']],
+    recovery:'If the rejected instruction remains in the active skill, restore the accepted version without deleting the failed child. If the actor already saw the notebook, label that exposure. An instruction that says not to read a file cannot establish an isolated information boundary by itself.',
+    hint:'Ask which store records what happened, which records what was learned, and which controls the next action. Their acceptance rules can differ.'
+  },
+  '10.28': {
+    example:'The workflow currently routes every returned tool result straight to reporting. A proposed edge sends failed validation to diagnosis instead. This changes what happens next; it does not redefine what the target or metric means. A semantically invalid feature still needs the separate domain rule.',
+    outputs:[['Executable procedure graph','Exposes current-node inputs, action, completion condition, and transitions.'],['Parent/child graph and two selection checks','Show the targeted transition repair and regression behavior.'],['Frozen fresh-case and semantic-error checks','Complete the four-fixture budget with no model training.']],
+    recovery:'If the diagram changes but the runner follows the old route, the edit has not reached execution. If a fit starts during these fixtures, inspect the stub. If a field is structurally valid but derived from the target, keep the ontology check active; a well-routed invalid experiment is still invalid.',
+    hint:'A procedure edge answers “what next?” A domain relation answers “what does this mean?” Find one example of each in your run.'
+  },
+  '10.29': {
+    example:'The top row has the lowest displayed error, but its detail view says it used a forbidden target-derived input. Selecting it without opening the warning is a task failure. A revised inspection skill should verify validity before optimizing the score. Both attempts use the same page and hidden warning.',
+    outputs:[['Local page and source metrics','Show real candidate values, filter behavior, and the detail warning.'],['Two visible interaction traces','Record actual browser actions and final selected candidate.'],['Critique, skill revision, and executable check','Keep the critic’s verdict separate from the selected-candidate condition.']],
+    recovery:'If the host cannot operate a browser, keep the page and checker as prepared artifacts and mark live UI execution unavailable. Reading HTML is a different check. If the critic received the answer key or shared the executor’s context, record it. Do not add repeated attempts until the page appears successful.',
+    hint:'Inspect what was visible and what was actually selected. A success message from either role is weaker than the page state and task check.'
+  },
+  '10.30': {
+    example:'A harness writes the same metrics into three near-identical reports. Consolidating them may save work while retaining one verifiable record. Removing the result checker also saves work, but can violate the quality floor. The two removals need different acceptance decisions even if both shorten the trace.',
+    outputs:[['QUALITY-COST.md','Freezes required evidence, tolerance, failure handling, and cost units.'],['Matched variant results','Retain known costs and missing measurements across both task fixtures.'],['Checker-removal counterexample','Uses a fit stub and exposes the lost acceptance evidence without another model fit.']],
+    recovery:'If only fit time is available, report fit-time efficiency rather than total cost superiority. If a shorter run omits required evidence, treat that as a failed quality condition. Do not adjust tolerance after learning which candidate is cheaper. Include the work spent designing and checking the edit.',
+    hint:'State the quality requirement first. Then ask which cost can fall while that requirement continues to hold.'
+  },
+  '10.31': {
+    example:'The fixed builder produces a harness whose report omits class recall. You revise the generated report component and its behavior improves. This is evidence about the revised harness. To evaluate the builder, you would need to compare what builder versions produce on prespecified briefs, including unsuccessful generations.',
+    outputs:[['Two-source mechanism map','Names each paper’s fixed and mutable objects, evaluation roles, and reading depth.'],['Generated harness parent/child and checks','Record the local edit and its actual behavior under matching conditions.'],['Unchanged builder identity','Prevents a harness improvement from being relabelled as demonstrated builder improvement.']],
+    recovery:'If the source title suggests a mechanism absent from its methods, follow the methods and record the distinction. If the local harness imports the course runtime, include that dependency in the handoff. Do not call it independently generated or standalone merely because its files live in a new directory.',
+    hint:'Ask what the evaluation input is: one task for a harness, or a new brief for a builder. Different inputs test different objects.'
+  },
+  '10.32': {
+    example:'Starting from zero, add 3, remove 1, then add 2. The final count is 4. A summary after the first two events should say 2; a summary that forgets the removal says 3 and leads to 5. Compression can be shorter and systematically wrong at the same time.',
+    outputs:[['Original events, checkpoint summary, and exact checker','Keep ground truth tied to the original operations.'],['Five condition records','Include raw, correct summary, faulty summary, and both expanded-description attempts.'],['Memory-interface report','States actual information exposure and separates external representation from weight learning.']],
+    recovery:'If the summary includes the final answer, inspect whether it was computed before the declared checkpoint and exposed later events. If both conditions share a context, do not claim a clean memory ablation. When adding irrelevant descriptions, preserve every state-changing operation so the scientific comparison remains the same.',
+    hint:'Trace the state numerically through the original events. That independent calculation reveals whether the memory preserved the information needed for the task.'
+  },
+  '10.33': {
+    example:'“Open column B next” is an action hint. “Column B is missing its unit” is richer observation. If the missing unit moves to column C, the old action hint can become misleading while an accurate observation still describes the new problem. Success with either help does not establish unassisted learning.',
+    outputs:[['Task fixtures and assistance packets','Separate prescribed next actions from added state information.'],['Four traces and exact checks','Cover action help, observation help, unassisted work, and the stale-hint case.'],['Assistance-dependence report','Names context exposure, fresh-case limits, and the absence of parameter training.']],
+    recovery:'If the enriched observation contains the next action verbatim, the two interventions are no longer distinct. If the unassisted attempt has already seen the same answer, use the declared fresh fixture and still report shared-context limits. Keep the stale hint labelled so it is not mistaken for a course instruction.',
+    hint:'Separate information about the world from advice about what to do. Then ask which one remains valid when the next required action changes.'
+  },
+  '10.34': {
+    example:'The harness expects a candidate identifier and a numeric balanced-accuracy field. A fluent paragraph contains the right value but omits the identifier, so the parser cannot associate it with a run. A minimal field correction restores the contract. That is an interface repair, not a trained-model improvement.',
+    outputs:[['Fixed parser and four response fixtures','Retain valid, mismatched, repaired, and incompatible-template cases.'],['Four executable verdicts','Show exactly which structural or semantic condition failed.'],['Source training audit','Separates the local format demonstration from source-specific on-policy correction and weight updates.']],
+    recovery:'If the parser accepts the repaired response only after its requirements were weakened, the original comparison changed. Preserve the original parser and report that difference. Have the agent generate any machine representation; the student should inspect field meaning rather than type configuration. Formatting success alone does not prove the reported metric is correct.',
+    hint:'A useful response must fit its consumer’s contract as well as express a plausible answer. Inspect both requirements.'
+  },
+  '10.35': {
+    outputs:[['Typed operator contracts','Declare data, harness, and model reads/writes and label synthetic outcomes.'],['Five schedule checks','Include valid composition, order differences, stale evidence, and forbidden writes.'],['Scheduler revision and later-term trace','Connect the altered rule to an executed simulated choice while keeping the evaluator fixed.']],
+    recovery:'If a model-update stub is reported as a trained checkpoint, correct the label and retain the distinction. If a schedule reads evidence from an older system version, reject or explicitly regenerate the diagnostic under a new budget. Do not change the synthetic scoring table during the comparison to reward the preferred schedule.',
+    hint:'Track the version read by each operator, the version it writes, and the scheduler that selected it. Order and inheritance are visible in those links.'
+  },
+  '10.36': {
+    example:'A shortcut reference prints “the units are missing” because it was given the answer. A useful reference opens the schema, checks the required field, and records the failure. Both may end with the same sentence, but only the latter provides an executable path that can help diagnose the failed workflow.',
+    outputs:[['Four trace verdicts','Cover the failure, valid reference, answer shortcut, and an alternative valid route.'],['General skill proposal and quality check','Look for case-answer copying and unnecessary instruction growth.'],['Current/prior fixture results','Show whether the retained edit helps without losing previously checked behavior.']],
+    recovery:'If the reference passes solely because its final text matches the answer, strengthen the declared action-evidence check. If the child embeds a case-specific label, retain and reject that proposal. An alternative valid route should not fail simply because its action order differs; check the task’s actual constraints.',
+    hint:'A reference is evidence of a possible successful route, not proof that every different route is wrong.'
+  },
+  '10.37': {
+    example:'One system updates memory; another updates weights and harness instructions; a third revises the search policy. Their headline scores come from different tasks. A useful matrix compares changed objects, feedback, inheritance, and evaluation before asking whether any numbers are comparable.',
+    outputs:[['SYSTEM-COMPARISON.md','Covers the six named systems and the local experiment with primary links and reading depth.'],['Mechanism-only view','Separates structure from scores and marks unknown fields.'],['One challenged classification','States a plausible weaker explanation and the evidence that would distinguish it.']],
+    recovery:'If a row lacks a resource measurement, mark it unknown rather than ranking cost by intuition. If a paper-reported number appears beside a local score, label their different protocols. New optional sources can enrich a comparison, but an unread abstract must not become a detailed method claim.',
+    hint:'Use the same questions across rows. Preserve different answers instead of forcing every system into the same supposed stage.'
+  },
+  '10.38': {
+    example:'Proposal work takes 1 minute and the remaining execution/evaluation takes 9. Doubling proposal speed changes total time from 10 to 9.5 minutes: a 5% reduction. Even eliminating proposal time saves only 10%. A claimed proposal speedup needs the full process denominator before it becomes a research speedup.',
+    outputs:[['Resource calculator and assumptions','Define sequential stages, units, synthetic inputs, and any omitted costs.'],['Five scenario outputs','Compare baseline, faster stages, checking overhead, and one later-limit scenario.'],['Acceleration audit','Separates cumulative gain, per-generation increment, and progress per total resource.']],
+    recovery:'If wall-clock savings exceed the time originally spent in the accelerated stage, inspect the arithmetic and parallelism assumptions. If measured and synthetic values share a chart, label them separately. A rising cumulative curve with smaller increments supports continued progress, not increasing marginal progress.',
+    hint:'Write total time as the sum of the declared stages before changing one. Then compare increments as well as cumulative totals.'
+  },
+};

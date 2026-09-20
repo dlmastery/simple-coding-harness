@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your cost ledger and a labelled synthetic model of proposal, execution, and evaluation time.
 
-**Budget:** One numerical simulation with three scenarios; no paid compute. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Five numerical scenarios: baseline, faster proposals, faster evaluation, checking overhead, and one saturation or verifier-cost extension. No paid compute. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Total progress depends on the whole research process. If evaluation takes most of the time, making proposals twice as fast has a limited effect. Use explicit synthetic numbers to study the bottleneck, then return to measured evidence. Do not confuse a theoretical possibility with a demonstrated trajectory.
+
+**A concrete example.** Proposal work takes 1 minute and the remaining execution/evaluation takes 9. Doubling proposal speed changes total time from 10 to 9.5 minutes: a 5% reduction. Even eliminating proposal time saves only 10%. A claimed proposal speedup needs the full process denominator before it becomes a research speedup.
 
 ![The slow stage limits total speedup. The calculator uses declared synthetic costs, not a forecast.](../../../assets/diagrams/lab-10-38.png)
 
@@ -66,6 +68,16 @@ Use your lineage and cost ledger to distinguish cumulative gain, gain per genera
 
 Synthetic values are labelled. The calculation uses total time. The final claim separates theory, reported research, and local measurements.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Resource calculator and assumptions | Define sequential stages, units, synthetic inputs, and any omitted costs. |
+| Five scenario outputs | Compare baseline, faster stages, checking overhead, and one later-limit scenario. |
+| Acceleration audit | Separates cumulative gain, per-generation increment, and progress per total resource. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Add a saturation limit or a more expensive verifier. Explain how either can slow
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If wall-clock savings exceed the time originally spent in the accelerated stage, inspect the arithmetic and parallelism assumptions. If measured and synthetic values share a chart, label them separately. A rising cumulative curve with smaller increments supports continued progress, not increasing marginal progress.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Write total time as the sum of the declared stages before changing one. Then compare increments as well as cumulative totals.
 
 </details>
 

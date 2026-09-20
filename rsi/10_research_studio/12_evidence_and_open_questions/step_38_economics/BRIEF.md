@@ -6,7 +6,7 @@ Starting state: Your cost ledger and a labelled synthetic model of proposal, exe
 
 Prediction to ask: How much total time can be saved if proposals take one minute and evaluation takes nine?
 
-Execution limit: One numerical simulation with three scenarios; no paid compute.
+Execution limit: Five numerical scenarios: baseline, faster proposals, faster evaluation, checking overhead, and one saturation or verifier-cost extension. No paid compute.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

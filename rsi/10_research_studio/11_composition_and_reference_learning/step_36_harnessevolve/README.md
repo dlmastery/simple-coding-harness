@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A failed local workflow trace, a successful reference trace, and a labelled shortcut trace.
 
-**Budget:** Three trace checks and one candidate-skill evaluation on two fixtures. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four trace checks, including the alternative-path counterexample, and one candidate-skill evaluation on two fixtures. No model fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 HarnessEvolve uses answer-conditioned reference trajectories, checks that they contain genuine execution, and compares failures against them. Candidate changes face quality and performance gates. Our exercise uses small workflow traces and prevents a copied answer from becoming the active skill.
+
+**A concrete example.** A shortcut reference prints “the units are missing” because it was given the answer. A useful reference opens the schema, checks the required field, and records the failure. Both may end with the same sentence, but only the latter provides an executable path that can help diagnose the failed workflow.
 
 ![Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.](../../../assets/diagrams/lab-10-36.png)
 
@@ -66,6 +68,16 @@ Compare the failed trace with the valid reference. Propose one general skill edi
 
 The reference is validated independently of its final answer text. The active skill does not copy case-specific answers. Both current and prior cases are evaluated.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Four trace verdicts | Cover the failure, valid reference, answer shortcut, and an alternative valid route. |
+| General skill proposal and quality check | Look for case-answer copying and unnecessary instruction growth. |
+| Current/prior fixture results | Show whether the retained edit helps without losing previously checked behavior. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Supply a legitimate alternative successful path. Explain why the first divergenc
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the reference passes solely because its final text matches the answer, strengthen the declared action-evidence check. If the child embeds a case-specific label, retain and reject that proposal. An alternative valid route should not fail simply because its action order differs; check the task’s actual constraints.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A reference is evidence of a possible successful route, not proof that every different route is wrong.
 
 </details>
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScientistTwo motivates a research workflow built around hypotheses and experiments. Our classroom question is narrow: does adding permitted weather information help a fixed linear recipe beyond calendar inputs? This is a prediction study, not a causal claim about weather.
 
+**A concrete example.** Calendar inputs can explain the usual morning peak while leaving unusually quiet hours poorly predicted. The proposed weather features might reduce those errors. Compare the same linear recipe with and without that feature group. Even a lower MAE would establish a predictive association under this contract, not the causal effect of changing the weather.
+
 ![Turn an observed limitation into a falsifiable hypothesis before changing the experiment.](../../../assets/diagrams/lab-10-18.png)
 
 *Read the diagram:* Turn an observed limitation into a falsifiable hypothesis before changing the experiment.
@@ -66,6 +68,16 @@ Fit linear/calendar and linear/all under matching settings. Save predictions, sl
 
 The hypothesis precedes results. One declared factor changes. A failed hypothesis remains a valid research outcome.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| HYPOTHESIS.md | Records the observation, mechanism, intervention, alternative, and rejection condition before results. |
+| Two matched fits | Differ only in the declared feature group and retain predictions and slice errors. |
+| Scoped conclusion | Reports whether the expected difference appeared, including an unfavorable result. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Rewrite “weather improves demand prediction” as a conditional statement tied
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the agent changes the estimator as well as the features, the result cannot isolate the proposed contribution. Preserve it as a different comparison. If an observed-weather field is called a forecast, correct the claim: this dataset does not supply historical weather forecasts available at a prior prediction time.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Name the one factor changed, then list the conditions that stayed fixed. Your conclusion should be no broader than that comparison.
 
 </details>
 

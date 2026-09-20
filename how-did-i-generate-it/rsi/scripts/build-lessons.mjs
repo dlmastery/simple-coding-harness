@@ -7,6 +7,7 @@ import {themes, lessons} from './lesson-content.mjs';
 import {renderDiagram, diagrams} from './lesson-diagrams.mjs';
 import {examples} from './lesson-examples.mjs';
 import {guidance} from './lesson-guidance.mjs';
+import {researchGroups} from './research-groups.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const rsi = resolve(repo, 'rsi');
@@ -133,14 +134,18 @@ for (const [key,t] of Object.entries(themes)) {
   const selected=lessons.filter(l=>l.theme===key);
   if (!selected.length) continue;
   const folder=resolve(rsi,t.directory);
-  save(resolve(folder,'README.md'), `# ${t.title}\n\n[Course](../README.md)\n\n${t.intro}\n\n${t.bridge}\n\n| Lab | What changes |\n|---|---|\n${selected.map(l=>`| [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md) | ${l.build} |`).join('\n')}\n\nStart with the first lab and follow its next link. Each lab uses a separate workspace and keeps its evidence. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).\n\n${t.exit}`);
+  const contents=key==='10'
+    ? `The 38 studio labs form 13 connected groups. Follow them in this order; each group explains its starting evidence and what you will carry forward.\n\n| Group | Question | Labs |\n|---|---|---|\n${Object.entries(researchGroups).map(([group,g])=>{const items=selected.filter(l=>l.group===group);return `| [${g.title}](${group}/README.md) | ${g.question} | ${items[0].id}–${items.at(-1).id} |`;}).join('\n')}\n\nThe [complete course map](../COURSE-MAP.md) also lists every individual lab.`
+    : `| Lab | What you will build |\n|---|---|\n${selected.map(l=>`| [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md) | ${l.build} |`).join('\n')}`;
+  save(resolve(folder,'README.md'), `# ${t.title}\n\n[Course](../README.md)\n\n${t.intro}\n\n${t.bridge}\n\n${contents}\n\nStart with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).\n\n${t.exit}`);
 }
 
 for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {
   const selected=lessons.filter(l=>l.group===group);
   const folder=resolve(rsi,themes['10'].directory,group);
-  const title=group.slice(3).replaceAll('_',' ');
-  save(resolve(folder,'README.md'), `# ${title.charAt(0).toUpperCase()+title.slice(1)}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n${selected[0].why} These labs build the mechanism in small steps and state the limits of the classroom adaptation. Complete the foundation themes before beginning.\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
+  const g=researchGroups[group];
+  if(!g) throw new Error(`Missing research-group introduction: ${group}`);
+  save(resolve(folder,'README.md'), `# ${g.title}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n${g.intro}\n\n**Start with:** ${g.entry}\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\n**Carry forward:** ${g.exit}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
 }
 
 save(resolve(rsi,'COURSE-MAP.md'), `# Course map\n\n[Course](README.md)\n\nThis is the current authored sequence. The [validation record](evidence/2026-09-20/README.md) states which runs have actually been checked. A written lesson is not automatically a validated lesson.\n\n| Lab | Theme | Lesson |\n|---|---|---|\n${lessons.map(l=>`| ${l.id} | ${themes[l.theme].title} | [${l.title}](${link(rsi,lessonPath(l))}/README.md) |`).join('\n')}\n`);

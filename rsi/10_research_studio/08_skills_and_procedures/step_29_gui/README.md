@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 EvoSkill-GUI motivates separating reusable skills from task traces and critique. Our local page avoids accounts and external side effects. The critic receives the visible instruction and action evidence. It should not be given private executor reasoning or an answer key and then called blind.
 
+**A concrete example.** The top row has the lowest displayed error, but its detail view says it used a forbidden target-derived input. Selecting it without opening the warning is a task failure. A revised inspection skill should verify validity before optimizing the score. Both attempts use the same page and hidden warning.
+
 ![Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.](../../../assets/diagrams/lab-10-29.png)
 
 *Read the diagram:* Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.
@@ -47,7 +49,7 @@ Ask me to predict the result before the experiment.
 Make the interface small and inspectable.
 
 ```text
-Generate a local static experiment-results page from real saved metrics. Add a filter and candidate detail view. Ask the browser-capable agent to select the best valid candidate under the fixed rule and record visible actions.
+Generate a local static experiment-results page from real saved metrics. Add a filter and candidate detail view, with an invalid candidate’s warning visible only in its detail view from the first attempt onward. Ask the browser-capable agent to select the best valid candidate under the fixed rule and record visible actions.
 ```
 
 **Observe:** The trace can be checked against the page state.
@@ -66,15 +68,25 @@ Provide the task and visible action trace to a separate critic context if availa
 
 The page uses actual data. Live interaction is distinguished from reading HTML or a simulation. Missing browser capability is reported rather than claiming completion.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Local page and source metrics | Show real candidate values, filter behavior, and the detail warning. |
+| Two visible interaction traces | Record actual browser actions and final selected candidate. |
+| Critique, skill revision, and executable check | Keep the critic’s verdict separate from the selected-candidate condition. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Hide an invalid candidate’s warning behind a detail view. Test whether the revised skill inspects it before selecting.
+Inspect the two saved UI attempts. Determine whether each inspected the warning hidden in the detail view before selecting. Do not add a third UI attempt to improve the presentation.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the host cannot operate a browser, keep the page and checker as prepared artifacts and mark live UI execution unavailable. Reading HTML is a different check. If the critic received the answer key or shared the executor’s context, record it. Do not add repeated attempts until the page appears successful.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Inspect what was visible and what was actually selected. A success message from either role is weaker than the page state and task check.
 
 </details>
 

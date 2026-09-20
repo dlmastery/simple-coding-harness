@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Begin with the scientific contract, not a preferred optimizer. State target, prediction time, available inputs, split, metric, baseline, and limitations. Use the builder skill to create a harness, then test a valid run and an intended refusal. Keep any departure from the earlier task explicit.
 
+**A concrete example.** You change from describing recorded hourly demand to predicting tomorrow’s demand. That is a new scientific question even on the same public dataset. Tomorrow’s observed weather is no longer an available input. The new brief must resolve input availability and evaluation time before the builder chooses a model.
+
 ![A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.](../../assets/diagrams/lab-11-01.png)
 
 *Read the diagram:* A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.
@@ -66,6 +68,16 @@ Use build-ml-harness to generate the system. Run its baseline and one intended r
 
 The handoff is sufficient, evidence is actual, and the refusal is meaningful. A different dataset alone does not establish transfer of every learned procedure.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Task brief and data card | Define the new question, permissions, source identity, prediction unit, inputs, split, and objective. |
+| Generated harness and real baseline | Retain its dependencies, entry point, predictions, checks, and known costs. |
+| Intended refusal and handoff | Demonstrate one meaningful invalid request and supply a clean-start route for a peer. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Use scale-experiment to prepare a larger-job plan with resources, cancellation, 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the new task requires data that the dataset does not provide, narrow the question or identify the missing source before fitting. If generation produces instructions without an executable entry, finish the implementation and retain any failed attempt. A cluster plan remains generated-only until its actual backend checks run.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Before asking whether the model is good, ask whether each input could exist when the prediction is needed and whether the evaluation answers the new question.
 
 </details>
 

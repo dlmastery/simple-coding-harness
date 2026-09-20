@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The ML workflow graph, success and failure traces, and domain ontology.
 
-**Budget:** One graph edit and two checks; at most two fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One graph edit and four executable fixture checks: two selection cases, one fresh case, and one semantic-error case. Use a fit stub; no training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A procedural graph represents actions and transitions. Our exercise gives the executor the current node and relevant local guidance, then proposes one transition repair from traces. The domain ontology still describes entities and meaning. These are different graphs. Freeze the selected procedure before a fresh evaluation.
+
+**A concrete example.** The workflow currently routes every returned tool result straight to reporting. A proposed edge sends failed validation to diagnosis instead. This changes what happens next; it does not redefine what the target or metric means. A semantically invalid feature still needs the separate domain rule.
 
 ![A procedure graph specifies actions and transitions. Freeze the selected graph before testing it on fresh cases.](../../../assets/diagrams/lab-10-28.png)
 
@@ -57,7 +59,7 @@ Generate a small procedure runner from the existing workflow. At each node expos
 Test the change before promotion.
 
 ```text
-Use one success and one failure to propose a transition edit. Run selection checks, preserve rejected edits, freeze the chosen graph, and test a fresh fixture.
+Use one success and one failure to propose a transition edit. Run the target and regression selection fixtures, preserve rejected edits, freeze the chosen graph, and test a fresh fixture. Use a fit stub throughout. Reserve the fourth check for the semantic-error fixture below.
 ```
 
 **Observe:** Selection performance and fresh-test performance remain distinct.
@@ -66,15 +68,25 @@ Use one success and one failure to propose a transition edit. Run selection chec
 
 The edited graph actually runs. Its test result is not replaced by the best intermediate selection score. Ontology and procedure remain separate.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Executable procedure graph | Exposes current-node inputs, action, completion condition, and transitions. |
+| Parent/child graph and two selection checks | Show the targeted transition repair and regression behavior. |
+| Frozen fresh-case and semantic-error checks | Complete the four-fixture budget with no model training. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Introduce a validly typed but semantically wrong feature. Explain why the procedure graph still needs domain checks.
+For the fourth check, introduce a validly typed but semantically wrong feature and execute the domain check. Explain why a procedure graph still needs meaning rules.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the diagram changes but the runner follows the old route, the edit has not reached execution. If a fit starts during these fixtures, inspect the stub. If a field is structurally valid but derived from the target, keep the ontology check active; a well-routed invalid experiment is still invalid.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A procedure edge answers “what next?” A domain relation answers “what does this mean?” Find one example of each in your run.
 
 </details>
 

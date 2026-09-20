@@ -6,7 +6,7 @@ Starting state: A synthetic sequence of inventory changes, such as add 3, remove
 
 Prediction to ask: Can a shorter summary be worse if it omits one state-changing event?
 
-Execution limit: Two short task attempts and one counterexample; no model-weight training.
+Execution limit: Five short attempts: raw history, summary plus tail, faulty summary, and two expanded-description conditions. No model-weight training.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

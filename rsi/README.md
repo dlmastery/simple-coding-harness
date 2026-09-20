@@ -10,6 +10,17 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 **Begin with [Start here](START-HERE.md).** You use ordinary language and Markdown. The coding agent writes the code, configuration, tests, and launch files.
 
+Open the repository root in your coding agent and paste this first instruction. If you need the local copy, [Start here](START-HERE.md) explains the branch to clone.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Start lab 00.01 with me. Explain the prediction task before running code.
+You write the implementation; I will predict, inspect, and explain.
+Wait at the learning checkpoints. Keep my work in a sibling rsi-work folder.
+```
+
+Your first session starts with a few rows of data and a question about what can be predicted. Setup and the first measured model result follow in the next labs. You build the larger system only after those basics are clear.
+
 ## The project you will build
 
 The main task is small enough for local CPU experiments: estimate bike rentals from calendar fields and observed weather. Later, transfer the research procedure to wine-quality classification.

@@ -6,7 +6,7 @@ Starting state: The ML workflow graph, success and failure traces, and domain on
 
 Prediction to ask: Can changing a transition fix a workflow without changing any domain definition?
 
-Execution limit: One graph edit and two checks; at most two fits.
+Execution limit: One graph edit and four executable fixture checks: two selection cases, one fresh case, and one semantic-error case. Use a fit stub; no training.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

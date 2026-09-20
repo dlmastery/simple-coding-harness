@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A local three-step data-check task with an exact success condition.
 
-**Budget:** Three short attempts, no required model fit. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four short attempts: action hint, richer observation, unassisted fresh fixture, and stale-hint counterexample. No model fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 An action hint suggests the next operation. An enriched observation exposes useful state, such as which field is missing. The classroom comparison keeps these distinct, then removes assistance. The source studies training settings; this inference-only exercise does not reproduce its reinforcement-learning results.
+
+**A concrete example.** “Open column B next” is an action hint. “Column B is missing its unit” is richer observation. If the missing unit moves to column C, the old action hint can become misleading while an accurate observation still describes the new problem. Success with either help does not establish unassisted learning.
 
 ![Action hints and richer observations supply different assistance. Remove help in a separate fresh check.](../../../assets/diagrams/lab-10-33.png)
 
@@ -66,6 +68,16 @@ Run both conditions and then an unassisted attempt on a fresh fixture. Keep trac
 
 The assistance types are explicit. The unassisted task is fresh and its limits are stated. The paper’s training claim is not transferred to the toy run.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Task fixtures and assistance packets | Separate prescribed next actions from added state information. |
+| Four traces and exact checks | Cover action help, observation help, unassisted work, and the stale-hint case. |
+| Assistance-dependence report | Names context exposure, fresh-case limits, and the absence of parameter training. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Give a stale action hint while preserving correct observations. Observe which co
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the enriched observation contains the next action verbatim, the two interventions are no longer distinct. If the unassisted attempt has already seen the same answer, use the declared fresh fixture and still report shared-context limits. Keep the stale hint labelled so it is not mistaken for a course instruction.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate information about the world from advice about what to do. Then ask which one remains valid when the next required action changes.
 
 </details>
 

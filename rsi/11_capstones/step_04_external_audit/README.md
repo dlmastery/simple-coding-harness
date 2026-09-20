@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Start with what changes and how it is evaluated. Then inspect inheritance, resources, retained artifacts, failures, transfer, and access boundaries. Use the authors’ definitions accurately while stating your own evaluation criteria. A critical audit should be precise and fair, not reflexively skeptical.
 
+**A concrete example.** A new source reports a better retained agent after several harness edits. You can accept that reported result while asking whether the edit-generating procedure itself changed. The follow-up should inspect or test that missing link, rather than dismissing the result because it does not establish every stronger RSI claim.
+
 ![Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.](../../assets/diagrams/lab-11-04.png)
 
 *Read the diagram:* Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.
@@ -66,6 +68,16 @@ Use audit-rsi-claim. Produce a two-page-equivalent note with supported claim, st
 
 The audit uses primary sources and accurate dates. It neither exaggerates nor dismisses results beyond the evidence.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Dated primary-source trail | Records query, original date, version, exact reading depth, and access gaps. |
+| Short audit | States strongest supported claim, evidence, limitation, and alternative explanation fairly. |
+| Discriminating follow-up | Names the smallest test that could change the assessment and labels any toy check. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ State the strongest reasonable interpretation of the authors’ result before pr
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the chosen source is only a social announcement, keep its identity and date but leave unavailable methods unresolved. If a toy counterexample differs from the source’s assumptions, state that difference rather than presenting it as a refutation. Cite primary evidence for both the positive finding and its limitation.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+State the strongest reasonable interpretation first. Then identify precisely which additional observation would support or weaken a stronger claim.
 
 </details>
 

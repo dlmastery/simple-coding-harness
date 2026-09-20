@@ -22,7 +22,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-First establish the fixed-improver baseline. Propose one improver revision from development evidence. Make a later round inherit it. Compare old and new improvers from matching starting artifacts. Keep evaluation and promotion rules outside the ordinary candidate’s writable surface, or state the weaker local boundary.
+First establish the fixed-improver baseline. Propose one improver revision from development evidence. Make a later round inherit it. Compare old and new improvers from matching starting artifacts. Keep the external comparison and final acceptance criteria outside the ordinary candidate’s writable surface, or state the weaker local boundary. An improver’s internal proposal-selection rule may be revised as a candidate change; the unchanged external protocol judges its consequences.
+
+**A concrete example.** The child improver adds a contrasting-case check to its internal selection rule. A later round uses that rule and rejects a harmful skill edit. The external task metric and budget remain unchanged. This can demonstrate inheritance; whether the changed improver is better still depends on its matched outcomes and added cost.
 
 ![The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.](../../assets/diagrams/lab-11-02.png)
 
@@ -66,6 +68,16 @@ Execute the protocol, including rejected proposals. Save inheritance traces, mat
 
 The improved object is identified. The revised improver actually governs later work. Fairness limits and missing costs remain in the conclusion.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Bounded recursive protocol | Freezes external comparison, allowed inner edits, two generations, eight-fit total, and stop/rollback rules. |
+| Lineage and matched outcomes | Connect active versions to later decisions and preserve all rejected proposals. |
+| Final claim audit | Separates structure, benefit, efficiency, context limits, and unknown resources. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Ask a reviewer to remove one key artifact from the evidence pack and identify wh
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the newest proposal is automatically active, reconcile it with the last acceptance decision before resuming. If the child receives more attempts, report the resource mismatch. If a final result changes the next proposal, those cases are now development information; do not continue calling them untouched final evidence.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Show the revised improver governing a later improvement action, then compare the consequences. A changed file and a good task score alone leave that chain incomplete.
 
 </details>
 

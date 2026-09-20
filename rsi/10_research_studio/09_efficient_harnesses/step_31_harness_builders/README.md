@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 HarnessDev evaluates created and revised harnesses, with creator and executor roles separated. Harness-of-Harness instead keeps its model, base harness, roles, and runtime policy fixed while software and execution evidence change. Its planner, developer, and tester have separate invocations and permissions. For the classroom activity, keep the builder fixed, revise one generated ML harness component, and measure behavior. This local choice is not the changed object in every source.
 
+**A concrete example.** The fixed builder produces a harness whose report omits class recall. You revise the generated report component and its behavior improves. This is evidence about the revised harness. To evaluate the builder, you would need to compare what builder versions produce on prespecified briefs, including unsuccessful generations.
+
 ![Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.](../../../assets/diagrams/lab-10-31.png)
 
 *Read the diagram:* Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.
@@ -66,6 +68,16 @@ Revise one component of your generated harness using an observed failure. Test p
 
 The source audit is completed before paper-specific mechanism claims. The local experiment identifies what changed and what was evaluated.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Two-source mechanism map | Names each paper’s fixed and mutable objects, evaluation roles, and reading depth. |
+| Generated harness parent/child and checks | Record the local edit and its actual behavior under matching conditions. |
+| Unchanged builder identity | Prevents a harness improvement from being relabelled as demonstrated builder improvement. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Propose a generator comparison on two fresh briefs. Explain why evaluating only 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the source title suggests a mechanism absent from its methods, follow the methods and record the distinction. If the local harness imports the course runtime, include that dependency in the handoff. Do not call it independently generated or standalone merely because its files live in a new directory.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask what the evaluation input is: one task for a harness, or a new brief for a builder. Different inputs test different objects.
 
 </details>
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 WikiSkill separates raw experience, a persistent knowledge layer, and active skills. The classroom exercise keeps a factual notebook update even when a proposed active-skill edit fails. During the controlled task run, the actor reads only its allowed active skill; the improver can consult the notebook.
 
+**A concrete example.** A proposed rule says to skip a data check that appeared redundant. A later fixture exposes a failure, so the active skill keeps the check. The notebook can still retain “this removal failed under condition C,” with a link to the trace. Rejecting the edit need not erase the evidence.
+
 ![Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.](../../../assets/diagrams/lab-10-27.png)
 
 *Read the diagram:* Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.
@@ -66,6 +68,16 @@ Propose one atomic active-skill edit and evaluate it on two cases. If it fails, 
 
 The rejected skill is not active. The notebook retains evidence-linked learning. Role access is labelled as an instruction unless technically enforced.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| TRACE.md, NOTEBOOK.md, and ACTIVE-SKILL.md | Separate original events, scoped interpretation, and accepted instructions. |
+| Two candidate checks | Retain the evidence behind promotion or rejection. |
+| Read/access record | States what the actor and improver actually saw and whether restrictions were technically enforced. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Let the task actor read the notebook in a separate condition and explain why it 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the rejected instruction remains in the active skill, restore the accepted version without deleting the failed child. If the actor already saw the notebook, label that exposure. An instruction that says not to read a file cannot establish an isolated information boundary by itself.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask which store records what happened, which records what was learned, and which controls the next action. Their acceptance rules can differ.
 
 </details>
 

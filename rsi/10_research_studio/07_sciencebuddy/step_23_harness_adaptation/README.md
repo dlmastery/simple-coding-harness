@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The task, rubric, and failed report fixture from 10.22.
 
-**Budget:** One skill edit and two checker runs; no model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One skill edit and four checker runs: parent and child on complete and incomplete evidence fixtures. No model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Keep the agent’s language-model weights fixed. Edit a learner-owned reporting skill to require class-wise evidence and a claim check. Then test the revised procedure. This isolates harness adaptation; it does not implement the paper’s weight-learning component.
+
+**A concrete example.** A child reporting skill requires both class recalls and links to predictions. With complete evidence it can produce a fuller report. With missing evidence it should identify the gap, not invent a passing number. A skill that fabricates compliance has failed even if its prose looks more polished.
 
 ![Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.](../../../assets/diagrams/lab-10-23.png)
 
@@ -57,7 +59,7 @@ Create a child reporting skill from the failed rubric case. Require evidence-lin
 Measure the revised behavior.
 
 ```text
-Use parent and child on matched report fixtures. Run the executable rubric checks and retain both outputs. State whether the shared agent context limits causal interpretation.
+Use parent and child on the same complete and incomplete evidence fixtures, making four report/check pairs. Retain every output and verdict. Do not invent missing class evidence to satisfy the rubric. State whether the shared agent context limits causal interpretation.
 ```
 
 **Observe:** The child’s actual output can be compared with its parent.
@@ -65,6 +67,16 @@ Use parent and child on matched report fixtures. Run the executable rubric check
 ## Check your result
 
 The report names a harness change and does not claim a weight update. Both positive and negative rubric cases are exercised.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Parent and child reporting skills | Show the external instruction edit and unchanged rubric. |
+| Four report/check pairs | Cover both skill versions on complete and incomplete evidence fixtures. |
+| Adaptation report | Distinguishes measured reporting behavior from unperformed model-weight training. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
@@ -74,7 +86,7 @@ Make the child skill longer without adding a useful requirement. Explain why mor
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the child passes only by manufacturing a value absent from the fixture, retain that failure and reject the edit. If the parent sees the child’s instruction in the same conversation, state that context exposure limits causal attribution. The four-check budget includes both evidence conditions; no extra fit is needed.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Track which file changed and whether any optimizer updated model parameters. New instructions do not imply new language-model weights.
 
 </details>
 

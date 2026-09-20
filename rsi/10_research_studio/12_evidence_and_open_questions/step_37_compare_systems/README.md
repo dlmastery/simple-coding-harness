@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Compare the same questions across systems: what changes, what remains fixed, who supplies feedback, what persists, what later work inherits it, what is evaluated, and at what cost. Keep paper-reported evidence separate from your measurements. Missing information is a result of the audit, not a blank to fill by inference.
 
+**A concrete example.** One system updates memory; another updates weights and harness instructions; a third revises the search policy. Their headline scores come from different tasks. A useful matrix compares changed objects, feedback, inheritance, and evaluation before asking whether any numbers are comparable.
+
 ![Compare systems on common questions before comparing scores. Missing evidence stays visible.](../../../assets/diagrams/lab-10-37.png)
 
 *Read the diagram:* Compare systems on common questions before comparing scores. Missing evidence stays visible.
@@ -66,6 +68,16 @@ Choose one row and construct a plausible weaker explanation of its result. State
 
 All technical entries have sources or an unresolved label. The matrix does not treat local demonstrations as reproductions of frontier results.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| SYSTEM-COMPARISON.md | Covers the six named systems and the local experiment with primary links and reading depth. |
+| Mechanism-only view | Separates structure from scores and marks unknown fields. |
+| One challenged classification | States a plausible weaker explanation and the evidence that would distinguish it. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove performance columns and compare mechanisms alone, then restore results wi
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a row lacks a resource measurement, mark it unknown rather than ranking cost by intuition. If a paper-reported number appears beside a local score, label their different protocols. New optional sources can enrich a comparison, but an unread abstract must not become a detailed method claim.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Use the same questions across rows. Preserve different answers instead of forcing every system into the same supposed stage.
 
 </details>
 

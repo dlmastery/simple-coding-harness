@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Screening uses a cheaper test to choose which idea deserves more work. Confirmation then tests the chosen idea under the declared fuller conditions. An ablation removes the proposed component. Keep screening and confirmation results distinct; a cheap proxy is not automatically the final objective.
 
+**A concrete example.** A cheap screen on a small, earlier training subset may favor a simple model. The fuller development comparison can favor another idea because more data supports it. That disagreement is a result about the screen’s usefulness, not a reason to hide the cheaper run.
+
 ![Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.](../../../assets/diagrams/lab-10-19.png)
 
 *Read the diagram:* Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.
@@ -47,7 +49,7 @@ Ask me to predict the result before the experiment.
 Specify what the cheap test can establish.
 
 ```text
-Plan two small development-only screening experiments. State subset selection, metric, cost limit, and the rule for advancing one idea. Keep final data untouched.
+Plan two small development-only screening experiments. State subset selection, metric, cost limit, and the rule for advancing one idea. Have the agent generate a separate screening runner; the supplied general tool keeps its training partition fixed. Preserve the original data and contracts, fit preprocessing only on the declared training subset, and keep final data untouched.
 ```
 
 **Observe:** The proxy and its limitations are explicit.
@@ -66,6 +68,16 @@ Run the selected idea and its ablation under matching fuller conditions within t
 
 The screen does not consume final evaluation. Confirmation and ablation use matched conditions. All ideas and costs are retained.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Screening plan and runner | Freeze subset membership, preprocessing boundaries, advancement rule, and four-fit total. |
+| Two screening records | Retain both ideas, proxy outcomes, and costs. |
+| Confirmation and ablation | Use matching fuller conditions for the selected idea and its removed-component version. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Select on the fastest screen only and explain why that could miss an idea whose 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the supplied runtime refuses a changed partition, keep its contract intact. The agent must generate the separate screening runner described in the plan. If the subset omits a necessary category or class, diagnose that before interpreting model quality. Count discarded screen candidates in the total research cost.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A screen chooses where to spend resources. Ask whether its cheaper conditions preserve the distinction that matters in the fuller test.
 
 </details>
 

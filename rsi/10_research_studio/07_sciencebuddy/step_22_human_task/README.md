@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy connects scientific interactions and artifacts to improvement work. Our fixture uses familiar classification evidence. A rubric turns the correction into checks: state the label threshold, report both class recalls, preserve predictions, and avoid claiming accuracy alone establishes quality. It is a teaching fixture, not a real scientist interaction.
 
+**A concrete example.** “Do not hide failures on rare high-quality wines” becomes a check for the positive-class recall and its supporting predictions. A report that says “minority performance was reviewed” supplies no value or evidence. The rubric should distinguish a verifiable result from a statement of compliance.
+
 ![A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.](../../../assets/diagrams/lab-10-22.png)
 
 *Read the diagram:* A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.
@@ -66,6 +68,16 @@ Check one report containing both class recalls and a copy omitting minority reca
 
 Fixture origin is explicit. Criteria connect to observable evidence. The test does not claim domain-expert validation.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Labelled request fixture and TASK.md | State that the request was constructed for teaching. |
+| RUBRIC.md and checker | Bind each requirement to observable evidence. |
+| Complete/incomplete report verdicts | Show the omission being detected without another model fit. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Read a small GWAS example at the conceptual level: genetic variants are tested f
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the checker accepts a report because it contains the word recall, make it inspect the actual value and its evidence source. Do not fill missing numbers from a plausible guess. If the example crosses into unfamiliar scientific interpretation, separate the limited automated check from the domain judgment it cannot supply.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+For every rubric item, name the artifact a skeptical reader would open. A requirement without observable evidence is difficult to check.
 
 </details>
 

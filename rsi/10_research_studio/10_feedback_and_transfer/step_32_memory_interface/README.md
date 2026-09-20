@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A synthetic sequence of inventory changes, such as add 3, remove 1, add 2, with a known final count.
 
-**Budget:** Two short task attempts and one counterexample; no model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Five short attempts: raw history, summary plus tail, faulty summary, and two expanded-description conditions. No model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The task asks the agent to recover the final state from a sequence. One condition receives raw events; another receives a checked summary plus subsequent events. The checker computes the answer from the original sequence. This tests an external memory interface, not parameter learning.
+
+**A concrete example.** Starting from zero, add 3, remove 1, then add 2. The final count is 4. A summary after the first two events should say 2; a summary that forgets the removal says 3 and leads to 5. Compression can be shorter and systematically wrong at the same time.
 
 ![Both memory representations refer to the same event history. The checker computes truth from the original events.](../../../assets/diagrams/lab-10-32.png)
 
@@ -66,6 +68,16 @@ Run raw-history and summary-plus-tail conditions with matched budgets. Then use 
 
 The checker uses original events. Correct and faulty summaries are distinguished. The report does not claim model training or a full S3Gym reproduction.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Original events, checkpoint summary, and exact checker | Keep ground truth tied to the original operations. |
+| Five condition records | Include raw, correct summary, faulty summary, and both expanded-description attempts. |
+| Memory-interface report | States actual information exposure and separates external representation from weight learning. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Increase irrelevant event descriptions while keeping state changes fixed. Measur
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the summary includes the final answer, inspect whether it was computed before the declared checkpoint and exposed later events. If both conditions share a context, do not claim a clean memory ablation. When adding irrelevant descriptions, preserve every state-changing operation so the scientific comparison remains the same.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Trace the state numerically through the original events. That independent calculation reveals whether the memory preserved the information needed for the task.
 
 </details>
 

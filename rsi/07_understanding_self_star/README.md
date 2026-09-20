@@ -6,7 +6,7 @@ Correction, reflection, learning, improvement, organization, emergence, self-pla
 
 Most labs use the small ML workflow. Queue simulations expose organization and emergence; a tiny game exposes actual self-play learning. Ask what persists and what observation would establish a benefit.
 
-| Lab | What changes |
+| Lab | What you will build |
 |---|---|
 | [07.01 · Correct one result](step_01_correction/README.md) | A corrected experiment summary with the original mistake preserved. |
 | [07.02 · Test a reflection before trusting it](step_02_reflection/README.md) | A reflection that separates observation, explanation, and a proposed future rule. |
@@ -17,6 +17,6 @@ Most labs use the small ML workflow. Queue simulations expose organization and e
 | [07.07 · Learn what self-play does and does not provide](step_07_self_play/README.md) | A tiny tic-tac-toe player that learns from self-play, a saved policy table, and a frozen comparison with its untrained version. |
 | [07.08 · Make a self-modification inspectable](step_08_modification/README.md) | A versioned edit to a learner-owned procedure with tests and rollback. |
 
-Start with the first lab and follow its next link. Each lab uses a separate workspace and keeps its evidence. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
+Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
 
 A mechanism can exist without helping. The next theme makes the evidence for improvement explicit.

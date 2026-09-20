@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A small harness expecting a fixed tool-result format and two labelled response fixtures.
 
-**Budget:** Three interface checks, no LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four interface checks: valid, mismatched, locally repaired, and incompatible-template counterexample. No LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The source contrasts training from full expert trajectories with correction on the agent’s own trajectories in evolved harnesses. Our toy version changes an output convention while keeping the harness parser fixed. It illustrates compatibility, not the paper’s trained-model results.
+
+**A concrete example.** The harness expects a candidate identifier and a numeric balanced-accuracy field. A fluent paragraph contains the right value but omits the identifier, so the parser cannot associate it with a run. A minimal field correction restores the contract. That is an interface repair, not a trained-model improvement.
 
 ![An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.](../../../assets/diagrams/lab-10-34.png)
 
@@ -66,6 +68,16 @@ Apply a minimal correction to the mismatched field and rerun the check. Read the
 
 The parser failure and repair are executed. The source audit distinguishes parameter training from an interface demonstration.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Fixed parser and four response fixtures | Retain valid, mismatched, repaired, and incompatible-template cases. |
+| Four executable verdicts | Show exactly which structural or semantic condition failed. |
+| Source training audit | Separates the local format demonstration from source-specific on-policy correction and weight updates. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Replace the whole correct response with another expert’s incompatible template
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the parser accepts the repaired response only after its requirements were weakened, the original comparison changed. Preserve the original parser and report that difference. Have the agent generate any machine representation; the student should inspect field meaning rather than type configuration. Formatting success alone does not prove the reported metric is correct.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A useful response must fit its consumer’s contract as well as express a plausible answer. Inspect both requirements.
 
 </details>
 

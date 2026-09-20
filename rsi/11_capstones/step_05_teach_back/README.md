@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Tell the story from a row of data to a model result, then from a failure to a skill change, then from an improver change to later work. At each step name the evidence. Keep the main walkthrough short and link to detail. An impressive architecture is not a substitute for a clear causal explanation.
 
+**A concrete example.** A peer follows one row of data into a prediction, one failed check into a task-skill revision, and one improver revision into a later decision. At each transition they can open the supporting artifact. If they can also explain a case where the revision fails, the portfolio teaches a mechanism rather than only displaying a success.
+
 ![Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.](../../assets/diagrams/lab-11-05.png)
 
 *Read the diagram:* Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.
@@ -66,6 +68,16 @@ Guide a peer through one small run. Ask them to explain process, loop, graph, on
 
 The portfolio has runnable evidence and a failed case. The teach-back explains the solver/improver distinction and names remaining uncertainty. Pending peer review is honestly marked.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| PORTFOLIO.md | Links the scientific brief, agent entry, one valid run, one failure, lineage, costs, and claim limits. |
+| Mechanism illustration | Accurately identifies changed objects and feedback paths without inventing measurements. |
+| Peer reproduction and teach-back record | Contains actual feedback and unanswered questions, or an explicit pending status. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Ask the peer to propose a different prediction task. Explain what should transfe
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a peer cannot start without the old chat, add the missing setup or decision to the handoff. If no peer is available, retain the prepared exercise and mark the session pending. Do not fabricate responses, rerun search for a prettier score, or replace the failure that reveals the method’s limit.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Tell the story through one concrete evidence chain, then transfer it to a new prediction question. Vocabulary alone cannot complete that explanation.
 
 </details>
 

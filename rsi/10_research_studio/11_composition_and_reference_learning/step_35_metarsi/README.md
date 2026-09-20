@@ -68,6 +68,16 @@ Compare two allowed schedules, propose one scheduler-rule revision from their ou
 
 The simulator enforces declared surfaces and evidence versions. Synthetic outcomes are not presented as the paper’s results. The audit distinguishes schedule composition from real model training.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Typed operator contracts | Declare data, harness, and model reads/writes and label synthetic outcomes. |
+| Five schedule checks | Include valid composition, order differences, stale evidence, and forbidden writes. |
+| Scheduler revision and later-term trace | Connect the altered rule to an executed simulated choice while keeping the evaluator fixed. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Read the paper’s same-start improver comparison and per-term gains. Explain wh
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a model-update stub is reported as a trained checkpoint, correct the label and retain the distinction. If a schedule reads evidence from an older system version, reject or explicitly regenerate the diagnostic under a new budget. Do not change the synthetic scoring table during the comparison to reward the preferred schedule.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -104,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Track the version read by each operator, the version it writes, and the scheduler that selected it. Order and inheritance are visible in those links.
 
 </details>
 
