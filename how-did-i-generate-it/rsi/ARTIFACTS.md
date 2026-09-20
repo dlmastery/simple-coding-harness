@@ -62,3 +62,5 @@ The [controlled walkthrough](../../rsi/evidence/2026-09-20/walkthrough/README.md
 Further artifacts include the [generated harness and its execution](../../rsi/evidence/2026-09-20/generated-harness/EXECUTION.md), [clean-source setup check](validation/CLEAN-SOURCE-CHECK.md), [method-reading notes](research/2026-09-20-METHOD-NOTES.md), [compute guide](../../rsi/compute/README.md), and [visual review](visuals/REVIEW.md). Both technical-diagram galleries retain their source and every rendered PNG. Published diagram copies have a hash manifest. The [raster prompts](visuals/ILLUSTRATION-BRIEF.md) are prepared, not generated images.
 
 - [Loop and system protocol](validation/LOOPS-AND-SYSTEMS-PROTOCOL.md) and [agent-written driver](scripts/run-loops-and-systems.py): declared thirteen-fit author walkthrough, pending execution at this checkpoint.
+
+- [Self-* and measurement protocol](validation/SELF-STAR-AND-MEASUREMENT-PROTOCOL.md) and [agent-written driver](scripts/run-self-star-and-measurement.py): declared eight-fit author run with labelled replays, pending execution at this checkpoint.
