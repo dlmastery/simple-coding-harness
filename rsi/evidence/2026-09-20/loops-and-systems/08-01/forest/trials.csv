@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,forest,calendar,17,108.12960722373228,0.825672,not supplied,Run the declared fixed recipe.
+trial-002,ok,bike,forest,calendar,29,108.6468516708133,0.906178,not supplied,Run the declared fixed recipe.
+trial-003,ok,bike,forest,calendar,43,108.45685088962668,1.193968,not supplied,Run the declared fixed recipe.

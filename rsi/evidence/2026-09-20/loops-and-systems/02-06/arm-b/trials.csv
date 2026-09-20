@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.116452,not supplied,Run the declared fixed recipe.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.213103,not supplied,Pre-fit decision SHA-256 097270cf5949ebb0abb794a00c6a23de903dab3399a56c17acdd6639141df94f: test a calendar-conditioned model from hourly baseline errors.

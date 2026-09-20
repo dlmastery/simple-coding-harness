@@ -1,0 +1,7 @@
+case,from,to,reason
+actual,ready,running,one reserved fit
+actual,running,awaiting-check,fit returned successfully
+actual,awaiting-check,complete,"identity, predictions, and check agree"
+missing-check-fixture,awaiting-check,awaiting-check,checker evidence is missing
+ambiguous-target-fixture,ready,needs-clarification,target is ambiguous
+additional-wrong-candidate,awaiting-check,awaiting-check,rejected candidate mismatch

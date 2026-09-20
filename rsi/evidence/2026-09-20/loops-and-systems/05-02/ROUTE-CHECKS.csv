@@ -1,0 +1,5 @@
+task,target_type,state,reason
+bike,regression,ready,MAE
+wine,classification,ready,balanced accuracy
+unknown,regression,rejected,unknown task
+bike,,needs-clarification,target type missing

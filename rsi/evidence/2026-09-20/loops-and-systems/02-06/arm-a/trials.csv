@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.147293,not supplied,Run the declared fixed recipe.
+trial-002,ok,bike,constant,calendar,17,159.94791188618632,0.156618,not supplied,Intentional replication under the predeclared fixed-retry control.
