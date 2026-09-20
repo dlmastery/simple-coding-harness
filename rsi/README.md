@@ -22,6 +22,8 @@ You will follow the full data science process: frame a question, inspect data, p
 
 The **task model** is a small regressor or classifier trained on your laptop. The **coding agent’s language model** reads instructions and operates tools. Editing a skill changes the agent’s external procedure. It does not train that language model’s weights.
 
+Most experiments stay with these two datasets. Short queue simulations make organization and emergence visible. One [self-play lab](07_understanding_self_star/step_07_self_play/README.md) uses tic-tac-toe to show actual policy learning on CPU. Its table values change while its learning procedure stays fixed. That contrast prepares you to ask what recursion would add.
+
 ## Your role and the agent’s role
 
 | You | The coding agent |

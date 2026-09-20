@@ -68,6 +68,16 @@ Compare the preference rule with a rule that ignores job type and one that rando
 
 The pattern is defined before measurement. Local rules and global statistic are distinct. Claims remain limited to the simulation.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Pattern definition | States the clustering statistic before inspecting traces. |
+| Three simulation traces | Compare local preference, no preference, and randomized history on the same jobs. |
+| Pattern and lateness report | Separates grouping, completion time, and deadline failures, including any counterexample. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Construct a job list where clustering increases lateness. Explain how a visible 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If every policy groups the jobs, inspect whether the input order already contains groups. If the preferred-type policy improves the clustering score while missing deadlines, retain both observations. Do not redefine emergence to mean whichever metric improved. The optional lateness pair is a new declared job fixture, not a replacement for the original comparison.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Name the collective pattern first. Then ask whether it depends on the interaction and whether it helps the task; these are separate claims.
 
 </details>
 
@@ -117,4 +127,4 @@ Trace what changed, what stayed fixed, and which observation supports the conclu
 
 ## What's next
 
-Let two roles challenge each other while keeping correctness grounded in an external check. Continue to [07.07: Learn what self-play does and does not provide](../step_07_self_play/README.md).
+Use a small game to observe experience, feedback, and a retained self-play learning update. Continue to [07.07: Learn what self-play does and does not provide](../step_07_self_play/README.md).

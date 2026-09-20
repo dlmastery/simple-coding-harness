@@ -2,6 +2,8 @@
 
 Updated: 20 September 2026. This file records the user's directions and the current decisions. It is a handoff record, not a finished course.
 
+Current continuation: the persistent goal is to finish every original theme and task and every README. Read `COURSE-COMPLETION-LEDGER.md` first. Editorial support now covers themes 00–09; the research studio and capstones remain. Lab 07.07 has been expanded from the earlier role-exchange analogy to actual CPU tabular self-play, with full evidence in `rsi/evidence/2026-09-20/self-play/`. Its trainer is fixed, so it does not demonstrate RSI. Internal improver selection rules can change while the external comparison remains fixed; this distinction is now explicit. Preserve all prior snapshots and the original backups. Continue the remaining editorial reviews, actual two-generation recursion and other required activities, deeper research reading, and requested Imagen work. Older progress notes below record historical states, not the latest completion claim.
+
 ## Read this first
 
 Repository: [dlmastery/simple-coding-harness](https://github.com/dlmastery/simple-coding-harness). Course area: `rsi/`. Planning and process records: `how-did-i-generate-it/rsi/`.

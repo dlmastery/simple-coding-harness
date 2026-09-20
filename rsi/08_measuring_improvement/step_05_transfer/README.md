@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Transfer asks whether a retained change helps in a different setting. Keep the skill frozen while adapting only task-specific interfaces required by the brief. Record any necessary adaptation. If you rewrite the skill after seeing wine outcomes, that becomes wine development, not the original transfer test.
 
+**A concrete example.** A bike-derived rule says “prefer the lowest error.” Before the wine run, you map that interface to maximizing balanced accuracy while preserving the rule’s principle of using the declared metric. Changing the candidate policy after viewing wine failures is different: the target task has now supplied development feedback.
+
 ![Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.](../../assets/diagrams/lab-08-05.png)
 
 *Read the diagram:* Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.
@@ -66,6 +68,16 @@ Give each procedure two wine fits under the same classification contract. Compar
 
 The procedure version is frozen before wine outcomes. Task-interface changes are documented. The result is not used to rewrite the original claim retroactively.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Frozen skill hashes and interface map | Separate reusable procedure from predeclared target, metric, and model-interface changes. |
+| Four wine fit records | Give each procedure two attempts under the same classification contract. |
+| Transfer report | Includes balanced accuracy, both class recalls, known costs, and any harmful transfer. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Use the observed failure to propose a new skill version, but label its evaluatio
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the skill contains bike-only features, record the incompatibility before execution and decide the required interface adaptation openly. If wine outcomes were already used to write the skill, call this development or replay, not an unseen transfer test. Preserve failed transfer instead of quietly rewriting the candidate to make it succeed.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate a predeclared adapter from a result-informed edit. Only the latter uses the transfer outcome to create a new procedure.
 
 </details>
 

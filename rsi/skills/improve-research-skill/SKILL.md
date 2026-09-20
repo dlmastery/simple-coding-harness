@@ -11,6 +11,8 @@ Write `CHANGE-PROPOSAL.md`: failure, evidence, one proposed procedural change, e
 
 Distinguish two targets. A task skill tells the solver how to do ML research. An improver skill tells a process how to propose and evaluate changes to those task skills. State which target this change affects. Do not call a new model setting an improver revision.
 
+An improver's internal proposal-ranking or promotion rule can be the proposed change. Keep the external comparison that judges this changed improver fixed: its tasks, data roles, metric, resource allocation, and final acceptance criterion. Do not confuse a legitimate internal rule revision with changing the external definition of success after seeing results.
+
 Use a fresh execution context for each parent/child comparison when the host supports it. Otherwise label the same-context comparison and its contamination risk. Give each the same starting artifacts and declared resources. Charge proposal work, validation, retries, failed attempts, and model fitting. If agent costs are unavailable, narrow the conclusion accordingly.
 
 Evaluate the retained child and its parent on prespecified selection tasks. Keep unsuccessful and harmful edits. Do not promise a gain. Only promote under the declared acceptance rule. Freeze a promoted skill before later evaluation.

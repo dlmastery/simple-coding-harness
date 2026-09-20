@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Structural recursion means a changed improvement procedure enters later improvement work. Effective recursive improvement adds evidence that this change improves the improvement process under the comparison. Acceleration asks whether progress itself grows across generations after accounting for resources and bottlenecks. These are progressively stronger claims, not automatic consequences.
 
+**A concrete example.** A run shows improver v1 inherited by later work, but it consumes twice the measured time and retains a worse solver. The evidence can support a structural recursion demonstration while rejecting a benefit claim for that comparison. “Recursive” describes the feedback path; it is not a synonym for successful or accelerating.
+
 ![Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.](../../assets/diagrams/lab-09-07.png)
 
 *Read the diagram:* Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.
@@ -66,6 +68,16 @@ Ask me to explain three new cases: repeated model search, persistent memory unde
 
 Every claimed level has a corresponding artifact and measurement. Acceleration is not inferred from two favorable points. The audit states public-data and context limits.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Claim-to-evidence table | Classifies structure, effectiveness, efficiency, transfer, and acceleration separately. |
+| Three case explanations | Use actual artifacts where available and label unexecuted cases. |
+| Claim audit | States the strongest supported conclusion and the specific missing evidence for stronger ones. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove the inheritance trace from a copy of the evidence pack. Identify which cl
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If an answer uses only words such as autonomous or emergent, return to the changed object and observed action. If a case was not executed, keep it as an analysis exercise. Do not manufacture a learner answer or mark a teach-back as passed because an author supplied an answer key.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+For each adjective in the claim, ask which artifact could make it false. If there is no discriminating observation, narrow the claim.
 
 </details>
 

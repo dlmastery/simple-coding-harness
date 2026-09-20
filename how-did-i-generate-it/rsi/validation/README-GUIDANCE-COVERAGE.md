@@ -2,7 +2,7 @@
 
 Generated from the current lesson source and published READMEs. This inventory checks presence and source/publication agreement. It does not establish factual correctness, visual quality, runtime completion, or student learning.
 
-37 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 46 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
+58 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 60 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
 
 The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. Editorial observations and actual execution evidence remain separate.
 
@@ -45,27 +45,27 @@ The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. 
 | [06.04](../../../rsi/06_meta_harness_engineering/step_04_test_refusal/README.md) | present | authored | specific | specific |
 | [06.05](../../../rsi/06_meta_harness_engineering/step_05_second_task/README.md) | present | authored | specific | specific |
 | [06.06](../../../rsi/06_meta_harness_engineering/step_06_recreate/README.md) | present | authored | specific | specific |
-| [07.01](../../../rsi/07_understanding_self_star/step_01_correction/README.md) | missing | pending | generic or pending | generic or pending |
-| [07.02](../../../rsi/07_understanding_self_star/step_02_reflection/README.md) | missing | pending | generic or pending | generic or pending |
-| [07.03](../../../rsi/07_understanding_self_star/step_03_persistent_learning/README.md) | present | pending | generic or pending | generic or pending |
-| [07.04](../../../rsi/07_understanding_self_star/step_04_self_improvement/README.md) | missing | pending | generic or pending | generic or pending |
-| [07.05](../../../rsi/07_understanding_self_star/step_05_organization/README.md) | present | pending | generic or pending | generic or pending |
-| [07.06](../../../rsi/07_understanding_self_star/step_06_emergence/README.md) | present | pending | generic or pending | generic or pending |
-| [07.07](../../../rsi/07_understanding_self_star/step_07_self_play/README.md) | missing | pending | generic or pending | generic or pending |
-| [07.08](../../../rsi/07_understanding_self_star/step_08_modification/README.md) | missing | pending | generic or pending | generic or pending |
-| [08.01](../../../rsi/08_measuring_improvement/step_01_repeat_measurement/README.md) | missing | pending | generic or pending | generic or pending |
-| [08.02](../../../rsi/08_measuring_improvement/step_02_final_boundary/README.md) | missing | pending | generic or pending | generic or pending |
-| [08.03](../../../rsi/08_measuring_improvement/step_03_cost/README.md) | missing | pending | generic or pending | generic or pending |
-| [08.04](../../../rsi/08_measuring_improvement/step_04_ablation/README.md) | present | pending | generic or pending | generic or pending |
-| [08.05](../../../rsi/08_measuring_improvement/step_05_transfer/README.md) | missing | pending | generic or pending | generic or pending |
-| [08.06](../../../rsi/08_measuring_improvement/step_06_rollback/README.md) | missing | pending | generic or pending | generic or pending |
-| [09.01](../../../rsi/09_recursive_self_improvement/step_01_three_objects/README.md) | present | pending | generic or pending | generic or pending |
-| [09.02](../../../rsi/09_recursive_self_improvement/step_02_fixed_improver/README.md) | missing | pending | generic or pending | generic or pending |
-| [09.03](../../../rsi/09_recursive_self_improvement/step_03_revise_improver/README.md) | missing | pending | generic or pending | generic or pending |
-| [09.04](../../../rsi/09_recursive_self_improvement/step_04_inherit/README.md) | present | pending | generic or pending | generic or pending |
-| [09.05](../../../rsi/09_recursive_self_improvement/step_05_compare_improvers/README.md) | present | pending | generic or pending | generic or pending |
-| [09.06](../../../rsi/09_recursive_self_improvement/step_06_bounded_generations/README.md) | missing | pending | generic or pending | generic or pending |
-| [09.07](../../../rsi/09_recursive_self_improvement/step_07_claim/README.md) | missing | pending | generic or pending | generic or pending |
+| [07.01](../../../rsi/07_understanding_self_star/step_01_correction/README.md) | present | authored | specific | specific |
+| [07.02](../../../rsi/07_understanding_self_star/step_02_reflection/README.md) | present | authored | specific | specific |
+| [07.03](../../../rsi/07_understanding_self_star/step_03_persistent_learning/README.md) | present | authored | specific | specific |
+| [07.04](../../../rsi/07_understanding_self_star/step_04_self_improvement/README.md) | present | authored | specific | specific |
+| [07.05](../../../rsi/07_understanding_self_star/step_05_organization/README.md) | present | authored | specific | specific |
+| [07.06](../../../rsi/07_understanding_self_star/step_06_emergence/README.md) | present | authored | specific | specific |
+| [07.07](../../../rsi/07_understanding_self_star/step_07_self_play/README.md) | present | authored | specific | specific |
+| [07.08](../../../rsi/07_understanding_self_star/step_08_modification/README.md) | present | authored | specific | specific |
+| [08.01](../../../rsi/08_measuring_improvement/step_01_repeat_measurement/README.md) | present | authored | specific | specific |
+| [08.02](../../../rsi/08_measuring_improvement/step_02_final_boundary/README.md) | present | authored | specific | specific |
+| [08.03](../../../rsi/08_measuring_improvement/step_03_cost/README.md) | present | authored | specific | specific |
+| [08.04](../../../rsi/08_measuring_improvement/step_04_ablation/README.md) | present | authored | specific | specific |
+| [08.05](../../../rsi/08_measuring_improvement/step_05_transfer/README.md) | present | authored | specific | specific |
+| [08.06](../../../rsi/08_measuring_improvement/step_06_rollback/README.md) | present | authored | specific | specific |
+| [09.01](../../../rsi/09_recursive_self_improvement/step_01_three_objects/README.md) | present | authored | specific | specific |
+| [09.02](../../../rsi/09_recursive_self_improvement/step_02_fixed_improver/README.md) | present | authored | specific | specific |
+| [09.03](../../../rsi/09_recursive_self_improvement/step_03_revise_improver/README.md) | present | authored | specific | specific |
+| [09.04](../../../rsi/09_recursive_self_improvement/step_04_inherit/README.md) | present | authored | specific | specific |
+| [09.05](../../../rsi/09_recursive_self_improvement/step_05_compare_improvers/README.md) | present | authored | specific | specific |
+| [09.06](../../../rsi/09_recursive_self_improvement/step_06_bounded_generations/README.md) | present | authored | specific | specific |
+| [09.07](../../../rsi/09_recursive_self_improvement/step_07_claim/README.md) | present | authored | specific | specific |
 | [10.01](../../../rsi/10_research_studio/00_reading_frontier_research/step_01_framework/README.md) | missing | pending | generic or pending | generic or pending |
 | [10.02](../../../rsi/10_research_studio/00_reading_frontier_research/step_02_announcements/README.md) | missing | pending | generic or pending | generic or pending |
 | [10.03](../../../rsi/10_research_studio/01_memory_and_exploration/step_03_exploration/README.md) | missing | pending | generic or pending | generic or pending |

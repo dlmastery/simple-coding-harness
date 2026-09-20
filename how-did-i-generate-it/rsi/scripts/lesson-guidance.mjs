@@ -1,5 +1,7 @@
 // Individually authored teaching support. Presence does not prove learner validation.
+import {improvementGuidance} from './guidance-improvement.mjs';
 export const guidance = {
+  ...improvementGuidance,
   '00.01': {
     example:'Consider an illustrative hour with 3 casual rentals and 13 registered rentals. The total is 16. Adding those two observed counts gives the answer exactly, but the counts are not available before those rentals occur. The useful question is what you could have predicted from permitted information. Now change the request from describing a recorded hour to planning tomorrow: even the weather input needs a different source.',
     outputs:[['TASK.md','States one row, the target and unit, when inputs are available, excluded outcome fields, the metric, and the partition rule.'],['Eight-row display','Shows source rows that support the field explanations. This is data inspection, not a model result.']],

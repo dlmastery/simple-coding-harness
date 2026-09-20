@@ -22,7 +22,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-Suppose the fixed improver promotes a skill after one favorable case and misses a known regression. A candidate improver can require a contrasting case before promotion. This changes the procedure for improving task skills. The proposal remains a hypothesis until it governs later work and receives a fair comparison.
+Suppose the fixed improver promotes a skill after one favorable case and misses a known regression. A candidate improver can require a contrasting case before promotion. This changes the procedure for improving task skills. Its internal promotion rule is a legitimate target; the external cases, metric, and comparison budget used to judge that change stay fixed. The proposal remains a hypothesis until it governs later work and receives a fair comparison.
+
+**A concrete example.** Improver v0 tests only the case that motivated a skill edit. A proposed v1 requires one contrasting case before promotion. On a fixture where the edit helps the first case but harms the second, v1 should make a different retention decision. That verifies the changed rule’s behavior; it does not yet show better future research at matched cost.
 
 ![An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.](../../assets/diagrams/lab-09-03.png)
 
@@ -66,6 +68,16 @@ Save IMPROVER-v1.md without overwriting v0. Test its instructions on one favorab
 
 The edit affects future skill improvement. Parent and child remain available. The report does not claim effectiveness from text quality alone.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Improver failure diagnosis | Links one procedural weakness to the lineage that exposed it. |
+| IMPROVER-v0.md and IMPROVER-v1.md | Preserve parent, one changed instruction, expected benefit, overhead, and falsifying case. |
+| Two fixture decisions | Show favorable and regressing cases under the unchanged external evaluation contract. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Compare “write more thoughtful proposals” with “test a contrasting case be
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the child only says “be more careful,” replace the vague aspiration with an observable action or decision rule. If it consumes more evaluation calls, record that cost rather than treating checks as free. Do not change the external final cases or metric to make the child’s internal rule look successful.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+An inspectable revision predicts a decision difference on a named case. A plausible explanation alone does not supply that difference.
 
 </details>
 

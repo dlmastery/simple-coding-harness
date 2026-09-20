@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Generation labels track ancestry. The improver reads a solver’s failures, proposes a child task skill, and applies the same acceptance procedure each time. The solver may change repeatedly while the improver remains identical. Numbering generations does not change that fact.
 
+**A concrete example.** A fixed improver first adds a row-alignment check to task skill v0, then adds an error-slice report to the retained child. Two task-skill generations now exist. If the improver’s diagnosis and selection procedure remained v0 throughout, this is repeated improvement under a fixed improver, even though its outputs changed twice.
+
 ![Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.](../../assets/diagrams/lab-09-02.png)
 
 *Read the diagram:* Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.
@@ -66,6 +68,16 @@ Use the same improver for both rounds. Save each parent and child skill, proposa
 
 Both rounds use the same improver. Every retained task skill has a corresponding evaluation. The conclusion says repeated self-improvement, not automatically RSI.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Fixed improver identity | Shows the same file and hash governing both rounds. |
+| Two generation records | Retain parent, proposal, checks, decision, cost, and resulting active skill. |
+| Baseline account | Reports retained quality without equating two iterations with recursive procedure revision. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Use a rejected child as the next parent in a labelled diagnostic replay. Explain
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a rejected child becomes the next parent anyway, inspect and correct the active-version pointer while preserving the erroneous trace. If the improver was edited between rounds, this is no longer the fixed baseline. Keep the four-fit ceiling across both generations; a fresh folder does not reset the experiment’s total budget.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Count versions of the improver separately from versions of the task skill. Multiple children do not imply multiple improvement procedures.
 
 </details>
 

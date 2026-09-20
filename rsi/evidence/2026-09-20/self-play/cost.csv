@@ -1,0 +1,8 @@
+quantity,value
+training_games,3000
+evaluation_games,1000
+training_moves_and_updates,22287
+stored_state_action_values,6648
+nonzero_values,5871
+runtime_seconds,0.5145634000000427
+authoring_inference_cost,unknown

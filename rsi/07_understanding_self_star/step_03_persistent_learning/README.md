@@ -68,6 +68,16 @@ In a new task context, read MEMORY-v1.md and record the decision it changes befo
 
 The memory version is identified. A later action is linked to a specific rule. The result distinguishes use from benefit.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| MEMORY-v1.md | Retains the rule, scope, limits, and supporting evidence. |
+| Later decision trace | Names the memory version and the specific action it changed before execution. |
+| Use and outcome report | Distinguishes retrieval, behavior change, measured benefit, and any unexecuted no-memory counterfactual. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Apply the rule to a case outside its stated scope. Predict possible negative tra
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the later answer only quotes the memory, identify an actual changed choice before calling it behavioral use. If a fresh session is unavailable, label the shared context. If no no-memory run exists, keep the stated alternative as a prediction; do not invent a measured baseline or infer benefit solely from reading the note.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+There are three separate questions: was it saved, was it used, and did using it help? Find different evidence for each.
 
 </details>
 

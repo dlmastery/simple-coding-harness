@@ -68,6 +68,16 @@ Use v1 to propose and evaluate a new task-skill revision. Record the contrasting
 
 The trace includes version identity and an observed decision difference. Merely copying the new file is not accepted as proof of use.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Active improver and ancestry record | Identifies v1 and its parent before the new round. |
+| New task-skill proposal and checks | Show an action required by the revised instruction. |
+| Inheritance report | Connects identity to executed behavior and distinguishes a measured v0 comparison from an unexecuted counterfactual. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Replace the active pointer with v0 in a labelled dry run. Identify which action 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the record has a v1 hash but no contrasting-case check, investigate whether the file was actually followed. Copying an instruction is not evidence of compliance. If the v0 alternative was only described, label it as predicted behavior. Preserve context limits when the same author or chat supplies both rounds.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Find a chain with three links: changed rule, later action, and recorded outcome. A version label supplies only the first link.
 
 </details>
 

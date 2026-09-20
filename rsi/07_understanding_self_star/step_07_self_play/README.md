@@ -4,11 +4,11 @@
 
 ## What you will build
 
-A bounded proposer–critic exchange and a clear account of what a self-play learning system would add.
+A tiny tic-tac-toe player that learns from self-play, a saved policy table, and a frozen comparison with its untrained version.
 
 ## Why this matters
 
-Two interacting roles can expose mistakes, but agreement between them is not a source of ground truth.
+Interaction is only one part of self-play learning. You need experience, a feedback source, a parameter update, and a way to judge the resulting policy. A small game makes each part visible on a laptop.
 
 ## Before you start
 
@@ -16,17 +16,19 @@ Complete [07.06: Observe a collective pattern](../step_06_emergence/README.md). 
 
 Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/07-07</code> and reports its absolute path. It checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
 
-**Starting state:** Three labelled experiment proposals: valid, leaked-feature, and final-set selection. Use sequential role passes, not extra agent processes.
+**Starting state:** The distinction between retained learning and improved performance. The agent uses the local Python environment and the supplied self-play tool; no extra agent processes are needed.
 
-**Budget:** Two exchange rounds per proposal, no fits or weight updates. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** 3,000 training games plus 500 evaluation games per policy: 4,000 games total, CPU only. Rule tests use separate tiny fixtures. No LLM weights change. Plan about 30–45 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
-In self-play, a system generates experience by playing against versions of itself or by coupling challenge generation with solving. Learning systems use that experience in a declared update. Here you run only a small interaction analogy: one role proposes an ML recipe and another challenges it. You do not train either role, generate a learned curriculum, or establish independent judgment. The domain checker supplies the declared validity check. Separate interaction, feedback, retained change, and evidence of benefit.
+A policy is a rule for choosing an action. Here its parameters are numbers in a table indexed by board, player, and move. Both sides use the same table while playing tic-tac-toe. After a game, each visited move receives its player’s terminal return: +1 for a win, 0 for a draw, or −1 for a loss. Move the stored value one fifth of the way toward that return. This is a tabular Monte Carlo update; it does not use a neural network or a next-state value estimate. With probability 0.2, a training move explores a random legal action. Otherwise it chooses a highest-valued move, breaking ties randomly. The game rules provide feedback. Freeze the learned table before testing it against a random opponent. The table changes; the training algorithm does not. Regression and classification remain the main course project. This short game exposes the self-play mechanism directly.
 
-![This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.](../../assets/diagrams/lab-07-07.png)
+**A concrete example.** In the saved author run, training game 0 ends in an O win. X’s first center move changes from value 0 to −0.2; O’s first move changes from 0 to +0.2. Each value moves 20% toward its player’s return. This does not prove the center is bad: the return includes everything that happened afterward. Later experience can revise the value.
 
-*Read the diagram:* This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.
+![Self-play produces games. Terminal returns update the policy table under a fixed learning rule. Freeze the table before comparing it with the untrained policy.](../../assets/diagrams/lab-07-07.png)
+
+*Read the diagram:* Self-play produces games. Terminal returns update the policy table under a fixed learning rule. Freeze the table before comparing it with the untrained policy.
 
 ## Run the lab
 
@@ -40,82 +42,113 @@ You write and run the implementation. Keep the reports and failures.
 Ask me to predict the result before the experiment.
 ```
 
-**Make a prediction:** Could both roles confidently endorse the same invalid proposal?
+**Make a prediction:** If two players interact but no table values change, what has been learned?
 
-### 1. Run the exchange
+### 1. Fix the game and comparison
 
-Make the interaction visible.
-
-```text
-Generate three proposal fixtures. For each, run a short proposer explanation and critic response in the current agent. Save the visible arguments and label the shared context. Do not expose or invent hidden reasoning.
-```
-
-**Observe:** The exchange produces hypotheses and objections.
-
-### 2. Use an external rule check
-
-Separate debate from validity.
+Keep evaluation choices outside the learning loop.
 
 ```text
-Run the domain rules against each final proposal. Compare the roles’ claims with executable verdicts and record false approvals.
+Read rsi/tools/self_play.py and the self-play section of rsi/tools/README.md. Save the fixed protocol in my lab workspace: 3,000 training games, seed 17, exploration 0.2, learning rate 0.2, and 500 frozen games per policy with equal X/O seats. Keep the supplied evaluation seed schedules. Explain legal moves, terminal returns, and the untrained zero table. Run the small game-rule and learning-boundary tests; retain their result separately.
 ```
 
-**Observe:** Agreement can conflict with the rule-based outcome.
+**Observe:** The game outcome and update rule have precise meanings before training.
+
+### 2. Run actual self-play learning
+
+Inspect a parameter change caused by a game.
+
+```text
+Use the supplied self-play tool to execute this fixed experiment in a new folder in my workspace. Keep all training moves, value updates, episode outcomes, table files, and evaluation traces. Apply a 60-second command limit. Preserve a failed run instead of overwriting it. Show one winning and one losing player update from the saved trace.
+```
+
+**Observe:** Both players generate experience; their terminal returns change stored action values.
+
+### 3. Inspect the frozen comparison
+
+Separate learning from measured benefit.
+
+```text
+Read evaluation-counts.csv and evaluation-policy-hashes.csv. Confirm 500 games per policy and equal X/O seats. Show wins, draws, and losses overall and by seat. Verify the policy hashes do not change during evaluation. Plot these measured counts and identify a remaining trained-policy loss. Do not tune the table or training choices after these results.
+```
+
+**Observe:** The untrained policy interacts without learning. The trained policy uses retained values without changing them during the test.
+
+### 4. Name the mechanism
+
+Keep the claim tied to the mutable object.
+
+```text
+Write SELF-PLAY-REPORT.md: what generated experience, what supplied feedback, what changed, what stayed fixed, and what the comparison supports. Contrast this with a proposer–critic exchange that saves only dialogue. Explain why this run is self-play learning but does not revise its own learning procedure.
+```
+
+**Observe:** A changed policy and a changed improver are different experiments.
 
 ## Check your result
 
-The exchange is bounded. The report labels the interaction analogy and shared context, retains mistakes, and states that no self-play training occurred. Debate does not override the checker.
+All 4,000 experiment games are retained. The table has actual updates, legal game traces, and unchanged evaluation hashes. Both policies use the declared evaluation schedules. The report separates this one measured comparison from claims about optimal play, other tasks, or RSI.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| RUN-CONTRACT.md and policy tables | Record the fixed training settings, initial zero policy, learned values, and freeze hash. |
+| Training games and updates | Connect every state, action, terminal return, and changed parameter. |
+| Evaluation counts, moves, and hashes | Retain wins/draws/losses by seat, actual failures, and unchanged policy bytes during evaluation. |
+| SELF-PLAY-REPORT.md and measured plot | Explain the result, the untrained no-update counterexample, costs, and why the fixed trainer does not establish RSI. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Remove the checker in a labelled simulation and inspect how an unsupported agreement could be accepted.
+Inspect the untrained baseline: it plays 500 games but retains no parameter changes. Explain why more interaction alone would not train it. Then propose, without running, a comparison against a stronger opponent and state which earlier claim that would test.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+A header-only initial-policy.csv is intentional: absent entries have value zero. If evaluation changes the table hash, stop interpreting its score and preserve the run for diagnosis. If the tool refuses a nonempty output directory, choose a new folder; do not overwrite prior evidence. A weak result against random play is still a valid result when rules and traces check out.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
 ## Key takeaways
 
-- Interaction can generate useful challenges.
-- A role exchange alone does not demonstrate self-play learning.
-- Correctness needs evidence beyond role agreement.
+- Self-play supplies experience that a declared learning rule can use.
+- A saved parameter change shows learning; a fair comparison tests benefit.
+- A fixed self-play trainer can improve a policy without recursive self-improvement.
 
 ## Research connection
 
 [SQL-Zero, 4 September 2026](https://arxiv.org/html/2609.04697v1), offers a recent contrast: a challenger generates tasks, database execution supplies feedback, and alternating GRPO steps update the challenger and solver.
 
-This lab illustrates interaction and checking only. It omits SQL generation, curriculum learning, and parameter training. It does not reproduce SQL-Zero or establish the benefits of self-play.
+The lab retains self-generated interaction, executable outcome feedback, and actual parameter updates. Its tabular game omits SQL generation, learned curricula, LLM weights, and GRPO. It does not reproduce SQL-Zero. Inspect the author’s full run at [self-play evidence](../../evidence/2026-09-20/self-play/README.md); your own result must come from your own run.
 
 ## Check your understanding
 
 Answer before opening the explanation. You can ask the tutor for a hint.
 
-1. Does this exchange demonstrate self-play training?
-2. Are the two roles independent evaluators?
-3. Can self-play learning occur without RSI?
-4. What should resolve an invalid proposal?
+1. Where is the learning in this run?
+2. Why is the untrained baseline a useful counterexample?
+3. Does a higher win count against random play prove optimal play?
+4. What would have to change to investigate RSI?
 
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Point to an actual before/after table value. Then point to the unchanged code that updates it. Those two objects keep learning and recursive improvement distinct.
 
 </details>
 
 <details>
 <summary>Explained answers</summary>
 
-1. No. It illustrates challenge and response without an executed training update.
+1. The after-game update changes retained state-action values using each player’s terminal return. The saved trace exposes those actual parameter changes.
 
-2. No. They share the same context and host unless a real separate boundary is created.
+2. It interacts with an opponent during evaluation but receives no updates. Experience and learning are separate mechanisms.
 
-3. Yes. A fixed training procedure can update players without revising the improvement procedure itself.
+3. No. It measures performance against that opponent and schedule. A stronger opponent or a different seat can expose failures.
 
-4. The task’s actual evidence and declared checks, not the number of agreeing roles.
+4. The procedure that produces improvements would need a justified revision that is inherited by later improvement work and judged under a fixed external comparison. Updating the policy table under this unchanged trainer does not do that.
 
 </details>
 

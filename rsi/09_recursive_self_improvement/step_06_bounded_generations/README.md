@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Each generation records the active solver, active improver, proposal, evaluation, retained versions, and spent resources. The next generation inherits only the selected versions. A rejected change remains in the archive but does not become the active parent. Stop when the budget ends even if the last result is disappointing.
 
+**A concrete example.** Generation 1 proposes improver v1, accepts it, and sets the active pointer to v1. Generation 2 must show v1 governing a later improvement action. If generation 2 proposes v2 but rejects it, v1 remains active. Two generations therefore do not imply two successful improver upgrades or accelerating progress.
+
 ![Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.](../../assets/diagrams/lab-09-06.png)
 
 *Read the diagram:* Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.
@@ -66,6 +68,16 @@ Run the bounded generations using the selected active improver. Save proposals, 
 
 No hidden extra generation runs. Rejected versions do not become active accidentally. The total ledger includes all attempts and known costs.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Two-generation protocol and lineage | Track both task-skill and improver parents, proposed children, external checks, and the eight-fit maximum. |
+| Executed inheritance traces | Show the active improver affecting later improvement work, including rejection paths. |
+| Checkpoint and quality/cost report | Preserve active pointers, consumed budget, improvements or regressions, and stop reason. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Interrupt after a proposal but before promotion. Explain which version is active
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If resumption starts from the newest file rather than the accepted active version, reconcile the checkpoint and promotion record before running. Keep rejected improver children available but inactive. If a generation has no accepted revision, report that outcome instead of relaxing the rule to force a rising curve. Inspect total fits across both generations.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate proposed versions, accepted versions, and executed active versions. A recursive lineage needs behavioral inheritance, not just increasing version numbers.
 
 </details>
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Reflection interprets an attempt. It may identify a failure, suggest a cause, and propose an action. Those are different epistemic roles: the trace is observed; the cause may be inferred; the action is a hypothesis. A useful reflection changes a later decision and survives a test.
 
+**A concrete example.** A deep tree fits the training data exactly but has poor selection MAE. “Always avoid trees” is too broad: the failure could depend on depth, sample size, or noise. A narrower hypothesis is to compare a bounded-depth tree before using an unpruned one. A case with a real nonlinear pattern can test whether the broad advice throws away useful structure.
+
 ![A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.](../../assets/diagrams/lab-07-02.png)
 
 *Read the diagram:* A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.
@@ -66,6 +68,16 @@ Predeclare one case where the rule should help and one where it might hurt. Exec
 
 The proposed rule has a falsifying case. Actual outcomes determine retention. The note does not rewrite the history of the failure.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| REFLECTION.md | Separates observed failure, proposed cause, alternative explanation, and bounded future rule. |
+| Two predeclared checks | Include a case expected to help and a case that could expose harm. |
+| Retention decision | Uses both outcomes and preserves a rejected explanation. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Replace a narrow rule with “always use a tree.” Test why overgeneralizing fr
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the note claims a cause from one correlation, rewrite that sentence as a hypothesis and specify what could contradict it. If both checks reuse the exact evidence that inspired the rule, acknowledge the lack of a new test. Keep the two-check budget; further diagnoses need a separate declared follow-up.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Underline what the trace proves. Circle what the author inferred. The test must challenge the circled statement, not merely repeat the observed failure.
 
 </details>
 

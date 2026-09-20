@@ -1,0 +1,2 @@
+*.csv -text
+self_play.source.py -text

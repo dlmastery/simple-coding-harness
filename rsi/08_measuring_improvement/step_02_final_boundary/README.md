@@ -26,6 +26,8 @@ Use 08-02 for the selection decision and lesson notes. Run final evaluation in t
 
 Selection chooses a recipe using development feedback. Final evaluation measures that frozen choice on another partition. The local tool locks selection before final scoring. This enforces a workflow for a cooperative agent, but the source remains public and readable. An adversarial or truly hidden evaluation needs separate control.
 
+**A concrete example.** You choose candidate 2 because it has the smallest selection MAE and record that decision. Its final MAE is worse than expected. Trying candidate 3 on the same final rows to recover a pleasing score would turn those rows into selection feedback. The correct record keeps candidate 2’s result and closes this experiment.
+
 ![Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.](../../assets/diagrams/lab-08-02.png)
 
 *Read the diagram:* Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.
@@ -68,6 +70,16 @@ Run the supplied final evaluation for that candidate. Inspect FINAL.md and predi
 
 Final evaluation uses the recorded recipe and original training rows. A later fit request is rejected. The report states that the source is public.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| SELECTION-DECISION.md in the lesson notes | Names the chosen recipe and the original experiment before final feedback. |
+| FINAL.md and final predictions in that experiment | Retain the one final refit and metric under the existing contract. |
+| Post-final refusal | Shows that a later fit request did not consume another fit or reopen selection. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +88,7 @@ Describe a separate evaluation service where the candidate cannot read cases or 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the original experiment is already closed, inspect its preserved final record and label this as a review; do not unlock it for the lesson. If the current tool source differs from its pinned source, use the original checkout. If final scoring fails after locking, investigate a diagnostic copy while preserving the closed original.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +110,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+The important boundary is information use. Ask whether the final outcome could influence another choice in the same claimed experiment.
 
 </details>
 

@@ -18,6 +18,10 @@ For an existing successful selection candidate, run `rsi/tools/check_result.py C
 
 ## Scope and limits
 
+For lab 07.07, the agent runs `rsi/tools/self_play.py --output PATH` through the same local Python environment. The output folder must be new or empty. The tool fixes a 4,000-game protocol: 3,000 training games and 500 evaluation games each for untrained and trained policies. It saves the contract before training, freezes the trained table before evaluation, and records every move and parameter update in CSV files. No student-written code, API service, or GPU is required. Apply the lesson's 60-second command timeout; the tool does not enforce an operating-system deadline itself.
+
+The self-play tool uses only Python's standard library. The agent can check game rules and evaluation boundaries with `python -m pytest -q rsi/maintenance/test_self_play.py`, using the environment above. The four checks include separate tiny training/evaluation fixtures; report their cost separately from the 4,000-game lesson experiment. Use the installed plotting libraries to graph actual evaluation counts. A header-only initial policy CSV means every legal state-action value is zero, not that the file is incomplete. Missing entries in either table also mean zero.
+
 The small model menu keeps early comparisons understandable. The tool does not propose improvements. The coding agent follows a skill to choose a hypothesis and invoke a tool. Later labs ask the agent to generate a new harness where the research mechanism needs different operations.
 
 The tool pins data, its own source, task, budget, and evaluation rules in the workspace contract. A checksum detects an accidentally changed contract; it is not an independent security boundary. Tool edits require a new workspace. Keep the original source checkout to continue an older experiment; do not rewrite its hash or budget to make a newer tool accept it. Failed fit attempts count. A stale running record stops continuation until inspected. Final evaluation closes selection before reading final results.

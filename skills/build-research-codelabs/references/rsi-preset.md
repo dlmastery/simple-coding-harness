@@ -25,6 +25,10 @@ The audience is an advanced AI/ML class that may know no RSI. Students use skill
 
 A proposer–critic exchange can illustrate interaction, but does not by itself demonstrate self-play training. Identify challenge generation, outcomes, the actual update, and retained state. Label an exercise that omits learning as an interaction analogy. For organization and emergence, compare throughput, correctness, and lateness separately; an attractive collective pattern can harm the task.
 
+When teaching self-play learning, include an actual affordable update, such as a tabular game policy learned from terminal returns. Keep the ML regression/classification project as the main thread and explain why this small side experiment exposes the mechanism. Freeze the learned policy before evaluation, retain failures, and distinguish policy updates under a fixed trainer from changes to the training procedure. Do not substitute dialogue alone for the requested learning mechanism.
+
+Distinguish internal selection from external evaluation. An improver may revise its own proposal-ranking or promotion rule; the external tasks, metrics, final cases, and resource protocol used to judge that revision must stay fixed for the comparison. A blanket prohibition on editing any promotion rule would prevent legitimate improver experiments and confuse the levels.
+
 ## Running ML project
 
 Use generic tabular ML hill climbing. The concrete proposal uses UCI Bike Sharing regression and UCI Wine Quality classification. Verify source files, license, schema, row count, splits, and task definitions before implementation. These historical datasets are small teaching fixtures, not recent research releases.

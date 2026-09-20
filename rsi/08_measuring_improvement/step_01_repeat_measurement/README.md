@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Use the same prespecified seeds for both recipes. Compare paired differences, retain all runs, and report their spread. Three seeds are a small demonstration, not a precise population estimate. Deterministic recipes may show no seed variation; that does not eliminate uncertainty from data choice.
 
+**A concrete example.** Suppose the illustrative paired differences, forest MAE minus tree MAE, are −8, +2, and −6. The mean is −4: forest is better on average because lower MAE is better. The positive pair still matters. Showing only −8 would hide instability, and all three pairs still use only one dataset and partition.
+
 ![A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.](../../assets/diagrams/lab-08-01.png)
 
 *Read the diagram:* A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.
@@ -66,6 +68,16 @@ Execute all six fits in separate or compatible bounded workspaces. Report paired
 
 All six planned runs appear, or missing runs are explained. No seed is discarded. Uncertainty includes task and data limitations.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Repetition plan | Freezes two recipes, calendar inputs, the split, MAE, and seeds 17, 29, and 43. |
+| Six run records and paired plot | Keep every attempted pair, signs, failures, and actual measured costs. |
+| Uncertainty statement | Separates seed variation from uncertainty about tasks, data, and model choices. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Calculate how the conclusion changes if only the best seed is shown. Label that 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a paired difference has an unclear sign, write the subtraction order and metric direction beside the table. If one fit fails, retain the missing pair and report why; do not replace its seed after seeing the other scores. Identical predictions across seeds can be correct for a deterministic operation, not proof of universal stability.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask what varied and what never varied. Repeating seeds cannot answer a question about a dataset that was never changed.
 
 </details>
 

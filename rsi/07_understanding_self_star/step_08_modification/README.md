@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Self-modification means the system changes part of its own implementation or instructions. The target can be a prompt, skill, tool, route, or model parameters. The name says what can change, not whether the change is good. Versioning and rollback make the consequence inspectable.
 
+**A concrete example.** An agent changes its learner-owned skill from “report the model score” to “recompute the score from saved predictions before reporting.” That is an inspectable self-modification of its instructions. If the new check rejects a valid result because it aligns rows incorrectly, the modification is real but harmful. Restore the parent while retaining the child and failure.
+
 ![Self-modification changes a component. Keep its parent and evaluate the change before retaining it.](../../assets/diagrams/lab-07-08.png)
 
 *Read the diagram:* Self-modification changes a component. Keep its parent and evaluate the change before retaining it.
@@ -66,6 +68,16 @@ Run the relevant passing and failing cases. Use the declared acceptance rule. If
 
 The changed surface, parent, child, checks, and active version are recorded. The outcome does not receive an automatic improvement label.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Parent/child skill files and change note | Identify the agent-owned surface, exact edit, and reason. |
+| Two check outcomes | Cover a valid case and the failure that motivated the edit. |
+| Active-version record | Shows which version remains active and links any rejected child to its evidence. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Propose deleting a check to make more candidates pass. Explain why that changes 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the agent edits a canonical course skill, preserve the diff and move the experiment to a learner-owned copy. If it removes an external success criterion to make the child pass, reject that comparison. An internal selection change is a different candidate procedure; it still needs unchanged external evaluation.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Self-modification answers “what can change?” Improvement answers “did that change help under the declared test?” Neither word supplies the other’s evidence.
 
 </details>
 

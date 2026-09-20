@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Self-correction revises a current output using feedback. Here the checker exposes a wrong summary number and the agent replaces it with the value computed from predictions. When the session ends, no procedure has changed unless you explicitly retain one.
 
+**A concrete example.** An illustrative report says MAE is 12, but the saved absolute errors are 10, 20, and 30. Their mean is 20. Replacing 12 with 20 corrects this report. It does not automatically change the procedure that writes the next report, even if the correction remains in this chat.
+
 ![Correction repairs the current output. It need not create a lasting instruction for future tasks.](../../assets/diagrams/lab-07-01.png)
 
 *Read the diagram:* Correction repairs the current output. It need not create a lasting instruction for future tasks.
@@ -66,6 +68,16 @@ Write a corrected report and a short correction note. Do not edit or save a reus
 
 The corrected number matches the predictions. The original and correction note remain. No retained skill change is claimed.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Original and corrected reports | Preserve the incorrect claim and the evidence-backed replacement. |
+| Metric recomputation | Uses the same predictions, targets, and rows as the report. |
+| Correction note | Names the changed output and confirms that no reusable procedure was revised. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Start a fresh session with the same fixed procedure and another wrong summary. E
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the recomputed number differs from both reports, first align prediction rows with target rows and check the metric definition. Do not select the number that looks more favorable. If the agent also edits a saved skill, record that as a separate retained change; it is no longer only the correction experiment.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask what changed now and what a later session would actually read. A corrected answer and a retained prevention rule have different lifetimes.
 
 </details>
 

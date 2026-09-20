@@ -1,13 +1,13 @@
 # Lab 07.07 brief
 
-A bounded proposer–critic exchange and a clear account of what a self-play learning system would add.
+A tiny tic-tac-toe player that learns from self-play, a saved policy table, and a frozen comparison with its untrained version.
 
-Starting state: Three labelled experiment proposals: valid, leaked-feature, and final-set selection. Use sequential role passes, not extra agent processes.
+Starting state: The distinction between retained learning and improved performance. The agent uses the local Python environment and the supplied self-play tool; no extra agent processes are needed.
 
-Prediction to ask: Could both roles confidently endorse the same invalid proposal?
+Prediction to ask: If two players interact but no table values change, what has been learned?
 
-Execution limit: Two exchange rounds per proposal, no fits or weight updates.
+Execution limit: 3,000 training games plus 500 evaluation games per policy: 4,000 games total, CPU only. Rule tests use separate tiny fixtures. No LLM weights change.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 
-Acceptance: The exchange is bounded. The report labels the interaction analogy and shared context, retains mistakes, and states that no self-play training occurred. Debate does not override the checker.
+Acceptance: All 4,000 experiment games are retained. The table has actual updates, legal game traces, and unchanged evaluation hashes. Both policies use the declared evaluation schedules. The report separates this one measured comparison from claims about optimal play, other tasks, or RSI.

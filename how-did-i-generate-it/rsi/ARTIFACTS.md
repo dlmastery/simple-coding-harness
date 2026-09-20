@@ -1,5 +1,7 @@
 # Artifact index
 
+Latest additions: [self-play protocol](validation/SELF-PLAY-PROTOCOL.md), [complete self-play evidence](../../rsi/evidence/2026-09-20/self-play/README.md), [measured-plot source](scripts/plot-self-play.py), [diagram revision v5](visuals/rendered-gallery-v5.md), and [individually reviewed README coverage](validation/README-GUIDANCE-COVERAGE.md). The runtime source snapshot preserves the exact bytes used by the experiment. CSV and source attributes prevent newline conversion from changing those archived bytes.
+
 This index covers planning, reusable skills, and implementation. The old RSI course remains in Git history. The replacement is authored and undergoing validation.
 
 ## Checked-in project artifacts

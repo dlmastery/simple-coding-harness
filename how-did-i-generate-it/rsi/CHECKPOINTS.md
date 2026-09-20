@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+Latest verified checkpoint before the self-play expansion: `e3428ecfb60a73667b2b6434ba24e8b72ef1d9b6`, confirmed against the remote branch on 20 September. Its dedicated RSI workflow passed on Linux, macOS, and Windows (run `35513437094`). The explicit original backups are preserved in ancestor `85ceecc`; this later checkpoint contains the first 37 labs' editorial support. Further checkpoints are recorded in the work log and Git history.
+
 The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is an ancestor of the remote commit verified at eceeeab64aa37206355f6b840b28c4d30c938c3f. Later checkpoints appear in the branch history and work log.
 
 These are pushed checkpoints, not a merge into main or a claim that the whole course is finished.

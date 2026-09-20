@@ -68,6 +68,16 @@ Execute v0 and v1 from matched starting artifacts. Keep all proposals, failed ch
 
 Both arms start from the same solver. Their resource limits and known costs are reported. The conclusion concerns the tested improvers and tasks only.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Matched-comparison protocol | Freezes two cases, both improvers, identical starting task skills, two fits per arm/case, and the external metric. |
+| Eight fit and decision records | Include attempted and rejected revisions and all available costs. |
+| Retained-outcome comparison | Judges the artifact each improver actually retained, with narrow claims about the two cases. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Show how reporting only the best child from each arm hides failed proposals and 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If one improver is judged by its best discarded candidate and the other by its retained candidate, recompute the comparison consistently. If agent costs are unknown, do not claim equal total resources. If both arms have identical outcomes, inspect whether their changed rule encountered a case where it could matter; a null result remains valid evidence.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Judge each improver by the consequences of its decisions. Identical candidate scores can still lead to different retained systems.
 
 </details>
 

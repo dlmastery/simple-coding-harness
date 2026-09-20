@@ -1,5 +1,11 @@
 # Implementation record
 
+## 20 September: self-play and the two selection levels
+
+Replaced the interaction-only 07.07 exercise with a real tabular Monte Carlo learner. Declared the protocol first, passed four small behavioral checks, then executed 3,000 training games and 500 frozen evaluation games per policy. The source snapshot, 22,287 updates, full game traces, outcomes, hashes, costs, and measured chart are retained. The runtime reports 6,648 stored state-action values; 5,871 are nonzero. The trained policy won 383 of 500 games against random play; the untrained policy won 227. No tuning followed evaluation. This is same-author execution, not a learner assessment, independent replication, paper reproduction, or RSI.
+
+Updated the theme transition, main README, brief, output guidance, quiz, and diagram. Kept the earlier role-exchange source and diagram revisions. Clarified that an improver's internal selection rule is a legitimate candidate change while the external evaluation contract stays fixed. Added individual teaching support for all 21 labs in themes 07–09. The remaining editorial range is the 38 research studios and five capstones.
+
 ## 20 September 2026: begin the rebuild
 
 The user said “continue” after the saved plan and reusable skill checkpoint. Implementation is authorized. Starting commit: `2d0263541a50890150fe8eb04bfef7a018248e91`; branch: `codex/rsi-masterclass-rebuild`.

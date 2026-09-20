@@ -68,6 +68,16 @@ Run the same jobs with idle workers taking the next available job. Compare assig
 
 Both runs use the same synthetic jobs and worker capabilities. The trace shows reassignment. Any speed claim is confined to this simulation.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Synthetic job specification | Fixes six jobs, durations, expected outputs, and two worker capabilities. |
+| Fixed and dynamic event traces | Show assignments, start/finish times, and every completed job. |
+| Comparison and overhead case | Report completion time separately from lost, duplicate, or incorrect work; label synthetic timing. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Add a shared-resource bottleneck or communication delay. Predict when dynamic re
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If dynamic routing looks faster because it skipped a job, reconcile job IDs before interpreting time. If the simulation uses random durations, reuse the same generated jobs across policies. If communication delay was added only to one policy, state that assumption and explain why it is part of that policy’s modeled cost.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Keep the work and workers fixed. The property under test is who receives which job, not whether a worker learned a better way to do it.
 
 </details>
 

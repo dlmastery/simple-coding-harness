@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task skill chooses ML experiments. The improver reads failures, proposes one skill edit, and tests it. In this lab the improver’s instructions remain unchanged. The modified object is the solver’s research skill, so any benefit is self-improvement under a fixed improver.
 
+**A concrete example.** The parent research skill chooses its second model immediately after the first score. A child requires an error-slice review before that choice. Give both the same initial task and two fits. The improver that proposed this edit stays unchanged. The child can choose a better model, waste effort, or make the same decision; all three are possible outcomes.
+
 ![The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.](../../assets/diagrams/lab-07-04.png)
 
 *Read the diagram:* The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.
@@ -66,6 +68,16 @@ Give parent and child the same starting task and two fits each. Record their cho
 
 The improver version remains fixed. The child is actually used. The acceptance decision follows a declared rule and preserves rejected edits.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Parent and child task skills | Show the one changed research instruction and its motivating failure. |
+| Fixed improver hash | Identifies the same improvement procedure before and after the comparison. |
+| Four-fit comparison and decision | Retains choices, scores, known costs, rejected candidates, and the declared acceptance rule. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Edit the improver itself in a separate unexecuted proposal. Explain why this cre
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the child receives extra fits, the equal-fit comparison has changed. Preserve that run and narrow the claim rather than omitting its extra work. If both versions use the same chat, record context leakage as a limitation. If the improver also changes, separate its revision from this fixed-improver experiment.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Follow the edit to its target. A better task-research instruction does not show that the instruction-writing procedure became better.
 
 </details>
 

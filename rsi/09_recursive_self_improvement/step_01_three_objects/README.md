@@ -22,7 +22,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-The solver runs ML research. The improver proposes and tests changes to the solver’s procedure. The evaluator measures outcomes under fixed rules. Recursion concerns changes to an improvement procedure that later participates in improvement. An extra loop around a solver does not establish that relationship by itself.
+The solver runs ML research. The improver proposes and tests changes to the solver’s procedure. The external evaluator measures outcomes under fixed rules. An improver may change its internal proposal-ranking or promotion rule; that changed procedure is still judged by the unchanged external comparison. Recursion concerns changes to an improvement procedure that later participates in improvement. An extra loop around a solver does not establish that relationship by itself.
 
 **A concrete example.** Changing a tree depth changes the ML candidate. Adding “inspect error by hour” changes the research skill that proposes candidates. Adding “recompute every reported score before promoting a research-skill edit” changes the improver. The edit text can look small at all three levels. What matters is which later decisions it governs.
 
@@ -68,15 +68,25 @@ Classify a new model setting, a revised task skill, and a revised improver rule.
 
 The evaluator is outside the ordinary mutable surface. The map distinguishes host model, task model, task skill, and improver procedure.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| COMPONENTS.md | Separates the host model, task model, research skill, improver, and external evaluator, with writable surfaces. |
+| Three classified edits | Explain a model setting, task-skill revision, and improver-rule revision. |
+| Boundary counterexample | Contrasts legitimate internal selection changes with an invalid post-result change to the external metric. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Move the promotion rule into the editable candidate surface in a labelled diagram. Explain how this can inflate acceptance without improving capability.
+In a labelled diagram, let a candidate change the external final metric after seeing its result. Explain why that invalidates the comparison. Contrast it with a candidate improver changing its internal proposal-selection rule while the external metric, final cases, and resource budget stay fixed.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the same agent performs several roles, name that shared authority rather than drawing an imaginary independent evaluator. If every promotion rule is marked immutable, distinguish the candidate improver’s internal rule from the external protocol that judges it. Recursion needs a changed improvement procedure to govern later work, not merely another nested loop.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask two questions for each rule: whose decision does it govern, and what unchanged evidence will judge the consequence of changing it?
 
 </details>
 
@@ -111,7 +121,7 @@ Trace what changed, what stayed fixed, and which observation supports the conclu
 
 3. How later procedure improvements are proposed, tested, allocated, or retained.
 
-4. Otherwise a system can appear better by changing the measurement or acceptance rule.
+4. Otherwise a system can appear better by changing the external measurement or final acceptance criterion. Internal candidate-selection rules may change if the unchanged external evaluator judges the resulting procedure.
 
 </details>
 

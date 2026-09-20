@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A majority classifier can be accurate on imbalanced data while detecting no positive cases. The declared primary metric is balanced accuracy. Changing the promotion metric after observing results creates a different experiment. Rollback restores the retained valid version while preserving the rejected proposal and evidence.
 
+**A concrete example.** A report celebrates an always-negative classifier’s high ordinary accuracy. Its positive recall is zero and negative recall is one, so balanced accuracy is 0.5. Under the wine contract, that is the baseline behavior, not evidence that the research procedure improved. The attractive number cannot replace the promised metric after the run.
+
 ![A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.](../../assets/diagrams/lab-08-06.png)
 
 *Read the diagram:* A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.
@@ -66,6 +68,16 @@ Write PROMOTION.md rejecting any unsupported metric-switch claim. Restore the pr
 
 The decision uses the predeclared metric and validity rules. Rejected artifacts remain available. No performance claim comes from changing the evaluator.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Metric audit | Recomputes accuracy, both recalls, and balanced accuracy from the same prediction rows. |
+| PROMOTION.md | Uses the declared objective and rejects the unsupported metric-switch claim. |
+| Rollback record | Restores the prior active version if the fixture replaced it, while retaining the rejected candidate. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Create a genuinely new task where overall accuracy is the chosen objective. Expl
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If one class disappears from the prediction/target join, repair the diagnostic join before interpreting recall. Do not silently drop those rows. If no active version was actually changed, record a rejection without inventing a rollback event. Choosing accuracy for a genuinely new task requires a new stated objective and tradeoff.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Inspect the class the model never recognizes. Overall accuracy can conceal that failure; balanced accuracy gives each class recall equal weight.
 
 </details>
 

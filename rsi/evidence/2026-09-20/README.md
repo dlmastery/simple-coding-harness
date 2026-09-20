@@ -1,5 +1,7 @@
 # Author execution evidence
 
+The later [self-play run](self-play/README.md) adds 3,000 actual tabular training games and 1,000 frozen evaluation games, including all moves, updates, failures, and a measured plot. It demonstrates learning under a fixed trainer. The entries below preserve the earlier runs and their original scope; their counts are not a current cumulative total.
+
 Date: 20 September 2026. Host: Windows AMD64; Python 3.12.12. Package versions are in the [environment record](../../../how-did-i-generate-it/rsi/validation/foundation-environment.txt).
 
 The maintainer agent ran the supplied data inspection and five ML fits. These are executed measurements. No student participated, so prediction checkpoints, quiz responses, and teaching effectiveness were not tested. No native Claude or Gemini session, GPU, or cluster run was performed.

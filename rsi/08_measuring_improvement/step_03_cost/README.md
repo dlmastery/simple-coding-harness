@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Resources are not interchangeable. Record agent tokens or provider charges when available, local fit seconds, total wall time, evaluator calls, and later GPU-hours. Unknown values stay unknown. Equal fit counts are useful but do not imply equal total research cost.
 
+**A concrete example.** In a labelled numerical illustration, procedure A uses 20 fit-seconds and 100 proposal-seconds; B uses 30 and 10. A is cheaper in fitting but costs 120 measured seconds against B’s 40 if those stages are sequential. Neither number includes unknown provider charges. State the resource and assumptions before naming a winner.
+
 ![Research cost includes proposing, running, checking, and failed work. Fit time is only one component.](../../assets/diagrams/lab-08-03.png)
 
 *Read the diagram:* Research cost includes proposing, running, checking, and failed work. Fit time is only one component.
@@ -66,6 +68,16 @@ Compare retained quality at matched known resources. State whether total-cost su
 
 The ledger reconciles every attempt. Unknown cost is distinct from zero. The report states what resource equality was actually achieved.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| COST.md for both procedures | Reconciles proposals, fits, checks, failures, retries, final evaluation, and unknown categories. |
+| Attempt-to-cost mapping | Links each ledger item to a measurement or an explicit missing value. |
+| Revised efficiency claim | Names the quality measure and the resource actually matched or compared. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Add a large proposal-generation cost to a labelled numerical illustration. Deter
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If totals are smaller than their components, check units, overlapping parallel work, and whether wall time was added to included fit time. Avoid double counting. If provider usage is unavailable, leave it unknown rather than estimating it from a local duration. A comparison can still report equal fits without claiming equal total cost.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A stopwatch, a token counter, and a bill answer different questions. Keep their units and missing categories visible.
 
 </details>
 

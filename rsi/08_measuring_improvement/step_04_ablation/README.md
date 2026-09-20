@@ -68,6 +68,16 @@ Run all arms from clean starting state where possible. Record context boundaries
 
 All arms are present and differ only in declared components. Shared-context limitations are stated. No favorable arm is relabelled as the only planned comparison.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| ABLATION-PLAN.md | Freezes all four memory/skill combinations, inputs, metric, and per-arm budget. |
+| Four decision and outcome records | Include context boundaries, failures, and measured costs. |
+| Effect comparison | Compares memory within each skill version and skill change within each memory condition. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Remove a conflicting memory rule in a separately declared follow-up. Do not merg
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If one arm inherits an earlier arm’s conclusions through shared context, record that limitation before interpreting attribution. Fresh folders isolate artifacts, not the coding agent’s knowledge. If an arm crashes, retain the failure as an outcome. A repaired or newly edited memory is a follow-up, not a hidden substitution into the original four arms.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Compare memory on versus off twice: once for the parent, once for the child. Different effects reveal an interaction.
 
 </details>
 
