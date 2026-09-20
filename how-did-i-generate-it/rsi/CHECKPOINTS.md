@@ -1,6 +1,6 @@
 # GitHub checkpoints
 
-Latest verified illustration checkpoint: `b7550be4e2173db84659addf41ed3782dc556c56`, confirmed against the remote branch on 20 September. Its dedicated RSI workflow passed (run `35519700202`). Four selected infographics, seven generated versions, exact prompts, and provider approval are now preserved. The following review-record checkpoint adds the published-page observations. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. Further execution and visual work continues. These are not full-course acceptance results.
+Latest verified asset checkpoint before the visual-quality correction: `641898cade39932d1c758054f3ca67b7f3f65d7e`, confirmed against the remote branch on 20 September. It preserves the first ten selected illustrations and seventeen generated versions. The subsequent correction restores the initial overview as the visual reference, redesigns ScienceBuddy, and adds RSIAgent. The user now prioritizes authored diagrams, READMEs, and skills before the full verification pass. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. These checkpoints are not full-course acceptance results.
 
 The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is in its verified history. The branch history and work log retain intermediate checkpoints.
 
@@ -8,6 +8,8 @@ These are pushed checkpoints, not a merge into main or a claim that the whole co
 
 | Commit | Milestone |
 |---|---|
+| [641898c](https://github.com/dlmastery/simple-coding-harness/commit/641898cade39932d1c758054f3ca67b7f3f65d7e) | Publish the first ten selected illustrations, seventeen versions, and the student visual guide |
+| [9c25420](https://github.com/dlmastery/simple-coding-harness/commit/9c254204c4ff7c60d65832728047d217329ac441) | Preserve the first published-page image review; dedicated RSI workflow passed |
 | [b7550be](https://github.com/dlmastery/simple-coding-harness/commit/b7550be4e2173db84659addf41ed3782dc556c56) | Generate, revise, and embed the first four professional illustrations; preserve seven outputs and their prompts |
 | [42251c8](https://github.com/dlmastery/simple-coding-harness/commit/42251c86af47f825dbb6c981ebd9d2e1ed71fa82) | Teach self-* and measurement mechanisms from executed evidence, including the retained precision failure |
 | [0d1b2af](https://github.com/dlmastery/simple-coding-harness/commit/0d1b2af65fe46579f065e6acb41ee098f5de49f0) | Complete individual teaching guidance for all 101 labs and 13 research groups |

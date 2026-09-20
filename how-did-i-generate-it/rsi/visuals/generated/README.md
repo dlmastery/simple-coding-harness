@@ -1,8 +1,8 @@
 # Illustrations for the RSI course
 
-Ten selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
+Eleven selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
 
-All seventeen generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All twenty-one generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
@@ -70,13 +70,21 @@ Selected: [v2](replay-boundary-v2.png). Prompts: [initial](replay-boundary-v1.pr
 
 Both versions preserve the recorded baseline, tried change, failed attempt, and unknown branch. V2 removes unrequested small-print prose; Markdown carries the source and scope explanation. The left snapshot never gains an invented result from the separate new-execution panel. Added to 10.08 as an original Dream-RSI-inspired classroom explanation.
 
-## Track the model and harness together
+## Two ways to improve a scientific agent
 
-![Harness and model versions change in separate operations; training evidence and held-out evaluation follow different routes.](model-harness-v2.png)
+![Three illustrated research workbenches show a harness change with fixed weights, then a weight update with the harness fixed.](model-harness-v4.png)
 
-Selected: [v2](model-harness-v2.png). Prompts: [initial](model-harness-v1.prompt.md), [revision](model-harness-v2.prompt.md). Rejected output: [v1](model-harness-v1.png).
+Selected: [v4](model-harness-v4.png). Prompts: [initial](model-harness-v1.prompt.md), [technical revision](model-harness-v2.prompt.md), [visual redesign](model-harness-v3.prompt.md), [targeted correction](model-harness-v4.prompt.md). Earlier outputs: [v1](model-harness-v1.png), [v2](model-harness-v2.png), [v3](model-harness-v3.png).
 
-V1 added a paragraph that conflated training evidence with external evaluation. It was rejected despite the correct version labels. V2 sends training evidence only to the parameter update and separate held-out cases to the evaluation track. It also removes dense unrequested paragraphs and lists pair identity, held-out results, and cost in each report. All three pair labels match the visible components. The local-lab notice and caption state that the exercise uses synthetic scores and does not train an LLM. Added to 10.25.
+V1 added wording that conflated training evidence with external evaluation. V2 corrected the routes but relied on repetitive folders, chips, and boxes. After the user reported declining visual quality, v3 used the actual main overview as a style reference and rebuilt the explanation as three detailed research workbenches. V4 makes the unchanged H1 blue in the final scene, removes a mug slogan, replaces report bars with neutral lines, and avoids an unsupported implication of unseen-topic evaluation. The requested tiny book-spine correction did not render cleanly; it is a cosmetic residual, not a method label. The caption preserves the laptop exercise's synthetic-score and no-LLM-training limits. Added to 10.25.
+
+## Check the result, then write the lesson
+
+![The curriculum selects practice, the actor executes, the verifier checks outcomes, and the actor writes memory that is later frozen.](actor-memory-v2.png)
+
+Selected: [v2](actor-memory-v2.png). Prompts: [initial](actor-memory-v1.prompt.md), [correction](actor-memory-v2.prompt.md). Earlier output: [v1](actor-memory-v1.png).
+
+Used the main overview as the style reference. The first image added an incorrect verifier claim about sound reasoning and implied only successful outcomes could precede a lesson. V2 instead lists task requirement, observed result, success or failure, and supporting evidence. It routes the verdict to the actor's pen, adds an explicit freeze handoff, and preserves read-only use on a later task. The notebook fields are our teaching aid. The primary method's role and freezing descriptions were rechecked in [RSIAgent sections 3.1–3.2](https://arxiv.org/html/2609.15364v1); no new benchmark or execution claim is made. Added to 10.04.
 
 ## Move the compute, preserve the evidence
 
@@ -88,4 +96,4 @@ V1 omitted the adapter-to-CPU connection. V2 adds the third branch while preserv
 
 ## Review scope
 
-All ten selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in their actual GitHub Markdown pages at about 814 pixels wide. The main README and 00.01 were also checked at a 390-pixel viewport. Captions and full-size links remained readable; dense secondary labels require opening the image or zooming on a phone. The 00.01 companion-diagram disclosure opened and loaded correctly. The six new assets still need their published-width review at this checkpoint. See [the visual review](../REVIEW.md) for actual observations and limits. Ten illustrations do not complete every thematic or lesson-specific figure review, execution check, or learner assessment.
+All eleven selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in actual GitHub Markdown pages at about 814 pixels wide; the main and 00.01 also at a 390-pixel viewport. During the next review, the self-* comparison was seen at reading width, but the graph figure's lower part was outside the screenshot. Do not count that as a complete graph review. Browser screenshots were observed, not exported. The user then prioritized authoring and GitHub checkpoints before the full verification pass. Viewport overrides were reset. The new RSIAgent and revised ScienceBuddy images have full-size checks; their published-width review remains queued. Dense secondary labels require full-size viewing on phones. See [the authoring plan](../../AUTHORING-FIRST.md) for the current sequence and deferred checks.

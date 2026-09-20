@@ -26,9 +26,20 @@ RSIAgent separates outcome verification from actor-owned memory updates. The ver
 
 **A concrete example.** The checker confirms that the calendar model’s MAE matches its saved predictions. The actor then writes “calendar fields always beat weather.” The verified number does not support that broad lesson: the compared models and conditions matter. The result can be valid while its inferred memory is wrong.
 
+![A curriculum selects practice. The actor executes an experiment, the verifier checks observed evidence, and the actor writes a bounded memory. After exploration, the memory is frozen and read on a later task.](../../../assets/illustrations/actor-memory-v2.png)
+
+*The verdict concerns the task outcome. The actor still has to interpret it and can write an overbroad lesson. The notebook fields are our teaching aid, not a required paper format. This figure adapts RSIAgent’s responsibility split to the laptop ML exercise. It does not reproduce the paper’s environments or establish that the memory-writing procedure improved. Frozen evaluation memory is read without updates.*
+
+[Open the illustration at full size](../../../assets/illustrations/actor-memory-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.](../../../assets/diagrams/lab-10-04.png)
 
 *Read the diagram:* The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.
+
+</details>
 
 ## Run the lab
 

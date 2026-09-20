@@ -26,11 +26,11 @@ ScienceBuddy couples harness adaptation with weight learning across repeated cyc
 
 **A concrete example.** The [executed simulation](../../../evidence/2026-09-20/sciencebuddy-laptop/10-25/PAIRS.md) uses invented scores: M0 gets 0.40 with H0 and 0.70 with H1; M1 gets 0.80 and 0.60 respectively. Selecting H1 helps M0. Changing the model label to M1 makes the inherited H1 worse than H0. Reselecting the harness then helps. The table constructs this interaction; no model was trained.
 
-![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](../../../assets/illustrations/model-harness-v2.png)
+![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](../../../assets/illustrations/model-harness-v4.png)
 
 *Track both versions because a harness and model can interact. First hold M0 fixed while changing the harness; then hold H1 fixed while changing weights. Keep training evidence separate from the cases used for the declared external comparison, and do not feed final results back into selection. This lab illustrates pair accounting with synthetic scores. It does not train an LLM or reproduce ScienceBuddy’s reported gains.*
 
-[Open the illustration at full size](../../../assets/illustrations/model-harness-v2.png).
+[Open the illustration at full size](../../../assets/illustrations/model-harness-v4.png).
 
 <details>
 <summary>See the step diagram</summary>

@@ -1,10 +1,12 @@
 # Illustration brief
 
-Status: production started on 20 September 2026. The user explicitly approved the available image generator in place of the original Imagen 2.5 preference. The ten selected illustrations and all seventeen generated versions are retained in the [generation gallery](generated/README.md). The actual tool exposes no model identifier. See the [provider decision](GENERATOR-DECISION.md); no further provider approval is needed.
+Status: production started on 20 September 2026. The user explicitly approved the available image generator in place of the original Imagen 2.5 preference. Eleven selected illustrations and all twenty-one generated versions are retained in the [generation gallery](generated/README.md). The actual tool exposes no model identifier. See the [provider decision](GENERATOR-DECISION.md); no further provider approval is needed.
 
 The course also has original Mermaid technical schematics for all 101 labs, authored in `scripts/lesson-diagrams.mjs`. These supplement the generated illustrations. The measured data plots remain a third, separate class of visual evidence. The initial ten-topic brief is now generated and selected after full-size review. Further method-specific illustrations and the full rendered-page review remain in progress; ten assets do not complete every theme or lab.
 
 ## Shared visual language
+
+Quality correction, 20 September: the user prefers the first illustration and reports declining quality. The selected [main overview](generated/main-overview-v2.png) is now the explicit style reference. Its concrete bike station, purposeful object detail, connected story, and carefully drawn scenes set the standard. New images must be compared with this actual reference. Revise the ScienceBuddy composition before extending the batch. Repeated generic folder and chip layouts are insufficient even when their labels are correct. The current priority is authored diagrams, READMEs, skills, and GitHub checkpoints; the full execution and reproduction pass follows later.
 
 White canvas. Deep navy text. Muted blue for fixed procedures, warm amber for the component being changed, teal for checked evidence, and restrained brick red for a rejected path. Color must be reinforced with a label or shape. Use fine, consistent strokes and simple objects. Keep ample space between groups. Avoid gradients, glow, mascot robots, decorative code, fake dashboards, and ornamental scientific symbols.
 

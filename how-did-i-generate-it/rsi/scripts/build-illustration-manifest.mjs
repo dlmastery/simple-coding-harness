@@ -21,7 +21,11 @@ const outputs=[
   ['replay-boundary-v1','exec-a9f26ca9-51b3-43c0-9534-96711a0e0b3e.png',false],
   ['replay-boundary-v2','exec-e21a62ff-2908-4165-9775-e24bef03a33c.png',true],
   ['model-harness-v1','exec-d711210f-c637-48b6-96b0-a17c54576d1e.png',false],
-  ['model-harness-v2','exec-e8221bb5-62a1-49ce-ac41-fb7c15980a17.png',true],
+  ['model-harness-v2','exec-e8221bb5-62a1-49ce-ac41-fb7c15980a17.png',false],
+  ['model-harness-v3','exec-b9246c30-27c2-427e-ad3b-c6f7b9986fc5.png',false],
+  ['model-harness-v4','exec-3c790a4e-c32e-480f-ab88-a174125e065c.png',true],
+  ['actor-memory-v1','exec-35cdcc66-4edb-450f-b032-a7465ae575de.png',false],
+  ['actor-memory-v2','exec-295e9fa9-8587-4632-b38b-b374e4f5b3c6.png',true],
   ['compute-contract-v1','exec-23bff6ac-66bf-4930-b243-d8b335fba9f7.png',false],
   ['compute-contract-v2','exec-76e9a404-6644-46d2-9fe7-4cc858c44441.png',true]
 ];

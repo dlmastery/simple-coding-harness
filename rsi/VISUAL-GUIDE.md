@@ -76,6 +76,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 09.04: Use the revised improver in the next round](09_recursive_self_improvement/step_04_inherit/README.md).
 
+## Check the result, then write the lesson
+
+![A curriculum selects practice. The actor executes an experiment, the verifier checks observed evidence, and the actor writes a bounded memory. After exploration, the memory is frozen and read on a later task.](assets/illustrations/actor-memory-v2.png)
+
+*The verdict concerns the task outcome. The actor still has to interpret it and can write an overbroad lesson. The notebook fields are our teaching aid, not a required paper format. This figure adapts RSIAgent’s responsibility split to the laptop ML exercise. It does not reproduce the paper’s environments or establish that the memory-writing procedure improved. Frozen evaluation memory is read without updates.*
+
+[Open the illustration at full size](assets/illustrations/actor-memory-v2.png).
+
+[Lab 10.04: Verify the outcome, then let the actor write memory](10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md).
+
 ## Replay stops at the edge of the record
 
 ![Replay follows a recorded baseline and tried change, while a failed attempt remains archived. It stops before an untried branch whose outcome is unknown. A separate new execution would produce a new report.](assets/illustrations/replay-boundary-v2.png)
@@ -86,13 +96,13 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.08: Replay only what the history can answer](10_research_studio/02_dream_rsi/step_08_replay/README.md).
 
-## Track the model and harness together
+## Two ways to improve a scientific agent
 
-![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](assets/illustrations/model-harness-v2.png)
+![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](assets/illustrations/model-harness-v4.png)
 
 *Track both versions because a harness and model can interact. First hold M0 fixed while changing the harness; then hold H1 fixed while changing weights. Keep training evidence separate from the cases used for the declared external comparison, and do not feed final results back into selection. This lab illustrates pair accounting with synthetic scores. It does not train an LLM or reproduce ScienceBuddy’s reported gains.*
 
-[Open the illustration at full size](assets/illustrations/model-harness-v2.png).
+[Open the illustration at full size](assets/illustrations/model-harness-v4.png).
 
 [Lab 10.25: Track model–harness pairs across cycles](10_research_studio/07_sciencebuddy/step_25_coevolution/README.md).
 

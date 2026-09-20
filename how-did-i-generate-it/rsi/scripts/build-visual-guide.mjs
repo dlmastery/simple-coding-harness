@@ -14,8 +14,9 @@ const topics=[
   ['06.02','The builder and the system it builds'],
   ['07.08','Similar words, different changes'],
   ['09.04','The next round must use the change'],
+  ['10.04','Check the result, then write the lesson'],
   ['10.08','Replay stops at the edge of the record'],
-  ['10.25','Track the model and harness together'],
+  ['10.25','Two ways to improve a scientific agent'],
   ['compute','Move the compute, preserve the evidence']
 ];
 const sections=topics.map(([id,title])=>{

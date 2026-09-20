@@ -107,6 +107,8 @@ An explicit user-approved alternative supersedes the provider preference for tha
 
 Every image has a teaching purpose. It should show the main idea at a glance and reward closer reading. Use a clear hierarchy, consistent colors and shapes, readable labels, meaningful arrows, and enough space. Highlight the new mechanism in an evolving diagram. Dense does not mean crowded.
 
+When the user prefers an earlier illustration, preserve it as an explicit visual benchmark and provide it as a style reference for subsequent generation. Compare the actual images, not only their prompt wording. Preserve concrete scenes, connected explanations, crafted drawing, and meaningful detail. Repeated generic folders, chips, cards, or text boxes can weaken the teaching even when the labels are technically correct. Revise a representative weaker image before continuing a large batch. Keep necessary qualifications in nearby prose when they overwhelm the image, without removing the scientific boundary from the lesson.
+
 Show data flow, control flow, mutable and fixed components, feedback, and boundaries where those distinctions matter. Avoid decorative imagery that hides the mechanism. Use panels for a complex overview and focused figures for individual steps.
 
 Review spelling, labels, arrows, missing stages, duplicated elements, scale, and scientific claims. Keep generation prompts, source assets, revisions, and review notes in provenance. Embed locally stored assets in Markdown with captions and alt text. Verify GitHub rendering and normal-size legibility. Preserve white backgrounds even when the viewer uses dark mode.
@@ -126,5 +128,7 @@ Explain why each answer is correct and why plausible alternatives fail. Provide 
 ## Acceptance
 
 The complete course needs accurate sources, a coherent learning path, working activities, verified instructions, useful illustrations, assessment, transfer, and an honest record of what was tested. Review teaching quality, research accuracy, visual quality, and runtime behavior as separate concerns.
+
+Honor an explicit user choice to complete and checkpoint diagrams, READMEs, and skills before the full verification pass. Continue basic link, asset, readability, and obvious-fact checks while authoring. Preserve a separate queue for deferred execution, reproduction, source-depth, and compatibility checks. Publish later corrections to the authorized branch and keep authored, visually reviewed, and execution-verified states distinct.
 
 No guaranteed improvement, fabricated transcripts, invented citations, or untested compatibility claims. Report failed experiments as useful outcomes when students can interpret them. Keep all intermediate and final project artifacts in the authorized provenance record.
