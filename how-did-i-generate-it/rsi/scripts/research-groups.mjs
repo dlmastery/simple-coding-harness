@@ -7,12 +7,16 @@ export const researchGroups = {
     exit:'Keep a source-linked framework map and one claim card. Use the same questions throughout the studio so unfamiliar names do not replace your judgment.'
   },
   '01_memory_and_exploration': {
+    figure:'10.04',
+    reading:'Trace the verdict to the actor’s pen. Checking an outcome and deciding what to remember are separate actions. Before running, name a lesson that would overgeneralize even from a correct verdict.',
     title:'Exploration and memory', question:'What should a system learn from an experiment, and what should it retain?',
     intro:'Start with broad probes of the familiar bike task, then use their errors to choose a focused follow-up. Separate checking a result from writing a lesson about it. Freeze memory when measuring its effect, and keep current run state distinct from reusable experience.',
     entry:'Bring the bike task contract, result checker, and memory distinctions from theme 07. The tutor prepares fresh bounded workspaces and identifies any shared-context comparison.',
     exit:'Keep the exploration plan, outcome verdict, memory comparison, and two-store retrieval checks. Next, give the experiment history a structure that can support replay.'
   },
   '02_dream_rsi': {
+    figure:'10.08',
+    reading:'Find the first branch with no recorded outcome. The replay must stop there. The later live experiment supplies new evidence and has its own cost; it cannot be retroactively included in the earlier record.',
     title:'Dream-RSI: history, replay, and new evidence', question:'What can a saved discovery history answer without another experiment?',
     intro:'Build a small tree from actual ML attempts. Use that recorded structure to compare replay policies, keeping absent outcomes unknown. Finally, return to fresh work and test whether the replay-selected policy still helps.',
     entry:'Use a new bike workspace, a three-attempt plan, and the task/evaluation boundaries learned earlier. The later online comparison has its own declared budget.',
@@ -25,6 +29,8 @@ export const researchGroups = {
     exit:'Keep a localized patch, an integration report, and a typed lineage. These records prepare the nested-research examples without treating every generation as RSI.'
   },
   '04_aide2': {
+    figure:'10.14',
+    reading:'Read the three scenes as three measured objects: a task solution, a research procedure, and a procedure acting as an improver. In the final scene, both begin with the same starter and their proposals must run. Predict whether the middle winner must also win on the right, then test that assumption in the final lab.',
     title:'AIDE²: researchers as the object of an experiment', question:'Does a better researcher also become better at improving researchers?',
     intro:'First expose the proposal and selection rules of an inner ML researcher. Then compare a change to that researcher under a total outer budget. Finally, test the distinct question of using the resulting researcher as an improver.',
     entry:'Bring the fixed bike evaluator and bounded-loop skills. The source is an explicitly dated July foundation requested for the course, not a new September release.',
@@ -37,12 +43,16 @@ export const researchGroups = {
     exit:'Keep the fixed baseline, revised updater, schedule, and behavioral inheritance record. Distinguish the existence of the feedback path from evidence that it helps.'
   },
   '06_scientist_two': {
+    figure:'10.18',
+    reading:'Follow one claim through the four scenes. The weather example asks about prediction, not causation. Screening allocates effort; the ablation checks a contribution; review can demand more evidence. Keep the researcher’s version separate from the sequence of results it produces.',
     title:'ScientistTwo: hypotheses, experiments, and review', question:'What turns a promising idea into evidence that another researcher can assess?',
     intro:'Use the bike task to write a falsifiable hypothesis, screen ideas, test a contribution, and answer a criticism with another experiment. Then inspect the difference between better research outputs and a better research procedure.',
     entry:'Bring the baseline predictions and selection error slices. Keep final outcomes out of hypothesis development, and label the reviewer as agent-generated when no human reviewer participates.',
     exit:'Keep the hypothesis, screening and ablation records, response, and discovery lineage. Each conclusion should name its measured object and remain open to a negative result.'
   },
   '07_sciencebuddy': {
+    figure:'10.25',
+    reading:'Point to the object that changes in each transition. A new instruction notebook leaves model weights unchanged; a parameter update changes the model. Our required labs explain the latter with arithmetic and synthetic pair records. They do not train the scientific language model in the paper.',
     title:'ScienceBuddy: feedback, harness changes, and weight learning', question:'How do human requests, executable checks, and learning updates connect?',
     intro:'Start with a labelled correction about the wine report. Turn it into a rubric and revise the reporting skill. Then inspect grouped rewards numerically, simulate model–harness interactions, and audit the paper’s reported metrics. Each activity states whether it is execution, arithmetic, simulation, or source review.',
     entry:'Bring wine predictions and the distinction between external skills and model parameters. The required path does not train an LLM; larger training needs its own source-aligned plan.',

@@ -26,6 +26,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 00.01: Meet the prediction task](00_start_here/step_01_meet_the_task/README.md).
 
+## Before the first improvement loop
+
+![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](assets/illustrations/data-science-process-v4.png)
+
+*Follow the numbered actions once. Train supplies the fitted median; the matching Selection labels identify the rows used for checking. Final stays reserved. The inspection checkmarks name work to complete, not proof about your run. Observed weather makes this a retrospective task, and the public data are not access-controlled. A checked baseline is the starting evidence for later improvement.*
+
+[Open the illustration at full size](assets/illustrations/data-science-process-v4.png).
+
+[Lab 01.01: Write the data science process](01_process_without_loops/step_01_describe_the_process/README.md).
+
 ## A loop needs memory and a way out
 
 ![Propose, run, check, and record surround persistent state. A limit gate leads to the next attempt or stop. A failed fit is recorded and still consumes an attempt. Resumption reads the same saved state.](assets/illustrations/bounded-loop-v1.png)
@@ -95,6 +105,26 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/replay-boundary-v2.png).
 
 [Lab 10.08: Replay only what the history can answer](10_research_studio/02_dream_rsi/step_08_replay/README.md).
+
+## Improve the researcher, then test the improver
+
+![A researcher directs task search. Parent and candidate researchers are compared under the same task and total budget. A separate test uses each as an improver of an identical starting researcher, then executes their proposals.](assets/illustrations/nested-research-v2.png)
+
+*R0 and R1 are classroom identities. The middle comparison tests research procedures; the right comparison tests what they produce in the improver role. Neither has a preselected winner. The latter is the separate ignition question discussed in Weco’s July report; its ignition efficiency comparison was not statistically significant. This diagram explains the distinction; it does not reproduce the published run or establish ignition.*
+
+[Open the illustration at full size](assets/illustrations/nested-research-v2.png).
+
+[Lab 10.14: Improve the inner researcher under a total budget](10_research_studio/04_aide2/step_14_outer_research/README.md).
+
+## Turn a limitation into a tested claim
+
+![A bike-demand limitation leads to a hypothesis, cheap screening and fuller experiments, matched weather-feature ablation, and an agent review answered by a follow-up experiment with retained records.](assets/illustrations/scientific-claim-v2.png)
+
+*This is a bike-task adaptation of the research stages. The pictured paper and records are illustrative. Each ablation recipe is fitted again; only its permitted feature group changes. Use development evidence for screening and refinement. A review can lead to a narrower or rejected claim, and agent review is not conference acceptance. The illustration does not demonstrate frontier discovery or an improved research procedure.*
+
+[Open the illustration at full size](assets/illustrations/scientific-claim-v2.png).
+
+[Lab 10.18: Turn a limitation into a scientific hypothesis](10_research_studio/06_scientist_two/step_18_hypothesis/README.md).
 
 ## Two ways to improve a scientific agent
 

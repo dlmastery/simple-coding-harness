@@ -162,7 +162,9 @@ for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {
   const folder=resolve(rsi,themes['10'].directory,group);
   const g=researchGroups[group];
   if(!g) throw new Error(`Missing research-group introduction: ${group}`);
-  save(resolve(folder,'README.md'), `# ${g.title}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n${g.intro}\n\n**Start with:** ${g.entry}\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\n**Carry forward:** ${g.exit}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
+  const groupFigure=g.figure ? renderIllustration(g.figure,p=>link(folder,resolve(rsi,p))) : '';
+  const opening=[g.intro,groupFigure,g.reading].filter(Boolean).join('\n\n');
+  save(resolve(folder,'README.md'), `# ${g.title}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n${opening}\n\n**Start with:** ${g.entry}\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\n**Carry forward:** ${g.exit}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
 }
 
 save(resolve(rsi,'COURSE-MAP.md'), `# Course map\n\n[Course](README.md)\n\nThis is the current authored sequence. The [validation record](evidence/2026-09-20/README.md) states which runs have actually been checked. A written lesson is not automatically a validated lesson.\n\n| Lab | Theme | Lesson |\n|---|---|---|\n${lessons.map(l=>`| ${l.id} | ${themes[l.theme].title} | [${l.title}](${link(rsi,lessonPath(l))}/README.md) |`).join('\n')}\n`);

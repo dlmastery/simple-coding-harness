@@ -27,7 +27,15 @@ const outputs=[
   ['actor-memory-v1','exec-35cdcc66-4edb-450f-b032-a7465ae575de.png',false],
   ['actor-memory-v2','exec-295e9fa9-8587-4632-b38b-b374e4f5b3c6.png',true],
   ['compute-contract-v1','exec-23bff6ac-66bf-4930-b243-d8b335fba9f7.png',false],
-  ['compute-contract-v2','exec-76e9a404-6644-46d2-9fe7-4cc858c44441.png',true]
+  ['compute-contract-v2','exec-76e9a404-6644-46d2-9fe7-4cc858c44441.png',true],
+  ['nested-research-v1','exec-4fd9424b-b04d-4d71-ba20-9d5b94b97631.png',false],
+  ['nested-research-v2','exec-36cafda0-7046-4511-a911-b15f850053b0.png',true],
+  ['scientific-claim-v1','exec-fc49a94b-69cd-4821-a8c0-2ec1d1e53788.png',false],
+  ['scientific-claim-v2','exec-83c64a76-0655-4628-a99a-198d564aeb37.png',true],
+  ['data-science-process-v1','exec-b178eeb0-7f43-45e3-b10d-cfc948498221.png',false],
+  ['data-science-process-v2','exec-c7bd4200-6fb7-4a3e-aa01-a207af53433c.png',false],
+  ['data-science-process-v3','exec-25b01f66-df36-4dab-8b11-7bafcd9cd782.png',false],
+  ['data-science-process-v4','exec-31c077dd-4c15-49a2-9e84-7814d2ad481d.png',true]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

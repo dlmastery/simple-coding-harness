@@ -6,6 +6,12 @@ You can inspect an agent’s output. Now make the actions behind it explicit and
 
 The process stays fixed. “No loops” means no learner-designed search or revision loop. The coding agent and numerical libraries can still have internal iterations.
 
+![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](../assets/illustrations/data-science-process-v4.png)
+
+*Follow the numbered actions once. Train supplies the fitted median; the matching Selection labels identify the rows used for checking. Final stays reserved. The inspection checkmarks name work to complete, not proof about your run. Observed weather makes this a retrospective task, and the public data are not access-controlled. A checked baseline is the starting evidence for later improvement.*
+
+[Open the illustration at full size](../assets/illustrations/data-science-process-v4.png).
+
 | Lab | What you will build |
 |---|---|
 | [01.01 · Write the data science process](step_01_describe_the_process/README.md) | A five-action process from task framing to a checked baseline report. |

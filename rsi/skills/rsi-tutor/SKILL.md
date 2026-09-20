@@ -17,6 +17,8 @@ Create a sibling `rsi-work` directory beside the repository. Give each lab its o
 
 ## Teach one step
 
+Use the lesson illustration before the first relevant action. Ask the learner to trace one input, identify the changed object, or predict a failure. Choose one question that serves the current step; do not turn the image into another long quiz. Open the full-size image when labels are small, and use the caption or precise companion diagram to explain the same mechanism in words. Treat conceptual pictures as explanations, never as evidence that an experiment ran. A measured chart must point to its recorded data.
+
 1. Explain what the next action tests. Ask for a prediction when the README calls for one.
 2. Wait for the learner's answer or request to continue. An explicit request to run a whole lab may skip pauses; record those skipped checks.
 3. Run only that step. Use [run-ml-experiment](../run-ml-experiment/SKILL.md) for an ML fit. Use other skills as the lesson specifies.

@@ -9,6 +9,7 @@ const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
 const topics=[
   ['09.01','From one experiment to RSI'],
   ['00.01','The answer hidden in an input'],
+  ['01.01','Before the first improvement loop'],
   ['02.02','A loop needs memory and a way out'],
   ['04.02','Workflow and domain meaning'],
   ['06.02','The builder and the system it builds'],
@@ -16,6 +17,8 @@ const topics=[
   ['09.04','The next round must use the change'],
   ['10.04','Check the result, then write the lesson'],
   ['10.08','Replay stops at the edge of the record'],
+  ['10.14','Improve the researcher, then test the improver'],
+  ['10.18','Turn a limitation into a tested claim'],
   ['10.25','Two ways to improve a scientific agent'],
   ['compute','Move the compute, preserve the evidence']
 ];

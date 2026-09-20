@@ -26,9 +26,20 @@ ScientistTwo motivates a research workflow built around hypotheses and experimen
 
 **A concrete example.** Calendar inputs can explain the usual morning peak while leaving unusually quiet hours poorly predicted. The proposed weather features might reduce those errors. Compare the same linear recipe with and without that feature group. Even a lower MAE would establish a predictive association under this contract, not the causal effect of changing the weather.
 
+![A bike-demand limitation leads to a hypothesis, cheap screening and fuller experiments, matched weather-feature ablation, and an agent review answered by a follow-up experiment with retained records.](../../../assets/illustrations/scientific-claim-v2.png)
+
+*This is a bike-task adaptation of the research stages. The pictured paper and records are illustrative. Each ablation recipe is fitted again; only its permitted feature group changes. Use development evidence for screening and refinement. A review can lead to a narrower or rejected claim, and agent review is not conference acceptance. The illustration does not demonstrate frontier discovery or an improved research procedure.*
+
+[Open the illustration at full size](../../../assets/illustrations/scientific-claim-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Turn an observed limitation into a falsifiable hypothesis before changing the experiment.](../../../assets/diagrams/lab-10-18.png)
 
 *Read the diagram:* Turn an observed limitation into a falsifiable hypothesis before changing the experiment.
+
+</details>
 
 ## Run the lab
 

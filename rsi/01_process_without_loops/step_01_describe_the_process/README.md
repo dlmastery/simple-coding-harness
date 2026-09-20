@@ -26,9 +26,20 @@ A process says what actions turn an input into an output. For this task: frame t
 
 **A concrete example.** “Fit a baseline” needs more than a table. It also needs the target, allowed columns, and training rows. Its output is a fitted recipe and predictions. The later checker consumes those predictions and the expected selection-row identities. Writing these input/output pairs reveals why a missing split decision cannot be repaired by a confident final paragraph.
 
+![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](../../assets/illustrations/data-science-process-v4.png)
+
+*Follow the numbered actions once. Train supplies the fitted median; the matching Selection labels identify the rows used for checking. Final stays reserved. The inspection checkmarks name work to complete, not proof about your run. Observed weather makes this a retrospective task, and the public data are not access-controlled. A checked baseline is the starting evidence for later improvement.*
+
+[Open the illustration at full size](../../assets/illustrations/data-science-process-v4.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Follow one fixed process. No outer search chooses a new recipe after the result.](../../assets/diagrams/lab-01-01.png)
 
 *Read the diagram:* Follow one fixed process. No outer search chooses a new recipe after the result.
+
+</details>
 
 ## Run the lab
 

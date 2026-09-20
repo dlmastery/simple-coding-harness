@@ -1,0 +1,18 @@
+Use case: scientific-educational.
+Create a finished, exceptionally polished educational infographic for the AIDE² codelabs. Pure white background, landscape 3:2. The supplied main RSI overview is the explicit visual-quality reference: match its exquisite fine drawing, dimensional paper objects, subtle watercolor-like shading, navy serif headings, blue unchanged parts, amber proposed changes, teal evidence, and restrained red rejection. Keep meaningful rich detail and a concrete visual story. Do not use flat corporate clipart, generic chips/folders, robots, or a wall of text boxes. Original composition, no paper figure copied.
+
+Title exactly: "Improve the researcher. Then test the improver."
+Subtitle: "AIDE² asks two different improvement questions"
+
+Three illustrated scenes, large numbered headings, balanced white space. Use classroom identities R0 and R1, not official reported version numbers. No numerical results.
+
+Scene 1, heading "1  Search for a solution": show a small bike-model experiment workbench beneath an open blue research notebook labelled "Researcher R0". The notebook has three short entries "Propose", "Check", "Choose next". Below it, a branching search tree has a root and a few varied model-recipe sheets. One sheet is under a magnifier with an output record; one has a small red cross and remains visible. Main caption "The procedure directs task experiments". A bike/data icon grounds the task; no charts or invented performance. The procedure stays blue while recipe sheets vary.
+
+Scene 2, heading "2  Revise the researcher": show the R0 notebook next to an amber-edged proposed notebook labelled "Candidate R1". A pencil edits the new book's search-rule sketch: visibly change WHICH branch is tried, not a model's weights. Label the change "Change search rules". Below the books, two equivalent small experiment rigs receive the same task sheet through a split arrow. Each rig leads to its own evidence record labelled "R0 results" or "R1 results". A balanced comparison instrument between records is labelled "Same tasks and total budget". Show a small retention decision after comparison with both "Keep R0" and "Keep R1" visible as alternatives; neither is preselected. The point is evaluating the research that each procedure produces, not automatically accepting a new file.
+
+Scene 3, heading "3  Test a new role": show the two labelled notebooks "R0" and "R1" in the outer-improver role. Place an IDENTICAL blue starting notebook beneath each, both labelled "Same starter". Each researcher uses a pen to produce a different proposed revision sheet from its starter. The two proposal sheets feed the same comparison station labelled "Which produces better researchers?" Include a short amber note "A separate experiment". No winner, trophy, flame, rocket, accelerating arrow, or guaranteed success. This is the ignition question, not an established positive result.
+
+Link scene 1 to scene 2 with a normal blue arrow labelled "Researcher becomes the object". Link scene 2 to scene 3 with a dashed blue arrow labelled "Test role transfer". Do not make an automatic upward ladder or imply that better task performance answers scene 3.
+Bottom restrained line: "Count all work. Keep rejected changes. Measure each role separately."
+
+Beautiful illustrated textbook clarity: varied physical objects, legible main labels, precise arrows, clear hierarchy, thoughtfully rendered paper and instrument details, strong visual continuity with the reference. No extra explanation paragraphs, logos, decorative slogans, random code, score bars, or copied benchmark claims. The adjacent README will explain the report's date, scope, and inconclusive ignition evidence.

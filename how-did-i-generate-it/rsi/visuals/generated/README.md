@@ -1,8 +1,8 @@
 # Illustrations for the RSI course
 
-Eleven selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
+Fourteen selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
 
-All twenty-one generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All twenty-nine generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
@@ -94,6 +94,34 @@ Selected: [v2](compute-contract-v2.png). Prompts: [initial](compute-contract-v1.
 
 V1 omitted the adapter-to-CPU connection. V2 adds the third branch while preserving alternative backends, shared run records, failure accounting, and conditional checkpoint/resume support. The CPU path is labelled tested; the other adapters explicitly require validation. Added to the larger-compute guide.
 
+## Research and process additions
+
+The next authoring set adds the three figures below. All use the initial overview as the actual style reference. They have full-size checks; the complete published-page review remains queued under the user's authoring-first direction.
+
+## Before the first improvement loop
+
+![Five actions connect task framing, data inspection, fixed partitions, one training-median baseline, and checked selection evidence.](data-science-process-v4.png)
+
+Selected: [v4](data-science-process-v4.png). Prompts: [v1](data-science-process-v1.prompt.md), [v2](data-science-process-v2.prompt.md), [v3](data-science-process-v3.prompt.md), [v4](data-science-process-v4.prompt.md). Earlier outputs: [v1](data-science-process-v1.png), [v2](data-science-process-v2.png), [v3](data-science-process-v3.png).
+
+The first draft misrouted partition evidence and invented unnormalized units and field names. V2 fixed the field meanings and training route but left an ambiguous selection endpoint. V3 removed that route but broke part of the training connector. V4 removes both remaining fragments. Matching Train and Selection labels now identify data roles across scenes; local arrows show fitting and checking. Final remains reserved. This is an example of why a targeted image edit still needs a whole-image check. Added to 01.01 and its theme overview.
+
+## Improve the researcher, then test the improver
+
+![Task search, researcher comparison, and a separate test of the improver role use different evaluated objects.](nested-research-v2.png)
+
+Selected: [v2](nested-research-v2.png). Prompts: [v1](nested-research-v1.prompt.md), [v2](nested-research-v2.prompt.md). Earlier output: [v1](nested-research-v1.png).
+
+V2 removes decorative bars and explicitly runs the proposed researchers before comparing their behavior. Different proposals no longer share an implied accepted R2 identity. The middle decision keeps both parent and child as possible outcomes. The caption separates the classroom identities from the published system and preserves uncertainty in the ignition test. Added to 10.14 and the AIDE² group README.
+
+## Turn a limitation into a tested claim
+
+![A hypothesis leads to screening, fuller tests, a matched ablation, and a review answered through executed evidence.](scientific-claim-v2.png)
+
+Selected: [v2](scientific-claim-v2.png). Prompts: [v1](scientific-claim-v1.prompt.md), [v2](scientific-claim-v2.prompt.md). Earlier output: [v1](scientific-claim-v1.png).
+
+V1 sent a weather input directly to an output sheet and incorrectly connected a manuscript to the new experimental records. V2 routes both permitted inputs through the with-weather model, keeps the removed feature disconnected, and routes the follow-up experiment through its records to the revised claim. It also replaces an unsupported underfitting assertion with diagnostic questions and separates the two screening ideas. The paper drawing is illustrative; no generated scientific result or venue acceptance is claimed. Added to 10.18 and the ScientistTwo group README.
+
 ## Review scope
 
-All eleven selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in actual GitHub Markdown pages at about 814 pixels wide; the main and 00.01 also at a 390-pixel viewport. During the next review, the self-* comparison was seen at reading width, but the graph figure's lower part was outside the screenshot. Do not count that as a complete graph review. Browser screenshots were observed, not exported. The user then prioritized authoring and GitHub checkpoints before the full verification pass. Viewport overrides were reset. The new RSIAgent and revised ScienceBuddy images have full-size checks; their published-width review remains queued. Dense secondary labels require full-size viewing on phones. See [the authoring plan](../../AUTHORING-FIRST.md) for the current sequence and deferred checks.
+All fourteen selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in actual GitHub Markdown pages at about 814 pixels wide; the main and 00.01 also at a 390-pixel viewport. During the next review, the self-* comparison was seen at reading width, but the graph figure's lower part was outside the screenshot. Do not count that as a complete graph review. Browser screenshots were observed, not exported. The user then prioritized authoring and GitHub checkpoints before the full verification pass. Viewport overrides were reset. The new RSIAgent and revised ScienceBuddy images have full-size checks; their published-width review remains queued. Dense secondary labels require full-size viewing on phones. See [the authoring plan](../../AUTHORING-FIRST.md) for the current sequence and deferred checks.
