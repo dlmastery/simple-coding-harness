@@ -100,7 +100,17 @@ Check every diagram's arrows, boundaries, labels, and meaning. Use actual run da
 
 The user explicitly authorized periodic GitHub check-ins. Store all plans, requirements, design decisions, research notes, and the work log in `how-did-i-generate-it/rsi/`. Keep explanations of decisions and completed steps; do not publish the private source transcript or credentials.
 
+The user then explicitly required intermediate artifacts too. Preserve drafts, research notes, source corrections, failed experiments, image prompts and revisions, reviews, and validation. Maintain the [artifact index](ARTIFACTS.md). The raw browser source remains local; a redacted text derivative and hashes are checked in. Earlier overwritten drafts are a recorded gap, not reconstructed originals.
+
 Use the working branch `codex/rsi-masterclass-rebuild` for planning checkpoints and subsequent approved work. Do not merge the course replacement before plan approval. After each meaningful milestone, update these records, inspect the diff, run appropriate checks, commit, push, and verify the remote hash. A local commit alone is not a GitHub backup.
+
+## Reusable course-building skill
+
+The user explicitly requested that every instruction and the final outcome become a reusable skill for topics such as generative flow methods, diffusion models, and OPSD. The full package, including references and metadata, must be checked into GitHub.
+
+The canonical package is [build-research-codelabs](../../skills/build-research-codelabs/SKILL.md). Its common course standard applies across topics; the RSI sequence and dataset decisions are in a separate preset. The [coverage checklist](SKILL-REQUIREMENT-COVERAGE.md) maps the user's guidance to the skill. Do not force the RSI ladder or current lab count onto another subject.
+
+Skill creation and local installation are current authorized work. They do not imply approval to implement the proposed RSI course.
 
 ## Restart checklist
 

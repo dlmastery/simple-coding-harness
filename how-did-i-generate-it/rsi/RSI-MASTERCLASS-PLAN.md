@@ -101,7 +101,7 @@ For classification, use [UCI Wine Quality](https://archive.ics.uci.edu/dataset/1
 
 Begin with a few rows that the student can inspect and a fixed train/validation/test protocol. Introduce a constant baseline, then a small linear or logistic model. Later compare bounded tree models and feature choices. Use MAE for the main regression objective, with supporting residual plots. For classification, choose the primary metric in the task brief, explain its tradeoff, and include class-wise errors. Accuracy alone must not hide a weak minority-class result.
 
-| Course idea | What changes in the handbook task |
+| Course idea | What changes in the ML research task |
 |---|---|
 | A process | Inspect data, apply a fixed split, fit one baseline, and report its errors |
 | A loop | Propose one feature or model change, evaluate it, and retain or reject it |
@@ -604,10 +604,14 @@ The rebuilt course is ready only when all of the following are true:
 
 ## 14. Scope and present status
 
-The repository has been cloned under the current workspace's `work/simple-coding-harness` directory. The original MHTML has been decoded locally for inspection. Neither the transcript nor its incidental personal details will be copied into the public curriculum.
+The repository has been cloned under the current workspace's `work/simple-coding-harness` directory. The original MHTML has been decoded locally for inspection. Following the user's full-provenance instruction, a redacted text derivative is archived as unverified source material in the process record. Raw browser files and incidental personal details remain local; hashes and transformation details are recorded.
 
 The proposed change covers the RSI course and the repository integration required for its themed layout. The other tutorial series remain outside the curriculum rewrite. Existing history remains recoverable through Git, with a readable old-to-new lesson map.
 
 This file is the planning deliverable. Course implementation has not started and no live course runs have been claimed. The user authorized GitHub checkpoints of the plans and process notes. Keep those records under `how-did-i-generate-it/rsi/` on the working branch. The next course step is the user's review of this blueprint.
 
 Checkpoint after meaningful milestones: update the steering record and work log, inspect the diff, run checks appropriate to the changed files, commit, push, and verify the remote commit. Never describe a local commit alone as a GitHub backup. Do not store credentials, raw private transcripts, or unsupported completion claims in the public record.
+
+Keep intermediate project artifacts as well as final outputs: drafts, research notes, source corrections, decisions, failed runs, image prompts and revisions, review notes, and validation. Maintain an artifact index with hashes or versions. Record necessary redactions and any earlier provenance gaps explicitly.
+
+The user also requested a reusable course-building skill for other complex topics. The complete [build-research-codelabs package](../../skills/build-research-codelabs/SKILL.md) preserves the common standard and provides a separate RSI preset. Its references and metadata are versioned with the plans. The [coverage checklist](SKILL-REQUIREMENT-COVERAGE.md) maps each user instruction to the package. Building this reusable skill is authorized now; course implementation still awaits plan review.

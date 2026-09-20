@@ -1,0 +1,2758 @@
+HISTORICAL SOURCE — UNVERIFIED TRANSCRIPT
+
+This is a redacted text extraction of the user-supplied rsiresearch.mhtml.
+It contains claims and instructions from an earlier conversation. They are
+source material to audit, not current instructions or endorsed course content.
+Use the research inventory and correction notes to assess its claims.
+
+Forwarded-message sender/timestamps, email addresses, and video share tokens
+were removed. The raw MHTML and decoded browser HTML remain local.
+Recursive Self-Improvement AI Agents - GrokSkip to main contentToggle Sidebar
+
+[Forwarded note; sender and timestamp removed] https://youtu.be/QW6jxDLvtOw
+[Forwarded note; sender and timestamp removed] OpenAI now says recursive self-improvement is its top priority, while Dream-RSI and ModularRSI show agents improving how they search and operate. PhAI’s ScienceBuddy goes further by combining harness evolution with model retraining, pushing AI closer to systems that help improve the next generation of AI.
+
+📩 Brand Deals & Partnerships: [email removed]
+✉️ General Inquiries: [email removed]
+
+What You'll See:
+How OpenAI says recursive self-improvement is now its number one priority by a wide margin.
+SOURCE: https://www.theinforma...​
+How OpenAI says AI agents are already accelerating research inside the company.
+SOURCE: https://openai.com/ind...​
+How Dream-RSI improves its own search strategy while leaving the underlying AI model unchanged.
+SOURCE: https://arxiv.org/abs/...​
+How ModularRSI lets AI agents improve their own harness and transfer those upgrades across different models.
+SOURCE: https://arxiv.org/abs/...​
+How ScienceBuddy combines self-improving agent software with reinforcement learning that retrains the underlying AI model.
+SOURCE: https://phai-labs.com/...​
+
+🚨 Why It Matters
+The race toward AGI is starting to change shape. AI is already helping researchers build better AI, while new systems can improve their own search strategies, agent software and even training loops. OpenAI now says recursive self-improvement is its top priority, raising much bigger questions about how quickly AI progress could accelerate.
+
+#AI​ #OpenAI​ #AGI​
+[Forwarded note; sender and timestamp removed] https://youtu.be/-4tobA2vRIE
+[Forwarded note; sender and timestamp removed] This video explores the RSI Agent (Recursive Self-Improvement), a novel, training-free multi-agent framework designed for autonomous adaptation to new, unfamiliar environments like physics, finance, or medical domains (0:06, 2:11).
+
+Key Concepts and Workflow:
+Core Philosophy: Instead of retraining foundational LLM weights, the system focuses on optimizing an external, persistent memory through autonomous experimental science (4:02, 8:45).
+Agent Roles: The framework coordinates three distinct agent roles (6:32):
+Curriculum Agent: Identifies uncertainties and designs experiments to uncover environment-specific rules or failure modes.
+Actor Agent: Executes tasks using Python/bash and decides which insights are worth retaining in the durable memory.
+Verifier Agent: Independently evaluates results to ensure the agent doesn't rely on unsupported reasoning.
+Two-Scale Exploration: The agent utilizes a two-phase process: Broad Recursive Self-Exploration for general environmental mapping and Deep Recursive Self-Exploration for resolving bottlenecks on specific targets (10:33, 11:27).
+
+Performance and Results:
+By combining open-weight models like GLM-5.3 and Kimi K3, the RSI agent has demonstrated the ability to outperform closed-source proprietary models on benchmarks like OSWorld 2.0 (1:16, 17:59).
+The study concludes that the model's intelligence improves through its experimentally constructed memory rather than changes to the core architecture (18:31).
+
+While the video notes that this is better classified as "bounded anchored self-improvement" rather than a strong form of recursive self-improvement (since the harness architecture remains fixed), the results highlight the effectiveness of iterative, memory-based optimization (19:32, 20:23)
+
+What are GitHub repos related to above to reproduce rsi. Explain various techniques and breakthroughs
+
+Worked for 31s
+
+How I will tell this story
+
+Think of modern AI as a talented intern who already knows a lot, plus a workshop around that intern: tools, checklists, notebooks, and a lab notebook of “what worked last time.” Recursive self-improvement in 2026 is almost never “the intern rewires their own brain overnight.” It is: the workshop gets smarter, then the intern uses a better workshop, then that better workshop produces better training data, and sometimes the intern’s weights get updated too.
+
+I will:
+
+Separate marketing RSI from reproducible RSI.
+
+Map the four systems in your notes onto four different “upgrade knobs.”
+
+Give the actual GitHub repos, what is runnable today, and what is still vapor.
+
+Explain the techniques with high-school-level analogies and engineer-level mechanics.
+
+End with a reproduction path you can actually clone this week.
+
+The important honesty first: nobody has released a full “the model redesigns and retrains its successor with no human loop.” What shipped in mid-September 2026 is a cluster of bounded RSI: memory, search policy, harness modules, and in one case harness + RL. That is still a genuine breakthrough. It is just not the science-fiction version.⁠OpenAI
+
+1. What “RSI” means in these videos
+
+OpenAI’s public stance in September 2026 is that automated AI research / RSI is now a first-order research priority, because they believe staying at the frontier requires AI helping build the next AI. That is a lab-strategy claim, not a released recipe. Jakub Pachocki’s essay frames RSI as the natural next scaling axis after ordinary compute scaling, and says internally they already see AI accelerating research work. It is not a GitHub you can clone.⁠OpenAI
+
+The papers in your two videos are the part you can study:
+
+SystemWhat improvesWeights change?Recursion flavorPaper
+Dream-RSIExploration policy (how it searches)NoOffline “dream” on past discovery trees, then redeployarXiv:2609.14858
+ModularRSIFive harness modulesNoContrast fail vs succeed, evolve modules, transfer across modelsarXiv:2609.14857
+RSIAgentPersistent verified memoryNoCurriculum → Actor → Verifier, broad then deeparXiv:2609.15364
+ScienceBuddyHarness and then modelYes (outer RL)Inner harness evolution + outer GRPOarXiv:2609.17523
+
+The second video is right to call RSIAgent bounded / anchored self-improvement. The harness architecture stays fixed; only memory grows. That is still RSI in the weak-but-real sense: later runs use a better mechanism (the memory), not just a better one-off answer.⁠arXiv
+
+Analogy. Imagine you cannot change your IQ, but you can:
+
+write a better study guide (memory),
+
+change how you pick practice problems (search policy),
+
+rewrite your lab checklist (harness),
+
+and, in ScienceBuddy, also sit a new exam after the checklist improved (retrain weights).
+
+That is the whole field right now.
+
+2. The four systems, in engineer language
+
+A. Dream-RSI — “stop paying to re-live the same search”
+
+Core trick. A coding agent’s past discovery run is not just a log. It is an exact replay simulator of the search space the agent already touched. New exploration policies are written as Python, scored by replaying them over those trees at near-zero execution cost, and only the winner goes back online. Each winner grows a new tree, so the “worlds” the agent can dream in get bigger. That is the recursion.⁠arXiv
+
+Why this is clever. Online policy search over long-horizon code discovery is expensive: every candidate strategy means another full agent rollout. Dream-RSI turns history into a cheap gym. It is closer to off-policy evaluation / replay buffers in RL than to “the model rewrites itself.”
+
+Analogy. You already hiked a mountain and GPS-logged every trail, dead-end, and viewpoint. Instead of sending 1,000 new hikers into the woods, you sit at the kitchen table and simulate 1,000 hiking plans on the GPS log. Only the best plan gets a real hike tomorrow. Tomorrow’s hike adds new GPS data. Recursion.
+
+Reported wins: algorithm engineering (Lasso path), math optimization, GPU kernels; up to 162× fewer agent calls vs SimpleTES on Lasso, and 1.7–2.4× fewer generations on some kernel tasks. Treat those as paper numbers until the full code drops.⁠arXiv
+
+Repo status: official repo exists, full code not released yet.
+
+Paper: https://arxiv.org/abs/2609.14858
+
+Site / demo: https://www.dream-rsi.com/
+
+GitHub: https://github.com/zhengkid/Dream-RSI
+README as of mid-Sept 2026: paper and site yes; discovered programs, full codebase, reproduction scripts still “being prepared.”⁠GitHub
+
+B. ModularRSI — “don’t evolve the whole operating system at once”
+
+Core trick. The harness is split into five modules:
+
+agent_loop · tools · observation · context_mgmt · verification
+
+It does not evolve on the eval benchmark. It evolves on a disjoint 2,000-task pool, contrasts successful vs failed trajectories for the same task, proposes scoped module patches, validates them, then integrates. The claim is transfer: unseen tasks, other domains, other foundation models.⁠arXiv
+
+Reported: Terminal-Bench 2.0 47.57% → 52.43%. Modest absolute lift, but the scientific point is generalizable harness RSI, not a leaderboard spike.⁠GitHub
+
+Analogy. If your CI pipeline is one 4,000-line bash script, every “improvement” breaks something unrelated. ModularRSI is microservices for the agent runtime: change only the tool-calling module, gate it, then merge.
+
+Repo is actually runnable:
+
+Paper: https://arxiv.org/abs/2609.14857
+
+Code: https://github.com/IQuestLab/ModularRSI
+
+Evolution dataset (separate): ModularRSI_2000_Instances
+
+License catch: research bits CC BY-NC 4.0; Harbor-derived code Apache-2.0. Non-commercial if you use their research code.⁠GitHub
+
+Bash
+
+CopyCopied
+
+python3 -m venv .venv && . .venv/bin/activate
+pip install -e .
+cp .env.example .env
+export SUPPORT_DATASET_DIR=/path/to/ModularRSI_2000_Instances/tb
+bash scripts/self_evolve.sh evolve tools
+bash scripts/self_evolve.sh evaluate
+
+C. RSIAgent — the second video, training-free memory RSI
+
+This is the system in https://youtu.be/-4tobA2vRIE.
+
+Core trick. Three agents, frozen weights:
+
+Curriculum picks what to explore next (uncertainties, failure modes).
+
+Actor executes with Python/bash, proposes what to keep.
+
+Verifier independently checks the environment result and cannot see the Actor’s private reasoning.
+
+Two scales:
+
+Broad Recursive Self-Exploration (BRS) — map the environment.
+
+Deep Recursive Self-Exploration (DRS) — dig into bottlenecks, hidden constraints, causal rules.
+
+Memory is then frozen and reused at test time. That is why open-weight GLM-5.3 (actor) + Kimi-K3 (curriculum/verifier) can beat a closed frontier model on a specific desktop/OS agent bench: the closed model is general; RSIAgent shipped a domain-specific verified playbook.⁠arXiv
+
+Paper numbers (partial credit):
+
+OSWorld 2.0 (0808 offline): 71.97 → 78.98 with RSI; reported above GPT-6 Astra’s 72.60
+
+Agents’ Last Exam Near-term: 83.75 → 84.82; reported above GPT-6 Astra’s 82.26
+
+Read those as “open models + environment memory beat a general closed model on these agent suites,” not “open models are now generally smarter.” The video’s “bounded anchored RSI” label is correct.⁠GitHub
+
+Analogy. A new intern in a hospital cannot update their medical-school brain this week. They can keep a checked-by-attending notebook: “on this EMR, the discharge button is under X; never submit meds before Y.” After a week of supervised exploration, the notebook makes them look superhuman in that hospital. Change hospitals and you need a new notebook.
+
+Best reproduction target of the four:
+
+Paper: https://arxiv.org/abs/2609.15364
+
+Code: https://github.com/AetherLabsAI/RSIAgent (Apache-2.0)
+
+Needs: Python 3.12, uv, Linux, Docker, /dev/kvm, OpenRouter key, pinned OSWorld-V2 and ALE.
+
+Bash
+
+CopyCopied
+
+git clone https://github.com/AetherLabsAI/RSIAgent.git
+cd RSIAgent
+cp .env.example .env # OPENROUTER_API_KEY
+# then follow their OSWorld / ALE setup scripts
+python run_osworld.py --arm both --name osworld_run_01 --concurrency 1
+
+--arm baseline vs --arm rsi is how you isolate the memory effect. Smoke tests do not call models; full scores cost real inference and VM time.⁠GitHub
+
+D. ScienceBuddy / PhAI — the only public double loop
+
+Core trick: recursive-in-recursive.
+
+Inner loop: model MkM_kMk​ frozen. Propose Python harness programs Hk,jH_{k,j}Hk,j​, pick the winner on a fixed val set.
+
+Outer loop: harness frozen. Generate trajectories under that harness, score with a verifier, update the model with GRPO via SkyRL:
+
+Hk,j+1=Select(Hk,j,Ck,j;Mk,Dval)H_{k,j+1}=\mathrm{Select}(H_{k,j},\mathcal{C}_{k,j};M_k,D_{\mathrm{val}})Hk,j+1​=Select(Hk,j​,Ck,j​;Mk​,Dval​)
+
+Mk+1=GRPO(Mk;Hk,J,Dtrain),Hk+1,0=Hk,JM_{k+1}=\mathrm{GRPO}(M_k;H_{k,J},D_{\mathrm{train}}),\quad H_{k+1,0}=H_{k,J}Mk+1​=GRPO(Mk​;Hk,J​,Dtrain​),Hk+1,0​=Hk,J​
+
+Harness evolution changes the experience distribution. Model learning then changes what the next harness evolution can exploit. That coupling is the real conceptual step beyond Dream-RSI / ModularRSI / RSIAgent.⁠arXiv
+
+Analogy. First rewrite the lab SOP while the same chemist runs it. Then send that chemist to a short training course using only experiments run under the new SOP. Then rewrite the SOP again, because the newly trained chemist now fails in different places.
+
+Repo:
+
+Paper: https://arxiv.org/abs/2609.17523
+
+Product: http://science-buddy.io / https://phai-labs.com
+
+Research code: https://github.com/Gen-Verse/ScienceBuddy
+
+Algorithm: docs/algorithm.md
+
+Reproduce experiment: docs/experiments.md
+
+Checked-in recipe is heavy: Qwen3.5-4B, SkyRL + FSDP, 8× A100, CUDA 13, Docker, frozen task release id715-val90-test90-v1, schedule h0001 → r0001 → … → r0003. Weights and task assets are supplied separately. This is a lab reproduction, not a laptop weekend project.⁠GitHub
+
+There is also a related memory-RSI sibling from the same org:
+
+Recuris — evolve Skill Memory M=(E,W,ρ,C)M=(E,W,\rho,C)M=(E,W,ρ,C), freeze the agent. https://github.com/Gen-Verse/Recuris · arXiv:2608.24876
+Gains grow with horizon (up to +32.2 on longest tasks). Excellent complement to RSIAgent.⁠GitHub
+
+3. GitHub map: what you can actually reproduce
+
+Start here if you want running code this week
+
+PriorityRepoWhy clone itReproduce-ability
+1AetherLabsAI/RSIAgentExact system from the second videoHigh if you have Docker + KVM + API budget
+2IQuestLab/ModularRSIHarness-module RSI + eval scriptsMedium; need the 2k-task dataset
+3Gen-Verse/RecurisCleanest memory-RSI engineeringHigh on τ² / SkillFlow / TB2.1
+4Gen-Verse/ScienceBuddyDouble loop, inner+outerLow unless you have 8×A100
+5jennyzzt/dgmClassic “agent rewrites its own code” ancestorMedium; SWE-bench / Polyglot, expensive
+6AlexWortega/OpenRsiOuter agent rewrites inner scaffold, private-score gateMedium; ALE-Bench / KernelBench
+7FrontisAI/OpenRSIFull-stack AI-improves-AI gym (OpenMLE)Medium–high, larger surface
+8RealLcz/MGMMendelian inheritance across agent lineagesMedium; Slurm-oriented
+9metauto-ai/HGMHuxley–Gödel: expand promising clades of self-editsMedium
+10zhengkid/Dream-RSIThe first video’s starWatch only until code drops
+
+Index / survey repos (read first, then pick a line)
+
+Prism-Shadow/awesome-rsi — methods split by what artifact changes (weights, harness, memory, skills, context).
+
+pinkbubblebubble/awesome-rsi — evidence-aware, last reviewed 2026-09-16.
+
+theseus-labs-rsi/awesome-rsi — L1–L5 autonomy taxonomy + survey arXiv:2609.11873.
+
+deepgrounding/recursive-self-improvement — 1,250-paper corpus, arXiv:2607.07663.
+
+leezythu/Awesome-Harness-Self-Improvement — harness ladder L0 prompts → L5 harness+weights.
+
+RSI-Mission/rsi-list — companies, not algorithms.
+
+Adjacent harness tooling
+
+CosmosMind-ai/RSI-Harness — versionable “Genome” harness configs on the Pi coding agent. Useful if you want to treat the harness as an artifact even before you evolve it.
+
+4. Techniques and breakthroughs, unpacked
+
+Technique 1 — Replay-as-world (Dream-RSI)
+
+Breakthrough. History is not an approximation of the environment. For the realized search tree, it is exact. That lets you do meta-optimization of exploration off-policy.
+
+Engineer translation: you already have a tree of (parent snapshot, proposal, code, diagnostics, score). A candidate exploration policy is a program that chooses which node to expand next. You can score that program by walking recorded children instead of calling the coding agent again.
+
+Limitation. You cannot invent branches that never existed. Dreaming only ranks policies on the visited world. Recursion matters because the next online lap must visit new regions, or the simulator saturates.
+
+Novel insight. This is the same idea as AlphaZero’s replay, except the “game tree” is a code-discovery tree and the policy is an LLM-written Python explorer. The cheapness of dreaming is the product; the recursion is just “keep adding trees.”
+
+Technique 2 — Contrastive, modular harness evolution (ModularRSI)
+
+Breakthrough. Three design choices together:
+
+Evolve off the test benchmark (kills leaderboard overfitting).
+
+Contrast win/fail on the same task (localizes the bug to a mechanism).
+
+Patch one module in a restricted scope, then integrate.
+
+That is software-engineering RSI, not model RSI. The transfer-across-models result is the interesting claim: if the patch is a better observation manager, GPT and Kimi should both benefit. That is how you know you improved the workshop, not memorized one model’s quirks.⁠arXiv
+
+Limitation. +4.86 points on TB2.0 is real but small. Modularization also assumes the five-way cut is the right ontology. If the real bug sits between modules, scoped patches will miss it.
+
+Technique 3 — Multi-agent memory science (RSIAgent)
+
+Breakthrough. They treat a new environment as an experimental science problem:
+
+Curriculum = PI who designs the next experiment.
+
+Actor = lab tech who runs it.
+
+Verifier = independent reviewer who only looks at the world state.
+
+Plus broad-then-deep, which is just good experimental design: survey the territory, then run targeted studies.
+
+The durable object is not a prompt. It is a store of causal triples: action × condition → consequence, plus scripts and failure lessons. Frozen memory at test time is what makes the comparison to closed models fair-ish: you are measuring “model + notebook,” not “model after secret fine-tune.”
+
+Limitation the video already named. The harness skeleton is fixed. If the Actor cannot express a needed action, memory cannot invent a new action class. Also, a wrong rule that passes the verifier becomes a permanent superstition. That is the classic danger of memory-RSI.
+
+Novel insight for engineers. Separation of Actor and Verifier is doing the job that RLHF used to do, without gradient steps. It is institutional design: no one agent is allowed to grade its own homework. You can steal this pattern tomorrow in any agent repo.
+
+Technique 4 — Double recursion (ScienceBuddy)
+
+Breakthrough. Most 2026 papers pick one artifact. ScienceBuddy says those artifacts co-adapt:
+
+Better harness → cleaner, more informative trajectories.
+
+Better model → new failure modes the harness has never seen.
+
+Repeat.
+
+That is closer to how real labs work than a single Gödel-style self-rewrite. It is also the first of these four that is allowed to touch weights.⁠Phai-labs
+
+Limitation. Inner loop still needs a strong auxiliary improver (gpt-6-astra in their recipe). So “self-improvement” of the small task model is partly “distillation from a bigger closed model into harness code + GRPO.” Honest reading: asymmetric RSI, not a closed loop of equals.
+
+Technique 5 — Ancestors you should know so you don’t reinvent them
+
+These are the previous generation the September papers sit on:
+
+Darwin Gödel Machine (DGM) — agent edits its own codebase, evaluates on SWE-bench / Polyglot, keeps an archive of stepping-stone agents. Empirical Gödel machine, not a proof-theoretic one. Repo: jennyzzt/dgm, paper arXiv:2505.22954. This is still the cleanest “the code that writes code rewrites itself” artifact.⁠GitHub
+
+Mendel Gödel Machine — DGM-style, but mutations can use multiple tasks and other lineages (hybridization), not just one failure. RealLcz/MGM, arXiv:2608.07645.
+
+Huxley–Gödel Machine — expand the most promising subtree of self-modifications, not just the current best agent. metauto-ai/HGM.
+
+OpenRSI / AIDE²-style — outer agent rewrites inner scaffold; keep the rewrite only if a private held-out score rises. That private gate is the anti-Goodhart move. AlexWortega/OpenRsi.
+
+Recuris — Skill Memory as a first-class package (manifest.yaml + markdown cards). The runtime is frozen; only the package evolves. That is the most “git-native” memory RSI I have seen.
+
+If you draw the family tree: DGM/HGM/MGM = self-modifying source. Dream-RSI = self-modifying search policy. ModularRSI = self-modifying modular runtime. RSIAgent/Recuris = self-modifying memory. ScienceBuddy = self-modifying runtime + weights.
+
+5. A mental model that will stick
+
+Treat an agent as:
+
+Behavior=f(W⏟weights, H⏟harness, M⏟memory, π⏟search policy, E⏟environment)\text{Behavior} = f(\underbrace{W}_{\text{weights}},\ \underbrace{H}_{\text{harness}},\ \underbrace{M}_{\text{memory}},\ \underbrace{\pi}_{\text{search policy}},\ \underbrace{E}_{\text{environment}})Behavior=f(weightsW​​, harnessH​​, memoryM​​, search policyπ​​, environmentE​​)
+
+Classic RSI wanted ΔW\Delta WΔW produced by the system itself, with fff also changing. 2026 public work mostly does:
+
+RSIAgent / Recuris: ΔM\Delta MΔM, WWW frozen
+
+Dream-RSI: Δπ\Delta \piΔπ, WWW frozen
+
+ModularRSI: ΔHmodules\Delta H_{\text{modules}}ΔHmodules​, WWW frozen
+
+ScienceBuddy: ΔH\Delta HΔH then ΔW\Delta WΔW, nested
+
+OpenAI’s “top priority” is the missing cell: ΔW\Delta WΔW at frontier scale, with AI running the research loop that produces the next WWW. That cell is not in these GitHubs. The papers are the outer scaffolding that makes that cell cheaper when labs do it privately.⁠OpenAI
+
+High-school analogy. Improving a basketball team:
+
+Memory RSI = better playbook.
+
+Dream-RSI = better scouting strategy, practiced on film of past games.
+
+Modular RSI = rewrite only the inbound-play sheet, not the whole playbook.
+
+ScienceBuddy = rewrite the playbook, then run a training camp, then rewrite again.
+
+Lab-scale OpenAI RSI = the team also designs next year’s draft and strength program.
+
+Film study is cheaper than a new draft. That is why memory/harness papers exploded first.
+
+6. Practical reproduction plan (software-engineer edition)
+
+Weekend 1 — understand the artifact, don’t chase SOTA.
+
+Read RSIAgent docs/PAPER.md and Recuris docs/skill-memory-format.md.
+
+Run RSIAgent smoke tests (no model calls).
+
+Inspect one Recuris Skill Memory package: it is just YAML + markdown cards. That will make “memory RSI” concrete in 30 minutes.
+
+Weekend 2 — one real loop with an off switch.
+
+Run RSIAgent --arm both on a tiny OSWorld or ALE slice, concurrency 1. Compare baseline vs frozen-memory arm. Budget will be the surprise; treat it like a load test.
+
+Weekend 3 — steal one technique into your own agent.
+
+Pick exactly one:
+
+Verifier that cannot see Actor traces.
+
+Contrastive fail/success pairing before you patch prompts.
+
+Private holdout score before you keep a harness rewrite (OpenRSI move).
+
+Discovery-tree logging so you can later dream on it (Dream-RSI move, implement yourself; official code is not out).
+
+Do not combine all four. Combined loops become un-debugable.
+
+If you have GPUs and want the double loop. Follow ScienceBuddy docs/experiments.md exactly, including the frozen task release. Do not swap the improver model on the first run. The paper’s point is the coupling schedule h → r → h → r, not a custom model.
+
+7. Novel insights (the part that is not in the YouTube captions)
+
+RSI in 2026 is a compiler problem, not a consciousness problem. The durable artifacts are files: memory cards, module patches, exploration-policy Python, harness programs. If it is not a diff, it is not RSI you can reproduce.
+
+The verifier is the real invention. Every serious system above has a gate that the improver cannot game: Dream-RSI’s recorded scores, ModularRSI’s validation + benchmark-disjoint pool, RSIAgent’s independent Verifier, OpenRSI’s private metric, ScienceBuddy’s val comparison and GRPO verifier. Without a gate you get prompt-length inflation and benchmark hacking.
+
+Open models beating closed models here is not a general intelligence story. It is a specialization + memory story. Give GPT-6 the same frozen OSWorld notebook and the gap should shrink. The paper that doesn’t run that ablation is selling a headline.
+
+The cheapest RSI is still the most neglected: log structured trees. You can add Dream-RSI-style replay to an existing coding agent without waiting for Google’s code drop. Log (parent, action, code, score) as a first-class object. That log is the world.
+
+ScienceBuddy’s inner improver being a frontier model is the dirty secret of “self-improvement.” A lot of public RSI is asymmetric distillation: a bigger model rewrites the small model’s workshop, then the small model trains in that workshop. Still useful. Not a closed singleton loop.
+
+Safety people and capability people are watching the same knob. Pachocki argues RSI is how you stay at the frontier and that alignment/monitoring is not ready for a fast loop. The GitHub systems above are the safe-ish half: inspectable files, frozen weights, off switches. The dangerous half is when ΔW\Delta WΔW and ΔH\Delta HΔH both run unattended at frontier scale. That half is not in these repos.⁠OpenAI
+
+8. Direct answers to your ask
+
+Repos to reproduce the videos
+
+Second video (RSIAgent): https://github.com/AetherLabsAI/RSIAgent — this is the one.
+
+First video, Dream-RSI: https://github.com/zhengkid/Dream-RSI — watch; code pending.
+
+First video, ModularRSI: https://github.com/IQuestLab/ModularRSI — code + scripts out.
+
+First video, ScienceBuddy: https://github.com/Gen-Verse/ScienceBuddy — research loop out, product frontend not out, GPU-heavy.
+
+Techniques that actually transferred
+
+Replay-world policy search; modular scoped harness evolution; curriculum–actor–verifier memory science; broad-then-deep exploration; contrastive trajectory diagnosis; private-score gates; nested harness-then-weights recursion.
+
+What is not available
+
+OpenAI’s internal “AI research intern” loop. Dream-RSI full reproduction scripts. ScienceBuddy’s hosted product source and the separately supplied model/task blobs.
+
+If you want a next step in this same thread, I can turn RSIAgent’s three-agent loop into a minimal reference architecture (interfaces + memory schema + verifier contract) that you could drop onto an existing coding agent without OSWorld.
+
+103 sources
+
+I want to do zero to hero codelab for rsi. What is best way to start. It should run in a day . Concept understand is important
+
+Worked for 2m 13s
+
+Interrupted
+
+Don't write code yet
+ Explain what will be content of colab
+
+Worked for 1m 2s
+
+How I will tell this story
+
+A one-day RSI Colab is not “clone OSWorld and hope.” That burns the day on Docker. The Colab is a microscope: one tiny factory with hidden recipes, four upgrade knobs, and an off switch. By evening you can say, in engineer English, what each September paper actually changes.
+
+We stay offline-first. No GPU. No API required for the core path. An LLM cell is an optional dessert, not the meal.
+
+The one analogy that carries the whole notebook:
+
+You cannot send the intern back to medical school today (weights). You can give them a checked lab notebook (memory), a better list of which experiment to run next (curriculum), a cheaper way to test hiking plans on last week’s GPS log (dream replay), and a sealed exam they are not allowed to study (holdout). That is 2026 RSI.
+
+What “Colab” means here
+
+Two artifacts, same content:
+
+A Google Colab / Jupyter notebook with markdown teaching cells and short run cells.
+
+The same labs as plain Python scripts if you prefer a terminal.
+
+Content below is the notebook outline: what each section contains, what you watch, what you do, what question you must answer before you proceed. Still no implementation in this message.
+
+Runtime target: CPU, under a minute per lab, whole core path in about 5.5 focused hours plus lunch. Evening optional: open real repos with the map in your head.
+
+Design rules of the notebook (these are part of the content)
+
+The Colab will state these up front and keep repeating them. They are the curriculum, not decoration.
+
+One environment all day. A black-box foundry. Actions: CALIBRATE, LOAD, HEAT, COOL, STIR, POUR. Materials A,B,C for training. Material D is sealed until the last morning-afternoon gate.
+
+You do not read the hidden rulebook while doing the labs. Peeking is cheating the concept. The instrument only returns observations: quality, fault code, a short message.
+
+Weights stay frozen. The “actor” is a dumb structured searcher. That is deliberate. If the intern is already a genius, you cannot see the notebook working.
+
+Every loop has an off switch. Same budget of factory runs, two arms: baseline (no memory / no dream) vs rsi. If you cannot turn RSI off, you cannot measure it.
+
+The verifier cannot see the actor’s private plan. It only sees the action list and the instrument reply. That is RSIAgent’s institutional trick, shrunk.
+
+Hero test is transfer, not training score. After memory is frozen, run material D which the curriculum was not allowed to farm.
+
+ScienceBuddy’s GRPO / 8×A100 loop is reading only at 5pm. It does not fit a day and it would hide the concept under CUDA.
+
+Notebook table of contents
+
+SectionTimeColab cellsPaper it is a toy of
+0. Setup + contract15 mininstall, print the action language, show empty memory file—
+1. Mental model45 mindiagrams, definitions, “what is not RSI”all four + OpenAI strategy note
+2. Baseline intern45 minrandom actor, plot quality vs trialthe control arm every paper needs
+3. Memory RSI75 minverifier writes IF-THEN cards, actor reads themRSIAgent, Recuris
+4. Curriculum45 minpick next material by uncertainty; broad then deepRSIAgent BRS / DRS
+5. Dream replay60 minlog a discovery tree, score policies offlineDream-RSI
+6. Holdout gate + map60 minfreeze memory, test D, then map files to GitHubModularRSI / OpenRSI gate; all papers
+Optional E. LLM actor45 minsame foundry, one API call style actor“asymmetric RSI” warning
+Optional F. Evening repos90 minread-only walk of RSIAgent / ModularRSI / ScienceBuddy docsthe real systems
+
+Total core: ~5.5 hours. Optional tracks if you still have gas.
+
+Section-by-section content
+
+Section 0 — Contract with yourself (15 min)
+
+Markdown cells
+
+Goal of the day in one sentence: name the file that got smarter.
+
+The intern/workshop analogy.
+
+Explicit non-goals: no SWE-bench, no OSWorld, no fine-tune.
+
+Run cells
+
+Import the foundry.
+
+Print one session: you type a recipe by hand, see an observation.
+
+Show that repeating the same recipe is deterministic. RSI needs a stable world or the notebook lies.
+
+Checkpoint question
+
+“If I delete memory.json and rerun, should quality collapse? If no, we did not build RSI. We built luck.”
+
+Section 1 — Mental model (45 min, almost no running)
+
+This is the most important block. Concept first, as you asked.
+
+What the cells teach
+
+An agent’s behavior is five pieces:
+
+Behavior=f(W, H, M, π, E)\text{Behavior}=f(W,\ H,\ M,\ \pi,\ E)Behavior=f(W, H, M, π, E)
+
+WWW weights — intern’s talent
+
+HHH harness — workshop SOPs
+
+MMM memory — lab notebook
+
+π\piπ search policy — how they pick the next experiment
+
+EEE environment — the foundry
+
+2026 public RSI almost always changes MMM, π\piπ, or HHH. Changing WWW is ScienceBuddy’s outer loop and OpenAI’s lab priority. Not today.
+
+Four definitions the notebook will force you to say out loud
+
+Word people abuseMeaning we will use
+Self-refineBetter answer this turn. Not RSI.
+LearningAny update. Too vague.
+Bounded RSIA persistent mechanism improves, and later improvements use that mechanism. Weights may stay frozen.
+Strong RSIThe system also improves how it improves, including training the next model.
+
+Analogy cell
+
+Film study vs drafting a new player. Memory and dream replay are film study. ScienceBuddy + OpenAI want the draft.
+
+“What is not in this Colab” cell
+
+No recursive weight rewrite.
+
+No harness source rewriting (that is DGM / ModularRSI; we only point at it).
+
+No claim that open models beat GPT-6 in general. That headline is “notebook + environment,” not raw IQ.
+
+Checkpoint
+
+You can point to which knob each paper turns, without looking at notes.
+
+Section 2 — Baseline intern (45 min)
+
+Purpose. Feel how bad a frozen actor is in a new environment. This is every paper’s “without RSI” bar.
+
+Markdown
+
+New environment problem: pretrained talent does not include this machine’s interlocks.
+
+Why a random actor is a feature: if we started with GPT, you would not know whether the notebook or the model did the work.
+
+Run cells
+
+30 trials on materials A,B,C with no memory.
+
+Table: mean quality, high-quality rate (≥80), fault rate, factory-call count.
+
+A few printed traces so you see THERMAL_SHOCK, UNCALIBRATED, partial scores.
+
+What you should notice
+
+Material B looks “cursed” until someone cools first. That is an environment-specific causal rule. The intern does not have it.
+
+Spending more random trials helps slowly. That is the expensive online loop Dream-RSI wants to stop paying for.
+
+Checkpoint
+
+Write one sentence: “The bottleneck is missing rules, not missing IQ.”
+
+Section 3 — Memory RSI (75 min) — the heart of the day
+
+This is the RSIAgent / Recuris toy.
+
+Markdown: the three roles
+
+Actor proposes a recipe.
+
+Foundry executes.
+
+Verifier reads only (actions, observation) and writes memory cards.
+
+A card is deliberately boring, like Recuris markdown skills:
+
+condition
+
+advice (do / dont)
+
+consequence
+
+confidence
+
+evidence count
+
+Example of what the verifier is allowed to write:
+
+IF material B AND we saw THERMAL_SHOCK THEN COOL before first HEAT.
+
+Example of what it must not write:
+
+“I intended to try heat 80 because I have a theory.”
+
+That is actor private reasoning. Ban it.
+
+Run cells
+
+Same 30-trial budget, but after each trial the verifier may add/merge cards.
+
+Actor becomes memory-biased: if cards say “cool first on B,” it does.
+
+Print memory.json after 10, 20, 30 trials. Watch cards strengthen (n= evidence).
+
+Compare table vs Section 2: quality up, faults down, same factory budget.
+
+Concept drills in markdown (you answer in a text cell)
+
+If the verifier is wrong once and we merge greedily, what happens? Permanent superstition. That is memory-RSI’s real failure mode.
+
+Why freeze memory before test? Otherwise the test set trains the notebook.
+
+Why can a weaker actor + notebook beat a stronger actor with no notebook on this machine? Specialization, not general intelligence.
+
+Checkpoint
+
+You can explain RSIAgent’s sentence “intelligence improved through experimentally constructed memory” using your memory.json, not their abstract.
+
+Section 4 — Curriculum: broad then deep (45 min)
+
+Purpose. Same memory loop, but the next experiment is chosen on purpose. This is RSIAgent’s Curriculum agent, shrunk to four lines of policy.
+
+Markdown
+
+Broad (BRS): prefer materials you have barely touched. Map the factory.
+
+Deep (DRS): prefer materials with partial success or chronic faults. Hunt the interlock.
+
+Uncertainty, in high-school math:
+
+u(m)≈(1−success rate)+ctrials+1u(m) \approx (1-\text{success rate}) + \frac{c}{\text{trials}+1}u(m)≈(1−success rate)+trials+1c​
+
+Broad uses a large ccc (love the unknown). Deep shrinks ccc and adds fault rate (love the scars).
+
+Analogy
+
+First week in a new hospital: walk every ward (broad). Second week: only the EMR screens that already bit you (deep).
+
+Run cells
+
+Split 30 trials: 15 broad, 15 deep.
+
+Small dashboard: trials per material, success per material.
+
+Compare against Section 3’s uniform random material pick. Usually fewer wasted A-repeats once A is solved.
+
+Checkpoint
+
+“Curriculum does not make the intern smarter. It spends the same dollars on higher-information experiments.”
+
+Section 5 — Dream replay (60 min) — Dream-RSI without Google’s repo
+
+Purpose. Teach the only Dream-RSI idea that matters: history is an exact gym for the search space you already visited.
+
+Markdown story
+
+Online: each trial is a node (material, recipe prefix, quality/fault).
+
+After ~20 online trials, you have a tree/log.
+
+A “policy” here is not a neural net. It is a tiny rule for picking the next recipe family: random, repeat-near-success, prefer-untried-heat, obey-memory.
+
+Dreaming: replay each policy on the log. Score = “if I had used this policy, which logged outcomes would I have collected?”
+
+Only the winner gets the next 15 real factory runs.
+
+What the cells will make visible
+
+Dreaming costs zero new foundry.step calls.
+
+A policy can look brilliant on the log and still be bad on new branches. Recursion only works if the next online lap visits new places.
+
+This is off-policy evaluation, not a world model. The log is not an approximation of unvisited recipes. It is exact on visited ones and silent elsewhere.
+
+Analogy
+
+Kitchen-table hiking plans on last week’s GPS. You cannot discover a canyon you never walked. Tomorrow’s hike must add GPS or the dreamer saturates.
+
+Run cells
+
+Build the log from Section 4.
+
+Score 4 canned policies offline. Print a leaderboard.
+
+Deploy winner for 15 fresh trials. Count factory calls vs a “keep random online” control.
+
+Checkpoint
+
+You can say why Dream-RSI leaves the coding model frozen and still calls itself RSI: the exploration program is the thing that improves.
+
+Section 6 — Holdout gate + map onto the real papers (60 min)
+
+This is the “hero” hour.
+
+Part A — the sealed exam
+
+Freeze memory.json. No more writes.
+
+Run a fixed set of recipes on material D.
+
+D is a combination room: it needs lessons from B (cool first) and from A/C (stir + a heat window), but not a copy of any training recipe.
+
+Report D quality for:
+baseline intern (no memory)
+
+memory from A,B,C
+
+memory + dream-chosen policy
+
+If D does not move, your notebook overfit A,B,C slogans. That is Goodhart. This cell exists to humble you, same job as ModularRSI’s benchmark-disjoint pool and OpenRSI’s private score.
+
+Part B — mapping table (markdown you fill)
+
+Knob you touched todayFile that changedReal systemWhat they add that we skipped
+Memory cardsmemory.jsonRSIAgent, Recurismulti-agent on OSWorld; skill packages
+Curriculumtrial scheduleRSIAgent BRS/DRSparallel VMs, visual desktop
+Replay-scored policypolicy name + logDream-RSIcoding-agent discovery trees, GPU kernels
+Holdout Dfrozen eval splitModularRSI / OpenRSIfive harness modules, private test cases
+Not touchedweightsScienceBuddy outer GRPOharness evolution then RL
+Not touchedharness sourceDGM / ModularRSI / Mendel GMself-modifying agent code
+
+Part C — “hero” oral exam (text cells, you type answers)
+
+Why is RSIAgent bounded?
+
+Why is Dream-RSI cheap?
+
+Why does ModularRSI split the harness?
+
+Why is ScienceBuddy two loops, not one?
+
+What would a wrong verifier do to your foundry over 1,000 trials?
+
+If OpenAI’s internal RSI is real, which knob are they turning that this Colab refuses to touch?
+
+If you can answer those without opening arXiv, the day worked.
+
+Optional tracks (only after Section 6)
+
+E. LLM actor (45 min, needs an API key)
+
+Same foundry, replace Random/Memory actor with one LLM call that may read memory cards. Keep verifier and holdout unchanged.
+
+Teaching point, not a demo flex: a lot of 2026 “self-improvement” is asymmetric. A bigger model writes the notebook of a smaller loop. Still useful. Not a closed singleton.
+
+If you skip this, you lose nothing essential.
+
+F. Evening repo walk (90 min, read-only)
+
+With the map in your head, open only:
+
+AetherLabsAI/RSIAgent README — find Curriculum / Actor / Verifier / freeze.
+
+IQuestLab/ModularRSI README — find the five modules and “benchmark-disjoint.”
+
+Gen-Verse/ScienceBuddy docs/algorithm.md — find inner HHH then outer GRPO.
+
+zhengkid/Dream-RSI — confirm code is still “being prepared,” then stop. Do not wait for it.
+
+You will recognize the nouns. That is the point of the toy.
+
+What you will see by 6pm (definition of hero)
+
+Not a leaderboard. These five artifacts:
+
+A baseline table (dumb intern).
+
+A memory file you can read like English.
+
+A before/after chart at equal factory budget.
+
+A dream leaderboard that spent zero extra runs.
+
+A holdout-D number that either rose (transfer) or didn’t (you learned the trap).
+
+Plus one sentence you could say to another engineer:
+
+“RSI in 2026 is usually a git diff to memory, search policy, or harness, behind a verifier and a held-out gate. Weights are a different, more expensive loop.”
+
+What we deliberately will not put in the Colab
+
+OSWorld / ALE / Terminal-Bench (environment setup would eat the day).
+
+SkyRL, GRPO, 8×A100.
+
+Self-modifying agent source (DGM). Mention only.
+
+OpenAI’s internal research-intern loop. There is no public notebook.
+
+A claim that this toy “is AGI RSI.” It is a bounded, anchored loop on purpose.
+
+Those omissions are the reason it finishes in a day.
+
+Best way to start tomorrow morning
+
+Block 6 hours. Phone off for Sections 1 and 3.
+
+Run the notebook top to bottom once without peeking at foundry grading.
+
+Only after Section 6, peek at hidden recipes and grade your intuition.
+
+Evening: open RSIAgent first, not ScienceBuddy. Memory RSI is the on-ramp. ScienceBuddy is the highway.
+
+When you want the actual notebook written, say the word and I will implement this outline cell for cell — still offline-first, still with the off switch.
+
+2 / 2
+
+Are you speak in add-ste100 language. What is the use ase and concrete accomplishment. I am lost. What technical problem this hello world colab solves
+
+Worked for 29s
+
+This document has four parts.
+
+Part 1 states the technical problem.
+
+Part 2 states the use case.
+
+Part 3 states the concrete result of the Colab.
+
+Part 4 states what the Colab does not do.
+
+STE100 rule for this reply: short sentences. One idea in each sentence. No paper tour.
+
+1. The technical problem
+
+An agent must operate a new system.
+
+The system has hidden rules.
+
+The base model does not know those rules.
+
+Example in industry:
+
+A new internal API.
+
+A new desktop workflow.
+
+A new lab instrument.
+
+You have three bad options today:
+
+Retrain the model. This costs time, GPUs, and data.
+
+Write prompts by hand. This does not grow from experiment.
+
+Run a large RSI paper repo. This needs Docker, VMs, or many GPUs. You lose a day before you learn the idea.
+
+The core software problem is this:
+
+How do you improve task results in a new environment without a change to model weights, and how do you prove the gain is real?
+
+That problem has four sub-problems:
+
+Sub-problemMeaning
+DiscoveryFind the hidden rules from trial results.
+StorageKeep the rules in a file. Use the file on the next trial.
+ControlCompare “no file” vs “with file” on the same budget.
+ProofTest on a task that you did not use to write the file.
+
+If you cannot do these four things, you do not have RSI.
+
+You have a lucky run.
+
+2. The use case
+
+Actor: You. You build agents.
+
+System under test: A small fake factory in the notebook.
+
+The factory speaks only six commands: CALIBRATE, LOAD, HEAT, COOL, STIR, POUR.
+
+Job: Get high quality on materials A, B, and C.
+
+Then get quality on material D.
+
+You must not read the hidden rulebook while you work.
+
+Business analog:
+
+You get a new machine on Monday.
+
+There is no manual.
+
+You may run a fixed number of tests.
+
+You must write a short checklist.
+
+On Tuesday a new product (D) arrives.
+
+The checklist must still help.
+
+You may not retrain the intern overnight.
+
+That is the use case.
+
+It is not “build AGI.”
+
+It is not “beat GPT-6.”
+
+It is adapt an agent to one new machine with a durable notebook.
+
+3. Concrete accomplishment
+
+After the Colab you must hold these five objects.
+
+If one object is missing, the lab failed.
+
+A baseline number.
+Random agent. No memory file. N trials. Mean quality. Fault rate.
+
+A memory file.
+Plain text rules. Example: “For material B, cool before first heat.”
+A person can read the file.
+
+A second number on the same N trials.
+Agent uses the memory file. Mean quality must be higher, or fault rate must be lower.
+Budget must stay equal. Same N. No extra factory calls for the comparison.
+
+A holdout number on material D.
+You freeze the memory file. You stop writes.
+Then you test D.
+D is the proof.
+If D does not improve, the file only memorized A, B, C.
+
+An off switch.
+You can run baseline and rsi as two arms.
+You can delete the memory file and watch quality fall.
+
+The one-sentence result:
+
+The memory file got smarter. The model weights did not change. You can measure both facts.
+
+That is the hello-world of 2026 RSI.
+
+Analogy:
+
+The intern is the same person at 09:00 and at 17:00.
+
+The checklist is not the same.
+
+The checklist is the product.
+
+4. What problem each hour solves
+
+HourTechnical problem it isolatesWhat you can point at
+Baseline“Is the factory hard?”Low score, many faults
+Memory write“Can experience become a reusable rule?”New lines in the memory file
+Curriculum“Can we spend the same trials on better experiments?”Trial counts per material
+Dream replay“Can we rank search tactics without new factory runs?”Policy scores from the log only
+Holdout D“Did we overfit the training materials?”D score after freeze
+
+Each hour adds one control.
+
+You do not mix weights, harness rewrites, and memory in one step.
+
+If you mix them, you cannot say what caused the gain.
+
+5. What this Colab does not solve
+
+Say this out loud so you do not stay lost:
+
+It does not train a model.
+
+It does not open OSWorld.
+
+It does not reproduce OpenAI internal RSI.
+
+It does not make an open model smarter in general.
+
+It does not rewrite agent source code (that is a later lab).
+
+Those are larger problems.
+
+They need days or clusters.
+
+They hide the mechanism.
+
+Hello world has one job:
+
+Make the mechanism visible.
+
+The mechanism is:
+
+text
+
+CopyCopied
+
+try → measure → write rule → reuse rule → freeze → test unseen
+
+If you can run that loop and read the file, you understand RSIAgent.
+
+Dream-RSI only changes “how you pick the next try,” using the log as a cheap gym.
+
+ScienceBuddy adds weight updates later.
+
+You do not need that on day one.
+
+6. Acceptance test (you are not lost if you can do this)
+
+At the end of the day, answer these six items with data, not slogans:
+
+What file changed?
+
+Did weights change? (Answer must be no.)
+
+What was mean quality without the file?
+
+What was mean quality with the file, same N?
+
+What was quality on D after freeze?
+
+What happens if you delete the file?
+
+If you can answer those, the Colab did its job.
+
+If you cannot, the Colab is only a story.
+
+7. Start command, in STE100
+
+Do this in order:
+
+Read Section 1 of this message again. Stop at the table of four sub-problems.
+
+Do not open the large GitHub repos today.
+
+When the notebook exists, run only the baseline cell first. Record the number.
+
+Run the memory cell. Record the number. Open the memory file. Read two rules.
+
+Run the D test. Record the number.
+
+Then stop.
+
+That sequence is the use case.
+
+The accomplishment is the three numbers plus the file.
+
+The technical problem is adaptation without retraining, with a proof test.
+
+The factory is a toy.
+
+The problem is not a toy.
+
+Every new agent environment in a company has the same shape.
+
+2 / 2
+
+System under test: A small fake factory in the notebook.
+
+The factory speaks only six commands: CALIBRATE, LOAD, HEAT, COOL, STIR, POUR.
+
+No fake factory. Real software task. Like improve some ml model for task.
+
+Worked for 57s
+
+The correction
+
+The factory was a metaphor. You rejected it. Correct.
+
+The system under test is now a real training job.
+
+You improve a classifier on a public dataset.
+
+You do not simulate knobs.
+
+You call fit(). You get a val score. You write a recipe file. You test on a locked split.
+
+Technical problem (one sentence)
+
+You must raise test performance of a baseline ML pipeline under a hard budget of training runs, without peeking at the test set, and without changing any LLM weights.
+
+That is a daily problem in real software:
+
+A new dataset lands.
+
+You have a weak baseline.
+
+You can afford 20–40 training runs, not 2,000.
+
+You must not tune on the test set.
+
+You want a reusable runbook for the next similar dataset.
+
+Ordinary GridSearch is not RSI.
+
+GridSearch tries combinations. It does not keep a durable theory of why a recipe failed. It does not change how the next search will search.
+
+RSI here means:
+
+The next training run is chosen using a file that previous runs wrote. That file is the thing that improves.
+
+Concrete task (fixed, so you are not lost)
+
+ItemChoice
+DatasetAdult Census Income (predict income > $50K)
+Why this datasetReal tabular job. Mixed numbers and categories. Class imbalance. Standard in sklearn/OpenML. Fits in Colab CPU in minutes.
+Baseline modelColumnTransformer + LogisticRegression (fixed recipe, no search)
+MetricROC-AUC
+Splitstrain / val / test. Test is locked until the end.
+BudgetN = 24 training runs (fit calls) per arm
+Search spacepreprocessor, model class, 2–3 hyperparameters
+Models allowedLogisticRegression, RandomForest, HistGradientBoosting (all sklearn, CPU)
+Durable artifactmemory.json — recipe rules, not model pickles
+Off switch--arm baseline ignores the file. --arm rsi reads and writes the file.
+Hero testAfter freeze, score the test set once. Optional extra: run the frozen file as a bias on a second related table (if time).
+
+This is the same shape as Dream-RSI “algorithm engineering,” shrunk to sklearn so it finishes in a day.
+
+Use case
+
+You are the engineer.
+
+The job is: beat the baseline Adult-Income pipeline.
+
+You may not:
+
+look at test labels during search
+
+run extra fits beyond N
+
+hand-edit the winner after you see test AUC
+
+You may:
+
+try recipes on train+val
+
+write rules into memory.json
+
+let the next proposal read that file
+
+Industry analog:
+
+Monday you get a churn table.
+
+You have four hours of compute.
+
+You must ship a model and a short runbook.
+
+Wednesday a similar table arrives.
+
+The runbook should reduce wasted fits.
+
+You do not fine-tune GPT to do that.
+
+What one trial is (real software, not a toy verb)
+
+A trial is one Python dict, then one pipeline.fit:
+
+text
+
+CopyCopied
+
+recipe = {
+ scale_numeric: yes/no,
+ encode_categorical: onehot | ordinal,
+ model: logreg | rf | hgb,
+ C or max_depth or learning_rate: ...,
+ class_weight: none | balanced
+}
+fit on train → score ROC-AUC on val → log the row
+
+The actor proposes the dict.
+
+The trainer runs it.
+
+The verifier writes memory.
+
+The verifier sees only {recipe, val_auc, error}.
+
+It does not see “I felt like trying RandomForest.”
+
+Example memory lines the verifier is allowed to write:
+
+IF high cardinality categories THEN do not use ordinal encode. Val AUC dropped.
+
+IF class imbalance AND logreg THEN set class_weight=balanced.
+
+IF rf AND max_depth is None THEN val AUC overfits vs depth 8–16.
+
+That file is the RSI object.
+
+The .pkl from the best trial is a side effect.
+
+It is not the RSI object.
+
+Anyone can save a pickle. The question is whether the searcher got smarter.
+
+Concrete accomplishment (acceptance)
+
+At the end you must have this scorecard. Nothing else counts.
+
+FieldYou write a number or yes/no
+Baseline test ROC-AUCe.g. 0.84x
+RSI-arm best-val recipe, then test ROC-AUCmust use the locked test once
+Fits used in each armmust be equal (24 and 24)
+memory.json exists and a human can read 5 rulesyes/no
+Delete the file, rerun RSI arm as random searchval curve should get worse or more wasteful
+Test set touched before freeze?must be no
+
+Pass rule (hello-world, not SOTA):
+
+Test AUC with the memory-guided search is higher than the fixed baseline, and
+
+At the same N, memory-guided search reaches a good val AUC in fewer wasted fits than random search, or ends higher, and
+
+You can point at rules in the file that a person agrees with.
+
+If test AUC is higher only because you peeked, the lab failed.
+
+Why this is RSI and not “just train a model”
+
+Three layers exist. Do not mix them.
+
+LayerWhat changesIs it RSI?
+One fit()Classifier weights in that trialNo. Normal ML.
+Best pickle at the endThe shipped modelNo. Normal model selection.
+memory.json + next recipe policyHow you search the next fitYes. Bounded RSI.
+
+Analogy:
+
+Each exam score is normal learning.
+
+The study guide you write after each exam, and then use on the next exam, is RSI.
+
+The holdout test is a new exam you did not write the guide on.
+
+Dream-RSI extra (same Colab, later cell):
+
+Keep the 24-row log.
+
+Score two search policies on that log with zero new fits: “random” vs “repeat neighbors of top-3.”
+
+Deploy the winner for the last 8 fits.
+
+That is the cheap “dream” step on a real job.
+
+What the Colab will contain (only this task)
+
+Load Adult Income. Build locked splits. Print class balance.
+
+Train the fixed baseline. Record test AUC or save it for the end; do not use test for search. Preferred: compute baseline test AUC once at the start, then lock test.
+
+Random search arm. 24 fits. Val curve.
+
+Memory arm. 24 fits. Print the file every 8 fits.
+
+Freeze file. Evaluate the selected recipe on test.
+
+Compare the two arms on val efficiency and on test.
+
+One page: map memory.json → RSIAgent; map trial log replay → Dream-RSI; map locked test → the private gate.
+
+No factory.
+
+No OSWorld.
+
+No 8×A100.
+
+No LLM required.
+
+What you walk away with
+
+Not “I understand AGI.”
+
+This:
+
+A better Adult Income model than the baseline, under a known budget.
+
+A recipe file you can commit to git.
+
+Proof that the file, not extra fits, caused part of the gain.
+
+The pattern you will reuse on the next real table: search, write, freeze, test.
+
+That is the hello-world.
+
+The factory is gone.
+
+2 / 2
+
+Give five info graphics on this
+
+Worked for 9s
+
+Five posters. Same job: Adult Income, locked test, memory.json is the thing that improves. Short caption under each.
+
+1. Why this Colab exists. The job is a real training run, not a toy machine. The product is a readable recipe file plus a test number you earned without peeking.
+
+2. Do not confuse “better model” with RSI. Each fit() is ordinary ML. The shipped pickle is ordinary selection. RSI is only the file that changes how the next fit() is chosen.
+
+3. The software loop. Propose a recipe. Fit. Score val. Write a rule. Repeat. Freeze. Touch test once. Two arms, same 24 fits.
+
+4. Acceptance. Three numbers, one file, one off switch. If you cannot fill this card, you only ran AutoML.
+
+5. Map to the papers. Memory file = RSIAgent. Log replay = Dream-RSI. Locked test = the anti-cheat gate. Weight training stays off the table for day one.
+
+remove the slide number and footer - ugly. make it denser and make it 10 slies
+
+Worked for 19s
+
+Ten denser posters. No slide numbers. No footer bars. Same Adult Income job.
+
+Problem / use / result. One job: raise locked-test AUC under a fixed fit budget. The file is the product.
+
+Three layers. fit() is ML. The pickle is selection. RSI is only the policy that writes and reads memory.json.
+
+The loop. Propose, fit, score val, write a rule, repeat. Test is one shot after freeze.
+
+What a trial is. One dict. One fit. One val AUC. That is the only legal signal during search.
+
+Control. Same 24 fits. Same models. Same splits. The only difference is whether the searcher may use the file.
+
+Verifier. It sees the recipe and the val number. It does not see the actor’s story. Wrong rules become superstition. That is the failure mode.
+
+Dream step. Rank search tactics on the log. Pay zero extra fits. Then spend the last real fits on the winner.
+
+Pass rule. Three numbers, one file, one delete-the-file check. No extra fits. No test peek.
+
+Paper map. Memory = RSIAgent. Replay = Dream-RSI. Locked test = the gate. Weights stay off.
+
+Hero. You can name the file that improved, turn the loop off, and watch search get worse. That is the whole day.
+
+Can you add seven INFOGRAPHICS kind of prelude to above slides . Introduction to rsi.
+
+Worked for 17s
+
+Seven prelude posters. RSI first. Lab slides after. No numbers. No footer bars.
+
+Definition. RSI is not a smarter reply. It is a reused mechanism. Delete it. If results do not fall, you did not have RSI.
+
+First split. Self-refine dies with the answer. RSI leaves a file the next job will use.
+
+Analogy. You cannot send the intern back to school today. You can upgrade the checklist, the experiment list, and the tools.
+
+Knobs. Memory, policy, harness, weights. Public 2026 work lives on the first three. Weight loops need clusters.
+
+Scope. Bounded RSI is a file you can read and disable. Strong RSI trains the next model. Day one is bounded.
+
+Gate. The improver must not grade its own homework. No test peek. No secret extra fits. No “I meant to.”
+
+Field map. Four papers. Four knobs. The lab copies memory, cheap replay, and a locked test. It does not copy GPU training.
+
+Rsi mechanisms in six slides. In depth. No footer and no slide number. Also differentiate various terminology like self improve self organize self emergency etc so many terms distinguish with rsi
+
+Worked for 17s
+
+Six mechanism posters. Terms first, then the four knobs, then how they compose. No numbers. No footer bars.
+
+Terms. Most slogans are not RSI. RSI is only when a later loop reads a changed part of the improver. Delete that part. Quality must fall.
+
+A. Memory. A verified notebook. Not a diary. Next fit must be able to execute the rule. The verifier never hears the actor’s story.
+
+B. Policy. Rank search tactics on old trials. Pay zero new fits. Then spend real budget on the winner. That is cheap RSI of the searcher.
+
+C. Harness. The loop and tools change. The intern does not. A prompt edit counts only if the next run loads that edit from disk.
+
+D. Weights. The intern goes back to school. Powerful. Expensive. Hard to turn off. Not day one.
+
+Compose. Memory, then policy, then harness, then weights. Recursion starts when generation n+1 loads generation n. Emergence has no such file.
+
+Explain rsi in terms of inner loop outer loop and meta harness harness etc in three iNFOGRAPHICS
+
+Worked for 9s
+
+Three posters. Loops first. Then harness vs meta-harness. Then how they nest. No numbers. No footer bars.
+
+Loops. Inner does the job with today’s tools. Outer changes a durable part of those tools. If the next inner run does not load that change, you had no outer loop.
+
+Harness. H is the workshop. Meta-harness is a workshop that ships a new workshop. A prompt you type once is neither. A file the next process boots is the real thing.
+
+Nesting. Boot weights, then harness, then memory. Run inner. Outer writes files. Reboot. Recursion is that reboot. Training W is an optional outer-outer, not the hello-world.
+
+2 / 2
+
+Give example configure harness e2e by prompt or skill
+
+Worked for 12s
+
+Two ways to ship a harness. A prompt you persist. Or a skill file the next process boots. Both must be on disk. Both must be the thing the inner loop loads. Three posters, then the two actual artifacts. No numbers. No footer bars.
+
+Ship H two ways. A prompt file. Or a skill pack. Lost chat is not a harness. The next process must boot the same text.
+
+E2E. Write H. Boot it. Run the budget. Freeze traces. Write H'. Reboot. That reboot is the RSI step.
+
+Split. H runs the job. MH edits H. If MH trains weights, you left bounded RSI.
+
+Example A — configure H end-to-end by one persisted prompt
+
+Save this as harness.md. The inner loop’s only system instruction is “load this file.”
+
+text
+
+CopyCopied
+
+# H — Adult Income recipe searcher
+Role: propose one recipe dict per trial. Do not narrate.
+Tools: fit_recipe(recipe) -> {val_auc, error}
+Budget: 24 fits. Stop at 24.
+Splits: train and val only. Test is locked. Never call score_test until FREEZE=true.
+
+Recipe schema:
+ scale_numeric: yes|no
+ encode_categorical: onehot|ordinal
+ model: logreg|rf|hgb
+ hparam: C | max_depth | learning_rate
+ class_weight: none|balanced
+
+Memory:
+ path: memory.json
+ read before each proposal
+ write only through verifier
+
+Verifier contract:
+ input = {recipe, val_auc, error} only
+ write IF-THEN cards with evidence
+ reject cards that mention test or actor intent
+
+Off switch:
+ if MEMORY_OFF=true, do not read or write memory.json
+ still count fits
+
+Freeze:
+ after 24 fits, set FREEZE
+ one call: score_test(best_val_recipe)
+
+That file is H. Change a paragraph, save, reboot. You configured the harness by prompt.
+
+A meta-harness prompt is the same idea one level up: “read traces.jsonl and harness.md. Propose a unified diff to harness.md that does not add tools, does not touch test, and must shrink wasted fits. Write harness.md.”
+
+Example B — configure H end-to-end by a skill
+
+Folder: skills/rsi-adult-income/
+
+SKILL.md (what the agent loads when the task matches):
+
+text
+
+CopyCopied
+
+# RSI Adult Income trainer
+Trigger: improve Adult Income pipeline under a fit budget.
+Do not train an LLM. Do not touch test until freeze.
+
+Boot order:
+1. Read this SKILL.md (this is H)
+2. Read memory.json if present
+3. Call tools in tools.md only
+4. After N=24, freeze and score test once
+
+Rules:
+- One recipe per fit
+- Verifier sees {recipe, val_auc, error} only
+- Persist every card to memory.json
+- Equal-budget comparison vs random arm lives in eval.md
+
+Sibling files the skill names, not invents at runtime:
+
+tools.md — fit_recipe, write_card, score_test
+
+schema.json — recipe dict
+
+eval.md — 24 vs 24, delete-file off switch
+
+memory.schema.json — IF / THEN / evidence / counterexample
+
+That pack is H. Edit SKILL.md or tools.md, reboot. You configured the harness by skill.
+
+A meta-skill is a second pack, skills/rsi-meta-harness/SKILL.md, whose only job is: read traces + current skill pack, write a new pack, keep size under a cap, refuse test access.
+
+What “e2e by prompt or skill” means in one line
+
+You do not configure H by talking in chat.
+
+You configure H by writing a file the inner loop will boot.
+
+Prompt-shaped file or skill-shaped folder. Same test: delete it, search must get worse.
+
+Regular harness congratulation without rsi. Then with rsi. Using skills only
+
+Worked for 13s
+
+Same job. Skills only. First a normal harness. Then the same folder with RSI added. Three posters, then the two skill packs. No numbers. No footer bars.
+
+Regular skill harness. A folder that knows how to train. Every run boots the same text. That is software. That is not RSI.
+
+RSI skills. Inner pack does the job. Meta pack edits the inner pack or its memory. The next boot must load those files. That reboot is RSI.
+
+Diff. RSI is three extra files and one extra skill. Not a new model. Not a new slogan.
+
+Regular harness — skills only
+
+Folder: skills/adult-income/
+
+SKILL.md
+
+text
+
+CopyCopied
+
+# Adult Income trainer
+Trigger: train a classifier for Adult Census Income.
+
+Boot:
+- Read this SKILL.md
+- Read tools.md and schema.json
+- Do not invent tools
+
+Procedure:
+1. Load data. Use the fixed train/val/test split in tools.md.
+2. Fit the baseline recipe in schema.json (logreg, onehot, scale=yes).
+3. Optionally run a fixed list of 24 recipes from schema.json in order.
+4. Pick the best val recipe.
+5. Fit that recipe on train+val if tools.md allows, then score test ONCE.
+6. Save model.pkl. Stop.
+
+Rules:
+- SKILL.md does not change itself
+- Do not write memory.json
+- Do not edit this file
+- Next run starts from this same text
+
+tools.md
+
+text
+
+CopyCopied
+
+Tools allowed:
+- load_splits()
+- fit_recipe(recipe) -> {val_auc, error}
+- score_test(recipe) -> {test_auc} # only at the end
+- save_model(path)
+
+schema.json (idea)
+
+Fixed baseline plus a static list of 24 recipes. The list does not grow. The skill does not rewrite the list.
+
+What you accomplished: a repeatable trainer.
+
+What you did not accomplish: a searcher that gets smarter across runs.
+
+Same job — skills with RSI
+
+Two packs. Inner pack is still the trainer. Meta pack is the only writer of inner files.
+
+Inner: skills/adult-income/SKILL.md
+
+text
+
+CopyCopied
+
+# Adult Income trainer (inner H)
+Trigger: train under a 24-fit budget.
+
+Boot order:
+1. This SKILL.md
+2. tools.md, schema.json
+3. memory.json if present and MEMORY_OFF is not set
+4. traces.jsonl append-only
+
+Procedure:
+1. For t in 1..24:
+ - If memory.json exists, read cards before proposing
+ - Propose ONE recipe from schema.json
+ - fit_recipe(recipe) on train, score val
+ - Append {recipe, val_auc, error} to traces.jsonl
+ - Call write_card only via the verifier contract below
+2. FREEZE
+3. score_test(best_val_recipe) once
+4. Stop. Do not edit SKILL.md. Only the meta skill may edit this pack.
+
+Verifier contract:
+- Input = {recipe, val_auc, error} only
+- Card shape: IF / THEN / evidence / counterexample
+- Refuse cards that mention test or intent
+
+Off switch:
+- MEMORY_OFF=true -> do not read or write memory.json
+- META_OFF=true -> do not invoke skills/adult-income-meta
+
+Inner additions
+
+memory.json starts as [].
+
+traces.jsonl starts empty.
+
+Same tools.md, plus:
+
+text
+
+CopyCopied
+
+- write_card(card) # verifier only
+- read_memory()
+
+Meta: skills/adult-income-meta/SKILL.md
+
+text
+
+CopyCopied
+
+# Adult Income meta-harness (MH)
+Trigger: after an inner run, or when traces.jsonl has at least 8 new rows.
+You do not fit models. You edit the inner pack.
+
+Read:
+- skills/adult-income/traces.jsonl
+- skills/adult-income/memory.json
+- skills/adult-income/SKILL.md
+- skills/adult-income/schema.json
+
+Write, atomically, at most one of:
+- new cards into memory.json
+- a small patch to schema.json (forbid a failing combo)
+- a small patch to SKILL.md search policy
+ example: after trial 16 use neighbors of top-3
+
+Hard rules:
+- Do not call score_test
+- Do not add tools
+- Do not train weights
+- Size budget: SKILL.md + schema.json must not grow more than 20%
+- Patch one module per visit
+- If holdout was already scored this generation, do not peek at it
+
+Done when files are written. Next inner boot must load them.
+
+How a run looks
+
+Regular
+
+text
+
+CopyCopied
+
+boot skills/adult-income
+run 24 fixed recipes
+save model.pkl
+exit
+
+Next Monday: same SKILL.md, same 24 recipes, same search waste.
+
+With RSI
+
+text
+
+CopyCopied
+
+boot skills/adult-income # inner
+run 24 fits, write memory + traces
+boot skills/adult-income-meta # outer
+meta writes memory.json and maybe schema.json
+boot skills/adult-income again # inner generation n+1
+
+Generation n+1 is RSI only if it loads those files.
+
+Turn RSI off: MEMORY_OFF=true and do not boot the meta skill. Inner skill still trains. That is the congratulations case with a switch.
+
+Congratulations, distinguished
+
+Regular skill harnessRSI skill harness
+Packsoneinner + meta
+Files that growmodel.pklmemory.json, traces.jsonl, sometimes SKILL.md / schema.json
+Next bootsame HH' or M'
+Off switchdelete the appkeep the app, drop memory + meta
+Pass testmodel trainsdelete memory, search gets worse at equal fits
+
+Regular harness: you shipped a trainer.
+
+RSI harness: you shipped a trainer that can rewrite its own notebook, and a second skill that is allowed to patch the first.
+
+2 / 2
+
+Where are the related files
+
+Worked for 19s
+
+They are in two different places. Most of the Adult Income skill packs were never written to disk. They only exist in the last chat turn. What is on disk is older lab code plus the infographic images.
+
+On disk now
+
+Old factory lab (not the Adult Income job)
+
+/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/
+
+agents.py
+
+foundry.py
+
+memory.py
+
+verifier.py
+
+That folder is the earlier fake-factory prototype. It is not the skill harness from the last message.
+
+Infographics
+
+/home/workdir/artifacts/rendered/
+
+/home/workdir/artifacts/imagine_images/
+
+Those are the posters from this thread.
+
+Real skills that already exist on this machine (unrelated to Adult Income RSI)
+
+Bundled: /root/.grok/skills/ (docx, pptx, pdf, xlsx, ffmpeg, skill-creator, …)
+
+Yours: /home/workdir/.grok/skills/aethercollar-optionstrat-browser/ and bun-rust-porting/
+
+Not on disk
+
+These were examples in chat only:
+
+text
+
+CopyCopied
+
+skills/adult-income/SKILL.md
+skills/adult-income/tools.md
+skills/adult-income/schema.json
+skills/adult-income/memory.json
+skills/adult-income/traces.jsonl
+
+skills/adult-income-meta/SKILL.md
+skills/adult-income-meta/patch.md
+skills/adult-income-meta/size-budget.md
+
+harness.md
+
+No memory.json for the income job. No meta skill folder. Nothing to boot.
+
+Why it feels missing
+
+A regular Grok skill is a folder with SKILL.md under .grok/skills/.
+
+I described that layout. I did not create the files.
+
+Chat text is not a harness. The next process cannot boot it.
+
+If you want them as real files, say so and I will write:
+
+/home/workdir/.grok/skills/adult-income/ (regular or RSI inner)
+
+/home/workdir/.grok/skills/adult-income-meta/ (RSI outer)
+
+and leave the old mini-rsi-codelab factory as a separate archive.
+
+2 / 2
+
+Inline show them
+
+Worked for 46s
+
+They are on disk now. Paths first. Full text after.
+
+Map
+
+KindPath
+Regular harness (no RSI)/home/workdir/.grok/skills/adult-income-regular/
+Inner RSI harness/home/workdir/.grok/skills/adult-income/
+Meta / outer skill/home/workdir/.grok/skills/adult-income-meta/
+Old factory prototype (not this job)/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/
+Infographic images/home/workdir/artifacts/rendered/ and imagine_images/
+
+Regular skill pack — no RSI
+
+/home/workdir/.grok/skills/adult-income-regular/SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income-regular
+description: Train a fixed Adult Census Income classifier with a static recipe list. Use when you want a normal skill harness with no memory, no meta skill, and no RSI.
+---
+
+# Adult Income trainer (regular harness, no RSI)
+
+Boot only this pack. Do not load adult-income or adult-income-meta.
+
+## Procedure
+
+1. Read tools.md and schema.json in this folder.
+2. Load the locked train/val/test splits via tools.md.
+3. Fit the baseline recipe in schema.json.
+4. Run the static 24-recipe list in schema.json, in order. Do not reorder. Do not invent recipes.
+5. Pick the best val recipe. Call score_test once.
+6. Save model.pkl. Stop.
+
+## Rules
+
+- Do not write memory.json.
+- Do not edit this SKILL.md.
+- Next run boots this same text.
+- Test labels are illegal during the 24 fits.
+
+tools.md
+
+Markdown
+
+CopyCopied
+
+Allowed:
+- load_splits()
+- fit_recipe(recipe) -> {val_auc, error}
+- score_test(recipe) -> {test_auc} # end of run only
+- save_model(path)
+
+Forbidden:
+- write_card
+- read_memory
+- any edit of SKILL.md or schema.json
+
+schema.json
+
+JSON
+
+CopyCopied
+
+{
+ "task": "adult_census_income",
+ "target": "income_gt_50k",
+ "metric": "roc_auc",
+ "n_fits": 24,
+ "baseline": {
+ "scale_numeric": "yes",
+ "encode_categorical": "onehot",
+ "model": "logreg",
+ "hparam": {"C": 1.0},
+ "class_weight": "none"
+ },
+ "search_policy": "static_list",
+ "recipes": "fixed 24-recipe grid over logreg|rf|hgb x a few hparams. Do not grow this list."
+}
+
+Inner RSI skill pack
+
+/home/workdir/.grok/skills/adult-income/SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income
+description: Inner RSI trainer for Adult Census Income. Use when searching recipes under a 24-fit budget with memory.json and a locked test. Pair with adult-income-meta after a run. Off switch is MEMORY_OFF or skip the meta skill.
+---
+
+# Adult Income trainer (inner H)
+
+## Boot order
+1. This SKILL.md
+2. tools.md and schema.json
+3. memory.json if present and MEMORY_OFF is unset
+4. traces.jsonl append-only
+
+## Procedure
+For t in 1..24:
+- If memory.json exists, read cards before proposing.
+- Propose one recipe from schema.json.
+- fit_recipe on train. Score val only.
+- Append {recipe, val_auc, error} to traces.jsonl.
+- Write cards only through the verifier contract.
+
+Then FREEZE. Call score_test(best_val_recipe) once. Stop.
+Do not edit this SKILL.md. Only adult-income-meta may patch this pack.
+
+## Verifier contract
+Input = {recipe, val_auc, error} only.
+Card shape: IF / THEN / evidence / counterexample
+Refuse cards that mention test or actor intent.
+
+## Off switch
+- MEMORY_OFF=true — do not read or write memory.json
+- META_OFF=true — do not invoke adult-income-meta
+
+tools.md adds write_card and read_memory.
+
+schema.json is the recipe field space.
+
+memory.json is [].
+
+traces.jsonl is empty.
+
+memory.schema.json is the card schema.
+
+Meta skill pack
+
+/home/workdir/.grok/skills/adult-income-meta/SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income-meta
+description: Outer meta-harness for the Adult Income inner skill. Use after an inner run when traces.jsonl has new rows. Edits memory.json or a small patch to the inner pack. Does not fit models. Does not score test.
+---
+
+# Adult Income meta-harness (MH)
+
+You do not fit models. You edit the inner pack.
+
+Read traces.jsonl, memory.json, inner SKILL.md, schema.json.
+Need at least 8 new trace rows.
+
+Write, atomically, at most one of:
+- new cards into memory.json
+- a small patch to schema.json
+- a small patch to inner search policy
+
+Hard rules:
+- Do not call score_test
+- Do not add tools
+- Do not train weights
+- Size cap 20 percent
+- One module per visit
+
+Also in that folder: patch.md, size-budget.md.
+
+Old factory files (different job)
+
+Still here from the earlier toy instrument. Not the Adult Income trainer.
+
+/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/foundry.py — hidden-rule machine (CALIBRATE / LOAD / HEAT …)
+
+/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/memory.py — IF/THEN cards + save/load
+
+/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/verifier.py — writes cards from outcomes only
+
+/home/workdir/artifacts/mini-rsi-codelab/mini_rsi/agents.py — RandomActor vs MemoryActor
+
+Those four files are the discarded factory. Keep them as archive. Use the three skill folders above for the real job.
+
+Preview the inner skill file:
+
+SKILL.mdDocument · 1.19 KB
+Download
+
+Preview the meta skill file:
+
+SKILL.mdDocument · 1.10 KB
+Download
+
+These are harness text. They do not yet run fit(). Next step, if you want it, is a small scripts/fit_recipe.py under the inner skill so the loop is executable in one day.
+
+2 / 2
+
+Now generate graph engineering skill for same problem inline with no rsi
+
+Worked for 48s
+
+Regular graph harness. Same Adult Income job. No memory. No meta skill. The DAG is H. Next boot loads the same wires. Path: /home/workdir/.grok/skills/adult-income-graph/
+
+What this pack is. Operators are nodes. Dependencies are edges. One path = one fit. The file does not rewrite itself.
+
+Files
+
+text
+
+CopyCopied
+
+/home/workdir/.grok/skills/adult-income-graph/
+ SKILL.md
+ tools.md
+ graph.json
+ paths.json
+ references/graph-vs-rsi.md
+
+SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income-graph
+description: Graph-engineer a fixed Adult Census Income training DAG and walk a static path list. Use when you want pipeline graph engineering without RSI, without memory.json, and without a meta skill. Triggers include graph engineering, DAG pipeline, Adult Income graph harness, no RSI.
+metadata:
+ type: workflow
+ version: "1.0"
+ rsi: "off"
+---
+
+# Adult Income graph harness (no RSI)
+
+This pack is a regular harness. The graph does not rewrite itself.
+Do not load adult-income or adult-income-meta.
+
+## What graph engineering means here
+- A node is one legal operator (load, encode, scale, model, score_val, score_test).
+- An edge is a hard dependency.
+- A path is one recipe. Walking a path calls fit once.
+- The graph file is H. Next run boots the same graph.
+
+## Procedure
+1. Load splits. Train and val only during search.
+2. Walk baseline path. Record val_auc.
+3. Walk static_paths in order. Stop at 24. Each walk is one fit.
+4. Pick best val path.
+5. FREEZE. score_test once.
+6. Save model.pkl. Write walk_log.jsonl as audit only. Do not feed it back into graph.json.
+7. Stop.
+
+## No RSI
+Do not write memory.json. Do not edit graph.json or paths.json.
+Do not boot adult-income-meta. Do not promote the log into new paths.
+
+graph.json (the DAG)
+
+Nodes: load → {encode_onehot | encode_ordinal} → {scale_yes | scale_no} → {model_logreg | model_rf | model_hgb} → score_val → pick_best → score_test (freeze only).
+
+Constraints in the file: one encode, one scale, one model per path. No cycles. mutable: false.
+
+paths.json
+
+p00_baseline — onehot + scale + logreg C=1, no class weight
+
+p01–p24 — fixed bindings over encode × scale × {logreg, rf, hgb} × a few hparams
+
+Twenty-four walks. Listed order. No new paths at runtime.
+
+tools.md
+
+Allowed: load_splits, walk_path, fit_recipe, score_test after freeze, save_model, write_walk_log.
+
+Forbidden: write_card, read_memory, add_node, add_edge, add_path, edits to the graph files.
+
+Vs the other packs
+
+PackWhat it is
+adult-income-regularflat recipe list, no graph
+adult-income-graphthis one — frozen DAG + static paths
+adult-income + adult-income-metaRSI — memory and patches
+
+Graph engineering here is naming wires. RSI would be cutting or adding wires after traces. This skill does not do that.
+
+Preview:
+
+SKILL.mdDocument · 2.27 KB
+Download
+
+graph.jsonJSON · 1.91 KB
+Download
+
+Inline the files like before
+
+Worked for 8s
+
+All five files. Path root: /home/workdir/.grok/skills/adult-income-graph/
+
+SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income-graph
+description: Graph-engineer a fixed Adult Census Income training DAG and walk a static path list. Use when you want pipeline graph engineering without RSI, without memory.json, and without a meta skill. Triggers include graph engineering, DAG pipeline, Adult Income graph harness, no RSI.
+metadata:
+ type: workflow
+ version: "1.0"
+ rsi: "off"
+---
+
+# Adult Income graph harness (no RSI)
+
+This pack is a regular harness. The graph does not rewrite itself.
+
+Do not load adult-income or adult-income-meta. Those packs are RSI.
+
+## What graph engineering means here
+
+The training job is a DAG, not a free-form script.
+
+- A **node** is one legal operator (load, encode, scale, model, score_val, score_test).
+- An **edge** is a hard dependency (encode before model, score_val before pick_best).
+- A **path** is one recipe. Walking a path calls fit once.
+- The graph file is H. Next run boots the same graph.
+
+This is graph engineering. This is not RSI. Generation n+1 loads the same graph.json.
+
+## Boot
+
+1. This SKILL.md
+2. tools.md
+3. graph.json
+4. paths.json
+
+Do not invent nodes. Do not add edges. Do not grow paths.json.
+
+## Procedure
+
+1. Load splits with load_splits(). Train and val only during search.
+2. Walk the `baseline` path in paths.json. Record val_auc.
+3. Walk each path in `static_paths` in listed order. Stop at 24 walks. Each walk is one fit_recipe.
+4. Pick the path with the best val_auc.
+5. FREEZE. Call score_test once on that path.
+6. Save model.pkl and write walk_log.jsonl as an audit file only. Do not feed the log back into graph.json.
+7. Stop.
+
+## Graph rules
+
+- Walk only paths that are listed and that respect edges in graph.json.
+- Illegal path = skip, count as error, do not invent a substitute path.
+- score_test is a sink node. It has no outgoing edge. Reach it only after FREEZE.
+- class_weight, C, max_depth, learning_rate are node parameters, not new node types.
+
+## No RSI rules
+
+- Do not write memory.json.
+- Do not edit graph.json, paths.json, or this SKILL.md.
+- Do not boot adult-income-meta.
+- Do not promote walk_log.jsonl into new paths.
+- Next run starts from this same text and the same graph.
+
+## Done when
+
+- 24 walks or fewer if paths.json is shorter
+- one test score
+- graph.json unchanged
+
+tools.md
+
+Markdown
+
+CopyCopied
+
+# Tools for adult-income-graph
+
+Allowed:
+
+- load_splits()
+- walk_path(path_id) -> {val_auc, error, nodes_fired}
+- fit_recipe(recipe) -> {val_auc, error}
+ recipe is the parameter binding on a path
+- score_test(path_id) -> {test_auc}
+ only after FREEZE
+- save_model(path)
+- write_walk_log(row)
+ audit only
+
+Forbidden:
+
+- write_card
+- read_memory
+- add_node / add_edge / add_path
+- edit graph.json or paths.json
+- score_test during the 24 walks
+
+graph.json
+
+JSON
+
+CopyCopied
+
+{
+ "name": "adult_income_train_dag",
+ "mutable": false,
+ "metric": "roc_auc",
+ "target": "income_gt_50k",
+ "nodes": [
+ {"id": "load", "op": "load_splits", "params": {}},
+ {"id": "encode_onehot", "op": "encode_categorical", "params": {"kind": "onehot"}},
+ {"id": "encode_ordinal", "op": "encode_categorical", "params": {"kind": "ordinal"}},
+ {"id": "scale_yes", "op": "scale_numeric", "params": {"on": true}},
+ {"id": "scale_no", "op": "scale_numeric", "params": {"on": false}},
+ {"id": "model_logreg", "op": "model", "params": {"name": "logreg", "C": [0.25, 1.0, 4.0], "class_weight": ["none", "balanced"]}},
+ {"id": "model_rf", "op": "model", "params": {"name": "rf", "max_depth": [8, 16, null], "class_weight": ["none", "balanced"]}},
+ {"id": "model_hgb", "op": "model", "params": {"name": "hgb", "learning_rate": [0.05, 0.1, 0.3]}},
+ {"id": "score_val", "op": "score_val", "params": {"metric": "roc_auc"}},
+ {"id": "pick_best", "op": "pick_best", "params": {"by": "val_auc"}},
+ {"id": "score_test", "op": "score_test", "params": {"metric": "roc_auc"}, "gate": "freeze_only"}
+ ],
+ "edges": [
+ ["load", "encode_onehot"],
+ ["load", "encode_ordinal"],
+ ["encode_onehot", "scale_yes"],
+ ["encode_onehot", "scale_no"],
+ ["encode_ordinal", "scale_yes"],
+ ["encode_ordinal", "scale_no"],
+ ["scale_yes", "model_logreg"],
+ ["scale_yes", "model_rf"],
+ ["scale_yes", "model_hgb"],
+ ["scale_no", "model_logreg"],
+ ["scale_no", "model_rf"],
+ ["scale_no", "model_hgb"],
+ ["model_logreg", "score_val"],
+ ["model_rf", "score_val"],
+ ["model_hgb", "score_val"],
+ ["score_val", "pick_best"],
+ ["pick_best", "score_test"]
+ ],
+ "constraints": [
+ "exactly one encode node per path",
+ "exactly one scale node per path",
+ "exactly one model node per path",
+ "score_test only after pick_best and FREEZE",
+ "no cycles"
+ ]
+}
+
+paths.json
+
+JSON
+
+CopyCopied
+
+{
+ "baseline": {
+ "id": "p00_baseline",
+ "nodes": ["load", "encode_onehot", "scale_yes", "model_logreg", "score_val"],
+ "bind": {"C": 1.0, "class_weight": "none"}
+ },
+ "static_paths": [
+ {"id": "p01", "nodes": ["load", "encode_onehot", "scale_yes", "model_logreg", "score_val"], "bind": {"C": 0.25, "class_weight": "none"}},
+ {"id": "p02", "nodes": ["load", "encode_onehot", "scale_yes", "model_logreg", "score_val"], "bind": {"C": 1.0, "class_weight": "balanced"}},
+ {"id": "p03", "nodes": ["load", "encode_onehot", "scale_yes", "model_logreg", "score_val"], "bind": {"C": 4.0, "class_weight": "balanced"}},
+ {"id": "p04", "nodes": ["load", "encode_onehot", "scale_no", "model_logreg", "score_val"], "bind": {"C": 1.0, "class_weight": "balanced"}},
+ {"id": "p05", "nodes": ["load", "encode_ordinal", "scale_yes", "model_logreg", "score_val"], "bind": {"C": 1.0, "class_weight": "balanced"}},
+ {"id": "p06", "nodes": ["load", "encode_onehot", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": 8, "class_weight": "none"}},
+ {"id": "p07", "nodes": ["load", "encode_onehot", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": 16, "class_weight": "none"}},
+ {"id": "p08", "nodes": ["load", "encode_onehot", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": 8, "class_weight": "balanced"}},
+ {"id": "p09", "nodes": ["load", "encode_onehot", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": 16, "class_weight": "balanced"}},
+ {"id": "p10", "nodes": ["load", "encode_onehot", "scale_no", "model_rf", "score_val"], "bind": {"max_depth": 16, "class_weight": "balanced"}},
+ {"id": "p11", "nodes": ["load", "encode_ordinal", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": 16, "class_weight": "balanced"}},
+ {"id": "p12", "nodes": ["load", "encode_onehot", "scale_yes", "model_rf", "score_val"], "bind": {"max_depth": null, "class_weight": "balanced"}},
+ {"id": "p13", "nodes": ["load", "encode_onehot", "scale_yes", "model_hgb", "score_val"], "bind": {"learning_rate": 0.05}},
+ {"id": "p14", "nodes": ["load", "encode_onehot", "scale_yes", "model_hgb", "score_val"], "bind": {"learning_rate": 0.1}},
+ {"id": "p15", "nodes": ["load", "encode_onehot", "scale_yes", "model_hgb", "score_val"], "bind": {"learning_rate": 0.3}},
+ {"id": "p16", "nodes": ["load", "encode_onehot", "scale_no", "model_hgb", "score_val"], "bind": {"learning_rate": 0.1}},
+ {"id": "p17", "nodes": ["load", "encode_ordinal", "scale_yes", "model_hgb", "score_val"], "bind": {"learning_rate": 0.1}},
+ {"id": "p18", "nodes": ["load", "encode_ordinal", "scale_no", "model_hgb", "score_val"], "bind": {"learning_rate": 0.1}},
+ {"id": "p19", "nodes": ["load", "encode_onehot", "scale_yes", "model_logreg", "score_val"], "bind": {"C": 0.25, "class_weight": "balanced"}},
+ {"id": "p20", "nodes": ["load", "encode_ordinal", "scale_no", "model_logreg", "score_val"], "bind": {"C": 1.0, "class_weight": "none"}},
+ {"id": "p21", "nodes": ["load", "encode_onehot", "scale_no", "model_rf", "score_val"], "bind": {"max_depth": 8, "class_weight": "none"}},
+ {"id": "p22", "nodes": ["load", "encode_ordinal", "scale_no", "model_rf", "score_val"], "bind": {"max_depth": 8, "class_weight": "balanced"}},
+ {"id": "p23", "nodes": ["load", "encode_onehot", "scale_no", "model_hgb", "score_val"], "bind": {"learning_rate": 0.05}},
+ {"id": "p24", "nodes": ["load", "encode_ordinal", "scale_yes", "model_hgb", "score_val"], "bind": {"learning_rate": 0.3}}
+ ]
+}
+
+references/graph-vs-rsi.md
+
+Markdown
+
+CopyCopied
+
+# Graph engineering vs RSI (this pack)
+
+Graph engineering = name the operators and the legal wires. Then walk listed paths.
+
+RSI = after the walks, write a file that changes the next walk policy or the graph itself.
+
+This pack stops at the walks. walk_log.jsonl is an audit tape. It is not an input to the next boot.
+
+| Piece | This pack | RSI packs |
+|---|---|---|
+| graph.json | frozen | meta may patch |
+| paths.json | static 24 | memory may bias next path |
+| memory.json | absent | present |
+| adult-income-meta | not loaded | outer loop |
+| Next boot | same DAG | DAG or policy may change |
+
+Previews:
+
+SKILL.mdDocument · 2.27 KB
+Download
+
+tools.mdDocument · 445.00 B
+Download
+
+graph.jsonJSON · 1.91 KB
+Download
+
+paths.jsonJSON · 3.54 KB
+Download
+
+graph-vs-rsi.mdDocument · 597.00 B
+Download
+
+Now implement loop engineering only skill no rsi for same problem
+
+Worked for 37s
+
+Loop engineering only. Same job. No RSI. Path: /home/workdir/.grok/skills/adult-income-loop/
+
+The object that is H is loop.json — the counted while, not a graph and not a memory file.
+
+SKILL.md
+
+Markdown
+
+CopyCopied
+
+---
+name: adult-income-loop
+description: Run a fixed Adult Census Income inner training loop with a counted budget and a freeze gate. Use when you want loop engineering only, no RSI, no memory.json, no meta skill, and no graph rewrite. Triggers include loop engineering, inner loop harness, trial loop, Adult Income loop, no RSI.
+metadata:
+ type: workflow
+ version: "1.0"
+ rsi: "off"
+---
+
+# Adult Income loop harness (no RSI)
+
+This pack engineers the **inner loop only**. The loop text does not rewrite itself.
+
+Do not load adult-income, adult-income-meta, or adult-income-graph as a writer.
+
+## What loop engineering means here
+
+A loop is a repeating control block with a budget and a gate.
+
+boot
+t = 1
+while t <= N:
+ propose recipe from the static list at index t
+ fit on train
+ score val
+ append audit row
+ t = t + 1
+FREEZE
+score_test(best_val_recipe) once
+stop
+
+Loop engineering names those steps, the counter, and the freeze.
+It does not change how the next generation loops.
+
+## Boot
+
+1. This SKILL.md
+2. tools.md
+3. loop.json
+4. recipes.json
+
+## Procedure
+
+1. load_splits(). Train and val only while the loop is open.
+2. Read N and the recipe list.
+3. Run the while-loop in loop.json exactly. One iteration = one fit.
+4. Keep a running best_val. Do not look at test.
+5. When the loop exits, set FREEZE=true.
+6. score_test(best_val_recipe) once.
+7. Write loop_log.jsonl as audit only. Do not feed it back into recipes.json or loop.json.
+8. Stop.
+
+## Loop rules
+
+- N is 24. Do not raise N.
+- Iteration order is recipes.json order. Do not reorder.
+- An error still spends t.
+- score_test is illegal while FREEZE is false.
+- No nested search.
+
+## No RSI rules
+
+- Do not write memory.json.
+- Do not change N or the while condition after boot.
+- Do not boot adult-income-meta.
+- Next run boots this same loop.json.
+
+tools.md
+
+Markdown
+
+CopyCopied
+
+# Tools for adult-income-loop
+
+Allowed:
+
+- load_splits()
+- fit_recipe(recipe) -> {val_auc, error}
+- score_test(recipe) -> {test_auc}
+ only after FREEZE
+- save_model(path)
+- write_loop_log(row)
+ audit only
+
+Forbidden:
+
+- write_card
+- read_memory
+- set_N / edit loop.json / edit recipes.json
+- score_test while FREEZE is false
+- extra fits beyond N
+- nested search loops
+
+loop.json
+
+JSON
+
+CopyCopied
+
+{
+ "name": "adult_income_inner_loop",
+ "mutable": false,
+ "kind": "counted_while",
+ "N": 24,
+ "counter": "t",
+ "start": 1,
+ "condition": "t <= N",
+ "increment": 1,
+ "retry_same": false,
+ "skip_on_error": true,
+ "error_still_counts": true,
+ "body": [
+ "recipe = recipes.json.static_list[t]",
+ "result = fit_recipe(recipe)",
+ "append loop_log.jsonl {t, recipe, val_auc, error}",
+ "if result.val_auc is better than best_val then best_val_recipe = recipe"
+ ],
+ "exit": [
+ "FREEZE = true",
+ "score_test(best_val_recipe) once",
+ "save_model(model.pkl)",
+ "stop"
+ ],
+ "illegal": [
+ "change N",
+ "reorder recipes",
+ "open a second while",
+ "score_test before FREEZE",
+ "write memory.json"
+ ]
+}
+
+recipes.json
+
+Same 24 bindings as the graph pack, indexed by loop counter 1..24. Baseline is r00 (onehot, scale, logreg, C=1, no class weight). Full file on disk.
+
+references/loop-vs-graph-vs-rsi.md
+
+Markdown
+
+CopyCopied
+
+# Loop vs graph vs RSI
+
+Loop engineering = name the counter, the body, the freeze. Then run that clock.
+Graph engineering = name nodes and edges. Then walk listed paths.
+Regular list harness = run recipes with no explicit clock object.
+RSI = after the clock stops, write a file that changes the next clock, graph, or proposal rule.
+
+This pack owns loop.json only.
+
+| Pack | Object that is H | Next boot |
+|---|---|---|
+| adult-income-regular | static recipe list | same list |
+| adult-income-graph | frozen DAG | same DAG |
+| adult-income-loop | frozen while-loop | same loop.json |
+| adult-income + meta | memory + patches | changed M or H |
+
+Previews:
+
+SKILL.mdDocument · 2.29 KB
+Download
+
+tools.mdDocument · 371.00 B
+Download
+
+loop.jsonJSON · 742.00 B
+Download
+
+recipes.jsonJSON · 3.37 KB
+Download
+
+loop-vs-graph-vs-rsi.mdDocument · 723.00 B
+Download
+
+Accomplishment. You can point at loop.json and say that is the harness. Delete it and there is no clock. That is loop engineering. It is not RSI, because the next boot loads the same clock.
+
+Where is the dataset I can use
+
+Worked for 20s
+
+The dataset is not inside the skill folders. Those packs only name the job. You load Adult Census Income from a public repo at run time.
+
+Use OpenML 1590 through sklearn. That is the copy the lab should pin.⁠Scikit-learn
+
+Python
+
+CopyCopied
+
+from sklearn.datasets import fetch_openml
+
+adult = fetch_openml("adult", version=2, as_frame=True)
+X = adult.data
+y = (adult.target.astype(str).str.strip() == ">50K").astype(int)
+
+data_id=1590 is the same table if you prefer an ID. About 48,842 rows, 14 features, target class / income >50K vs <=50K. Mixed numeric and categorical. That is why the graph has encode + scale nodes.⁠GitHub
+
+Other copies (same problem)
+
+SourceURLWhen to use
+OpenML pagehttps://www.openml.org/d/1590Canonical ID for the skill
+UCI Adulthttps://archive.ics.uci.edu/dataset/2/adultOriginal files adult.data + adult.test, CC BY 4.0
+Hugging Facehttps://huggingface.co/datasets/scikit-learn/adult-census-incomeCSV if you do not want OpenML
+Fairlearn / AIF360 fetch_adultwraps OpenML 1590Only if you already use those libs
+
+UCI raw files:
+
+https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+
+https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test
+
+Do not use UCI’s pre-split as your locked test unless you rebuild splits yourself. The skills say: you create train / val / test, then lock test. A common pattern:
+
+Python
+
+CopyCopied
+
+from sklearn.model_selection import train_test_split
+
+X_tv, X_test, y_tv, y_test = train_test_split(
+ X, y, test_size=0.2, stratify=y, random_state=42
+)
+X_train, X_val, y_train, y_val = train_test_split(
+ X_tv, y_tv, test_size=0.25, stratify=y_tv, random_state=42
+)
+# 60 / 20 / 20. Test stays untouched until FREEZE.
+
+What is already on disk
+
+text
+
+CopyCopied
+
+/home/workdir/.grok/skills/adult-income-*/ # harness text only
+# no adult.data, no parquet, no csv
+
+load_splits() in tools.md is a contract, not a file. Implement it with the fetch_openml block above.
+
+If OpenML is blocked in Colab, fall back to the Hugging Face CSV or the two UCI URLs. Pin one source and do not mix them mid-run. The target column name differs (class vs income). Normalize it to a 0/1 income_gt_50k before the first fit.
+
+8 sources
+
+lets get to first principles and explain rsi properly - i got confused with https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement and the various rsi papers that got released and this paper https://arxiv.org/html/2609.11873v2 - help me navigate and understand this space properly please.
+
+Worked for 35s
+
+First principle first. Then the map. Then each paper. Then why they talk past each other.
+
+1. First principle
+
+Classical RSI (Good, Schmidhuber’s Gödel machine) is not “the model got better.” It is this sentence:
+
+The system writes a change. The next improvement cycle loads that change. The change is part of the improver, not only of the solution. Delete it and later improvement gets worse.
+
+Three different verbs keep getting sold as RSI:
+
+VerbWhat happenedRSI?
+RefineRewrite this answer. Throw it away.No. Episode scratch.
+ImproveBetter score on task X.Maybe. Only if the better method persists.
+RecurseThe improver is an input to the next improver.This is the word that matters.
+
+If generation n+1 boots the same files as generation n, you have a harness. You do not have RSI.
+
+That is the off-switch test we used on the Adult Income skills: delete memory.json / the patched SKILL.md. If nothing changes, it was never RSI.
+
+2. What can actually recurse
+
+Call the intern W (weights). Around it sit four writable objects:
+
+M — memory, skills, cards
+
+P — search / exploration policy
+
+H — harness (loop, tools, prompts, verifier)
+
+W — the intern itself
+
+Every 2026 paper updates a different subset and still titles it RSI.
+
+SystemUpdatesFrozenRecursion depth
+Reflexion / self-refinenothing durableallB0
+RSIAgent-style memoryMW, Hbounded
+Dream-RSIP via replay of old treesW, coding agentbounded, cheap
+ModularRSIH modulesWbounded, transferable
+Weco AIDE²H of the inner research agentW (Gemini/Claude)their Level 1
+ScienceBuddyH then W—nested (“recursive-in-recursive”)
+Darwin / Red Queen Gödelagent code ± evaluatorvariescloser to meta
+Good / explosion talkW + H + eval + compute allocationnothingnot demonstrated
+
+Same slogan. Different files.
+
+3. The two ladders (they are not the same)
+
+Weco ladder (efficiency vs humans, July 2026):
+
+L0 delegation — loop runs, slower than humans
+
+L1 net positive — faster than hand-tuning, held-out transfer, fixed budget
+
+L2 ignition — the new inner agent is a better outer agent
+
+L3 inflection — progress accelerates at fixed budget
+
+They grade AIDE² as L1. Their own ignition test failed. An evolved inner agent was not a reliably better outer improver.⁠Weco
+
+Survey ladder in The Last AI Built by Humans (arXiv 2609.11873, Sep 10/15 2026):
+
+L1 execute a human improvement recipe
+
+L2 choose which improvement strategy
+
+L3 choose what experience to collect
+
+L4 adapt in deployment
+
+L5 rewrite the improvement mechanism itself
+
+This paper is a roadmap and catalog, not a new experiment that beats Weco. Its definition is:
+
+an autonomous closed loop that finds its limits, validates a change, and uses the new capability to improve the improvement process.⁠arXiv
+
+Weco L1 ≈ survey L2/L5-bounded (harness rewrite under a human eval).
+
+Weco L2 ≈ survey “genuine” L5 plus compounding.
+
+Neither is I.J. Good’s explosion.
+
+4. What each artifact actually showed
+
+Weco AIDE² — “first evidence”
+
+Blog
+
+Outer loop rewrites the inner research agent’s code. Inner loop does ML / heuristics / harness tasks under a dollar budget. Selection uses a private score the inner agent cannot see. 100 outer steps, 8 days, no human in the loop. Weights frozen. Best descendants beat two years of hand-tuned AIDE on held-out benches and hacked less (63% → 34% on their kernel-hacking probe).
+
+Read it as: meta-optimization of H, Level 1, good private-holdout hygiene.
+
+Do not read it as: the model became a better scientist at being a scientist. They tested that and did not get it.⁠Weco
+
+2609.11873 — the survey you linked
+
+HTML
+
+Job of this paper: give language (HCI headroom, L1–L5, inheritance, verifier stays human). It stitches industrial anecdotes (OpenAI research agents, DGM, AIDE², A-Evolve, Ouroboros) into one map. It does not produce a new champion system.
+
+Use it as a dictionary. Do not use it as proof that “genuine RSI” exists. The authors say genuine recursion is still blocked by inheritance, attribution, and verification.⁠arXiv
+
+Dream-RSI (2609.14858, Google / DeepMind)
+
+Updates P only. Past discovery trees become a replay gym. New search policies are scored offline. Winner is deployed. The coding model does not change. Cost drops because you stop re-paying for searches you already ran.⁠arXiv
+
+This is the “dream” knob in the Adult Income lab: rank tactics on traces.jsonl with zero new fit().
+
+ModularRSI (2609.14857)
+
+Updates H in five modules (loop, tools, observations, context, done-detector). Contrast win vs fail traces. Transfer the new harness across models. Weights frozen.⁠arXiv
+
+ScienceBuddy
+
+Inner loop evolves H with W frozen. Outer loop then trains W under that H. That is the only mainstream 2026 design that is explicitly nested. Still not an explosion: humans own the workspace and the science goals.
+
+Gödel-family (DGM, RQGM)
+
+Closest in spirit to Schmidhuber: the unit of change is the agent’s own code, sometimes the evaluator too. Powerful and unsafe if the judge co-evolves without a frozen holdout. Different paper, different risk.
+
+5. Why you got confused
+
+Four collisions:
+
+Title inflation. “First evidence of RSI” = first public, budgeted, held-out harness-search that beat a 2-year human baseline. Not first self-modifying program. Not ignition.
+
+Two ladders. Weco grades economic efficiency vs humans. The survey grades who holds which decision. A system can be survey-L5 (it rewrites H) and Weco-L1 (that rewrite does not make a better rewriter).
+
+“Self” is ambiguous. Self-refine, self-play, self-organize, emergence, AutoML, continual learning, meta-learning — none are RSI unless the improver is reused. The six-slide term sheet from earlier in this thread still holds.
+
+Papers in the same week optimize different files. Dream = P. Modular = H modules. Memory agents = M. ScienceBuddy = H then W. Weco = H of an R&D agent. Survey = taxonomy over all of them.
+
+6. A reading order that does not lie to you
+
+Schmidhuber Gödel machine (theory of proven self-change).
+
+Weco “4 Levels” post, then AIDE². Believe their L1. Discount their title.
+
+2609.11873 as a map, not a result.
+
+Dream-RSI and ModularRSI as clean single-knob papers.
+
+ScienceBuddy only after you can draw inner vs outer on paper.
+
+Economics paper 2609.15802 if you care whether the product of loop elasticities can explode. Their back-of-envelope: not yet. Need ~15% R&D productivity per capability unit.⁠arXiv
+
+7. How this maps to the skills on disk
+
+SkillKnobRSI?
+adult-income-regularstatic listno
+adult-income-graphfrozen DAGno — graph engineering
+adult-income-loopfrozen whileno — loop engineering
+adult-income + memory.jsonMbounded RSI of memory
+adult-income-metaH patchesbounded RSI of harness
+Weco / Modular / DreamH or Pbounded RSI
+ScienceBuddy outerWstart of strong RSI
+
+Engineering the graph or the loop is how you write H. RSI starts only when a later boot loads a changed H, P, or M.
+
+One sentence to keep.
+
+RSI is not a model name. It is whether tomorrow’s improver is a file that yesterday’s improver wrote — and whether deleting that file makes tomorrow worse. Weco showed that for a research harness, under a budget, against a human baseline. The survey named the rest of the stack. Nobody has shown ignition.
+
+23 sources
+
+Expert
+
+Recursive Self-Improvement AI Agents - Grok

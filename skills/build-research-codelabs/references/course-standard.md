@@ -1,0 +1,120 @@
+# Course standard
+
+Read this when starting or substantially revising a course. These requirements capture the user's reusable guidance. Apply them to the chosen subject rather than copying an unrelated course's structure.
+
+## Teaching outcome
+
+Combine careful research with expert teaching. Aim for a masterclass whose explanations are simple enough for a newcomer to the subject and precise enough for an advanced student. “Zero to hero” means a gradual path from the stated starting knowledge to independent practice, not exaggerated claims of expertise after following instructions.
+
+Build lasting intuition. For each lab, identify:
+
+- The problem students can already understand.
+- The one new idea that solves or clarifies it.
+- A prediction students make before the run.
+- The observation that tests that prediction.
+- A misconception or boundary case.
+- A question that transfers the idea to a new setting.
+
+Use a continuing task where it helps students see the effect of each change. Do not force one analogy or dataset onto mechanisms it cannot show. Introduce new task families with a clear reason and a prerequisite bridge.
+
+## Structure and navigation
+
+Use classic Google Codelabs principles: explicit outcomes, prerequisites, steps, observable results, and gradual progress. Organize an extensive course into themed directories with short local lessons. Do not put all labs into one long directory.
+
+The main README explains the subject, why it matters, what the student will build, the assumed knowledge, the task and resources, the role of the coding agent, the learning path, and how to begin. Include an illustrated course map and useful routes for self-study or teaching. Keep full lesson content in its lesson.
+
+Each theme README explains what students can already do, the new problem, the sequence, and the reason to continue. Every lab links to its theme, prerequisites, previous lesson, and next lesson. A learner opening a lab directly must know how to get the right starting state.
+
+Preserve repository integration. Update navigation and test discovery when moving lessons. Keep a migration map and useful history. Avoid unrelated changes to other course series.
+
+## Each lab README
+
+Use descriptive headings. The following content is required; adjacent sections may be combined when that improves readability.
+
+| Section | Required content |
+|---|---|
+| What you will build | A tangible input/output example, the new idea, and one or two observable outcomes |
+| Why this matters | The problem with the previous approach and the reason for this lesson |
+| Before you start | Prerequisites, exact starting files, supported capabilities, setup, time and resource needs, and budget |
+| How it works | A simple mechanism explanation, defined terms, a worked example, and an original illustration |
+| Run the lab | Where to open the agent, which folder to use, complete copyable prompts, and ordered actions |
+| Check your result | Which outputs to open, expected observations, meaningful checks, and limits of the result |
+| Try one change | A prediction, a controlled intervention, and a comparison that tests understanding |
+| If something goes wrong | Common symptoms, diagnosis, recovery, stop, resume, and reset instructions |
+| Key takeaways | Three to five concrete principles tied to what the learner observed, including a limit |
+| Check your understanding | A quiz, hints, and explained answers |
+| What's next | The remaining problem, why the next mechanism helps, and a direct link |
+
+Each run step pairs an action with its purpose, expected observation, and recovery path. Give an actual skill entry point, starting state, and check. Do not say only “run the skill.” Distinguish illustrative output from a student's measured result.
+
+Do not let the tutor agent finish the entire lab before the student has observed anything. It guides one step at a time, offers escalating hints, and waits for the student's interpretation at useful points. Learners can reveal answers or continue; record skipped checks honestly.
+
+## Skills as the interface
+
+Students communicate through ordinary language and readable Markdown. They invoke skills and tools. The coding agent writes Python or other code, JSON, YAML, schemas, setup commands, and backend launch files as needed. Do not make students type machine configuration to complete the course.
+
+Explain the distinction between the model, coding agent, skill instructions, generated tools, harness, and evaluator when relevant. Loading a skill does not guarantee a restriction is enforced. Inspectable instructions and observed execution are different evidence.
+
+Use one canonical skill source. Generate or maintain adapters for agent-specific discovery and integration. Provide a file-reading fallback where possible. Test claimed support in the actual agent and state the versions. Do not promise that every agent supports the same hooks, isolation, or tools.
+
+## A meaningful task at an affordable scale
+
+Choose an authentic task that suits the subject and audience. For advanced AI/ML teaching, use genuine ML experiments when they expose the mechanism better than a document example. Regression, classification, small generative models, or low-dimensional learning problems may fit different subjects.
+
+Each required lab must have a laptop-sized path. Use small data, short jobs, bounded searches, and available CPU or modest hardware. Declare hosted-model usage and its costs. Do not require foundation-model training to understand a basic concept.
+
+Preserve a path to larger experiments. Separate the scientific task and evaluation contract from the compute backend. Keep readable instructions when moving from CPU to GPU or a cluster; let the agent generate configuration. Include checkpoints, resumption, cancellation, failed-job logs, limits, and cost accounting. Distinguish tested backends from proposed ones.
+
+Scaling must preserve the scientific question or explicitly declare a new one. More trials, larger data, a different model, or more compute can change the comparison. Give competing methods comparable resources when claiming a method improvement.
+
+## Data science and experiment design
+
+For ML subjects, show the full process rather than beginning at an optimizer call:
+
+1. Frame the problem, prediction or generation target, input availability, and success criterion.
+2. Acquire and document data, permissions, provenance, version, schema, and units.
+3. Inspect distributions, missingness, duplicates, imbalance, time or group structure, and data limitations.
+4. Design splits or comparisons before search. Prevent leakage and fit preprocessing on training data only.
+5. Build a simple baseline and explain what beating it would mean.
+6. Make a hypothesis, change one factor where practical, run within a budget, and keep all outcomes.
+7. Analyze errors, slices, uncertainty, and resource use.
+8. Evaluate on protected final cases and appropriate transfer cases.
+9. Package the result with its data assumptions, transforms, model, and reproduction instructions.
+
+Introduce these gradually. Use readable reports and proper plots. Do not force statistical detail before the learner has an observation that needs it. Do not pretend a single seed or one small holdout proves a broad claim.
+
+## Writing
+
+Use ASD-STE100 as the writing reference. Verify the applicable edition if claiming formal conformance. Apply short sentences, active voice, clear conditions, consistent terms, and a controlled technical glossary. Avoid a formal compliance claim without the required language review.
+
+Write natural, respectful prose. Use concrete nouns and direct verbs. Explain the example before the abstract term. Define acronyms. Keep paragraphs short and connected. Use one action per instruction. Do not make students infer a missing step.
+
+Avoid marketing language, filler, forced enthusiasm, repetitive conclusions, artificial question-and-answer slogans, decorative headings, badges, and generated author or tool footers. Do not call a difficult concept obvious. Do not imitate a named teacher's personal voice; aim for the clarity and patient reasoning the user admires.
+
+A takeaway explains a mechanism: “A retry helps when it receives useful new information.” A weak takeaway merely names the topic: “You learned loops.” A next-step section identifies a remaining limitation, so progression feels necessary.
+
+Read representative lessons aloud. Check that students can explain them in their own words. Automated readability scores cannot replace an editorial review.
+
+## Illustrations
+
+The saved preference is **Imagen 2.5**, a white background, professional composition, and rich but readable detail. Verify access to the requested generator. If unavailable, state the precise gap and preserve the requirement. Do not silently use another model while claiming compliance.
+
+Every image has a teaching purpose. It should show the main idea at a glance and reward closer reading. Use a clear hierarchy, consistent colors and shapes, readable labels, meaningful arrows, and enough space. Highlight the new mechanism in an evolving diagram. Dense does not mean crowded.
+
+Show data flow, control flow, mutable and fixed components, feedback, and boundaries where those distinctions matter. Avoid decorative imagery that hides the mechanism. Use panels for a complex overview and focused figures for individual steps.
+
+Review spelling, labels, arrows, missing stages, duplicated elements, scale, and scientific claims. Keep generation prompts, source assets, revisions, and review notes in provenance. Embed locally stored assets in Markdown with captions and alt text. Verify GitHub rendering and normal-size legibility. Preserve white backgrounds even when the viewer uses dark mode.
+
+Draw measured charts from real data with plotting tools. Mark schematic curves as schematic. Do not use image generation to manufacture empirical evidence. Check source licensing before reusing a paper figure; prefer original explanatory illustrations with citations.
+
+## Assessment
+
+Every codelab ends with a quiz, normally four to six short questions, followed by “What's next.” Adjust length to the lab. Test recognition, interpretation of the student's result, a changed condition, and an explanation in the student's own words. Use debugging or transfer questions when useful.
+
+Explain why each answer is correct and why plausible alternatives fail. Provide hints before revealing answers. Avoid trivia about filenames, JSON keys, syntax, or authors. Keep assessment separate from runtime tests. Revisit concepts across themes and require a final teach-back.
+
+## Acceptance
+
+The complete course needs accurate sources, a coherent learning path, working activities, verified instructions, useful illustrations, assessment, transfer, and an honest record of what was tested. Review teaching quality, research accuracy, visual quality, and runtime behavior as separate concerns.
+
+No guaranteed improvement, fabricated transcripts, invented citations, or untested compatibility claims. Report failed experiments as useful outcomes when students can interpret them. Keep all intermediate and final project artifacts in the authorized provenance record.

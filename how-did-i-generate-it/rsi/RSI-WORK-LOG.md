@@ -8,7 +8,7 @@ This log records completed actions, findings, decisions, and next steps. It is a
 |---|---|---|
 | 1 | Captured the user's course objective and constraints | Plan first; implementation follows review. Students use skills and natural language. |
 | 2 | Cloned `dlmastery/simple-coding-harness` locally | Initial inspected revision: `eed9cbbdf19c665ae54646253f303be85030798c`. |
-| 3 | Decoded the user-provided MHTML transcript locally | Used it to identify claims to check. The transcript is not an authority and is not included in these records. |
+| 3 | Decoded the user-provided MHTML transcript locally | Used it to identify claims to check. Raw browser files remain local; a later step archives redacted text. |
 | 4 | Inspected the RSI tree, README, skills, hooks, and validation discovery | Found 18 flat lesson directories, a 2,576-line README, duplicated skills, and tests tied to the old directory pattern. |
 | 5 | Examined evaluation and execution claims | Identified gaps between role instructions and actual isolation, broad hook checks, and tests that check wording rather than live behavior. |
 | 6 | Drafted a themed course plan | Established the progression through processes, loops, graphs, ontology, system intelligence, meta-harnesses, self-* concepts, and RSI. |
@@ -21,6 +21,12 @@ This log records completed actions, findings, decisions, and next steps. It is a
 | 13 | Added a path to larger compute | Kept laptop defaults while defining compute adapters, budgets, resumption, and evaluation rules for future GPU or cluster jobs. |
 | 14 | Recorded the illustration brief | Imagen 2.5 requested; white backgrounds and rich, readable technical illustration. Exact generator access remains unresolved. |
 | 15 | Prepared durable planning records | Master plan, research inventory, steering/restart notes, and this work log are ready for a GitHub checkpoint. |
+| 16 | Pushed and verified the first checkpoint | Commit `7f6bbd61eb029a307b38525e00beadc57d3535dc` exists on `codex/rsi-masterclass-rebuild`; the remote hash matched the local hash. |
+| 17 | Added intermediate provenance | Saved search notes, claim corrections, source hashes, a redacted transcript, the redaction script, and an artifact index. Recorded missing earlier drafts and extraction-command history as gaps. |
+| 18 | Created the reusable course-building skill | Full instructions, five references, and agent metadata are versioned under `skills/build-research-codelabs/`. A coverage table maps all user guidance. |
+| 19 | Validated the skill and documentation | The skill validator passed after supplying its missing PyYAML dependency. The link checker found a validation file that had not yet been written; the record was added for the next check. |
+| 20 | Rechecked links and installed the skill | All 85 local links across 17 Markdown files resolved. All seven installed skill files matched repository hashes; the installed package passed the validator. |
+| 21 | Checked the redacted source | Output hash matched the manifest. No email addresses or original forwarded-message identifiers remained under the applied checks. |
 
 ## Why the plan changed
 
@@ -38,7 +44,7 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 The repository inspection supports the findings in the master plan. It does not establish that every current lab was executed or that every defect has been found.
 
-The research inventory distinguishes metadata checks from method inspection. No selected paper has been reproduced here. No course code, live lab, illustration, or cluster adapter has been built. The source transcript remains local.
+The research inventory distinguishes metadata checks from method inspection. No selected paper has been reproduced here. No course code, live lab, illustration, or cluster adapter has been built. The raw source remains local; its redacted text derivative is archived with a clear unverified-source notice.
 
 An original X post returned HTTP 403. The linked official benchmark page was accessible. No new Meta/FAIR post-only result in the target month was verified in this pass. These limits are recorded in the inventory.
 
@@ -56,8 +62,8 @@ Implementation checkpoints should include relevant runtime evidence and failures
 
 ## Next steps
 
-1. Finish the planning checkpoint and verify it on GitHub.
-2. Present the revised plan for the user's review.
+1. Push and verify the second checkpoint containing the full skill and intermediate provenance.
+2. Present the skill and revised plan for the user's review.
 3. After approval, complete the remaining source and repository audit.
 4. Build representative onboarding, ML loop, ontology, and recursion lessons before expanding the pattern.
 5. Validate the laptop path and the declared agent adapters. Record actual resource use.

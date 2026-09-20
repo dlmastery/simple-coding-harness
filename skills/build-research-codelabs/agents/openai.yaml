@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Codelabs"
+  short_description: "Build clear, illustrated technical masterclasses"
+  default_prompt: "Use $build-research-codelabs to plan a progressive masterclass on my topic with recent research, agent-run experiments, illustrations, quizzes, and full provenance."
