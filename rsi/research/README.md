@@ -31,6 +31,9 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396) | 6 Sep; v2 9 Sep | Composition and scheduler inheritance |
 | [HarnessEvolve](https://arxiv.org/abs/2609.00829) | 1 Sep | Checked references, leakage gates, regression checks |
 | [Economics of RSI](https://arxiv.org/abs/2609.15802) | 14 Sep | Bottlenecks and rate claims |
+| [Negative Self-Distillation](https://arxiv.org/abs/2609.11699) | 10 Sep | Optional contrast: parameter learning versus external skill changes |
+| [ADMET-EvO](https://arxiv.org/abs/2609.10121) | 9 Sep; v2 10 Sep | Optional contrast: task meaning, controlled interventions, and evidence authority |
+| [SafeEvolve](https://arxiv.org/abs/2609.02786) | 2 Sep | Optional contrast: coupled harness/policy updates under a fixed coordinating procedure |
 
 AIDE² ([Weco, 14 July 2026](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement)), [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297) (6 July), and [HyperAgents](https://ai.meta.com/research/publications/hyperagents/) (March) are explicit older foundations. They are not counted as current-month releases.
 
@@ -50,3 +53,5 @@ The studio identifies its mode before the action. Large-model training is option
 Original author threads, including Meta/FAIR posts, are part of discovery. Record identity, canonical link, date, complete relevant context, and linked evidence. One canonical Vals X post was inaccessible during the sweep; its official benchmark page was available. No verified new Meta/FAIR social-only result was found in that pass. This is an access and search record, not proof that none exists.
 
 The [implementation record](../../how-did-i-generate-it/rsi/IMPLEMENTATION-RECORD.md) records later additions and corrections. Read primary methods before treating a new headline as an established mechanism or result.
+
+The [method-reading notes](../../how-did-i-generate-it/rsi/research/2026-09-20-METHOD-NOTES.md) give the exact inspected sections and teaching limits for the optional contrasts. For each, identify the mutable object, the fixed evaluator, and what the next round actually inherits. These reading comparisons require no large-model training.

@@ -23,3 +23,17 @@ The date-filtered social search did not verify a new Meta/FAIR post-only result.
 ## SQL-Zero
 
 [Version 1](https://arxiv.org/html/2609.04697v1), submitted 4 September. Authors: Daniel Machado Pedrozo, Julia Soares Dollis, Bryan Lincoln Marques de Oliveira, Vinicius Alboneti Aguiar, Sávio Salvarino Teles de Oliveira, and Telma Woerle de Lima Soares; Universidade Federal de Goiás. Sections 3–6 inspected. Caveats include single training runs, unequal gold-control update budgets, unresolved paired margins, and degraded later 7B transfer. Code was not run. Teaching consequence: lab 07.07 must label its untrained role exchange as an analogy.
+
+## Negative Self-Distillation
+
+[Version 1](https://arxiv.org/html/2609.11699v1), sections 2–3 and the main-result table inspected. The student receives parameter updates; two teacher contexts use frozen initial weights. A generated negative condition changes one teacher's input. A probability-difference gate targets the bounded unlikelihood penalty. The reference term is evaluated at sampled tokens; do not present it as an exact full-vocabulary KL computation. The complete estimator and implementation were not audited. Course consequence: this is a weight-learning contrast for 07.03, not evidence that editing Markdown trains the coding agent or that its improvement algorithm rewrites itself. No training or reported result was reproduced.
+
+## ADMET-EvO
+
+[Version 2](https://arxiv.org/html/2609.10121v2), sections 2.1 and 3.1–3.4, plus selected evaluation descriptions inspected. The language model proposes actions. Deterministic components execute, judge, and update evidence; the proposer cannot redefine those verdicts. Data, feature, and model interventions are separated. Failed and inconclusive outcomes remain in the record. The expanded-task figure explicitly contains positive cases, so it cannot alone establish the success rate of all discovered tasks. Course consequence: connect endpoint meaning to ontology checks and preserve unsuccessful search history. Do not infer an inherited revision of the improvement algorithm from the title. Supplementary data, code, and full statistical claims remain unaudited.
+
+## SafeEvolve
+
+[Version 1](https://arxiv.org/html/2609.02786v1), selected methods 3.1–3.4 and Appendix D inspected. Bounded prompt or skill edits are checked in paired comparisons while the policy is frozen. Separate supervised and reinforcement-learning stages update policy weights. Appendix D explicitly leaves evolving the coordinating meta-strategy to future work; its current search and update schedules are fixed. Course consequence: use this as a contrast beside ScienceBuddy, separating coupled component updates from a revised improvement procedure inherited by later rounds. The entire evaluator, benchmark suite, and training implementation were not audited or reproduced. A classroom skill edit does not execute those weight updates.
+
+These three sources were already inside the dated inventory. This pass opened their primary full texts; it did not add new discovery queries or change the paper count. Reading status now reflects the selected sections above, not a claim that every appendix has been read.
