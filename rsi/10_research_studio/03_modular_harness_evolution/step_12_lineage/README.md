@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 For every edge, ask which artifact changed and who produced the change. Then ask whether an altered improvement operator is inherited and used. Do not infer improver evolution merely from a system’s name or from multiple generations of agent code.
 
-
-
 ![A lineage must identify what each child changes. Agent changes and changes to the agent’s updater support different claims.](../../../assets/diagrams/lab-10-12.png)
 
 *Read the diagram:* A lineage must identify what each child changes. Agent changes and changes to the agent’s updater support different claims.
-
-
 
 ## Run the lab
 

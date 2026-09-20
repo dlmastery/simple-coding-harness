@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScientistTwo motivates a research workflow built around hypotheses and experiments. Our classroom question is narrow: does adding permitted weather information help a fixed linear recipe beyond calendar inputs? This is a prediction study, not a causal claim about weather.
 
-
-
 ![Turn an observed limitation into a falsifiable hypothesis before changing the experiment.](../../../assets/diagrams/lab-10-18.png)
 
 *Read the diagram:* Turn an observed limitation into a falsifiable hypothesis before changing the experiment.
-
-
 
 ## Run the lab
 

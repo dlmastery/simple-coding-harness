@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Recreation uses the saved brief, builder version, generated files, dependencies, and data versions. Different source code can implement the same contract, so compare behavior and evidence as well as file hashes. If generation is stochastic, do not assume byte-identical output.
 
-
-
 ![Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.](../../assets/diagrams/lab-06-06.png)
 
 *Read the diagram:* Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.
-
-
 
 ## Run the lab
 

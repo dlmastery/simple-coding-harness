@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 One row describes one recorded hour. The target, cnt, is the number of rentals. Calendar and observed weather fields describe the situation. A prediction is an estimate of cnt before looking at its value. We score it with mean absolute error (MAE): the average size of the prediction errors, ignoring their signs. The information setting matters: using observed weather makes this a retrospective exercise, not proof of a day-ahead forecast.
 
-
+**A concrete example.** Consider an illustrative hour with 3 casual rentals and 13 registered rentals. The total is 16. Adding those two observed counts gives the answer exactly, but the counts are not available before those rentals occur. The useful question is what you could have predicted from permitted information. Now change the request from describing a recorded hour to planning tomorrow: even the weather input needs a different source.
 
 ![Predict the hourly total from allowed inputs. The two component counts already contain the answer.](../../assets/diagrams/lab-00-01.png)
 
 *Read the diagram:* Predict the hourly total from allowed inputs. The two component counts already contain the answer.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,15 @@ Write TASK.md in my lab workspace: prediction unit, target, available inputs, ex
 
 TASK.md excludes casual and registered from prediction inputs. It states rentals per hour as the target unit and distinguishes observed weather from a forecast.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| TASK.md | States one row, the target and unit, when inputs are available, excluded outcome fields, the metric, and the partition rule. |
+| Eight-row display | Shows source rows that support the field explanations. This is data inspection, not a model result. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +85,7 @@ Change the request to “predict tomorrow at noon.” Before training anything, 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the agent treats casual or registered as ordinary inputs, return to one row and add the counts. Correct the brief before fitting anything. If it calls observed weather a forecast, ask when that weather value would have been known. A missing forecast source is a task-design gap, not a reason to invent forecast accuracy.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +107,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Place yourself just before the prediction is needed. Which values could you actually know then? A column can be present in a historical table and still be unavailable at that moment.
 
 </details>
 

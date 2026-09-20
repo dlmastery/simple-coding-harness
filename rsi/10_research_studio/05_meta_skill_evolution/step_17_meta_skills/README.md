@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Use several task-level outcomes to motivate a less frequent updater change. Freeze the revised updater during the next task-skill round. The schedule helps separate observations used to design the updater from outcomes used to evaluate its later behavior.
 
-
-
 ![Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.](../../../assets/diagrams/lab-10-17.png)
 
 *Read the diagram:* Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.
-
-
 
 ## Run the lab
 

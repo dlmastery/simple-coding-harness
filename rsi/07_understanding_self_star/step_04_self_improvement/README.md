@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task skill chooses ML experiments. The improver reads failures, proposes one skill edit, and tests it. In this lab the improver’s instructions remain unchanged. The modified object is the solver’s research skill, so any benefit is self-improvement under a fixed improver.
 
-
-
 ![The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.](../../assets/diagrams/lab-07-04.png)
 
 *Read the diagram:* The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.
-
-
 
 ## Run the lab
 

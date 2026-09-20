@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The outer task changes the inner researcher’s procedure. It might revise which operator to try or when to stop exploring a branch. Evaluate parent and child inner researchers from the same starting state. Our small comparison does not reproduce Weco’s much larger run.
 
-
-
 ![The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.](../../../assets/diagrams/lab-10-14.png)
 
 *Read the diagram:* The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A cycle returns to an earlier action. Its state must include attempts used and the last failure. A repair can change the failing artifact, but it cannot redefine the required fields. The graph exits on success or when the original budget is exhausted.
 
-
+**A concrete example.** An illustrative report lacks a required candidate ID. Repair 1 adds that ID, so rechecking succeeds. In a second fixture, both repairs change only the title. The ID remains missing; the graph exits with failure after repair 2. Both runs terminate correctly, although only one repairs the artifact.
 
 ![The retry cycle has a limit. Its failure path is part of the graph.](../../assets/diagrams/lab-03-04.png)
 
 *Read the diagram:* The retry cycle has a limit. Its failure path is part of the graph.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Run a fixture whose first repair restores the field, then a fixture whose repair
 
 Both traces end. Attempts are monotonic and bounded. The verifier rule is unchanged between checks.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Graph and state rules | Show check → repair → recheck and both terminal exits, with a two-repair allowance. |
+| Successful repair trace | Shows the missing field becoming present and the unchanged validator accepting it. |
+| Exhausted repair trace | Shows two ineffective edits and a terminal failure without another hidden attempt. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Remove the failure feedback from the repair input. Predict how that could waste 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the repair counter returns to zero on the back edge, store it in the experiment state rather than inside one node invocation. If a repair succeeds by deleting the required-field rule, reject that result: it changed the evaluator instead of fixing the artifact. Keep ineffective edits so the failure can be explained.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Count repairs separately from checks. The first check discovers the problem; later checks decide whether a repair worked under the same rule.
 
 </details>
 

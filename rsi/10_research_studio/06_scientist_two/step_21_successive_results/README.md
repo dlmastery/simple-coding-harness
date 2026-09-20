@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A previous result can become the baseline for a new investigation. Track the result lineage separately from the researcher version. If the procedure stays fixed while solutions improve, the evidence concerns accumulated research outputs. Testing a better researcher needs a comparison of research processes.
 
-
-
 ![Better research outputs and a better research procedure are distinct objects of evaluation.](../../../assets/diagrams/lab-10-21.png)
 
 *Read the diagram:* Better research outputs and a better research procedure are distinct objects of evaluation.
-
-
 
 ## Run the lab
 

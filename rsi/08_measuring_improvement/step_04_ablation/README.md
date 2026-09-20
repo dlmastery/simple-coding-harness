@@ -26,12 +26,9 @@ Compare parent without memory, parent with memory, child without memory, and chi
 
 **A concrete example.** Suppose the original procedure gains nothing from memory, but a revised procedure knows how to retrieve the right note. Memory may help only when combined with that revision. Comparing just “old system” with “everything changed” hides this interaction. The four conditions separate the two changes and their combination.
 
-
 ![The four conditions separate memory and procedure changes. They also reveal whether the changes interact.](../../assets/diagrams/lab-08-04.png)
 
 *Read the diagram:* The four conditions separate memory and procedure changes. They also reveal whether the changes interact.
-
-
 
 ## Run the lab
 

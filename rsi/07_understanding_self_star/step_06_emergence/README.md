@@ -26,12 +26,9 @@ Emergence describes a pattern at the collective level that arises from component
 
 **A concrete example.** In the saved synthetic trace, preference for the previous job type gives a same-type adjacency fraction of 0.80, compared with 0.00 for FIFO. But randomized history still gives 0.70: this small test does not establish that accurate memory uniquely causes grouping. In a separate deadline test, the local preference finishes all work at tick 8 instead of 12, while the most overdue job is 3 ticks late instead of 1. A stronger pattern and faster batch can still mean a worse urgent-job outcome.
 
-
 ![A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.](../../assets/diagrams/lab-07-06.png)
 
 *Read the diagram:* A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.
-
-
 
 ## Run the lab
 

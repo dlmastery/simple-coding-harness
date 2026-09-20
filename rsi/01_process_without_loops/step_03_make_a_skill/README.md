@@ -18,19 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** PROCESS.md and TRACE.md from the preceding labs.
 
-**Budget:** One optional verification fit; no search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One verification fit to demonstrate execution; no search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A skill describes when to act, what to read, which tools to use, what outputs to keep, and when to stop. The host coding agent interprets it. The tool performs operations such as fitting a model. The evaluator checks an output. These roles cooperate but are not identical.
 
-
+**A concrete example.** A usable instruction says: read the task, verify the pinned data, fit the training-median baseline once, save predictions, recompute MAE, then stop. A tool supplies the fitting operation. The host agent chooses the tool call by following the skill. The skill file contains neither the language model nor a technical barrier that prevents the agent from ignoring it.
 
 ![The skill tells the agent how to carry out the process. Tools perform the concrete operations.](../../assets/diagrams/lab-01-03.png)
 
 *Read the diagram:* The skill tells the agent how to carry out the process. Tools perform the concrete operations.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Read the new skill and run its one-attempt process in a fresh workspace. Record 
 
 The skill names its stop condition and reports. An actual execution follows it. A prose restriction is not described as a sandbox.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Learner-owned baseline skill | Contains its trigger, required inputs, ordered actions, one-fit limit, evidence, and refusal conditions. |
+| Instruction-to-action trace | Connects specific skill instructions to actual operations in the new run. |
+| Checked baseline artifacts | Demonstrate that the saved procedure was followed, rather than merely written. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Add an ambiguous instruction, “use the best data.” Identify two conflicting 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the skill grows into a copy of the whole chat, keep the procedure and move run-specific observations into the trace. If it says “use the best data,” name the permitted data and prediction-time rule. If execution needs an unstated file, add that dependency before claiming the skill is reusable.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Point to three different things: the written instruction, the operation that implements it, and the evidence that checks its output. Do not treat them as interchangeable.
 
 </details>
 

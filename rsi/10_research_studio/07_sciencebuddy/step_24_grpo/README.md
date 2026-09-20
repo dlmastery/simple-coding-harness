@@ -26,12 +26,9 @@ A rollout is one sampled attempt. A reward scores it. In a grouped-relative illu
 
 **A concrete example.** For the invented reward group 0, 1, 1, 0, the mean is 0.5 and the population standard deviation is 0.5. Centering and dividing by that spread gives advantages -1, 1, 1, -1. If every reward is 1, the spread is zero: the group provides no relative ranking. The toy must handle that case explicitly. A real GRPO implementation also needs its actual objective, rollout policy, reference treatment, and training machinery.
 
-
 ![The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.](../../../assets/diagrams/lab-10-24.png)
 
 *Read the diagram:* The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.
-
-
 
 ## Run the lab
 

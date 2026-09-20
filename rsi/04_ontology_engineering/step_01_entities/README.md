@@ -26,12 +26,9 @@ An entity is an object you need to distinguish. A type states what kind of objec
 
 **A concrete example.** A candidate is a recipe, such as “linear model with calendar fields.” A run is an execution of that recipe on particular data with a particular seed. Two runs can use the same candidate and still have different timings or outcomes. Keeping these objects separate lets you repeat a recipe without rewriting its history.
 
-
 ![Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.](../../assets/diagrams/lab-04-01.png)
 
 *Read the diagram:* Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.
-
-
 
 ## Run the lab
 
@@ -71,6 +68,15 @@ Classify the phrase “the model improved” in three cases: lower selection err
 
 Definitions include concrete examples and do not equate a recipe with a fitted model or a metric with its measured value.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| VOCABULARY.md | Classifies concrete objects and distinguishes dataset, column, target role, partition, recipe, fitted model, metric, and measurement. |
+| Three rewritten claims | Name whether a result concerns task-model error, a research-skill edit, or changed language-model weights. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -79,7 +85,7 @@ Replace every use of “score” with its precise metric, candidate, partition, 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If “model” refers to several things, name each explicitly: fitted task model, research agent, or language model. If the supplied runner did not save fitted weights, do not invent a model file; identify the recipe, the fitting event, and the retained predictions. A numeric score needs candidate, data role, metric, and unit before it is interpretable.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -101,7 +107,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Distinguish the instruction “calculate MAE” from the resulting number, and the recipe “fit this estimator” from the parameters learned in one execution.
 
 </details>
 

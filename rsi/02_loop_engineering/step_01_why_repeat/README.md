@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An improvement hypothesis connects an observed error to a proposed change. Here the median predicts the same count at every hour. A linear model with encoded calendar categories can assign different contributions to different hours. Holding the feature set fixed isolates the model-family change.
 
-
+**A concrete example.** A constant predictor gives the same answer at 3 a.m. and 5 p.m. A model with calendar categories can assign different contributions to those hours. In the saved author run, replacing the constant model with a calendar linear model changed selection MAE from 159.95 to 109.81. Both used the same calendar input group; the comparison isolates a model change rather than adding weather at the same time.
 
 ![The weak result motivates a specific new candidate. The evaluator stays fixed.](../../assets/diagrams/lab-02-01.png)
 
 *Read the diagram:* The weak result motivates a specific new candidate. The evaluator stays fixed.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Use run-ml-experiment to fit constant/calendar and linear/calendar with seed 17 
 
 The data, split, metric, seed, and feature set match. Only the model family changes. COMPARISON.md retains both results and costs.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Hypothesis or proposal | Links the observed hourly error pattern to the model-family change before fitting the alternative. |
+| Two candidate directories | Retain constant/calendar and linear/calendar, with the same seed and scientific contract. |
+| COMPARISON.md and hourly error reports | Show the aggregate comparison and whether particular hours still have large errors. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Inspect a slice where the new model is still weak. Explain why a better average 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If both model family and feature group changed, keep that run but do not interpret it as the specified controlled comparison. If the linear candidate loses, check execution and then retain the losing result; a plausible diagnosis does not guarantee a gain. Never inspect final scores to rescue the choice.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Name the one changed factor and each factor held fixed. Then find one observation that would make you doubt the proposed explanation.
 
 </details>
 

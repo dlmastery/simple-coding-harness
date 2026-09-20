@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 WikiSkill separates raw experience, a persistent knowledge layer, and active skills. The classroom exercise keeps a factual notebook update even when a proposed active-skill edit fails. During the controlled task run, the actor reads only its allowed active skill; the improver can consult the notebook.
 
-
-
 ![Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.](../../../assets/diagrams/lab-10-27.png)
 
 *Read the diagram:* Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.
-
-
 
 ## Run the lab
 

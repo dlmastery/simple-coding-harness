@@ -6,15 +6,19 @@ import {fileURLToPath} from 'node:url';
 import {themes, lessons} from './lesson-content.mjs';
 import {renderDiagram, diagrams} from './lesson-diagrams.mjs';
 import {examples} from './lesson-examples.mjs';
+import {guidance} from './lesson-guidance.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const rsi = resolve(repo, 'rsi');
-const save = (path, body) => {mkdirSync(dirname(path), {recursive:true}); writeFileSync(path, body.trim()+'\n');};
+const save = (path, body) => {mkdirSync(dirname(path), {recursive:true}); writeFileSync(path, body.trim().replace(/\n{3,}/g,'\n\n')+'\n');};
 const link = (from, to) => relative(from, to).split(sep).join('/');
 const lessonPath = l => resolve(rsi, themes[l.theme].directory, l.group || '', `step_${l.id.split('.')[1]}_${l.slug}`);
 
 for (let index=0; index<lessons.length; index++) {
   const l=lessons[index], folder=lessonPath(l), theme=themes[l.theme];
+  const support=guidance[l.id];
+  const workedExample=support?.example || examples[l.id];
+  const outputs=support ? `### Open these outputs\n\nThe agent keeps these in your lab workspace or records the original experiment path when reusing evidence.\n\n| Output | What to inspect |\n|---|---|\n${support.outputs.map(([name,meaning])=>`| ${name} | ${meaning} |`).join('\n')}` : '';
   const prev=lessons[index-1], next=lessons[index+1];
   const to=p=>link(folder,resolve(rsi,p));
   const figurePath=`assets/diagrams/lab-${l.id.replace('.','-')}.png`;
@@ -54,7 +58,7 @@ Open the coding agent at the repository root. Read [the tutor skill](${to('skill
 
 ${l.how}
 
-${examples[l.id] ? `**A concrete example.** ${examples[l.id]}\n` : ''}
+${workedExample ? `**A concrete example.** ${workedExample}\n` : ''}
 
 ${schematic}
 
@@ -80,6 +84,8 @@ ${steps}
 
 ${l.check}
 
+${outputs}
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -88,7 +94,7 @@ ${l.change}
 
 ## If something goes wrong
 
-${l.recovery || 'If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.'}
+${support?.recovery || l.recovery || 'If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.'}
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](${to('tools/README.md')}) for interrupted tool runs.
 
@@ -105,7 +111,7 @@ ${quiz}
 <details>
 <summary>Hint</summary>
 
-${l.hint || 'Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.'}
+${support?.hint || l.hint || 'Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.'}
 
 </details>
 

@@ -26,12 +26,9 @@ Two checks can inspect different properties of the same candidate. Their results
 
 **A concrete example.** Imagine the data check passes for candidate A, while the prediction check passes for candidate B. You have two passes, but no candidate has passed both checks. The join must ask “two passes for which candidate?” This is why identity belongs in the evidence, not just in a filename chosen by the agent.
 
-
 ![A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.](../../assets/diagrams/lab-03-03.png)
 
 *Read the diagram:* A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.
-
-
 
 ## Run the lab
 
@@ -71,6 +68,16 @@ Run three cases: both checks pass for A; A has only one result; data passes for 
 
 The join rejects mismatched identities and incomplete evidence. The report states whether checks ran sequentially or concurrently.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Data and resource check records | Each names candidate identity, contract version, outcome, and whether the input is a teaching fixture. |
+| Join implementation | Requires both matching passes before continuing. |
+| JOIN-REPORT.md | Preserves complete, missing, and mismatched cases and states whether execution was sequential or concurrent. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -79,7 +86,7 @@ Delay one check result in a local simulation. Explain why the other result alone
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a mismatched pair passes, compare the identities before combining the booleans. If one result never arrives, stop at the declared wait limit and report incomplete evidence. An invented resource-pass fixture can test join logic, but must not be presented as a measurement of available RAM, cost, or cluster capacity.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -101,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Write the candidate name beside every pass. You need two passes for the same object under the same contract, not merely two successful checks somewhere.
 
 </details>
 

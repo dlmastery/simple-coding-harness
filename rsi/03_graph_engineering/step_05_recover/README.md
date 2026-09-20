@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 If report formatting fails, valid predictions need not be recomputed. If the dataset changes, downstream transforms, model results, and reports may be stale. Recovery follows the dependency graph and artifact versions. A successful file is reusable only when its inputs still match.
 
-
+**A concrete example.** A report writer crashes after predictions are saved and checked. Rewriting the report needs those existing outputs, so another fit adds no necessary evidence. Change the split instead, and the fitted recipe’s training membership and evaluation membership change. The old downstream results cannot simply be relabelled as belonging to the new split.
 
 ![Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.](../../assets/diagrams/lab-03-05.png)
 
 *Read the diagram:* Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Repair only the report node and resume. Show that no new fit ran. Then simulate 
 
 The successful recovery does not create an extra fit. The changed-split case invalidates all dependent evidence.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Injected failure record | Identifies the failed report operation while preserving the existing prediction identity. |
+| Recovery trace | Names the reused inputs and repaired report; the fit count does not increase. |
+| Invalidation plan | Lists which descendants become stale after a changed split or substituted prediction file. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Try reusing a metric report after substituting a prediction file. Require the ve
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the recovery starts training automatically, inspect whether the failed node actually invalidated model inputs. If it reuses an old score after predictions changed, compare the recorded input identities. Do not overwrite stale results: retain them with their original input versions and create fresh descendants where required.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Start at the changed artifact and walk forward through dependency arrows. Work outside those descendants may remain valid if its own inputs and checks still match.
 
 </details>
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Screening uses a cheaper test to choose which idea deserves more work. Confirmation then tests the chosen idea under the declared fuller conditions. An ablation removes the proposed component. Keep screening and confirmation results distinct; a cheap proxy is not automatically the final objective.
 
-
-
 ![Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.](../../../assets/diagrams/lab-10-19.png)
 
 *Read the diagram:* Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.
-
-
 
 ## Run the lab
 

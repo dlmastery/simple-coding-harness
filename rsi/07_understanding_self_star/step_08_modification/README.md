@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Self-modification means the system changes part of its own implementation or instructions. The target can be a prompt, skill, tool, route, or model parameters. The name says what can change, not whether the change is good. Versioning and rollback make the consequence inspectable.
 
-
-
 ![Self-modification changes a component. Keep its parent and evaluate the change before retaining it.](../../assets/diagrams/lab-07-08.png)
 
 *Read the diagram:* Self-modification changes a component. Keep its parent and evaluate the change before retaining it.
-
-
 
 ## Run the lab
 

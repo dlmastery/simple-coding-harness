@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Freeze the selected policy, then give it and the baseline comparable new work. The online outcome is new evidence. Keep replay-selection cost and online cost distinct but include both when discussing overall efficiency.
 
-
-
 ![A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.](../../../assets/diagrams/lab-10-09.png)
 
 *Read the diagram:* A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.
-
-
 
 ## Run the lab
 

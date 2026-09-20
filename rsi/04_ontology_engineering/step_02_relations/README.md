@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A relation connects two objects with a named meaning: scaler “fit on” train; search “selects on” selection; model “measured by” MAE. These facts describe the domain. An execution edge, by contrast, says which action depends on another. Both may be graphs, but they answer different questions.
 
-
+**A concrete example.** “Scaler fit on train” is a statement about the meaning of a transformation. “Fit scaler before transform selection rows” is a dependency between actions. They cooperate: one says which data is permitted, the other says what must happen first. Neither statement alone supplies the other.
 
 ![These arrows describe meaning and provenance. They are not a schedule of commands.](../../assets/diagrams/lab-04-02.png)
 
 *Read the diagram:* These arrows describe meaning and provenance. They are not a schedule of commands.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Run audit-domain on DOMAIN.md and save DOMAIN-CHECK.md. Explain its allowed rela
 
 Each relation is understandable as a sentence. The checker runs and the report states its limited coverage.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| DOMAIN.md | Contains the Subject, Relation, Object facts for the declared bike experiment. |
+| DOMAIN-CHECK.md | Shows the executed verdict and names the supplied checker’s limited rules. |
+| Plain-language explanations | Translate each fact into a sentence and distinguish it from an execution dependency. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Draw the execution graph beside the relation table. Identify one node name that 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the checker reports an unknown relation, compare the intended meaning with its documented relation vocabulary; define and test any extension separately. If the table passes while an important fact is absent, add the missing fact and review the coverage. A pass is not proof that the table describes every scientific constraint.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Read each row as a sentence. Does it describe what an object means or which action should execute next? Those are different kinds of relation.
 
 </details>
 

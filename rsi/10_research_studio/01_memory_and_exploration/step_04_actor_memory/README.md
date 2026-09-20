@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 RSIAgent separates outcome verification from actor-owned memory updates. The verifier does not author or approve the memory wording. Our exercise preserves that responsibility split while using a small ML trace.
 
-
-
 ![The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.](../../../assets/diagrams/lab-10-04.png)
 
 *Read the diagram:* The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A checkpoint records durable state: contract, completed and interrupted attempts, retained candidate, remaining budget, and next action. A process ID or live lock is different: it tells you whether work may still be running. Resuming must reconcile both.
 
-
+**A concrete example.** A three-attempt experiment stops after candidate 1. Its checkpoint says one used and two remaining. Opening another session changes neither number. If candidate 2 later starts and is interrupted, that admitted attempt still belongs in the ledger. Candidate 3 must get a new identity; it cannot overwrite candidate 2 and conceal the failure.
 
 ![Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.](../../assets/diagrams/lab-02-05.png)
 
 *Read the diagram:* Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Read PROGRESS.md and the actual ledger. Inspect active processes and locks. Resu
 
 Candidate IDs are unique. The first result survives. The restart does not replenish attempts. A stale lock is inspected before removal.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| PROGRESS.md at the stop boundary | Records the completed candidate, contract, spent and remaining attempts, retained result, and next action. |
+| Original candidate artifacts | Remain unchanged after resumption. |
+| Combined ledger and final state | Show unique identities across sessions and the original three-attempt limit. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Prepare a labelled teaching checkpoint with a running trial whose process has ex
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a lock exists, inspect the recorded process and whether it is still active before touching it. Preserve an exited process’s interrupted trial and known cost. If the checkpoint disagrees with the durable ledger, reconcile the actual artifacts first. If source or contract changed, keep this experiment intact and use a separate reviewed experiment.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Distinguish the lifetime of the program from the lifetime of the experiment. Which state must survive when the program stops?
 
 </details>
 

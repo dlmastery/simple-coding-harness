@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Tell the story from a row of data to a model result, then from a failure to a skill change, then from an improver change to later work. At each step name the evidence. Keep the main walkthrough short and link to detail. An impressive architecture is not a substitute for a clear causal explanation.
 
-
-
 ![Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.](../../assets/diagrams/lab-11-05.png)
 
 *Read the diagram:* Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.
-
-
 
 ## Run the lab
 

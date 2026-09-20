@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Check each edit alone and then the combination under the same interface contract. A context change may remove information that a completion check expects. Integration therefore needs its own evidence, followed by a case that did not select either edit.
 
-
-
 ![Two useful edits can conflict when combined. Test the integrated system and its transfer separately.](../../../assets/diagrams/lab-10-11.png)
 
 *Read the diagram:* Two useful edits can conflict when combined. Test the integrated system and its transfer separately.
-
-
 
 ## Run the lab
 

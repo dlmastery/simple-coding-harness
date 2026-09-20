@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A majority classifier can be accurate on imbalanced data while detecting no positive cases. The declared primary metric is balanced accuracy. Changing the promotion metric after observing results creates a different experiment. Rollback restores the retained valid version while preserving the rejected proposal and evidence.
 
-
-
 ![A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.](../../assets/diagrams/lab-08-06.png)
 
 *Read the diagram:* A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Dream-RSI uses replay over realized discovery structure. Our replay tool walks recorded nodes under a budget and returns known outcomes. A request outside that structure returns unknown. Proposal generation and policy evaluation can still cost resources even when no environment fit is repeated.
 
-
-
 ![Replay can answer only questions covered by recorded work. It does not create new environment outcomes.](../../../assets/diagrams/lab-10-08.png)
 
 *Read the diagram:* Replay can answer only questions covered by recorded work. It does not create new environment outcomes.
-
-
 
 ## Run the lab
 

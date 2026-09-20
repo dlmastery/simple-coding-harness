@@ -26,12 +26,9 @@ An invariant is a condition that must hold for every accepted record in this tas
 
 **A concrete example.** Consider the sentence “the scaler was fit on all rows.” Its format is perfectly clear. Its meaning violates the experiment: selection and final rows helped determine the transformation. A schema can accept the sentence while a domain rule rejects the relationship. That is the extra job performed by the ontology check.
 
-
 ![A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.](../../assets/diagrams/lab-04-03.png)
 
 *Read the diagram:* A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.
-
-
 
 ## Run the lab
 
@@ -71,6 +68,16 @@ Use audit-domain on all six tables. Record expected and actual verdicts in RULE-
 
 Every invariant has a demonstrated negative case. Unknown relations are not silently accepted.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| RULES.md | States the target-derived-input, train-only-transform, and selection-versus-final invariants. |
+| Six fact tables | Give one isolated valid case and one isolated violation for each rule. |
+| RULE-TESTS.md | Pairs expected and actual verdicts, preserving all inputs and outputs. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -79,7 +86,7 @@ Add a new rule that MAE measurements must include units. Ask the agent to implem
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a negative case passes, check that the table contains the relationship needed to trigger the rule. A renamed leaked feature still needs its derivation fact. If a case triggers several rules at once, split it into smaller fixtures so each failure has a clear cause. New checks such as measurement units need an explicit extension; the supplied three-rule checker does not already enforce them.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -101,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A rule earns trust by separating a valid case from a closely related invalid one. Change just the fact that should cross that boundary.
 
 </details>
 

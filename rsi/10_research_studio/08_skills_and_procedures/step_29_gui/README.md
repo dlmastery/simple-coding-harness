@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 EvoSkill-GUI motivates separating reusable skills from task traces and critique. Our local page avoids accounts and external side effects. The critic receives the visible instruction and action evidence. It should not be given private executor reasoning or an answer key and then called blind.
 
-
-
 ![Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.](../../../assets/diagrams/lab-10-29.png)
 
 *Read the diagram:* Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.
-
-
 
 ## Run the lab
 

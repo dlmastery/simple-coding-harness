@@ -34,6 +34,21 @@ The **task model** is a small regressor or classifier trained on your laptop. Th
 
 You do not need to type Python, JSON, YAML, or scheduler syntax. The implementation remains available to inspect. Hiding syntax does not mean hiding scientific decisions.
 
+## See what changes at each stage
+
+Keep four objects separate as the course progresses:
+
+| Object | Concrete example | What changing it can establish |
+|---|---|---|
+| Task model | A regressor fitted to hourly bike data | A better prediction recipe, if the comparison supports it |
+| Research skill | Inspect hourly errors before choosing the next model | A changed way to conduct experiments |
+| Improver | Propose one research-skill edit and test it before promotion | A changed way to produce and select research procedures |
+| Evaluator | Fixed data roles, metric, identity checks, and final protocol | The basis for judging a change; keep it fixed within the comparison |
+
+A model search changes the first object. Editing a research skill changes the second. The recursive question concerns the third: does a revised improvement procedure govern later improvement work, and does that revision help? The same coding agent can perform several roles, so different role names do not prove independent contexts.
+
+A meta-harness answers another question: can a procedure generate a usable harness from a brief? Its output can change while the builder stays exactly the same. Later labs make you inspect that difference before using the word “recursive.”
+
 ## Follow one learning path
 
 ![Three stages: make one experiment trustworthy, build and evaluate the research system, then test inherited improvement](assets/course-overview.png)
@@ -59,11 +74,15 @@ The [course map](COURSE-MAP.md) links 101 authored lessons. The research studio 
 
 Each lab explains the purpose, starting state, run prompts, expected observations, checks, and recovery. It ends with key takeaways, an explained quiz, and a next step. The tutor pauses for your prediction and interpretation.
 
+For the complete masterclass, follow every theme in order, then work through all research-studio groups and the capstones. The [learning path](LEARNING-PATH.md) divides that long route into six teaching blocks with concrete checkpoints. A short introductory workshop can stop after theme 02; it teaches dependable ML loops and does not claim to have reached RSI.
+
 ## Before you start
 
 This is an advanced AI/ML course that starts from no RSI knowledge. Familiarity with tables, training, prediction, and error will help. New agent terms enter through examples. The [glossary](GLOSSARY.md) gives definitions and counterexamples.
 
 The default path uses small datasets and CPU models. No GPU or foundation-model training is required. Initial dependency installation needs internet access. A hosted coding agent can require an account and paid inference. Agent costs are additional to the local fit budget unless measured.
+
+“No loops” in the first process theme means no outer search or improvement loop designed by the student. The coding agent and numerical fitting library may already iterate internally. Those internal repetitions do not, by themselves, demonstrate learning or recursive improvement.
 
 An 8 GB laptop is a design target, not yet a measured minimum. The [execution record](evidence/2026-09-20/README.md) gives the tested environment and limits. [Agent adapters](adapters/README.md) distinguish the portable file-reading route from native integrations that need testing.
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Freeze the memory artifact before the comparison. Both arms use the same task and budget; one can read the frozen memory and one cannot. The evaluation does not add new lessons. This separates the retained memory’s effect from adaptation during the test.
 
-
-
 ![Freeze memory before comparing access conditions. Evaluation does not update that memory.](../../../assets/diagrams/lab-10-05.png)
 
 *Read the diagram:* Freeze memory before comparing access conditions. Evaluation does not update that memory.
-
-
 
 ## Run the lab
 

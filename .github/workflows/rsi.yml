@@ -55,5 +55,7 @@ jobs:
         run: python check_snippets.py rsi
       - name: Rebuild the lesson pages from their source
         run: node how-did-i-generate-it/rsi/scripts/build-lessons.mjs
+      - name: Verify teaching-support publication and coverage
+        run: node how-did-i-generate-it/rsi/scripts/audit-readme-guidance.mjs
       - name: Refuse stale generated pages
-        run: git diff --exit-code -- rsi
+        run: git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md

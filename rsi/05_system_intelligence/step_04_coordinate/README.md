@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The coordinator tracks task state, chooses the next allowed action, and handles incomplete evidence. It should stop when the scientific brief is ambiguous or a required check is missing. It does not acquire evaluator independence by naming a “reviewer” role in the same conversation.
 
-
-
 ![Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.](../../assets/diagrams/lab-05-04.png)
 
 *Read the diagram:* Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.
-
-
 
 ## Run the lab
 

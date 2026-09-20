@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An ablation removes one component while holding the rest as steady as possible. Here the outcome is whether an invalid proposal reaches fitting. Use a dry-run fitting stub so the ablated system cannot accidentally train a leaked model. Reliability is the measured property, not prediction quality.
 
-
-
 ![An ablation removes one component under matched conditions. Its effect may depend on the other components.](../../assets/diagrams/lab-05-05.png)
 
 *Read the diagram:* An ablation removes one component under matched conditions. Its effect may depend on the other components.
-
-
 
 ## Run the lab
 

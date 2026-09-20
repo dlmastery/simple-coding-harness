@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Reproducibility begins with a fixed recipe and known inputs. Record versions and hashes, then execute the same actions. A trace says what actually happened. It can differ from the intended process if a command fails or an assumption is missing.
 
-
+**A concrete example.** Two runs can produce byte-identical predictions while taking different wall-clock times. The recipe is repeatable; the operating system did not schedule both commands identically. Conversely, matching rounded MAE values can hide different predictions. Compare rows and settings before deciding what repeated.
 
 ![The process becomes evidence only when its actions run and their outputs are retained.](../../assets/diagrams/lab-01-02.png)
 
 *Read the diagram:* The process becomes evidence only when its actions run and their outputs are retained.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Compare the new and old baseline settings, row identities, predictions, score, a
 
 The trace contains all five actions. The score recomputes from the new predictions. Any version difference is visible.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| TRACE.md | Records all five process actions, their inputs and outputs, exit status, and elapsed time. |
+| New baseline artifacts | Belong to this clean workspace; they are not copied predictions presented as a new fit. |
+| REPEATABILITY.md | Compares recipe, source, row identities, predictions, score, and runtime with the earlier run. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Remove an output report from a copy of the new workspace. Have the agent disting
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a report is missing, check the ledger and prediction file before retraining. If predictions differ, compare versions, feature groups, and split identities. Preserve the difference and identify its cause; replacing the new output with the old one would erase the observation this lab needs.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate the intended recipe, the events in this run, and the result. Which of those should remain the same, and which can vary without changing the prediction?
 
 </details>
 

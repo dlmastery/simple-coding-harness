@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The classroom exercise first probes two distinct limitations, then spends the last attempt on one uncertainty. Broad coverage and targeted investigation have different purposes. Keep the choice rule visible; exploration is not permission to change the task metric.
 
-
-
 ![Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.](../../../assets/diagrams/lab-10-03.png)
 
 *Read the diagram:* Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.
-
-
 
 ## Run the lab
 

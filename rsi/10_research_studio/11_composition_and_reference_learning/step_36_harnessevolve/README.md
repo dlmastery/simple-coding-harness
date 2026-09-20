@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 HarnessEvolve uses answer-conditioned reference trajectories, checks that they contain genuine execution, and compares failures against them. Candidate changes face quality and performance gates. Our exercise uses small workflow traces and prevents a copied answer from becoming the active skill.
 
-
-
 ![Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.](../../../assets/diagrams/lab-10-36.png)
 
 *Read the diagram:* Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.
-
-
 
 ## Run the lab
 

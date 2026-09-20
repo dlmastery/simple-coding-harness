@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy couples harness adaptation with weight learning across repeated cycles. Our simulation represents the pair explicitly. It is constructed to show interaction: a harness may suit one model better than another. Synthetic scores illustrate the accounting and comparison, not the paper’s measured gains.
 
-
-
 ![Track model and harness versions as a pair. Changing either can alter compatibility with the other.](../../../assets/diagrams/lab-10-25.png)
 
 *Read the diagram:* Track model and harness versions as a pair. Changing either can alter compatibility with the other.
-
-
 
 ## Run the lab
 

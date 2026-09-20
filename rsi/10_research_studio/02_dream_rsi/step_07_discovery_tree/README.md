@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Represent each attempted recipe as a node with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
 
-
-
 ![The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.](../../../assets/diagrams/lab-10-07.png)
 
 *Read the diagram:* The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.
-
-
 
 ## Run the lab
 

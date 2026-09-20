@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Trace requirements forward to implementation and evidence backward to requirements. For example, “two attempts maximum” should appear in control logic and an over-budget refusal. A sentence in the README alone does not show the limit runs.
 
-
-
 ![Trace each important requirement to implementation and then to observed behavior.](../../assets/diagrams/lab-06-03.png)
 
 *Read the diagram:* Trace each important requirement to implementation and then to observed behavior.
-
-
 
 ## Run the lab
 

@@ -26,12 +26,9 @@ The solver runs ML research. The improver proposes and tests changes to the solv
 
 **A concrete example.** Changing a tree depth changes the ML candidate. Adding “inspect error by hour” changes the research skill that proposes candidates. Adding “recompute every reported score before promoting a research-skill edit” changes the improver. The edit text can look small at all three levels. What matters is which later decisions it governs.
 
-
 ![The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.](../../assets/diagrams/lab-09-01.png)
 
 *Read the diagram:* The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.
-
-
 
 ## Run the lab
 

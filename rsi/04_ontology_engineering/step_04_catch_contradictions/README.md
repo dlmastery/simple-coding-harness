@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Suppose a model uses a feature called total_users. Another fact says total_users is derived from the target. Neither line alone states “invalid.” Together they violate the task’s input rule. A semantic check reasons over the relation between facts.
 
-
+**A concrete example.** “Model uses feature total_users” can look harmless until another fact says “total_users is derived from target.” The contradiction comes from their relationship. Rename the feature to f7 in both facts and the same violation remains. A name does not remove the information carried by a column.
 
 ![A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.](../../assets/diagrams/lab-04-04.png)
 
 *Read the diagram:* A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Save a corrected table that removes the leaked input, fits the scaler on train, 
 
 The original table fails with three concrete reasons. The corrected copy passes the supplied rules. The report distinguishes correcting documentation from rerunning invalid computation.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Original teaching DOMAIN.md | Contains the well-formed leaked-input, final-fitted-scaler, and final-selection violations. |
+| Failure report | Names all three semantic failures. |
+| Corrected facts and recheck | Pass the supplied rules while preserving the original failed case and explaining which computations would need rerunning. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Rename total_users to harmless_feature. Confirm that the derivation relation sti
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If renaming makes the leakage warning disappear, check whether the derivation fact was renamed consistently or accidentally deleted. If the documentation is corrected after an actual leaked fit, keep that score marked invalid for the intended comparison. Repairing the facts does not repair the training history.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Follow where the feature’s information comes from. The relevant fact is its relationship to the target, not whether its name sounds suspicious.
 
 </details>
 

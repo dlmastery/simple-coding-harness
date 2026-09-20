@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task brief identifies the target type and evaluation rule. Regression estimates a count and uses MAE. The derived wine classification task predicts whether quality is at least 7 and uses balanced accuracy. Routing chooses an already defined procedure; it does not learn a new one.
 
-
-
 ![Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.](../../assets/diagrams/lab-05-02.png)
 
 *Read the diagram:* Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.
-
-
 
 ## Run the lab
 

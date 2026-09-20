@@ -26,12 +26,9 @@ Give each simulated worker the same fixed rule: take an available job when idle.
 
 **A concrete example.** The saved simulation gives six jobs invented durations of 8, 1, 7, 1, 6, and 1 ticks. Alternating fixed assignments leaves one worker with 21 ticks of work and the other with 3. Letting idle workers pull from a shared queue finishes at tick 14. Add three coordination ticks per dynamic assignment and completion moves to tick 23. No worker learned a new skill. The arrangement helped under one cost assumption and hurt under another.
 
-
 ![Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.](../../assets/diagrams/lab-07-05.png)
 
 *Read the diagram:* Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.
-
-
 
 ## Run the lab
 

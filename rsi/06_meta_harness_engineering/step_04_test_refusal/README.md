@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A negative test supplies a specific forbidden request and checks the resulting behavior. The requested action, candidate, run, and contract must match the evidence used to decide it. An unrelated old approval or successful report must not authorize this request.
 
-
-
 ![A boundary is demonstrated by a meaningful refusal tied to the current request.](../../assets/diagrams/lab-06-04.png)
 
 *Read the diagram:* A boundary is demonstrated by a meaningful refusal tied to the current request.
-
-
 
 ## Run the lab
 

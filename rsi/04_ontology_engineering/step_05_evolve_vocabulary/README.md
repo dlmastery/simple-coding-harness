@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Changing “observed weather” to “weather forecast available one day earlier” changes the information contract. Existing features may no longer satisfy it. Trace from the changed concept through feature rules, data sources, candidate recipes, and evidence. Keep the old task valid on its own terms; create a new task version.
 
-
+**A concrete example.** In an illustrative forecasting record, the prediction is issued at 09:00 for tomorrow at noon. Tomorrow’s observed noon temperature arrives after the issue time and is unavailable to that prediction. A weather forecast issued before 09:00 might be permitted, but the pinned bike table does not contain that archive. The availability test can use labelled synthetic timestamps; it cannot create the missing real forecast data.
 
 ![A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.](../../assets/diagrams/lab-04-05.png)
 
 *Read the diagram:* A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Use the relation table and execution graph to list affected data sources, featur
 
 IMPACT.md identifies invalid evidence reuse and missing data. The availability rule has a demonstrated rejection. No unrun forecasting score is invented.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Vocabulary versions 1 and 2 | Preserve the retrospective meaning and the new forecast-origin definition separately. |
+| CHANGE.md and IMPACT.md | Trace affected sources, features, recipes, split assumptions, and evidence that cannot be reused as a forecast result. |
+| Availability test | Rejects an input released after the prediction origin and labels any constructed timestamp fixtures as synthetic. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Apply the same reasoning to wine quality: replace the binary threshold with ordi
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a new forecast score appears without a forecast source, stop and inspect which data was actually used. Keep the activity as an impact analysis until the required historical inputs exist. If timestamps are ambiguous, define their time zone and release-time meaning before testing availability. Do not rename observed weather and treat it as a forecast.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Keep two times separate: when the event occurs and when the input becomes available. The second decides whether the feature belongs in a prediction made at a given origin.
 
 </details>
 

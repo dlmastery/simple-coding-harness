@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Use the same prespecified seeds for both recipes. Compare paired differences, retain all runs, and report their spread. Three seeds are a small demonstration, not a precise population estimate. Deterministic recipes may show no seed variation; that does not eliminate uncertainty from data choice.
 
-
-
 ![A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.](../../assets/diagrams/lab-08-01.png)
 
 *Read the diagram:* A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.
-
-
 
 ## Run the lab
 

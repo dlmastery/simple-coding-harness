@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 An action hint suggests the next operation. An enriched observation exposes useful state, such as which field is missing. The classroom comparison keeps these distinct, then removes assistance. The source studies training settings; this inference-only exercise does not reproduce its reinforcement-learning results.
 
-
-
 ![Action hints and richer observations supply different assistance. Remove help in a separate fresh check.](../../../assets/diagrams/lab-10-33.png)
 
 *Read the diagram:* Action hints and richer observations supply different assistance. Remove help in a separate fresh check.
-
-
 
 ## Run the lab
 

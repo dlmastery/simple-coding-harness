@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Begin with your artifacts, then apply the paper’s definitions. Keep execution changes, strategy changes, retained experience, deployment changes, and inherited improver changes distinct. Do not equate this framework’s level numbers with another lab’s terminology.
 
-
-
 ![Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.](../../../assets/diagrams/lab-10-01.png)
 
 *Read the diagram:* Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.
-
-
 
 ## Run the lab
 

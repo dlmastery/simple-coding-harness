@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Begin with the scientific contract, not a preferred optimizer. State target, prediction time, available inputs, split, metric, baseline, and limitations. Use the builder skill to create a harness, then test a valid run and an intended refusal. Keep any departure from the earlier task explicit.
 
-
-
 ![A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.](../../assets/diagrams/lab-11-01.png)
 
 *Read the diagram:* A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.
-
-
 
 ## Run the lab
 

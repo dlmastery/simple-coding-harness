@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A fresh session has a new working context. It reads the stored skill and task to recover the procedure. If it behaves the same way, that supports reuse. It does not show the procedure improved: the retained instructions have not changed.
 
-
+**A concrete example.** A new session reading “repeat our successful run” lacks the decisions hidden in “our.” A handoff that names TASK.md, the skill version, pinned data, setup, workspace, and budget can recover them. Supplying the desired score would encourage imitation of the answer; supply the procedure and let the new execution determine its score.
 
 ![A new session receives saved files. It should not need an unrecorded explanation from the previous chat.](../../assets/diagrams/lab-01-05.png)
 
 *Read the diagram:* A new session receives saved files. It should not need an unrecorded explanation from the previous chat.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ In the new session, read HANDOFF.md and run the fixed skill. Record whether this
 
 The handoff identifies every required artifact. The new run is real. The report distinguishes fixed reuse from adaptive improvement.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| HANDOFF.md | Names every required file, the exact skill version, setup, workspace rule, and one-fit limit. |
+| Context-boundary note | States whether a genuinely new agent session was used. A new Python process alone does not count. |
+| New run and comparison | Show that the retained procedure was read and executed, then compare its predictions with the earlier recipe. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Remove the task brief from a handoff copy. Have the new session identify the mis
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the new session asks about an unstated scientific choice, add that choice to the handoff and retain the gap as a finding. If the host cannot provide another session, perform a labelled same-context check and leave fresh-session reuse unverified. Do not simulate forgetting and call it isolation.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Imagine handing the folder to someone who has never read this chat. What must they know to run the experiment without being told what answer to print?
 
 </details>
 

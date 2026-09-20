@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Reflection interprets an attempt. It may identify a failure, suggest a cause, and propose an action. Those are different epistemic roles: the trace is observed; the cause may be inferred; the action is a hypothesis. A useful reflection changes a later decision and survives a test.
 
-
-
 ![A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.](../../assets/diagrams/lab-07-02.png)
 
 *Read the diagram:* A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.
-
-
 
 ## Run the lab
 

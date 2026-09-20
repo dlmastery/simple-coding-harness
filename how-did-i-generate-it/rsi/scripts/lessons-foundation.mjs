@@ -80,7 +80,7 @@ L('01.02','run_the_process','Run the process without changing it',{
 L('01.03','make_a_skill','Turn the process into a skill',{
  build:'A short Markdown skill that runs the fixed baseline process.',
  why:'A chat history is a poor substitute for a reusable procedure. A skill makes the intended behavior explicit.',
- start:'PROCESS.md and TRACE.md from the preceding labs.', budget:'One optional verification fit; no search.',
+ start:'PROCESS.md and TRACE.md from the preceding labs.', budget:'One verification fit to demonstrate execution; no search.',
  how:'A skill describes when to act, what to read, which tools to use, what outputs to keep, and when to stop. The host coding agent interprets it. The tool performs operations such as fitting a model. The evaluator checks an output. These roles cooperate but are not identical.',
  predict:'If a skill says “never use leaked features,” what would show that the restriction is actually checked?',
  steps:[['Write a focused skill','Preserve the process outside chat.','Create a learner-owned baseline skill in Markdown from PROCESS.md. Include inputs, actions, evidence, one-fit limit, and refusal conditions. Keep it shorter than the execution report. Do not modify the canonical course skills.','The skill is a procedure, not a copied transcript.'],['Read and follow it','Check that its instructions govern execution.','Read the new skill and run its one-attempt process in a fresh workspace. Record which instruction led to each action. Compare its outputs with the prior process.','The tool outputs support the skill’s completion claim.']],

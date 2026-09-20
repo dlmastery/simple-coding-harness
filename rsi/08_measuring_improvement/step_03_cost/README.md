@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Resources are not interchangeable. Record agent tokens or provider charges when available, local fit seconds, total wall time, evaluator calls, and later GPU-hours. Unknown values stay unknown. Equal fit counts are useful but do not imply equal total research cost.
 
-
-
 ![Research cost includes proposing, running, checking, and failed work. Fit time is only one component.](../../assets/diagrams/lab-08-03.png)
 
 *Read the diagram:* Research cost includes proposing, running, checking, and failed work. Fit time is only one component.
-
-
 
 ## Run the lab
 

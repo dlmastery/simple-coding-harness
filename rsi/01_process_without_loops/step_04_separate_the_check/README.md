@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A separate calculation can recompute a metric without trusting the report writer. That is useful separation of responsibilities. It is not necessarily independent context or access control: the same host agent may still see every file.
 
-
+**A concrete example.** Suppose a prediction row has a plausible error but refers to source row 12, which belongs to training. The arithmetic can be correct and the selection claim still invalid. A checker with expected row identities rejects that substitution. A checker given only “MAE 159.95” cannot detect it.
 
 ![The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.](../../assets/diagrams/lab-01-04.png)
 
 *Read the diagram:* The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ In a labelled copy, replace one selection row ID with a training row ID. Run the
 
 The valid file passes and the substituted-row file fails. CHECK-REPORT.md describes exactly what the checker reads and cannot protect.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Generated checker | Reads expected row identities and source targets as well as predictions and the claimed metric. |
+| CHECK-REPORT.md | States the valid verdict, substituted-row refusal, exit statuses, and the checker’s access limits. |
+| Unchanged original and altered copy | Make it possible to inspect the exact substitution that caused the failure. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Give the checker only a metric number without predictions. Explain which checks 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the altered row passes, check that the tool compares the full identity set and detects duplicates, rather than only counting rows. If a valid file fails, inspect identity types, ordering requirements, and source version before relaxing a rule. A separate calculation is useful even when the same agent can read both sides; label that boundary accurately.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A candidate, a row set, and a number must refer to the same experiment. Ask what substitution could leave the number plausible while changing the scientific question.
 
 </details>
 

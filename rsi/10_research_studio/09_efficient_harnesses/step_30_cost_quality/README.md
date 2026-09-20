@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 SoL-Pi motivates harness search for efficiency subject to quality requirements. Our exercise removes redundant report work, then checks whether the retained evidence remains complete. Define acceptable quality before comparing cost. Lower token use alone does not establish recursive cost compounding.
 
-
-
 ![A cheaper harness is eligible only if it still meets the declared quality requirement.](../../../assets/diagrams/lab-10-30.png)
 
 *Read the diagram:* A cheaper harness is eligible only if it still meets the declared quality requirement.
-
-
 
 ## Run the lab
 

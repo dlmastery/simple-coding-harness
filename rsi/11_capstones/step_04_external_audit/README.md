@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Start with what changes and how it is evaluated. Then inspect inheritance, resources, retained artifacts, failures, transfer, and access boundaries. Use the authors’ definitions accurately while stating your own evaluation criteria. A critical audit should be precise and fair, not reflexively skeptical.
 
-
-
 ![Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.](../../assets/diagrams/lab-11-04.png)
 
 *Read the diagram:* Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.
-
-
 
 ## Run the lab
 

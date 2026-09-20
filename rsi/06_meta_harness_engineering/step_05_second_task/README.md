@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Preserve the high-level data science workflow. Change the target to quality at least 7, use grouped input duplicates, and measure balanced accuracy with class recalls. These changes arise from the task’s meaning. The builder’s own procedure can remain fixed.
 
-
-
 ![A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.](../../assets/diagrams/lab-06-05.png)
 
 *Read the diagram:* A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The source contrasts training from full expert trajectories with correction on the agent’s own trajectories in evolved harnesses. Our toy version changes an output convention while keeping the harness parser fixed. It illustrates compatibility, not the paper’s trained-model results.
 
-
-
 ![An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.](../../../assets/diagrams/lab-10-34.png)
 
 *Read the diagram:* An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.
-
-
 
 ## Run the lab
 

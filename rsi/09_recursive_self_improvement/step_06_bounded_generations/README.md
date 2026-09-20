@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Each generation records the active solver, active improver, proposal, evaluation, retained versions, and spent resources. The next generation inherits only the selected versions. A rejected change remains in the archive but does not become the active parent. Stop when the budget ends even if the last result is disappointing.
 
-
-
 ![Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.](../../assets/diagrams/lab-09-06.png)
 
 *Read the diagram:* Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.
-
-
 
 ## Run the lab
 

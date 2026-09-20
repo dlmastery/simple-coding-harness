@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The control graph says which action may follow. Data flow says which artifact each action consumes or produces. The trace records what happened at a particular time. A branch can exist in the graph without being taken in a run. A missing trace event is not supplied by drawing the node.
 
-
+**A concrete example.** The plan permits fit → check → report. The data-flow table says the checker reads candidate A’s predictions. A failed trace ends just after fitting. You can claim a model ran, but cannot claim the check passed or that its report exists. Adding a “verified” box to the diagram does not add a missing execution event.
 
 ![Three views answer different questions. A drawn branch does not prove that branch ran.](../../assets/diagrams/lab-03-06.png)
 
 *Read the diagram:* Three views answer different questions. A drawn branch does not prove that branch ran.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,15 @@ Compare the failed trace with the intended graph. Identify an allowed-but-unexec
 
 VIEWS.md distinguishes permission to act, required data, and observed execution. Every claimed completed check has a trace event and output.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| VIEWS.md | Contains the control graph, artifact-flow table, and time-ordered events for one real run. |
+| Failed-trace audit | Identifies an allowed action that did not execute and the output that cannot be claimed. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +85,7 @@ Add a new check node to the plan without rerunning the experiment. Explain why o
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If all three views are the same unlabeled picture, ask each to answer its own question: what may run, what data moves, and what did run? If an event lacks its output, inspect the underlying command before calling it complete. Mark missing trace evidence as missing rather than reconstructing a successful event from the plan.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +107,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A route map does not show which road a particular trip took. The same distinction separates the workflow plan from an execution trace.
 
 </details>
 

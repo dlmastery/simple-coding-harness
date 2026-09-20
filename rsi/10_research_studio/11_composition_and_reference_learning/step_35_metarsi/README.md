@@ -26,12 +26,9 @@ MetaRSI composes operators over data, harness, and model state, with a policy th
 
 **A concrete example.** Suppose a diagnosis says the current harness omits a needed tool call. A harness edit repairs that omission. Reusing the old diagnosis to choose the next operator can now be wrong: it describes the old state. Versioned evidence tells the scheduler when it must inspect the changed system again.
 
-
 ![The simulation composes typed changes and can revise their schedule. Its synthetic values are not model-training results.](../../../assets/diagrams/lab-10-35.png)
 
 *Read the diagram:* The simulation composes typed changes and can revise their schedule. Its synthetic values are not model-training results.
-
-
 
 ## Run the lab
 

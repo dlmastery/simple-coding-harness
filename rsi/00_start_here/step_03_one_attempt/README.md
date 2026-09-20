@@ -26,12 +26,9 @@ The baseline predicts the training median for every selection row. A median mini
 
 **A concrete example.** For a tiny invented training set of 10, 20, and 90 rentals, the median is 20. Predicting 20 gives absolute errors 10, 0, and 70: a total of 80. Predicting the mean, 40, gives 30, 20, and 50: a total of 100. The median wins for absolute error. This explains the baseline choice; it does not guarantee a good error on later hours.
 
-
 ![Learn the median from training rows once. Use it to predict every selection row.](../../assets/diagrams/lab-00-03.png)
 
 *Read the diagram:* Learn the median from training rows once. Use it to predict every selection row.
-
-
 
 ## Run the lab
 
@@ -71,6 +68,17 @@ Show three saved prediction rows. For each, calculate the absolute error. Averag
 
 There is exactly one successful trial. The prediction is constant. The reported full MAE matches a recomputation over saved predictions. No final evaluation has run.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| trial-001/PROPOSAL.md and RESULT.md | Identify the one constant recipe and its measured selection MAE. |
+| trial-001/predictions.csv | Contains one prediction per selection row. The predicted value is constant. |
+| BASELINE-NOTE.md | Shows three absolute errors and explains why their mean need not equal the full-partition MAE. |
+| trials.csv | Contains one completed fit; further candidate search has not started. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -79,7 +87,7 @@ Without another fit, compare an error at a quiet hour with one at a busy hour. E
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If predictions vary by hour, inspect the recorded model: this lab requires the constant baseline. If your score differs, first compare source identity, partition rows, runtime, and the saved recipe. Recompute from predictions before fitting again. A second fit is not automatically allowed inside this one-fit experiment; preserve the first attempt and diagnose it.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -101,7 +109,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+The baseline learns one number from training. Check where that number comes from, then follow one selection row through subtraction, absolute value, and averaging.
 
 </details>
 

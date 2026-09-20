@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A reviewer can identify a missing baseline, confound, or unsupported generalization. Convert one valid criticism into an experiment. Automated review is useful feedback but is not a real conference acceptance decision. ScientistTwo’s automated assessment must be read with that distinction.
 
-
-
 ![A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.](../../../assets/diagrams/lab-10-20.png)
 
 *Read the diagram:* A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.
-
-
 
 ## Run the lab
 

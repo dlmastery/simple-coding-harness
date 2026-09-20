@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Self-correction revises a current output using feedback. Here the checker exposes a wrong summary number and the agent replaces it with the value computed from predictions. When the session ends, no procedure has changed unless you explicitly retain one.
 
-
-
 ![Correction repairs the current output. It need not create a lasting instruction for future tasks.](../../assets/diagrams/lab-07-01.png)
 
 *Read the diagram:* Correction repairs the current output. It need not create a lasting instruction for future tasks.
-
-
 
 ## Run the lab
 

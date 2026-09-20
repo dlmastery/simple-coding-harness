@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Structural recursion means a changed improvement procedure enters later improvement work. Effective recursive improvement adds evidence that this change improves the improvement process under the comparison. Acceleration asks whether progress itself grows across generations after accounting for resources and bottlenecks. These are progressively stronger claims, not automatic consequences.
 
-
-
 ![Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.](../../assets/diagrams/lab-09-07.png)
 
 *Read the diagram:* Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.
-
-
 
 ## Run the lab
 

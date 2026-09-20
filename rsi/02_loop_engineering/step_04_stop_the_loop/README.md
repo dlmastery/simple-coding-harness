@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A recipe fingerprint identifies task, model, features, seed, and tool version. If those are unchanged, a proposal may repeat an earlier attempt. A duplicate check is a controller rule, distinct from the metric. Some repeated stochastic trials are intentional; record that purpose rather than disguising repetition as novelty.
 
-
+**A concrete example.** The proposed sequence linear/calendar → tree/calendar → linear/calendar contains two distinct recipes. A useful controller detects the return to the first recipe before another fit starts. A fourth distinct proposal is a different refusal: it exceeds the two-fit budget. Keeping both reasons shows that duplicate detection and budgeting are separate checks.
 
 ![A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.](../../assets/diagrams/lab-02-04.png)
 
 *Read the diagram:* A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Execute at most the first two recipes. Attempt the duplicate and an over-budget 
 
 The controller produces a real refusal for both duplicate and over-budget requests. Rejections are recorded without fabricated model scores.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Generated controller and LOOP.md | Define recipe identity, duplicate handling, the total attempt limit, and stop behavior. |
+| Request trace | Records the two admitted recipes, duplicate refusal, and distinct over-budget refusal. |
+| Fit ledger | Shows no extra model fit for either refused request. A refusal has a reason, not an invented score. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Label a repeated seed experiment as an intentional reproducibility check. Explai
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the duplicate runs again, inspect which fields the fingerprint includes and whether it is checked before fitting. If an over-budget request succeeds after restart, inspect whether the limit and spent attempts were reloaded. To study intentional replication, declare a separate comparison that permits it; do not relabel an accidental repeat after it happens.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Compare recipe identity before comparing scores. A new explanation for an unchanged recipe does not create a new experimental intervention.
 
 </details>
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The inner researcher proposes ML candidates, evaluates them, and chooses what to pursue. In our exercise, operators are readable actions such as change model family or add a permitted feature group. Their order and allocation define a research procedure that an outer process can later revise.
 
-
-
 ![The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.](../../../assets/diagrams/lab-10-13.png)
 
 *Read the diagram:* The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.
-
-
 
 ## Run the lab
 

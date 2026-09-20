@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A meta-skill is a procedure for working on skills. Keep the meta-skill fixed while it proposes a task-skill revision. Record the resulting task behavior and the updater’s version. The exercise first establishes the nonrecursive baseline.
 
-
-
 ![The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.](../../../assets/diagrams/lab-10-16.png)
 
 *Read the diagram:* The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.
-
-
 
 ## Run the lab
 

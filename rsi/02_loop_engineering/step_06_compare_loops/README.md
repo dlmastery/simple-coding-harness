@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Procedure A repeats a declared baseline recipe. Procedure B uses the first result to choose one permitted change. Both begin with the same candidate and receive two fits. This isolates a simple allocation difference, while remaining too small to establish a broad research advantage.
 
-
+**A concrete example.** In an illustrative two-fit comparison, blind repetition returns errors 160 and 160. A feedback-guided procedure returns 160 and 110. The second procedure retained a better candidate with the same number of fits, but its proposal and review may have cost more. Another task could reverse the outcome. This tests two fixed search procedures, not a procedure revising its own improver.
 
 ![Both search rules start from the same conditions and receive the same total attempt allowance.](../../assets/diagrams/lab-02-06.png)
 
 *Read the diagram:* Both search rules start from the same conditions and receive the same total attempt allowance.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Execute both arms in separate workspaces. Compare retained selection MAE, attemp
 
 Both arms start from the same recipe and get two fits. The adaptive choice is recorded before evaluation. The conclusion is limited to this small comparison.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| COMPARISON-PLAN.md | Fixes both starting states, two-fit allowances, permitted changes, retention, and cost reporting before execution. |
+| Separate arm workspaces | Retain the intentional baseline repeat in A and the recorded adaptive choice in B. |
+| Comparison report | Shows each retained result, all attempted recipes, available costs, and the actual context boundary. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Give one arm ten attempts only as a clearly separate exercise. Explain why its b
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a duplicate controller blocks arm A, inspect the predeclared purpose: this arm intentionally measures fixed repetition. Have the agent implement that explicit replication allowance in a separate arm-specific controller before execution. If one arm gets extra attempts, preserve the outcome but do not claim an equal-budget comparison. Unknown inference cost stays unknown.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+The object being compared is how each procedure spends its attempts. Count the failed and repeated attempts too, then separate that count from total research cost.
 
 </details>
 

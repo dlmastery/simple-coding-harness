@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 First establish the fixed-improver baseline. Propose one improver revision from development evidence. Make a later round inherit it. Compare old and new improvers from matching starting artifacts. Keep evaluation and promotion rules outside the ordinary candidate’s writable surface, or state the weaker local boundary.
 
-
-
 ![The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.](../../assets/diagrams/lab-11-02.png)
 
 *Read the diagram:* The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.
-
-
 
 ## Run the lab
 

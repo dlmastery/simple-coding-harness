@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Total progress depends on the whole research process. If evaluation takes most of the time, making proposals twice as fast has a limited effect. Use explicit synthetic numbers to study the bottleneck, then return to measured evidence. Do not confuse a theoretical possibility with a demonstrated trajectory.
 
-
-
 ![The slow stage limits total speedup. The calculator uses declared synthetic costs, not a forecast.](../../../assets/diagrams/lab-10-38.png)
 
 *Read the diagram:* The slow stage limits total speedup. The calculator uses declared synthetic costs, not a forecast.
-
-
 
 ## Run the lab
 

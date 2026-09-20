@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A branch is a decision with explicit conditions. If required fields are absent, stop before fitting. If data checks pass, proceed. If the evidence is incomplete, report uncertainty. Do not route an unknown condition into the success branch by default.
 
-
+**A concrete example.** A sample containing cnt can pass the required-target check. A sample missing cnt is invalid. A missing check report is unknown: it supplies no verdict at all. Both invalid and unknown should stop this route, but for different reasons. Recording those reasons tells the next step whether to repair data or obtain missing evidence.
 
 ![Different failures require different routes. A data problem should not trigger an expensive model search.](../../assets/diagrams/lab-03-02.png)
 
 *Read the diagram:* Different failures require different routes. A data problem should not trigger an expensive model search.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Execute each fixture through the router. Save ROUTES.md with input, condition, c
 
 All three states are exercised. No invalid or unknown input reaches the fit action. Fixture mutations stay outside source data.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| WORKFLOW.md | Defines valid, invalid, and unknown conditions and their destinations. |
+| Three preserved fixtures | Include the valid sample, missing-target copy, and absent-evidence case. |
+| ROUTES.md | Shows each input, observed condition, chosen action, and exit status; invalid and unknown never reach fitting. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Change “unknown means stop” to “unknown means pass” in a labelled copy. 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If missing evidence reaches the success branch, inspect the router’s default case. Make unknown explicit instead of treating every non-failure value as a pass. If a fixture changed pinned source data, restore the source from its recorded version and keep the mutated fixture in the learner workspace.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+“The check found no error” and “the check never returned a result” are different statements. Follow each through the branch conditions.
 
 </details>
 

@@ -26,12 +26,9 @@ A scalar score says how well a candidate performed. Error slices help locate the
 
 **A concrete example.** In the saved author walkthrough, the linear model with calendar fields has selection MAE 109.81. Adding weather to that same model reduces it to 99.18. Changing the model to a tree while keeping calendar fields instead gives 125.05. One proposal helps and another hurts. Keeping the interventions separate tells you which change produced each result. Your own run must supply its own measurements.
 
-
 ![Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.](../../assets/diagrams/lab-02-03.png)
 
 *Read the diagram:* Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.
-
-
 
 ## Run the lab
 
@@ -71,6 +68,16 @@ Fit linear/calendar and linear/all with the same seed and contract. Record in DE
 
 The next action differs in the declared feature set. The report does not infer causation from prediction performance. Harmful feedback remains visible.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| FEEDBACK.md | Separates the observed weakness, weather-feature hypothesis, alternative explanation, and predicted outcome. |
+| DECISION.md | Names the feedback that changed the next action before that candidate is fitted. |
+| Two candidate records | Keep linear/calendar and linear/all under the same model family, seed, split, and metric. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -79,7 +86,7 @@ Replace the diagnosis with “try harder.” Explain why this is less useful tha
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the agent explains the feature choice only after seeing its score, label the explanation retrospective and do not claim it was the decision rule. If error slices do not support a weather-specific diagnosis, record that uncertainty: adding weather remains a testable hypothesis. A poorer candidate is retained as evidence and rejected as the preferred recipe.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -101,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Draw three boxes: observation, hypothesis, action. Only the first is already measured. The experiment tests the connection between the other two.
 
 </details>
 

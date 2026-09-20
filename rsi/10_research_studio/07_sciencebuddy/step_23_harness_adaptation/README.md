@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Keep the agent’s language-model weights fixed. Edit a learner-owned reporting skill to require class-wise evidence and a claim check. Then test the revised procedure. This isolates harness adaptation; it does not implement the paper’s weight-learning component.
 
-
-
 ![Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.](../../../assets/diagrams/lab-10-23.png)
 
 *Read the diagram:* Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.
-
-
 
 ## Run the lab
 

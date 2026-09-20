@@ -26,13 +26,9 @@ Use 08-02 for the selection decision and lesson notes. Run final evaluation in t
 
 Selection chooses a recipe using development feedback. Final evaluation measures that frozen choice on another partition. The local tool locks selection before final scoring. This enforces a workflow for a cooperative agent, but the source remains public and readable. An adversarial or truly hidden evaluation needs separate control.
 
-
-
 ![Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.](../../assets/diagrams/lab-08-02.png)
 
 *Read the diagram:* Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 In self-play, a system generates experience by playing against versions of itself or by coupling challenge generation with solving. Learning systems use that experience in a declared update. Here you run only a small interaction analogy: one role proposes an ML recipe and another challenges it. You do not train either role, generate a learned curriculum, or establish independent judgment. The domain checker supplies the declared validity check. Separate interaction, feedback, retained change, and evidence of benefit.
 
-
-
 ![This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.](../../assets/diagrams/lab-07-07.png)
 
 *Read the diagram:* This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.
-
-
 
 ## Run the lab
 

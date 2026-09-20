@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Working state records the current run: active candidate, pending check, remaining budget. Reusable experience records a scoped procedure learned from prior work. The exercise separates them and checks that a new run does not inherit old spent-state values as if they were current.
 
-
-
 ![Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.](../../../assets/diagrams/lab-10-06.png)
 
 *Read the diagram:* Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.
-
-
 
 ## Run the lab
 

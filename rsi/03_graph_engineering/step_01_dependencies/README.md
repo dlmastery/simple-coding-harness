@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Draw each action as a node. An arrow from inspect data to validate split means the latter needs the former’s output. A directed acyclic graph, or DAG, has directed arrows and no cycle. A loop is a cycle, so a workflow containing a retry is not a DAG unless the retry is represented as a separate bounded operation.
 
-
+**A concrete example.** The fit action produces predictions.csv. The metric check consumes that file. Drawing fit → check records a dependency, not a preference about page layout. Moving the check earlier leaves it without its required input. Two actions with no shared dependency may be reordered, but only if they also avoid conflicting writes.
 
 ![An arrow is a prerequisite: the destination needs the source to finish first.](../../assets/diagrams/lab-03-01.png)
 
 *Read the diagram:* An arrow is a prerequisite: the destination needs the source to finish first.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Generate a local graph-order checker. Verify the normal sequence, then try an or
 
 The graph has explicit edges and a valid order. The checker rejects the invalid order. The diagram labels artifacts rather than implying unexplained communication.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| WORKFLOW.md and diagram source | Name each action and the artifact carried by each dependency. |
+| Rendered workflow | Shows readable arrows and labels; the source remains editable. |
+| Ordering-check results | Record a valid order and an invalid order that tries to check predictions before they exist. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Remove the inspect-to-split edge in a copy. Explain what important information t
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If an arrow has no named input, ask what would prevent its destination from running first. Remove decorative edges that assert no real dependency. If the invalid order passes, inspect whether the checker verifies every predecessor rather than only counting nodes. Keep diagram syntax failures separate from failures of the workflow itself.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Cover the preceding action with your hand. What input would the next action lose? That missing input is the reason for a dependency arrow.
 
 </details>
 

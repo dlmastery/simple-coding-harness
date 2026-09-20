@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Task rules define the current problem. Reference knowledge explains how to act. State records what has already happened. A retrieval step should select relevant references without overwriting current state. A past experiment’s final score is not a new task’s target to imitate.
 
-
-
 ![Retrieve relevant reusable knowledge, but initialize current state from the active task.](../../assets/diagrams/lab-05-03.png)
 
 *Read the diagram:* Retrieve relevant reusable knowledge, but initialize current state from the active task.
-
-
 
 ## Run the lab
 

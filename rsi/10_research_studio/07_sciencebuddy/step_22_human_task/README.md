@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScienceBuddy connects scientific interactions and artifacts to improvement work. Our fixture uses familiar classification evidence. A rubric turns the correction into checks: state the label threshold, report both class recalls, preserve predictions, and avoid claiming accuracy alone establishes quality. It is a teaching fixture, not a real scientist interaction.
 
-
-
 ![A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.](../../../assets/diagrams/lab-10-22.png)
 
 *Read the diagram:* A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.
-
-
 
 ## Run the lab
 

@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Record who made the claim, when it first appeared, what was measured, and what the linked evidence contains. Original X posts can be valid announcement sources. A blocked thread stays unverified; a repost is not a substitute for its missing content.
 
-
-
 ![Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.](../../../assets/diagrams/lab-10-02.png)
 
 *Read the diagram:* Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.
-
-
 
 ## Run the lab
 

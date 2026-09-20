@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A harness organizes an agent’s instructions, tools, state, evaluation, and limits. A harness brief states the task and required behavior while leaving implementation syntax to the coding agent. A good brief includes what must fail, not only what should succeed.
 
-
-
 ![The brief fixes scientific choices and required behavior. The builder supplies implementation details.](../../assets/diagrams/lab-06-01.png)
 
 *Read the diagram:* The brief fixes scientific choices and required behavior. The builder supplies implementation details.
-
-
 
 ## Run the lab
 

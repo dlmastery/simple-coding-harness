@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Transfer asks whether a retained change helps in a different setting. Keep the skill frozen while adapting only task-specific interfaces required by the brief. Record any necessary adaptation. If you rewrite the skill after seeing wine outcomes, that becomes wine development, not the original transfer test.
 
-
-
 ![Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.](../../assets/diagrams/lab-08-05.png)
 
 *Read the diagram:* Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.
-
-
 
 ## Run the lab
 

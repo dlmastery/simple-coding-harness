@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Suppose the fixed improver promotes a skill after one favorable case and misses a known regression. A candidate improver can require a contrasting case before promotion. This changes the procedure for improving task skills. The proposal remains a hypothesis until it governs later work and receives a fair comparison.
 
-
-
 ![An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.](../../assets/diagrams/lab-09-03.png)
 
 *Read the diagram:* An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.
-
-
 
 ## Run the lab
 

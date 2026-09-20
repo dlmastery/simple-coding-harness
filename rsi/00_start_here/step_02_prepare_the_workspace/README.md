@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The agent reads instructions, writes generated files, and runs tools. These are separate capabilities. The workspace holds your outputs; the course directory holds the shared instructions and source data. Keeping them separate makes restart and comparison easier.
 
-
+**A concrete example.** A text-only agent can explain MAE and draft TASK.md. It cannot produce evidence that a local model ran. An agent with file access may save that brief but still lack a working Python environment. Ask each capability to produce its own small observable result: a read file, an executed command, an imported package, or an opened plot.
 
 ![Keep course sources separate from your own work. A command must produce an inspectable artifact.](../../assets/diagrams/lab-00-02.png)
 
@@ -72,6 +72,16 @@ Run the bike data inspection in this lab workspace. Open DATA-REPORT.md and data
 
 CAPABILITIES.md identifies the runtime. DATA-REPORT.md and a readable chart exist. Source checksum verification passes. The report states that public partitions are not secret.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| CAPABILITIES.md | Names the actual Python and package versions, executed checks, and any missing capability. |
+| DATA-REPORT.md | Reports 17,379 source rows and the fixed training, selection, and final roles. |
+| sample.csv and data-overview.png | Preserve inspected rows and a readable chart from the pinned data. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -80,7 +90,7 @@ Ask the agent what it could still do if command execution were disabled. Separat
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If package installation fails, save the command error and environment path. Have the agent repair that project environment and repeat only the failed capability check. If the data checksum differs, inspect which file was opened; do not edit the expected checksum to accept another dataset. If a chart exists but cannot be viewed, report that display gap separately from plot generation.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +112,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate “the agent knows how” from “the agent executed it here.” Match each capability claim to a file or command result that could disprove it.
 
 </details>
 

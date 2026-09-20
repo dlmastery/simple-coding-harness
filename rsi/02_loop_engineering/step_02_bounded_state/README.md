@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Loop state is the information needed for the next step: attempts used, candidates tried, current result, and retained best result. The best candidate changes only when the new valid score is better under the fixed rule. Rejected candidates remain part of the experiment.
 
-
+**A concrete example.** Suppose three illustrative candidates have MAE 160, 110, and 125. After the third fit, the current candidate has error 125, but the retained best still has error 110. The loop stops because it spent three attempts. Stopping and choosing the retained output are different decisions.
 
 ![Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.](../../assets/diagrams/lab-02-02.png)
 
 *Read the diagram:* Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,16 @@ Run constant, linear, and tree with calendar inputs and seed 17. After each fit,
 
 Exactly three attempts are recorded. The retained candidate satisfies the declared rule. The last candidate is not automatically selected.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| LOOP.md | Declares three attempts, allowed recipes, lower-MAE retention, tie handling, and stop conditions. |
+| State after each attempt | Shows both the current candidate and retained best, plus attempts used and remaining. |
+| trials.csv and COMPARISON.md | Preserve all three results and the choice supported by the declared rule. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +86,7 @@ Set the limit to one in a new workspace. Predict which artifact can be produced 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the latest candidate replaces a better earlier result, inspect the retention condition. If the comparison shows the wrong attempt limit, check the frozen contract and the first run’s budget argument. Do not increase the contract limit after results arrive. Failed admitted attempts still consume their slots.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Use two labels on the ledger: “just evaluated” and “best retained so far.” Move each label only when its own rule says to move it.
 
 </details>
 

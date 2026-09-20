@@ -26,12 +26,9 @@ Learning can be implemented through changed weights, memory, skills, or other re
 
 **A concrete example.** An agent can save “always use a tree” after one lucky result and follow that note tomorrow. Persistence and later use are visible, but the lesson may be wrong. This is retained adaptation without demonstrated improvement. The next experiment must test its scope instead of treating memory as success.
 
-
 ![Persistent learning requires a retained change that is used later. Use and benefit are separate checks.](../../assets/diagrams/lab-07-03.png)
 
 *Read the diagram:* Persistent learning requires a retained change that is used later. Use and benefit are separate checks.
-
-
 
 ## Run the lab
 

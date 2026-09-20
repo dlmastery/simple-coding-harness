@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ModularRSI organizes changes across agent loop, tool use, observation, context, and task completion. In this exercise, contrasting traces identify one likely faulty component. Restrict the edit and keep neighboring components fixed so its consequences are easier to inspect.
 
-
-
 ![Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.](../../../assets/diagrams/lab-10-10.png)
 
 *Read the diagram:* Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.
-
-
 
 ## Run the lab
 

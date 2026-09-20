@@ -24,13 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A process says what actions turn an input into an output. For this task: frame the question, inspect the data, fix the split, fit the baseline, and check the result. These are actions with products. “Be accurate” is an aim, not an executable action.
 
-
+**A concrete example.** “Fit a baseline” needs more than a table. It also needs the target, allowed columns, and training rows. Its output is a fitted recipe and predictions. The later checker consumes those predictions and the expected selection-row identities. Writing these input/output pairs reveals why a missing split decision cannot be repaired by a confident final paragraph.
 
 ![Follow one fixed process. No outer search chooses a new recipe after the result.](../../assets/diagrams/lab-01-01.png)
 
 *Read the diagram:* Follow one fixed process. No outer search chooses a new recipe after the result.
-
-
 
 ## Run the lab
 
@@ -70,6 +68,15 @@ Trace one baseline result backward through this process. Identify where the targ
 
 Each action has a concrete input and output. Task, split, and metric are fixed before model fitting. The process contains no learner-designed improvement loop.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| PROCESS.md | Contains frame, inspect, split, fit, and check, each with its input, output, and completion condition. |
+| Gap review | Traces the existing baseline back to the decisions that make its score interpretable. No new fit is needed. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -78,7 +85,7 @@ Move split design after fitting. Explain what temptation this creates and why a 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a step says only “improve quality,” ask what action runs and what evidence marks it complete. If fitting appears before the target or partitions are defined, repair the order on paper. If a step depends on something remembered only from chat, add its source file to the process.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -100,7 +107,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Try to execute the process with the conversation hidden. At each step, name the specific input you would need and the output the next step expects.
 
 </details>
 

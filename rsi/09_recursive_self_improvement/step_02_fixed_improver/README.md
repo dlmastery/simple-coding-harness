@@ -24,13 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Generation labels track ancestry. The improver reads a solver’s failures, proposes a child task skill, and applies the same acceptance procedure each time. The solver may change repeatedly while the improver remains identical. Numbering generations does not change that fact.
 
-
-
 ![Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.](../../assets/diagrams/lab-09-02.png)
 
 *Read the diagram:* Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.
-
-
 
 ## Run the lab
 
