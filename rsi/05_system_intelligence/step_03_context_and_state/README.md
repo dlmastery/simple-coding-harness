@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Task rules define the current problem. Reference knowledge explains how to act. State records what has already happened. A retrieval step should select relevant references without overwriting current state. A past experiment’s final score is not a new task’s target to imitate.
 
-**A concrete example.** A saved summary says “three attempts remain.” The current ledger shows two admitted attempts in a three-attempt experiment. The next session has one attempt left. Copying the summary into a fresh context does not turn its outdated statement into current state. Use the summary to find the evidence, then reconcile it with the ledger.
+**A concrete example.** In the [executed context check](../../evidence/2026-09-20/loops-and-systems/05-03/CONFLICT-AND-RECOVERY.md), a labelled stale note says “three attempts remain.” The real contract allows two and the ledger has charged one. One attempt remains. Copying the note into a new context cannot refund the spent attempt. The summary should help locate the contract and ledger, then defer to their verified current state.
 
 ![Retrieve relevant reusable knowledge, but initialize current state from the active task.](../../assets/diagrams/lab-05-03.png)
 

@@ -1,0 +1,55 @@
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	﻿2026-09-20T14:42:40.2122131Z ##[group]Run python run_tests.py rsi
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2122537Z [36;1mpython run_tests.py rsi[0m
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2193757Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2194139Z env:
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2194328Z   PYTHONUTF8: 1
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2194527Z   MPLBACKEND: Agg
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2194832Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2195295Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2195744Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2196149Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2196544Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:40.2196857Z ##[endgroup]
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:51.9871351Z Checked 101 lessons and 2087 local links.
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:51.9872718Z rsi\evidence\2026-09-20\loops-and-systems\05-02\BIKE-DATA-CARD.md: missing source/Readme.txt
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:51.9874280Z rsi\evidence\2026-09-20\loops-and-systems\05-02\WINE-DATA-CARD.md: missing source/winequality.names
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:51.9875051Z 2 publication problems.
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:51.9931852Z rsi/maintenance                              20 passed in 10.46s
+CPU checks (windows-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:52.1157463Z ##[error]Process completed with exit code 1.
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	﻿2026-09-20T14:42:07.0933000Z ##[group]Run python run_tests.py rsi
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0933420Z [36;1mpython run_tests.py rsi[0m
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0974480Z shell: /bin/bash -e {0}
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0974920Z env:
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0975080Z   PYTHONUTF8: 1
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0975350Z   MPLBACKEND: Agg
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0975680Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0976310Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0976860Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0981370Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0981900Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:07.0982230Z ##[endgroup]
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2510000Z Checked 101 lessons and 2087 local links.
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2510900Z rsi/evidence/2026-09-20/loops-and-systems/05-02/BIKE-DATA-CARD.md: missing source/Readme.txt
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2511840Z rsi/evidence/2026-09-20/loops-and-systems/05-02/WINE-DATA-CARD.md: missing source/winequality.names
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2512360Z 2 publication problems.
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2538550Z rsi/maintenance                              20 passed in 10.34s
+CPU checks (macos-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:18.2589580Z ##[error]Process completed with exit code 1.
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	﻿2026-09-20T14:42:02.4212694Z ##[group]Run python run_tests.py rsi
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4213015Z [36;1mpython run_tests.py rsi[0m
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4230386Z shell: /usr/bin/bash -e {0}
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4230685Z env:
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4230901Z   PYTHONUTF8: 1
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4231228Z   MPLBACKEND: Agg
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4231475Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4231872Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4232217Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4232537Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4232887Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4233190Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:02.4233498Z ##[endgroup]
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9518071Z Checked 101 lessons and 2087 local links.
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9519081Z rsi/evidence/2026-09-20/loops-and-systems/05-02/WINE-DATA-CARD.md: missing source/winequality.names
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9520017Z rsi/evidence/2026-09-20/loops-and-systems/05-02/BIKE-DATA-CARD.md: missing source/Readme.txt
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9520482Z 2 publication problems.
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9545816Z rsi/maintenance                              20 passed in 5.86s
+CPU checks (ubuntu-latest, Python 3.12)	Check runtime behavior and course links	2026-09-20T14:42:08.9608666Z ##[error]Process completed with exit code 1.

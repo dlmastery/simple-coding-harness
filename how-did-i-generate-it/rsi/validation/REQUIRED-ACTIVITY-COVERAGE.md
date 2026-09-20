@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-48 labs have mapped related author-execution evidence; 53 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+54 labs have mapped related author-execution evidence; 47 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -205,9 +205,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Give one arm ten attempts only as a clearly separate exercise. Explain why its better result would not establish a better method at equal resources.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four matched-budget fits and a pre-fit adaptive choice executed. The unequal-budget extension was explained but its additional fits were not run. Baseline outcomes were author-known; inference cost is unmeasured.
 
 **Acceptance to verify:** Both arms start from the same recipe and get two fits. The adaptive choice is recorded before evaluation. The conclusion is limited to this small comparison.
 
@@ -380,9 +380,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Give the router a task with no target type. Require a clarification of the scientific question before choosing a metric.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Declared fits and fixtures, source identities, additional analysis, and measured outputs are retained. The fixed router and guards are agent-written code in one author context; no real learner assessment or independent language-model behavior is established.
 
 **Acceptance to verify:** The two tasks use their own contracts. Identical wine feature rows stay in one partition. Unknown tasks are rejected.
 
@@ -393,9 +393,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the data card’s input-availability rule and ask which next decision becomes unsafe to infer.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Declared fits and fixtures, source identities, additional analysis, and measured outputs are retained. The fixed router and guards are agent-written code in one author context; no real learner assessment or independent language-model behavior is established.
 
 **Acceptance to verify:** The packet preserves current task identity and ledger state. A stale budget note produces a visible conflict.
 
@@ -406,9 +406,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Have a tool return a valid score for the wrong candidate. Require the coordinator to reject that handoff.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed live state control and process resumption](../../../rsi/evidence/2026-09-20/live-coordinator/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** One new fit, a later check process, three handoff fixtures, and post-completion refusal executed. The earlier retrospective trace and its separate fit remain preserved. Forced interruption during fitting, independent reviewers, and learner interpretation were not tested.
 
 **Acceptance to verify:** The coordinator never marks incomplete work complete. Its report states that role separation is organizational unless an actual access boundary exists.
 
@@ -419,9 +419,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove both overlapping checks in a separate declared ablation. Explain why this answers a different causal question.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Declared fits and fixtures, source identities, additional analysis, and measured outputs are retained. The fixed router and guards are agent-written code in one author context; no real learner assessment or independent language-model behavior is established.
 
 **Acceptance to verify:** Only one component differs. The report accounts for redundant checks and does not claim a predictive-performance gain.
 
@@ -622,9 +622,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Calculate how the conclusion changes if only the best seed is shown. Label that selection as misleading.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Six fits across all three prespecified seed pairs, checked predictions, actual-data plot, and post-hoc best-seed contrast are retained. Three seeds share one split; dataset uncertainty and learner interpretation remain untested.
 
 **Acceptance to verify:** All six planned runs appear, or missing runs are explained. No seed is discarded. Uncertainty includes task and data limitations.
 

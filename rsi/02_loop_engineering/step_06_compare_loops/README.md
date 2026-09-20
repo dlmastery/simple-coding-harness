@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Procedure A repeats a declared baseline recipe. Procedure B uses the first result to choose one permitted change. Both begin with the same candidate and receive two fits. This isolates a simple allocation difference, while remaining too small to establish a broad research advantage.
 
-**A concrete example.** In an illustrative two-fit comparison, blind repetition returns errors 160 and 160. A feedback-guided procedure returns 160 and 110. The second procedure retained a better candidate with the same number of fits, but its proposal and review may have cost more. Another task could reverse the outcome. This tests two fixed search procedures, not a procedure revising its own improver.
+**A concrete example.** In the [author run](../../evidence/2026-09-20/loops-and-systems/02-06/COMPARISON.md), repeating the constant baseline twice retained MAE 159.95. The other arm inspected hourly errors, recorded a model choice, and fitted linear/calendar on its second attempt. It retained MAE 109.81. Both arms spent two fits; their total reasoning and review costs were not measured. This small, author-known task checks two fixed search procedures. It does not show either procedure revising its own improver.
 
 ![Both search rules start from the same conditions and receive the same total attempt allowance.](../../assets/diagrams/lab-02-06.png)
 

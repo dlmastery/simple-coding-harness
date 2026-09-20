@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task brief identifies the target type and evaluation rule. Regression estimates a count and uses MAE. The derived wine classification task predicts whether quality is at least 7 and uses balanced accuracy. Routing chooses an already defined procedure; it does not learn a new one.
 
-**A concrete example.** For an illustrative classification set with 90 negative and 10 positive cases, predicting negative every time gives 90% ordinary accuracy. Negative recall is 1 and positive recall is 0, so balanced accuracy is (1 + 0) / 2 = 0.5. The apparent success depends on the metric. The wine route must make the minority-class failure visible.
+**A concrete example.** The [measured wine baseline](../../evidence/2026-09-20/loops-and-systems/05-02/COMPARISON.md) predicts negative on all 319 selection rows. It gets 278 right: 87.1% accuracy. Yet it misses all 41 positive cases. Negative recall is 1 and positive recall is 0, so balanced accuracy is (1 + 0) / 2 = 0.5. The wine route must expose that failure. The bike route answers a different question: how many rentals away was each numerical prediction?
 
 ![Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.](../../assets/diagrams/lab-05-02.png)
 

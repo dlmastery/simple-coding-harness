@@ -1,0 +1,16 @@
+sequence,utc,action,state,detail
+1,2026-09-20T14:41:54.158709+00:00,state-saved,ready,unambiguous bike task and one-fit contract
+2,2026-09-20T14:41:54.171296+00:00,state-read,ready,process invoked with action fit
+3,2026-09-20T14:41:54.176557+00:00,state-saved,running,reserve sole fit before launching
+4,2026-09-20T14:41:54.186540+00:00,command-start,running,fit
+5,2026-09-20T14:41:56.242757+00:00,command-exit,running,fit; exit 0; wall_seconds 2.048124
+6,2026-09-20T14:41:56.257768+00:00,state-saved,awaiting-check,fit succeeded; checker not yet launched
+7,2026-09-20T14:42:08.773097+00:00,state-read,awaiting-check,process invoked with action check
+8,2026-09-20T14:42:08.798681+00:00,fixture,awaiting-check,missing-check: awaiting-check
+9,2026-09-20T14:42:08.809466+00:00,fixture,awaiting-check,ambiguous-target: needs-clarification
+10,2026-09-20T14:42:08.822509+00:00,fixture,awaiting-check,wrong-candidate: awaiting-check
+11,2026-09-20T14:42:08.833943+00:00,command-start,awaiting-check,check
+12,2026-09-20T14:42:11.020578+00:00,command-exit,awaiting-check,check; exit 0; wall_seconds 2.177792
+13,2026-09-20T14:42:11.035919+00:00,state-saved,complete,"matching task, full candidate identity, predictions, and successful checker"
+14,2026-09-20T14:42:27.406518+00:00,state-read,complete,process invoked with action fit
+15,2026-09-20T14:42:27.422542+00:00,refused,complete,fit is only allowed from ready; no tool launched

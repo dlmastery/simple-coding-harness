@@ -2,7 +2,9 @@
 
 Thirteen CPU fits ran under a [protocol](PROTOCOL.md) pushed before execution at `c9f9cd9a6dd49b1187b8010dc71fd331a46fa7e9`. All 26 fit/check commands exited successfully. The exact driver, runtime, checker, plans, predictions, costs, and 146 original files are preserved and hashed in [the manifest](MANIFEST.csv). This index was written after the run.
 
-**Scope correction:** the original 05.04 driver constructed its transition table after the fit and check. Its handoff fixtures executed, but the table does not prove that saved state controlled those commands. The separate [correction protocol](../../../../how-did-i-generate-it/rsi/validation/LIVE-COORDINATOR-PROTOCOL.md) declares a new one-fit controller test. Do not infer live coordination from a retrospective trace.
+Publication review found two broken relative links inside the unchanged copied data cards. Their original source-description files were added under `05-02/source/` afterward, with a separate [supplement manifest](PUBLICATION-SUPPLEMENTS.csv). They restore navigation; they are not additional experiment results. The original run files and manifest remain unchanged.
+
+**Scope correction:** the original 05.04 driver constructed its transition table after the fit and check. Its handoff fixtures executed, but the table does not prove that saved state controlled those commands. The separate [correction protocol](../../../../how-did-i-generate-it/rsi/validation/LIVE-COORDINATOR-PROTOCOL.md) led to a [completed one-fit controller test](../live-coordinator/README.md). Do not infer live coordination from a retrospective trace.
 
 ## What actually ran
 

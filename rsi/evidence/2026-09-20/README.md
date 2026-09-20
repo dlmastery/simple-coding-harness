@@ -1,5 +1,7 @@
 # Author execution evidence
 
+The [loop and system walkthrough](loops-and-systems/README.md) adds thirteen fits for matched loops, task routing, and repeated seed comparisons, plus context and ablation fixtures. A separate [live-coordinator correction](live-coordinator/README.md) adds one fit with state saved before actions, separate-process checking, identity refusals, and a refused post-completion fit. The initial reconstructed trace is retained with its limitation; total new work across these two packs is fourteen fits.
+
 The [ScienceBuddy classroom sequence](sciencebuddy-laptop/README.md) adds executed rubric/reporting checks, a three-case numerical policy update, a paired-state simulation, a primary-source result audit, and larger-training planning. It reuses actual wine predictions without new fits. No LLM training or paper reproduction is claimed.
 
 The [two-generation bike run](two-generations/README.md) adds twelve fits under a predeclared protocol. Both paths retained a better task skill, but neither proposed improver revision was accepted. Proposal resumption, rejected ancestry, and generation-limit refusals were executed. This is a useful negative result for RSI claims, not evidence of successful improver replacement.

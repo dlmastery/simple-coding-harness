@@ -63,6 +63,18 @@ for (const id of ['10.22','10.23','10.24','10.25','10.26']) related.set(id, {
   label: 'Executed local ScienceBuddy teaching activities',
   gap: 'Report checks, toy numerical updates, synthetic pair transitions, source arithmetic, and additional reading/planning notes are retained. The reporter is deterministic and author-written; no independent agent behavior, real LLM training, paper reproduction, or learner assessment is established.'
 });
+for (const id of ['02.06','05.02','05.03','05.05','08.01']) related.set(id, {
+  path: evidenceRoot+'loops-and-systems/README.md',
+  label: 'Executed loop, routing, context, ablation, and repetition activities',
+  gap: 'Declared fits and fixtures, source identities, additional analysis, and measured outputs are retained. The fixed router and guards are agent-written code in one author context; no real learner assessment or independent language-model behavior is established.'
+});
+related.get('02.06').gap = 'Four matched-budget fits and a pre-fit adaptive choice executed. The unequal-budget extension was explained but its additional fits were not run. Baseline outcomes were author-known; inference cost is unmeasured.';
+related.get('08.01').gap = 'Six fits across all three prespecified seed pairs, checked predictions, actual-data plot, and post-hoc best-seed contrast are retained. Three seeds share one split; dataset uncertainty and learner interpretation remain untested.';
+related.set('05.04', {
+  path: evidenceRoot+'live-coordinator/README.md',
+  label: 'Executed live state control and process resumption',
+  gap: 'One new fit, a later check process, three handoff fixtures, and post-completion refusal executed. The earlier retrospective trace and its separate fit remain preserved. Forced interruption during fitting, independent reviewers, and learner interpretation were not tested.'
+});
 
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);

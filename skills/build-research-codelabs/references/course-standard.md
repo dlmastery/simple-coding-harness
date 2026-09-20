@@ -57,6 +57,8 @@ Explain the distinction between the model, coding agent, skill instructions, gen
 
 Use one canonical skill source. Generate or maintain adapters for agent-specific discovery and integration. Provide a file-reading fallback where possible. Test claimed support in the actual agent and state the versions. Do not promise that every agent supports the same hooks, isolation, or tools.
 
+When teaching coordination, distinguish a trace reconstructed after execution from state that controlled the actions. Save and read the required state before launching the next action. Test a real process boundary and a refused action when relevant. Match checker evidence to the complete candidate identity, even when two candidates produce identical predictions. Preserve the original run and its cost if review requires a separate corrective experiment.
+
 ## A meaningful task at an affordable scale
 
 Choose an authentic task that suits the subject and audience. For advanced AI/ML teaching, use genuine ML experiments when they expose the mechanism better than a document example. Regression, classification, small generative models, or low-dimensional learning problems may fit different subjects.

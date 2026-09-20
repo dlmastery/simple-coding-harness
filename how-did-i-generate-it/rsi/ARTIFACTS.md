@@ -1,6 +1,6 @@
 # Artifact index
 
-Latest additions: [self-play protocol](validation/SELF-PLAY-PROTOCOL.md), [complete self-play evidence](../../rsi/evidence/2026-09-20/self-play/README.md), [measured-plot source](scripts/plot-self-play.py), [diagram revision v5](visuals/rendered-gallery-v5.md), and [individually reviewed README coverage](validation/README-GUIDANCE-COVERAGE.md). The runtime source snapshot preserves the exact bytes used by the experiment. CSV and source attributes prevent newline conversion from changing those archived bytes.
+Latest additions: [loop and system results](validation/LOOPS-AND-SYSTEMS-RESULTS.md), [thirteen-fit evidence](../../rsi/evidence/2026-09-20/loops-and-systems/README.md), and [live-coordinator correction](../../rsi/evidence/2026-09-20/live-coordinator/README.md). Earlier [self-play evidence](../../rsi/evidence/2026-09-20/self-play/README.md), [diagram revision v5](visuals/rendered-gallery-v5.md), and [README support coverage](validation/README-GUIDANCE-COVERAGE.md) remain intact. Original runtime snapshots preserve the exact bytes used; later navigation supplements are separately identified.
 
 This index covers planning, reusable skills, and implementation. The old RSI course remains in Git history. The replacement is authored and undergoing validation.
 
@@ -13,7 +13,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Completion ledger](COURSE-COMPLETION-LEDGER.md) | Full active goal, requirement evidence, and next work | Partial completion remains explicit |
 | [README guidance coverage](validation/README-GUIDANCE-COVERAGE.md) | Per-lab presence and publication checks for examples, outputs, recovery, and hints | Editorial support complete for 101 labs; not learner validation |
-| [Required activity coverage](validation/REQUIRED-ACTIVITY-COVERAGE.md) | Every lab's core actions, additional change, acceptance, evidence, and remaining gap | 48 related execution mappings; no automatic completed-lab count |
+| [Required activity coverage](validation/REQUIRED-ACTIVITY-COVERAGE.md) | Every lab's core actions, additional change, acceptance, evidence, and remaining gap | 54 related execution mappings; no automatic completed-lab count |
 | [Original course backups](backups/README.md) | Byte-verified original README and complete tracked RSI ZIP | Extracted from pre-rewrite commit `eed9cbb`; Git history preserved |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Primary sources and reading status | Broad sweep complete; deeper reviews remain |
 | [Search log](research/SEARCH-LOG.md) | Query bodies, dates, screening, and access gaps | Recorded from the broader sweep |

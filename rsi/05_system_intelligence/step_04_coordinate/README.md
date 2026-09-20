@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The coordinator tracks task state, chooses the next allowed action, and handles incomplete evidence. It should stop when the scientific brief is ambiguous or a required check is missing. It does not acquire evaluator independence by naming a “reviewer” role in the same conversation.
 
-**A concrete example.** A tool can finish training while the coordinator remains in awaiting-check. That is a valid intermediate state: computation exists, but acceptance is incomplete. If the returned check belongs to another candidate, the coordinator must stay there or stop. A generic “success” string cannot close the current run.
+**A concrete example.** The [live coordinator run](../../evidence/2026-09-20/live-coordinator/README.md) saved awaiting-check after fitting, exited, and read that state in a new process before checking. One fixture supplied a valid check for a different baseline. Even its prediction bytes matched, but its candidate identity did not. The handoff was rejected. Only a matching check let the actual run enter complete; a later fit request was refused.
 
 ![Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.](../../assets/diagrams/lab-05-04.png)
 
@@ -58,7 +58,9 @@ Make completion requirements explicit.
 Create a coordinator procedure with states
 ready, running, awaiting-check, complete,
 and needs-clarification. Define the artifact
-and condition for each transition.
+and condition for each transition. Save and
+read state before its permitted action, not
+only in a report afterward.
 ```
 
 **Observe:** The next action follows a visible condition.
@@ -69,6 +71,8 @@ Test more than a successful path.
 
 ```text
 Run one baseline through the coordinator.
+Save awaiting-check and end the process.
+Resume from that state to check the result.
 Then test a missing checker result and an
 ambiguous target brief using fixtures. Save
 transitions and stop reasons. Do not invent
@@ -87,9 +91,9 @@ The agent keeps these in your lab workspace or records the original experiment p
 
 | Output | What to inspect |
 |---|---|
-| Coordinator procedure | Defines ready, running, awaiting-check, complete, and needs-clarification transitions. |
-| Baseline transition trace | Connects state changes to actual artifacts and verdicts for one candidate. |
-| Two handoff-failure records | Preserve the missing-check stop and unresolved target-meaning stop without inventing approval. |
+| Coordinator procedure and saved state | Define ready, running, awaiting-check, complete, and needs-clarification, and read the saved state before acting. |
+| Ordered event trace | Shows state saved before command start, actual exit, and a later process reading awaiting-check. |
+| Two main failure records and the additional identity fixture | Preserve missing-check, ambiguous-target, and wrong-candidate refusals without inventing approval. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
@@ -99,7 +103,7 @@ Have a tool return a valid score for the wrong candidate. Require the coordinato
 
 ## If something goes wrong
 
-If the coordinator marks work complete immediately after fitting, inspect the required checker transition. If the target brief admits incompatible interpretations, identify the specific scientific decision that needs clarification; routine file naming does not need the same pause. Record actual decisions rather than supplying a fictional human approval to keep the run moving.
+If transitions appear only in a report written after the run, they describe history but do not establish control. Save state before the action and verify that execution reads it. If complete appears immediately after fitting, restore the missing checker requirement in a new controlled run. If the target brief has incompatible interpretations, identify the scientific decision that needs clarification. Preserve prior evidence and costs; do not invent approval.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 

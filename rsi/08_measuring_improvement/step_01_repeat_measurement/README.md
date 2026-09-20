@@ -24,7 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Use the same prespecified seeds for both recipes. Compare paired differences, retain all runs, and report their spread. Three seeds are a small demonstration, not a precise population estimate. Deterministic recipes may show no seed variation; that does not eliminate uncertainty from data choice.
 
-**A concrete example.** Suppose the illustrative paired differences, forest MAE minus tree MAE, are −8, +2, and −6. The mean is −4: forest is better on average because lower MAE is better. The positive pair still matters. Showing only −8 would hide instability, and all three pairs still use only one dataset and partition.
+**A concrete example.** The [six-fit author run](../../evidence/2026-09-20/loops-and-systems/08-01/INTERPRETATION.md) measured forest MAE minus tree MAE of −16.920, −16.403, and −16.593 at seeds 17, 29, and 43. Negative favors forest; the mean is about −16.638 rentals/hour. The tree gave the same error at every seed. Keeping all three pairs shows the observed variation, but no seed repetition can tell us how either recipe performs on a city or time period that was never tested.
+
+![Every predeclared seed pair favors forest on the fixed selection split; the tree error is unchanged across these seeds.](../../evidence/2026-09-20/loops-and-systems/08-01/paired-seeds.png)
+
+*Measured selection results, not an uncertainty estimate across new datasets. The two recipes differ in family and complexity.*
 
 ![A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.](../../assets/diagrams/lab-08-01.png)
 

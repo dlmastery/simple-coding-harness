@@ -159,6 +159,9 @@ def main():
     save(routing / "ROUTING.md", "# Fixed routes\n\n| Task | Target type | Data card | Baseline | Metric | Required check |\n|---|---|---|---|---|---|\n| bike | regression | BIKE-DATA-CARD.md | training median | MAE | selection rows, target identity, leakage |\n| wine | classification | WINE-DATA-CARD.md | training majority | balanced accuracy | grouped duplicate inputs, both class recalls |\n\nReject an unknown task. A missing or conflicting target type needs clarification before fitting. A fixed table selects procedures; it does not learn routing.\n")
     for task, folder in [("bike", "bike-demand"), ("wine", "wine-quality")]:
         shutil.copyfile(repo / f"rsi/examples/{folder}/DATA-CARD.md", routing / f"{task.upper()}-DATA-CARD.md")
+    (routing / "source").mkdir()
+    for folder, filename in [("bike-demand", "Readme.txt"), ("wine-quality", "winequality.names")]:
+        shutil.copyfile(repo / f"rsi/examples/{folder}/source/{filename}", routing / "source" / filename)
     route_checks = []
     for task, target_type, expected in [("bike", "regression", "ready"), ("wine", "classification", "ready"),
                                         ("unknown", "regression", "rejected"), ("bike", "", "needs-clarification")]:

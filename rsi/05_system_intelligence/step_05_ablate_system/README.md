@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An ablation removes one component while holding the rest as steady as possible. Here the outcome is whether an invalid proposal reaches fitting. Use a dry-run fitting stub so the ablated system cannot accidentally train a leaked model. Reliability is the measured property, not prediction quality.
 
-**A concrete example.** Run the same valid and leaked fixtures through the full system and a copy without the domain check. That makes four fixture executions. If a second input validator still blocks leakage in the ablated copy, the removal has no observed effect in this test. It does not prove the domain check is useless: the two protections may overlap.
+**A concrete example.** The [four main fixture executions](../../evidence/2026-09-20/loops-and-systems/05-05/INTERPRETATION.md) produced a null effect: the leaked proposal was blocked with or without the domain check. The remaining tool allowlist still rejected casual. In a separately declared two-case follow-up, removing both protections let the leaked proposal reach the fit stub. No leaked model was trained. The first removal looked harmless because the protections overlapped.
 
 ![An ablation removes one component under matched conditions. Its effect may depend on the other components.](../../assets/diagrams/lab-05-05.png)
 
