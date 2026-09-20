@@ -145,3 +145,11 @@ Recorded a comparison protocol before generating two synthetic ML tasks. Both im
 Completed the frozen bike final evaluation and checked all 4,376 prediction identities and targets. A post-final fit was refused. The author already knew the public task's earlier final outcome, which is disclosed. The selected route totals 31 fits, including the final refit. Copied and hash-checked all 446 learner-workspace files. Rendered and inspected the measured-result chart. Added its concrete teaching example to 09.05 and clarified the existing-workspace requirement in 08.02.
 
 The selected route is complete. Full 101-lab activity execution, repeated recursive generations, deeper outstanding paper reviews, requested raster illustrations, native agent/backend checks, and actual student validation remain open. Keep these distinct from the completed runtime and publication checks.
+
+## 20 September: make the original course backup explicit
+
+Checkpoint `b501baae1b21a8fa596400f9fcd8b3b76f2ab5bf` was pushed and its remote hash matched. The user asked whether the README rewrite had started and required preserving the old version. Confirmed that the rewritten README was already pushed and that the original existed in Git at `eed9cbb` before the rewrite. Extracted an exact original README and a complete original tracked RSI ZIP into `backups/`. Verified the README Git blob and the copy inside the ZIP. The archive has 718 entries and is 1,075,588 bytes.
+
+Recorded the actual timing: the Git snapshot predates the rewrite; the explicit backup files were created now. Added this requirement to steering and the reusable provenance skill. Opened the current README in the Codex panel for review. Further edits must preserve the backups.
+
+The standalone original is stored as unchanged Markdown bytes with a `.txt` extension, so historical relative links are not mistaken for current navigation. The ZIP retains the original `README.md` filename and surrounding directory. A local Git attribute disables newline conversion for the standalone copy. All seven installed skill files match the canonical package; skill validation passed.

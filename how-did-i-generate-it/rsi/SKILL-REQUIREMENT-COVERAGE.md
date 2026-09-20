@@ -40,6 +40,7 @@ This is an editorial coverage review. It does not prove that a future course mee
 | Show data science steps as part of RSI | [Data science](../../skills/build-research-codelabs/references/course-standard.md) and [RSI project](../../skills/build-research-codelabs/references/rsi-preset.md) |
 | Allow future larger, harder jobs on GPUs or clusters | [Scale and adapters](../../skills/build-research-codelabs/references/course-standard.md) |
 | Periodically check work into GitHub | [Checkpoints](../../skills/build-research-codelabs/references/provenance.md) |
+| Back up the original README and course before replacing them | [Original-version preservation](../../skills/build-research-codelabs/references/provenance.md); explicit [RSI backups](backups/README.md) retain the authentic pre-rewrite commit |
 | Preserve all steering and restart state in Markdown | [Records and resume](../../skills/build-research-codelabs/references/provenance.md) |
 | Put plans and process explanations in a how-did-i-generate-it directory | [Record the whole project](../../skills/build-research-codelabs/references/provenance.md) |
 | Record completed steps and reasons for changes in a work log | [Record the whole project](../../skills/build-research-codelabs/references/provenance.md) |

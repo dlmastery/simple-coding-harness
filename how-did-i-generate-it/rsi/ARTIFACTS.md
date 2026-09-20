@@ -9,6 +9,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course design and implementation plan | Implementation authorized 20 September |
 | [Steering and restart](RSI-STEERING-AND-RESTART.md) | Current user requirements and state | Maintained with steering |
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
+| [Original course backups](backups/README.md) | Byte-verified original README and complete tracked RSI ZIP | Extracted from pre-rewrite commit `eed9cbb`; Git history preserved |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Primary sources and reading status | Broad sweep complete; deeper reviews remain |
 | [Search log](research/SEARCH-LOG.md) | Query bodies, dates, screening, and access gaps | Recorded from the broader sweep |
 | [Claim corrections](research/CLAIM-CORRECTIONS.md) | Source and course issues that affect the rewrite | Planning findings; not complete audit |

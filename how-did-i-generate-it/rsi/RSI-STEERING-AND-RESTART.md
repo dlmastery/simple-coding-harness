@@ -98,6 +98,8 @@ Check every diagram's arrows, boundaries, labels, and meaning. Use actual run da
 
 ## GitHub checkpoints and process record
 
+Later steering explicitly requires backing up the old README before replacement. The original course was already retained in Git at `eed9cbb`, before the rewrite. An unchanged README copy and a complete tracked-directory ZIP were subsequently extracted and verified under `backups/`; their index records the actual timing. Preserve these explicit backups. Apply the backup-first rule to future rewrites; the reusable provenance skill now includes it.
+
 The user explicitly authorized periodic GitHub check-ins. Store all plans, requirements, design decisions, research notes, and the work log in `how-did-i-generate-it/rsi/`. Keep explanations of decisions and completed steps; do not publish the private source transcript or credentials.
 
 The user then explicitly required intermediate artifacts too. Preserve drafts, research notes, source corrections, failed experiments, image prompts and revisions, reviews, and validation. Maintain the [artifact index](ARTIFACTS.md). The raw browser source remains local; a redacted text derivative and hashes are checked in. Earlier overwritten drafts are a recorded gap, not reconstructed originals.

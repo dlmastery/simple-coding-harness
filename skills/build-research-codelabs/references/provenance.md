@@ -2,6 +2,8 @@
 
 ## Record the whole project
 
+Before replacing an existing course or README, preserve the original version. Record its Git commit and create an explicit, easy-to-find backup of the original README and tracked course directory under the provenance directory. Verify the copied file against its original identity. Keep backups separate from the current learning path. If work has already begun, extract the authentic pre-rewrite version from history and state when the explicit backup was created; never imply that a later extraction happened earlier. Preserve uncommitted original work separately when present. Add the backup link to the artifact index and include it in the authorized checkpoint.
+
 The user wants the intermediate work as well as the finished course. Use `how-did-i-generate-it/<topic>/` in the authorized repository. Its README is a readable index, not a second copy of every document.
 
 Keep these records:
