@@ -1,8 +1,8 @@
 ---
 name: hgb-for-small
 when: [small]
-then: model=hgb
+then: model=rf
 validated: true
-horizon: 1
+horizon: 2
 ---
-On the breast cancer table (569 rows, all numeric) hgb won all 16 model comparisons at the middle hyper (0.9954 against logreg 0.9937 and rf 0.9917), regardless of scale, encode or class weight.
+On synthetic table A (800 rows, one cluster per class) rf won both probe comparisons (0.9378 against hgb 0.9169 and logreg 0.8546), overturning the hgb preference this card carried from the breast cancer table.

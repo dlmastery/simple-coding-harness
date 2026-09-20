@@ -5,3 +5,7 @@ cards:
   file: cards/hgb-for-categorical-imbalanced.md
 - name: hgb-for-small
   file: cards/hgb-for-small.md
+- name: hgb-for-imbalanced-multiclass
+  file: cards/hgb-for-imbalanced-multiclass.md
+- name: balanced-for-small-imbalanced
+  file: cards/balanced-for-small-imbalanced.md
