@@ -133,7 +133,211 @@ split:
 The recorded run under the gate (Claude Code 2.1.278, headless; the arms
 trimmed to their scorecards, the meta visits in full):
 
-<!-- transcript -->
+```text
+[Skill adult-income-curriculum]
+[Read the five packs' SKILL.md and tools.md, eval.md, schema, memory schema, the two config.md]
+agent> Now the pack tools.md files, schema, config, and what already exists under runs/.
+$ ls -la && ls ../tasks && ... ls */runs/*/helpers 2>/dev/null ...
+[Read ../step_07_proof/runs/adult-income/helpers/{rt.py, tools.py}, ../step_08_meta_generates_rsi/runs/rsi-writer/helpers/*.py]
+agent> Now I'll build the helpers. Actor runtime first (trimmed to this lesson's two policies).
+[Write runs/adult-income/helpers/rt.py]  [Write runs/adult-income/helpers/tools.py]
+agent> Now the verifier's helper and the curriculum's.
+[Write runs/adult-income-verifier/helpers/verify.py]  [Write runs/adult-income-curriculum/helpers/curriculum.py]  [Write runs/adult-income-meta-gate/helpers/meta.py]
+agent> Helpers built. Problem 1 - control arm, then memory arm.
+$ ... run_arm $P ../tasks/01_adult_income --arm control --memory off ...; grep -n "Search policy:" $P/SKILL.md; ... run_arm ... --arm memory ...
+26:   Search policy: static
+control policy static | best_val 0.9177 test 0.9049 fits 24 wasted 16
+memory policy static applicable 0 | best_val 0.9177 test 0.9049 fits 24 wasted 16
+agent> Both arms of problem 1 identical (static policy, no cards yet - as designed). Now the verifier: tally, then cards.
+$ ... read_traces ... --scope problem --tally ...; ... write_card ... --as .claude/skills/adult-income-verifier --cards @runs/adult-income-verifier/cards_01.json
+{"n": 9, "new": 9, "demoted": 5, "total_on_disk": 9, "active": 4}
+$ ... meta.py read_traces $P $T --scope all ...; ... read_memory ...; ... read_pack ...
+agent> Rule (a) applies: policy line is static and 4 cards are active. I write the patched SKILL.md (one line changed) under the meta pack's patch directory.
+$ mkdir -p runs/adult-income-meta-gate/patch && python - <<'EOF'
+src = open(".claude/skills/adult-income/SKILL.md", encoding="utf-8", newline="").read()
+assert src.count("   Search policy: static\n") == 1
+dst = src.replace("   Search policy: static\n", "   Search policy: obey-memory\n")
+open("runs/adult-income-meta-gate/patch/SKILL.md", "w", encoding="utf-8", newline="").write(dst)
+print("written; changed lines:", sum(1 for a, b in zip(src.splitlines(), dst.splitlines()) if a != b))
+EOF
+written; changed lines: 1
+$ python $M propose $MP $T --target adult-income --files runs/adult-income-meta-gate/patch --recipe '{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' --summary "flip Search policy static -> obey-memory: 4 cards active after problem 1 (rule a)" --visit 1
+{"id": "p001", "visit": 1, "target": "adult-income", "summary": "flip Search policy static -> obey-memory: 4 cards active after problem 1 (rule a)", "recipe": {...}, "changed_lines": 1, "cap": "ok", "lint": "ok", ...}
+$ python $M gate $MP $T p001; grep -n "Search policy:" .claude/skills/adult-income/SKILL.md .agents/skills/adult-income/SKILL.md; diff -r .claude/skills .agents/skills && echo MIRRORS_EQUAL
+{"decision": "keep", "id": "p001", "summary": "...", "before": 0.8977, "after": 0.8977, "keep": true, "landed": true, "version": "gen_001", ...}
+.claude/skills/adult-income/SKILL.md:26:   Search policy: obey-memory
+.agents/skills/adult-income/SKILL.md:26:   Search policy: obey-memory
+MIRRORS_EQUAL
+$ ... problem 2 (02_breast_cancer): grep -n "Search policy:" $P/SKILL.md | head -1; run_arm control; run_arm memory
+26:   Search policy: obey-memory
+control policy static applicable 0 | best_val 0.9954 test 0.9806 fits 24 wasted 0 best {'model': 'hgb', 'hyper': 0.1, ...}
+memory policy obey-memory applicable 1 preferred {'scale': 'yes'} | best_val 0.996 test 0.9841 fits 24 wasted 0 best {'model': 'hgb', 'hyper': 0.3, ...}
+$ ... verifier on problem 2 (54 pairs; cards_by_rule: n_rows < 1000 -> prefer hgb, ...) ...
+agent> Meta visit 2: read the log, cards, pack, then apply the rule.
+$ python $M read_traces $P $T --scope all --tally | ... (rule b candidates: lost >= 3, never won, not hyper)
+rows(all) 48 pairs 178
+wins   {"class_weight": {"none": 21, "balanced": 8}, "encode": {"onehot": 18, "ordinal": 4}, ...}
+losses {"class_weight": {"balanced": 21, "none": 8}, "encode": {"ordinal": 18, "onehot": 4}, ...}
+rule b candidates (lost >=3, never won, not hyper): []
+[Edit runs/adult-income-meta-gate/helpers/meta.py]  (rule b tallied within each problem, then summed: a pair across two tables means nothing)
+rule b candidates: [('encode', 'ordinal', 12)]
+$ ... propose p002 (schema.json -> forbid [{"field": "encode", "value": "ordinal"}]) --visit 2; gate p002
+{"decision": "keep", "id": "p002", "before": 1.0, "after": 1.0, "landed": true, "version": "gen_002"}
+$ ... problem 3 (wine), both arms, verifier, meta visit 3 ...
+rule b candidates: []   rule c: cards_by_rule not held by memory: []   cards 19 active 9
+agent> Visit 3: nothing applies. (logged) ... problem 4 (digits) ...
+agent> Visit 4: nothing applies. Logging it, then problem 5.
+$ mkdir -p runs/adult-income-meta-gate/digits && echo '{"event": "visit", "visit": 4, "problem": "digits", "proposed": false, "why": "rule a: policy already obey-memory; rule b: no unforbidden value lost >=3 and never won; rule c: every card_by_rule is already held"}' >> runs/adult-income-meta-gate/digits/traces.jsonl; ... run_arm ... 05_synth_shift_a ...
+control policy static | best_val 0.9378 test 0.8981 fits 24 wasted 8 best {'model': 'rf', 'hyper': 16, ...}
+memory policy obey-memory applicable 4 preferred {'hyper': 0.1, 'class_weight': 'none'} forbidden {'encode': ['ordinal']} | best_val 0.9378 wasted 1
+... problem 6 ... visit 6: nothing to propose ...
+agent> Visit 6: nothing to propose. Now the learning curve.
+$ python runs/adult-income-curriculum/helpers/curriculum.py curve .claude/skills/adult-income --tasks ../tasks | ...
+problem       | policy      | memory_best_val | control_best_val | gap_val | wasted_memory | wasted_control | cards_added | cards_demoted | cards_active
+adult_income  | static      | 0.9177          | 0.9177           | 0.0     | 16            | 16             | 9           | 5             | 4
+breast_cancer | obey-memory | 0.996           | 0.9954           | 0.0006  | 0             | 0              | 6           | 8             | 7
+wine          | obey-memory | 1.0             | 1.0              | 0.0     | 0             | 0              | 1           | 8             | 8
+digits        | obey-memory | 0.999           | 0.999            | 0.0     | 0             | 0              | 3           | 10            | 9
+synth_shift_a | obey-memory | 0.9378          | 0.9378           | 0.0     | 1             | 8              | 5           | 14            | 10
+synth_shift_b | obey-memory | 0.7685          | 0.7685           | 0.0     | 4             | 9              | 1           | 16            | 9
+$ ... sha256sum $P/memory.json; grep -n "Search policy:" $P/SKILL.md | head -1; for s in 0 1 2 3 4; do run_arm control --seed $s --memory off; run_arm memory --seed $s; done
+c5ddb70d57d97e56fd1ced5c32e03b1520972fb461a2607fd55e5c838a8261d4
+26:   Search policy: obey-memory
+seed 0 control policy static      applicable 0 best_val 0.9389 test 0.7831 wasted 8  best {"model": "rf", "hyper": 16, ...}
+seed 0 memory  policy obey-memory applicable 4 best_val 0.9412 test 0.7819 wasted 1  best {"model": "rf", "hyper": null, ...}
+seed 1 control policy static      applicable 0 best_val 0.8615 test 0.7244 wasted 17 best {"model": "hgb", "hyper": 0.1, ..., "class_weight": "balanced"}
+seed 1 memory  policy obey-memory applicable 4 best_val 0.872  test 0.717  wasted 7  best {"model": "hgb", "hyper": 0.3, ..., "class_weight": "none"}
+... (6 more arms)
+$ python runs/adult-income-curriculum/helpers/curriculum.py exam .claude/skills/adult-income ../tasks/07_exam --seeds 0,1,2,3,4 | ...; sha256sum .claude/skills/adult-income/memory.json .agents/skills/adult-income/memory.json | cut -c1-16; ls runs/adult-income/curve.json runs/adult-income/exam.json
+seed | memory_test | control_test | memory_wasted | control_wasted | winner  | applicable_cards | not_transferred
+0    | 0.7819      | 0.7831       | 1             | 8              | control | 4                | 2
+1    | 0.717       | 0.7244       | 7             | 17             | control | 4                | 2
+2    | 0.8288      | 0.8288       | 1             | 8              | memory  | 4                | 1
+3    | 0.8335      | 0.8335       | 1             | 8              | memory  | 4                | 1
+4    | 0.8333      | 0.8178       | 7             | 16             | memory  | 4                | 2
+wins 3 of 5 | mean_test_gap 0.0014 | pack_unchanged True | no_card_written True
+sha before c5ddb70d...   sha after  c5ddb70d...
+agent> Finally, the versions on disk and a mirror check.
+$ ... read_pack .claude/skills/adult-income --checksums ...; diff -r .claude/skills .agents/skills && echo MIRRORS_EQUAL; cat runs/adult-income-meta-gate/*/traces.jsonl | ...
+policy_line obey-memory | mirrors_equal True
+versions:
+  gen_001 | visit 1 adult_income | p001 keep | before 0.8977 after 0.8977 | snapshot policy static -> after obey-memory
+  gen_002 | visit 2 breast_cancer | p002 keep | before 1.0 after 1.0 | snapshot policy obey-memory -> forbid [encode=ordinal]
+MIRRORS_EQUAL
+{'event': 'propose', 'id': 'p001', 'visit': 1} {'event': 'gate', 'id': 'p001', 'keep': True, 'before': 0.8977, 'after': 0.8977, 'version': 'gen_001'} {'event': 'propose', 'id': 'p002', 'visit': 2} {'event': 'gate', 'id': 'p002', 'keep': True, 'before': 1.0, 'after': 1.0, 'version': 'gen_002'} {'event': 'visit', 'visit': 3, 'proposed': False} ... {'event': 'visit', 'visit': 6, 'proposed': False}
+agent> Done. Helpers were built from the contracts (actor runs/adult-income/helpers/, verifier, curriculum, meta-gate), then the curriculum, the curve, the exam and the version list ran as the skill specifies. curve.json and exam.json are under runs/adult-income/, both mirrors are byte-identical, and every arm was frozen and test-scored exactly once (test_touched_before_freeze: false everywhere).
+Problem 1 ran static on both arms (the actor ships static; no card yet), so its two arms are identical by construction. From problem 2 on the memory arm booted the policy line gen_001 wrote.
+## Meta decisions (gate, nobody asked)
+| adult_income   | 1 | p001 - Search policy: static -> obey-memory (rule a: 4 cards active)                                     | keep, landed | 0.8977 -> 0.8977 | gen_001 |
+| breast_cancer  | 2 | p002 - schema.json forbid {encode: ordinal} (rule b: lost all 12 one-field comparisons, never won)        | keep, landed | 1.0 -> 1.0       | gen_002 |
+| wine, digits, synth_shift_a, synth_shift_b | 3-6 | nothing proposed (a: already obey-memory; b: no candidate; c: every card by rule already held) | - | - | - |
+read_pack P --checksums: two versions on disk, gen_001 (snapshot: policy static) and gen_002 (snapshot: obey-memory, no forbid list); the booting pack has Search policy: obey-memory, forbid [encode=ordinal], 25 cards (9 active), mirrors equal. Note the gate scored the evidence recipe against an incumbent that was the same recipe (best of the newest problem in the log), so both gates were after == before keeps - a sanity gate, not a discriminating one. Rule (b) was computed with pairs tallied within each problem and summed over the log (a pair across two tables means nothing).
+## The claims of eval.md
+- gap_val never negative - held: 0.0, 0.0006, 0.0, 0.0, 0.0, 0.0.
+- gap larger on problem 6 than on problem 2 - did not hold: gap_6 = 0.0 vs gap_2 = 0.0006; wine, digits and the synthetic tables saturate this recipe space, and 0 is the honest number (the memory arm did reach the control's best with fewer wasted fits on problems 5 and 6: 1 vs 8, 4 vs 9).
+- exam: memory wins >= 3 of 5 - held, exactly 3 of 5 (two on equal test score with fewer wasted fits, one on a higher test score; seeds 0 and 1 went to control by 0.0012 and 0.0074).
+- memory.json byte-identical across the exam - held. The report names every applicable card that did not transfer - held (the two hyper cards). Test split scored once per arm, after FREEZE - held on all 22 arms.
+[62 turns, 1208 s]
+```
+
+What to notice under the gate: two patches in six visits, both by the rule
+- the policy flip after problem 1 (rule a) and a `forbid` of
+`encode: ordinal` after problem 2 (rule b: lost all twelve one-field
+comparisons, never won) - and four visits that proposed nothing and said
+why. Generation 2 booted what generation 1 wrote: the curve's `policy`
+column shows `static` on problem 1 and `obey-memory` from then on, which is
+the recursion. The agent also noticed something about its own gate: the
+evidence recipe was the incumbent, so `before == after` and every keep was
+a sanity check rather than a discriminating one; the page keeps that
+sentence. The exam held at exactly 3 of 5 with the same two `hyper` cards
+not transferring as in lesson 07.
+
+The recorded human visit (two turns; the arms trimmed):
+
+```text
+[Skill adult-income-curriculum]
+[Read the actor's, verifier's and meta's SKILL.md and tools.md, eval.md, schema, memory schema, config, memory.json]
+$ ls -la && ls ../tasks && cat ../tasks/01_adult_income/intent.md && ... python -c "import sklearn, pandas, numpy; print(...)"
+$ cd /c/Users/evija/simple-coding-harness/rsi && ls */runs/*/helpers 2>/dev/null | head -50; ...
+[Read ../step_07_proof/runs/adult-income/helpers/{rt.py, tools.py}, .../verify.py, .../curriculum.py, ../step_08_meta_generates_rsi/runs/rsi-writer/helpers/*.py]
+agent> Now the actor's tools.
+[Write runs/adult-income/helpers/rt.py]  [Write runs/adult-income/helpers/tools.py]
+agent> Now the verifier's helpers.
+[Write runs/adult-income-verifier/helpers/verify.py]
+agent> Now the meta pack's helpers (with the lint and a decide view of the a/b/c rule).
+[Write runs/adult-income-meta/helpers/meta.py]
+agent> Now the curriculum's helpers (curve, exam, read_pack).
+[Write runs/adult-income-curriculum/helpers/curriculum.py]
+agent> Helpers built. Now problem 1, step 2a - the control arm (--arm control --memory off, the static list in one call, test scored once after FREEZE, scorecard):
+$ python runs/adult-income/helpers/tools.py run_arm .claude/skills/adult-income ../tasks/01_adult_income --arm control --memory off
+{... "scorecard": {"best_val_score": 0.9177, "test_score": 0.9049, "fits_used": 24, "wasted_fits": 16, ...}}
+$ grep -n "Search policy:" .claude/skills/adult-income/SKILL.md && ...
+26:   Search policy: static
+agent> The policy line still says static (nothing has patched it yet). Memory arm, following it - read_memory --order static for the next recipes, fit until FREEZE, score once, scorecard:
+$ python runs/adult-income/helpers/tools.py run_arm .claude/skills/adult-income ../tasks/01_adult_income --arm memory --order static | ...
+{"arm": "memory", "seed": 0, "problem": "adult_income", "memory": "on", "search_policy": "static", "applicable_cards": [], "preferred": {...null...}, ... "scorecard": {"best_val_score": 0.9177, "test_score": 0.9049, "wasted_fits": 16, ...}}
+$ python runs/adult-income-verifier/helpers/verify.py read_traces .claude/skills/adult-income ../tasks/01_adult_income --scope problem --tally | ...
+{"profile": {"n_rows": 6000, "n_features": 14, "n_classes": 2, "imbalance": 0.239, "has_categorical": 1}, "n_rows": 24, "n_pairs": 60, "wins": {...}, "losses": {...}, "errored": {}, "cards_by_rule": [... 9 cards ...]}
+$ ... write_card .claude/skills/adult-income ../tasks/01_adult_income --as .claude/skills/adult-income-verifier --cards @runs/adult-income-verifier/cards_01.json && diff .claude/skills/adult-income/memory.json .agents/skills/adult-income/memory.json && echo "mirrors identical"
+{"n": 9, "new": 9, "demoted": 5, "total_on_disk": 9, "active": 4}
+mirrors identical
+$ python runs/adult-income-meta/helpers/meta.py read_traces .claude/skills/adult-income ../tasks/01_adult_income --scope all | ... && ... read_memory ... && ... read_pack .claude/skills/adult-income && ... decide .claude/skills/adult-income-meta ../tasks/01_adult_income --target adult-income | ...
+{"scope": "all", "n_rows": 24, "problems": {"adult_income": 24}, "profile": {...}}
+{"memory": "on", "n_cards": 9, "active": 4, "demoted": 5, "preferred": {"model": "hgb", "hyper": null, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "forbidden": {...}}
+{"rule": "a", "reason": "Search policy: static and 4 active cards", ...}
+agent> Rule a applies: the policy line says static and 4 cards are active. Checking the file's line endings before I write the patched SKILL.md (a CRLF/LF mismatch would blow the 20 % cap):
+$ file .claude/skills/adult-income/SKILL.md && python -c "..."
+.claude/skills/adult-income/SKILL.md: ASCII text, with very long lines (742)
+LF 4107 trailing newline: True
+[Write runs/adult-income-meta/patch/SKILL.md (43 lines)]
+agent> Now propose, with the evidence recipe (the best val recipe of problem 1) and a one-line summary:
+$ python runs/adult-income-meta/helpers/meta.py propose .claude/skills/adult-income-meta ../tasks/01_adult_income --target adult-income --files runs/adult-income-meta/patch --recipe '{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' --summary "Flip the actor's Search policy line from static to obey-memory: after problem 1 the verifier left 4 active cards (prefer hgb, scale yes, onehot, class_weight none), so rule (a) applies" --visit 1
+{"id": "p001", "visit": 1, "target": "adult-income", "files": ["SKILL.md"], "changed_lines": 2, "pack_lines": 588, "cap": "ok", "lint": "ok", "diff": "..."}
+agent> Problem 1 is done through the verifier, and the meta pack has proposed its patch. Nothing has landed - no gen_NNN version exists, both mirrors are untouched, and I'm stopping here for your decision.
+## Problem 1 - adult_income (6,000 rows, 14 features, 2 classes, imbalance 0.239, categorical)
+| arm                    | policy                    | fits | best val | best recipe                            | test (once, after FREEZE) | wasted |
+| control (--memory off) | static                    | 24   | 0.9177   | hgb / 0.1 / scale yes / onehot / none  | 0.9049                    | 16 |
+| memory                 | static (the shipped line) | 24   | 0.9177   | same                                   | 0.9049                    | 16 |
+gap_val = 0 - expected: the pack shipped with Search policy: static and an empty memory.json, so the memory arm had no cards to obey.
+Verifier (60 one-field-apart pairs): 9 cards written, 9 new, 5 demoted (the counter cards), 4 active - on this profile prefer model: hgb, scale: yes, encode: onehot, class_weight: none. No errored fit, so no forbid card.
+## Meta visit 1 - proposal p001 (rule a)
+Search policy: says static and 4 cards are active -> flip the one line. Lint ok, 2 of 588 pack lines changed (cap 20 %), the test rule intact, evidence recipe = problem 1's best (hgb / 0.1 / yes / onehot / none).
+--- a/adult-income/SKILL.md
++++ b/adult-income/SKILL.md
+@@ -23,7 +23,7 @@
+ 3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
+-   Search policy: static
++   Search policy: obey-memory
+    - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
+approve / edit / reject? On approve I'll write your exact words to runs/adult-income-meta/adult_income/proposals/p001.approved, snapshot the actor as gen_001, and land the line in both mirrors. On edit: ... I'll put your version under proposals/p001-edited/ and apply that. On reject nothing lands.
+[44 turns, 710 s]
+
+--- turn 2: claude -p --continue "approve"
+[Write runs/adult-income-meta/adult_income/proposals/p001.approved (1 lines)]
+$ python runs/adult-income-meta/helpers/meta.py apply .claude/skills/adult-income-meta ../tasks/01_adult_income p001 --approved "approve"
+{"id": "p001", "decision": "approved", "approved": "approve", "version": "gen_001", "files": ["SKILL.md"], "landed": true, "snapshot": "runs\\adult-income\\versions\\gen_001"}
+$ grep -n "Search policy:" .claude/skills/adult-income/SKILL.md .agents/skills/adult-income/SKILL.md runs/adult-income/versions/gen_001/SKILL.md && diff -r .claude/skills .agents/skills && echo "mirrors identical" && cat runs/adult-income-meta/adult_income/traces.jsonl && ... read_pack ... --checksums ...
+.claude/skills/adult-income/SKILL.md:26:   Search policy: obey-memory
+.agents/skills/adult-income/SKILL.md:26:   Search policy: obey-memory
+runs/adult-income/versions/gen_001/SKILL.md:26:   Search policy: static
+mirrors identical
+{"event": "propose", "id": "p001", "visit": 1, "target": "adult-income", "files": ["SKILL.md"], "summary": "Flip the actor's Search policy line from static to obey-memory: ...", "recipe": {...}}
+{"event": "apply", "id": "p001", "approved": "approve", "version": "gen_001", "files": ["SKILL.md"]}
+agent> Landed.
+| proposal | decision | version | files changed |
+| p001 - flip Search policy: static -> obey-memory (rule a: 4 active cards) | approve (your word, verbatim, in proposals/p001.approved and the apply trace event) | gen_001 | SKILL.md |
+- runs/adult-income/versions/gen_001/ holds the pre-patch actor (its SKILL.md still says static) - rollback adult-income gen_001 undoes this.
+- The live pack now reads Search policy: obey-memory in both mirrors (diff -r clean). Meta trace: propose then apply with "approved": "approve".
+Per your request I stopped after problem 1, so curve.json / exam.json were not produced. The next generation is ready: when problem 2 boots, the memory arm re-reads P/SKILL.md and will follow obey-memory with the cards from problem 1. Say the word and I'll continue with problems 2-6, the curve, and the exam.
+[4 turns, 50 s]
+```
+
+What to notice in the human visit: the meta pack's own `decide` named
+rule (a) and the reason; the proposal was a two-line diff of one file out
+of 588 pack lines, shown to the human with the cap and the evidence recipe;
+nothing landed until `approve`; and the snapshot under `gen_001` still says
+`static` while both mirrors say `obey-memory` - the version history is the
+undo. The agent stopped exactly where the skill says to stop.
 
 Files:
 

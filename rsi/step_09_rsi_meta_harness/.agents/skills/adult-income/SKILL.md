@@ -23,7 +23,7 @@ The trace log is not yours to read: the verifier reads it, you do not.
 2. Open the arm and keep the profile and the applicable cards it prints:
    control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
 3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
-   Search policy: obey-memory
+   Search policy: static
    - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
    - `obey-memory`: no applicable card - the static walk; otherwise take, per field, the `preferred` value `read_memory` prints and, in calls of up to eight recipes until `FREEZE`: a. the probe, one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at the middle hyper value; b. the probe winner's family - static recipes, then hyper variants, the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order; c. the rest of the grid in grid order. Skip a fitted recipe; a forbidden one is refused and costs no fit. `read_memory P T --arm memory --order obey-memory` prints the next eight.
    `fit_recipe P T --arm <arm> --recipes <the list>`.
