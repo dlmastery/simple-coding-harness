@@ -102,7 +102,8 @@ def test_procedure_names_existing_files(pack):
         if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
             continue
         candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
-                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name)]
+                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name),
+                      *(p for p in HERE.glob(f"*/*/{Path(name).name}") if "runs" not in p.parts)]
         assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
 
 

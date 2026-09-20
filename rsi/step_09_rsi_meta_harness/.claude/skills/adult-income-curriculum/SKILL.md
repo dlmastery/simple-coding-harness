@@ -22,7 +22,7 @@ lesson's directory. The actor pack is `.claude/skills/adult-income` (`P`), the v
 1. Build the helpers once: the actor's set under `runs/adult-income/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
 2. For each curriculum task `T`, in order (01 .. 06):
    a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
-   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order obey-memory` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
    c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
    d. Meta visit: follow `M/SKILL.md` on `T` with `--visit <n>` (`n` = the problem's index). Under `approval: human` you stop and ask the user before `apply`; under `approval: gate` the helper decides and you report the gate's numbers. With `meta: off` in `M/config.md` nothing is proposed (META_OFF).
    Do not run `save_model` in this lesson; the models are not the deliverable.
