@@ -29,6 +29,8 @@ Earlier planning drafts were overwritten before the first Git checkpoint and are
 
 ## Implementation artifacts
 
+The [cross-platform record](validation/CROSS-PLATFORM-CHECKS.md) separates the dedicated RSI checks from repository-wide failures. The workflow and its eventual run links preserve the scope of each compatibility claim.
+
 The [course map](../../rsi/COURSE-MAP.md) indexes 101 authored lessons. Their complete source prose is retained in the lesson modules beside [build-lessons.mjs](scripts/build-lessons.mjs). The publisher produces the themed READMEs, briefs, and navigation. Intermediate builds contained 15, 26, 58, and then 101 lessons. These temporary navigation outputs were regenerated before this checkpoint; the authored source modules are retained, but each transient navigation draft was not separately committed.
 
 The [tool directory](../../rsi/tools/README.md) contains agent-written implementation. Original licensed dataset archives and attribution are in `rsi/examples`. Actual model predictions, reports, charts, and synthetic mechanism-check outputs are in [the dated evidence directory](../../rsi/evidence/2026-09-20/README.md). Validation command outputs and installed versions are retained here under `validation`.

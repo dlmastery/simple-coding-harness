@@ -111,3 +111,9 @@ Updated the reusable authoring skill with lessons on concrete compute handoffs, 
 ## 20 September: check the published reading experience
 
 Pushed `fef74315d8de205be050a527dc1b04e8dfe5ba0e` and verified the remote hash. Inspected actual GitHub pages, including a diagram, the course map, and an explained-answer disclosure. The quiz disclosure worked. A narrow viewport exposed a too-wide introductory diagram; GitHub dark mode exposed a nonwhite live-Mermaid canvas in the overview. Retained a third first-lab diagram revision and rendered the overview as a static white image. The [visual record](visuals/REVIEW.md) states the exact scope and screenshot-retention limit.
+
+## 20 September: isolate and verify course compatibility
+
+Pushed the display corrections as `112805fa040086724ba31844d83491eead573292` and verified the remote hash. The user again asked about periodic check-ins; the branch was clean and GitHub held all three recent checkpoints.
+
+Inspection found failures in the repository-wide workflow. The latest completed Linux job passed all 15 RSI behavior tests but failed in other course sections. Added a dedicated RSI workflow for clean Python 3.12 installs on Linux, macOS, and Windows. It keeps all three platform results, checks generated-page consistency, and does not change or suppress the broader workflow. Remote results remain pending until the next push.

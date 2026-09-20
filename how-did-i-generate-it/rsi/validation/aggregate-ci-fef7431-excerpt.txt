@@ -1,0 +1,24 @@
+2026-09-20T10:59:09.9665142Z step_48_trueforge_sandbox_skills             3 failed, 13 passed in 1.13s
+2026-09-20T10:59:09.9677136Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T10:59:09.9683049Z     FAILED test_step.py::test_list_events_follows_the_pagination_cursor - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T10:59:09.9683999Z     FAILED test_step.py::test_demo_runs_downloads_and_deletes_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T10:59:09.9684985Z     FAILED test_step.py::test_demo_exits_1_on_an_errored_turn_and_keeps_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.5996266Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6002634Z     FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6003658Z     FAILED test_step.py::test_reconnect_subscribes_while_running_and_replays_when_done - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6004697Z     FAILED test_step.py::test_reconnect_replays_when_the_live_stream_ends_before_turn_done - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6005649Z     FAILED test_step.py::test_demo_threads_mode_prints_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6006940Z     FAILED test_step.py::test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server - AttributeError: 'SyncPager' object has no attribute 'data'
+2026-09-20T11:00:13.6011458Z genui/02_ag_ui/step_02_ag_ui_tools_and_state 2 failed, 13 passed, 1 warning in 1.14s
+2026-09-20T11:00:13.6016747Z     FAILED test_step.py::test_tool_calls_become_events_and_state_deltas - AssertionError: assert [AddOperation...lta': '+8%'})] == [{'op': 'add'...lta': '+8%'}}]
+2026-09-20T11:00:13.6018323Z       At index 0 diff: AddOperation(op='add', path='/dashboard/metrics/-', value={'title': 'Cups sold', 'value': '120', 'delta': '+8%'}) != {'op': 'add', 'path': '/dashboard/metrics/-', 'value': {'title': 'Cups sold', 'value': '120', 'delta': '+8%'}}
+2026-09-20T11:00:13.6020105Z       +     AddOperation(op='add', path='/dashboard/metrics/-', value={'title': 'Cups sold', 'value': '120', 'delta': '+8%'}),
+2026-09-20T11:00:13.6023513Z     FAILED test_step.py::test_next_run_continues_from_the_client_tool_result - AssertionError: assert [AddOperation... 'cost': 40})] == [{'op': 'add'... 'cost': 40}}]
+2026-09-20T11:00:13.6025080Z       At index 0 diff: AddOperation(op='add', path='/dashboard/purchases/-', value={'item': 'cooler', 'cost': 40}) != {'op': 'add', 'path': '/dashboard/purchases/-', 'value': {'item': 'cooler', 'cost': 40}}
+2026-09-20T11:00:13.6026887Z       +     AddOperation(op='add', path='/dashboard/purchases/-', value={'item': 'cooler', 'cost': 40}),
+2026-09-20T11:00:13.6029947Z genui/02_ag_ui/step_03_ag_ui_from_the_harness 1 failed, 10 passed, 1 warning in 5.40s
+2026-09-20T11:00:13.6035077Z     E       TypeError: 'ReplaceOperation' object is not subscriptable
+2026-09-20T11:00:13.6041510Z     FAILED test_step.py::test_write_todos_becomes_state_delta - TypeError: 'ReplaceOperation' object is not subscriptable
+2026-09-20T11:00:18.0353042Z Checked 101 lessons and 1590 local links.
+2026-09-20T11:00:18.0353709Z 0 publication problems.
+2026-09-20T11:00:18.0387577Z rsi/maintenance                              15 passed in 1.58s

@@ -54,3 +54,7 @@ Remaining work includes research adaptation labels and reading status, compute e
 Completed the adaptation-label correction, selected method-depth updates, concrete compute extension documents, and clean-source/fresh-environment checks. Added and executed a generated-harness walkthrough. All 101 labs now have original technical schematics with retained source and rendered galleries. Added numerical and concrete examples where a difficult distinction needed one.
 
 The requested Imagen raster illustrations remain pending the provider decision. Technical schematics are supplementary. Full lab-by-lab clean-session execution, independent improver comparison, native other-agent paths, GPU/cluster tests, learner testing, and remaining detailed source audits are not complete. Continue validation from these specific gaps; do not recreate the authored sequence.
+
+## Cross-platform validation
+
+Added a dedicated RSI workflow after finding that unrelated course failures cancelled much of the repository-wide matrix. Its first results are pending. See [the scope and evidence record](validation/CROSS-PLATFORM-CHECKS.md). Continue by inspecting every platform result and resolving RSI failures before adding compatibility claims.
