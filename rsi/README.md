@@ -71,8 +71,8 @@ validation score, per problem; the exam over five seeds, memory vs control):
   09 meta (gate)               +0.0000        +0.0006     0        0        +0.0000        +0.0000   3/5  +0.0014  (two patches: the policy flip, forbid encode=ordinal)
   10 Dream-RSI                 +0.0000        +0.0006     0        0        +0.0000        +0.0000   2/5  -0.0036  (policy line oscillated random/static; the exam ran under random)
   13 Recuris                   +0.0000        +0.0000     0        0        +0.0000        +0.0000   1/5  -0.0178  (five card updates; the exam's 90-row val split overfit)
-  11 RSIAgent             <!-- 11 -->
-  15 AIDE2                <!-- 15 -->
+  11 RSIAgent                  +0.0000        +0.0000     0        0        +0.0000        +0.0000   5/5   0.0000  (every win on fewer wasted fits at an equal test score)
+  15 AIDE2 (v2 - v1)           +0.0000        +0.0000     0        0        +0.0000        +0.0000   rewrite rolled back: total gain 0.0, the same 24 recipes both versions
   16 MetaSkill            <!-- 16 -->
 ```
 
@@ -319,7 +319,43 @@ Use the intent skill in .claude/skills/intent: validate this lesson's intent and
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_00_intent/.claude/skills/intent/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: intent
+description: "Validate the intent of the rsi series - intent.md (what to improve, how, the budget, the locked-test rule; YAML front matter and prose) and acceptance.md (what counts as success) - by the checklists in tools.md, and show that a pack which widens the intent is refused. Use in rsi/step_00_intent before any pack exists."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. `validate_intent` on `intent.md` and `acceptance.md`: read both and go through every rule of the checklist in `tools.md`, noting each rule as it passes or fails. List the budget, the metric, the test rule, the models, the data source, the five profile keys and the 14 scorecard fields.
+2. `lint_pack` on `widened_pack.json` in this skill's directory - a regular pack, given as `{"<file>": "<text>"}`, whose schema raises `n_fits` to 48, scores the test twice and adds a model the intent does not allow. Name every rule of the checklist it breaks. It is refused before any human sees it.
+3. The curriculum the intent belongs to: read `../tasks/*/intent.md` (seven directories) and `validate_intent` each one; report the seven names in index order with metric and role (six `curriculum`, one `exam`).
+4. Answer in text: the budget, the metric, the test rule, the 14 scorecard fields, the reasons the widened pack was refused, and the seven problems in order. Stop.
+
+## Rules
+- You change nothing and create nothing: no helper, no run directory, no card, no pack. The human is the author of the intent; you are its reader.
+- Report a rule that fails as a failure; do not repair the file.
+```
+
+`step_00_intent/.claude/skills/intent/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `validate_intent(intent.md[, acceptance.md])` - a checklist you perform by reading, not a script: the front matter has `name`, `index`, `title`, `role` (`curriculum` | `exam` | `pool`), `target`, `metric` (`roc_auc` | `roc_auc_ovr_macro`), `budget_fits` equal to 24, `models` a subset of `[logreg, rf, hgb]`, `data.kind` in `csv` | `sklearn` | `synthetic`, the line `test: locked, scored once after FREEZE`, and the five `profile_keys`; the body has the headings `What to improve`, `Why`, `What counts as success`, `What is off limits`, `The profile the verifier may condition on`. `acceptance.md` lists the 14 scorecard fields under `## The scorecard`, one `- field` line each, and its pass rule says `once` and `FREEZE`. Report every rule that fails; `ok` is true only when none does.
+- `lint_pack(files, intent.md)` - every reason a pack may not run for a task, as a list of problems (empty = ok): `schema.json -> n_fits` differs from `budget_fits`; `test_rule` is not `locked, scored once after FREEZE`; `metric` or `models` differ from the intent's; `SKILL.md` lacks the front matter (`name`, `description`, `metadata.type`, `metadata.version`, `metadata.rsi`) or the headings `Boot order`, `Procedure`, `Rules`, `Done when`; `tools.md` lacks `## Allowed` or `## Forbidden`; `loop.json`, when present, is not `kind: counted_while` with `N` equal to `budget_fits`; `graph.json`, when present, has a cycle, or a path in `paths.json` uses a node that is not in the graph, walks an edge the graph does not have, or breaks a constraint (one `encode`, one `scale`, one `model` per path, `score_test` only as the last node); a verifier `SKILL.md` lacks its contract line; an `operators.md` operator lacks its guard line. A pack that widens the intent is refused before any human sees it.
+
+## Forbidden
+- load_splits, fit_recipe, score_test, save_model - nothing is trained in this lesson
+- write_card, propose, apply, gate, rollback - nothing is written or changed
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `intent.md` - the playbook's Stage 1 artifact: YAML front matter with the
 machine-checkable facts, then prose. This file is byte-identical to
@@ -425,7 +461,49 @@ Use the adult-income-regular skill: run the regular harness on ../tasks/01_adult
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_01_regular_harness/.claude/skills/adult-income-regular/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-regular
+description: "Train a classifier for the Adult income problem by walking a fixed list of 24 recipes, the same way every run, with helpers you build from the contracts in tools.md. Use in rsi/step_01_regular_harness, when the task is adult_income and the pack has no loop, graph or memory file."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers named under `## Allowed` in `tools.md` under `runs/adult-income-regular/helpers/` if they are not there yet (one file per tool, or one module with one function per tool: the names and the contracts are what matters, and the runtime section of `tools.md` says exactly how to read the table, split it and fit a recipe). Reuse them if they exist.
+2. Open the arm and keep the profile it prints: `load_splits P T --arm control --memory off`.
+3. Fit the 24 recipes of `schema.json -> recipes`, in order, in one call: `fit_recipe P T --arm control --recipes <the list>`. The first is the baseline. That is the whole budget: the helper counts each fit in `state.json` and refuses a 25th.
+4. The result says `FREEZE` (`fits_left` is 0). Pick the recipe with the highest `val_score` from `results`.
+5. Score it on the locked test split once, after FREEZE, then save it: `score_test P T --arm control --recipe <that recipe>`, then `save_model P T --arm control --recipe <that recipe>`.
+6. Write the scorecard - `scorecard P T --arm control` - and answer in text with the best val_score, the test score and the number of fits. Stop.
+
+## Rules
+- Fit only the recipes that appear in `schema.json`, in their order. Never invent a field or a value; `fit_recipe` refuses a recipe outside `fields`.
+- Never run `score_test` before FREEZE, and never twice: the lesson's hook blocks the command until a `state.json` says `"frozen": true`, and the helper refuses it by reading the state.
+- Do not read or write any other file. The next run boots this same text and makes the same 24 fits.
+```
+
+`step_01_regular_harness/.claude/skills/adult-income-regular/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+## Forbidden
+- read_memory, write_card, read_traces - this pack has no memory and no verifier
+- propose, apply, gate, rollback - this pack changes no file
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-regular/SKILL.md` - boot order, procedure,
 rules, off switch, done-when. Step 1 is the one that has no equivalent in a
@@ -515,7 +593,49 @@ Use the adult-income-loop skill: run the loop harness on ../tasks/01_adult_incom
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_02_loop_harness/.claude/skills/adult-income-loop/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-loop
+description: "Train a classifier for the Adult income problem by running the counted loop declared in loop.json over recipes.json - 24 fits, a freeze, one test score - with helpers you build from the contracts in tools.md. Use in rsi/step_02_loop_harness, when the pack has loop.json and no graph or memory file."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income-loop/helpers/` if they are not there yet.
+2. Open the arm: `load_splits P T --arm control --memory off`.
+3. Run the loop exactly as `loop.json` declares it: `kind: counted_while`, the counter `t` from 1 to `N`, and for each `t` the body - the recipe is `recipes.json[t - 1]`, `fit_recipe` fits it (an errored fit still counts: `error_still_counts`), `write_loop_log` appends the audit line. You may fit in four calls of six recipes each (`fit_recipe P T --arm control --recipes <recipes 1-6>`, then 7-12, 13-18, 19-24) and log the six after each call; the counter is `fits_used` in `state.json`, not a number you keep in your head.
+4. The exit, in the order `loop.json` lists it: the result says `FREEZE`; `score_test P T --arm control --recipe <best val recipe>` once; `save_model`; `scorecard`.
+5. Answer in text with `N`, the best val_score, the test score and the number of loop-log lines. Stop.
+
+## Rules
+- Everything under `illegal` in `loop.json` is illegal: do not change `N`, reorder the recipes, open a second loop, score the test before FREEZE, write a memory file, or read `loop.log` back.
+- The log is an audit trail and nothing else: no step of this procedure and no helper reads it. Generation n+1 loads the same `loop.json` and makes the same 24 fits. That is why this is not RSI yet.
+- Never run `score_test` before FREEZE, never twice: the hook and the helper refuse it.
+```
+
+`step_02_loop_harness/.claude/skills/adult-income-loop/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `write_loop_log(pack, task, arm, t, recipe, val_score)` - append one line `t=<t> recipe=<recipe> val=<val_score>` to `loop.log` in the arm directory. Audit only: no tool and no step of the procedure reads this file back.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+## Forbidden
+- read_memory, write_card, read_traces - no memory, no verifier
+- propose, apply, gate, rollback - this pack changes no file
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-loop/loop.json` - the loop as data:
 
@@ -605,7 +725,52 @@ Use the loop-writer skill: generate the loop pack for ../tasks/01_adult_income a
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_03_meta_generates_loop/.claude/skills/loop-writer/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: loop-writer
+description: "A meta skill whose output is a loop harness: from a problem's intent.md write the five files of a loop pack (SKILL.md, tools.md, loop.json, recipes.json, schema.json) by filling the template, lint them against the intent, propose them, and land them only with the user's words. Use in rsi/step_03_meta_generates_loop; never fits a model."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+  patches: ["adult-income-loop/*"]
+---
+## Procedure
+1. Build `lint_pack`, `propose` and `apply` under `runs/loop-writer/helpers/` if they are not there yet.
+2. Read `T/intent.md`: `name` (`{{task}}`), `title`, the task directory (`{{task_dir}}`), `metric`, `budget_fits`, `models`. `{{task_slug}}` is the name with `_` as `-`.
+3. Write the pack from `template/`: the five files with every `{{placeholder}}` replaced and nothing else changed. `recipes.json` already holds the 24 static recipes (every model at its middle hyper value, grid order); do not add, remove or reorder one. Do not touch a rule, a heading or the illegal list. Write the five files under `runs/loop-writer/adult_income/proposals/p001/` (your Write tool).
+4. `lint_pack` the five files against `T/intent.md` by the checklist in `tools.md`: `n_fits` equals `budget_fits`, the test rule, `loop.json` `N`, the front matter, the headings, `tools.md`'s two sections. If a rule fails, the pack is refused: fix your substitution and lint again. Nothing is proposed that does not lint.
+5. `propose W T --target adult-income-loop --files runs/loop-writer/adult_income/proposals/p001 --summary "<one line>"`: the helper records `p001.json` with the five files. Then show the user the whole proposed pack - every file, in full - and ask: **approve / edit / reject**. Stop and wait. Run nothing else until the answer arrives.
+6. When the answer arrives, quoting their words verbatim:
+   - approve (any wording that approves): write their exact words to `runs/loop-writer/adult_income/proposals/p001.approved`, then `apply W T p001 --approved "<their words>"`. The pack lands in both mirrors.
+   - `edit: <a change>`: make exactly that change to the proposal's files (nothing else), lint again, write `.approved` with their words, `apply ... --edited runs/loop-writer/adult_income/proposals/p001-edited`. Their version lands.
+   - reject: write `p001.rejected` with their words. Nothing lands.
+7. Answer in text with the proposal id, the decision, the version label and the files that landed. Stop.
+
+## Rules
+- You never fit, never open an arm, never score anything: `load_splits`, `fit_recipe` and `score_test` are forbidden to this pack, and the template's rules are not yours to relax.
+- Generating twice from the same intent gives byte-identical files: the template is the mechanism, nothing is random, nothing is read from a run. Running the generated pack never changes it: you write it, it does not write itself.
+- Nothing lands without the user's words in `.approved`; the lesson's hook lets no `apply` command run before that file exists.
+```
+
+`step_03_meta_generates_loop/.claude/skills/loop-writer/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `lint_pack(files, intent.md)` - every reason a pack may not run for a task, as a list of problems (empty = ok): `schema.json -> n_fits` differs from `budget_fits`; `test_rule` is not `locked, scored once after FREEZE`; `metric` or `models` differ from the intent's; `SKILL.md` lacks the front matter (`name`, `description`, `metadata.type`, `metadata.version`, `metadata.rsi`) or the headings `Boot order`, `Procedure`, `Rules`, `Done when`; `tools.md` lacks `## Allowed` or `## Forbidden`; `loop.json`, when present, is not `kind: counted_while` with `N` equal to `budget_fits`; `graph.json`, when present, has a cycle, or a path in `paths.json` uses a node that is not in the graph, walks an edge the graph does not have, or breaks a constraint (one `encode`, one `scale`, one `model` per path, `score_test` only as the last node); a verifier `SKILL.md` lacks its contract line; an `operators.md` operator lacks its guard line. A pack that widens the intent is refused before any human sees it.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+
+## Forbidden
+- load_splits, fit_recipe, score_test, save_model - the writer never fits and never touches a split
+- write_card, gate, rollback - no memory, no gate: the human is the acceptance rule here
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/loop-writer/SKILL.md` - the front matter carries a
 `patches:` glob, the files this pack may write, and the procedure stops in
@@ -696,7 +861,49 @@ Use the adult-income-graph skill: run the graph harness on ../tasks/01_adult_inc
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_04_graph_harness/.claude/skills/adult-income-graph/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-graph
+description: "Train a classifier for the Adult income problem by walking the 24 paths of paths.json through the DAG of graph.json with the counted loop of loop.json - an illegal path is skipped and counted, never replaced - with helpers you build from the contracts in tools.md. Use in rsi/step_04_graph_harness, when the pack has graph.json and paths.json."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income-graph/helpers/` if they are not there yet. `walk_path` is the new one: it checks a path against `graph.json` before it binds and fits it.
+2. Open the arm: `load_splits P T --arm control --memory off`.
+3. Run `loop.json`: for `t` from 1 to `N`, `walk_path P T --arm control --path <paths.json[t - 1].id>`. A legal path is bound to its recipe (the bindings, the model at its middle hyper value) and fitted through `fit_recipe`; an illegal path - a node the graph lacks, a step that is not an edge, a broken constraint - is skipped and counted: one fit of the budget, a trace row with `error: "illegal path: <why>"`, no fit. Never replace it, never invent a path. You may walk several paths per call if your helper accepts a list.
+4. The exit as `loop.json` lists it: `FREEZE`; `score_test P T --arm control --recipe <best val recipe>` once; `save_model`; `scorecard`.
+5. Answer in text with the number of legal and illegal paths, the best val_score, the test score and the fits used. Stop.
+
+## Rules
+- `graph.json` and `paths.json` are `mutable: false`: a run never changes them (the test compares their bytes).
+- Everything under `illegal` in `loop.json` is illegal; an illegal path costs a fit because the budget counts attempts, not successes.
+- Never run `score_test` before FREEZE, never twice: `score_test` is a sink the graph puts behind the gate, the hook blocks it and the helper refuses it.
+```
+
+`step_04_graph_harness/.claude/skills/adult-income-graph/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `walk_path(pack, task, arm, path_id)` - the path of `paths.json` with that id: check it against `graph.json` (every node exists, every step is an edge of the graph, the constraints hold - one `encode`, one `scale`, one `model`, `score_test` only as a sink after `FREEZE`); an illegal path is skipped and counted (a fit row with `error: "illegal path: <why>"` and no fit, `fits_used` plus one) and never replaced by another; a legal path is bound to its recipe (`bindings`) and fitted through `fit_recipe`. Print the check, the recipe and the fit result.
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+## Forbidden
+- read_memory, write_card, read_traces - no memory, no verifier
+- propose, apply, gate, rollback - this pack changes no file
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-graph/graph.json` - the DAG:
 
@@ -917,7 +1124,51 @@ Use the graph-writer skill: generate the graph pack for ../tasks/01_adult_income
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_05_meta_generates_graph/.claude/skills/graph-writer/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: graph-writer
+description: "A meta skill whose output is a graph harness: from a problem's intent.md write the six files of a graph pack (SKILL.md, tools.md, graph.json, paths.json, loop.json, schema.json) by filling the template, lint the DAG and every path against the intent, propose them as a node / edge list, and land them - or the user's edited version - only with the user's words. Use in rsi/step_05_meta_generates_graph; never fits a model."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+  patches: ["adult-income-graph/*"]
+---
+## Procedure
+1. Build `lint_pack`, `propose` and `apply` under `runs/graph-writer/helpers/` if they are not there yet. `lint_pack` now checks the graph: no cycle in `graph.json` (plus any `edges_added`), and every path of `paths.json` uses only nodes the graph has, walks only its edges, has exactly one `scale`, one `encode`, one `model`, and never steps through the test sink.
+2. Read `T/intent.md` (`{{task}}`, `{{title}}`, `{{task_dir}}`, `{{metric}}`, `{{budget_fits}}`; `{{task_slug}}` is the name with `_` as `-`) and write the six files from `template/` with every placeholder replaced and nothing else changed, under `runs/graph-writer/adult_income/proposals/p001/`.
+3. Self-check the lint before you trust it: `lint_pack` the same pack with `paths.json` replaced by `bad_paths.json` (a cycle `fit -> load` under `edges_added`, a path with two `scale` nodes, a path that steps through the test sink). It must be refused with those three problems named. Show the refusal. Then `lint_pack` the real pack against `T/intent.md`: it must pass.
+4. `propose W T --target adult-income-graph --files runs/graph-writer/adult_income/proposals/p001 --summary "<one line>"`. Show the user the graph as a node / edge list, the 24 paths as `id: bindings` lines, and the other four files in full, and ask: **approve / edit / reject**. Stop and wait.
+5. When the answer arrives, quoting their words verbatim:
+   - approve: write their words to `runs/graph-writer/adult_income/proposals/p001.approved`, then `apply W T p001 --approved "<their words>"`.
+   - `edit: <a change>` (for example `edit: remove path p24`, or a changed binding): make exactly that change to a copy of the proposal's files under `runs/graph-writer/adult_income/proposals/p001-edited/`, lint the edited pack (an edit that breaks the DAG or a constraint is refused: tell the user and ask again), write `.approved` with their words, `apply ... --edited runs/graph-writer/adult_income/proposals/p001-edited`. Their version lands.
+   - reject: write `p001.rejected`; nothing lands.
+6. Answer in text with the proposal id, the lint results (the refused check and the passing one), the decision and the files that landed. Stop.
+
+## Rules
+- You never fit, never open an arm, never score anything.
+- Nothing is proposed that does not lint; a cycle or an illegal path is refused before the human sees it.
+- `edit` is the interesting answer: what lands is the human's version, and you never see a run result - there is no feedback loop here.
+```
+
+`step_05_meta_generates_graph/.claude/skills/graph-writer/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `lint_pack(files, intent.md)` - every reason a pack may not run for a task, as a list of problems (empty = ok): `schema.json -> n_fits` differs from `budget_fits`; `test_rule` is not `locked, scored once after FREEZE`; `metric` or `models` differ from the intent's; `SKILL.md` lacks the front matter (`name`, `description`, `metadata.type`, `metadata.version`, `metadata.rsi`) or the headings `Boot order`, `Procedure`, `Rules`, `Done when`; `tools.md` lacks `## Allowed` or `## Forbidden`; `loop.json`, when present, is not `kind: counted_while` with `N` equal to `budget_fits`; `graph.json`, when present, has a cycle, or a path in `paths.json` uses a node that is not in the graph, walks an edge the graph does not have, or breaks a constraint (one `encode`, one `scale`, one `model` per path, `score_test` only as the last node); a verifier `SKILL.md` lacks its contract line; an `operators.md` operator lacks its guard line. A pack that widens the intent is refused before any human sees it.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+
+## Forbidden
+- load_splits, fit_recipe, walk_path, score_test, save_model - the writer never fits
+- write_card, gate, rollback - no memory, no gate: the human is the acceptance rule
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/graph-writer/SKILL.md` - steps 3 and 5 are the lesson:
 
@@ -1149,7 +1400,100 @@ Use the adult-income skill on ../tasks/01_adult_income: run the control arm, the
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_06_rsi_harness/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_06_rsi_harness and later, when the pack has memory.json and a verifier pack writes to it."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`:
+   - Search policy: obey-memory. No applicable card (every control arm; a memory arm with an empty memory): walk `schema.json -> recipes` in order, in one call. Otherwise take, per field, the `preferred` value `read_memory` prints (the applicable `prefer` card with the most `evidence - counter`; a tie is no preference) and, in calls of up to eight recipes, in this order until a result says `FREEZE`:
+     a. Probe: one recipe per model of `schema.json -> models`, the preferred model first, each with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at its middle hyper value. The probe winner is the model belief.
+     b. The believed model's family: its static recipes (middle hyper value) first, then its hyper variants; inside each group the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order.
+     c. The rest of the grid of `fields`, grid order (model, hyper, scale, encode, class_weight).
+     Skip a recipe already fitted. A recipe a `forbid` card rules out is refused by `fit_recipe` and costs no fit; do not propose it again. `read_memory P T --arm memory --order obey-memory` prints `next`: the next eight recipes this rule gives from the cards and the arm's fits so far; take them.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_06_rsi_harness/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_06_rsi_harness/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_06_rsi_harness/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income/memory.schema.json` - a card is exactly this:
 
@@ -1422,7 +1766,141 @@ Use the adult-income-curriculum skill: run the curriculum (problems 1 to 6, both
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_07_proof/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_06_rsi_harness and later, when the pack has memory.json and a verifier pack writes to it."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`:
+   - Search policy: obey-memory. No applicable card (every control arm; a memory arm with an empty memory): walk `schema.json -> recipes` in order, in one call. Otherwise take, per field, the `preferred` value `read_memory` prints (the applicable `prefer` card with the most `evidence - counter`; a tie is no preference) and, in calls of up to eight recipes, in this order until a result says `FREEZE`:
+     a. Probe: one recipe per model of `schema.json -> models`, the preferred model first, each with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at its middle hyper value. The probe winner is the model belief.
+     b. The believed model's family: its static recipes (middle hyper value) first, then its hyper variants; inside each group the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order.
+     c. The rest of the grid of `fields`, grid order (model, hyper, scale, encode, class_weight).
+     Skip a recipe already fitted. A recipe a `forbid` card rules out is refused by `fit_recipe` and costs no fit; do not propose it again. `read_memory P T --arm memory --order obey-memory` prints `next`: the next eight recipes this rule gives from the cards and the arm's fits so far; take them.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_07_proof/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_07_proof/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income over the six curriculum problems in order with the verifier writing after each, print the learning curve, then run the frozen pack on the exam problem over five seeds and print the exam report. Use in rsi/step_07_proof, to produce the proof of a lesson."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order obey-memory` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No verifier: a card write on the exam problem is refused, and you do not ask for one. Record the sha256 of `P/memory.json` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. Answer in text with the curve table, the exam table, and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit `memory.json`, `schema.json` or any pack file yourself: the verifier writes cards through `write_card`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_07_proof/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- propose, apply, gate, rollback - the curriculum skill changes no pack; a meta pack does, in lesson 09 on
+```
+
+`step_07_proof/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_07_proof/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income/eval.md` - how the pack is judged:
 
@@ -1495,7 +1973,48 @@ Use the rsi-writer skill: generate the RSI packs (actor and verifier) for ../tas
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_08_meta_generates_rsi/.claude/skills/rsi-writer/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: rsi-writer
+description: "A meta skill whose output is an RSI harness: from a problem's intent.md write the actor pack (SKILL.md, tools.md, schema.json, memory.json, memory.schema.json, config.md, eval.md) and the verifier pack (SKILL.md, tools.md, memory.schema.json) by filling the template, lint them - the verifier contract line is mandatory - propose them with the contract shown verbatim, and land them only with the user's words. Use in rsi/step_08_meta_generates_rsi; never fits a model."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+  patches: ["adult-income/*", "adult-income-verifier/*"]
+---
+## Procedure
+1. Build `lint_pack`, `propose` and `apply` under `runs/rsi-writer/helpers/` if they are not there yet. `lint_pack` now also refuses a verifier `SKILL.md` that lacks the contract line, word for word: `Contract: the verifier sees only {recipe, val_score, error, profile}; it never sees the actor's transcript, the test split or the intent.`
+2. Read `T/intent.md` (`{{task}}`, `{{task_dir}}`, `{{metric}}`, `{{budget_fits}}`) and write the ten files from `template/` with every placeholder replaced and nothing else changed, under `runs/rsi-writer/adult_income/proposals/p001/` (`adult-income/...` and `adult-income-verifier/...`). `memory.json` is `[]`: the pack is born empty.
+3. Self-check the lint: `lint_pack` the same proposal with the verifier's `SKILL.md` replaced by `bad_verifier.md`. It must be refused, naming the missing contract. Show the refusal. Then `lint_pack` the real proposal against `T/intent.md`: it must pass.
+4. `propose W T --target adult-income,adult-income-verifier --files runs/rsi-writer/adult_income/proposals/p001 --summary "<one line>"`. Show the user: first the verifier contract line, verbatim, under a heading **The contract (the acceptance rule you are approving)**; then what they are approving in one paragraph - a mechanism that will change itself later (the verifier writes cards the actor obeys on the next run; the human approves the rule, not the cards); then every file of both packs. Ask **approve / edit / reject**. Stop and wait.
+5. When the answer arrives, quoting their words verbatim: approve - write them to `runs/rsi-writer/adult_income/proposals/p001.approved` and `apply W T p001 --approved "<their words>"` (both packs land, both mirrors); `edit: <a change>` - make exactly that change to a copy under `p001-edited/`, lint it (an edit that removes the contract line is refused: tell the user and ask again), then `apply ... --edited`; reject - write `p001.rejected`; nothing lands.
+6. Answer in text with the proposal id, the lint results, the decision and the files that landed. Stop.
+
+## Rules
+- You never fit, never open an arm, never score anything.
+- The contract line is not yours to relax: a proposal without it is refused before the human sees it, and an edit that removes it is refused after.
+- Twice from the same intent gives the same bytes; running the generated packs never changes the writer.
+```
+
+`step_08_meta_generates_rsi/.claude/skills/rsi-writer/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `lint_pack(files, intent.md)` - every reason a pack may not run for a task, as a list of problems (empty = ok): `schema.json -> n_fits` differs from `budget_fits`; `test_rule` is not `locked, scored once after FREEZE`; `metric` or `models` differ from the intent's; `SKILL.md` lacks the front matter (`name`, `description`, `metadata.type`, `metadata.version`, `metadata.rsi`) or the headings `Boot order`, `Procedure`, `Rules`, `Done when`; `tools.md` lacks `## Allowed` or `## Forbidden`; `loop.json`, when present, is not `kind: counted_while` with `N` equal to `budget_fits`; `graph.json`, when present, has a cycle, or a path in `paths.json` uses a node that is not in the graph, walks an edge the graph does not have, or breaks a constraint (one `encode`, one `scale`, one `model` per path, `score_test` only as the last node); a verifier `SKILL.md` lacks its contract line; an `operators.md` operator lacks its guard line. A pack that widens the intent is refused before any human sees it.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+
+## Forbidden
+- load_splits, fit_recipe, score_test, save_model - the writer never fits
+- write_card, read_traces, gate, rollback - the writer writes packs, never cards
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/rsi-writer/SKILL.md` - the step that shows the human what
 they are approving:
@@ -1632,7 +2151,237 @@ Use the adult-income-curriculum skill with the adult-income-meta-gate meta pack:
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_09_rsi_meta_harness, when the pack has memory.json, a verifier writes to it and a meta pack patches its Search policy line, its schema.json forbid list or its cards."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
+   Search policy: static
+   - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
+   - `obey-memory`: no applicable card - the static walk; otherwise take, per field, the `preferred` value `read_memory` prints and, in calls of up to eight recipes until `FREEZE`: a. the probe, one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at the middle hyper value; b. the probe winner's family - static recipes, then hyper variants, the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order; c. the rest of the grid in grid order. Skip a fitted recipe; a forbidden one is refused and costs no fit. `read_memory P T --arm memory --order obey-memory` prints the next eight.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack - its `Search policy:` line, the `forbid` list of `schema.json`, the cards of `memory.json` - and every patch is snapshotted under `runs/adult-income/versions/` first, so `rollback` can undo it.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income over the six curriculum problems in order with the verifier writing after each and a meta pack visiting between problems (adult-income-meta under the human, or adult-income-meta-gate under the private gate); print the learning curve, then run the frozen pack on the exam over five seeds and print the exam report. Use in rsi/step_09_rsi_meta_harness and later."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
+   d. Meta visit: follow `M/SKILL.md` on `T` with `--visit <n>` (`n` = the problem's index). Under `approval: human` you stop and ask the user before `apply`; under `approval: gate` the helper decides and you report the gate's numbers. With `meta: off` in `M/config.md` nothing is proposed (META_OFF).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No verifier: a card write on the exam problem is refused, and you do not ask for one. Record the sha256 of `P/memory.json` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. `read_pack P --checksums` lists the versions under `runs/adult-income/versions/`: one `gen_NNN` per patch that was proposed, kept or rolled back. Answer in text with the curve table, the exam table, the list of meta decisions (problem, proposal, decision, version) and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit `memory.json`, `schema.json`, `SKILL.md` or any pack file yourself: the verifier writes cards through `write_card`, the meta pack patches through `propose` and `apply` / `gate`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- fit_recipe, score_test - run as the actor pack, following its SKILL.md; never for the curriculum skill itself
+- rollback - the human's tool after reading the log, and the gate's; the curriculum never rolls back on its own
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-meta/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-meta
+description: "Improve the actor pack adult-income between two curriculum problems - one patch per visit to its Search policy line, its schema.json forbid list or its memory cards - and put it through the human approval cycle (approve / edit / reject). Use in rsi/step_09_rsi_meta_harness after a problem's actor and verifier runs are done, before the next problem boots."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: human
+  patches: ["SKILL.md", "schema.json", "memory.json"]
+---
+## Procedure
+1. Build `read_traces`, `read_memory`, `read_pack`, `propose`, `apply` and `rollback` under `runs/adult-income-meta/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table, the split and the fit). Read everything a meta pack may see: `read_traces P T --scope all`, `read_memory P T`, `read_pack P`.
+2. Decide ONE change, the first that applies:
+   a. The actor's `Search policy:` line says `static` and at least two cards are active: change that line to `Search policy: obey-memory` (the whole `SKILL.md`, with that one line changed).
+   b. A field value lost every comparison one field apart it was in, at least three times across the whole log, and never won: add `{"field": ..., "value": ...}` to `schema.json -> forbid` (`hyper` values are excluded: they belong to one model each).
+   c. Otherwise: the last problem's pairs yield cards the memory does not hold yet (`read_traces P T --scope problem --tally` lists `cards_by_rule`); merge at most three of them into `memory.json`.
+   If none applies, say so and stop: nothing is proposed this visit.
+3. Write the changed file(s) - and only those - under `runs/adult-income-meta/patch/` at their paths in the pack (your Write tool), then propose the patch with the evidence recipe (the best val recipe of the last problem) and a one-line summary: `propose M T --target adult-income --files runs/adult-income-meta/patch --recipe <recipe> --summary "<what and why>" --visit <n>` (`n` = the problem's index). The helper lints the patched pack against the intent, checks `patches:` and the 20 % cap, records the proposal and prints the diff; nothing has landed.
+4. Show the user the diff and ask: **approve / edit / reject**. Wait; run nothing until the answer arrives. Then, quoting their words verbatim: write them to `runs/adult-income-meta/<task>/proposals/<id>.approved` and `apply M T <id> --approved "<their words>"` (an `edit` answer: their version under `proposals/<id>-edited/`, `apply ... --edited`); a reject: `<id>.rejected`, nothing lands.
+5. Answer in text with the proposal id, the decision, the version label and the files that changed. Stop.
+
+## Rules
+- One proposal per visit; `propose` refuses a second (`--visit <n>` opens the next visit on the next problem).
+- A patch changes at most 20 % of the pack's text and never removes the test rule from `SKILL.md`; `propose` refuses more.
+- You never fit for yourself, never score the test split (`score_test` is forbidden to this pack), never touch the verifier pack or `eval.md`.
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-meta/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the meta pack never fits for itself and never touches the test split
+- write_card - cards land through a patch to memory.json, not through the verifier's pen
+- gate, private_score - under approval: human the user decides, not the private split
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-meta-gate/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-meta-gate
+description: "Improve the actor pack adult-income between two curriculum problems - one patch per visit to its Search policy line, its schema.json forbid list or its memory cards - and put it through the private gate (keep-or-rollback on a split the actor never sees; the human only reads the log). Use in rsi/step_09_rsi_meta_harness after a problem's actor and verifier runs are done, before the next problem boots."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: gate
+  patches: ["SKILL.md", "schema.json", "memory.json"]
+---
+## Procedure
+1. Build `read_traces`, `read_memory`, `read_pack`, `propose`, `gate`, `private_score` and `rollback` under `runs/adult-income-meta-gate/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table, the split and the fit). Read everything a meta pack may see: `read_traces P T --scope all`, `read_memory P T`, `read_pack P`.
+2. Decide ONE change, the first that applies:
+   a. The actor's `Search policy:` line says `static` and at least two cards are active: change that line to `Search policy: obey-memory` (the whole `SKILL.md`, with that one line changed).
+   b. A field value lost every comparison one field apart it was in, at least three times across the whole log, and never won: add `{"field": ..., "value": ...}` to `schema.json -> forbid` (`hyper` values are excluded: they belong to one model each).
+   c. Otherwise: the last problem's pairs yield cards the memory does not hold yet (`read_traces P T --scope problem --tally` lists `cards_by_rule`); merge at most three of them into `memory.json`.
+   If none applies, say so and stop: nothing is proposed this visit.
+3. Write the changed file(s) - and only those - under `runs/adult-income-meta-gate/patch/` at their paths in the pack (your Write tool), then propose the patch with the evidence recipe (the best val recipe of the last problem) and a one-line summary: `propose M T --target adult-income --files runs/adult-income-meta-gate/patch --recipe <recipe> --summary "<what and why>" --visit <n>` (`n` = the problem's index). The helper lints the patched pack against the intent, checks `patches:` and the 20 % cap, records the proposal and prints the diff; nothing has landed.
+4. `gate M T <id>`: the helper snapshots the actor pack under `runs/adult-income/versions/gen_NNN/`, lands the patch, scores the evidence recipe against the incumbent (the best val recipe of the newest problem in the log) on the private split - a split no actor arm ever sees - and keeps the patch only if it did not score lower; otherwise it restores the snapshot. It prints `decision`, `before`, `after`, `keep`, `landed`.
+5. Answer in text with the proposal id, the gate's numbers, whether it landed and the version label. Nobody is asked: under `approval: gate` the human reads the log (`runs/adult-income-meta-gate/<task>/traces.jsonl`) and may run `rollback adult-income gen_NNN` afterwards. Stop.
+
+## Rules
+- One proposal per visit; `propose` refuses a second (`--visit <n>` opens the next visit on the next problem).
+- A patch changes at most 20 % of the pack's text and never removes the test rule from `SKILL.md`; `propose` refuses more.
+- You never fit for yourself, never score the test split (`score_test` is forbidden to this pack), never touch the verifier pack or `eval.md`.
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-meta-gate/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `gate(pack, task, id, seed=0)` - the private gate, for a pack whose front matter says `approval: gate` (or `both`): snapshot the target under `runs/<target name>/versions/gen_NNN/`, land the proposal's files, then `private_score` the proposal's evidence recipe and the incumbent (the best val recipe of the newest problem in the target's log); keep the patch only if the evidence recipe did not score lower, else restore the snapshot. Append `{"event": "gate", "id", "before", "after", "keep", "version"}` and print `decision` (`keep` | `rollback`), the two scores and `landed`. Nobody is asked.
+- `private_score(pack, task, recipe, seed=0)` - the recipe fitted on train and scored on the private part of the split; costs no budget and touches no state; refuse for an actor pack (only a meta pack may see the private part, and no arm's `score_test` ever does).
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the meta pack never fits for itself and never touches the test split
+- write_card - cards land through a patch to memory.json, not through the verifier's pen
+- apply - under approval: gate nobody is asked; the gate lands or rolls back
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_09_rsi_meta_harness/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-meta/SKILL.md` - the front matter carries the
 mode and the files it may touch; the rule is one change per visit:
@@ -1728,7 +2477,186 @@ Use the adult-income-curriculum skill with the adult-income-meta-dream meta pack
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_10_rsi_dream/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_10_rsi_dream, when the pack has memory.json, a verifier writes to it and a meta pack patches its Search policy line, its schema.json forbid list or its cards."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
+   Search policy: static
+   - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
+   - `random`, `neighbours-of-top-3`, `prefer-untried-family`: as `policies.md` of the meta pack describes them; `read_memory --order <name>` prints the next eight.
+   - `obey-memory`: no applicable card - the static walk; otherwise take, per field, the `preferred` value `read_memory` prints and, in calls of up to eight recipes until `FREEZE`: a. the probe, one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at the middle hyper value; b. the probe winner's family - static recipes, then hyper variants, the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order; c. the rest of the grid in grid order. Skip a fitted recipe; a forbidden one is refused and costs no fit. `read_memory P T --arm memory --order obey-memory` prints the next eight.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack - its `Search policy:` line, the `forbid` list of `schema.json`, the cards of `memory.json` - and every patch is snapshotted under `runs/adult-income/versions/` first, so `rollback` can undo it.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income over the six curriculum problems in order with the verifier writing after each and the adult-income-meta-dream pack visiting between problems (the winner of the replay lands through the private gate; nobody is asked); print the learning curve, then run the frozen pack on the exam over five seeds and print the exam report. Use in rsi/step_10_rsi_dream."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
+   d. Meta visit: follow `M/SKILL.md` on `T` with `--visit <n>` (`n` = the problem's index). the winner of the replay lands through the private gate; nobody is asked. With `meta: off` in `M/config.md` nothing is proposed (META_OFF).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No verifier: a card write on the exam problem is refused, and you do not ask for one. Record the sha256 of `P/memory.json` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. `read_pack P --checksums` lists the versions under `runs/adult-income/versions/`: one `gen_NNN` per patch that was proposed, kept or rolled back. Answer in text with the curve table, the exam table, the list of meta decisions (problem, proposal, decision, version) and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit `memory.json`, `schema.json`, `SKILL.md` or any pack file yourself: the verifier writes cards through `write_card`, the meta pack patches through `propose` and `apply` / `gate`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- fit_recipe, score_test - run as the actor pack, following its SKILL.md; never for the curriculum skill itself
+- rollback - the human's tool after reading the log, and the gate's; the curriculum never rolls back on its own
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-meta-dream/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-meta-dream
+description: "Choose the actor pack's search policy by replaying the fit log as a simulator (Dream-RSI) with zero fits, and propose the winner as the actor's Search policy line through the private gate. Use in rsi/step_10_rsi_dream after a problem's actor and verifier runs are done, before the next problem boots."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: gate
+  patches: ["SKILL.md"]
+---
+## Procedure
+1. Build `rank_policies`, `read_pack`, `propose`, `gate`, `private_score` and `rollback` under `runs/adult-income-meta-dream/helpers/` if they are not there yet (they may import the actor's runtime helpers for the policies, the table, the split and the fit).
+2. `read_pack P` and note the actor's current `Search policy:` line.
+3. Rank every policy named in `policies.md` on the log of the problem just finished: `rank_policies M T --target P --policies static,obey-memory,random,neighbours-of-top-3,prefer-untried-family`. The helper replays the log: for each policy it walks the policy's first 24 picks, answers a pick from the log when the log has it, and counts a pick the log does not have as `unknown`. No fit is spent (`fits_spent: 0`, and the actor's `state.json` is unchanged). A policy's score is the best logged val among its picks; at a tie the policy with more unknown picks ranks higher, because a lap that only revisits the log learns nothing.
+4. If `winner` equals the current policy line, say so and stop. Otherwise write the actor's `SKILL.md` with only the `Search policy:` line changed to the winner under `runs/adult-income-meta-dream/patch/SKILL.md` (your Write tool) and propose it with the best-val recipe of the last problem as the evidence recipe: `propose M T --target adult-income --files runs/adult-income-meta-dream/patch --recipe <recipe> --summary "policy -> <winner>: best logged val <v>, unknown <u>" --visit <n>`. `patches: ["SKILL.md"]`: `propose` refuses any other file.
+5. `gate M T <id>`: the private split decides keep-or-rollback (a snapshot under `runs/adult-income/versions/gen_NNN/` first).
+6. Answer in text with the ranking (policy, best logged val, visited, unknown), whether the log is `saturated`, and the gate's verdict. Stop.
+
+## Rules
+- Zero fits: `fit_recipe` is forbidden to this pack; `rank_policies` reports `fits_spent: 0` and the actor's budget counter proves it.
+- You may patch the `Search policy:` line and nothing else.
+- When every policy's unknown count is 0 the log is saturated: say so - the next lap will visit nothing new, and recursion pays only if it does.
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-meta-dream/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `rank_policies(pack, task, target, policies)` - replay the last problem's memory-arm log as a simulator: for each policy of `policies.md`, walk its first 24 picks (from the cards and, step by step, the picks answered so far); a pick the log holds is answered with the logged `val_score`, a pick the log does not hold is `unknown` and answered with nothing. A policy's score is the best logged val among its picks; at a tie the policy with more unknown picks ranks higher (a lap that only revisits the log learns nothing). No fit is spent: `fits_spent: 0`, and the target's `state.json` is unchanged. Print the ranking (`policy, best_logged_val, visited, unknown`), `winner`, and `saturated` (true when every policy's unknown count is 0).
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `gate(pack, task, id, seed=0)` - the private gate, for a pack whose front matter says `approval: gate` (or `both`): snapshot the target under `runs/<target name>/versions/gen_NNN/`, land the proposal's files, then `private_score` the proposal's evidence recipe and the incumbent (the best val recipe of the newest problem in the target's log); keep the patch only if the evidence recipe did not score lower, else restore the snapshot. Append `{"event": "gate", "id", "before", "after", "keep", "version"}` and print `decision` (`keep` | `rollback`), the two scores and `landed`. Nobody is asked.
+- `private_score(pack, task, recipe, seed=0)` - the recipe fitted on train and scored on the private part of the split; costs no budget and touches no state; refuse for an actor pack (only a meta pack may see the private part, and no arm's `score_test` ever does).
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - zero fits: the meta pack replays the log and never touches a split but the private one
+- write_card, apply - cards are the verifier's; the gate, not the human, lands the policy line
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_10_rsi_dream/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-meta-dream/policies.md`:
 
@@ -1812,7 +2740,177 @@ Use the adult-income-curriculum skill: run the curriculum (problems 1 to 6: cont
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_11_rsi_agent/.claude/skills/adult-income-actor/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-actor
+description: "RSIAgent's actor - train a classifier for a curriculum problem under a 24-fit budget by running the experiments the planner wrote to plan.json (a broad phase, then a deep phase), with the memory frozen before the test is scored; the control arm walks the static list. Use in rsi/step_11_rsi_agent when the pack has plan.json."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income-actor/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, in two phases the planner writes:
+   - control arm: walk `schema.json -> recipes` in order, in one call.
+   - memory arm: ask the planner (`.claude/skills/adult-income-planner/SKILL.md`) for the broad plan; fit the 12 experiments of `plan.json` in order (`fit_recipe P T --arm memory --recipes <the 12>`); ask the planner again for the deep plan; fit its 12. A recipe a `forbid` card rules out is refused and costs no fit. When `plan.json` holds no untried experiment and fits remain, take the static list's next untried recipe. The 24th fit says `FREEZE`.
+   Search policy: planned
+   Freeze the memory before the test: `freeze_memory P T --arm memory` sets `"memory": "frozen"` in the arm's state; from then on a card write refuses on this arm; the verifier, run afterwards by the curriculum skill, writes to `memory.json` for the *next* problem, never for the arm that was just scored.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-actor/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `freeze_memory(pack, task, arm)` - set `"memory": "frozen"` in the arm's `state.json` and append `{"event": "freeze_memory"}`; refuse before FREEZE. From then on `write_card` refuses for this arm: the comparison at test time is against a memory that cannot move.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools
+- write_plan - the planner's tool: the actor runs plan.json, it does not write it
+- propose, apply, gate, rollback, private_score - no meta pack in this lesson
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income-actor over the six curriculum problems in order with the verifier writing after each and the adult-income-planner pack visiting between problems (the planner writes the actor's plan.json before the memory arm's first fit (broad) and when it runs dry (deep); the verifier writes after the test is scored, for the next problem); print the learning curve, then run the frozen pack on the exam over five seeds and print the exam report. Use in rsi/step_11_rsi_agent."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income-actor/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No verifier: a card write on the exam problem is refused, and you do not ask for one. Record the sha256 of `P/memory.json` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. Answer in text with the curve table, the exam table, the plans per problem (phase, the families in order) and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit `memory.json`, `schema.json`, `SKILL.md` or any pack file yourself: the planner writes `plan.json` through `write_plan`, the verifier writes cards through `write_card`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- fit_recipe, score_test - run as the actor pack, following its SKILL.md; never for the curriculum skill itself
+- rollback - the human's tool after reading the log, and the gate's; the curriculum never rolls back on its own
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-planner/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-planner
+description: "RSIAgent's curriculum module - choose the actor's next experiments by uncertainty (a broad phase that touches every model family, then a deep phase that goes where the faults are) and write them to the actor's plan.json. Use in rsi/step_11_rsi_agent before the actor's first fit on a problem and again when its plan runs dry."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build `write_plan` and `read_memory` under `runs/adult-income-planner/helpers/` if they are not there yet (they may import the actor's runtime helpers). Read the numbers: `write_plan C T --target P --uncertainty --c <c>` and `read_memory P T`. No fits yet on this problem: this is the broad phase, `c` = 2.0. Fits: the deep phase, `c` = 0.25.
+2. Score every model family by uncertainty `u = (1 - success) + c / (n + 1)`, where `n` is the family's fits on this problem so far and `success` is `(wins + 1) / (n + 2)` with a win = a val_score at least the first fit's (the baseline). The helper prints these per family; check them.
+   Broad c: 2.0
+   Deep c: 0.25
+   Experiments per phase: 12
+   In the broad phase every family starts equal and the large `c` makes the plan round-robin: every family is touched before any is repeated. In the deep phase the small `c` lets `1 - success` dominate: the family with the most faults (fits below the baseline, or errors) comes first.
+3. Build the plan greedily: 12 times, take the family with the highest `u` (ties: the family the cards prefer, then schema order), give it its next untried recipe (static recipes of `schema.json -> recipes` before hyper variants; inside those, the recipes carrying the most card-preferred values first), and count that experiment as one more fit for the family (recompute `u` with `n + 1` and the same success).
+4. Write the plan once: `write_plan C T --target P --plan '{"phase": "broad" | "deep", "c": <c>, "experiments": [ ...12 recipes... ]}'` (the plan lands in `P/plan.json`, both mirrors).
+5. Answer in text with the phase and the families in order. Stop.
+
+## Rules
+- You never fit and never score: `fit_recipe` and `score_test` are forbidden to this pack. One plan per phase per problem; `write_plan` refuses a second.
+- The memory is not yours: the verifier writes cards after the actor's `score_test`, not you.
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-planner/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `write_plan(pack, task, target, plan)` / `write_plan(..., uncertainty=True, c=<c>)` - with `uncertainty`: per model family on this problem's memory arm, `n` (fits so far), `wins` (val at or above the first fit's), `success = (wins + 1) / (n + 2)`, `faults` (fits below the first fit's, or errored) and `u = (1 - success) + c / (n + 1)`; print them. With `plan`: refuse a plan without `phase` (`broad` | `deep`), `c` and exactly 12 `experiments` from `schema.json -> fields`, refuse a second plan in the same phase on the same problem; write it to `<target>/plan.json` (both mirrors), append `{"event": "plan", "phase", "c"}` and print the families in order.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the planner chooses experiments and runs none
+- write_card, propose, apply, gate - not the planner's
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_11_rsi_agent/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-planner/SKILL.md`:
 
@@ -1857,23 +2955,48 @@ Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write
 The recorded run (Claude Code 2.1.278, headless; the arms trimmed, one
 planner visit in full):
 
-<!-- transcript -->
-
-Files:
-
 ```text
-step_11_rsi_agent/
-├── README.md
-├── test_step.py
-├── .claude/settings.json
-├── .claude/skills/
-│   ├── adult-income-planner/         SKILL.md (the uncertainty rule), tools.md (write_plan, read_memory)
-│   ├── adult-income-actor/           SKILL.md (runs plan.json, freeze_memory before the test), tools.md, plan.json, memory.json, eval.md ...
-│   ├── adult-income-verifier/
-│   └── adult-income-curriculum/
-├── .agents/skills/                   the same
-└── runs/                             (after a run) adult-income-actor/, adult-income-planner/helpers/, adult-income-verifier/helpers/
-```
+[Skill adult-income-curriculum]
+[Read the curriculum's tools.md, the actor's eval.md / SKILL.md / tools.md, the planner's SKILL.md / tools.md, the verifier's SKILL.md / tools.md, plan.json, schema, memory schema, config, memory.json]
+[Write runs/adult-income-actor/helpers/actor.py]  [Write runs/adult-income-planner/helpers/planner.py]  [Write runs/adult-income-verifier/helpers/verifier.py]  [Write runs/adult-income-curriculum/helpers/curriculum.py]
+agent> Helpers are built. Problem 1, control arm: open, then walk the static list in one call.
+$ ... actor.py load_splits $P $T --arm control --memory off; ... fit_recipe ... --recipes @static; ... score_test ...; ... scorecard ...
+{"best_val_score": 0.9177, "test_score": 0.9049, "fits_used": 24, "wasted_fits": 16, ...}
+agent> Problem 1 memory arm: open, then the planner's broad plan.
+$ P=.claude/skills/adult-income-actor; C=.claude/skills/adult-income-planner; T=../tasks/01_adult_income; A="python runs/adult-income-actor/helpers/actor.py"; PL="python runs/adult-income-planner/helpers/planner.py"; $A load_splits $P $T --arm memory | ... && $PL write_plan $C $T --target $P --uncertainty --c 2.0 | ... && $PL write_plan $C $T --target $P --plan '{"phase": "broad", "c": 2.0, "experiments": [...12...]}'
+{'profile': {'n_rows': 6000, 'n_features': 14, 'n_classes': 2, 'imbalance': 0.239, 'has_categorical': 1}, 'memory': 'on', 'cards_applicable': [], 'preferred': {...null...}, 'forbidden': {...}}
+{"problem": "adult_income", "arm": "memory", "fits_so_far": 0, "baseline": null, "families": {"logreg": {"n": 0, "wins": 0, "success": 0.5, "faults": 0, "u": 2.5}, "rf": {... "u": 2.5}, "hgb": {... "u": 2.5}}, "c": 2.0}
+{"phase": "broad", "c": 2.0, "families_in_order": ["logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb"], "written": ".claude/skills/adult-income-actor/plan.json"}
+$ ... $A fit_recipe $P $T --arm memory --recipes plan | ...
+1 logreg 1 yes onehot none 0.9114
+2 rf 16 yes onehot none 0.9054
+3 hgb 0.1 yes onehot none 0.9177
+4 logreg 1 yes onehot balanced 0.911
+5 rf 16 yes onehot balanced 0.9033
+6 hgb 0.1 yes onehot balanced 0.917
+... (6 more: the round-robin continues)
+$ ... $PL write_plan $C $T --target $P --uncertainty --c 0.25 | ... && $PL write_plan ... --plan '{"phase": "deep", "c": 0.25, "experiments": [...12...]}'
+{"families": {"logreg": {"n": 4, "wins": 1, "success": 0.333, "faults": 3, "u": 0.717}, "rf": {"n": 4, "wins": 0, "success": 0.167, "faults": 4, "u": 0.883}, "hgb": {"n": 4, "wins": 4, "success": 0.833, "faults": 0, "u": 0.217}}, "c": 0.25}
+{"phase": "deep", "c": 0.25, "families_in_order": ["rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf"], ...}
+$ ... $A fit_recipe $P $T --arm memory --recipes plan | ...
+13 rf 16 no onehot none 0.9049
+14 rf 16 no onehot balanced 0.9034
+... 17 rf 8 yes onehot none 0.9112 ... 24 ... FREEZE
+$ $A freeze_memory $P $T --arm memory && $A score_test $P $T --arm memory --recipe '{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' && $A scorecard $P $T --arm memory
+{"memory": "frozen", "event": "freeze_memory"}
+{"arm": "memory", "recipe": {...}, "test_score": 0.9049, "test_scored": 1}
+{"best_val_score": 0.9177, "test_score": 0.9049, "fits_used": 24, "wasted_fits": 2, ...}
+agent> Problem 1 verifier: the tally, then the cards.
+$ ... verifier.py read_traces $P $T --scope problem --tally ...; ... write_card $P $T --as $V --cards ...
+profile {...} rows 24 pairs ... ; {"n": 9, "new": 9, ...}
+... (problems 2-6 the same way: control arm, broad plan, 12 fits, deep plan, 12 fits, freeze_memory, score_test once, scorecard, verifier)
+agent> Problem 5 (synth_shift_a).
+... (the exam: for s in 0..4, control arm and memory arm with the planner's two plans; no verifier)
+agent> Exam done for all five seeds. The exam report:
+$ python runs/adult-income-curriculum/helpers/curriculum.py exam .claude/skills/adult-income-actor ../tasks/07_exam --seeds 0,1,2,3,4 | ...; sha256sum .claude/skills/adult-income-actor/memory.json .agents/skills/adult-income-actor/memory.json; diff -r .claude/skills .agents/skills && echo MIRRORS_IDENTICAL; ls runs/adult-income-actor/
+(the table below)
+MIRRORS_IDENTICAL
+agent> Both tables were produced by the helpers; runs/adult-income-actor/curve.json and exam.json exist, .claude/skills == .agents/skills.
 
 **Governance.**
 
@@ -1939,7 +3062,169 @@ Use the modular-meta skill: run both actors on the two pool tables (memory arms,
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_12_rsi_modular/.claude/skills/actor-a/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: actor-a
+description: "ModularRSI's actor A - train a classifier for a problem under a 24-fit budget by following the five module files under modules/ (agent loop, tool use, observation, context, completion) with helpers you build from the contracts in tools.md. Use in rsi/step_12_rsi_modular on the pool tables; the meta pack may patch one module at a time."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Do what `modules/agent_loop.md` says, reading `modules/context.md` for the next recipes, `modules/observation.md` for the result and `modules/completion.md` at FREEZE, under the rules of `modules/tool_use.md`.
+
+## Rules
+- A module is one file; only the meta pack may change one, and only one at a time, validated on the pool.
+- Never write a card: the verifier's job. Never run `score_test` before FREEZE, never twice.
+```
+
+`step_12_rsi_modular/.claude/skills/actor-a/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_12_rsi_modular/.claude/skills/actor-b/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: actor-b
+description: "ModularRSI's actor B - train a classifier for a problem under a 24-fit budget by following the five module files under modules/ (agent loop, tool use, observation, context, completion) with helpers you build from the contracts in tools.md. Use in rsi/step_12_rsi_modular on the pool tables; the meta pack may patch one module at a time."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Do what `modules/agent_loop.md` says, reading `modules/context.md` for the next recipes, `modules/observation.md` for the result and `modules/completion.md` at FREEZE, under the rules of `modules/tool_use.md`.
+
+## Rules
+- A module is one file; only the meta pack may change one, and only one at a time, validated on the pool.
+- Never write a card: the verifier's job. Never run `score_test` before FREEZE, never twice.
+```
+
+`step_12_rsi_modular/.claude/skills/actor-b/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_12_rsi_modular/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack actor-a or actor-b, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_12_rsi_modular/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+`step_12_rsi_modular/.claude/skills/modular-meta/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: modular-meta
+description: "ModularRSI's meta pack - localise a harness bug to one module by contrasting two actor packs on a benchmark-disjoint pool, patch that one module of the losing pack with the winning text, and validate on the pool's private split before it lands. Use in rsi/step_12_rsi_modular after both actors have run every pool task."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: gate
+  patches: ["modules/*.md"]
+---
+## Procedure
+1. Build `contrast`, `read_pack`, `propose`, `gate`, `private_score` and `rollback` under `runs/modular-meta/helpers/` if they are not there yet.
+2. The pool run, both actors, memory arms only, in pool order: for each pool task, follow `A/SKILL.md` then `B/SKILL.md` (each pack's five modules), then the verifier `.claude/skills/adult-income-verifier/SKILL.md` twice - once with `--pack A`, once with `--pack B` - so both actors carry the same cards into the next pool task.
+3. Contrast the two actors over the pool: `contrast M T --a A --b B --tasks pool`. The helper pairs, per pool task both actors ran, the success (higher best val) with the failure, names the one `modules/*.md` file whose text differs between the two packs (`module`), returns both texts, and the `winner`.
+4. If `winner` is null, or `module` is null (no single module differs, or several do), say so and stop: the bug is not localised.
+5. Otherwise write the loser's differing module with the winner's text under `runs/modular-meta/patch/modules/<file>` (your Write tool) and patch the loser: `propose M T --target <the loser> --files runs/modular-meta/patch --recipe <the winner's best pool recipe> --summary "<module> <- <winner>'s text" --visit 1`, then `gate M T <id>`. `patches: ["modules/*.md"]`: `propose` refuses any other file. `approval: gate`: the private split of the pool task decides - keep, or roll back. The eval table (`../tasks/`) is never used.
+6. Answer in text with the contrast result (pairs, module, winner), the gate's verdict and the version label. Stop.
+
+## Rules
+- One module per patch. The validation split is the pool task's private split; the eval table is never used for validation.
+- You never fit for yourself and never score the test split: `fit_recipe` and `score_test` are forbidden to this pack; the actors' arms in step 2 are run as the actors.
+```
+
+`step_12_rsi_modular/.claude/skills/modular-meta/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `contrast(pack, task, a, b, tasks)` - for every pool problem both actors ran (memory arms), pair the success (the higher best val) with the failure; name the one `modules/*.md` file whose text differs between the two packs (`module`; null when none or several differ), return both texts, and the `winner` (the actor that won more pool problems; null on a tie) with its best pool recipe. No fit is spent.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `gate(pack, task, id, seed=0)` - the private gate, for a pack whose front matter says `approval: gate` (or `both`): snapshot the target under `runs/<target name>/versions/gen_NNN/`, land the proposal's files, then `private_score` the proposal's evidence recipe and the incumbent (the best val recipe of the newest problem in the target's log); keep the patch only if the evidence recipe did not score lower, else restore the snapshot. Append `{"event": "gate", "id", "before", "after", "keep", "version"}` and print `decision` (`keep` | `rollback`), the two scores and `landed`. Nobody is asked.
+- `private_score(pack, task, recipe, seed=0)` - the recipe fitted on train and scored on the private part of the split; costs no budget and touches no state; refuse for an actor pack (only a meta pack may see the private part, and no arm's `score_test` ever does).
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - run as the actors, never for the meta pack
+- write_card, apply - cards are the verifier's; the gate lands the module
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/actor-a/modules/context.md` and `actor-b`'s - the one line
 that differs:
@@ -2015,7 +3300,126 @@ Use the adult-income-curriculum skill with the skill-memory-meta meta pack: run 
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_13_rsi_skill_memory/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income-skills over the six curriculum problems in order with the skill-memory-meta pack visiting between problems (one validated card update per problem, snapshotted; nobody is asked); print the learning curve, then run the frozen pack on the exam over five seeds and print the exam report. Use in rsi/step_13_rsi_skill_memory."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income-skills/helpers/` (as `P/SKILL.md` says), the meta pack's under `runs/skill-memory-meta/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Meta visit: follow `M/SKILL.md` on `T` with `--visit <n>` (`n` = the problem's index). one validated card update per problem, snapshotted; nobody is asked. With `meta: off` in `M/config.md` nothing is proposed (META_OFF).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No meta visit: a card update on the exam problem is refused, and you do not ask for one. Record the sha256 of every file under `P/skill-memory/` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. `read_pack P --checksums` lists the versions under `runs/adult-income-skills/versions/`: one `gen_NNN` per card update. Answer in text with the curve table, the exam table, the list of meta decisions (problem, proposal, decision, version) and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit a card file, `working.md`, `schema.json`, `SKILL.md` or any pack file yourself: the meta pack updates one card through `skill_memory --action update`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_13_rsi_skill_memory/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- fit_recipe, score_test - run as the actor pack, following its SKILL.md; never for the curriculum skill itself
+- rollback - the human's tool after reading the log, and the gate's; the curriculum never rolls back on its own
+```
+
+`step_13_rsi_skill_memory/.claude/skills/adult-income-skills/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-skills
+description: "Recuris's actor - train a classifier for a curriculum problem under a 24-fit budget, with the memory as a skill package (markdown cards under skill-memory/) selected by the situation the working memory names, not by recency, with helpers you build from the contracts in tools.md. Use in rsi/step_13_rsi_skill_memory when the pack has a skill-memory/ directory."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income-skills/helpers/` if they are not there yet.
+2. Open the arm: `load_splits P T` (control arm: `--arm control --memory off`, then walk the static list in one call and go to step 5).
+3. Name the situation. The need tags are `small` (fewer than 1000 rows), `categorical` (any categorical column), `imbalanced` (rarest class under 0.35), `multiclass` (more than two classes); `skill_memory P T --action tags` prints them from the profile. Then select the cards by need: `skill_memory P T --action need --need <tag,tag,...>`. The helper selects every validated card whose `when` tags all hold for this need - by the situation, never by which card is newest - rewrites `working.md` with the need and the cards, and prints the cards' `then` values as `prefer`.
+4. Search policy: obey-memory, with `prefer` as the preferences: the probe (one recipe per model, the preferred model first, each with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at its middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first), then the rest of the grid; in calls of up to eight recipes until a result says `FREEZE`: `fit_recipe P T --recipes <the list>`. With no card selected, the static order.
+5. When a result says `FREEZE`, pick the highest `val_score`, then, after FREEZE: `score_test P T [--arm control] --recipe <that recipe>`.
+6. `scorecard P T [--arm control]` and answer in text with the arm, the best val_score, the test score, the fits used and the cards that applied. Stop.
+
+## Rules
+- You never update a card: that is the meta pack's move, one card per visit, validated against the log first (`skill_memory --action update` refuses for this pack).
+- Never run `score_test` before FREEZE, never twice.
+```
+
+`step_13_rsi_skill_memory/.claude/skills/adult-income-skills/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `skill_memory(pack, task, action, ...)` - `tags`: the need tags of this problem's profile (`small` under 1000 rows, `categorical`, `imbalanced` under 0.35, `multiclass` over two classes). `list`: every card of `skill-memory/manifest.yaml` with its `when`, `then`, `validated`, `horizon`. `need <tags>`: select every validated card whose `when` tags all hold for the need - by the situation, never by which card is newest - rewrite `<pack>/working.md` with the need and the cards, and print the cards' `then` values as `prefer`. `update --as <meta> --card <name> --then field=value --when <tags> --body <one sentence> --visit <n>`: refuse unless `as` is the meta pack; refuse a `then` that did not win its comparisons on this problem (the tally); refuse a second update in the same visit; snapshot the pack under `runs/<pack name>/versions/gen_NNN/`; write the one card file (front matter `name`, `when`, `then`, `validated: true`, `horizon` + 1, body) and, for a new card, its manifest line; both mirrors; print card, file, horizon, version.
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+## Forbidden
+- write_card, read_traces, read_memory - the memory is a skill package, read through skill_memory; the meta pack updates it
+- propose, apply, gate, rollback - no pack-level patch in this lesson: the unit of change is one card
+```
+
+`step_13_rsi_skill_memory/.claude/skills/skill-memory-meta/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: skill-memory-meta
+description: "Recuris's meta agent - turn one problem's execution evidence into ONE localised, validated update of the actor's skill memory, a card for the situation the problem was in. Use in rsi/step_13_rsi_skill_memory after the actor's memory arm on a problem is frozen and scored."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `skill_memory` under `runs/skill-memory-meta/helpers/` if they are not there yet (they may import the actor's runtime helpers). Read the evidence and the memory: `read_traces P T --scope problem --tally`, `skill_memory P T --action list`, `skill_memory P T --action tags`.
+2. Name the situation of this problem with the same need tags the actor used. From the tally, per field, take the value with the most wins net of losses.
+3. Take the first field of `model`, `class_weight`, `encode`, `scale` whose winning value the situation's card does not already hold (a card holds one `then`; a card "for the situation" is one whose `when` tags all hold for this need). Update once, with the existing card's name when the situation has one for that field, else a new name (`<value>-for-<tag>`): `skill_memory P T --action update --as M --card <name> --then <field>=<value> --when <tag,tag> --body "<one sentence: what the log showed>" --visit <n>`. The helper refuses an update whose `then` did not win its comparisons on this problem, keeps one file per card, snapshots the pack under `runs/adult-income-skills/versions/` first, raises the card's `horizon` (the number of problems it was updated on), and refuses a second update in the same visit.
+4. Answer in text with the helper's result (card, file, horizon, version). Stop.
+
+## Rules
+- One update per visit; the helper refuses a second.
+- An update is localised to one card file (plus a manifest line for a new card) and validated before it lands.
+- You never fit and never score the test split: `fit_recipe` and `score_test` are forbidden to this pack.
+```
+
+`step_13_rsi_skill_memory/.claude/skills/skill-memory-meta/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `skill_memory(pack, task, action, ...)` - `tags`: the need tags of this problem's profile (`small` under 1000 rows, `categorical`, `imbalanced` under 0.35, `multiclass` over two classes). `list`: every card of `skill-memory/manifest.yaml` with its `when`, `then`, `validated`, `horizon`. `need <tags>`: select every validated card whose `when` tags all hold for the need - by the situation, never by which card is newest - rewrite `<pack>/working.md` with the need and the cards, and print the cards' `then` values as `prefer`. `update --as <meta> --card <name> --then field=value --when <tags> --body <one sentence> --visit <n>`: refuse unless `as` is the meta pack; refuse a `then` that did not win its comparisons on this problem (the tally); refuse a second update in the same visit; snapshot the pack under `runs/<pack name>/versions/gen_NNN/`; write the one card file (front matter `name`, `when`, `then`, `validated: true`, `horizon` + 1, body) and, for a new card, its manifest line; both mirrors; print card, file, horizon, version.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the meta agent never fits
+- write_card, propose, apply, gate - the unit of change is one card file, through skill_memory --action update
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-skills/skill-memory/cards/onehot-for-categorical.md`:
 
@@ -2198,7 +3602,143 @@ Use the dgm-meta skill: run one generation - the held-out benchmark (both arms a
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_14_rsi_self_modifying/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_14_rsi_self_modifying, when the pack has memory.json, a verifier writes to it and the dgm-meta pack rewrites its SKILL.md and loop.json one generation at a time."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
+   Search policy: static
+   - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
+   - `obey-memory`: no applicable card - the static walk; otherwise take, per field, the `preferred` value `read_memory` prints and, in calls of up to eight recipes until `FREEZE`: a. the probe, one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at the middle hyper value; b. the probe winner's family - static recipes, then hyper variants, the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order; c. the rest of the grid in grid order. Skip a fitted recipe; a forbidden one is refused and costs no fit. `read_memory P T --arm memory --order obey-memory` prints the next eight.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only the meta pack may rewrite this pack's source - its `SKILL.md` and `loop.json` (`policy`), and nothing else - and every patch is snapshotted under `runs/adult-income/versions/` first, so `rollback` can undo it.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_14_rsi_self_modifying/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_14_rsi_self_modifying/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_14_rsi_self_modifying/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+`step_14_rsi_self_modifying/.claude/skills/dgm-meta/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: dgm-meta
+description: "The Darwin Goedel Machine lineage - rewrite the actor pack's own source (its SKILL.md and loop.json), one generation deep, from a parent chosen in an archive of variants scored on a fixed held-out benchmark, behind the private gate and the human cycle. Use in rsi/step_14_rsi_self_modifying, one generation per visit."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: both
+  patches: ["SKILL.md", "loop.json"]
+---
+## Procedure
+1. Build `archive`, `read_pack`, `propose`, `gate`, `private_score`, `apply` and `rollback` under `runs/dgm-meta/helpers/` if they are not there yet.
+2. Run the current variant on the held-out benchmark: for each task under `M/held-out/`, in order, follow `P/SKILL.md` for the control arm (`--arm control --memory off`) and for the memory arm (with `--seed <g>`, where `g` is this generation's number, on every command), then `V/SKILL.md` on that task. Both arms and the verifier on both tasks.
+3. Archive the variant with its held-out score: `archive M T --target P --action add --label gen<g>-<current policy> --held-out M/held-out --seed <g>`. The score is, over the held-out tasks, the private score of the memory arm's best recipe minus the control arm's, averaged: a gain over the static walk on a fixed benchmark.
+4. Choose the parent: `archive M T --target P --action parent`. The parent is the variant with the best held-out score, ties to the older one; it is not the latest by default. If `is_latest` is false: `archive M T --target P --action restore --label <parent>`, then `read_pack P`; you now stand on the parent.
+5. Propose ONE rewrite of the parent's source: the `Search policy:` line of `SKILL.md` and the `policy` field of `loop.json` set to the first of `static`, `obey-memory`, `neighbours-of-top-3`, `prefer-untried-family` that `policies_in_archive` does not hold (nothing to propose when all four are there: say so and stop). Write both files under `runs/dgm-meta/patch/` (your Write tool) and `propose M T --target adult-income --files runs/dgm-meta/patch --recipe <the parent's best held-out recipe> --summary "gen<g+1>: <policy> from <parent>" --visit <g>`. `patches:` allows those two files only.
+6. `approval: both`: first `gate M T <id>` - the private split of `T` decides keep-or-rollback; if it kept the rewrite, show the user the diff and ask **approve / edit / reject**, wait, and land their answer: write their words to `runs/dgm-meta/<task>/proposals/<id>.approved` and `apply M T <id> --approved "<the user's exact words>"` (a reject after the gate kept it: `rollback adult-income <version>`; the variant never enters the archive).
+7. Answer in text with the archive (labels, held-out scores, parent), the rewrite and the verdicts. Stop. The next visit is generation `g + 1` on the rewritten pack.
+
+## Rules
+- One generation deep: a rewrite of the parent, never of a rewrite that has not run the benchmark.
+- A variant that lowered the held-out score is in the archive with its score; the parent rule never picks it over a better one. A rewrite the gate rejected never runs and never enters the archive.
+- You never fit for yourself and never score the test split: `fit_recipe` and `score_test` are forbidden to the meta pack; the actor's arms in step 2 are run as the actor.
+```
+
+`step_14_rsi_self_modifying/.claude/skills/dgm-meta/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `archive(pack, task, target, action, ...)` - `add --label <label> --held-out <dir> --seed <g>`: score the current variant of the target pack as, averaged over the held-out problems, the memory arm's best recipe's `private_score` minus the control arm's (a gain over the static walk on a fixed benchmark), copy the pack under `runs/<pack name>/archive/<label>/` with `score.json` (`label`, `score`, `policy`, `parent`, checksums) and print it. `parent`: the archived variant with the best score, ties to the older one - not the latest by default; print `label`, `score`, `is_latest`, `policies_in_archive`. `restore --label <label>`: write that variant's files over the target (both mirrors) after snapshotting it under `versions/`. A variant the gate rejected never runs and never enters the archive.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `gate(pack, task, id, seed=0)` - the private gate, for a pack whose front matter says `approval: gate` (or `both`): snapshot the target under `runs/<target name>/versions/gen_NNN/`, land the proposal's files, then `private_score` the proposal's evidence recipe and the incumbent (the best val recipe of the newest problem in the target's log); keep the patch only if the evidence recipe did not score lower, else restore the snapshot. Append `{"event": "gate", "id", "before", "after", "keep", "version"}` and print `decision` (`keep` | `rollback`), the two scores and `landed`. Nobody is asked.
+- `private_score(pack, task, recipe, seed=0)` - the recipe fitted on train and scored on the private part of the split; costs no budget and touches no state; refuse for an actor pack (only a meta pack may see the private part, and no arm's `score_test` ever does).
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - run as the actor on the held-out benchmark, never for the meta pack
+- write_card - the verifier's pen
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/dgm-meta/SKILL.md` - the archive and the parent:
 
@@ -2236,10 +3776,19 @@ Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write
     assert procedure.index("`gate M T") < procedure.index("approve / edit / reject") < procedure.index("`apply M T")
 ```
 
-The recorded run (Claude Code 2.1.278, headless, two turns; the arms
-trimmed, the archive, the rewrite and the verdicts in full):
+The recorded run (not yet recorded on this machine; the weekly usage cap was reached
+before this lesson's turn - the block below says how to produce it):
 
-<!-- transcript -->
+```text
+Recording pending - this lesson's transcript has not been recorded yet.
+Run it here to produce it (about ten minutes in Claude Code; the live test records the run
+under runs/_recording/ and asserts on the artifacts):
+
+    RSI_LIVE=1 python -m pytest -q test_step.py -k live -s
+
+Nothing above is invented: the pack, the contracts and the tests are complete, and the
+"What to notice" paragraph will be written from the recording.
+```
 
 Files:
 
@@ -2326,7 +3875,138 @@ Use the aide-outer skill: run one outer step - version v1 over problems 1 to 6 w
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_15_rsi_aide2/.claude/skills/adult-income-aide/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-aide
+description: "AIDE2's inner agent - train a classifier for a curriculum problem under a 24-fit budget as an AIDE-style tree search over solutions, with the operators of operators.md (draft, debug, improve, review) and their guards, with helpers you build from the contracts in tools.md. Use in rsi/step_15_rsi_aide2 when the pack has operators.md; the arm name is the outer loop's version (v1, v2, ...)."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income-aide/helpers/` if they are not there yet; `fit_recipe` here also marks a result `suspicious: true` as the review operator says.
+2. Open the arm: `load_splits P T --arm <v>`.
+3. Search policy: aide-tree - the operators of `operators.md`, applied to the tree of solutions you have fitted:
+   a. draft: one solution per model family, in one call.
+   b. review each result as the review operator says; a result marked `suspicious: true` is fitted again once before it is believed.
+   c. improve, until a result says `FREEZE`: the untried neighbours (one field away, nearest first) of what the improve operator says to expand; debug a solution that errored as the debug operator says. `read_memory P T --arm <v> --order aide-tree` prints the next eight recipes of the current operators (`aide-tree-top-3` when the improve operator says "top three"); fit them in one call and repeat: `fit_recipe P T --arm <v> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the highest `val_score`, then, after FREEZE: `score_test P T --arm <v> --recipe <that recipe>`.
+5. `scorecard P T --arm <v>` and answer in text with the arm, the best val_score, the test score, the fits used and how many results were suspicious. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only; never invent a value.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job. Only the outer loop may rewrite `operators.md` - and only that file; every operator keeps its guard line word for word, or `lint_pack` refuses the pack.
+```
+
+`step_15_rsi_aide2/.claude/skills/adult-income-aide/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `aide-tree` / `aide-tree-top-3`: the untried neighbours (one field away, nearest first) of the best solution / of the top three, as `operators.md` says; a result with `val_score >= 0.999` or a jump of more than 0.2 over the previous best is printed with `suspicious: true` by `fit_recipe`.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_15_rsi_aide2/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is the version the outer loop names with `--of`: `v1`, `v2`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_15_rsi_aide2/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+`step_15_rsi_aide2/.claude/skills/aide-outer/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: aide-outer
+description: "AIDE2's outer loop - rewrite the inner agent's operator text and keep the rewrite only if it beats the previous version across the whole heterogeneous curriculum under one metered budget of fits and helper calls. Use in rsi/step_15_rsi_aide2 after the inner pack has run every curriculum problem once as version v1."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: metered
+  patches: ["operators.md"]
+---
+## Procedure
+1. Build `meter`, `read_pack`, `propose`, `lint_pack` and `rollback` under `runs/aide-outer/helpers/` if they are not there yet.
+2. Version 1: for each curriculum task in order, follow `P/SKILL.md` with `--arm v1`, then `V/SKILL.md` on that task (the cards carry forward; the verifier reads the `v1` arm: `read_traces --of v1`). Then meter it: `meter M T --target P --of v1`.
+3. Propose ONE rewrite of `operators.md`: the `improve` operator changed from expanding the best solution to expanding the top three ("Improve: expand the top three solutions - fit their untried neighbours, one field away, nearest first."). Every operator keeps its guard line word for word (`lint_pack` refuses an operator without it; `propose` refuses any other file). Write the whole file under `runs/aide-outer/patch/operators.md` and `propose M T --target adult-income-aide --files runs/aide-outer/patch --recipe <v1's best recipe on T> --summary "improve: top-1 -> top-3" --visit 1`. `approval: metered`: snapshot the pack under `runs/adult-income-aide/versions/gen_NNN/`, land the rewrite now (`landed: pending`) and leave the decision to step 5.
+4. Version 2: the same curriculum, same order, same budget, under the rewrite - `P/SKILL.md` with `--arm v2` on every task, the verifier after each (`--of v2`). Then `meter M T --target P --of v2`.
+5. Decide, across the whole set: `meter M T --target P --decide --proposal <id> --before v1 --after v2 --tasks ../tasks`. Per problem, v2's best val minus v1's; the statistical layer discards a gain more than 3 MADs above the median; the rewrite is kept only if the remaining total gain is positive and it loses on at most half the problems - otherwise the helper restores `operators.md` from the snapshot. Both arms must have spent the same fits.
+6. Answer in text with both meter readings, the per-problem gains, the outliers discarded, and the verdict. Stop.
+
+## Rules
+- One rewrite per outer step. The three guards stay in every operator: the anti-overfitting line, the re-run of a suspicious score, the statistical layer.
+- You never fit for yourself and never score the test split; the inner arms are run as the inner pack.
+- The budget is metered in fits and helper calls; there is no token count, because no helper sees your transcript - say so when you report.
+```
+
+`step_15_rsi_aide2/.claude/skills/aide-outer/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `meter(pack, task, target, of=<arm>)` - the cost of one version over the whole curriculum: the fits spent and the helper calls made on every problem's `<of>` arm (from the traces and `state.json`); print `fits`, `calls`, `problems`. There is no token count, because no helper sees your transcript - say so. `meter --decide --proposal <id> --before v1 --after v2 --tasks ../tasks`: per curriculum problem, v2's best val minus v1's; discard as an outlier any gain more than 3 MADs above the median (the statistical layer); refuse when the two versions did not spend the same fits; keep the rewrite only if the remaining total gain is positive and it loses on at most half the problems - otherwise restore `operators.md` from the snapshot the proposal made. Append `{"event": "meter", "decision", ...}`, print the gains, the outliers and the verdict.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `lint_pack(files, intent.md)` - every reason a pack may not run for a task, as a list of problems (empty = ok): `schema.json -> n_fits` differs from `budget_fits`; `test_rule` is not `locked, scored once after FREEZE`; `metric` or `models` differ from the intent's; `SKILL.md` lacks the front matter (`name`, `description`, `metadata.type`, `metadata.version`, `metadata.rsi`) or the headings `Boot order`, `Procedure`, `Rules`, `Done when`; `tools.md` lacks `## Allowed` or `## Forbidden`; `loop.json`, when present, is not `kind: counted_while` with `N` equal to `budget_fits`; `graph.json`, when present, has a cycle, or a path in `paths.json` uses a node that is not in the graph, walks an edge the graph does not have, or breaks a constraint (one `encode`, one `scale`, one `model` per path, `score_test` only as the last node); a verifier `SKILL.md` lacks its contract line; an `operators.md` operator lacks its guard line. A pack that widens the intent is refused before any human sees it.
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - run as the inner pack, never for the outer loop
+- write_card, apply, gate, private_score - the decision is metered across the set, not a human word or one private score
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/adult-income-aide/operators.md`:
 
@@ -2396,7 +4076,234 @@ Use the adult-income-curriculum skill with the task-skills-meta fast loop and th
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config` (approvals as `claude -p --continue "<your answer>"`).
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income
+description: "Train a classifier for a curriculum problem under a 24-fit budget, proposing recipes shaped by the memory cards in memory.json (the memory arm), or walking the static list with the memory off (the control arm), with helpers you build from the contracts in tools.md. Use in rsi/step_16_rsi_meta_skills, when the pack has memory.json, a verifier writes to it and a meta pack patches its Search policy line, its schema.json forbid list or its cards."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build the helpers of `tools.md` under `runs/adult-income/helpers/` if they are not there yet.
+2. Open the arm and keep the profile and the applicable cards it prints:
+   control arm: `load_splits P T --arm control --memory off`; memory arm: `load_splits P T --arm memory` (the seed with `--seed <s>` when the lesson names one).
+3. Search, until a result says `FREEZE`, under the policy the line below names - the one line of this file a meta pack may patch:
+   Search policy: static
+   - `static`: walk `schema.json -> recipes` in order, in one call, cards or no cards.
+   - `obey-memory`: no applicable card - the static walk; otherwise take, per field, the `preferred` value `read_memory` prints and, in calls of up to eight recipes until `FREEZE`: a. the probe, one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight` (defaults `yes` / `onehot` / `none`) at the middle hyper value; b. the probe winner's family - static recipes, then hyper variants, the recipes carrying the most preferred values first (`class_weight` and `encode` count 2, `scale` and `hyper` 1), then grid order; c. the rest of the grid in grid order. Skip a fitted recipe; a forbidden one is refused and costs no fit. `read_memory P T --arm memory --order obey-memory` prints the next eight.
+   `fit_recipe P T --arm <arm> --recipes <the list>`.
+4. When a result says `FREEZE`, pick the recipe with the highest `val_score` over the arm's fits, then, after FREEZE: `score_test P T --arm <arm> --recipe <that recipe>`; in a lesson whose curriculum skill does not say otherwise, `save_model` too.
+5. `scorecard P T --arm <arm>` and answer in text with the arm, the best val_score, the test score, the fits used and the wasted fits. Stop.
+
+## Rules
+- Recipes come from `schema.json -> fields` only. Never invent a value; `fit_recipe` refuses one.
+- Never run `score_test` before FREEZE, never twice.
+- Never write a card: that is the verifier's job, and `write_card` is forbidden to this pack. Only a meta pack may patch this pack - its `Search policy:` line, the `forbid` list of `schema.json`, the cards of `memory.json` - and every patch is snapshotted under `runs/adult-income/versions/` first, so `rollback` can undo it.
+- The two arms share the helper, the seed, the split and the budget: that is what makes the comparison mean something.
+```
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `load_splits(pack, task, arm="memory", seed=0, memory="on")` - read the table, compute the profile and the split, create the arm directory and its `state.json` (refuse when the arm is already open: an arm is opened once), append `{"event": "open"}` to the trace, and print the profile, the budget and, for a memory arm, the cards that apply (as `read_memory` lists them). `memory="off"` (the control arm, or `config.md` saying `memory: off`) records `"memory": "off"` in the state: no card is read or written on this arm.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `fit_recipe(pack, task, arm, recipes)` - for each recipe of the list, in order: refuse (no fit, `"refused": "..."` on that item) a recipe outside `schema.json -> fields`, one an active `forbid` card rules out (memory arms only), or one this arm already fitted; refuse every item once `fits_used` is `n_fits` (`"error": "budget: 24 fits used"`); otherwise fit on train, score on val, append the fit row and add one to `fits_used` (an errored fit counts). The moment `fits_used` reaches `n_fits`, write `"frozen": true` and append `{"event": "FREEZE"}`. Print `results` (each with `n`, `recipe`, `val_score`, `error`), `fits_left` and `FREEZE` (true / false). Refuses the 25th call by reading `state.json`, not by counting in memory.
+- `score_test(pack, task, arm, recipe)` - refuse unless `state.json` says `"frozen": true` (`"error": "the test split is locked until FREEZE"`); refuse when `test_scored` is already 1 (`"error": "scored once already"`); refuse a recipe this arm never fitted. Otherwise fit it again on train (deterministic), score the test part, write `test_score`, `test_recipe`, `test_scored: 1`, append `{"event": "score_test", "recipe", "test_score"}`, print them.
+- `save_model(pack, task, arm, recipe)` - pickle the recipe's fitted pipeline to `model.pkl` in the arm directory; refuse before FREEZE and refuse a recipe the arm never fitted.
+- `scorecard(pack, task, arm)` - write `scorecard.json` in the arm directory with exactly the 14 fields of lesson 00's `acceptance.md` - `problem`, `arm`, `seed`, `n_fits`, `fits_used`, `wasted_fits` (the fits before the first one within 0.005 of the arm's best `val_score`, plus every errored fit), `best_val_score`, `best_recipe`, `test_score`, `test_scored_once` (`test_scored == 1`), `test_touched_before_freeze` (true if a `score_test` event precedes the `FREEZE` event in the trace), `cards_active`, `cards_added`, `cards_demoted` (the pack's `memory.json` now; 0 for a pack without one) - and print it.
+
+### The search policies `read_memory --order <policy>` must implement
+
+- `static`: `schema.json -> recipes` in order, cards or no cards.
+- `obey-memory`: the probe (one recipe per model, the preferred model first, with the preferred `scale` / `encode` / `class_weight`, defaults `yes` / `onehot` / `none`, at the middle hyper value), then the probe winner's family (static recipes, then hyper variants, the recipes carrying the most preferred values first: `class_weight` and `encode` count 2, `scale` and `hyper` 1, then grid order), then the rest of the grid in grid order; fitted recipes skipped, forbidden ones never proposed. With no applicable card it is `static`.
+
+## Forbidden
+- write_card, read_traces - the verifier's tools; the actor never grades its own homework
+- propose, apply, gate, rollback, private_score - only a meta pack changes this pack, and no actor sees the private split
+```
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income-curriculum/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-curriculum
+description: "Run the actor pack adult-income over the six curriculum problems in order with the verifier writing after each and the task-skills-meta pack visiting between problems (the fast loop under the gate after every problem, and after every k-th problem (k in meta-evolver/config.md) the slow loop `.claude/skills/meta-evolver` under the human - show its diff and ask before `apply`); print the learning curve, then run the frozen pack on the exam over five seeds and print the exam report. Use in rsi/step_16_rsi_meta_skills."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build the helpers once: the actor's set under `runs/adult-income/helpers/` (as `P/SKILL.md` says), the verifier's under `runs/adult-income-verifier/helpers/`, and `curve` and `exam` under `runs/adult-income-curriculum/helpers/`. Reuse what exists. A helper may run a whole arm in one call (open, `read_memory --order`, fit, repeat until FREEZE, score once, scorecard) as long as every step writes what its contract says.
+2. For each curriculum task `T`, in order (01 .. 06):
+   a. Control arm: follow `P/SKILL.md` with `--arm control --memory off` (open, fit the static list in one call, score the best once after FREEZE, scorecard).
+   b. Memory arm: follow `P/SKILL.md` with the default arm (open, `read_memory --order <the policy the actor's Search policy line names>` for the next recipes, fit them, repeat until FREEZE, score once, scorecard).
+   c. Verifier: follow `V/SKILL.md` on `T` (the tally, then the cards, written with `--as V`).
+   d. Meta visit: follow `M/SKILL.md` on `T` with `--visit <n>` (`n` = the problem's index). the fast loop under the gate after every problem, and after every k-th problem (k in meta-evolver/config.md) the slow loop `.claude/skills/meta-evolver` under the human - show its diff and ask before `apply`. With `meta: off` in `M/config.md` nothing is proposed (META_OFF).
+   Do not run `save_model` in this lesson; the models are not the deliverable.
+3. The learning curve: `curve P --tasks ../tasks`. Show the table. The claim of `eval.md`: `gap_val` never negative, larger on problem 6 than on problem 2.
+4. The exam, on `../tasks/07_exam`, for each seed `s` in 0, 1, 2, 3, 4: the control arm with `--arm control --seed s --memory off`, then the memory arm with `--seed s` (both as in step 2, `--seed s` on every command; the arm directories are `control-s<s>` and `memory-s<s>` for s > 0). No verifier: a card write on the exam problem is refused, and you do not ask for one. Record the sha256 of `P/memory.json` before the first exam arm.
+5. The exam report: `exam P ../tasks/07_exam --seeds 0,1,2,3,4`. Show the table: wins out of 5, the mean test gap, the cards that did not transfer, `pack_unchanged` and `no_card_written` (both must be true).
+6. `read_pack P --checksums` lists the versions under `runs/adult-income/versions/`: one `gen_NNN` per patch that was proposed, kept or rolled back. Answer in text with the curve table, the exam table, the list of meta decisions (problem, proposal, decision, version) and one sentence per claim of `eval.md` saying whether it held - including a claim that did not. Stop.
+
+## Rules
+- The same budget on both arms of every problem; the test split scored once per arm, after FREEZE.
+- You never edit `memory.json`, `schema.json`, `SKILL.md` or any pack file yourself: the verifier writes cards through `write_card`, the meta pack patches through `propose` and `apply` / `gate`, and nothing else changes the pack.
+- Report the numbers the helpers print, including a claim that did not hold. Wine and digits saturate this recipe space; a gap of 0 there is the honest number.
+```
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income-curriculum/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `exam(pack, task, seeds)` - for the exam problem, per seed: both arms' `test_score`, `wasted_fits`, the winner (higher test score, or the same score with fewer wasted fits); `wins` out of the seeds, `mean_test_gap` (memory - control), `not_transferred`: every card that applied whose preferred value is absent from the memory arm's best recipe on that seed; `pack_unchanged` (sha256 of `memory.json` before the first exam arm equals the one after the last) and `no_card_written` (no `write_card` event in any exam trace). Write `runs/<pack name>/exam.json`, print the table.
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+
+## Forbidden
+- write_card - the verifier's pen; the curriculum skill only asks the verifier to use it
+- fit_recipe, score_test - run as the actor pack, following its SKILL.md; never for the curriculum skill itself
+- rollback - the human's tool after reading the log, and the gate's; the curriculum never rolls back on its own
+```
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income-verifier/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: adult-income-verifier
+description: "Turn the fit log of one problem into memory cards for the actor pack adult-income, with helpers you build from the contracts in tools.md. Use after the actor's memory arm on a problem is frozen and scored; input is the log and the profile, nothing else."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+---
+## Procedure
+1. Build `read_traces` and `write_card` under `runs/adult-income-verifier/helpers/` if they are not there yet (they may import the actor's runtime helpers for the table and the profile; never the test scorer).
+2. Read the fits of this problem's memory arm with the pairwise tally: `read_traces P T --scope problem --tally` (the arm to read is `memory`, or the one the curriculum skill names with `--of`).
+3. The tally: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value. The helper prints it; check a few pairs by hand the first time.
+4. The rule, per field: ONE `prefer` card for the value with the most wins net of losses (`evidence` 1, `counter` 0) if that net is positive; a counter card (`evidence` 0, `counter` 1, the same `if` and `then`) for every value that lost more than it won; a `forbid` card (`evidence` 1) for a value that errored. A card's `if` is the side of the field's threshold this profile is on - `class_weight` -> `imbalance` 0.35; `encode` -> `has_categorical` == 0 / 1; `scale` -> `n_features` 10; `model` -> `n_rows` 1000; `hyper` -> `n_classes` 3 - written `{"key": ..., "op": ">=" or "<" (== for has_categorical), "value": <the threshold>}`. The helper's `cards_by_rule` is this list; write it in one call:
+   `write_card P T --as V --cards <the list>`
+   The helper merges the counts into the actor's `memory.json` (both mirrors): one problem is one piece of evidence, a card is active from its first, and it is demoted as soon as its counters reach half its evidence.
+5. Answer in text with how many cards you wrote, how many were new and how many were demoted. Stop.
+
+## Rules
+- A card has exactly `if`, `then`, `evidence`, `counter`. No note, no reason, no mention of the test split or of the intent: `write_card` refuses them.
+- You do not fit, you do not score the test split, you do not read the actor's messages: `fit_recipe` and `score_test` are forbidden to this pack.
+- On a problem whose `role` is `exam`, or when the actor's `config.md` says `memory: frozen`, `write_card` refuses: the exam is never learned from.
+```
+
+`step_16_rsi_meta_skills/.claude/skills/adult-income-verifier/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `write_card(pack, task, as, cards)` - refuse unless `as` is the verifier pack (`"error": "only the verifier writes cards"`); refuse when the task's `role` is `exam` or the memory arm's state says memory `frozen` (`"error": "memory frozen"`); refuse a card with any key beyond `if`, `then`, `evidence`, `counter`, an `if.key` outside the five profile keys, an `if.op` outside `> < >= <= ==`, a `then.field` outside the five recipe fields, `then` without exactly one of `prefer` / `forbid`, or whose serialised text contains `test` or `intent`. Merge into `<pack>/memory.json` (both mirrors): a card with the same `if` and `then` adds its `evidence` and `counter` to the one on disk, any other is appended; a merged card whose `counter * 2 >= evidence` is `demoted`. Append `{"event": "write_card", "as", "n", "new", "demoted"}` to the memory arm's trace and print those counts.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the verifier never fits and never touches the test split
+- read_memory - the cards are in the actor pack's memory.json, which write_card merges into
+```
+
+`step_16_rsi_meta_skills/.claude/skills/meta-evolver/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: meta-evolver
+description: "The slow loop of MetaSkill-Evolve - every k problems, propose one change to one meta-skill file (roles/*.md) of the task-skills-meta pack, by the same evidence pipeline, and land it only with the human's approval. Use in rsi/step_16_rsi_meta_skills on the slow clock (k in config.md), never after every problem."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: human
+  patches: ["roles/*.md"]
+---
+## Procedure
+1. Check the clock: the problem's index must be a multiple of `k`; otherwise say so and stop.
+2. Build `read_traces`, `read_memory`, `read_pack`, `curve`, `propose`, `apply` and `rollback` under `runs/meta-evolver/helpers/` if they are not there yet. Read the evidence the fast loop itself uses: `read_traces P T --scope all`, `read_memory P T`, `read_pack M`, `curve P --tasks ../tasks` (the problems run so far; the others are listed as missing).
+3. Judge the fast loop by that evidence: the number of active cards the last `k` problems added, and whether the memory arm's best val beat the control's on them. Decide ONE change, one file, one line:
+   - the fast loop is adding cards but the gap is not growing: raise `Cards per visit` in `roles/proposer.md` by one (it consolidates faster);
+   - the actor's policy line is still `static` after `k` problems: lower `Policy flip threshold` in `roles/allocator.md` by one;
+   - otherwise nothing: say so and stop.
+4. Write the changed role file under `runs/meta-evolver/patch/roles/<file>` (your Write tool) and `propose E T --target task-skills-meta --files runs/meta-evolver/patch --recipe <the last problem's best val recipe> --summary "<role>: <old> -> <new>" --visit <index / k>`. `patches: ["roles/*.md"]`: `propose` refuses any other file. `approval: human`: show the user the diff, ask **approve / edit / reject**, wait, then write their words to `runs/meta-evolver/<task>/proposals/<id>.approved` and `apply E T <id> --approved "<the user's exact words>"`. Nothing lands on a no. Every apply snapshots `M` under `runs/task-skills-meta/versions/gen_NNN/`: the meta pack's version history is a directory you can diff.
+5. Answer in text with the change, the decision and the version label. Stop.
+
+## Rules
+- Only on the slow clock, only one role file per visit, only with the human. The fast loop's `gate` never touches `roles/`, and this pack never touches the actor.
+- You never fit and never score the test split.
+```
+
+`step_16_rsi_meta_skills/.claude/skills/meta-evolver/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `curve(pack, tasks)` - for every curriculum problem (`role: curriculum`, index order) with both arms scored, the row `problem, memory_best_val, control_best_val, gap_val (memory - control), wasted_memory, wasted_control (fits each arm spent before reaching the control arm's best val within 0.005), cards_added, cards_demoted, cards_active`; a problem without both scorecards is listed as `missing`, never invented. Write `runs/<pack name>/curve.json` and print the table.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `apply(pack, task, id, approved, edited=None)` - refuse without `approved` (non-empty: the user's exact words, which you write to `proposals/<id>.approved` first - the lesson's hook lets no `apply` command run before that file exists); refuse when `proposals/<id>.rejected` exists. Snapshot every file of the target pack under `runs/<target name>/versions/gen_NNN/` (the next number), write the proposal's files (or the `edited` ones, the user's version) into both mirrors, append `{"event": "apply", "id", "approved", "version", "files"}` and print the version label. A `reject` answer: write `proposals/<id>.rejected` holding the words; nothing lands and nothing is snapshotted.
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the slow loop never fits
+- write_card, gate, private_score - a meta-skill change is the human's call, never the gate's
+```
+
+`step_16_rsi_meta_skills/.claude/skills/task-skills-meta/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: task-skills-meta
+description: "MetaSkill-Evolve's fast loop - improve the actor pack adult-income's task skills (its Search policy line, its schema.json forbid list, its memory cards), one patch per problem under the private gate, following the five role files under roles/ that only the slow loop may rewrite. Use in rsi/step_16_rsi_meta_skills after a problem's actor and verifier runs are done, before the next problem boots."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "on"
+  approval: gate
+  patches: ["SKILL.md", "schema.json", "memory.json"]
+---
+## Procedure
+1. Build `read_traces`, `read_memory`, `read_pack`, `propose`, `gate`, `private_score` and `rollback` under `runs/task-skills-meta/helpers/` if they are not there yet. Read everything a meta pack may see, as `roles/analyzer.md` and `roles/retriever.md` say: `read_traces P T --scope all`, `read_memory P T`, `read_pack P`.
+2. Decide ONE change, in the order `roles/allocator.md` gives, the first that applies:
+   a. The actor's `Search policy:` line says `static` and at least `Policy flip threshold` (from `roles/allocator.md`) cards are active: change that line to `Search policy: obey-memory` (the whole `SKILL.md`, with that one line changed).
+   b. A field value lost every comparison one field apart it was in, at least three times across the whole log, and never won: add `{"field": ..., "value": ...}` to `schema.json -> forbid` (`hyper` values are excluded: they belong to one model each).
+   c. Otherwise: the last problem's pairs yield cards the memory does not hold yet (`read_traces P T --scope problem --tally` lists `cards_by_rule`); merge at most `Cards per visit` (from `roles/proposer.md`) of them into `memory.json`.
+   If none applies, say so and stop: nothing is proposed this visit.
+3. Write the changed file(s) - and only those - under `runs/task-skills-meta/patch/` at their paths in the pack (your Write tool), then `propose M T --target adult-income --files runs/task-skills-meta/patch --recipe <the best val recipe of the last problem> --summary "<what and why>" --visit <n>`.
+4. `gate M T <id>`: the helper snapshots the actor pack under `runs/adult-income/versions/gen_NNN/`, lands the patch, scores the evidence recipe against the incumbent on the private split and keeps the patch only if it did not score lower; otherwise it restores the snapshot.
+5. Answer in text with the proposal id, the gate's numbers, whether it landed and the version label. Nobody is asked. Stop.
+
+## Rules
+- One proposal per visit; a patch changes at most 20 % of the pack's text and never removes the test rule.
+- You never fit for yourself, never score the test split, never touch the verifier pack, `eval.md` or `roles/`: those are the slow loop's.
+```
+
+`step_16_rsi_meta_skills/.claude/skills/task-skills-meta/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `read_traces(pack, task, scope="problem" | "all", tally=False, of="memory")` - the fit rows of the `<of>` arm of this problem (or of every problem the pack has run, under `scope=all`) as `{recipe, val_score, error}` plus the profile, and nothing else: no messages, no reasoning, no test score. With `tally`: every pair of rows whose recipes differ in exactly one field (two models each at their middle hyper value differ in `model` only) - the higher `val_score` is a win for its value of that field and a loss for the other; a pair with one errored side marks the erroring value `errored`; print `wins`, `losses`, `errored` per `(field, value)` and `cards_by_rule`, the cards the verifier's rule makes of them.
+- `read_memory(pack, task, arm, order=None)` - the cards of `<pack>/memory.json` (none when the arm's state says memory `off`), which of them apply - the `if` holds for the profile (`key op value`) and the card is active (`evidence >= 1` and `counter * 2 < evidence`) - the `preferred` value per field (among the applicable `prefer` cards of that field the one with the largest `evidence - counter`; a tie is no preference) and the `forbidden` values; with `order=<policy>` also `next`: the next eight recipes of that policy given the arm's fits so far (see the policies).
+- `read_pack(target)` - every file of the target pack with its sha256, and the versions on disk under `runs/<target name>/versions/`; print them. A generation that boots is the one whose checksums match what the last patch wrote.
+- `propose(pack, task, target, files, summary, visit=1)` - refuse when this visit already has a proposal (one per visit: `proposals/p<visit>*.json` exists); refuse a file outside the pack's `patches:` globs (this pack's front matter); refuse a patch that changes more than 20 % of the target pack's lines or removes the test-rule line from its `SKILL.md`; `lint_pack` the result against the intent. Write `runs/<pack name>/<task name>/proposals/<id>.json` (`{"id", "visit", "target", "files": {path: text}, "summary", "diff"}`, ids `p001`, `p002`, ...), append `{"event": "propose", "id"}` and print the id and the unified diff. Nothing lands.
+- `gate(pack, task, id, seed=0)` - the private gate, for a pack whose front matter says `approval: gate` (or `both`): snapshot the target under `runs/<target name>/versions/gen_NNN/`, land the proposal's files, then `private_score` the proposal's evidence recipe and the incumbent (the best val recipe of the newest problem in the target's log); keep the patch only if the evidence recipe did not score lower, else restore the snapshot. Append `{"event": "gate", "id", "before", "after", "keep", "version"}` and print `decision` (`keep` | `rollback`), the two scores and `landed`. Nobody is asked.
+- `private_score(pack, task, recipe, seed=0)` - the recipe fitted on train and scored on the private part of the split; costs no budget and touches no state; refuse for an actor pack (only a meta pack may see the private part, and no arm's `score_test` ever does).
+- `rollback(target, version)` - restore every file of the target pack (both mirrors) from `runs/<target name>/versions/<version>/`; append `{"event": "rollback", "version"}` to the newest trace; print the files restored.
+
+## Forbidden
+- fit_recipe, score_test, save_model, load_splits - the meta pack never fits for itself and never touches the test split
+- write_card - cards land through a patch to memory.json, not through the verifier's pen
+- apply - under approval: gate nobody is asked; the gate lands or rolls back
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/task-skills-meta/roles/allocator.md` and `proposer.md` - the
 numbers the fast loop reads:
@@ -2529,7 +4436,41 @@ Use the rsi-map skill: print the map of the series from the runs that exist and 
 
 Headless, as recorded: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config`.
 
-**Build and see** - the pack files, the recorded transcript and the files tree, as the lesson page shows them:
+**Build** - every pack of the lesson: its front matter, its procedure (the steps the agent follows), its rules, and the contracts of the helpers it builds:
+
+`step_17_map/.claude/skills/rsi-map/SKILL.md` - front matter, procedure and rules:
+
+```markdown
+---
+name: rsi-map
+description: "Print the map of the rsi series - the ladder of rungs with lessons 00-16 placed, every recorded learning curve on the same curriculum side by side, the file-and-approver table, the terminology, and every external number marked reported - from the runs that exist, with a helper you build from the contract in tools.md. Use in rsi/step_17_map."
+metadata:
+  type: workflow
+  version: "3.0"
+  rsi: "off"
+---
+## Procedure
+1. Build `map` under `runs/rsi-map/helpers/` if it is not there yet.
+2. `map --lessons ..`: the helper prints the ladder from `ladder.md`, then, for every lesson directory that has `runs/<pack>/curve.json`, its curve row (per problem, memory arm minus control arm, best val score) and its exam line (`wins` out of 5, `mean_test_gap`) side by side; a lesson without a curve is printed as `not run yet`, never invented; then the file-and-approver table, the six terms, and the numbers quoted from elsewhere, each marked *reported* with its source.
+3. Answer in text with the table as the helper printed it, then one paragraph: which lessons have a recorded curve, which do not, and the one sentence the series ends on - genuine RSI by the paper's bar is not reached here, and the map says so. Stop.
+
+## Rules
+- Print the numbers the helper prints; every external number is *reported*, none is measured here.
+- Do not run a lesson's curriculum to fill a gap in the table: say it is not run yet.
+```
+
+`step_17_map/.claude/skills/rsi-map/tools.md` - the contracts (the runtime section is the same in every pack; see 'Where the runtime lives' above):
+
+```markdown
+## Allowed
+- `map(lessons)` - read each lesson directory's `runs/<pack>/curve.json` and `exam.json` where they exist and print: the ladder (rung, lessons, the decision the system takes, what stays human), the learning curves side by side (a lesson without a curve is `not run yet`, never invented), the file-and-approver table, the six terms, and the numbers quoted from papers - each marked *reported* with its source. Costs no fit; changes no file.
+
+## Forbidden
+- load_splits, fit_recipe, score_test, save_model - the map fits nothing
+- write_card, propose, apply, gate, rollback - the map changes nothing
+```
+
+**See** - the pack files the lesson page singles out, the recorded transcript and the files tree, as the page shows them:
 
 `.claude/skills/rsi-map/ladder.md` - the ladder:
 

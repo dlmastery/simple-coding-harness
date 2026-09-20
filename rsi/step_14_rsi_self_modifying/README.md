@@ -32,9 +32,9 @@ with), `dgm-meta` with `held-out/` (two `intent.md` directories) and the
    ```
 
 2. If the gate kept the rewrite, the agent shows the diff and asks
-   **approve / edit / reject**. Answer `approve` (as recorded).
+   **approve / edit / reject**. Answer `approve` (the live test does).
 
-3. Headless, as recorded, two turns:
+3. Headless, as the live test runs it, two turns:
 
    ```bash
    claude -p "<the prompt above>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config
@@ -89,10 +89,19 @@ with), `dgm-meta` with `held-out/` (two `intent.md` directories) and the
     assert procedure.index("`gate M T") < procedure.index("approve / edit / reject") < procedure.index("`apply M T")
 ```
 
-The recorded run (Claude Code 2.1.278, headless, two turns; the arms
-trimmed, the archive, the rewrite and the verdicts in full):
+The recorded run (not yet recorded on this machine; the weekly usage cap was reached
+before this lesson's turn - the block below says how to produce it):
 
-<!-- transcript -->
+```text
+Recording pending - this lesson's transcript has not been recorded yet.
+Run it here to produce it (about ten minutes in Claude Code; the live test records the run
+under runs/_recording/ and asserts on the artifacts):
+
+    RSI_LIVE=1 python -m pytest -q test_step.py -k live -s
+
+Nothing above is invented: the pack, the contracts and the tests are complete, and the
+"What to notice" paragraph will be written from the recording.
+```
 
 Files:
 

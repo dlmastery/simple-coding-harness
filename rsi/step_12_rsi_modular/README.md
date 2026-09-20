@@ -33,7 +33,7 @@ verifier (writing to whichever actor is named), and `modular-meta` with the
 
 2. No approval: the gate decides on the pool task's private split.
 
-3. Headless, as recorded:
+3. Headless, as the live test runs it:
 
    ```bash
    claude -p "<the prompt above>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config
@@ -100,10 +100,19 @@ data:
     assert [n for n in a if a[n] != b[n]] == ["context.md"]
 ```
 
-The recorded run (Claude Code 2.1.278, headless; the arms trimmed, the
-contrast and the gate in full):
+The recorded run (not yet recorded on this machine; the weekly usage cap was reached
+before this lesson's turn - the block below says how to produce it):
 
-<!-- transcript -->
+```text
+Recording pending - this lesson's transcript has not been recorded yet.
+Run it here to produce it (about ten minutes in Claude Code; the live test records the run
+under runs/_recording/ and asserts on the artifacts):
+
+    RSI_LIVE=1 python -m pytest -q test_step.py -k live -s
+
+Nothing above is invented: the pack, the contracts and the tests are complete, and the
+"What to notice" paragraph will be written from the recording.
+```
 
 Files:
 

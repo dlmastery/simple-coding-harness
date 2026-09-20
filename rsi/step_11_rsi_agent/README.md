@@ -94,7 +94,99 @@ planner twice per memory arm.
 The recorded run (Claude Code 2.1.278, headless; the arms trimmed, one
 planner visit in full):
 
-<!-- transcript -->
+```text
+[Skill adult-income-curriculum]
+[Read the curriculum's tools.md, the actor's eval.md / SKILL.md / tools.md, the planner's SKILL.md / tools.md, the verifier's SKILL.md / tools.md, plan.json, schema, memory schema, config, memory.json]
+[Write runs/adult-income-actor/helpers/actor.py]  [Write runs/adult-income-planner/helpers/planner.py]  [Write runs/adult-income-verifier/helpers/verifier.py]  [Write runs/adult-income-curriculum/helpers/curriculum.py]
+agent> Helpers are built. Problem 1, control arm: open, then walk the static list in one call.
+$ ... actor.py load_splits $P $T --arm control --memory off; ... fit_recipe ... --recipes @static; ... score_test ...; ... scorecard ...
+{"best_val_score": 0.9177, "test_score": 0.9049, "fits_used": 24, "wasted_fits": 16, ...}
+agent> Problem 1 memory arm: open, then the planner's broad plan.
+$ P=.claude/skills/adult-income-actor; C=.claude/skills/adult-income-planner; T=../tasks/01_adult_income; A="python runs/adult-income-actor/helpers/actor.py"; PL="python runs/adult-income-planner/helpers/planner.py"; $A load_splits $P $T --arm memory | ... && $PL write_plan $C $T --target $P --uncertainty --c 2.0 | ... && $PL write_plan $C $T --target $P --plan '{"phase": "broad", "c": 2.0, "experiments": [...12...]}'
+{'profile': {'n_rows': 6000, 'n_features': 14, 'n_classes': 2, 'imbalance': 0.239, 'has_categorical': 1}, 'memory': 'on', 'cards_applicable': [], 'preferred': {...null...}, 'forbidden': {...}}
+{"problem": "adult_income", "arm": "memory", "fits_so_far": 0, "baseline": null, "families": {"logreg": {"n": 0, "wins": 0, "success": 0.5, "faults": 0, "u": 2.5}, "rf": {... "u": 2.5}, "hgb": {... "u": 2.5}}, "c": 2.0}
+{"phase": "broad", "c": 2.0, "families_in_order": ["logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb", "logreg", "rf", "hgb"], "written": ".claude/skills/adult-income-actor/plan.json"}
+$ ... $A fit_recipe $P $T --arm memory --recipes plan | ...
+1 logreg 1 yes onehot none 0.9114
+2 rf 16 yes onehot none 0.9054
+3 hgb 0.1 yes onehot none 0.9177
+4 logreg 1 yes onehot balanced 0.911
+5 rf 16 yes onehot balanced 0.9033
+6 hgb 0.1 yes onehot balanced 0.917
+... (6 more: the round-robin continues)
+$ ... $PL write_plan $C $T --target $P --uncertainty --c 0.25 | ... && $PL write_plan ... --plan '{"phase": "deep", "c": 0.25, "experiments": [...12...]}'
+{"families": {"logreg": {"n": 4, "wins": 1, "success": 0.333, "faults": 3, "u": 0.717}, "rf": {"n": 4, "wins": 0, "success": 0.167, "faults": 4, "u": 0.883}, "hgb": {"n": 4, "wins": 4, "success": 0.833, "faults": 0, "u": 0.217}}, "c": 0.25}
+{"phase": "deep", "c": 0.25, "families_in_order": ["rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf", "rf"], ...}
+$ ... $A fit_recipe $P $T --arm memory --recipes plan | ...
+13 rf 16 no onehot none 0.9049
+14 rf 16 no onehot balanced 0.9034
+... 17 rf 8 yes onehot none 0.9112 ... 24 ... FREEZE
+$ $A freeze_memory $P $T --arm memory && $A score_test $P $T --arm memory --recipe '{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' && $A scorecard $P $T --arm memory
+{"memory": "frozen", "event": "freeze_memory"}
+{"arm": "memory", "recipe": {...}, "test_score": 0.9049, "test_scored": 1}
+{"best_val_score": 0.9177, "test_score": 0.9049, "fits_used": 24, "wasted_fits": 2, ...}
+agent> Problem 1 verifier: the tally, then the cards.
+$ ... verifier.py read_traces $P $T --scope problem --tally ...; ... write_card $P $T --as $V --cards ...
+profile {...} rows 24 pairs ... ; {"n": 9, "new": 9, ...}
+... (problems 2-6 the same way: control arm, broad plan, 12 fits, deep plan, 12 fits, freeze_memory, score_test once, scorecard, verifier)
+agent> Problem 5 (synth_shift_a).
+... (the exam: for s in 0..4, control arm and memory arm with the planner's two plans; no verifier)
+agent> Exam done for all five seeds. The exam report:
+$ python runs/adult-income-curriculum/helpers/curriculum.py exam .claude/skills/adult-income-actor ../tasks/07_exam --seeds 0,1,2,3,4 | ...; sha256sum .claude/skills/adult-income-actor/memory.json .agents/skills/adult-income-actor/memory.json; diff -r .claude/skills .agents/skills && echo MIRRORS_IDENTICAL; ls runs/adult-income-actor/
+(the table below)
+MIRRORS_IDENTICAL
+agent> Both tables were produced by the helpers; runs/adult-income-actor/curve.json and exam.json exist, .claude/skills == .agents/skills.
+## Learning curve
+| problem       | memory_best_val | control_best_val | gap_val | wasted_memory | wasted_control | cards_added | cards_demoted | cards_active |
+| adult_income  | 0.9177 | 0.9177 | 0.0 | 2  | 16 | 9 | 0 | 4 |
+| breast_cancer | 0.9954 | 0.9954 | 0.0 | 0  | 0  | 5 | 0 | 6 |
+| wine          | 1.0    | 1.0    | 0.0 | 0  | 0  | 0 | 0 | 6 |
+| digits        | 0.999  | 0.999  | 0.0 | 0  | 0  | 4 | 0 | 8 |
+| synth_shift_a | 0.9378 | 0.9378 | 0.0 | 2  | 8  | 0 | 1 | 7 |
+| synth_shift_b | 0.7685 | 0.7685 | 0.0 | 14 | 9  | 2 | 2 | 6 |
+Test scores were identical per arm on every problem (0.9049, 0.9806, 1.0, 0.9984, 0.8981, 0.6889). Every memory arm ends with frozen: true, memory: "frozen", freeze_memory before score_test, and test_touched_before_freeze: false on all 22 scorecards.
+## Plans per problem (phase -> families in order)
+| adult_income  | broad: logreg, rf, hgb x4 (round-robin)          | deep: rf x12 (4 faults) |
+| breast_cancer | broad: logreg, rf, hgb x4                        | deep: rf x12 (4 faults) |
+| wine          | broad: hgb, logreg, rf x4 (hgb card breaks the tie) | deep: hgb, logreg, rf x4 (no faults, all tied) |
+| digits        | broad: hgb, logreg, rf x4                        | deep: logreg x12 (4 faults; hyper 0.25 / 4 variants) |
+| synth_shift_a | broad: hgb, logreg, rf x4                        | deep: logreg x12 (4 faults) |
+| synth_shift_b | broad: hgb, logreg, rf x4                        | deep: hgb, logreg, rf x4 (all tied at baseline) |
+| exam, seeds 0-4 | broad: logreg, rf, hgb x4                      | deep: logreg, rf, hgb x4 |
+## Exam
+| seed | memory_test | control_test | test_gap | memory_wasted | control_wasted | winner | cards_applied |
+| 0 | 0.7831 | 0.7831 | 0.0 | 1 | 8  | memory | 2 |
+| 1 | 0.7244 | 0.7244 | 0.0 | 5 | 17 | memory | 2 |
+| 2 | 0.8288 | 0.8288 | 0.0 | 1 | 8  | memory | 2 |
+| 3 | 0.8335 | 0.8335 | 0.0 | 1 | 8  | memory | 2 |
+| 4 | 0.8178 | 0.8178 | 0.0 | 2 | 16 | memory | 2 |
+wins 5/5 - mean_test_gap 0.0 - pack_unchanged true (sha256 980fc464...4d0c before and after) - no_card_written true.
+Cards that did not transfer: hyper -> prefer 8 (if n_classes < 3, evidence 2) on all five seeds - the best recipe held hyper 16 (seeds 0, 2, 3) or 0.1 (seeds 1, 4). The scale -> yes (n_features >= 10) card transferred on every seed.
+## The claims of eval.md
+- gap_val never negative - held: 0.0 on all six problems.
+- gap larger on problem 6 than on problem 2 - did not hold: 0.0 vs 0.0; this recipe space saturates (wine, digits) and the planner reaches the same best on every problem, so the memory shows up in wasted fits (2 vs 16 on problem 1, 2 vs 8 on problem 5), not in the best val - and on problem 6 the inherited class_weight: none card cost fits (14 vs 9) before the verifier demoted it.
+- test split scored once, after FREEZE - held: test_scored_once true and test_touched_before_freeze false on every scorecard, and the hook never fired.
+- exam: memory beats control on >= 3 of 5 seeds - held, 5/5, every win on the tie-break (same test score, fewer wasted fits), none on a higher test score.
+- memory.json byte-identical before and after the exam - held. The report names every applicable card that did not transfer - held: the hyper-8 card, on all five seeds.
+Two notes on how I read the contracts: the planner helper builds the greedy plan from the rule and writes it through the same write_plan validation (the uncertainty table is printed and checked first each phase); and write_card refuses on a frozen arm only until that arm's test is scored, since the curriculum calls the verifier after freeze_memory + score_test and the write is for the next problem - the literal "memory frozen" refusal would otherwise block every verifier visit.
+[55 turns, 1597 s]
+```
+
+What to notice: the broad phase is visibly round-robin (`logreg, rf, hgb`
+x4, or the card-preferred family first) and the deep phase goes where the
+faults are (`rf x12` on Adult, `logreg x12` on digits); the uncertainty
+table is printed before each plan. The memory arm's test score equals the
+control's on every problem and every exam seed - the same best recipe both
+ways - and the whole effect is in wasted fits (2 vs 16 on problem 1, 5 vs
+17 on exam seed 1), so the exam "held" 5 of 5 on the tie-break alone; the
+page says so. On problem 6 an inherited card cost fits before the verifier
+demoted it (14 vs 9): a card can hurt, and the curve shows it. The agent
+also explains a contract reading it made (`write_card` on a frozen arm
+refuses until that arm's test is scored, because the verifier writes for the
+next problem) - the kind of judgement a pure-skills runtime leaves to the
+agent, recorded rather than hidden. This recording is `02.jsonl`: a second
+session started by mistake at the same time (`01.jsonl`), noticed the
+collision, stood by and exited without opening an arm.
 
 Files:
 

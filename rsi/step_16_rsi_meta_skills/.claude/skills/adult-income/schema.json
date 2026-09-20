@@ -221,5 +221,11 @@
    "encode": "ordinal",
    "class_weight": "balanced"
   }
+ ],
+ "forbid": [
+  {
+   "field": "encode",
+   "value": "ordinal"
+  }
  ]
 }
