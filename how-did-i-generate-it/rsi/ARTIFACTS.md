@@ -9,6 +9,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | Artifact | Purpose | Status |
 |---|---|---|
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course design and implementation plan | Implementation authorized 20 September |
+| [Course folder map](../../rsi/STRUCTURE.md) | Theme counts, research groups, lab contents, shared implementation, and provenance locations | Matches the authored structure; completion remains separately tracked |
 | [Steering and restart](RSI-STEERING-AND-RESTART.md) | Current user requirements and state | Maintained with steering |
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Completion ledger](COURSE-COMPLETION-LEDGER.md) | Full active goal, requirement evidence, and next work | Partial completion remains explicit |

@@ -283,3 +283,13 @@ Embedded the art into 01.01, 10.14, and 10.18, plus the process theme and the vi
 Rechecked selected AIDE² and ScientistTwo method passages for the figures, not full implementations or benchmarks. Corrected an overbroad older claim about ScientistTwo ratings: its automated review loop and reported human ratings are distinct, and neither is an actual conference decision. No new ML jobs were run. Remaining source and execution work stays deferred as requested.
 
 Publication checks passed for 101 regenerated lessons, fourteen guide figures, twenty-nine archived PNGs, fourteen matching selected copies, and 2,385 local links. Both changed skills validate; all seven installed authoring-skill files match. Full published-width and end-to-end reviews remain queued. Next author modular harness changes and task/meta-skill evolution, then continue core graph, system, measurement, and capstone explanations. The full goal remains active.
+
+## 20 September: make the final repository structure visible
+
+The user asked about the unchanged step count and the final GitHub layout. Inspected actual directories, tracked legacy paths, theme counts, root navigation, and the research-studio index. Confirmed 101 authored labs across twelve themes: 4, 5, 6, 6, 5, 5, 6, 8, 6, 7, 38, and 5. The 38 research labs are grouped into thirteen subdirectories. Root step folders belong to the separate coding-harness series. Legacy flat RSI folders contain local cache remnants only; no files in those paths are tracked.
+
+Found three stale eighteen-lesson descriptions and old prerequisites in the root README, despite the earlier implementation record's broad statement about updating navigation. Corrected those RSI descriptions and added a linked folder map showing themes, example lab contents, research groups, shared skills/tools, learner workspaces, and provenance. Other series remain intact. Clarified that illustration and implementation work changes existing labs without automatically increasing the lesson count. The structure is the intended organization, not evidence that every activity is finished.
+
+The remote illustration checkpoint 5e8daae was verified before these edits. This is a documentation and navigation checkpoint. Pending ModularRSI outputs and the meta-skill prompt remain local work for the next illustration batch; no new generation, ML execution, or full-course verification occurred during this structure clarification.
+
+Publication check after the navigation edit: 101 labs, 2,395 local links, zero problems; git diff --check passed. These are documentation checks, not new execution evidence.

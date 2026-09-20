@@ -34,8 +34,8 @@ Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop
 Part 7   steps 46 - 51    the same harness on TrueForge, an open-source harness server:
                           loop, tools as MCP, sandbox and skills, context, subagents, comparison
 Series   genui/           zero to hero on generative UI: the agent's output becomes an interface
-Series   rsi/             zero to hero on recursive self-improvement, 18 lessons: the agent's
-                          own skill files get better across runs, and a verifier says by how much
+Series   rsi/             ML experiments to recursive self-improvement: 101 agent-guided labs
+                          in 12 themes, with research studios, quizzes and capstones
 ```
 
 A second series lives in [`genui/`](genui/): **zero to hero on generative
@@ -43,10 +43,16 @@ UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
-A third series lives in [`rsi/`](rsi/): **zero to hero on
-recursive self-improvement**, 18 lessons in the Claude Academy playbook format, a skills-only hello world where the agent's
-own files get better across runs, measured the way the September 2026
-papers ask for.
+A third series lives in [`rsi/`](rsi/): **from one ML experiment to
+recursive self-improvement**. Its 101 labs progress through 12 themes,
+from a fixed data science process to loops, graphs, domain meaning,
+coordinated systems, generated harnesses, self-* mechanisms, measurement
+and RSI. The advanced research studio groups 38 labs by mechanism; five
+capstones bring the ideas together. Students use natural language and
+skills while the coding agent writes the implementation. See the
+[folder map](rsi/STRUCTURE.md) and [first session](rsi/START-HERE.md).
+The rebuild is in progress; authored lessons and verified execution have
+separate status in the [course README](rsi/README.md).
 
 **What you will learn**
 
@@ -96,7 +102,7 @@ check_snippets.py    every README snippet exists verbatim in the code it names
 | see what an agent SDK gives you | [Step 16](#step-16-claude-agent-sdk) - 19 and [Who owns which mechanism](#who-owns-which-mechanism) | Step 20 for routing and cost |
 | run the harness on a server instead of a laptop | [Step 46](#step-46-the-loop-on-trueforge) - 51 | step 51 is the comparison table |
 | put an interface on the agent's output | [`genui/`](genui/) | it reuses step 21's loop as is |
-| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi/) | it reuses stage 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
+| build and evaluate an ML research process, then examine RSI | [`rsi/`](rsi/) | start with basic ML knowledge and a coding agent; the course introduces its harness concepts |
 
 **How to read one step.** Open the step's `README.md`. The first paragraph says what the
 step adds and why; the sections that follow quote the code that changed (`check_snippets.py`
@@ -114,7 +120,9 @@ N` from here. Running the agent itself needs `BASE_URL`, `API_KEY` and `MODEL` (
 
 **Reading order.** Stages 1 - 15 in order: each is the previous one plus one idea, and the
 READMEs assume you read the one before. Parts 2 - 7 can be read in any order after Part 1.
-`genui/` assumes stages 1 - 15 and step 21; `rsi/` assumes stages 4, 15, 30 and 35.
+`genui/` assumes stages 1 - 15 and step 21. `rsi/` starts with basic ML
+knowledge and no RSI background; its [start page](rsi/START-HERE.md)
+explains the coding-agent capabilities needed.
 
 ---
 
@@ -3288,7 +3296,7 @@ both sides.
 | [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | [51](step_51_trueforge_comparison/) | TrueForge versus this codelab versus managed agents | `README.md` |
 | [genui](genui/) | a second series: generative UI (AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps) | `genui/` |
-| [rsi](rsi/) | a third series: recursive self-improvement, skills only, 18 lessons on a curriculum of ML problems | `rsi/` |
+| [rsi](rsi/) | ML workflows to recursive self-improvement: 101 skill-driven labs in 12 themes | `rsi/` |
 
 ## Tests and checks
 

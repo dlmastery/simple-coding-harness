@@ -93,7 +93,7 @@ The [visual guide](VISUAL-GUIDE.md) lets you preview the central mechanisms and 
 | [10 · Research studio](10_research_studio/README.md) | How do recent systems implement and evaluate these mechanisms? |
 | [11 · Capstones](11_capstones/README.md) | Can I build, transfer, audit, and explain a complete experiment? |
 
-The [course map](COURSE-MAP.md) links 101 authored lessons. The research studio has 38 labs in 13 themed subdirectories, including Dream-RSI, RSIAgent, ModularRSI, AIDE², ScientistTwo, ScienceBuddy, MetaRSI, and HarnessEvolve. Five capstones connect the ideas to independent work. Written coverage and completed execution validation are tracked separately.
+The [course map](COURSE-MAP.md) links 101 authored lessons. The research studio has 38 labs in 13 themed subdirectories, including Dream-RSI, RSIAgent, ModularRSI, AIDE², ScientistTwo, ScienceBuddy, MetaRSI, and HarnessEvolve. Five capstones connect the ideas to independent work. Written coverage and completed execution validation are tracked separately. The [folder map](STRUCTURE.md) shows how themes, labs, skills, tools, illustrations, and development records fit together.
 
 Each lab explains the purpose, starting state, run prompts, expected observations, checks, and recovery. It ends with key takeaways, an explained quiz, and a next step. The tutor pauses for your prediction and interpretation.
 

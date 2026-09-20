@@ -12,6 +12,8 @@ Current continuation: author diagrams, READMEs, and skills first, with periodic 
 
 ## Read this first
 
+Navigation clarification, 20 September: the user asked what the final repository structure will look like because the step count appeared unchanged. The twelve-theme layout and 101 labs are already authored. The repository-level README still contained three stale eighteen-lesson descriptions and old RSI prerequisites; these are corrected, and `rsi/STRUCTURE.md` shows the actual layout. The root `step_*` directories belong to the separate coding-harness course. RSI's legacy flat directories have no tracked files; local cache remnants do not represent published lessons. Work is still on the authorized rebuild branch, not merged into main. Keep the current lab count unless teaching needs justify a split or addition. Illustrations and clearer implementation instructions enrich existing labs. Pending ModularRSI artwork and the saved meta-skill prompt remain the next illustration work.
+
 Repository: [dlmastery/simple-coding-harness](https://github.com/dlmastery/simple-coding-harness). Course area: `rsi/`. Planning and process records: `how-did-i-generate-it/rsi/`.
 
 The user requested a plan before implementation. The plan and reusable skill were saved and pushed. **The user's subsequent “continue” authorizes implementation.** The course rebuild is now in progress. Do not ask for that approval again. Publication on the existing working branch remains authorized; a merge into main has not been requested.
