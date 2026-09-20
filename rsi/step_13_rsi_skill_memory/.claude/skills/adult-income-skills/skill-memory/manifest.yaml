@@ -1,3 +1,7 @@
 cards:
 - name: onehot-for-categorical
   file: cards/onehot-for-categorical.md
+- name: hgb-for-categorical-imbalanced
+  file: cards/hgb-for-categorical-imbalanced.md
+- name: hgb-for-small
+  file: cards/hgb-for-small.md

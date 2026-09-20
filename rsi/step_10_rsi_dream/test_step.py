@@ -193,8 +193,10 @@ def reset():
         pristine.mkdir(parents=True)
         shutil.copytree(SKILLS, pristine / ".claude")
         shutil.copytree(MIRROR, pristine / ".agents")
-    if RUNS.exists():
-        shutil.rmtree(RUNS)
+    if RUNS.exists():   # clear the run state but keep the recordings of earlier turns of this test
+        for child in RUNS.iterdir():
+            if child.name != "_recording":
+                shutil.rmtree(child) if child.is_dir() else child.unlink()
     for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
         shutil.rmtree(root)
         shutil.copytree(pristine / src, root)
@@ -209,8 +211,9 @@ def claude(prompt, cont=False, timeout=9000):
     assert exe, "claude is not on the PATH"
     args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
     started = time.time()
+    env = {k: v for k, v in os.environ.items() if k != "RSI_LIVE"}   # the recorded agent must not inherit the live switch
     proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
-                          stdin=subprocess.DEVNULL, timeout=timeout)
+                          stdin=subprocess.DEVNULL, timeout=timeout, env=env)
     (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
     n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
     (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
