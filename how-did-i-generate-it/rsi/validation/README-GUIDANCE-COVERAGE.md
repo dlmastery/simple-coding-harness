@@ -2,7 +2,7 @@
 
 Generated from the current lesson source and published READMEs. This inventory checks presence and source/publication agreement. It does not establish factual correctness, visual quality, runtime completion, or student learning.
 
-58 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 60 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
+75 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 77 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
 
 The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. Editorial observations and actual execution evidence remain separate.
 
@@ -66,23 +66,23 @@ The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. 
 | [09.05](../../../rsi/09_recursive_self_improvement/step_05_compare_improvers/README.md) | present | authored | specific | specific |
 | [09.06](../../../rsi/09_recursive_self_improvement/step_06_bounded_generations/README.md) | present | authored | specific | specific |
 | [09.07](../../../rsi/09_recursive_self_improvement/step_07_claim/README.md) | present | authored | specific | specific |
-| [10.01](../../../rsi/10_research_studio/00_reading_frontier_research/step_01_framework/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.02](../../../rsi/10_research_studio/00_reading_frontier_research/step_02_announcements/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.03](../../../rsi/10_research_studio/01_memory_and_exploration/step_03_exploration/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.04](../../../rsi/10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.05](../../../rsi/10_research_studio/01_memory_and_exploration/step_05_frozen_memory/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.06](../../../rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.07](../../../rsi/10_research_studio/02_dream_rsi/step_07_discovery_tree/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.08](../../../rsi/10_research_studio/02_dream_rsi/step_08_replay/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.09](../../../rsi/10_research_studio/02_dream_rsi/step_09_online/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.10](../../../rsi/10_research_studio/03_modular_harness_evolution/step_10_localize/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.11](../../../rsi/10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.12](../../../rsi/10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.13](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.14](../../../rsi/10_research_studio/04_aide2/step_14_outer_research/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.15](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.16](../../../rsi/10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md) | missing | pending | generic or pending | generic or pending |
-| [10.17](../../../rsi/10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md) | missing | pending | generic or pending | generic or pending |
+| [10.01](../../../rsi/10_research_studio/00_reading_frontier_research/step_01_framework/README.md) | present | authored | specific | specific |
+| [10.02](../../../rsi/10_research_studio/00_reading_frontier_research/step_02_announcements/README.md) | present | authored | specific | specific |
+| [10.03](../../../rsi/10_research_studio/01_memory_and_exploration/step_03_exploration/README.md) | present | authored | specific | specific |
+| [10.04](../../../rsi/10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md) | present | authored | specific | specific |
+| [10.05](../../../rsi/10_research_studio/01_memory_and_exploration/step_05_frozen_memory/README.md) | present | authored | specific | specific |
+| [10.06](../../../rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md) | present | authored | specific | specific |
+| [10.07](../../../rsi/10_research_studio/02_dream_rsi/step_07_discovery_tree/README.md) | present | authored | specific | specific |
+| [10.08](../../../rsi/10_research_studio/02_dream_rsi/step_08_replay/README.md) | present | authored | specific | specific |
+| [10.09](../../../rsi/10_research_studio/02_dream_rsi/step_09_online/README.md) | present | authored | specific | specific |
+| [10.10](../../../rsi/10_research_studio/03_modular_harness_evolution/step_10_localize/README.md) | present | authored | specific | specific |
+| [10.11](../../../rsi/10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md) | present | authored | specific | specific |
+| [10.12](../../../rsi/10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md) | present | authored | specific | specific |
+| [10.13](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md) | present | authored | specific | specific |
+| [10.14](../../../rsi/10_research_studio/04_aide2/step_14_outer_research/README.md) | present | authored | specific | specific |
+| [10.15](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | present | authored | specific | specific |
+| [10.16](../../../rsi/10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md) | present | authored | specific | specific |
+| [10.17](../../../rsi/10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md) | present | authored | specific | specific |
 | [10.18](../../../rsi/10_research_studio/06_scientist_two/step_18_hypothesis/README.md) | missing | pending | generic or pending | generic or pending |
 | [10.19](../../../rsi/10_research_studio/06_scientist_two/step_19_screen_ablate/README.md) | missing | pending | generic or pending | generic or pending |
 | [10.20](../../../rsi/10_research_studio/06_scientist_two/step_20_review_rebuttal/README.md) | missing | pending | generic or pending | generic or pending |

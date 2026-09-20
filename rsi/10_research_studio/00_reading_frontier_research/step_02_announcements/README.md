@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Record who made the claim, when it first appeared, what was measured, and what the linked evidence contains. Original X posts can be valid announcement sources. A blocked thread stays unverified; a repost is not a substitute for its missing content.
 
+**A concrete example.** An author reposts a July report in September. The post is recent, but the experiment is still July work unless a substantive new result is linked. Conversely, a September methods revision may matter even when the title stays the same. Your claim card records both events and identifies what actually changed.
+
 ![Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.](../../../assets/diagrams/lab-10-02.png)
 
 *Read the diagram:* Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.
@@ -66,6 +68,16 @@ Create CLAIM-CARD.md linking the announcement, methods, evaluation, code availab
 
 Every technical claim has a primary source or is marked unresolved. No inaccessible post is presented as read. The date window is explicit.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Dated search record | Retains exact queries, source identity, access failures, and the preceding-month window. |
+| CLAIM-CARD.md | Links the original announcement, methods, evaluation, available code, and unresolved claims. |
+| Headline-to-evidence comparison | Names a condition or limitation omitted by the short announcement. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Compare the headline with an ablation or limitation in its linked paper. Explain
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If an X thread is blocked, record its canonical URL and access failure; inspect linked primary materials separately. Do not attribute a repost’s wording to the original author without checking. If search results show only a crawl date, read the paper’s submission history or the original post date before admitting it as new work.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Trace who said it, when it was first said, what changed, and what evidence is available. Those are four separate fields.
 
 </details>
 

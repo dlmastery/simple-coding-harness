@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ModularRSI organizes changes across agent loop, tool use, observation, context, and task completion. In this exercise, contrasting traces identify one likely faulty component. Restrict the edit and keep neighboring components fixed so its consequences are easier to inspect.
 
+**A concrete example.** A tool correctly reports seconds, but the summary interprets the value as minutes. Changing the estimator will not repair that interface error. Restrict the candidate edit to the observation-to-report step, then test the original unit mismatch and a case whose units were already handled correctly.
+
 ![Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.](../../../assets/diagrams/lab-10-10.png)
 
 *Read the diagram:* Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.
@@ -66,6 +68,16 @@ Create a versioned patch to that component only. Rerun the failing case and a co
 
 The edit stays within its declared component. The retained outcome includes both target and regression checks.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Failure localization | Compares a successful and failed trace and identifies the earliest relevant divergence. |
+| One component patch | Preserves the parent and unchanged neighboring components. |
+| Target and regression outcomes | Show whether the patch repairs the fault without breaking the contrast. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Make the same change in two components in a labelled proposal and explain why at
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the patch changes several components, split the proposed changes or record that attribution is no longer local. If the chosen component is named without trace evidence, revisit the diagnosis. A successful original case is a regression check, not proof that the patch generalizes to all tasks.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Find the first place where a correct upstream fact becomes an incorrect downstream action. Start the repair hypothesis at that boundary.
 
 </details>
 

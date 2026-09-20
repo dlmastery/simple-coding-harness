@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Dream-RSI uses replay over realized discovery structure. Our replay tool walks recorded nodes under a budget and returns known outcomes. A request outside that structure returns unknown. Proposal generation and policy evaluation can still cost resources even when no environment fit is repeated.
 
+**A concrete example.** A history contains measured nodes A, B, and C. Policy 1 spends its replay budget on A then B; policy 2 reaches C. Their ranking depends on these recorded outcomes and costs. A request for an unseen forest branch returns unknown. Assigning it C’s score would turn replay into invented evidence.
+
 ![Replay can answer only questions covered by recorded work. It does not create new environment outcomes.](../../../assets/diagrams/lab-10-08.png)
 
 *Read the diagram:* Replay can answer only questions covered by recorded work. It does not create new environment outcomes.
@@ -66,6 +68,16 @@ Replay two node-order policies. Count environment fits saved and policy-computat
 
 No new fit occurs. Unsupported paths are unknown. Cost reporting does not equate zero repeated fits with zero total cost.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Frozen history and replay tool | Permit only recorded nodes, edges, outcomes, and declared cost accounting. |
+| Two replay traces | Show each policy’s visited sequence and retained known result. |
+| Unsupported-query record | Returns unknown for the missing branch without invoking a fit. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Change the historical tree’s coverage by removing a node. Explain how the poli
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If replay unexpectedly launches training, stop and inspect the execution boundary. If a policy selects an absent edge, keep the unsupported result instead of filling it with a prediction. If it examines all outcomes before choosing, disclose that information access; the replay should match the claimed policy’s observation rules.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Replay can change how known work is selected. It cannot reveal what an unexecuted experiment would have measured.
 
 </details>
 

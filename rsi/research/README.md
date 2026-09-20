@@ -13,7 +13,7 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873) | 10 Sep 2026 | Definitions and evidence framework |
 | [RSIAgent](https://arxiv.org/abs/2609.15364) | 14 Sep | Exploration, outcome verification, actor memory |
 | [Recuris](https://arxiv.org/abs/2608.24876) | 25 Aug | Working state and reusable experience |
-| [SQL-Zero](https://arxiv.org/abs/2609.04697) | 4 Sep | Contrast for the interaction analogy in lab 07.07; selected methods and limits inspected |
+| [SQL-Zero](https://arxiv.org/abs/2609.04697) | 4 Sep | Contrast with the actual tabular self-play lab; selected methods and limits inspected |
 | [Dream-RSI](https://arxiv.org/abs/2609.14858) | 14 Sep | Discovery history, replay coverage, online confirmation |
 | [ModularRSI](https://arxiv.org/abs/2609.14857) | 14 Sep | Restricted edits and integration |
 | [ScientistTwo](https://arxiv.org/abs/2609.19644) | 17 Sep | Hypotheses, screening, ablations, review, result lineage |
@@ -34,6 +34,11 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [Negative Self-Distillation](https://arxiv.org/abs/2609.11699) | 10 Sep | Optional contrast: parameter learning versus external skill changes |
 | [ADMET-EvO](https://arxiv.org/abs/2609.10121) | 9 Sep; v2 10 Sep | Optional contrast: task meaning, controlled interventions, and evidence authority |
 | [SafeEvolve](https://arxiv.org/abs/2609.02786) | 2 Sep | Optional contrast: coupled harness/policy updates under a fixed coordinating procedure |
+| [SkillForge](https://arxiv.org/abs/2608.24747) | 25 Aug | Optional contrast: policy updates and continued skill verification |
+| [ForeDreamer](https://arxiv.org/abs/2608.20920) | 21 Aug; v2 24 Aug | Optional contrast: current evidence, persistent advice, and executable tools |
+| [EvoHarnessBench](https://arxiv.org/abs/2609.04280) | 3 Sep; v2 10 Sep | Optional contrast: retention and adaptation as available capabilities grow |
+| [Ecdysis](https://arxiv.org/abs/2609.11677) | 10 Sep | Optional contrast: cross-task failure diagnosis and aggregate acceptance |
+| [OpsHarness](https://arxiv.org/abs/2608.25661) | 26 Aug | Optional contrast: staged gates and the role of retry feedback |
 
 AIDE² ([Weco, 14 July 2026](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement)), [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297) (6 July), and [HyperAgents](https://ai.meta.com/research/publications/hyperagents/) (March) are explicit older foundations. They are not counted as current-month releases.
 

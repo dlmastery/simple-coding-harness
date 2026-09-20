@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 RSIAgent separates outcome verification from actor-owned memory updates. The verifier does not author or approve the memory wording. Our exercise preserves that responsibility split while using a small ML trace.
 
+**A concrete example.** The checker confirms that the calendar model’s MAE matches its saved predictions. The actor then writes “calendar fields always beat weather.” The verified number does not support that broad lesson: the compared models and conditions matter. The result can be valid while its inferred memory is wrong.
+
 ![The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.](../../../assets/diagrams/lab-10-04.png)
 
 *Read the diagram:* The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.
@@ -66,6 +68,16 @@ As the task actor, write one bounded lesson from the trace and verdict. Save MEM
 
 The verifier checks the result; the actor writes memory. Memory quality is inspected separately. No invented approval is recorded.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Outcome verdict | Checks one actual result without authoring its lesson. |
+| Actor-owned MEMORY.md | Names the author, scope, supporting trace, and retained statement. |
+| Counterexample inspection | Tests the memory wording separately from the original metric check. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Write an overbroad “always use the winning model” note and identify a case o
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the note says verifier-approved memory, inspect what the verifier actually checked and correct the attribution. A role name in one chat does not create independent authority. If the counterexample requires an unbudgeted fit, use an existing case or leave the additional experiment proposed; this activity has no fit allowance.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask whether the evidence validates a measurement or a general rule. A correct measurement can support several competing explanations.
 
 </details>
 

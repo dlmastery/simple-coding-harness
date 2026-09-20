@@ -84,3 +84,17 @@ self-play proposer solver agents reinforcement learning after:2026-08-20 before:
 ```
 
 It returned SQL-Zero (2609.04697), LURE (2608.21871), TIPCODER (2609.03309), and a searchless-chess study (2608.27757). Only SQL-Zero received direct metadata and method checks in this pass. The other three remain unreviewed leads and do not enter the source count. The purpose was to correct a role-exchange analogy in lab 07.07, not to add another required exercise.
+
+## Later 20 September refresh
+
+All three queries used the 31-day recency filter as well as the explicit window:
+
+```text
+("recursive self-improvement" OR "self-evolving" OR "harness evolution") after:2026-08-20 before:2026-09-21 site:arxiv.org
+("self-improvement" OR "self-evolving" OR "recursive") ("agents" OR "harness") after:2026-08-20 before:2026-09-21 (site:research.google OR site:deepmind.google OR site:ai.meta.com OR site:microsoft.com/en-us/research)
+("recursive self-improvement" OR "self-improving agent" OR "harness evolution") (Meta OR FAIR OR Google) site:x.com after:2026-08-20 before:2026-09-21
+```
+
+New primary checks confirmed EvoHarnessBench (3 September, v2 10 September), Ecdysis (10 September), and OpsHarness (26 August). Selected methods were inspected and added to the dated notes. The inventory is now 30 papers and five reports. SkillForge and ForeDreamer received deeper selected-method reading without changing that count.
+
+The lab-domain query also returned recently crawled Microsoft profile pages describing older work, including SkillOpt. Those pages were not counted as recent research releases. A skill-harness embodied-agent title remains a lead until its exact primary date and method are verified. The X query supplied no new verified original post in this batch; the Meta/FAIR social coverage gap remains explicit. This refresh is not an exhaustive survey.

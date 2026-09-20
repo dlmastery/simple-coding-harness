@@ -1,5 +1,7 @@
 # Research for the RSI course
 
+Current inventory after the later 20 September refresh: **30 papers and five reports**. New primary-source checks added [EvoHarnessBench](https://arxiv.org/abs/2609.04280) (3 September; v2 10 September), [Ecdysis](https://arxiv.org/abs/2609.11677) (10 September), and [OpsHarness](https://arxiv.org/abs/2608.25661) (26 August). Selected methods were inspected; full evaluations and implementations remain unaudited. They enter existing comparison exercises rather than adding redundant required labs. The [method notes](research/2026-09-20-METHOD-NOTES.md) and [search log](research/SEARCH-LOG.md) record sections, dates, and limits. Earlier counts below are historical checkpoints.
+
 ## 20 September refresh
 
 The discovery window now extends through 20 September 2026. Two additions bring the current-month inventory from 23 to 25 papers, alongside five reports. [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396) first appeared 6 September, with v2 on 9 September. [HarnessEvolve](https://arxiv.org/abs/2609.00829) appeared 1 September. Relevant mechanism and selected experiment sections were inspected; full appendices and code were not reproduced.
@@ -68,9 +70,9 @@ Dates are first submissions unless a revision is also shown. All dates are in 20
 | 31 Aug | [S3Gym: Can LLMs Turn Self-Testing and Self-Judging into Self-Improvement?](https://arxiv.org/abs/2608.31100) | Compares history, memory, and training; reports uneven gains and negative transfer | Methods, evaluation separation, and selected results inspected 20 Sep |
 | 31 Aug | [Recursive Criticality of AI Self-Improvement](https://arxiv.org/abs/2609.00137) | A theoretical account of amplification and increasing research difficulty | Abstract and metadata checked |
 | 27 Aug | [WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution](https://arxiv.org/abs/2608.27454) | Separates raw experience, accumulated knowledge, and executable skills | Architecture, update rules, and selected ablations inspected |
-| 25 Aug | [SkillForge: Evolving Verifiable Skills for Reinforcement Learning Agents](https://arxiv.org/abs/2608.24747) | Skills require continued verification rather than endless accumulation | Abstract and metadata checked |
+| 25 Aug | [SkillForge: Evolving Verifiable Skills for Reinforcement Learning Agents](https://arxiv.org/abs/2608.24747) | Skills require continued verification rather than endless accumulation | Selected methods 3.1–3.3 inspected 20 Sep |
 | 25 Aug | [Recuris](https://arxiv.org/abs/2608.24876) | Working state and reusable experience have different roles | Relevant mechanism inspected |
-| 21 Aug; v2 24 Aug | [ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction](https://arxiv.org/abs/2608.20920) | Distinguishes current factual evidence from experience across tasks | Abstract and metadata checked |
+| 21 Aug; v2 24 Aug | [ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction](https://arxiv.org/abs/2608.20920) | Distinguishes current factual evidence from experience across tasks | Selected architecture and method sections inspected 20 Sep |
 
 ## Lab reports and announcements
 

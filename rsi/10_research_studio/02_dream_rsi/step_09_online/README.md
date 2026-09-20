@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Freeze the selected policy, then give it and the baseline comparable new work. The online outcome is new evidence. Keep replay-selection cost and online cost distinct but include both when discussing overall efficiency.
 
+**A concrete example.** A policy selected from a history dominated by calendar models may prioritize them on new work. A newly declared regression condition can reward different structure. The online run tests those actual choices. If the policy loses, the earlier replay result can remain correct within its recorded coverage.
+
 ![A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.](../../../assets/diagrams/lab-10-09.png)
 
 *Read the diagram:* A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.
@@ -66,6 +68,16 @@ Run both policies under matched two-fit budgets. Compare retained quality, failu
 
 New outcomes are produced by actual fits. Policies remain frozen during confirmation. The conclusion reports both phases and their costs.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Frozen policy versions and new-work plan | Explain what is new relative to the replay history. |
+| Four fit records | Give each policy the same two-fit allowance and preserve retained outcomes. |
+| Two-phase cost and result report | Separates replay preparation from online execution without omitting either. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Use online failures to propose a new policy version, then explain why it needs a
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the “fresh” task was used to choose the replay winner, treat it as development evidence. If the new condition changes the scientific target, write a new task contract before executing. If online feedback inspires an edit, save it as a new proposed policy; do not insert it into this frozen comparison.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Identify the first result that required a new environment execution. That is where replay ends and online evidence begins.
 
 </details>
 

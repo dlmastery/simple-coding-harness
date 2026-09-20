@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Swap the role being tested. Give each researcher the same task of improving a researcher, with the same starting artifact and resources. Weco’s report distinguishes its demonstrated improvement claim from an ignition comparison that was not statistically significant. Keep that uncertainty in the audit.
 
+**A concrete example.** A researcher becomes good at finding strong ML candidates but proposes brittle changes when asked to improve another researcher. Its earlier task-search win remains real. The new role-transfer test can still fail because producing good solutions and producing better solution-finding procedures are different capabilities.
+
 ![An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.](../../../assets/diagrams/lab-10-15.png)
 
 *Read the diagram:* An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.
@@ -66,6 +68,16 @@ Have each frozen procedure produce one outer proposal under matched conditions. 
 
 The audit does not call the paper’s ignition result established. The classroom comparison uses a new outcome rather than recycling task scores.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| IGNITION-PLAN.md | Defines the new outer-improvement role, starting procedure, allowed changes, and matched fixtures. |
+| Two outer proposals and fixture outcomes | Preserve both frozen proposers, context limits, costs, and all failures. |
+| Ignition claim audit | Does not recycle inner-search scores as evidence about outer improvement ability. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Construct an example where a strong optimizer always proposes overcomplicated pr
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the fixtures merely score writing quality, redesign them to execute a decision affected by the proposed researcher change. Keep that limited procedural result separate from task-performance evidence. No extra model fits are authorized by this lab’s default budget; declare an extension before adding them.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Complete “better at what?” twice: once for the earlier researcher win and once for this outer-improvement test.
 
 </details>
 

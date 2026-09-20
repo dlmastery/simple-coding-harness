@@ -2,6 +2,28 @@
 
 These notes record selected primary-source reading. No paper implementation was reproduced. Full appendices remain outside the completed reading scope.
 
+## SkillForge
+
+[Version 1, sections 3.1–3.3](https://arxiv.org/html/2608.24747v1) inspected. A compact retrieved catalog precedes explicit skill invocation. GRPO updates policy weights; a separate process induces, deduplicates, and revises skills. Verification uses invocation-linked outcomes, a moving success estimate, and use counts to prioritize review. This is stronger than counting library entries, but our interpretation is that outcome association alone does not isolate a skill's causal effect. Use it beside the skill-library and co-evolution lessons. The complete training implementation and benchmark analysis remain unaudited; a Markdown edit does not reproduce the policy updates.
+
+## ForeDreamer
+
+[Version 2, sections 2–3, especially 3.1–3.2](https://arxiv.org/html/2608.20920v2) inspected. Current-question evidence is distinct from cross-episode experience. The latter changes along textual and procedural tracks. Procedural candidates combine workflow instructions with executable evidence-processing tools; validation precedes admission. Tool reuse and broader exploration address repeated implementations and narrow guide families. Course use: distinguish a reusable instruction from the operation it calls and from the facts it processes. This reading does not establish that the updater itself evolves. Full appendices, leakage analysis, and implementation remain open.
+
+## EvoHarnessBench
+
+[Version 2, sections 3.1–3.4](https://arxiv.org/html/2609.04280v2) inspected; first submitted 3 September, revised 10 September. The externally supplied capability pool expands across stages. One mode carries no adaptive state; another carries learned artifacts but separates adaptation and evaluation cases. Retention of earlier competence and use of new capabilities are different outcomes. Skill-to-task associations are heuristic, not proof of necessary skills. Course use: extend interface-transfer discussions to changing tool catalogs. No full benchmark, appendix, or implementation audit was performed.
+
+## Ecdysis
+
+[Version 1, sections 3.1–3.3 and Algorithm 1](https://arxiv.org/html/2609.11677v1) inspected; submitted 10 September. It groups failures across tasks, uses role-based diagnosis, and gives a coding agent a modification specification. The task model and environment stay fixed. Acceptance requires a higher aggregate training score, not improvement on every case. Recurring failures guide attribution but do not prove a shared cause. Course use: contrast localized repair with batch diagnosis, then inspect regressions hidden by an average. Detailed evaluation and code remain unaudited; no speed or accuracy headline is reproduced.
+
+## OpsHarness
+
+[Version 1, sections V-B–V-C](https://arxiv.org/html/2608.25661v1) inspected; submitted 26 August. Root-cause diagnosis traces motivate atomic changes to knowledge and tools. The first gate requires a source-case benefit within accuracy/cost constraints; a separately sampled testbed checks non-regression. Failed gates can feed bounded revision retries. Our evaluation interpretation: cases that supply retry feedback are development information for those revisions, so they must not be described as an untouched final test. Use this distinction in the evidence and reference-trajectory lessons. The industrial deployment and complete evaluation remain unaudited.
+
+These additions come from the later date-filtered refresh recorded in the search log. SkillForge and ForeDreamer were already listed; the other three expand the current inventory to 30 papers and five reports. Reading depth above is deliberately narrower than full-paper review.
+
 ## HarnessDev
 
 [Version 1, sections 3.2–3.5, 4.1, and 6.1](https://arxiv.org/html/2609.01437v1). Creation and evolution are separate stages. The executor and scorer stay fixed within a comparison; creator and executor can differ. Evolution feedback scores measure adaptation. Later withheld evaluation addresses generalization. The human references are public system results, not uniformly paired controls. One trajectory per creator/runtime cell cannot supply population uncertainty. The study leaves using an evolved harness as the next development environment to future work. Course consequence: lab 10.31 must separate generated-harness quality, builder quality, and inherited improvement machinery.

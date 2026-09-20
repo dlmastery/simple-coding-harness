@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Use several task-level outcomes to motivate a less frequent updater change. Freeze the revised updater during the next task-skill round. The schedule helps separate observations used to design the updater from outcomes used to evaluate its later behavior.
 
+**A concrete example.** Several task-level outcomes expose a repeated omission: the updater tests only favorable cases. A slower meta-skill revision adds a contrasting check. Freeze that revised updater during the next task-skill round, then compare the decisions it produces with v0. Changing both layers after each result would obscure which change mattered.
+
 ![Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.](../../../assets/diagrams/lab-10-17.png)
 
 *Read the diagram:* Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.
@@ -66,6 +68,16 @@ Run a later task-skill improvement round using v1. Record the changed instructio
 
 The update schedule and inheritance are explicit. Structural recursion and measured effectiveness are reported separately.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Accumulated trace review | Uses existing update traces with their actual updater identities and outcomes. |
+| META-SKILL-v1.md and schedule | Record the one updater edit, its intended effect, overhead, and limit. |
+| Later matched improvement record | Shows inheritance, behavior under each updater, at most four fits, and separate structure/benefit conclusions. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Change the update frequency in a labelled simulation and explain the tradeoff be
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If only one prior update trace exists, locate a suitable earlier trace or explicitly prepare the missing starting state before freezing this protocol. Do not invent a second run. If the active updater changes during its evaluation, preserve the event and narrow attribution. A version hash alone cannot prove its changed instruction governed the later action.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Place task-skill updates and meta-skill updates on separate timelines. Mark when each candidate is frozen and when its later behavior is measured.
 
 </details>
 

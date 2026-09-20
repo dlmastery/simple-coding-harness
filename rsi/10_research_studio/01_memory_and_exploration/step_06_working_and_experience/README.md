@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Working state records the current run: active candidate, pending check, remaining budget. Reusable experience records a scoped procedure learned from prior work. The exercise separates them and checks that a new run does not inherit old spent-state values as if they were current.
 
+**A concrete example.** “Candidate trial-003 awaits verification” belongs to one run. “Join predictions to targets by row identity” can be a reusable rule when supported by evidence. The next run can inherit the second statement, but its candidate ID and remaining attempts must come from its own ledger.
+
 ![Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.](../../../assets/diagrams/lab-10-06.png)
 
 *Read the diagram:* Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.
@@ -66,6 +68,16 @@ Create a new task context. Retrieve the relevant experience but initialize state
 
 The new state reflects the new task. Experience retains its evidence and scope. Stale identities are rejected.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| WORKING.md | Contains current run identity, active candidate, pending action, and budget. |
+| EXPERIENCE.md | Contains a reusable lesson with scope and evidence links. |
+| Two retrieval checks | Show useful transfer and rejection of a stale run-specific identity. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Merge both stores in a labelled copy and identify one ambiguous instruction that
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a retrieved summary changes the current budget, compare its source-run ID with the active contract. Do not edit the ledger to fit old prose. If a general lesson contains an absolute path into an old workspace, separate the principle from the historical example and keep the original evidence link.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask whether a statement should still be true after the run ID changes. Its lifetime helps determine where it belongs.
 
 </details>
 

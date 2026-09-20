@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The classroom exercise first probes two distinct limitations, then spends the last attempt on one uncertainty. Broad coverage and targeted investigation have different purposes. Keep the choice rule visible; exploration is not permission to change the task metric.
 
+**A concrete example.** The constant baseline asks how far a model can get without input variation. The calendar model asks whether hour and date structure explain useful variation. The third recipe should address a remaining uncertainty exposed by their errors. Repeating the same deterministic calendar fit does not answer a new feature question, though a separately declared repeat can check reproducibility.
+
 ![Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.](../../../assets/diagrams/lab-10-03.png)
 
 *Read the diagram:* Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.
@@ -66,6 +68,16 @@ Run the probes, inspect selection errors, and choose one final permitted recipe 
 
 The plan distinguishes broad and focused work. All attempts and costs are retained. No final test information guides exploration.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Three-attempt exploration plan | States the different uncertainty addressed by each initial probe. |
+| Probe traces and final proposal | Record the third hypothesis before its fit and link it to observed selection errors. |
+| Exploration report | Retains failures, known cost, and the information gained within the three-fit ceiling. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Spend the third attempt on a duplicate recipe in a labelled comparison. Explain 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the third choice was justified only after its score appeared, preserve that ordering and label the explanation as retrospective. If a duplicate recipe is refused, retain the refusal; do not vary an irrelevant label to evade duplicate detection. Use existing repeats or reasoning for the counterexample, without adding a fourth fit.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Complete “this result would distinguish ___ from ___” before running an exploratory action. More scores do not automatically mean more information.
 
 </details>
 

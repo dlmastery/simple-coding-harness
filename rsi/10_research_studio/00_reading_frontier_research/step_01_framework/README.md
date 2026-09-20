@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Begin with your artifacts, then apply the paper’s definitions. Keep execution changes, strategy changes, retained experience, deployment changes, and inherited improver changes distinct. Do not equate this framework’s level numbers with another lab’s terminology.
 
+**A concrete example.** Your fixed search loop tries a tree after a linear model. Your memory experiment saves a rule for later tasks. Your inheritance experiment changes the rule that generates future skill edits. These are three different artifacts and feedback paths. Apply a source’s criteria to each; do not infer that similarly numbered levels in two publications mean the same thing.
+
 ![Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.](../../../assets/diagrams/lab-10-01.png)
 
 *Read the diagram:* Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.
@@ -66,6 +68,16 @@ Apply the framework to fixed retries, saved memory, and your inherited improver 
 
 The audit separates structural and effective improvement. Missing evidence remains visible. Level numbers are not mixed across sources.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| FRAMEWORK.md | Paraphrases criteria with section references and required observations. |
+| Three-case evidence map | Connects fixed retries, memory, and inherited improver changes to actual local artifacts. |
+| Separate terminology columns | Preserve each source’s definitions instead of merging its level numbers. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Apply Weco’s differently defined level terminology to the same cases in a sepa
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a classification depends on a word in the title, find the operational definition in the text. If the necessary inheritance or comparison artifact is missing, leave that criterion unsupported. If the paper has changed versions, record which version supplied the definition before comparing it with earlier notes.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Translate each category into a question that an artifact can answer. A taxonomy helps organize evidence; it cannot create missing evidence.
 
 </details>
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Represent each attempted recipe as a node with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
 
+**A concrete example.** Node A is a measured baseline. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.
+
 ![The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.](../../../assets/diagrams/lab-10-07.png)
 
 *Read the diagram:* The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.
@@ -66,6 +68,16 @@ Run the three recipes within budget. Fill the tree from actual predictions and r
 
 Parent links and trial identities agree. Failed attempts remain in the tree. No unexplored outcome is fabricated.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Discovery table and rendered tree | Identify nodes, parent links, recipes, execution status, and result paths. |
+| Three actual trial records | Supply measured outcomes and costs for the visited nodes. |
+| Coverage statement | Separates proposed branches, failed attempts, and successfully measured outcomes. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Add an unexecuted branch to the diagram and show it as unknown rather than assig
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a node has a score but no matching predictions or report, classify it as unsupported until its source is found. If a failed fit is silently absent, restore the attempted node and its cost. Do not copy a nearby node’s score into an unvisited branch merely because its recipe looks similar.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+For each plotted number, follow its link back to one executed trial. An attractive tree is still only a drawing without those links.
 
 </details>
 

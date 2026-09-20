@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A meta-skill is a procedure for working on skills. Keep the meta-skill fixed while it proposes a task-skill revision. Record the resulting task behavior and the updater’s version. The exercise first establishes the nonrecursive baseline.
 
+**A concrete example.** META-SKILL-v0 asks for one failure diagnosis, one task-skill edit, and a target/regression check. It produces TASK-SKILL-v1 but stays byte-identical itself. The word meta names what it operates on; it does not show that its own improvement method changed.
+
 ![The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.](../../../assets/diagrams/lab-10-16.png)
 
 *Read the diagram:* The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.
@@ -66,6 +68,16 @@ Run one task-skill revision through v0. Execute a target and regression check. S
 
 Task and meta-skill versions are separate. Acceptance is based on executed evidence. No recursive claim is inferred from the prefix meta.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| META-SKILL-v0.md | Freezes the diagnosis, proposal, check, and retention procedure. |
+| Task-skill parent and child | Expose the allowed edit and motivating evidence. |
+| Two executed checks and decision | Connect the fixed updater to actual changed task behavior. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Rename the updater without changing its behavior. Explain why a new name supplie
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the updater rewrites itself while creating the child, preserve the diff and separate that new experiment from this fixed baseline. If the child is accepted because its prose sounds better, run the declared behavioral checks before retaining it. Renaming a file does not substitute for a procedural change.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Name both the operator and its operand. In this lab the operand changes while the operator stays fixed.
 
 </details>
 

@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The outer task changes the inner researcher’s procedure. It might revise which operator to try or when to stop exploring a branch. Evaluate parent and child inner researchers from the same starting state. Our small comparison does not reproduce Weco’s much larger run.
 
+**A concrete example.** The parent spends all three comparison fits refining its first promising family. The proposed child reserves its last fit for a contrasting family. Freeze both procedures, then run each with three attempts from the same start. The child’s outcome includes the cost of any discarded exploration, not just its retained model.
+
 ![The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.](../../../assets/diagrams/lab-10-14.png)
 
 *Read the diagram:* The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.
@@ -66,6 +68,16 @@ Run each inner researcher with three fits from the same baseline. Compare retain
 
 Starting artifacts and declared budgets match. All nested attempts remain in the ledger. The claim is limited to this comparison.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Outer change proposal | Targets operator choice or allocation and preserves both inner-researcher versions. |
+| Two three-fit searches | Start from matched artifacts and retain every nested attempt. |
+| Nested cost and outcome report | Includes outer proposals, checks, losing searches, and unknown provider charges. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Give the child twice the fit budget in a separate illustration and explain why t
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the parent’s old four-fit result is compared with the child’s new three-fit result, the budgets are mismatched. Use the declared matched comparison or state the limitation. If an outer edit changes the metric, restore the fixed external objective before interpreting it as a procedure improvement.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Draw a box around each inner search, then count the cost of all boxes tried by the outer process. The winning box was not free to discover.
 
 </details>
 

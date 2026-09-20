@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The inner researcher proposes ML candidates, evaluates them, and chooses what to pursue. In our exercise, operators are readable actions such as change model family or add a permitted feature group. Their order and allocation define a research procedure that an outer process can later revise.
 
+**A concrete example.** An inner researcher can spend four attempts on one model family or reserve attempts for a different permitted family. Even with identical fitting tools, those operator choices can expose different candidates before the budget ends. The researcher’s procedure is therefore an object that an outer process can inspect and revise.
+
 ![The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.](../../../assets/diagrams/lab-10-13.png)
 
 *Read the diagram:* The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.
@@ -66,6 +68,16 @@ Execute the declared researcher. Record each operator, parent, candidate, outcom
 
 The operator choices and budget are visible. The retained result is identifiable. The exercise is labelled a small adaptation of the nested-research idea.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| INNER-RESEARCHER.md | Defines proposal operators, parent selection, retention, and the four-fit limit. |
+| Complete inner-search trace | Records each operator, candidate, predecessor, outcome, and cost. |
+| Retained recipe | Identifies the actual selected solution rather than only the best-looking intermediate number. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Replay the same known candidate outcomes under a different ordering and state wh
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the agent supplies only four scores, recover the operator and decision trace before claiming a researcher comparison. If replaying a new order requires an unobserved branch, return unknown for that branch. Reordering known results cannot fabricate candidates that the original search never executed.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Separate the model recipe from the rule that decides which recipe to try next. The outer process acts on the second object.
 
 </details>
 

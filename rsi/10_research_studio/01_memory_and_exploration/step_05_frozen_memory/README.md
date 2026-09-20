@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Freeze the memory artifact before the comparison. Both arms use the same task and budget; one can read the frozen memory and one cannot. The evaluation does not add new lessons. This separates the retained memory’s effect from adaptation during the test.
 
+**A concrete example.** A frozen memory says to check prediction-time availability before choosing features. One arm may read it and one may not. Both get the same task and two fits. If the supposed no-memory arm already saw the note in the same context, unchanged file hashes cannot make that a clean information comparison.
+
 ![Freeze memory before comparing access conditions. Evaluation does not update that memory.](../../../assets/diagrams/lab-10-05.png)
 
 *Read the diagram:* Freeze memory before comparing access conditions. Evaluation does not update that memory.
@@ -66,6 +68,16 @@ Run both arms and record actual decisions, results, and costs. Check the memory 
 
 The memory stays unchanged. Resource equality and context exposure are reported. The result does not claim a full RSIAgent reproduction.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Memory hash and comparison plan | Freeze content, cases, budgets, and permitted exposure before evaluation. |
+| Two arm records | Retain decisions, outcomes, costs, and actual context boundaries. |
+| Freeze and claim check | Confirms file stability while stating whether the no-memory boundary was real. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Allow memory updates in a separate declared adaptation experiment and explain wh
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the memory file changes during evaluation, preserve the run and reclassify it as adaptation rather than frozen-memory testing. Do not rerun until a separate protocol is declared. If a fresh context is unavailable, execute a labelled shared-context demonstration and restrict the conclusion instead of pretending the agent forgot the note.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
 
@@ -102,7 +114,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+A checksum checks file identity. It does not check what the model already knows from the conversation.
 
 </details>
 
