@@ -18,21 +18,21 @@ This is several substantial authoring and verification passes, likely hours of w
 | Authentic ML and data-science path works | partially achieved | [Selected clean journey](validation/CLEAN-JOURNEY-RESULTS.md) ran 31 fits; remaining required activities and counterexamples need explicit execution coverage |
 | Full self-* and recursive distinctions hold | partially achieved | Definitions, examples, and limited measured comparisons exist; repeated recursive generations and terminology consistency need further review |
 | Recent research is correctly taught | partially achieved | 30 papers and five reports, dated reading-depth records; remaining method audits and final-window refresh are open |
-| Requested professional Imagen illustrations | blocked | Exact Imagen 2.5 access is unresolved. The 101 technical schematics are companions, not fulfilment of this requirement |
+| Requested professional illustrations | in progress; provider decision resolved | User approved the available generator. Four reviewed conceptual illustrations are embedded in the main README and selected codelabs; [all seven versions and prompts](visuals/generated/README.md) are retained. Remaining themes and rendered-page checks are still open |
 | Every quiz teaches interpretation and transfer | authored and individually reviewed; learner evidence pending | Four explained questions and a specific hint per lab; no actual learner performance is inferred from the answer keys |
 | Laptop path and larger-compute extension are concrete | partially achieved | CPU runtime checked on three operating systems; larger-compute contracts exist. Do not claim unexecuted GPU, cluster, or native-agent support |
 | All produced artifacts and steering preserved | partially achieved | Checkpoints, sources, drivers, failures, notes, and assets are versioned. Continue this requirement through final verification |
 | Reusable skill preserves all guidance | partially achieved | Complete seven-file package validated and synchronized; incorporate later accepted guidance and verify the final coverage table |
 | Teaching and rendered reading experience reviewed | partially achieved | Selected desktop/mobile checks and author walkthroughs exist. Full editorial and figure review, and actual learner assessment, remain distinct unfinished checks |
 
-The image-provider gap does not block editorial, research, or local execution work. Keep the overall goal active while those actions remain available. No item becomes achieved merely because a checklist or script exists.
+The user resolved the image-provider choice on 20 September; continue production with the approved tool. Keep the overall goal active while course work remains. No item becomes achieved merely because a checklist or script exists. Earlier progress entries below preserve historical provider gaps; they do not supersede this decision.
 
 ## Execution order
 
 1. Review every lesson in source order. Add a concrete example where missing, named observable outputs, a useful failure diagnosis, and a relevant quiz hint. Resolve contradictions in budgets, workspaces, terms, and prerequisites. Preserve good existing examples.
 2. Improve theme introductions and the main walkthrough using those verified transitions. Keep the full route; optional shorter teaching routes must not replace required content.
 3. Execute the remaining required laptop activities and controlled failure paths. Record exact coverage, not a blanket claim from component tests. Keep actual learner checkpoints unattempted unless a learner answers them.
-4. Finish source-method and illustration reviews. Preserve the requested image-model requirement until it is fulfilled or the user changes it.
+4. Finish source-method and illustration reviews. Use the available generator under the user's recorded approval, preserving the white-background style, accuracy checks, and full provenance.
 5. Audit each requirement against current files, actual outputs, rendered pages, and research evidence. Verify the remote checkpoint. Complete the goal only when the full scope is proven.
 
 ## Latest pass

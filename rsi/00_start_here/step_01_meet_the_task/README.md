@@ -26,9 +26,20 @@ One row describes one recorded hour. The target, cnt, is the number of rentals. 
 
 **A concrete example.** Consider an illustrative hour with 3 casual rentals and 13 registered rentals. The total is 16. Adding those two observed counts gives the answer exactly, but the counts are not available before those rentals occur. The useful question is what you could have predicted from permitted information. Now change the request from describing a recorded hour to planning tomorrow: even the weather input needs a different source.
 
+![Calendar and observed weather enter the model. Casual and registered counts add to total rentals, so their shortcut into features is blocked. Prediction and observation meet at the error check.](../../assets/illustrations/target-leakage-v2.png)
+
+*The component counts already reveal the answer: casual + registered = total rentals. Keep them out of the input features. The checker still needs the observed total to measure error. This course uses observed weather for a retrospective teaching task; it does not assume that weather was known a day ahead.*
+
+[Open the illustration at full size](../../assets/illustrations/target-leakage-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Predict the hourly total from allowed inputs. The two component counts already contain the answer.](../../assets/diagrams/lab-00-01.png)
 
 *Read the diagram:* Predict the hourly total from allowed inputs. The two component counts already contain the answer.
+
+</details>
 
 ## Run the lab
 

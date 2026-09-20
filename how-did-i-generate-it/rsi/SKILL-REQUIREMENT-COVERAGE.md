@@ -6,6 +6,7 @@ This is an editorial coverage review. It does not prove that a future course mee
 
 | User guidance | Where the skill preserves it |
 |---|---|
+| Use the available image generator after explicit approval; preserve all visual-quality requirements | [Illustration standard](../../skills/build-research-codelabs/references/course-standard.md) and [project decision](visuals/GENERATOR-DECISION.md) |
 | Clone and inspect the existing repository before repair | [Entrypoint: intake](../../skills/build-research-codelabs/SKILL.md) |
 | Inspect the flawed source transcript and correct its claims | [RSI preset](../../skills/build-research-codelabs/references/rsi-preset.md) and [research](../../skills/build-research-codelabs/references/research-and-evidence.md) |
 | Paraphrase the request and show a plan for approval first | [Entrypoint: intake and plan](../../skills/build-research-codelabs/SKILL.md) |

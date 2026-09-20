@@ -8,6 +8,10 @@ Now save the procedure that chooses experiments. Test a change to that procedure
 
 This course builds that distinction slowly. You begin with one understandable prediction and finish with an inspectable, bounded experiment in recursive self-improvement, or RSI. A successful final project can report a gain, a regression, or an inconclusive result. Its evidence must support its conclusion.
 
+![Three panels distinguish a model experiment, a changed research skill, and a revised improver whose new check governs a later round. Evaluation stays fixed; proposals can be rejected.](assets/illustrations/main-overview-v2.png)
+
+*First change the model. Then test changes to the research procedure. Finally, ask whether a revised improver governs later improvement work and helps under a fair comparison. This is a conceptual illustration: its accepted I1 is a possible outcome, not a claim that this course has demonstrated a successful recursive gain.* [Open the full-size illustration](assets/illustrations/main-overview-v2.png).
+
 **Begin with [Start here](START-HERE.md).** You use ordinary language and Markdown. The coding agent writes the code, configuration, tests, and launch files.
 
 Open the repository root in your coding agent and paste this first instruction. If you need the local copy, [Start here](START-HERE.md) explains the branch to clone.
@@ -123,4 +127,4 @@ Work through the first themes in order. Keep one short lab note: prediction, obs
 
 Use the [instructor guide](instructor/README.md) to choose checkpoints and assess explanations. The complete [course-authoring skill](../skills/build-research-codelabs/SKILL.md) preserves the method for diffusion models, flow methods, or another complex topic.
 
-This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. Technical schematics and measured data charts are included. Requested Imagen illustration access remains unresolved; no asset is represented as Imagen-generated. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.
+This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. The first four professional illustrations accompany the technical schematics and measured data charts. The author approved the available image generator in place of the original Imagen preference; the [visual record](../how-did-i-generate-it/rsi/visuals/generated/README.md) preserves prompts, revisions, and review. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.

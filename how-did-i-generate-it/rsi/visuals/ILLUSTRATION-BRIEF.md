@@ -1,8 +1,8 @@
 # Illustration brief
 
-Status: prompts and review criteria prepared. No raster illustration has been generated. Requested model: Imagen 2.5. The available image tool does not expose that model selector; the provider decision remains open.
+Status: production started on 20 September 2026. The user explicitly approved the available image generator in place of the original Imagen 2.5 preference. The first four illustrations and all seven generated versions are retained in the [generation gallery](generated/README.md). The actual tool exposes no model identifier. See the [provider decision](GENERATOR-DECISION.md); no further provider approval is needed.
 
-The course now has original Mermaid technical schematics for all 101 labs, authored in `scripts/lesson-diagrams.mjs`. These supplement the requested raster illustrations. They do not satisfy or replace the named-generator requirement. The measured data plots remain a third, separate class of visual evidence.
+The course also has original Mermaid technical schematics for all 101 labs, authored in `scripts/lesson-diagrams.mjs`. These supplement the generated illustrations. The measured data plots remain a third, separate class of visual evidence. The full raster set is still in progress; four assets do not complete every theme or lab.
 
 ## Shared visual language
 

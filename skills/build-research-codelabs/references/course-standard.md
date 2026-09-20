@@ -103,6 +103,8 @@ Read representative lessons aloud. Check that students can explain them in their
 
 The saved preference is **Imagen 2.5**, a white background, professional composition, and rich but readable detail. Verify access to the requested generator. If unavailable, state the precise gap and preserve the requirement. Do not silently use another model while claiming compliance.
 
+An explicit user-approved alternative supersedes the provider preference for that project. Record the user's decision, actual tool, returned model identity when available, and remaining visual requirements. Do not reopen the same provider question or keep a stale provider blocker after approval. When the tool exposes no model identity, say so; do not infer one from appearance or a prompt. For this RSI rebuild, the user approved the available image generator on 20 September 2026.
+
 Every image has a teaching purpose. It should show the main idea at a glance and reward closer reading. Use a clear hierarchy, consistent colors and shapes, readable labels, meaningful arrows, and enough space. Highlight the new mechanism in an evolving diagram. Dense does not mean crowded.
 
 Show data flow, control flow, mutable and fixed components, feedback, and boundaries where those distinctions matter. Avoid decorative imagery that hides the mechanism. Use panels for a complex overview and focused figures for individual steps.

@@ -26,9 +26,20 @@ Loop state is the information needed for the next step: attempts used, candidate
 
 **A concrete example.** Suppose three illustrative candidates have MAE 160, 110, and 125. After the third fit, the current candidate has error 125, but the retained best still has error 110. The loop stops because it spent three attempts. Stopping and choosing the retained output are different decisions.
 
+![Propose, run, check, and record surround persistent state. A limit gate leads to the next attempt or stop. A failed fit is recorded and still consumes an attempt. Resumption reads the same saved state.](../../assets/illustrations/bounded-loop-v1.png)
+
+*The notebook survives the process. Read the remaining budget before another attempt, reserve that attempt before fitting, and preserve failures. A successful fit still needs checking. After interruption, reconcile any in-progress attempt before deciding what can run next; do not reset the allowance.*
+
+[Open the illustration at full size](../../assets/illustrations/bounded-loop-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.](../../assets/diagrams/lab-02-02.png)
 
 *Read the diagram:* Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.
+
+</details>
 
 ## Run the lab
 

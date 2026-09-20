@@ -26,9 +26,20 @@ The solver runs ML research. The improver proposes and tests changes to the solv
 
 **A concrete example.** Changing a tree depth changes the ML candidate. Adding “inspect error by hour” changes the research skill that proposes candidates. Adding “recompute every reported score before promoting a research-skill edit” changes the improver. The edit text can look small at all three levels. What matters is which later decisions it governs.
 
+![Three objects can change: a task model, a research skill, and the improver that revises skills. A proposed improver is checked, accepted or rejected, and an accepted version governs a later round under fixed evaluation.](../../assets/illustrations/main-overview-v2.png)
+
+*This is a conceptual path, not a measured success story. The last panel shows what an accepted revision would require: the later round reads I1 and uses its added counterexample check. Saving I1 alone is insufficient. Whether it helps requires a fair comparison; rejection remains a valid result.*
+
+[Open the illustration at full size](../../assets/illustrations/main-overview-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.](../../assets/diagrams/lab-09-01.png)
 
 *Read the diagram:* The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.
+
+</details>
 
 ## Run the lab
 

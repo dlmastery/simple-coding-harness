@@ -56,7 +56,7 @@ Every lab includes what it does, why it matters, how it works, how to run it, wh
 
 Write in direct, natural technical English guided by ASD-STE100. Use descriptive headings and stable terms. Avoid hype, filler, repeated summaries, decorative footers, and unexplained jargon. Explain a concrete example before introducing the abstraction.
 
-Use the requested illustration generator and visual style. The saved preference is Imagen 2.5, white backgrounds, professional composition, and rich but readable detail. Verify the actual model is available. Do not claim an unavailable model was used. Review visual correctness and legibility. Plot measured results from actual data; do not generate fictional experiment charts.
+Use the requested illustration generator and visual style. The saved preference is Imagen 2.5, white backgrounds, professional composition, and rich but readable detail. Verify the actual model is available. If the user authorizes an alternative, record that decision and continue without asking again. Preserve all visual-quality requirements and name only the tool or model established by actual metadata. Do not claim an unavailable model was used. Review visual correctness and legibility. Plot measured results from actual data; do not generate fictional experiment charts.
 
 ## Keep the science and execution honest
 

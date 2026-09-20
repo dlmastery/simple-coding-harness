@@ -26,9 +26,20 @@ The builder is a meta-harness: it creates another harness. The generated harness
 
 **A concrete example.** Think of a builder that reads “binary classification” and produces a classifier, suitable splits, and a balanced-accuracy report. The same unchanged builder reads “hourly count regression” and produces a different harness. Its outputs differ because its inputs differ. To claim that the builder improved, you must change and evaluate the builder itself.
 
+![A task brief enters an unchanged meta-harness builder. It produces a separate package of skills, tools, state, checks, and limits. The package then runs a model and produces predictions and a checked report.](../../assets/illustrations/meta-harness-v2.png)
+
+*In this example the builder stays fixed. It creates a package that must then run under the brief’s limits. Files alone do not show that the package works. A checked execution provides evidence about the generated harness; it does not establish that the builder improved itself.*
+
+[Open the illustration at full size](../../assets/illustrations/meta-harness-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The builder produces the harness. The harness then runs the task. These are different objects.](../../assets/diagrams/lab-06-02.png)
 
 *Read the diagram:* The builder produces the harness. The harness then runs the task. These are different objects.
+
+</details>
 
 ## Run the lab
 

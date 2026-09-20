@@ -14,6 +14,7 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Implementation record](IMPLEMENTATION-RECORD.md) | Execution design, migration, research additions, and unresolved decisions |
 | [Lesson publishing source](scripts/lesson-content.mjs) | Index of the authored lesson modules and reproducible Markdown publisher |
 | [Visual explanations and review](visuals/REVIEW.md) | Technical diagrams, retained revisions, raster prompts, and review limits |
+| [Generated illustration gallery](visuals/generated/README.md) | Selected images, exact prompts, earlier versions, generator metadata, and scientific review |
 | [Compute extension](../../rsi/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
 | [Course evidence](../../rsi/evidence/2026-09-20/README.md) | Actual model fits, mechanism checks, and limits |
 | [Cross-platform checks](validation/CROSS-PLATFORM-CHECKS.md) | Successful RSI jobs on Linux, macOS, and Windows; separate aggregate failures |

@@ -8,6 +8,7 @@ import {renderDiagram, diagrams} from './lesson-diagrams.mjs';
 import {examples} from './lesson-examples.mjs';
 import {guidance} from './lesson-guidance.mjs';
 import {researchGroups} from './research-groups.mjs';
+import {renderIllustration} from './lesson-illustrations.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const rsi = resolve(repo, 'rsi');
@@ -37,6 +38,10 @@ for (let index=0; index<lessons.length; index++) {
   const schematic=existsSync(resolve(rsi,figurePath))
     ? `![${diagrams[l.id].caption}](${to(figurePath)})\n\n*Read the diagram:* ${diagrams[l.id].caption}`
     : renderDiagram(l.id);
+  const illustration=renderIllustration(l.id,to);
+  const mechanism=illustration
+    ? `${illustration}\n\n<details>\n<summary>See the step diagram</summary>\n\n${schematic}\n\n</details>`
+    : schematic;
   const nav=`[Course](${to('README.md')}) · [Theme](${to(theme.directory+'/README.md')})`;
   const previous=prev ? `[${prev.id}: ${prev.title}](${link(folder,lessonPath(prev))}/README.md)` : `[Start here](${to('START-HERE.md')})`;
   const after=next ? `[${next.id}: ${next.title}](${link(folder,lessonPath(next))}/README.md)` : `[Teaching portfolio](${to('instructor/README.md')})`;
@@ -72,7 +77,7 @@ ${l.how}
 
 ${workedExample ? `**A concrete example.** ${workedExample}\n` : ''}
 
-${schematic}
+${mechanism}
 
 ${l.figure || ''}
 
