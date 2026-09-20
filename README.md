@@ -34,8 +34,9 @@ Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop
 Part 7   steps 46 - 51    the same harness on TrueForge, an open-source harness server:
                           loop, tools as MCP, sandbox and skills, context, subagents, comparison
 Series   genui/           zero to hero on generative UI: the agent's output becomes an interface
-Series   rsi/             zero to hero on recursive self-improvement, 18 lessons: the agent's
-                          own skill files get better across runs, and a verifier says by how much
+Series   rsi/             zero to hero on recursive self-improvement, 18 lessons that run inside a
+                          coding agent (Claude Code, this harness, Antigravity, Codex): skill packs only,
+                          the agent's own files get better across runs, and a verifier says by how much
 ```
 
 A second series lives in [`genui/`](genui/): **zero to hero on generative
@@ -43,10 +44,14 @@ UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
-A third series lives in [`rsi/`](rsi/): **zero to hero on
-recursive self-improvement**, 18 lessons in the Claude Academy playbook format, a skills-only hello world where the agent's
-own files get better across runs, measured the way the September 2026
-papers ask for.
+A third series lives in [`rsi/`](rsi/): **zero to hero on recursive
+self-improvement**, 18 lessons in the Claude Academy playbook format that you
+run by opening a coding agent in the lesson directory — no scripts to run, no
+Python shipped: an `intent.md` per problem, skill packs whose `tools.md` states
+the contracts the agent implements itself, a human approval cycle, a hook as
+the deterministic gate, and a curriculum of ML problems on which the pack (not
+the model) gets better, measured the way the September 2026 papers ask for.
+Fifteen of the eighteen lessons carry a transcript recorded in Claude Code.
 
 **What you will learn**
 
@@ -82,7 +87,7 @@ step_NN_<name>/      one step of the harness codelab
   test_step.py       the offline test: a fake model, no key, seconds to run
   .agents/           skills, agent definitions, hooks, MCP config the step reads
 genui/README.md      series 2: generative UI, 23 steps under genui/0N_<theme>/step_NN_<name>/
-rsi/README.md        series 3: recursive self-improvement, 18 lessons under rsi/step_NN_<name>/
+rsi/README.md        series 3: recursive self-improvement, 18 lessons under rsi/step_NN_<name>/, run inside a coding agent
 run_tests.py         every step's test, or a subset: python run_tests.py 14 15 / genui/02 / rsi
 check_snippets.py    every README snippet exists verbatim in the code it names
 ```
@@ -96,7 +101,7 @@ check_snippets.py    every README snippet exists verbatim in the code it names
 | see what an agent SDK gives you | [Step 16](#step-16-claude-agent-sdk) - 19 and [Who owns which mechanism](#who-owns-which-mechanism) | Step 20 for routing and cost |
 | run the harness on a server instead of a laptop | [Step 46](#step-46-the-loop-on-trueforge) - 51 | step 51 is the comparison table |
 | put an interface on the agent's output | [`genui/`](genui/) | it reuses step 21's loop as is |
-| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi/) | it reuses stage 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
+| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi/) | open Claude Code (or this harness) in a lesson directory and invoke the skill; it reuses the ideas of stages 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
 
 **How to read one step.** Open the step's `README.md`. The first paragraph says what the
 step adds and why; the sections that follow quote the code that changed (`check_snippets.py`
@@ -3288,7 +3293,7 @@ both sides.
 | [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
 | [51](step_51_trueforge_comparison/) | TrueForge versus this codelab versus managed agents | `README.md` |
 | [genui](genui/) | a second series: generative UI (AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps) | `genui/` |
-| [rsi](rsi/) | a third series: recursive self-improvement, skills only, 18 lessons on a curriculum of ML problems | `rsi/` |
+| [rsi](rsi/) | a third series: recursive self-improvement, skill packs run inside a coding agent, 18 lessons on a curriculum of ML problems | `rsi/` |
 
 ## Tests and checks
 
