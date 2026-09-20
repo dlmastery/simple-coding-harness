@@ -45,7 +45,7 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 The repository inspection supports the findings in the master plan. It does not establish that every current lab was executed or that every defect has been found.
 
-The research inventory distinguishes metadata checks from method inspection. No selected paper has been reproduced here. No course code, live lab, illustration, or cluster adapter has been built. The raw source remains local; its redacted text derivative is archived with a clear unverified-source notice.
+The research inventory distinguishes metadata checks from method inspection. No selected paper has been reproduced here. The raw source remains local; its redacted text derivative is archived with a clear unverified-source notice. Implementation began on 20 September; the dated entry below supersedes the initial planning-only status.
 
 An original X post returned HTTP 403. The linked official benchmark page was accessible. No new Meta/FAIR post-only result in the target month was verified in this pass. These limits are recorded in the inventory.
 
@@ -63,9 +63,17 @@ Implementation checkpoints should include relevant runtime evidence and failures
 
 ## Next steps
 
-1. The reusable skill is installed and its complete package is on GitHub. Present it with the revised plan for review.
-2. After plan approval, complete the remaining source and repository audit.
+1. The user authorized implementation by saying “continue.” Preserve the complete reusable skill already installed and on GitHub.
+2. Continue implementation from the dated record below.
 3. Build representative onboarding, ML loop, ontology, and recursion lessons before expanding the pattern.
 4. Validate the laptop path and the declared agent adapters. Record actual resource use.
 5. Produce and inspect the requested illustrations after generator access is resolved.
 6. Continue through the full course, updating this log and checkpointing progress.
+
+## 20 September: working foundation
+
+Created a small shared experiment tool and seven canonical course skills. Downloaded original UCI bike and wine archives, retained attribution, and pinned source hashes. Verified actual bike row count and wine duplicate groups. The runtime trains preprocessing only on training rows, excludes leakage features, keeps failed attempts, locks final evaluation, and stops on contract changes.
+
+Eight new behavioral tests passed. The previous course's offline suites passed; 19 live checks were skipped. Five actual CPU fits and two data inspections produced retained reports, predictions, timings, and charts in `rsi/evidence/2026-09-20/`. The linear bike candidate outperformed the tested tree candidate; no guaranteed improvement is implied. Total agent cost and peak memory were not measured.
+
+The student lesson layer and complete theme expansion remain in progress. Requested illustration model access is unresolved; a user question is pending. Measured data charts are separate from that illustration requirement. A research refresh found MetaRSI and HarnessEvolve; methods still need review.

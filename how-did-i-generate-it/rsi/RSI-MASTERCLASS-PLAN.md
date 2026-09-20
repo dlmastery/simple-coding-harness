@@ -1,8 +1,8 @@
 # From Your First Agent Workflow to Recursive Self-Improvement
 
-**Proposed masterclass rebuild — for review before implementation**
+**Masterclass rebuild — implementation authorized 20 September 2026**
 
-Prepared against repository commit `eed9cbbdf19c665ae54646253f303be85030798c` and the user's saved `rsiresearch.mhtml`. Research window: **20 August–19 September 2026**, with priority given to 6–19 September. Older foundations are dated separately. The broader [research inventory](RSI-RESEARCH-SWEEP.md) records sources, reading depth, gaps, and course decisions. This is a plan for review. Course production and runtime validation have not started.
+Prepared against repository commit `eed9cbbdf19c665ae54646253f303be85030798c` and the user's saved `rsiresearch.mhtml`. Initial research window: **20 August–19 September 2026**, with priority given to 6–19 September. Older foundations are dated separately. The broader [research inventory](RSI-RESEARCH-SWEEP.md) records sources, reading depth, gaps, and course decisions. The user's “continue” authorized implementation. The [implementation record](IMPLEMENTATION-RECORD.md) tracks completed work and later research refreshes.
 
 The intended outcome is a student who can explain, construct, run, inspect, and evaluate a bounded recursively improving agent system through natural-language instructions and skills. The student can also identify which stronger claims their experiment has not established.
 

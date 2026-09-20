@@ -1,12 +1,12 @@
 # RSI course requirements and restart notes
 
-Updated: 19 September 2026. This file records the user's directions and the current decisions. It is a handoff record, not a finished course.
+Updated: 20 September 2026. This file records the user's directions and the current decisions. It is a handoff record, not a finished course.
 
 ## Read this first
 
 Repository: [dlmastery/simple-coding-harness](https://github.com/dlmastery/simple-coding-harness). Course area: `rsi/`. Planning and process records: `how-did-i-generate-it/rsi/`.
 
-The user requested a plan before implementation. Understanding and scope have been refined through further instructions. **The final implementation plan has not yet been approved.** Continue necessary research and planning. Do not treat the request to checkpoint documents as approval to replace the course.
+The user requested a plan before implementation. The plan and reusable skill were saved and pushed. **The user's subsequent “continue” authorizes implementation.** The course rebuild is now in progress. Do not ask for that approval again. Publication on the existing working branch remains authorized; a merge into main has not been requested.
 
 Read the [master plan](RSI-MASTERCLASS-PLAN.md), [research inventory](RSI-RESEARCH-SWEEP.md), and [work log](RSI-WORK-LOG.md). Inspect the current Git branch, status, and recent commits before changing files. Use the latest user instructions if they change this record.
 
@@ -56,7 +56,7 @@ The learner must be able to explain a new case, not just complete the steps. Rev
 
 The current choice is **generic ML hill climbing for tabular regression and classification**. This supersedes the briefly proposed Markdown-handbook task. The user explicitly wanted a traditional ML task that suits an advanced AI/ML class.
 
-Use UCI Bike Sharing for the main regression path. Use UCI Wine Quality for a classification and transfer path. Dataset choices are a concrete proposal in the plan, not implemented exercises. Both sources and licenses were checked. Pin the actual source files and verify their contents during implementation.
+Use UCI Bike Sharing for the main regression path. Use UCI Wine Quality for a classification and transfer path. Both sources and licenses were checked. Download, pin, and inspect the actual source files as part of implementation. Record completed checks separately from planned ones.
 
 Show the full data science process: problem definition, data acquisition and provenance, data inspection, EDA, missingness, duplicates, leakage, split design, baselines, features, model selection, error analysis, generalization, and reproducibility. Introduce these in small steps. Agent-generated reports and plots make each decision visible.
 
@@ -102,7 +102,7 @@ The user explicitly authorized periodic GitHub check-ins. Store all plans, requi
 
 The user then explicitly required intermediate artifacts too. Preserve drafts, research notes, source corrections, failed experiments, image prompts and revisions, reviews, and validation. Maintain the [artifact index](ARTIFACTS.md). The raw browser source remains local; a redacted text derivative and hashes are checked in. Earlier overwritten drafts are a recorded gap, not reconstructed originals.
 
-Use the working branch `codex/rsi-masterclass-rebuild` for planning checkpoints and subsequent approved work. Do not merge the course replacement before plan approval. After each meaningful milestone, update these records, inspect the diff, run appropriate checks, commit, push, and verify the remote hash. A local commit alone is not a GitHub backup.
+Use the working branch `codex/rsi-masterclass-rebuild` for checkpoints. Implementation is approved; merging into main has not been requested. After each meaningful milestone, update these records, inspect the diff, run appropriate checks, commit, push, and verify the remote hash. A local commit alone is not a GitHub backup.
 
 ## Reusable course-building skill
 
@@ -110,11 +110,11 @@ The user explicitly requested that every instruction and the final outcome becom
 
 The canonical package is [build-research-codelabs](../../skills/build-research-codelabs/SKILL.md). Its common course standard applies across topics; the RSI sequence and dataset decisions are in a separate preset. The [coverage checklist](SKILL-REQUIREMENT-COVERAGE.md) maps the user's guidance to the skill. Do not force the RSI ladder or current lab count onto another subject.
 
-Skill creation and local installation are complete. All seven installed files match the canonical repository package, and the skill validator passed. The full package and provenance were pushed and verified in checkpoint `6ae9a411d7dec732debb0293f9817350bc08dc11`. This does not imply approval to implement the proposed RSI course.
+Skill creation and local installation are complete. All seven installed files matched the canonical repository package at validation, and the skill validator passed. The full package and provenance were pushed and verified in checkpoint `6ae9a411d7dec732debb0293f9817350bc08dc11`. The user's later “continue” separately authorized course implementation.
 
 ## Restart checklist
 
-1. Read this file and the latest user messages. Determine whether implementation has since been approved.
+1. Read this file and the latest user messages. Implementation is approved; incorporate later steering.
 2. Check Git status, branch, remote, and recent commits. Preserve work already present.
 3. Read the master plan and work log. Continue from the recorded next step.
 4. Use the research inventory's reading status. Do not repeat completed searches without a freshness or coverage reason.
