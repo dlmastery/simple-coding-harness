@@ -55,7 +55,8 @@ def main():
     protocol = repo / "how-did-i-generate-it/rsi/validation/SELF-STAR-AND-MEASUREMENT-PROTOCOL.md"
     for origin, name in [(Path(__file__), "driver.source.py"), (helper_path, "helpers.source.py"),
                          (repo / "rsi/tools/lab.py", "lab.source.py"),
-                         (repo / "rsi/tools/check_result.py", "checker.source.py"), (protocol, "PROTOCOL.md")]:
+                         (repo / "rsi/tools/check_result.py", "checker.source.py"), (protocol, "PROTOCOL.md"),
+                         (protocol.parent / "SELF-STAR-PRECISION-AUDIT.md", "SELF-STAR-PRECISION-AUDIT.md")]:
         shutil.copyfile(origin, out / name)
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
     save(out / "SOURCE.md", f"# Source and execution boundary\n\nGit revision: {revision}\n\nDriver SHA-256: {sha(Path(__file__))}\n\nHelper SHA-256: {sha(helper_path)}\n\n{lab.environment()}\n\nSame author context; new files and child processes. Existing public results were known. No learner participated. All cached choices are labelled replays.\n")
