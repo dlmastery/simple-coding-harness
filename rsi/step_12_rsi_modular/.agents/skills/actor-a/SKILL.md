@@ -1,25 +1,30 @@
 ---
 name: actor-a
-description: ModularRSI's actor A - train a classifier for a pool or curriculum problem under a 24-fit budget with the procedure split into five module files (agent loop, tool use, observation, context, completion) that a meta pack may patch one at a time. Use in rsi/step_12_rsi_modular when the pack has a modules/ directory.
+description: "ModularRSI's actor A - train a classifier for a problem under a 24-fit budget by following the five module files under modules/ (agent loop, tool use, observation, context, completion) with helpers you build from the contracts in tools.md. Use in rsi/step_12_rsi_modular on the pool tables; the meta pack may patch one module at a time."
 metadata:
   type: workflow
-  version: "2.0"
+  version: "3.0"
   rsi: "on"
 ---
-# ModularRSI's actor A: five modules, one job
+# ModularRSI's actor: five modules, one harness
 
-Run every command through the Bash tool from this lesson's directory. This
-pack's directory is `.claude/skills/actor-a` (`P`); the task file is `T`
-(a pool task under `pool/`, or a curriculum task under `../tasks/`).
+Run every helper through the Bash tool from this lesson's directory. This pack's directory is
+`.claude/skills/actor-a` (`P`); the problem's directory is `T` (a pool table under `pool/`, or a
+curriculum problem under `../tasks/`). Build the helpers of `tools.md` under `runs/actor-a/helpers/`
+on first use.
 
 ## Boot order
-1. This file. 2. `tools.md`. 3. `schema.json`, `memory.schema.json`, `memory.json`, `eval.md`. 4. The five modules, in this order: `modules/agent_loop.md`, `modules/tool_use.md`, `modules/observation.md`, `modules/context.md`, `modules/completion.md`. Follow them as one procedure; each owns one concern and a meta pack patches one at a time.
+1. This file. 2. `tools.md`. 3. `schema.json`, `memory.schema.json`, `config.md`, `memory.json`. 4. `modules/agent_loop.md`, `modules/tool_use.md`, `modules/observation.md`, `modules/context.md`, `modules/completion.md` - the harness is these five files, and the procedure below only says in which order to read them.
 
 ## Procedure
-The procedure lives in the modules: run `modules/agent_loop.md`.
+1. Do what `modules/agent_loop.md` says, reading `modules/context.md` for the next recipes, `modules/observation.md` for the result and `modules/completion.md` at FREEZE, under the rules of `modules/tool_use.md`.
 
 ## Rules
-The rules live in the modules. This file names them so a patch to one module leaves the others word for word. Never run `score_test.py` before FREEZE (the completion module says so; the script and the hook enforce it), never write a card, never edit a module yourself.
+- A module is one file; only the meta pack may change one, and only one at a time, validated on the pool.
+- Never write a card: the verifier's job. Never run `score_test` before FREEZE, never twice.
+
+## Off switch
+MEMORY_OFF: `memory: off` in `config.md`, or `--memory off` on the arm.
 
 ## Done when
-`score_test.py` answered once for the arm.
+`modules/completion.md` was followed.

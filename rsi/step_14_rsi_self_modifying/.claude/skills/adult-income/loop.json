@@ -5,12 +5,12 @@
  "error_still_counts": true,
  "policy": "static",
  "body": [
-  "recipes = next recipes of the Search policy (read_memory.py --order <policy>)",
-  "fit_recipe.py --recipes ..."
+  "recipes = the next recipes of the Search policy (read_memory --order <policy>)",
+  "fit_recipe(recipes)"
  ],
  "exit": [
   "FREEZE",
-  "score_test",
+  "score_test once",
   "scorecard"
  ],
  "illegal": [

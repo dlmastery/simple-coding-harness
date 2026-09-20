@@ -127,7 +127,94 @@ pack:
 The recorded run (Claude Code 2.1.278, headless, two turns; the proposal
 the agent showed is trimmed to its head):
 
-<!-- transcript -->
+```text
+[Skill loop-writer]
+[Read .claude/skills/loop-writer/tools.md]  [Glob .claude/skills/**/*]  [Read ../tasks/01_adult_income/intent.md]
+[Read template/SKILL.md]  [Read template/tools.md]  [Read template/loop.json]  [Read template/schema.json]  [Read template/recipes.json]
+[Read .claude/skills/loop-writer/SKILL.md]  [Read test_step.py]
+$ ls -la && ls -R runs 2>/dev/null | head -50; ls .agents/skills .claude/skills; cat .claude/settings.json 2>/dev/null
+.agents/skills:
+loop-writer
+.claude/skills:
+loop-writer
+$ python -c "import yaml, sys; print(sys.version)" && file .claude/skills/loop-writer/template/* && ls ../step_02_loop_harness/runs 2>/dev/null | head
+3.12.3 | packaged by conda-forge | (main, Apr 15 2024, 18:20:11) [MSC v.1938 64 bit (AMD64)]
+.claude/skills/loop-writer/template/SKILL.md:     ASCII text, with very long lines (526)
+...
+agent> Templates are LF/ASCII, PyYAML is available. Building the three helpers (step 1).
+[Write runs/loop-writer/helpers/common.py (69 lines)]   [Write runs/loop-writer/helpers/lint_pack.py (153 lines)]
+[Write runs/loop-writer/helpers/propose.py (91 lines)]  [Write runs/loop-writer/helpers/apply.py (81 lines)]
+[Write runs/loop-writer/adult_income/proposals/p001/SKILL.md (34 lines)]   [Write .../p001/loop.json (25 lines)]
+[Write .../p001/schema.json (225 lines)]   [Write .../p001/recipes.json (170 lines)]   [Write .../p001/tools.md (70 lines)]
+agent> Step 4: lint the five files against the intent, and confirm they are exactly the filled template (nothing else changed).
+$ python runs/loop-writer/helpers/lint_pack.py runs/loop-writer/adult_income/proposals/p001 ../tasks/01_adult_income && python - <<'EOF'
+from pathlib import Path
+T = Path(".claude/skills/loop-writer/template"); P = Path("runs/loop-writer/adult_income/proposals/p001")
+fill = {"task":"adult_income","task_slug":"adult-income","task_dir":"01_adult_income","title":"Adult Census Income (> 50k)","metric":"roc_auc","budget_fits":"24"}
+... (compare each filled template file to the proposal, byte for byte)
+{"files": ["SKILL.md", "loop.json", "recipes.json", "schema.json", "tools.md"], "problems": [], "ok": true}
+loop.json identical | no CRLF
+recipes.json identical | no CRLF
+schema.json identical | no CRLF
+SKILL.md identical | no CRLF
+tools.md identical | no CRLF
+agent> Lint is clean and all five files are byte-identical to the filled template. Step 5: record the proposal.
+$ python runs/loop-writer/helpers/propose.py .claude/skills/loop-writer ../tasks/01_adult_income --target adult-income-loop --files runs/loop-writer/adult_income/proposals/p001 --summary "adult-income-loop: the five files of the loop pack filled from the template for 01_adult_income (roc_auc, 24 fits, 24 static recipes, test locked until FREEZE)"; ls runs/loop-writer/adult_income/proposals; cat runs/loop-writer/adult_income/traces.jsonl; ls .claude/skills .agents/skills
+{"id": "p001", "target": "adult-income-loop", "files": ["adult-income-loop/SKILL.md", "adult-income-loop/loop.json", "adult-income-loop/recipes.json", "adult-income-loop/schema.json", "adult-income-loop/tools.md"], "summary": "...", "lines_changed": 524, "recorded": "runs/loop-writer/adult_income/proposals/p001.json", "diff": "<539 diff lines: every file is new>"}
+p001
+p001.json
+{"event": "propose", "id": "p001", "target": "adult-income-loop", "files": [...], "summary": "..."}
+loop-writer
+loop-writer
+agent> # Proposal p001 - the adult-income-loop pack
+
+Recorded at runs/loop-writer/adult_income/proposals/p001.json. Nothing has landed: .claude/skills/ and .agents/skills/ still hold only loop-writer.
+- Source: ../tasks/01_adult_income/intent.md -> task=adult_income, task_slug=adult-income, task_dir=01_adult_income, title=Adult Census Income (> 50k), metric=roc_auc, budget_fits=24.
+- Lint: 0 problems (n_fits = N = 24 recipes = budget_fits; test rule locked, scored once after FREEZE; metric and models match the intent; front matter, four headings, ## Allowed / ## Forbidden present).
+- Byte check: each file is identical to the template with only the six placeholders replaced (LF line endings); recipes.json is the template's 24 static recipes, untouched.
+- Would land at: .claude/skills/adult-income-loop/ and, byte-identical, .agents/skills/adult-income-loop/.
+
+Below is the whole pack, every file in full.
+## 1. adult-income-loop/SKILL.md
+---
+name: adult-income-loop
+description: "Train a classifier for the Adult Census Income (> 50k) problem by running the counted loop declared in loop.json over recipes.json - 24 fits, a freeze, one test score - with helpers you build from the contracts in tools.md. Use in the lesson that landed it, when the pack has loop.json and no graph or memory file."
+...
+## 2. adult-income-loop/loop.json
+{"kind": "counted_while", "N": 24, "counter": "t", "error_still_counts": true, ...}
+## 3. adult-income-loop/recipes.json  (24 recipes)   ## 4. adult-income-loop/schema.json   ## 5. adult-income-loop/tools.md
+... (511 more lines)
+
+approve / edit / reject?
+[26 turns, 286 s]
+
+--- turn 2: claude -p --continue "approve"
+$ printf '%s' "approve" > runs/loop-writer/adult_income/proposals/p001.approved && python runs/loop-writer/helpers/apply.py .claude/skills/loop-writer ../tasks/01_adult_income p001 --approved "approve"
+PreToolUse:Bash hook error: gate: apply needs proposals/<id>.approved holding the user's exact words - show the proposal and ask first
+agent> The hook checks for the .approved file before the command runs, so the file must exist first - writing it in a separate step.
+[Write runs/loop-writer/adult_income/proposals/p001.approved (1 lines)]
+$ python runs/loop-writer/helpers/apply.py .claude/skills/loop-writer ../tasks/01_adult_income p001 --approved "approve" && diff -r .claude/skills/adult-income-loop .agents/skills/adult-income-loop && echo "mirrors identical" && diff -r runs/loop-writer/adult_income/proposals/p001 .claude/skills/adult-income-loop && echo "landed == proposal" && cat runs/loop-writer/adult_income/traces.jsonl
+{"id": "p001", "version": "gen_001", "label": "proposed", "approved": "approve", "files": [".claude/skills/adult-income-loop/loop.json", ".claude/skills/adult-income-loop/recipes.json", ".claude/skills/adult-income-loop/schema.json", ".claude/skills/adult-income-loop/SKILL.md", ".claude/skills/adult-income-loop/tools.md", ".agents/skills/adult-income-loop/loop.json", ...]}
+mirrors identical
+landed == proposal
+{"event": "propose", "id": "p001", ...}
+{"event": "apply", "id": "p001", "approved": "approve", "version": "gen_001", "files": [...]}
+agent> Landed.
+- Proposal: p001. Decision: approve (your exact word, recorded in p001.approved and in the trace's apply event).
+- Version: gen_001 (an empty snapshot under runs/adult-income-loop/versions/gen_001/ - there was no previous pack).
+- Files landed, byte-identical in both mirrors: .claude/skills/adult-income-loop/{SKILL.md, loop.json, recipes.json, schema.json, tools.md} and .agents/skills/adult-income-loop/{same five}.
+[4 turns, 44 s]
+```
+
+What to notice: the writer read the intent, filled the template and
+checked its own output against the fill byte for byte before it linted -
+and the lint is the agent's own `lint_pack`, built from the checklist of
+lesson 00. It stopped at the question, and the artifacts prove it: after
+turn one `.claude/skills/` holds only `loop-writer`. In turn two the agent
+first tried to write the approval file and run `apply` in one command, and
+the lesson's hook blocked it: the `.approved` file did not exist yet when
+the hook checked. It wrote the file, then applied. That is the advisory
+skill and the deterministic gate in one exchange.
 
 Files:
 

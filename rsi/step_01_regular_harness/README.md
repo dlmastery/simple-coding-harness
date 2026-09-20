@@ -41,15 +41,16 @@ repo's harness, Antigravity and Codex read the identical
 
    The agent reads `SKILL.md`, then `tools.md`, then `schema.json` and the
    intent. Its first act is to write the five helpers the contracts describe
-   (the recorded run below wrote one Python module, `helpers/rsi.py`, with a
-   sub-command per tool). Then, through its Bash tool from this directory:
+   (the recorded run below wrote one Python module, `helpers/harness.py`,
+   with a sub-command per tool). Then, through its Bash tool from this
+   directory:
 
    ```bash
-   python runs/adult-income-regular/helpers/rsi.py load_splits --pack .claude/skills/adult-income-regular --task ../tasks/01_adult_income --arm control --memory off
-   python runs/adult-income-regular/helpers/rsi.py fit_recipe  ... --recipes '<the 24 recipes of schema.json>'   # one call, 24 fits, FREEZE
-   python runs/adult-income-regular/helpers/rsi.py score_test  ... --recipe '<the best val recipe>'              # once, after FREEZE
-   python runs/adult-income-regular/helpers/rsi.py save_model  ... --recipe '<the same recipe>'
-   python runs/adult-income-regular/helpers/rsi.py scorecard   ...
+   python runs/adult-income-regular/helpers/harness.py load_splits .claude/skills/adult-income-regular ../tasks/01_adult_income --arm control --memory off
+   python runs/adult-income-regular/helpers/harness.py fit_recipe  ... --arm control --recipes @runs/adult-income-regular/helpers/recipes_24.json   # one call, 24 fits, FREEZE
+   python runs/adult-income-regular/helpers/harness.py score_test  ... --arm control --recipe '<the best val recipe>'                           # once, after FREEZE
+   python runs/adult-income-regular/helpers/harness.py save_model  ... --arm control --recipe '<the same recipe>'
+   python runs/adult-income-regular/helpers/harness.py scorecard   ... --arm control
    ```
 
    The exact file name and calling convention are the agent's: the contract
@@ -151,7 +152,79 @@ that the 24 recipes are distinct and all sit at the middle hyper value.
 The recorded run (Claude Code 2.1.278, headless, from this directory; the
 helper the agent wrote is quoted in part, tool results trimmed):
 
-<!-- transcript -->
+```text
+[Skill adult-income-regular]
+[Read .claude/skills/adult-income-regular/tools.md]  [Read .claude/skills/adult-income-regular/schema.json]
+[Read ../tasks/01_adult_income/intent.md]
+agent> Let me check whether helpers or an open arm already exist.
+$ ls -R runs 2>/dev/null | head -50; ls ../tasks/01_adult_income; ls ../data 2>/dev/null | head; python -c "import sklearn, pandas, numpy; print(sklearn.__version__, pandas.__version__, numpy.__version__)"
+intent.md
+README.md
+adult_sample.csv
+1.8.0 2.1.4 1.26.4
+agent> No helpers exist yet. I'll build one module implementing the four allowed tools per the contracts in tools.md.
+[Write runs/adult-income-regular/helpers/harness.py (359 lines)]
+agent> Step 2: open the control arm.
+$ python runs/adult-income-regular/helpers/harness.py load_splits .claude/skills/adult-income-regular ../tasks/01_adult_income --arm control --memory off
+{"profile": {"n_rows": 6000, "n_features": 14, "n_classes": 2, "imbalance": 0.239, "has_categorical": 1}, "budget": {"n_fits": 24, "fits_used": 0}, "arm": "control", "seed": 0, "memory": "off"}
+agent> Profile matches intent.md (6000 rows, 14 features, 2 classes, imbalance 0.239, categorical). Step 3: fit the 24 recipes in schema order, one call.
+$ python -c "import json; json.dump(json.load(open('.claude/skills/adult-income-regular/schema.json'))['recipes'], open('runs/adult-income-regular/helpers/recipes_24.json','w'))" && python runs/adult-income-regular/helpers/harness.py fit_recipe .claude/skills/adult-income-regular ../tasks/01_adult_income --arm control --recipes @runs/adult-income-regular/helpers/recipes_24.json
+{"results": [{"n": 1, "recipe": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "val_score": 0.9114, "error": null},
+ {"n": 2, ... "val_score": 0.911}, {"n": 3, ... "encode": "ordinal" ... "val_score": 0.8544}, {"n": 4, ... 0.8577}, {"n": 5, ... 0.9103}, {"n": 6, ... 0.8973}, {"n": 7, ... 0.8277}, {"n": 8, ... 0.8333},
+ {"n": 9, "recipe": {"model": "rf", ...}, "val_score": 0.9054}, {"n": 10, ... 0.9033}, {"n": 11, ... 0.9048}, {"n": 12, ... 0.9005}, {"n": 13, ... 0.9049}, {"n": 14, ... 0.9034}, {"n": 15, ... 0.9048}, {"n": 16, ... 0.9005},
+ {"n": 17, "recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "val_score": 0.9177, "error": null}, {"n": 18, ... 0.917}, {"n": 19, ... 0.9108}, {"n": 20, ... 0.9122}, {"n": 21, ... 0.9177}, {"n": 22, ... 0.917}, {"n": 23, ... 0.9108}, {"n": 24, ... 0.9122}],
+ "fits_left": 0, "FREEZE": true}
+$ python runs/adult-income-regular/helpers/harness.py score_test .claude/skills/adult-income-regular ../tasks/01_adult_income --arm control --recipe '{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' 2>/dev/null
+{"test_score": 0.9049, "test_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "test_scored": 1}
+$ python runs/adult-income-regular/helpers/harness.py save_model ... --recipe '{"model": "hgb", ...}' 2>/dev/null && python runs/adult-income-regular/helpers/harness.py scorecard .claude/skills/adult-income-regular ../tasks/01_adult_income --arm control 2>/dev/null
+{"saved": "runs/adult-income-regular/adult_income/control/model.pkl", "recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}}
+{"problem": "adult_income", "arm": "control", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 16, "best_val_score": 0.9177, "best_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "test_score": 0.9049, "test_scored_once": true, "test_touched_before_freeze": false, "cards_active": 0, "cards_added": 0, "cards_demoted": 0}
+agent> Done. Regular harness run on ../tasks/01_adult_income, control arm, seed 0:
+| Best val_score | 0.9177 (ROC-AUC) |
+| Test score     | 0.9049 (scored once, after FREEZE) |
+| Fits           | 24 / 24 |
+| Best recipe    | hgb, learning_rate 0.1, scale yes, onehot, no class weight (fit #17; #21 tied with scale=no) |
+| Wasted fits    | 16 (the first recipe within 0.005 of the best was #17) |
+Trajectory in the fixed order: logreg+onehot ~ 0.911, logreg+ordinal drops to 0.83-0.86, rf ~ 0.900-0.905,
+hgb+onehot 0.917-0.918. No fit errored; test_touched_before_freeze is false.
+Artifacts under runs/adult-income-regular/: helpers/harness.py (the five tools, built fresh - none existed)
+and adult_income/control/ with state.json ("frozen": true), traces.jsonl, model.pkl, scorecard.json.
+[12 turns, 216 s]
+```
+
+The helper the agent wrote, `runs/adult-income-regular/helpers/harness.py`
+(359 lines, one function per tool and a CLI; the pipeline, as the
+contract states it - quoted from the run, not shipped):
+
+```text
+def _build_pipeline(recipe, df, target):
+    feats = [c for c in df.columns if c != target]
+    num = [c for c in feats if pd.api.types.is_numeric_dtype(df[c])]
+    cat = [c for c in feats if c not in num]
+    num_tf = StandardScaler() if recipe["scale"] == "yes" else "passthrough"
+    cat_tf = (OneHotEncoder(handle_unknown="ignore") if recipe["encode"] == "onehot"
+              else OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1))
+    pre = ColumnTransformer([("num", num_tf, num), ("cat", cat_tf, cat)], sparse_threshold=0)
+    cw = "balanced" if recipe["class_weight"] == "balanced" else None
+    h = recipe["hyper"]
+    if recipe["model"] == "logreg":
+        clf = LogisticRegression(C=h, max_iter=2000, class_weight=cw)
+    elif recipe["model"] == "rf":
+        clf = RandomForestClassifier(n_estimators=40, max_depth=h, random_state=0, class_weight=cw)
+    else:
+        clf = HistGradientBoostingClassifier(learning_rate=h, max_iter=40, max_bins=64,
+                                             random_state=0, class_weight=cw)
+    return Pipeline([("pre", pre), ("clf", clf)])
+```
+
+What to notice: the first thing the agent did was look for helpers and,
+finding none, write them - 359 lines from a page of contracts, before any
+fit. The 24 fits came in one call and the 24th froze the arm; `score_test`
+came after, once. `wasted_fits` is 16: the static order visits every
+`logreg` and `rf` recipe before the first `hgb`, which is the waste every
+Monday that lesson 06's cards are meant to remove. The numbers are this
+machine's (this agent's helper, sklearn 1.8): yours may differ, the
+artifacts may not.
 
 Files:
 

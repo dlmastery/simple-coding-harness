@@ -110,7 +110,84 @@ except `test_step.py`.
 The recorded run (Claude Code 2.1.278, headless, from this directory; tool
 results trimmed):
 
-<!-- transcript -->
+```text
+[Skill adult-income-loop]
+[Read tools.md]  [Read loop.json]  [Read recipes.json]  [Read schema.json]  [Read ../tasks/01_adult_income/intent.md]
+agent> Now let me check whether helpers already exist and what the data looks like.
+$ ls -la runs/ runs/adult-income-loop/ runs/adult-income-loop/helpers/ 2>&1; ls ../tasks/01_adult_income; head -3 ../data/adult_sample.csv; python -c "import sklearn, pandas; print(sklearn.__version__, pandas.__version__)"
+ls: cannot access 'runs/adult-income-loop/': No such file or directory
+age,workclass,fnlwgt,education,education-num,marital-status,occupation,relationship,race,sex,capital-gain,capital-loss,hours-per-week,native-country,target
+28,Local-gov,336951,Assoc-acdm,12,Married-civ-spouse,Protective-serv,Husband,White,Male,0,0,40,United-States,1
+1.8.0 2.1.4
+agent> No helpers exist yet, so I'll build them per the tools.md contracts: a shared common.py and one script per tool.
+[Write runs/adult-income-loop/helpers/common.py (246 lines)]
+[Write runs/adult-income-loop/helpers/load_splits.py (45 lines)]   [Write .../fit_recipe.py (63 lines)]
+[Write .../write_loop_log.py (27 lines)]   [Write .../score_test.py (34 lines)]   [Write .../save_model.py (30 lines)]   [Write .../scorecard.py (59 lines)]
+agent> Helpers built. Now the procedure: open the control arm.
+$ python runs/adult-income-loop/helpers/load_splits.py .claude/skills/adult-income-loop ../tasks/01_adult_income --arm control --memory off
+{"arm": "control", "seed": 0, "problem": "adult_income", "profile": {"n_rows": 6000, "n_features": 14, "n_classes": 2, "imbalance": 0.239, "has_categorical": 1}, "budget": 24, "memory": "off"}
+agent> Arm open; profile matches intent.md (6000 rows, 14 features, imbalance 0.239). Loop body, t = 1..6 (recipes 1-6 from recipes.json):
+$ python runs/adult-income-loop/helpers/fit_recipe.py .claude/skills/adult-income-loop ../tasks/01_adult_income --arm control --recipes '[
+{"model":"logreg","hyper":1,"scale":"yes","encode":"onehot","class_weight":"none"},
+{"model":"logreg","hyper":1,"scale":"yes","encode":"onehot","class_weight":"balanced"},
+... (4 more recipes)
+{"results": [{"n": 1, "recipe": {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "val_score": 0.9114, "error": null}, {"n": 2, ... 0.911}, {"n": 3, ... 0.8544}, {"n": 4, ... 0.8577}, {"n": 5, ... 0.9103}, {"n": 6, ... 0.8973}], "fits_left": 18, "FREEZE": false}
+$ H=runs/adult-income-loop/helpers/write_loop_log.py; P=.claude/skills/adult-income-loop; T=../tasks/01_adult_income
+python $H $P $T --arm control --t 1 --recipe '{"model":"logreg","hyper":1,"scale":"yes","encode":"onehot","class_weight":"none"}' --val 0.9114
+python $H $P $T --arm control --t 2 --recipe '{"model":"logreg","hyper":1,"scale":"yes","encode":"onehot","class_weight":"balanced"}' --val 0.911
+... (4 more)
+{"appended": "t=1 recipe={\"model\":\"logreg\",\"hyper\":1,\"scale\":\"yes\",\"encode\":\"onehot\",\"class_weight\":\"none\"} val=0.9114"}
+{"appended": "t=2 recipe={...} val=0.911"}
+... (4 more)
+agent> t = 7..12 (recipes 7-12: the last two logreg, the first four rf):
+$ python runs/adult-income-loop/helpers/fit_recipe.py ... --recipes '[ ...6 recipes... ]'
+{"results": [{"n": 7, ... 0.8277}, {"n": 8, ... 0.8333}, {"n": 9, "recipe": {"model": "rf", ...}, "val_score": 0.9054}, {"n": 10, ... 0.9033}, {"n": 11, ... 0.9048}, {"n": 12, ... 0.9005}], "fits_left": 12, "FREEZE": false}
+$ (write_loop_log t=7 .. t=12)
+agent> t = 13..18 (last four rf, first two hgb):
+$ python runs/adult-income-loop/helpers/fit_recipe.py ... --recipes '[ ...6 recipes... ]'
+{"results": [{"n": 13, ... 0.9049}, {"n": 14, ... 0.9034}, {"n": 15, ... 0.9048}, {"n": 16, ... 0.9005}, {"n": 17, "recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "val_score": 0.9177, "error": null}, {"n": 18, ... 0.917}], "fits_left": 6, "FREEZE": false}
+agent> The stderr traceback is joblib's physical-core probe failing to spawn wmic under the sandbox - joblib catches it internally and falls back; all six fits scored (error: null). Logging t=13..18:
+$ (write_loop_log t=13 .. t=18)
+agent> t = 19..24 (the last six hgb) - this call should reach N and FREEZE:
+$ python runs/adult-income-loop/helpers/fit_recipe.py ... --recipes '[ ...6 recipes... ]'
+{"results": [{"n": 19, ... 0.9108}, {"n": 20, ... 0.9122}, {"n": 21, ... 0.9177}, {"n": 22, ... 0.917}, {"n": 23, ... 0.9108}, {"n": 24, ... 0.9122}], "fits_left": 0, "FREEZE": true}
+agent> FREEZE: true, fits_left: 0. Logging t=19..24:
+$ (write_loop_log t=19 .. t=24)
+$ P=.claude/skills/adult-income-loop; T=../tasks/01_adult_income; R='{"model":"hgb","hyper":0.1,"scale":"yes","encode":"onehot","class_weight":"none"}'
+python runs/adult-income-loop/helpers/score_test.py $P $T --arm control --recipe "$R" 2>/dev/null
+python runs/adult-income-loop/helpers/save_model.py $P $T --arm control --recipe "$R" 2>/dev/null
+python runs/adult-income-loop/helpers/scorecard.py $P $T --arm control
+{"test_score": 0.9049, "test_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "test_scored": 1}
+{"saved": "runs/adult-income-loop/adult_income/control/model.pkl", "recipe": {...}, "val_score": 0.9177}
+{"problem": "adult_income", "arm": "control", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 16, "best_val_score": 0.9177, "best_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "test_score": 0.9049, "test_scored_once": true, "test_touched_before_freeze": false, "cards_active": 0, "cards_added": 0, "cards_demoted": 0}
+agent> Quick verification of the invariants (line count of the log without reading its contents, state, pack unchanged) and a check that the guards refuse a second score_test:
+$ D=runs/adult-income-loop/adult_income/control; wc -l < $D/loop.log; grep -c '"t":' $D/traces.jsonl; grep -o '"event": "[A-Za-z_]*"' $D/traces.jsonl | tr '\n' ' '; echo; grep '"frozen"' $D/state.json; echo "--- 2nd score_test:"; python runs/adult-income-loop/helpers/score_test.py ... ; echo "--- 25th fit:"; python runs/adult-income-loop/helpers/fit_recipe.py ... --recipes '[{"model":"logreg","hyper":4,...}]'; git status --short .claude/skills/adult-income-loop .agents/skills/adult-income-loop
+24
+24
+"event": "open" "event": "FREEZE" "event": "score_test" "event": "scorecard"
+ "frozen": true,
+--- 2nd score_test:
+{"error": "scored once already"}
+--- 25th fit:
+{"error": "budget: 24 fits used"}
+agent> Done. Loop harness run on ../tasks/01_adult_income, arm control, seed 0, memory off.
+- N = 24 - fits_used reached 24 in state.json, "frozen": true, FREEZE event in the trace.
+- Best val_score: 0.9177 - hgb / lr 0.1 / scale yes / onehot / class_weight none (t=17; t=21 ties it with scale no, which is a no-op for trees).
+- Test score: 0.9049 - scored once, after FREEZE, with that recipe.
+- Loop-log lines: 24 (runs/adult-income-loop/adult_income/control/loop.log, counted with wc -l, never read back).
+Guards checked: a second score_test -> {"error": "scored once already"}; a 25th fit -> {"error": "budget: 24 fits used"}; both pack mirrors unchanged by the run.
+[30 turns, 386 s]
+```
+
+What to notice: the agent built seven small files this time (one per tool
+plus `common.py`) where lesson 01's agent built one module - the contract
+fixes names and behaviour, not layout. It ran the loop as the file declares
+it, four calls of six with the audit log after each, and counted the log's
+lines with `wc -l` rather than reading it, because `loop.json` says reading
+it back is illegal. Unasked, it then tried the two refusals - a second
+`score_test`, a 25th fit - and got the contract's answers from its own
+helper. The numbers are lesson 01's (same helper contract, same split): the
+loop file changed nothing about the fits, which is the point.
 
 Files:
 

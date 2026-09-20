@@ -1,146 +1,252 @@
-"""Lesson 13 - Recuris: a skill card is selected by the working-memory need, not by recency; an update is
-localised to one card file (plus a manifest line for a new card) and validated against the log before it lands;
-one update per visit; the horizon report shows each card's gain per sequence length; the actor cannot update
-and the meta pack cannot fit.
+"""Lesson 13 - Recuris: the memory as a skill package (manifest + markdown cards) and a working memory; cards selected by\nneed, not recency; one localised, validated card update per problem; the gain reported by horizon.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
-import sys
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
-
-from _lib import memory, packs, recipe, tasks, testing  # noqa: E402
-
-ACTOR, META = "adult-income-skills", "skill-memory-meta"
-
-
-def setup(tmp_path):
-    actor, meta = testing.workspace(HERE, tmp_path, ACTOR, META)
-    d = tmp_path / "tasks"
-    d.mkdir()
-    curriculum, _ = tasks.test_curriculum()
-    paths = []
-    for t in curriculum:
-        p = d / f"{t['index']:02d}_{t['name']}.json"
-        p.write_text(json.dumps(t), encoding="utf-8")
-        paths.append(p)
-    return actor, meta, paths
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['adult-income-skills', 'skill-memory-meta', 'adult-income-curriculum']
+INTENTS = ['../tasks/01_adult_income/intent.md', '../tasks/02_breast_cancer/intent.md', '../tasks/03_wine/intent.md', '../tasks/04_digits/intent.md', '../tasks/05_synth_shift_a/intent.md', '../tasks/06_synth_shift_b/intent.md', '../tasks/07_exam/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+RUNTIME_FILES = {"state.json", "traces.jsonl", "scorecard.json", "loop.log", "model.pkl", "curve.json", "exam.json", "score.json",
+                 "plan.json", "working.md"}
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
-def play_actor(actor, task_path, seed=0):
-    """The actor skill: tags, need, then obey-memory with the selected cards' preferences."""
-    from _lib import policies
-    from _lib.state import Run
-
-    argv = ["--pack", str(actor), "--task", str(task_path), "--seed", str(seed)]
-    testing.tool("load_splits", *argv)
-    tags = testing.tool("skill_memory", *argv, "--action", "tags")["need"]
-    need = testing.tool("skill_memory", *argv, "--action", "need", "--need", ",".join(tags))
-    # the preferences as cards, so the same policy code ranks the grid
-    profile = tasks.profile(tasks.load_task(task_path))
-    cards = [{"if": {"key": "n_rows", "op": ">", "value": 0}, "then": {"field": f, "prefer": v}, "evidence": 1, "counter": 0} for f, v in need["prefer"].items()]
-    schema = json.loads((Path(actor) / "schema.json").read_text(encoding="utf-8"))
-    fits, tried = [], []
-    while True:
-        order = policies.policy_order("obey-memory" if cards else "static", schema["recipes"], cards, profile, fits, seed=seed)
-        todo = [x for x in order if x not in tried][:8]
-        out = testing.tool("fit_recipe", *argv, "--recipes", json.dumps(todo))
-        for res in out["results"]:
-            tried.append(res["recipe"])
-            if not res.get("refused"):
-                fits.append(({"recipe": res["recipe"]}, {"n": res["n"], "val_score": res["val_score"]}))
-        if out.get("FREEZE"):
-            break
-    best = max((f for f in fits if f[1]["val_score"] is not None), key=lambda f: f[1]["val_score"])[0]["recipe"]
-    testing.tool("score_test", *argv, "--recipe", json.dumps(best))
-    return need, testing.tool("scorecard", *argv)
+# ---------------------------------------------------------------- reading packs
 
 
-def play_meta(meta, actor, task_path, visit, seed=0):
-    """The meta skill: the first field whose winning value the situation's card does not hold."""
-    argv = ["--pack", str(actor), "--task", str(task_path), "--seed", str(seed)]
-    rows = testing.tool("read_traces", *argv, "--scope", "problem", "--tally")
-    tags = testing.tool("skill_memory", *argv, "--action", "tags")["need"]
-    cards = testing.tool("skill_memory", *argv, "--action", "list")["cards"]
-    wins = {(w["field"], w["value"]): w["n"] for w in rows["tally"]["wins"]}
-    losses = {(l["field"], l["value"]): l["n"] for l in rows["tally"]["losses"]}
-    for field in ("model", "class_weight", "encode", "scale"):
-        values = {v for f, v in list(wins) + list(losses) if f == field}
-        if not values:
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
+
+
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    m = re.search(rf"^## {re.escape(name)}\s*$", body, re.M)
+    if not m:
+        return ""
+    rest = body[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return rest[: nxt.start()] if nxt else rest
+
+
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
+
+
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
+
+
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
             continue
-        best = max(sorted(values, key=str), key=lambda v: wins.get((field, v), 0) - losses.get((field, v), 0))
-        if wins.get((field, best), 0) - losses.get((field, best), 0) <= 0:
+        if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
             continue
-        held = [c for c in cards if set(c.get("when", [])) <= set(tags) and c["then"].split("=")[0] == field]
-        if held and held[0]["then"] == f"{field}={best}":
-            continue
-        name = held[0]["name"] if held else f"{best}-for-{tags[0] if tags else 'any'}"
-        return testing.tool("skill_memory", *argv, "--action", "update", "--as", str(meta), "--card", name, "--then", f"{field}={best}",
-                            "--when", ",".join(tags), "--body", f"{field}={best} won on {rows['n']} fits", "--visit", str(visit))
-    return None
+        candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
+                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name),
+                      *(p for p in HERE.glob(f"*/*/{Path(name).name}") if "runs" not in p.parts)]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
 
 
-def test_card_selected_by_need_not_recency(tmp_path):
-    actor, meta, paths = setup(tmp_path)
-    # a newer card for a situation this problem is NOT in must not be selected
-    (actor / "skill-memory" / "cards" / "rf-for-multiclass.md").write_text(
-        "---\nname: rf-for-multiclass\nwhen: [multiclass]\nthen: model=rf\nvalidated: true\nhorizon: 1\n---\nnewest card, wrong situation\n", encoding="utf-8")
-    m = actor / "skill-memory" / "manifest.yaml"
-    m.write_text(m.read_text(encoding="utf-8") + "- name: rf-for-multiclass\n  file: cards/rf-for-multiclass.md\n", encoding="utf-8")
-    argv = ["--pack", str(actor), "--task", str(paths[0])]
-    testing.tool("load_splits", *argv)
-    tags = testing.tool("skill_memory", *argv, "--action", "tags")["need"]
-    assert "categorical" in tags and "multiclass" not in tags
-    need = testing.tool("skill_memory", *argv, "--action", "need", "--need", ",".join(tags))
-    assert [c["name"] for c in need["cards"]] == ["onehot-for-categorical"] and need["prefer"] == {"encode": "onehot"}
-    assert "Cards: onehot-for-categorical" in (actor / "working.md").read_text(encoding="utf-8")
-    multi = testing.tool("skill_memory", "--pack", actor, "--task", paths[2], "--action", "need", "--need", "multiclass")
-    assert [c["name"] for c in multi["cards"]] == ["rf-for-multiclass"]
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
 
 
-def test_update_is_localised_validated_and_once_per_visit(tmp_path):
-    actor, meta, paths = setup(tmp_path)
-    play_actor(actor, paths[0])
-    before = packs.checksums(actor)
-    # not validated: a value that lost its comparisons does not land
-    bad = testing.tool("skill_memory", "--pack", actor, "--task", paths[0], "--action", "update", "--as", meta, "--card", "ordinal-for-categorical",
-                       "--then", "encode=ordinal", "--when", "categorical", "--body", "x", "--visit", "1")
-    assert "not validated" in bad["error"] and packs.checksums(actor) == before
-    out = play_meta(meta, actor, paths[0], visit=1)
-    assert out and out["version"] == "gen_001" and out["horizon"] >= 1
-    after = packs.checksums(actor)
-    changed = {k for k in set(before) | set(after) if before.get(k) != after.get(k)}
-    assert changed <= {out["file"], "skill-memory/manifest.yaml", "working.md"} and out["file"] in changed
-    again = testing.tool("skill_memory", "--pack", actor, "--task", paths[0], "--action", "update", "--as", meta, "--card", "x", "--then", out["file"] and "model=hgb",
-                         "--when", "categorical", "--body", "x", "--visit", "1")
-    assert "one card update per visit" in again["error"] or "not validated" in again["error"]
-    assert "the meta pack updates cards" in testing.tool("skill_memory", "--pack", actor, "--task", paths[0], "--action", "update", "--as", actor,
-                                                                   "--card", "x", "--then", "model=hgb", "--when", "small", "--body", "x", "--visit", "2")["error"]
-    assert "not in skill-memory-meta's tools.md" in testing.tool("fit_recipe", "--pack", meta, "--task", paths[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
 
 
-def test_horizon_report_over_the_curriculum(tmp_path):
-    actor, meta, paths = setup(tmp_path)
-    gains = []
-    for i, p in enumerate(paths, 1):
-        control = testing.play_arm(actor, p, arm="control", memory_off=True)
-        need, card = play_actor(actor, p)
-        gains.append(round(card["best_val_score"] - control["best_val_score"], 4))
-        play_meta(meta, actor, p, visit=i)
-    cards = testing.tool("skill_memory", "--pack", actor, "--task", paths[-1], "--action", "list")["cards"]
-    horizons = {c["name"]: c["horizon"] for c in cards}
-    assert max(horizons.values()) >= 2 and len(cards) >= 2
-    assert all(g >= 0 for g in gains), gains
-    curve = testing.tool("curve", "--pack", actor, "--tasks", tmp_path / "tasks")
-    assert curve["summary"]["complete"] == 6
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+TASKS = ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b"]
+PACK = SKILLS / "adult-income-skills"
+
+
+def test_memory_is_a_skill_package():
+    manifest = yaml.safe_load((PACK / "skill-memory" / "manifest.yaml").read_text(encoding="utf-8"))
+    assert manifest["cards"] == [{"name": "onehot-for-categorical", "file": "cards/onehot-for-categorical.md"}]
+    meta, body = front_matter((PACK / "skill-memory" / "cards" / "onehot-for-categorical.md").read_text(encoding="utf-8"))
+    assert meta == {"name": "onehot-for-categorical", "when": ["categorical"], "then": "encode=onehot", "validated": True, "horizon": 1}
+    assert (PACK / "working.md").read_text(encoding="utf-8").startswith("# Working memory")
+
+
+def test_cards_are_selected_by_need_not_recency():
+    body = skill("adult-income-skills")[1]
+    assert "by the situation, never by which card is newest" in body and "`small`" in body and "`multiclass`" in body
+    tools = (PACK / "tools.md").read_text(encoding="utf-8")
+    assert "select every validated card whose `when` tags all hold for the need" in tools
+
+
+def test_one_localised_validated_update_per_visit():
+    body = skill("skill-memory-meta")[1]
+    assert "One update per visit" in body and "localised to one card file" in body
+    tools = (SKILLS / "skill-memory-meta" / "tools.md").read_text(encoding="utf-8")
+    assert "refuse a `then` that did not win its comparisons on this problem" in tools and "refuse a second update in the same visit" in tools
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
+
+
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
+
+
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to a pristine copy under the system temp
+    directory (outside the agent's view), afterwards restore them from there; runs/ is cleared. The README says how to
+    reset by hand."""
+    pristine = Path(tempfile.gettempdir()) / "rsi_pristine" / HERE.name
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    if RUNS.exists():
+        shutil.rmtree(RUNS)
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
+
+
+def claude(prompt, cont=False, timeout=9000):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [o for o in (json.loads(l) for l in proc.stdout.splitlines() if l.startswith("{")) if o.get("type") == "result"]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
 
 
 def test_live_claude_code():
-    text = testing.live(HERE, timeout=3600)
-    assert "horizon" in text.lower()
+    """The recorded run: every memory arm rewrote working.md with its need and selected cards; the meta pack landed at most one
+    card update per problem, each snapshotted, with a horizon; the exam over five seeds changed no card."""
+    live_or_skip()
+    reset()
+    text = claude(readme_prompt())
+    for task in TASKS:
+        for arm in ("control", "memory"):
+            s = state("adult-income-skills", task, arm)
+            assert s["frozen"] is True and s["test_scored"] == 1, (task, arm)
+    working = (PACK / "working.md").read_text(encoding="utf-8")
+    assert "Need:" in working and "Cards:" in working
+    manifest = yaml.safe_load((PACK / "skill-memory" / "manifest.yaml").read_text(encoding="utf-8"))
+    cards = [front_matter((PACK / "skill-memory" / c["file"]).read_text(encoding="utf-8"))[0] for c in manifest["cards"]]
+    assert all(c["validated"] is True and c["horizon"] >= 1 for c in cards)
+    versions = sorted(p.name for p in (RUNS / "adult-income-skills" / "versions").iterdir()) if (RUNS / "adult-income-skills" / "versions").exists() else []
+    updates = [r for t in TASKS if (RUNS / "skill-memory-meta" / t / "traces.jsonl").exists()
+               for r in rows(RUNS / "skill-memory-meta" / t / "traces.jsonl") if r.get("event") in ("skill_memory", "update")]
+    assert len(updates) <= 6 and len(versions) == len(updates)
+    exam = json.loads((RUNS / "adult-income-skills" / "exam.json").read_text(encoding="utf-8"))
+    assert exam["pack_unchanged"] is True and exam["no_card_written"] is True
+    assert tree(SKILLS) == tree(MIRROR)

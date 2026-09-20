@@ -15,5 +15,5 @@ Improve: expand the best solution - fit its untried neighbours, one field away, 
 Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed.
 
 ## review
-Review: the score of a solution is the `val_score` of its fit result, nothing else. A score at or above 0.999, or one that jumps more than 0.2 above the previous best in one fit, is suspicious - `fit_recipe.py` marks it `suspicious: true` - and is fitted again before it is believed (it costs a fit). A statistical layer at the outer loop discards outlier successes.
+Review: the score of a solution is the `val_score` of its fit result, nothing else. A score at or above 0.999, or one that jumps more than 0.2 above the previous best in one fit, is suspicious - `fit_recipe` marks it `suspicious: true` - and is fitted again before it is believed (it costs a fit). A statistical layer at the outer loop discards outlier successes.
 Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed.

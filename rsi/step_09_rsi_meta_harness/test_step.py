@@ -1,141 +1,277 @@
-"""Lesson 09 - the RSI meta harness: generation n+1 boots the files generation n wrote (checksums in the trace);
-under approval: human no patch lands without the user's yes and an edit lands the user's version; under
-approval: gate a patch whose evidence recipe scores lower on the private split is rejected and versions/
-restores the previous pack byte for byte; META_OFF leaves the pack byte-identical; the meta pack cannot score
-the test; one proposal per visit; the size cap; the curriculum with the gate improves the actor's policy line
-and the curve stays non-negative.
+"""Lesson 09 - the RSI meta harness: a pack that patches the pack, one change per visit, under the human and then under\nthe private gate; versions and rollback; generation n+1 boots what generation n wrote.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
-import sys
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
-
-from _lib import packs, recipe, tasks, testing  # noqa: E402
-
-ACTOR, VERIFIER, META, GATE = "adult-income", "adult-income-verifier", "adult-income-meta", "adult-income-meta-gate"
-
-
-def synthetic_tasks(tmp_path):
-    d = tmp_path / "tasks"
-    d.mkdir(exist_ok=True)
-    curriculum, exam = tasks.test_curriculum()
-    paths = []
-    for t in curriculum:
-        p = d / f"{t['index']:02d}_{t['name']}.json"
-        p.write_text(json.dumps(t), encoding="utf-8")
-        paths.append(p)
-    return paths
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['adult-income', 'adult-income-verifier', 'adult-income-meta', 'adult-income-meta-gate', 'adult-income-curriculum']
+INTENTS = ['../tasks/01_adult_income/intent.md', '../tasks/07_exam/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+RUNTIME_FILES = {"state.json", "traces.jsonl", "scorecard.json", "loop.log", "model.pkl", "curve.json", "exam.json", "score.json",
+                 "plan.json", "working.md"}
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
-def problem_one(tmp_path):
-    """Both arms and the verifier on problem 1: the state every meta test starts from."""
-    actor, verifier, meta, gate = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER, META, GATE)
-    paths = synthetic_tasks(tmp_path)
-    testing.play_arm(actor, paths[0], arm="control", memory_off=True)
-    testing.play_arm(actor, paths[0])
-    testing.play_verifier(actor, paths[0], verifier)
-    return actor, verifier, meta, gate, paths
+# ---------------------------------------------------------------- reading packs
 
 
-def boot_checksums(tmp_path, problem, arm="memory"):
-    rows = [json.loads(l) for l in (tmp_path / "runs" / ACTOR / problem / "traces.jsonl").read_text(encoding="utf-8").splitlines()]
-    return next(r["info"]["checksums"] for r in rows if r["event"] == "boot" and r["arm"] == arm)
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
 
 
-def test_human_no_lands_nothing_yes_lands_and_the_next_generation_boots_it(tmp_path):
-    actor, verifier, meta, gate, paths = problem_one(tmp_path)
-    before = packs.checksums(actor)
-    assert "Search policy: static" in packs.read_pack(actor)["SKILL.md"]
-    proposal, files = testing.play_meta(meta, actor, paths[0], visit=1)          # the agent stops and asks
-    assert proposal["landed"] is False and proposal["decision"] is None and "SKILL.md" in files and "obey-memory" in proposal["diff"]
-    assert packs.checksums(actor) == before
-    no = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--proposal", proposal["id"], "--approved", "no")
-    assert no["decision"] == "n" and no["landed"] is False and packs.checksums(actor) == before
-    # a fresh visit, then the yes
-    proposal, files = testing.play_meta(meta, actor, paths[0], visit=2)
-    yes = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--proposal", proposal["id"], "--approved", "yes")
-    assert yes["landed"] and yes["approved_by"] == "human" and yes["version"] == "gen_001" and yes["files"] == ["SKILL.md"]
-    assert "Search policy: obey-memory" in packs.read_pack(actor)["SKILL.md"]
-    assert (tmp_path / "runs" / ACTOR / "versions" / "gen_001" / "SKILL.md").read_text(encoding="utf-8") == packs.read_pack(actor)["SKILL.md"].replace("obey-memory", "static", 1)
-    # generation 2 boots what generation 1 wrote: the boot row's checksums are the patched pack's
-    testing.play_arm(actor, paths[1])
-    assert boot_checksums(tmp_path, tasks.load_task(paths[1])["name"]) == packs.checksums(actor) == yes["checksums"] if "checksums" in yes else True
-    assert boot_checksums(tmp_path, tasks.load_task(paths[1])["name"])["SKILL.md"] == packs.checksums(actor)["SKILL.md"]
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    m = re.search(rf"^## {re.escape(name)}\s*$", body, re.M)
+    if not m:
+        return ""
+    rest = body[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return rest[: nxt.start()] if nxt else rest
 
 
-def test_human_edit_lands_the_users_version(tmp_path):
-    actor, verifier, meta, gate, paths = problem_one(tmp_path)
-    proposal, files = testing.play_meta(meta, actor, paths[0], visit=1)
-    theirs = {"SKILL.md": files["SKILL.md"].replace("Search policy: obey-memory", "Search policy: obey-memory\n   (the human turned this on by hand)")}
-    out = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--proposal", proposal["id"], "--approved", "edit",
-                       "--edited", json.dumps({n: {"after": t} for n, t in theirs.items()}))
-    assert out["landed"] and out["decision"] == "edit"
-    assert "(the human turned this on by hand)" in packs.read_pack(actor)["SKILL.md"]
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
 
 
-def test_gate_keeps_a_good_patch_and_rolls_back_a_bad_one(tmp_path):
-    actor, verifier, meta, gate, paths = problem_one(tmp_path)
-    before = packs.checksums(actor)
-    kept, files = testing.play_meta(gate, actor, paths[0], visit=1)
-    assert kept["landed"] and kept["approved_by"] == "gate" and kept["gate"]["keep"] and kept["version"] == "gen_001"
-    assert "Search policy: obey-memory" in packs.read_pack(actor)["SKILL.md"]
-    # a patch that raises val on paper but whose evidence recipe scores lower on the private split: rejected, rolled back
-    now = packs.checksums(actor)
-    worse = {"model": "logreg", "hyper": 0.25, "scale": "no", "encode": "ordinal", "class_weight": "balanced"}
-    files = {"memory.json": json.dumps([{"if": {"key": "n_rows", "op": "<", "value": 1000}, "then": {"field": "model", "prefer": "logreg"}, "evidence": 5, "counter": 0}], indent=1)}
-    out = testing.tool("patch_pack", "--pack", gate, "--task", paths[0], "--target", actor, "--files", json.dumps({n: {"after": t} for n, t in files.items()}),
-                       "--recipe", json.dumps(worse), "--summary", "a bad idea", "--visit", "2")
-    assert out["decision"] == "n" and out["approved_by"] == "gate" and out["gate"]["after"] < out["gate"]["before"] and out["landed"] is False
-    assert out["rolled_back_to"] == "gen_002" and packs.checksums(actor) == now != before
-    trace = [json.loads(l) for l in (tmp_path / "runs" / GATE / tasks.load_task(paths[0])["name"] / "traces.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert [r["event"] for r in trace][-3:] == ["gate", "rollback", "gate"] or "rollback" in [r["event"] for r in trace]
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
 
 
-def test_meta_off_one_per_visit_size_cap_and_no_score_test(tmp_path):
-    actor, verifier, meta, gate, paths = problem_one(tmp_path)
-    before = packs.checksums(actor)
-    (meta / "config.json").write_text('{"meta": "off"}', encoding="utf-8")
-    off, _ = testing.play_meta(meta, actor, paths[0], visit=1)
-    assert off["meta_off"] and off["landed"] is False and packs.checksums(actor) == before
-    (meta / "config.json").unlink()
-    testing.play_meta(meta, actor, paths[0], visit=1)
-    second = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--files", json.dumps({"memory.json": {"after": "[]"}}),
-                          "--recipe", json.dumps(recipe.BASELINE), "--summary", "again", "--visit", "1")
-    assert "one proposal per visit" in second["error"]
-    big = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--files", json.dumps({"SKILL.md": {"after": "# gone\nafter FREEZE\n"}}),
-                       "--recipe", json.dumps(recipe.BASELINE), "--summary", "rewrite", "--visit", "3")
-    assert "more than 20 %" in big["error"]
-    no_rule = testing.tool("patch_pack", "--pack", meta, "--task", paths[0], "--target", actor, "--files", json.dumps({"SKILL.md": {"after": packs.read_pack(actor)["SKILL.md"].replace("after FREEZE", "whenever")}}),
-                           "--recipe", json.dumps(recipe.BASELINE), "--summary", "loosen", "--visit", "4")
-    assert "may not remove the test rule" in no_rule["error"]
-    assert "not in adult-income-meta's tools.md" in testing.tool("score_test", "--pack", meta, "--task", paths[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
-    assert "not in adult-income-meta's tools.md" in testing.tool("fit_recipe", "--pack", meta, "--task", paths[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
 
 
-def test_curriculum_under_the_gate_improves_the_policy_line(tmp_path):
-    actor, verifier, meta, gate = testing.workspace(HERE, tmp_path, ACTOR, VERIFIER, META, GATE)
-    paths = synthetic_tasks(tmp_path)
-    decisions = []
-    for i, p in enumerate(paths, 1):
-        testing.play_arm(actor, p, arm="control", memory_off=True)
-        testing.play_arm(actor, p)
-        testing.play_verifier(actor, p, verifier)
-        out, files = testing.play_meta(gate, actor, p, visit=i)
-        decisions.append(None if out is None else (out.get("decision"), out.get("version"), sorted(files)))
-    curve = testing.tool("curve", "--pack", actor, "--tasks", tmp_path / "tasks")
-    assert decisions[0] == ("y", "gen_001", ["SKILL.md"])
-    assert "Search policy: obey-memory" in packs.read_pack(actor)["SKILL.md"]
-    assert all(r["gap_val"] >= 0 for r in curve["curve"])
-    assert testing.tool("read_pack", "--pack", actor)["versions"][0] == "gen_001"
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
+            continue
+        if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
+            continue
+        candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
+                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name)]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
+
+
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
+
+
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
+
+
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+TASKS = ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b"]
+
+
+def test_actor_ships_static_with_one_patchable_line():
+    body = skill("adult-income")[1]
+    assert body.count("Search policy: static") == 1 and "the one line of this file a meta pack may patch" in body
+    assert "`obey-memory`:" in body and "runs/adult-income/versions/" in body
+
+
+def test_two_meta_packs_differ_only_in_who_decides():
+    human, gate = skill("adult-income-meta"), skill("adult-income-meta-gate")
+    assert human[0]["metadata"]["approval"] == "human" and gate[0]["metadata"]["approval"] == "gate"
+    assert human[0]["metadata"]["patches"] == gate[0]["metadata"]["patches"] == ["SKILL.md", "schema.json", "memory.json"]
+    rule = lambda body: section(body, "Procedure").split("2. Decide")[1].split("3. Write")[0]
+    assert rule(human[1]) == rule(gate[1])
+    assert "approve / edit / reject" in human[1] and "`apply" in human[1] and "`gate" not in section(human[1], "Procedure")
+    assert "Nobody is asked" in gate[1] and "`gate" in gate[1] and "`apply" not in section(gate[1], "Procedure")
+    for pack in ("adult-income-meta", "adult-income-meta-gate"):
+        meta = front_matter((SKILLS / pack / "config.md").read_text(encoding="utf-8"))[0]
+        assert meta == {"meta": "on"}
+
+
+def test_the_rule_is_one_change_per_visit_under_a_cap():
+    for pack in ("adult-income-meta", "adult-income-meta-gate"):
+        body = skill(pack)[1]
+        assert "Decide ONE change, the first that applies" in body and "at most 20 %" in body and "never removes the test rule" in body
+        assert "One proposal per visit" in body
+
+
+def test_curriculum_reboots_the_patched_actor():
+    body = skill("adult-income-curriculum")[1]
+    assert "Re-read `P/SKILL.md` before every memory arm" in body and "Meta visit" in body and "versions" in body
+
+
+def test_gate_contract_uses_the_private_split_only():
+    tools = (SKILLS / "adult-income-meta-gate" / "tools.md").read_text(encoding="utf-8")
+    assert "keep the patch only if the evidence recipe did not score lower, else restore the snapshot" in tools
+    assert "refuse for an actor pack" in tools and "Nobody is asked" in tools
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
+
+
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
+
+
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to a pristine copy under the system temp
+    directory (outside the agent's view), afterwards restore them from there; runs/ is cleared. The README says how to
+    reset by hand."""
+    pristine = Path(tempfile.gettempdir()) / "rsi_pristine" / HERE.name
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    if RUNS.exists():
+        shutil.rmtree(RUNS)
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
+
+
+def claude(prompt, cont=False, timeout=9000):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [o for o in (json.loads(l) for l in proc.stdout.splitlines() if l.startswith("{")) if o.get("type") == "result"]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
 
 
 def test_live_claude_code():
-    text = testing.live(HERE, timeout=3600)
-    assert "gen_001" in text
+    """Two recordings. The gate curriculum: six problems, a meta visit after each, versions on disk, gate events with a decision,
+    the curve and the exam. The human visit: problem 1 alone, then a proposal that lands only on `approve`."""
+    live_or_skip()
+    reset()
+    text = claude(readme_prompt())
+    for task in TASKS:
+        for arm in ("control", "memory"):
+            s = state("adult-income", task, arm)
+            assert s["frozen"] is True and s["test_scored"] == 1, (task, arm)
+    versions = sorted(p.name for p in (RUNS / "adult-income" / "versions").iterdir())
+    assert versions and all(re.match(r"gen_\d{3}$", v) for v in versions)
+    gate_events = [r for t in TASKS if (RUNS / "adult-income-meta-gate" / t / "traces.jsonl").exists()
+                   for r in rows(RUNS / "adult-income-meta-gate" / t / "traces.jsonl") if r.get("event") == "gate"]
+    assert gate_events and all(e["keep"] in (True, False) for e in gate_events)
+    assert (RUNS / "adult-income" / "curve.json").exists() and (RUNS / "adult-income" / "exam.json").exists()
+    exam = json.loads((RUNS / "adult-income" / "exam.json").read_text(encoding="utf-8"))
+    assert exam["pack_unchanged"] is True and exam["no_card_written"] is True
+    assert "Search policy: obey-memory" in (SKILLS / "adult-income" / "SKILL.md").read_text(encoding="utf-8") or len(gate_events) >= 1
+    assert tree(SKILLS) == tree(MIRROR)
+    # the human visit, on a fresh pack
+    reset()
+    prompt = re.findall(r"```text\n(.*?)```", (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1], re.S)[1].strip()
+    text = claude(prompt)
+    proposals = RUNS / "adult-income-meta" / "adult_income" / "proposals"
+    assert (proposals / "p001.json").exists() and not (proposals / "p001.approved").exists() and "approve" in text.lower()
+    before = (RUNS / "adult-income" / "versions").exists()
+    assert not before or not list((RUNS / "adult-income" / "versions").iterdir())
+    claude("approve", cont=True)
+    assert (proposals / "p001.approved").read_text(encoding="utf-8").strip() == "approve"
+    assert (RUNS / "adult-income" / "versions" / "gen_001").exists()
+    events = [r for r in rows(RUNS / "adult-income-meta" / "adult_income" / "traces.jsonl") if r.get("event") == "apply"]
+    assert events and events[-1]["approved"] == "approve"
+    assert tree(SKILLS) == tree(MIRROR)

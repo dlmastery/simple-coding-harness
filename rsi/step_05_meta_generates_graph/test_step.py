@@ -12,6 +12,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 
@@ -101,7 +102,7 @@ def test_procedure_names_existing_files(pack):
         if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
             continue
         candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
-                      *(other / name for other in SKILLS.iterdir())]
+                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name)]
         assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
 
 
@@ -226,16 +227,16 @@ def readme_prompt():
 
 
 def reset():
-    """Start from the shipped packs: on the first live run copy both mirrors to runs/_pristine, afterwards restore them
-    from there; everything else under runs/ is cleared. The README says how to reset by hand."""
-    pristine = RUNS / "_pristine"
+    """Start from the shipped packs: on the first live run copy both mirrors to a pristine copy under the system temp
+    directory (outside the agent's view), afterwards restore them from there; runs/ is cleared. The README says how to
+    reset by hand."""
+    pristine = Path(tempfile.gettempdir()) / "rsi_pristine" / HERE.name
     if not pristine.exists():
         pristine.mkdir(parents=True)
         shutil.copytree(SKILLS, pristine / ".claude")
         shutil.copytree(MIRROR, pristine / ".agents")
-    for child in RUNS.iterdir():
-        if child.name != "_pristine":
-            shutil.rmtree(child) if child.is_dir() else child.unlink()
+    if RUNS.exists():
+        shutil.rmtree(RUNS)
     for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
         shutil.rmtree(root)
         shutil.copytree(pristine / src, root)

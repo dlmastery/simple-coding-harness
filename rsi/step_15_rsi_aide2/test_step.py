@@ -1,121 +1,251 @@
-"""Lesson 15 - AIDE2: the outer loop's keep-if-better is evaluated across every problem of the curriculum under one
-metered budget (asserted from the trace: both arms spent the same fits on every problem); a rewrite that wins on
-one problem and loses on the set is rejected and rolled back; the three guards are present in every operator
-(lint refuses one without the anti-overfitting line); a suspicious score is flagged and re-run; the outer loop
-may rewrite operators.md only.
+"""Lesson 15 - AIDE2: a tree-search inner agent with guarded operators; the outer loop rewrites operators.md and keeps the\nrewrite only if it beats the previous version across the whole curriculum under one metered budget.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
-import sys
+import os
+import re
+import shutil
+import subprocess
+import tempfile
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
-
-from _lib import packs, recipe, tasks, testing  # noqa: E402
-
-INNER, VERIFIER, OUTER = "adult-income-aide", "adult-income-verifier", "aide-outer"
-TOP3 = "Improve: expand the top three solutions - fit their untried neighbours, one field away, nearest first."
-
-
-def setup(tmp_path):
-    inner, verifier, outer = testing.workspace(HERE, tmp_path, INNER, VERIFIER, OUTER)
-    d = tmp_path / "tasks"
-    d.mkdir()
-    curriculum, _ = tasks.test_curriculum()
-    paths = []
-    for t in curriculum:
-        p = d / f"{t['index']:02d}_{t['name']}.json"
-        p.write_text(json.dumps(t), encoding="utf-8")
-        paths.append(p)
-    return inner, verifier, outer, paths
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['adult-income-aide', 'adult-income-verifier', 'aide-outer']
+INTENTS = ['../tasks/01_adult_income/intent.md', '../tasks/02_breast_cancer/intent.md', '../tasks/03_wine/intent.md', '../tasks/04_digits/intent.md', '../tasks/05_synth_shift_a/intent.md', '../tasks/06_synth_shift_b/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+RUNTIME_FILES = {"state.json", "traces.jsonl", "scorecard.json", "loop.log", "model.pkl", "curve.json", "exam.json", "score.json",
+                 "plan.json", "working.md"}
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
-def version(inner, verifier, paths, arm, policy):
-    for p in paths:
-        testing.play_arm(inner, p, arm=arm, policy=policy)
-        testing.play_verifier(inner, p, verifier, of=arm)
+# ---------------------------------------------------------------- reading packs
 
 
-def rewrite(outer, inner, task, text, visit=1):
-    files = packs.read_pack(inner)
-    new = files["operators.md"].replace("Improve: expand the best solution - fit its untried neighbours, one field away, nearest first.", text)
-    rows = testing.tool("read_traces", "--pack", inner, "--task", task, "--scope", "problem", "--of", "v1")["rows"]
-    evidence = max((r for r in rows if r["val_score"] is not None), key=lambda r: r["val_score"])["recipe"]
-    return testing.tool("patch_pack", "--pack", outer, "--task", task, "--target", inner, "--files", json.dumps({"operators.md": {"after": new}}),
-                        "--recipe", json.dumps(evidence), "--summary", "improve rewrite", "--visit", str(visit))
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
 
 
-def test_keep_if_better_across_the_set_under_one_budget(tmp_path):
-    inner, verifier, outer, paths = setup(tmp_path)
-    version(inner, verifier, paths, "v1", "aide-tree")
-    m1 = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--of", "v1")
-    assert m1["fits"] == 24 * len(paths) and "no token count" in m1["note"]
-    pending = rewrite(outer, inner, paths[0], TOP3)
-    assert pending["landed"] == "pending" and pending["version"] == "gen_001" and TOP3 in packs.read_pack(inner)["operators.md"]
-    early = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--decide", "--proposal", pending["id"], "--before", "v1", "--after", "v2", "--tasks", tmp_path / "tasks")
-    assert "has not run" in early["error"]                       # the rule needs every problem under the same budget
-    version(inner, verifier, paths, "v2", "aide-tree-top-3")
-    m2 = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--of", "v2")
-    assert m2["fits"] == m1["fits"]
-    decided = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--decide", "--proposal", pending["id"], "--before", "v1", "--after", "v2", "--tasks", tmp_path / "tasks")
-    assert set(decided["gains"]) == {tasks.load_task(p)["name"] for p in paths} and decided["budget"] == {"v1": 144, "v2": 144}
-    assert decided["decision"] in ("y", "n") and decided["keep"] == (decided["decision"] == "y")
-    if decided["keep"]:
-        assert TOP3 in packs.read_pack(inner)["operators.md"]
-    else:
-        assert TOP3 not in packs.read_pack(inner)["operators.md"]
-    again = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--decide", "--proposal", pending["id"], "--before", "v1", "--after", "v2", "--tasks", tmp_path / "tasks")
-    assert "already decided" in again["error"]
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    m = re.search(rf"^## {re.escape(name)}\s*$", body, re.M)
+    if not m:
+        return ""
+    rest = body[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return rest[: nxt.start()] if nxt else rest
 
 
-def test_a_rewrite_that_wins_on_one_problem_and_loses_on_the_set_is_rejected(tmp_path):
-    inner, verifier, outer, paths = setup(tmp_path)
-    version(inner, verifier, paths, "v1", "aide-tree")
-    pending = rewrite(outer, inner, paths[0], TOP3)
-    # v2 played with a worse policy everywhere but a lucky first problem: the static walk loses to the tree on most
-    version(inner, verifier, paths[:1], "v2", "aide-tree-top-3")
-    version(inner, verifier, paths[1:], "v2", "random")
-    decided = testing.tool("meter", "--pack", outer, "--task", paths[0], "--target", inner, "--decide", "--proposal", pending["id"], "--before", "v1", "--after", "v2", "--tasks", tmp_path / "tasks")
-    assert decided["keep"] is False and decided["losses"] > decided["wins"] or decided["total_gain"] <= 0, decided
-    assert TOP3 not in packs.read_pack(inner)["operators.md"] and packs.read_pack(inner)["operators.md"] == packs.read_pack(tmp_path / "runs" / INNER / "versions" / "gen_001")["operators.md"]
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
 
 
-def test_guards_in_every_operator_and_only_operators_may_change(tmp_path):
-    inner, verifier, outer, paths = setup(tmp_path)
-    files = packs.read_pack(inner)
-    for section in files["operators.md"].split("\n## ")[1:]:
-        assert packs.ANTI_OVERFIT in section
-    stripped = files["operators.md"].replace(packs.ANTI_OVERFIT, "", 1)
-    out = testing.tool("lint_pack", "--files", json.dumps(dict(files, **{"operators.md": stripped})), "--task", paths[0])
-    assert any("lacks the anti-overfitting line" in p for p in out["problems"])
-    testing.play_arm(inner, paths[0], arm="v1", policy="aide-tree")
-    other = testing.tool("patch_pack", "--pack", outer, "--task", paths[0], "--target", inner, "--files", json.dumps({"SKILL.md": {"after": files["SKILL.md"] + "\n"}}),
-                         "--recipe", json.dumps(recipe.BASELINE), "--summary", "no", "--visit", "1")
-    assert "may patch ['operators.md'] only" in other["error"]
-    assert "not in aide-outer's tools.md" in testing.tool("fit_recipe", "--pack", outer, "--task", paths[0], "--recipe", json.dumps(recipe.BASELINE))["error"]
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
 
 
-def test_suspicious_score_is_flagged_and_rerun(tmp_path):
-    inner, verifier, outer, paths = setup(tmp_path)
-    # a noiseless linear table: the baseline scores 0.9998, at or above the 0.999 bar, so it is flagged
-    saturated = tmp_path / "tasks" / "99_saturated.json"
-    saturated.write_text(json.dumps(tasks.synth_task("saturated", 9, n=2000, seed=5, shift=1, imbalance=0.4, noise=0.0)), encoding="utf-8")
-    argv = ["--pack", str(inner), "--task", str(saturated), "--arm", "v1"]
-    testing.tool("load_splits", *argv)
-    first = testing.tool("fit_recipe", *argv, "--recipe", json.dumps(recipe.BASELINE))
-    assert first["val_score"] >= 0.999 and first.get("suspicious") is True
-    rerun = testing.tool("fit_recipe", *argv, "--recipe", json.dumps(recipe.BASELINE))       # the review operator: fit it again
-    assert rerun["n"] == 2 and rerun["val_score"] == first["val_score"]
-    trace = [json.loads(l) for l in (tmp_path / "runs" / INNER / "saturated" / "traces.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert [r["info"]["suspicious"] for r in trace if r["event"] == "fit"][0] is True
-    saturated.unlink()
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
+            continue
+        if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
+            continue
+        candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
+                      *(other / name for other in SKILLS.iterdir()), *(SKILLS / pack).rglob(Path(name).name),
+                      *(p for p in HERE.glob(f"*/*/{Path(name).name}") if "runs" not in p.parts)]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
+
+
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
+
+
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
+
+
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+GUARD = "Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed."
+
+
+def test_every_operator_carries_the_guard():
+    text = (SKILLS / "adult-income-aide" / "operators.md").read_text(encoding="utf-8")
+    sections = [s for s in text.split("\n## ")[1:]]
+    assert [s.split("\n")[0] for s in sections] == ["draft", "debug", "improve", "review"]
+    assert all(GUARD in s for s in sections) and "expand the best solution" in text and "suspicious" in text
+
+
+def test_outer_loop_keeps_only_across_the_set_under_one_meter():
+    meta, body = skill("aide-outer")
+    assert meta["metadata"]["approval"] == "metered" and meta["metadata"]["patches"] == ["operators.md"]
+    assert "same curriculum, same order, same budget" in body and "3 MADs" in body and "loses on at most half the problems" in body
+    assert "there is no token count" in body
+    tools = (SKILLS / "aide-outer" / "tools.md").read_text(encoding="utf-8")
+    assert "refuse when the two versions did not spend the same fits" in tools
+
+
+def test_inner_agent_re_runs_a_suspicious_score():
+    body = skill("adult-income-aide")[1]
+    assert "`suspicious: true` is fitted again once before it is believed" in body and "Search policy: aide-tree" in body
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
+
+
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
+
+
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to a pristine copy under the system temp
+    directory (outside the agent's view), afterwards restore them from there; runs/ is cleared. The README says how to
+    reset by hand."""
+    pristine = Path(tempfile.gettempdir()) / "rsi_pristine" / HERE.name
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    if RUNS.exists():
+        shutil.rmtree(RUNS)
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
+
+
+def claude(prompt, cont=False, timeout=10800):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [o for o in (json.loads(l) for l in proc.stdout.splitlines() if l.startswith("{")) if o.get("type") == "result"]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
+
+
+TASKS = ["adult_income", "breast_cancer", "wine", "digits", "synth_shift_a", "synth_shift_b"]
 
 
 def test_live_claude_code():
-    text = testing.live(HERE, timeout=3600)
-    assert "keep" in text.lower()
+    """The recorded run: v1 on six problems, the rewrite landed pending, v2 on the same six with the same fits, the meter's
+    decision across the set with outliers discarded, operators.md kept or restored."""
+    live_or_skip()
+    reset()
+    text = claude(readme_prompt())
+    for task in TASKS:
+        for arm in ("v1", "v2"):
+            s = state("adult-income-aide", task, arm)
+            assert s["frozen"] is True and s["fits_used"] == 24 and s["test_scored"] == 1, (task, arm)
+    meter = [r for r in rows(RUNS / "aide-outer" / "adult_income" / "traces.jsonl") if r.get("event") == "meter" and "decision" in r]
+    assert meter and meter[-1]["decision"] in ("keep", "rollback")
+    operators = (SKILLS / "adult-income-aide" / "operators.md").read_text(encoding="utf-8")
+    assert operators.count("Guard: do not tune to the validation split") == 4
+    if meter[-1]["decision"] == "keep":
+        assert "top three" in operators
+    else:
+        assert "expand the best solution" in operators
+    assert list((RUNS / "adult-income-aide" / "versions").iterdir()) and tree(SKILLS) == tree(MIRROR)
+    assert "token" in text.lower()
