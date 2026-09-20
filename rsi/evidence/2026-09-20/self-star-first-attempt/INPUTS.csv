@@ -1,0 +1,4 @@
+source,copy,sha256
+rsi/evidence/2026-09-20/loops-and-systems/02-06/arm-a/trial-001/predictions.csv,07-01/predictions.csv,0004513ae666f36bcf4987e2b36944f1c4a8d79bf949ef09b788d0b95e6af93c
+rsi/evidence/2026-09-20/clean-journey/09-05/cases/regression.csv,07-02/inputs/regression-data.csv,4801610c1293d188eceac6b8e22171e843d25f05459f2092250265b19dbe5b70
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/parent/training-predictions.csv,07-02/inputs/regression-parent-training-predictions.csv,45f771a00133998a0d6346fb355b0f533595f00183ad02481e8f2cfb241ba634

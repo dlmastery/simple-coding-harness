@@ -37,9 +37,3 @@ For modification, two labelled input reports share the same pinned baseline pred
 For the memory ablation, effects are differences in cached balanced accuracy. The restrictive memory may be neutral for the parent and harmful for the child. Retain the interaction rather than claiming that adding components always helps. Removing the rule creates a fifth follow-up result, not a replacement arm.
 
 No learner participates: predictions, quiz responses, and teach-back stay unattempted. The supplied source and selection partitions are public. Do not claim evaluator secrecy, a fresh native coding agent, weight learning, unseen transfer, or general improvement from this run. Account for implementation and inference costs as unknown when not metered.
-
-## Pre-fit implementation correction
-
-The first execution from `06a7d22` stopped during regression target verification, before any new fit. Exact numeric equality was too strict for the earlier experiment's decimal CSV round trips: the maximum observed difference is 5.684341886080802e-14. All source-row sequences match, and all classification labels match exactly. Preserve the failed workspace and the [precision audit](SELF-STAR-PRECISION-AUDIT.md).
-
-The corrected replay uses absolute tolerance 1e-12 and zero relative tolerance for regression target values only. Row identities and classification labels remain exact. This is a representation check, not a relaxed score acceptance rule. The corrected execution uses a new workspace and the same scientific protocol and eight-fit allowance. No outcome was used to alter a candidate or selection rule. Repeated no-fit diagnostic work remains part of authoring overhead.

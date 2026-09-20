@@ -6,14 +6,10 @@ import shutil
 import subprocess
 import sys
 import time
-import traceback
 from pathlib import Path
-
-ACTIVE_OUTPUT = None
 
 
 def main():
-    global ACTIVE_OUTPUT
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--workspace", type=Path, required=True)
@@ -43,7 +39,6 @@ def main():
         return
 
     out.mkdir(parents=True, exist_ok=False)
-    ACTIVE_OUTPUT = out
     started = time.perf_counter()
     source = repo / "rsi/evidence/2026-09-20"
     sys.path.insert(0, str(repo / "rsi/tools"))
@@ -132,11 +127,7 @@ def main():
                 predictions = pd.read_csv(destination)
                 expected = raw[raw.partition == partition]
                 assert list(predictions.source_row) == list(expected.index)
-                if task == "regression":
-                    # Decimal CSV round trips in the earlier experiment differ by <= 5.7e-14.
-                    assert np.allclose(predictions.target.to_numpy(), expected.target.to_numpy(), rtol=0, atol=1e-12)
-                else:
-                    assert np.array_equal(predictions.target.to_numpy(), expected.target.to_numpy())
+                assert np.array_equal(predictions.target.to_numpy(), expected.target.to_numpy())
                 metric = mean_absolute_error if task == "regression" else balanced_accuracy_score
                 values[f"{candidate}_{partition}"] = float(metric(predictions.target, predictions.prediction))
         child_better = values["child_selection"] < values["parent_selection"] if task == "regression" else values["child_selection"] > values["parent_selection"]
@@ -316,9 +307,4 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception:
-        if ACTIVE_OUTPUT is not None:
-            (ACTIVE_OUTPUT / "FAILURE.md").write_text("# Retained execution failure\n\n```text\n" + traceback.format_exc() + "```\n", encoding="utf-8")
-        raise
+    main()
