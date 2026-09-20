@@ -1,1 +1,90 @@
-{"phase": null, "c": null, "experiments": []}
+{
+ "phase": "deep",
+ "c": 0.25,
+ "experiments": [
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 0.25,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 0.25,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 0.25,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 0.25,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 4,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 4,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 4,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 4,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "none"
+  }
+ ]
+}

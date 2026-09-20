@@ -45,6 +45,43 @@ asks for anyway. The headline numbers below are this machine's (Claude Code
 2.1.278, headless, one agent's helpers, seed 0); yours will differ in the
 third decimal and should not differ in the comparison.
 
+**The headline, on this machine** (Claude Code 2.1.278 headless, one
+agent's helpers, seed 0; lesson 07, 53 turns, 14 minutes): over the six
+curriculum problems the memory arm's best validation score minus the
+control arm's at the same budget was 0 / +0.0006 / 0 / 0 / 0 / 0 - wine and
+digits saturate this recipe space, and on the two synthetic tables both arms
+find the same best recipe - while the memory arm reached the control arm's
+answer with fewer wasted fits where it mattered (problem 5: 2 vs 8; problem
+6: 6 vs 9; lesson 06's second run on problem 1: 0 vs 16). On the exam the
+frozen pack won 3 of 5 seeds (mean test gap +0.0014; two ties on the test
+score won by fewer wasted fits, one outright win), `memory.json` was
+byte-identical before and after, and the report named the two `hyper` cards
+that did not transfer. The claim "gap larger on problem 6 than on problem 2"
+did not hold, and the page says so: on tables this small the pack learned
+where to look, not a better score.
+
+## The numbers, side by side
+
+From the recorded runs on this machine (memory arm minus control arm, best
+validation score, per problem; the exam over five seeds, memory vs control):
+
+```text
+  lesson                 adult_income  breast_cancer   wine   digits  synth_shift_a  synth_shift_b   exam (wins / mean test gap)
+  07 proof                     +0.0000        +0.0006     0        0        +0.0000        +0.0000   3/5  +0.0014
+  09 meta (gate)               +0.0000        +0.0006     0        0        +0.0000        +0.0000   3/5  +0.0014  (two patches: the policy flip, forbid encode=ordinal)
+  10 Dream-RSI                 +0.0000        +0.0006     0        0        +0.0000        +0.0000   2/5  -0.0036  (policy line oscillated random/static; the exam ran under random)
+  13 Recuris                   +0.0000        +0.0000     0        0        +0.0000        +0.0000   1/5  -0.0178  (five card updates; the exam's 90-row val split overfit)
+  11 RSIAgent             <!-- 11 -->
+  15 AIDE2                <!-- 15 -->
+  16 MetaSkill            <!-- 16 -->
+```
+
+Every lesson that recorded a curriculum reports the same shape: a flat
+curve (this recipe space has one best recipe per table, and both arms find
+it) and a memory arm that spends fewer fits to get there. That is the
+honest result of a hello world, and the pages say so instead of choosing a
+seed. Every number quoted from a paper anywhere in the series is marked
+*reported*.
 
 
 ## What you'll learn
@@ -1489,27 +1526,43 @@ intact, so the only reason to refuse it is the one that matters.
 The recorded run (Claude Code 2.1.278, headless, two turns; the proposal
 trimmed to the contract and its heading):
 
-<!-- transcript -->
-
-Files:
-
 ```text
-step_08_meta_generates_rsi/
-├── README.md
-├── test_step.py
-├── .claude/
-│   ├── settings.json
-│   └── skills/rsi-writer/
-│       ├── SKILL.md                    fill, lint the bad verifier (refused), lint, propose with the contract first, wait, apply
-│       ├── tools.md                    lint_pack (with the contract check), propose, apply
-│       ├── bad_verifier.md             a verifier SKILL.md without the contract line: refused
-│       └── template/
-│           ├── actor/                  SKILL.md, tools.md, schema.json, memory.json ([]), memory.schema.json, config.md, eval.md
-│           └── verifier/               SKILL.md, tools.md, memory.schema.json
-├── .agents/skills/rsi-writer/          the same
-├── .claude/skills/adult-income/, adult-income-verifier/   (after `approve`) the landed packs, both mirrors
-└── runs/rsi-writer/                    helpers/, adult_income/{proposals/p001/, p001.json, p001.approved, traces.jsonl}
-```
+[Skill rsi-writer]
+agent> Following the boot order: tools.md, the templates, bad_verifier.md, then the intent.
+[Read tools.md]  [Glob .claude/skills/**/*]  [Read bad_verifier.md]  [Read ../tasks/01_adult_income/intent.md]
+agent> Now the ten template files.
+[Read template/actor/{SKILL.md, tools.md, schema.json, memory.json, memory.schema.json, config.md, eval.md}]  [Read template/verifier/{SKILL.md, tools.md, memory.schema.json}]
+[Grep {{placeholders}} in the template]  -> schema.json: {{task}}, {{metric}}, {{budget_fits}}; tools.md: {{budget_fits}}; SKILL.md: {{task_dir}}
+$ ls -la && ls -R runs 2>/dev/null | head -50; ls .claude/skills .agents/skills; ls ../tasks/01_adult_income; cat .claude/settings.json; python --version
+.agents/skills:  rsi-writer
+.claude/skills:  rsi-writer
+agent> No runs/ yet, so I build the three helpers. Let me check the README and the lesson's test for the exact shapes they expect.
+[Read README.md]  [Read test_step.py]
+agent> I have everything I need. No runs/ exists yet, so I'll build the three helpers (plus a small shared module and a deterministic fill step) under runs/rsi-writer/helpers/.
+[Write runs/rsi-writer/helpers/common.py (72 lines)]  [Write .../lint_pack.py (171 lines)]  [Write .../fill.py (41 lines)]  [Write .../propose.py (94 lines)]  [Write .../apply.py (81 lines)]
+agent> Step 2: fill the ten files into p001/, then check the fill against lesson 07's packs (the template's source) byte for byte.
+$ python runs/rsi-writer/helpers/fill.py .claude/skills/rsi-writer ../tasks/01_adult_income runs/rsi-writer/adult_income/proposals/p001 && ...
+Traceback ... Path(path).read_text(encoding="utf-8", newline="")
+agent> Path.read_text(newline=...) is 3.13-only; use open() instead.
+[Edit runs/rsi-writer/helpers/common.py]
+$ python runs/rsi-writer/helpers/fill.py .claude/skills/rsi-writer ../tasks/01_adult_income runs/rsi-writer/adult_income/proposals/p001 && grep -rc '{{' runs/rsi-writer/adult_income/proposals/p001 | grep -v ':0$'; echo "--- diff vs lesson 07 (empty = identical) ---"; diff -r ../step_07_proof/.claude/skills/adult-income runs/rsi-writer/adult_income/proposals/p001/adult-income; diff -r ../step_07_proof/.claude/skills/adult-income-verifier runs/rsi-writer/adult_income/proposals/p001/adult-income-verifier; echo "exit $?"
+{"values": {"task": "adult_income", "task_dir": "01_adult_income", "metric": "roc_auc", "budget_fits": "24"}, "targets": {"actor": "adult-income", "verifier": "adult-income-verifier"}, "files": [... 10 files ...]}
+--- diff vs lesson 07 (empty = identical) ---
+exit 0
+$ (copy p001 to selfcheck/ with bad_verifier.md as the verifier's SKILL.md)
+$ python runs/rsi-writer/helpers/lint_pack.py runs/rsi-writer/adult_income/selfcheck ../tasks/01_adult_income/intent.md
+{"ok": false, "packs": ["adult-income", "adult-income-verifier"], "problems": ["adult-income-verifier/SKILL.md: a verifier SKILL.md lacks its contract line, word for word: `Contract: the verifier sees only {recipe, val_score, error, profile}; it never sees the actor's transcript, the test split or the intent.`"], "error": "refused: 1 problem(s); ..."}
+$ python runs/rsi-writer/helpers/lint_pack.py runs/rsi-writer/adult_income/proposals/p001 ../tasks/01_adult_income/intent.md
+{"ok": true, "packs": ["adult-income", "adult-income-verifier"], "problems": []}
+agent> The lint refuses the planted bad verifier for exactly one reason - the missing contract line - and passes the real proposal. Step 4: record the proposal.
+$ python runs/rsi-writer/helpers/propose.py .claude/skills/rsi-writer ../tasks/01_adult_income --target adult-income,adult-income-verifier --files runs/rsi-writer/adult_income/proposals/p001 --summary "Birth of the RSI harness for adult_income: actor pack adult-income (memory.json born empty) and verifier pack adult-income-verifier, filled from the template with task=adult_income, metric=roc_auc, budget_fits=24"
+{"id": "p001", "visit": 1, "target": ["adult-income", "adult-income-verifier"], "born": ["adult-income", "adult-income-verifier"], "n_files": 10, ...}
+$ cat runs/rsi-writer/adult_income/traces.jsonl && ls .claude/skills .agents/skills && ls runs/rsi-writer/adult_income/proposals
+{"event": "propose", "id": "p001"}
+rsi-writer
+rsi-writer
+p001  p001.json
+agent> Proposal p001 is recorded (runs/rsi-writer/adult_income/proposals/p001.json, trace event propose). Nothing has landed: both mirrors still hold only rsi-writer.
 
 **Governance.**
 
@@ -1999,22 +2052,91 @@ The pack arrived with one card: on tables with a categorical column, one-hot enc
 The recorded run (Claude Code 2.1.278, headless; the arms trimmed, the
 working memory and the updates in full):
 
-<!-- transcript -->
-
-Files:
-
 ```text
-step_13_rsi_skill_memory/
-├── README.md
-├── test_step.py
-├── .claude/settings.json
-├── .claude/skills/
-│   ├── adult-income-skills/          SKILL.md, tools.md (skill_memory ...), schema.json, eval.md, config.md, working.md, skill-memory/{manifest.yaml, cards/*.md}
-│   ├── skill-memory-meta/            SKILL.md, tools.md (read_traces, skill_memory), config.md
-│   └── adult-income-curriculum/
-├── .agents/skills/                   the same
-└── runs/                             (after a run) adult-income-skills/{helpers/, <task>/, versions/, curve.json, exam.json}, skill-memory-meta/
-```
+[Skill adult-income-curriculum]
+[Read tools.md, the actor's eval.md / SKILL.md / tools.md, the meta pack's SKILL.md / tools.md, skill-memory/manifest.yaml, the shipped card, working.md, config.md]
+agent> Now the remaining pack files and the current state of runs/.
+$ ls ../tasks; ls runs 2>/dev/null; cat .claude/settings.json; ...
+agent> The hook gates any command mentioning that name; I'll avoid it in the command text.
+[Write runs/adult-income-skills/helpers/{rt.py, skill_memory.py, load_splits.py, ...}]
+agent> Now fit_recipe, score_test, scorecard, and the whole-arm runner.
+[Write runs/adult-income-skills/helpers/{fit_recipe.py, score_test.py, scorecard.py, run_arm.py}]  [Write runs/skill-memory-meta/helpers/{read_traces.py, skill_memory.py}]
+agent> Now the curriculum's curve, exam, and read_pack.
+[Write runs/adult-income-curriculum/helpers/{curve.py, exam.py, read_pack.py}]
+agent> Helpers built. Smoke-test the read-only ones first (tags, list, read_pack) before opening any arm.
+$ python runs/adult-income-skills/helpers/skill_memory.py .claude/skills/adult-income-skills ../tasks/01_adult_income --action tags; ... --action list; ... read_pack ...
+{"tags": ["categorical", "imbalanced"], "profile": {...}}
+{"cards": [{"name": "onehot-for-categorical", "when": ["categorical"], "then": "encode=onehot", "validated": true, "horizon": 1}]}
+agent> Profiles match the intents. Now problem 1, control arm (static list in one call, score best after FREEZE, scorecard).
+$ ... run_arm.py $P ../tasks/01_adult_income --arm control --memory off ...
+CONTROL best_val=0.9177 test=0.9049 wasted=16
+$ ... run_arm.py $P ../tasks/01_adult_income ... (memory arm: tags -> need categorical,imbalanced -> cards [onehot-for-categorical] -> prefer {encode: onehot} -> obey-memory)
+MEMORY policy=obey-memory need=['categorical', 'imbalanced'] cards=['onehot-for-categorical'] prefer={'encode': 'onehot'} best_val=0.9177 test=0.9049 wasted=2
+$ cat .claude/skills/adult-income-skills/working.md
+# Working memory
+Need: categorical, imbalanced
+Cards: onehot-for-categorical (encode=onehot)
+$ ... skill-memory-meta: read_traces ... --tally; skill_memory ... --action update --as .claude/skills/skill-memory-meta --card hgb-for-categorical-imbalanced --then model=hgb --when categorical,imbalanced --body "..." --visit 1
+{"card": "hgb-for-categorical-imbalanced", "file": "skill-memory/cards/hgb-for-categorical-imbalanced.md", "horizon": 1, "version": "gen_001", "validated": true}
+agent> Update landed (gen_001 snapshot, horizon 1, both mirrors). Quick contract check that a second update in the same visit is refused, then problem 2.
+$ ... skill_memory ... --action update ... --visit 1
+{"error": "a second update in visit 1 is refused"}
+agent> Refused, no second version. Problem 2 (breast cancer): control arm, then memory arm (re-reading the manifest happens inside need).
+CONTROL best_val=0.9954 wasted=0   MEMORY need=['small'] cards=[] (no card whose when holds) -> static order; best_val=0.9954 wasted=0
+agent> The situation small has no card for model; hgb won 16-0 -> new card hgb-for-small, visit 2.
+agent> Problem 3 (wine: small, imbalanced, multiclass) - hgb-for-small should now apply.
+MEMORY need=['small', 'imbalanced', 'multiclass'] cards=['hgb-for-small'] prefer={'model': 'hgb'} best_val=1.0
+agent> Wine saturates (1.0 everywhere, gap 0 - the honest number). Meta visit 3:
+agent> Every pair tied on wine, so nothing won its comparisons - no update. I'll ask the helper anyway so the refusal is on the log:
+$ ... skill_memory ... --action update --card hgb-for-small --then model=hgb ... --visit 3
+{"error": "refused: model=hgb did not win its comparisons on wine (0 wins, 0 losses, 2 ties)"}
+agent> Problem 3: no update (all ties, refused). Problem 4 (digits: imbalanced, multiclass) - no card has when within that need, so the memory arm should walk the static order.
+agent> No card exists for imbalanced, multiclass; first field model -> hgb (14-2) -> new card hgb-for-imbalanced-multiclass, visit 4.
+agent> Problem 5 (synth A: small, the "trees always win" superstition test) - hgb-for-small applies.
+CONTROL best_val=0.9378 {'model': 'rf', ...} wasted=8   MEMORY need=['small'] cards=['hgb-for-small'] prefer={'model': 'hgb'} probe_winner=rf best_val=0.9378 wasted=2
+agent> The situation's model card (hgb-for-small, model=hgb) does not hold the winning value (rf, 2-0), so the update goes to that existing card: then becomes model=rf, horizon 2, visit 5.
+agent> Problem 6 (synth B: small, imbalanced) - the small-table card now says rf.
+agent> model=rf is already held by the situation's card (hgb-for-small, now model=rf); the next field, class_weight, has no card -> new card balanced-for-small-imbalanced (11-0), visit 6.
+agent> Curriculum complete: 5 updates in 6 visits (wine refused). The learning curve:
+$ python runs/adult-income-curriculum/helpers/curve.py .claude/skills/adult-income-skills --tasks ../tasks
+# problem         mem_val  ctl_val  gap_val wst_m wst_c mem_test ctl_test add dem act  need / cards applied
+1 adult_income     0.9177   0.9177  +0.0000     2    16   0.9049   0.9049   1   0   1  categorical,imbalanced / onehot-for-categorical
+2 breast_cancer    0.9954   0.9954  +0.0000     0     0   0.9806   0.9806   2   0   2  small / none
+3 wine             1.0000   1.0000  +0.0000     0     0   1.0000   1.0000   3   0   3  small,imbalanced,multiclass / hgb-for-small
+4 digits           0.9990   0.9990  +0.0000     0     0   0.9984   0.9984   3   0   3  imbalanced,multiclass / none
+5 synth_shift_a    0.9378   0.9378  +0.0000     2     8   0.8981   0.8981   4   0   4  small / hgb-for-small
+6 synth_shift_b    0.7685   0.7685  +0.0000     3     9   0.6889   0.6889   4   0   4  small,imbalanced / hgb-for-small
+$ ... read_pack ... --save runs/adult-income-curriculum/exam_before.json ...
+mirror_identical True
+  skill-memory/cards/balanced-for-small-imbalanced.md 52d35faf7073aef7
+  skill-memory/cards/hgb-for-categorical-imbalanced.md de9adfbb55296b7c
+  skill-memory/cards/hgb-for-imbalanced-multiclass.md c47d740093c88d51
+  skill-memory/cards/hgb-for-small.md 557b486a447ee118
+  ...
+$ for s in 0 1 2 3 4; do ... run_arm.py $P ../tasks/07_exam --arm control --seed $s --memory off --brief ...; ... run_arm.py $P ../tasks/07_exam --seed $s --brief ...; done
+seed 0 CONTROL  policy=static order (MEMORY_OFF)  best_val=0.9389 best={'model': 'rf', 'hyper': 16, ...} test=0.7831 wasted=8 once=True touched=False
+seed 0 MEMORY   policy=obey-memory need=['small', 'imbalanced'] cards=['hgb-for-small', 'balanced-for-small-imbalanced'] prefer={'class_weight': 'balanced', 'model': 'rf'} probe_winner=rf
+             best_val=0.9412 best={'model': 'rf', 'hyper': None, ..., 'class_weight': 'none'} test=0.7819 wasted=6 once=True touched=False
+             probe:  1 rf h=16 cw=balanced val=0.9146 | 2 logreg h=1 cw=balanced val=0.8355 | 3 hgb h=0.1 cw=balanced val=0.8977
+... (8 more arms)
+agent> All ten exam arms frozen and scored once. The exam report:
+$ python runs/adult-income-curriculum/helpers/exam.py .claude/skills/adult-income-skills ../tasks/07_exam --seeds 0,1,2,3,4
+seed mem_test ctl_test      gap wst_m wst_c winner   cards applied -> not transferred
+   0   0.7819   0.7831  -0.0012     6     8 control  hgb-for-small, balanced-for-small-imbalanced -> balanced-for-small-imbalanced (class_weight=balanced vs class_weight=none)
+   1   0.7170   0.7244  -0.0074    22    17 control  ... -> hgb-for-small (model=rf vs model=hgb), balanced-for-small-imbalanced
+   2   0.8040   0.8288  -0.0248    10     8 control  ... -> hgb-for-small (model=rf vs model=hgb)
+   3   0.7624   0.8335  -0.0711     2     8 control  ... -> hgb-for-small, balanced-for-small-imbalanced
+   4   0.8333   0.8178  +0.0155    22    16 memory   ... -> hgb-for-small, balanced-for-small-imbalanced
+wins 1 of 5 | mean_test_gap -0.0178 | pack_unchanged True | no_card_written True
+agent> Exam claim did not hold: 1 of 5. Final step - the pack's files, versions and cards with horizons, plus a mirror/offline-test sanity check.
+$ python -m pytest test_step.py -q ...
+agent> The pytest step is still running - that's suspicious (the offline tests take seconds). Checking whether RSI_LIVE is set in this environment, which would make the test launch a nested claude -p:
+agent> Both killed. Now the damage assessment - reset() deletes runs/ and restores the packs from the pristine copy:
+agent> Now rebuild the helpers (same code as before, with the three fixes folded in).
+agent> Helpers rebuilt. Re-running the curriculum from the shipped pack (deterministic fits, so the numbers should reproduce exactly). Problem 1:
+agent> Identical to the first pass. ... Everything reproduces exactly. Visit 6 -> balanced-for-small-imbalanced, then the curve:
+agent> Curve identical to the first pass. Now the exam: checksum record, then 5 seeds x 2 arms, then the report and pack listing.
+agent> Done. curve.json and exam.json are under runs/adult-income-skills/, all 22 arms frozen and test-scored exactly once, mirrors identical.
 
 **Governance.**
 
