@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task skill chooses ML experiments. The improver reads failures, proposes one skill edit, and tests it. In this lab the improver’s instructions remain unchanged. The modified object is the solver’s research skill, so any benefit is self-improvement under a fixed improver.
 
-**A concrete example.** The parent research skill chooses its second model immediately after the first score. A child requires an error-slice review before that choice. Give both the same initial task and two fits. The improver that proposed this edit stays unchanged. The child can choose a better model, waste effort, or make the same decision; all three are possible outcomes.
+**A concrete example.** The [four-fit bike comparison](../../evidence/2026-09-20/self-star-and-measurement/07-04/DECISION.md) starts both skills with the same constant model. The parent then chooses a tree and retains MAE 125.05. The child reads hourly residuals, chooses linear, and retains 109.81. The task-skill files differ; the improver hash stays the same. This author-designed, known-task result illustrates improvement under a fixed improver. It does not show a better improver or guarantee the diagnosis will help elsewhere.
 
 ![The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.](../../assets/diagrams/lab-07-04.png)
 

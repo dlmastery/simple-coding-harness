@@ -24,7 +24,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Compare parent without memory, parent with memory, child without memory, and child with memory. The combined effect can differ from the sum of separate effects. Keep starting state and resources matched. This tests the selected components on selected tasks, not all possible memories or skills.
 
-**A concrete example.** Suppose the original procedure gains nothing from memory, but a revised procedure knows how to retrieve the right note. Memory may help only when combined with that revision. Comparing just “old system” with “everything changed” hides this interaction. The four conditions separate the two changes and their combination.
+**A concrete example.** In the [four-arm decision replay](../../evidence/2026-09-20/self-star-and-measurement/08-04/INTERPRETATION.md), the parent chooses the majority baseline, scoring 0.5. The changed skill chooses the checked linear candidate, scoring about 0.745. A restrictive memory says to keep majority until a slice note exists; this fixture has none. Memory changes nothing for the parent but blocks the child’s useful choice. This interaction depends on the declared rule order and cached candidates, not a measured LLM prompt conflict.
+
+![Restrictive memory leaves the parent at 0.5 and lowers the changed skill from about 0.745 to 0.5.](../../evidence/2026-09-20/self-star-and-measurement/08-04/memory-interaction.png)
+
+*Four deterministic choices over checked predictions. The fifth rule-removal follow-up is kept separate.*
 
 ![The four conditions separate memory and procedure changes. They also reveal whether the changes interact.](../../assets/diagrams/lab-08-04.png)
 

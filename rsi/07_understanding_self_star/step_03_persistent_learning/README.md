@@ -18,13 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A tested reflection, a new case, and a fresh session where available.
 
-**Budget:** One later task or fit; preserve a no-memory comparison if already available. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One later task or fit; preserve a no-memory comparison if already available. The additional scope check uses one separately labelled fixture and no extra fit. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Learning can be implemented through changed weights, memory, skills, or other retained state. This lab uses external memory. State the mechanism precisely: the host model reads a saved rule. A larger memory file is not evidence of better decisions.
 
-**A concrete example.** An agent can save “always use a tree” after one lucky result and follow that note tomorrow. Persistence and later use are visible, but the lesson may be wrong. This is retained adaptation without demonstrated improvement. The next experiment must test its scope instead of treating memory as success.
+**A concrete example.** A saved rule says to use the declared metric direction and compare only compatible candidates. In the [later decision replay](../../evidence/2026-09-20/self-star-and-measurement/07-03/USE-AND-BENEFIT.md), a separate process reads that file and selects wine balanced accuracy 0.745 rather than 0.5. The deliberately weak no-memory control chose the smaller number. This demonstrates reading and using this explicit rule on known candidates; it does not measure an LLM learning new weights or generalizing to an unseen task.
 
 ![Persistent learning requires a retained change that is used later. Use and benefit are separate checks.](../../assets/diagrams/lab-07-03.png)
 

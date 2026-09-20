@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Reflection interprets an attempt. It may identify a failure, suggest a cause, and propose an action. Those are different epistemic roles: the trace is observed; the cause may be inferred; the action is a hypothesis. A useful reflection changes a later decision and survives a test.
 
-**A concrete example.** A deep tree fits the training data exactly but has poor selection MAE. “Always avoid trees” is too broad: the failure could depend on depth, sample size, or noise. A narrower hypothesis is to compare a bounded-depth tree before using an unpruned one. A case with a real nonlinear pattern can test whether the broad advice throws away useful structure.
+**A concrete example.** The [replayed regression case](../../evidence/2026-09-20/self-star-and-measurement/07-02/TWO-CHECKS.csv) has tree training MAE 0, yet selection MAE is 71.88 versus 24.20 for the linear model. “Never use trees” still goes too far: the classification case favors the tree, with balanced accuracy 0.88 versus 0.86. These known cases support a narrower rule: compare valid candidates using the declared selection metric. They do not prove that a plausible explanation of the failure is its sole cause.
 
 ![A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.](../../assets/diagrams/lab-07-02.png)
 
@@ -95,7 +95,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Replace a narrow rule with “always use a tree.” Test why overgeneralizing from one case is risky.
+Compare “always use a tree” with the narrow rule on the same two checked cases. Explain any contradiction without adding undeclared fits.
 
 ## If something goes wrong
 

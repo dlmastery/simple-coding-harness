@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Resources are not interchangeable. Record agent tokens or provider charges when available, local fit seconds, total wall time, evaluator calls, and later GPU-hours. Unknown values stay unknown. Equal fit counts are useful but do not imply equal total research cost.
 
-**A concrete example.** In a labelled numerical illustration, procedure A uses 20 fit-seconds and 100 proposal-seconds; B uses 30 and 10. A is cheaper in fitting but costs 120 measured seconds against B’s 40 if those stages are sequential. Neither number includes unknown provider charges. State the resource and assumptions before naming a winner.
+**A concrete example.** The [measured bike procedures](../../evidence/2026-09-20/self-star-and-measurement/08-03/COST.md) each used two fits and two checks, even though each retained only one candidate. Counting only winners would halve the recorded attempts. Now consider a separate numerical illustration: A needs 20 fit-seconds plus p proposal-seconds; B needs 30 + 10 = 40 seconds. With sequential stages and otherwise equal costs, A loses its time advantage when p exceeds 20. These invented costs illustrate a threshold; they are not the run’s measurements.
 
 ![Research cost includes proposing, running, checking, and failed work. Fit time is only one component.](../../assets/diagrams/lab-08-03.png)
 

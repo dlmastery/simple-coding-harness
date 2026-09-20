@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Transfer asks whether a retained change helps in a different setting. Keep the skill frozen while adapting only task-specific interfaces required by the brief. Record any necessary adaptation. If you rewrite the skill after seeing wine outcomes, that becomes wine development, not the original transfer test.
 
-**A concrete example.** A bike-derived rule says “prefer the lowest error.” Before the wine run, you map that interface to maximizing balanced accuracy while preserving the rule’s principle of using the declared metric. Changing the candidate policy after viewing wine failures is different: the target task has now supplied development feedback.
+**A concrete example.** The [author transfer replay](../../evidence/2026-09-20/self-star-and-measurement/08-05/DECISION.md) froze the bike skill files, then mapped the task to wine and maximized balanced accuracy. The parent retained 0.633 and the child 0.745 with two fits each. The author already knew earlier public wine results, so this is not an unseen transfer test. For your own test, freeze the procedure before target-task feedback. Rewriting it after seeing the result starts a new development round.
 
 ![Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.](../../assets/diagrams/lab-08-05.png)
 

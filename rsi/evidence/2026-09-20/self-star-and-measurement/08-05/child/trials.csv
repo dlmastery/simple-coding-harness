@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,wine,constant,all,17,0.5,0.07772,f24fc20001822c7701e2f2ab942708c17447ad05783dccc21c9a6734b61cc764,Execute predeclared constant under task skill f24fc20001822c7701e2f2ab942708c17447ad05783dccc21c9a6734b61cc764; preserve all outcomes.
+trial-002,ok,wine,linear,all,17,0.7449552553079488,0.096353,f24fc20001822c7701e2f2ab942708c17447ad05783dccc21c9a6734b61cc764,Execute predeclared linear under task skill f24fc20001822c7701e2f2ab942708c17447ad05783dccc21c9a6734b61cc764; preserve all outcomes.

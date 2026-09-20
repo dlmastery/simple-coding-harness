@@ -1,0 +1,15 @@
+source,copy,sha256
+rsi/evidence/2026-09-20/loops-and-systems/02-06/arm-a/trial-001/predictions.csv,07-01/predictions.csv,0004513ae666f36bcf4987e2b36944f1c4a8d79bf949ef09b788d0b95e6af93c
+rsi/evidence/2026-09-20/clean-journey/09-05/cases/regression.csv,07-02/inputs/regression-data.csv,4801610c1293d188eceac6b8e22171e843d25f05459f2092250265b19dbe5b70
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/parent/training-predictions.csv,07-02/inputs/regression-parent-training-predictions.csv,45f771a00133998a0d6346fb355b0f533595f00183ad02481e8f2cfb241ba634
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/parent/selection-predictions.csv,07-02/inputs/regression-parent-selection-predictions.csv,f4783dd31ddda513acbf6fd574bb00d44da5e51d1a1b1b79ebc4854354aaf436
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/child/training-predictions.csv,07-02/inputs/regression-child-training-predictions.csv,e9f19b4632daed13eb7ee6928ccbf057f67697559152aeb14b3f431d1084c115
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/child/selection-predictions.csv,07-02/inputs/regression-child-selection-predictions.csv,6781e1d8931aec2af81b9337931e99b46696f7519657bc382422a84baffa9d01
+rsi/evidence/2026-09-20/clean-journey/09-05/cases/classification.csv,07-02/inputs/classification-data.csv,04efd8e262ab1757fb79a3e23c521bdfd3e306badccf0fbce27cb1bef1abb8b0
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/classification/v1/parent/training-predictions.csv,07-02/inputs/classification-parent-training-predictions.csv,644f4daa8836a5bf57032f2fa7bb0f59c1ff0362b7a03d9e43332ffa770aafbe
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/classification/v1/parent/selection-predictions.csv,07-02/inputs/classification-parent-selection-predictions.csv,ee98b3317b22c02107a5a784378675e53029462dfbab2fef4e9ec2f334ea76f2
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/classification/v1/child/training-predictions.csv,07-02/inputs/classification-child-training-predictions.csv,15e96b7f1301bc6beec87ab77d863bdc062d559d977fbc14de46b327d78dd63e
+rsi/evidence/2026-09-20/clean-journey/09-05/rounds/classification/v1/child/selection-predictions.csv,07-02/inputs/classification-child-selection-predictions.csv,c90caaee6d0f4cba918d43b44c88057d600d72509b441e56ac1217111defd2c6
+rsi/evidence/2026-09-20/author-wine/trial-001/predictions.csv,07-03/inputs/trial-001-predictions.csv,4010cb4ad7f4b75da32f282e6446092790f849f7933f0541e9e569f0b39a4d7d
+rsi/evidence/2026-09-20/author-wine/trial-002/predictions.csv,07-03/inputs/trial-002-predictions.csv,b2f22f90b4857deac8c057a339531673c09f9c98905d16b0993f1a386ab6ca8c
+rsi/skills/improve-research-skill/SKILL.md,07-04/skills/IMPROVER-FIXED.md,77d81107be04f36cbf8ffccd4ecdc6a4036a88be5ca9c7436dd46394921e6836

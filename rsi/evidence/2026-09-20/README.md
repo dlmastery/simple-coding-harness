@@ -1,5 +1,7 @@
 # Author execution evidence
 
+The [self-* and measurement walkthrough](self-star-and-measurement/README.md) adds eight fits and labelled replays across correction, reflection, retained memory, fixed-improver skill changes, modification, cost, ablation, transfer, and rollback. Its first attempt stopped before fitting on a precision check and remains archived. The corrected run preserves the fixed improver hash, all eight candidates, memory interference, and the known-transfer limitation.
+
 The [loop and system walkthrough](loops-and-systems/README.md) adds thirteen fits for matched loops, task routing, and repeated seed comparisons, plus context and ablation fixtures. A separate [live-coordinator correction](live-coordinator/README.md) adds one fit with state saved before actions, separate-process checking, identity refusals, and a refused post-completion fit. The initial reconstructed trace is retained with its limitation; total new work across these two packs is fourteen fits.
 
 The [ScienceBuddy classroom sequence](sciencebuddy-laptop/README.md) adds executed rubric/reporting checks, a three-case numerical policy update, a paired-state simulation, a primary-source result audit, and larger-training planning. It reuses actual wine predictions without new fits. No LLM training or paper reproduction is claimed.

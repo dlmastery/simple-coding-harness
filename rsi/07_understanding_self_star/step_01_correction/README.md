@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Self-correction revises a current output using feedback. Here the checker exposes a wrong summary number and the agent replaces it with the value computed from predictions. When the session ends, no procedure has changed unless you explicitly retain one.
 
-**A concrete example.** An illustrative report says MAE is 12, but the saved absolute errors are 10, 20, and 30. Their mean is 20. Replacing 12 with 20 corrects this report. It does not automatically change the procedure that writes the next report, even if the correction remains in this chat.
+**A concrete example.** In the [author correction exercise](../../evidence/2026-09-20/self-star-and-measurement/07-01/CORRECTION.md), a labelled report claims MAE 1. Its saved bike predictions give 159.947912. Replacing the claim corrects that output. A later process uses the unchanged weak reporting rule and repeats another wrong supplied score. The lesson is about the lifetime of a change: a corrected answer does not automatically become a rule for writing future answers. This replay did not test a fresh LLM session.
 
 ![Correction repairs the current output. It need not create a lasting instruction for future tasks.](../../assets/diagrams/lab-07-01.png)
 

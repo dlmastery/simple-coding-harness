@@ -75,6 +75,15 @@ related.set('05.04', {
   label: 'Executed live state control and process resumption',
   gap: 'One new fit, a later check process, three handoff fixtures, and post-completion refusal executed. The earlier retrospective trace and its separate fit remain preserved. Forced interruption during fitting, independent reviewers, and learner interpretation were not tested.'
 });
+for (const id of ['07.01','07.02','07.03','07.04','07.08','08.03','08.04','08.05','08.06']) related.set(id, {
+  path: evidenceRoot+'self-star-and-measurement/README.md',
+  label: 'Executed self-* and measurement activities with labelled replays',
+  gap: 'The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.'
+});
+related.get('07.01').gap = 'Correction and a later fixed-reporter process executed without editing its rule. A fresh coding-agent session, rather than a Python process, was not tested.';
+related.get('07.02').gap = 'Two prediction-based checks recompute existing regression/classification evidence and test the overbroad rule. These known cases are replays, not fresh reflection-validation tasks.';
+related.get('07.03').gap = 'A separate process reads the retained rule, changes a later cached-candidate decision, and refuses a metric-scope mismatch. The no-memory control is deliberately weak; benefit does not establish LLM learning or unseen generalization.';
+related.get('08.05').gap = 'Four new fits use frozen skill hashes and a predeclared wine interface. Prior public wine outcomes were author-known, so the run is a transfer replay, not an uncontaminated transfer test. A new development proposal stays unexecuted.';
 
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);

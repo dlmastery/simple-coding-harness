@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-54 labs have mapped related author-execution evidence; 47 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+63 labs have mapped related author-execution evidence; 38 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -514,9 +514,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Start a fresh session with the same fixed procedure and another wrong summary. Explain why the first correction did not guarantee prevention.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Correction and a later fixed-reporter process executed without editing its rule. A fresh coding-agent session, rather than a Python process, was not tested.
 
 **Acceptance to verify:** The corrected number matches the predictions. The original and correction note remain. No retained skill change is claimed.
 
@@ -525,11 +525,11 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Write a testable reflection.** Avoid treating explanation as proof.
 2. **Test the rule.** Compare behavior on a new case.
 
-**Additional change:** Replace a narrow rule with “always use a tree.” Test why overgeneralizing from one case is risky.
+**Additional change:** Compare “always use a tree” with the narrow rule on the same two checked cases. Explain any contradiction without adding undeclared fits.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two prediction-based checks recompute existing regression/classification evidence and test the overbroad rule. These known cases are replays, not fresh reflection-validation tasks.
 
 **Acceptance to verify:** The proposed rule has a falsifying case. Actual outcomes determine retention. The note does not rewrite the history of the failure.
 
@@ -540,9 +540,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Apply the rule to a case outside its stated scope. Predict possible negative transfer before running a small check.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A separate process reads the retained rule, changes a later cached-candidate decision, and refuses a metric-scope mismatch. The no-memory control is deliberately weak; benefit does not establish LLM learning or unseen generalization.
 
 **Acceptance to verify:** The memory version is identified. A later action is linked to a specific rule. The result distinguishes use from benefit.
 
@@ -553,9 +553,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Edit the improver itself in a separate unexecuted proposal. Explain why this creates a different experiment that needs another comparison.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.
 
 **Acceptance to verify:** The improver version remains fixed. The child is actually used. The acceptance decision follows a declared rule and preserves rejected edits.
 
@@ -607,9 +607,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Propose deleting a check to make more candidates pass. Explain why that changes acceptance rather than demonstrating better task performance.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.
 
 **Acceptance to verify:** The changed surface, parent, child, checks, and active version are recorded. The outcome does not receive an automatic improvement label.
 
@@ -648,9 +648,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a large proposal-generation cost to a labelled numerical illustration. Determine when a fit-efficient method becomes more expensive overall.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.
 
 **Acceptance to verify:** The ledger reconciles every attempt. Unknown cost is distinct from zero. The report states what resource equality was actually achieved.
 
@@ -661,9 +661,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove a conflicting memory rule in a separately declared follow-up. Do not merge that new result into the original experiment.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.
 
 **Acceptance to verify:** All arms are present and differ only in declared components. Shared-context limitations are stated. No favorable arm is relabelled as the only planned comparison.
 
@@ -674,9 +674,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Use the observed failure to propose a new skill version, but label its evaluation as a new development round requiring fresh transfer cases.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four new fits use frozen skill hashes and a predeclared wine interface. Prior public wine outcomes were author-known, so the run is a transfer replay, not an uncontaminated transfer test. A new development proposal stays unexecuted.
 
 **Acceptance to verify:** The procedure version is frozen before wine outcomes. Task-interface changes are documented. The result is not used to rewrite the original claim retroactively.
 
@@ -687,9 +687,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Create a genuinely new task where overall accuracy is the chosen objective. Explain why its results belong in a separate record with a stated tradeoff.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The eight-fit comparison, fixed-rule checks, copied inputs, numerical examples, additional proposals, and actual rollback are retained. Cached comparisons are replays; interpreter behavior is not independent LLM behavior. Real learner assessment remains untested.
 
 **Acceptance to verify:** The decision uses the predeclared metric and validity rules. Rejected artifacts remain available. No performance claim comes from changing the evaluator.
 

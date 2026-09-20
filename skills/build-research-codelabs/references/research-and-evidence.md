@@ -49,6 +49,8 @@ Every required lab has a laptop-sized activity. Add GPU or cluster extensions wh
 
 Freeze the task, metric, and final evaluation before improvement. Keep development, selection, final test, and transfer roles clear. A file in a candidate-readable folder is not a protected holdout. A fresh role prompt in the same conversation does not erase prior information.
 
+Record whether the author or agent already knew the target-task outcomes. Freezing files before a rerun does not erase that knowledge or establish an uncontaminated transfer test. Report new executions separately from reused prediction tables. A deliberately weak control can explain a mechanism, but must not be presented as typical unaided agent behavior.
+
 Evaluate the retained artifact, not only the best score seen during search. Keep failures, invalid candidates, rejected proposals, and cost. Compare under matched total resources, including proposal generation, evaluation, retries, and failed work. State missing measurements.
 
 Check whether changed instructions were actually used. Use suitable ablations and repeated trials. Avoid claiming a general result from a small illustrative sample. Negative transfer, no improvement, and uncertainty belong in the teaching.

@@ -24,7 +24,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A majority classifier can be accurate on imbalanced data while detecting no positive cases. The declared primary metric is balanced accuracy. Changing the promotion metric after observing results creates a different experiment. Rollback restores the retained valid version while preserving the rejected proposal and evidence.
 
-**A concrete example.** A report celebrates an always-negative classifier’s high ordinary accuracy. Its positive recall is zero and negative recall is one, so balanced accuracy is 0.5. Under the wine contract, that is the baseline behavior, not evidence that the research procedure improved. The attractive number cannot replace the promised metric after the run.
+**A concrete example.** The [rollback fixture](../../evidence/2026-09-20/self-star-and-measurement/08-06/PROMOTION.md) temporarily activates an instruction that promotes the majority model for its 87.1% ordinary accuracy. Recalculation shows positive recall 0 and balanced accuracy 0.5. The declared objective has not changed. Reject the promotion and restore the exact prior instruction, retaining the invalid version and its evidence. Choosing accuracy for a genuinely new task requires a separate objective and an explicit tradeoff.
 
 ![A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.](../../assets/diagrams/lab-08-06.png)
 

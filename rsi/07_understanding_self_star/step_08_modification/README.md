@@ -18,13 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A learner-owned task skill and its passing and failing cases. Preserve canonical course files.
 
-**Budget:** One edit, two relevant checks, at most two fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One edit; two cases checked under both parent and child instructions. At most two new fits in total; use saved predictions when fitting is unnecessary. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Self-modification means the system changes part of its own implementation or instructions. The target can be a prompt, skill, tool, route, or model parameters. The name says what can change, not whether the change is good. Versioning and rollback make the consequence inspectable.
 
-**A concrete example.** An agent changes its learner-owned skill from “report the model score” to “recompute the score from saved predictions before reporting.” That is an inspectable self-modification of its instructions. If the new check rejects a valid result because it aligns rows incorrectly, the modification is real but harmful. Restore the parent while retaining the child and failure.
+**A concrete example.** The agent changed a learner-owned instruction from trusting the supplied summary to recomputing its MAE. In the [two-case check](../../evidence/2026-09-20/self-star-and-measurement/07-08/TWO-CASE-CHECKS.csv), both versions handle the correct report, but only the child repairs the wrong summary. The external evaluator is unchanged. The edit is inspectable and useful on these cases; neither the edit alone nor two known fixtures establish broad improvement.
 
 ![Self-modification changes a component. Keep its parent and evaluate the change before retaining it.](../../assets/diagrams/lab-07-08.png)
 
