@@ -57,5 +57,7 @@ jobs:
         run: node how-did-i-generate-it/rsi/scripts/build-lessons.mjs
       - name: Verify teaching-support publication and coverage
         run: node how-did-i-generate-it/rsi/scripts/audit-readme-guidance.mjs
+      - name: Refresh the activity inventory without assuming completion
+        run: node how-did-i-generate-it/rsi/scripts/build-activity-coverage.mjs
       - name: Refuse stale generated pages
-        run: git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md
+        run: git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md
