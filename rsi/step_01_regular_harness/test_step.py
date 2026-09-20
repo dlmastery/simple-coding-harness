@@ -26,6 +26,8 @@ RUNS = HERE / "runs"
 PACKS = ['adult-income-regular']
 INTENTS = ['../tasks/01_adult_income/intent.md']
 CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+RUNTIME_FILES = {"state.json", "traces.jsonl", "scorecard.json", "loop.log", "model.pkl", "curve.json", "exam.json", "score.json",
+                 "plan.json", "working.md"}
 FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
@@ -40,9 +42,12 @@ def front_matter(text):
 
 def section(body, name):
     """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
-    if f"## {name}" not in body:
+    m = re.search(rf"^## {re.escape(name)}\s*$", body, re.M)
+    if not m:
         return ""
-    return body.split(f"## {name}", 1)[1].split("\n## ", 1)[0]
+    rest = body[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return rest[: nxt.start()] if nxt else rest
 
 
 def forbidden_tools(tools_md):
@@ -93,7 +98,10 @@ def test_procedure_names_existing_files(pack):
     for name in set(FILE_RE.findall(body)):
         if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
             continue
-        candidates = [SKILLS / pack / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name]
+        if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
+            continue
+        candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
+                      *(other / name for other in SKILLS.iterdir())]
         assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
 
 
@@ -209,7 +217,7 @@ def claude(prompt, cont=False, timeout=2400):
     n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
     (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
     assert proc.returncode == 0, proc.stderr[-2000:]
-    result = [json.loads(l) for l in proc.stdout.splitlines() if l.startswith('{"type":"result"')]
+    result = [o for o in (json.loads(l) for l in proc.stdout.splitlines() if l.startswith("{")) if o.get("type") == "result"]
     assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
     print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
     return result[-1]["result"]

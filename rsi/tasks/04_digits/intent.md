@@ -1,7 +1,7 @@
 ---
 name: digits
 index: 4
-title: Digits (10 classes)
+title: "Digits (10 classes)"
 role: curriculum
 target: target
 metric: roc_auc_ovr_macro

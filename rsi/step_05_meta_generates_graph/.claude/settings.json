@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/../hooks/gate.py\""
+            "command": "IN=$(cat); if printf %s \"$IN\" | grep -q score_test && ! grep -rqs '\"frozen\": true' runs; then echo 'gate: the test split is locked until FREEZE - no runs/**/state.json says \"frozen\": true' >&2; exit 2; fi; if printf %s \"$IN\" | grep -Eq 'apply([^a-z_]|$)' && [ -z \"$(find runs -name '*.approved' 2>/dev/null)\" ]; then echo 'gate: apply needs proposals/<id>.approved holding the user'\"'\"'s exact words - show the proposal and ask first' >&2; exit 2; fi; exit 0"
           }
         ]
       }

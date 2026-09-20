@@ -1,7 +1,7 @@
 ---
 name: adult_income
 index: 1
-title: Adult Census Income (> 50k)
+title: "Adult Census Income (> 50k)"
 role: curriculum
 target: target
 metric: roc_auc

@@ -1,410 +1,415 @@
-[
- {
-  "id": "p00",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "none"
+{
+ "baseline": "p01",
+ "paths": [
+  {
+   "id": "p01",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p02",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p03",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p04",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p05",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p06",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p07",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p08",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "logreg"
+   }
+  },
+  {
+   "id": "p09",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p10",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p11",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p12",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p13",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p14",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p15",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p16",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "rf"
+   }
+  },
+  {
+   "id": "p17",
+   "steps": [
+    "load",
+    "scale",
+    "model",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "hgb"
+   },
+   "note": "planted: two model nodes and an edge the graph does not have - illegal, skipped and counted"
+  },
+  {
+   "id": "p18",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p19",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p20",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "yes",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p21",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "none",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p22",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "onehot",
+    "class_weight": "balanced",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p23",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "none",
+    "model": "hgb"
+   }
+  },
+  {
+   "id": "p24",
+   "steps": [
+    "load",
+    "scale",
+    "encode",
+    "class_weight",
+    "model",
+    "fit"
+   ],
+   "bindings": {
+    "scale": "no",
+    "encode": "ordinal",
+    "class_weight": "balanced",
+    "model": "hgb"
+   }
   }
- },
- {
-  "id": "p01",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p02",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p03",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p04",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p05",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p06",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p07",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "logreg",
-   "hyper": 1,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p08",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p09",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p10",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p11",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p12",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p13",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p14",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p15",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "rf",
-   "hyper": 16,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p16",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p17",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "yes",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p18",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p19",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "yes",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p20",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p21",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "no",
-   "encode": "onehot",
-   "class_weight": "balanced"
-  }
- },
- {
-  "id": "p22",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "none"
-  }
- },
- {
-  "id": "p23",
-  "nodes": [
-   "load",
-   "scale",
-   "encode",
-   "model",
-   "fit"
-  ],
-  "bindings": {
-   "model": "hgb",
-   "hyper": 0.1,
-   "scale": "no",
-   "encode": "ordinal",
-   "class_weight": "balanced"
-  }
- }
-]
+ ]
+}

@@ -1,6 +1,6 @@
 ---
 name: adult-income-loop
-description: Train a classifier for the Adult income problem by running the counted loop declared in loop.json over recipes.json - 24 fits, a freeze, one test score - with helpers you build from the contracts in tools.md. Use in rsi/step_02_loop_harness, when the pack has loop.json and no graph or memory file.
+description: "Train a classifier for the Adult income problem by running the counted loop declared in loop.json over recipes.json - 24 fits, a freeze, one test score - with helpers you build from the contracts in tools.md. Use in rsi/step_02_loop_harness, when the pack has loop.json and no graph or memory file."
 metadata:
   type: workflow
   version: "3.0"

@@ -1,39 +1,40 @@
 ---
 name: graph-writer
-description: Write a graph harness pack (SKILL.md, tools.md, schema.json, graph.json, paths.json, loop.json) for the task in task.json and propose it for human approval; the user sees the graph as nodes and edges and may edit it before it lands. Use in rsi/step_05_meta_generates_graph when a task.json exists and no graph pack does. You do not fit models.
+description: "A meta skill whose output is a graph harness: from a problem's intent.md write the six files of a graph pack (SKILL.md, tools.md, graph.json, paths.json, loop.json, schema.json) by filling the template, lint the DAG and every path against the intent, propose them as a node / edge list, and land them - or the user's edited version - only with the user's words. Use in rsi/step_05_meta_generates_graph; never fits a model."
 metadata:
   type: workflow
-  version: "2.0"
+  version: "3.0"
   rsi: "off"
+  patches: ["adult-income-graph/*"]
 ---
 # Graph writer: a meta skill whose output is a graph harness
 
-Run every command through the Bash tool from this lesson's directory. This
-pack's directory is `.claude/skills/graph-writer` (`W` below); the pack you
-write lands at `.claude/skills/adult-income-graph` (`OUT` below); the task is
-`W/task.json` (`T` below).
+You do not fit models. Run every helper through the Bash tool from this lesson's directory.
+This pack's directory is `.claude/skills/graph-writer` (`W`); the problem is
+`../tasks/01_adult_income` (`T`); the pack you write is `adult-income-graph`, landing - only
+after the user's answer - at `.claude/skills/adult-income-graph/` and `.agents/skills/adult-income-graph/`.
 
 ## Boot order
-1. This file. 2. `tools.md`. 3. `W/task.json`. 4. `W/template/*`: the shape of every file you emit, including the graph.
+1. This file. 2. `tools.md`. 3. `template/`: the six files with `{{placeholders}}`. 4. `bad_paths.json`: a paths file that must be refused. 5. `T/intent.md`.
 
 ## Procedure
-1. Read `W/task.json`. Everything you write derives from it; nothing you write may widen it.
-2. Render the six template files into `runs/graph-writer/rendered/` (use your Write tool), replacing each `{{placeholder}}` from the task and nothing else: `{{name}}`, `{{slug}}` (`name` with `_` -> `-`), `{{title}}`, `{{metric}}`, `{{n_fits}}`, `{{models}}` (JSON list), `{{test_rule}}` (JSON), and `{{paths}}` = a JSON list of one path per recipe of the static list (each allowed model at its middle hyper value - `logreg` 1, `rf` 16, `hgb` 0.1 - in grid order: model, then scale yes/no, encode onehot/ordinal, class_weight none/balanced; the baseline first): `{"id": "p00", "nodes": ["load", "scale", "encode", "model", "fit"], "bindings": <the recipe>}`, ids `p00` .. `p23`. The graph itself is fixed by the template: the operators, the dependencies, `score_test` as a sink behind `gate: freeze_only`, `mutable: false`.
-3. Lint, and fix until `ok`; besides the loop checks the linter walks the graph - no cycle, every edge names a node, every path legal (each of scale / encode / model exactly once, every edge in the graph, bindings a recipe, never reaching the sink):
-   `python ../tools/lint_pack.py --pack runs/graph-writer/rendered --task W/task.json`
-4. Propose. The script renders the graph as a node / edge list on top of the diff:
-   `python ../tools/propose.py --pack W --task T --target OUT --kind pack --payload @runs/graph-writer/rendered --summary "graph pack for <name>: 6 nodes, 5 edges, 24 paths"`
-5. Show the user the node / edge list and every file, then ask: **approve / edit / reject**. An edit may remove an edge or a path, or change a binding; what lands is the user's version, linted again. Wait for the answer; run nothing until it arrives.
-6. Land exactly what was decided, quoting the user's words verbatim:
-   - approve: `python ../tools/apply.py --pack W --task T --proposal <id> --approved "<the user's exact words>"`
-   - edit: apply the user's change to a copy of the rendered files under `runs/graph-writer/edited/` (their words say what to change; if a removed edge makes a path illegal, leave the path - the linter will say so and nothing lands until the user resolves it), then `python ../tools/apply.py --pack W --task T --proposal <id> --approved "<their words>" --edited @runs/graph-writer/edited`
-   - reject: `python ../tools/apply.py --pack W --task T --proposal <id> --approved "<their words>"`
-7. Answer in text with the proposal id, the decision and what landed. Stop.
+1. Build `lint_pack`, `propose` and `apply` under `runs/graph-writer/helpers/` if they are not there yet. `lint_pack` now checks the graph: no cycle in `graph.json` (plus any `edges_added`), and every path of `paths.json` uses only nodes the graph has, walks only its edges, has exactly one `scale`, one `encode`, one `model`, and never steps through the test sink.
+2. Read `T/intent.md` (`{{task}}`, `{{title}}`, `{{task_dir}}`, `{{metric}}`, `{{budget_fits}}`; `{{task_slug}}` is the name with `_` as `-`) and write the six files from `template/` with every placeholder replaced and nothing else changed, under `runs/graph-writer/adult_income/proposals/p001/`.
+3. Self-check the lint before you trust it: `lint_pack` the same pack with `paths.json` replaced by `bad_paths.json` (a cycle `fit -> load` under `edges_added`, a path with two `scale` nodes, a path that steps through the test sink). It must be refused with those three problems named. Show the refusal. Then `lint_pack` the real pack against `T/intent.md`: it must pass.
+4. `propose W T --target adult-income-graph --files runs/graph-writer/adult_income/proposals/p001 --summary "<one line>"`. Show the user the graph as a node / edge list, the 24 paths as `id: bindings` lines, and the other four files in full, and ask: **approve / edit / reject**. Stop and wait.
+5. When the answer arrives, quoting their words verbatim:
+   - approve: write their words to `runs/graph-writer/adult_income/proposals/p001.approved`, then `apply W T p001 --approved "<their words>"`.
+   - `edit: <a change>` (for example `edit: remove path p24`, or a changed binding): make exactly that change to a copy of the proposal's files under `runs/graph-writer/adult_income/proposals/p001-edited/`, lint the edited pack (an edit that breaks the DAG or a constraint is refused: tell the user and ask again), write `.approved` with their words, `apply ... --edited runs/graph-writer/adult_income/proposals/p001-edited`. Their version lands.
+   - reject: write `p001.rejected`; nothing lands.
+6. Answer in text with the proposal id, the lint results (the refused check and the passing one), the decision and the files that landed. Stop.
 
 ## Rules
-- You never fit, score or read a run: `fit_recipe.py`, `walk_path.py` and `score_test.py` are not in your `tools.md` and refuse to act for you. You never see what the generated pack does.
-- One proposal per run; the same `task.json` gives the same proposal.
-- Never run `apply.py` before the user has answered.
+- You never fit, never open an arm, never score anything.
+- Nothing is proposed that does not lint; a cycle or an illegal path is refused before the human sees it.
+- `edit` is the interesting answer: what lands is the human's version, and you never see a run result - there is no feedback loop here.
+
+## Off switch
+None: a one-shot writer.
 
 ## Done when
-`propose.py` answered and, if the user approved or edited, `apply.py` landed it.
+`apply` answered (landed, edited, or rejected).

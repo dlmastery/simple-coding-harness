@@ -1,110 +1,268 @@
-"""Lesson 06 - the RSI harness: the verifier's input is {recipe, val_score, error} rows and the profile, nothing
-else (no actor text can reach it); write_card refuses a card that names the test or the intent, or carries an
-extra field; a planted wrong card is demoted by its counterexample; fit_recipe refuses a forbidden recipe and
-spends no fit; with the obey-memory policy, same seed and budget, the memory arm on problem 2 is >= the
-control arm and wastes fewer fits after learning on problem 1; MEMORY_OFF reproduces lesson 01's numbers
-exactly; the actor cannot write a card and the verifier cannot fit.
+"""Lesson 06 - the RSI harness: the first file a later run reads that an earlier run wrote. The actor searches under the\ncards, the verifier writes them from the log alone, MEMORY_OFF reproduces the control arm, a second run boots the cards.
+
+Offline (seconds, no key, no agent): the pack contract - front matter, every file the procedure names
+exists, no forbidden tool in the procedure, `.claude/skills` == `.agents/skills`, the hook line, the
+intent files - plus this lesson's own claims. Live (`RSI_LIVE=1`): the recorded run, `claude -p` from
+this directory with the README's prompt, then the assertions on the artifacts the skill must leave.
 """
 
+import hashlib
 import json
-import sys
+import os
+import re
+import shutil
+import subprocess
+import time
 from pathlib import Path
 
+import pytest
+import yaml
+
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "tools"))
-
-from _lib import memory, recipe, testing  # noqa: E402
-
-ACTOR, VERIFIER = "adult-income", "adult-income-verifier"
-T1, T2 = testing.task("adult_income"), testing.task("breast_cancer")
-
-
-def packs_in(tmp_path):
-    return testing.workspace(HERE, tmp_path, ACTOR, VERIFIER)
-
-
-def test_memory_off_reproduces_lesson_01_exactly(tmp_path):
-    actor, _ = packs_in(tmp_path)
-    (actor / "config.json").write_text('{"memory": "off"}', encoding="utf-8")
-    card = testing.play_arm(actor, T1, arm="memory")
-    assert card["best_val_score"] == 0.9172 and card["test_score"] == 0.9034 and card["fits_used"] == 24
-    state = json.loads((tmp_path / "runs" / ACTOR / "adult_income" / "state.json").read_text(encoding="utf-8"))
-    assert [f["recipe"] for f in state["arms"]["memory/0"]["fits"]] == recipe.static_list()
-    assert "MEMORY_OFF" in testing.tool("write_card", "--pack", actor, "--task", T1, "--card", "{}")["error"]
+RSI = HERE.parent
+SKILLS = HERE / ".claude" / "skills"
+MIRROR = HERE / ".agents" / "skills"
+RUNS = HERE / "runs"
+PACKS = ['adult-income', 'adult-income-verifier']
+INTENTS = ['../tasks/01_adult_income/intent.md']
+CLAUDE_ARGS = ["--allowedTools", "Bash,Read,Write,Edit,Skill", "--setting-sources", "project", "--strict-mcp-config"]
+RUNTIME_FILES = {"state.json", "traces.jsonl", "scorecard.json", "loop.log", "model.pkl", "curve.json", "exam.json", "score.json",
+                 "plan.json", "working.md"}
+FILE_RE = re.compile(r"`([\w./-]+\.(?:md|json|yaml|csv|jsonl))`")
 
 
-def test_verifier_sees_only_rows_and_profile_and_writes_typed_cards(tmp_path):
-    actor, verifier = packs_in(tmp_path)
-    testing.play_arm(actor, T1)
-    rows = testing.tool("read_traces", "--pack", actor, "--task", T1, "--scope", "problem", "--tally")
-    assert rows["n"] == 24 and all(set(r) == {"recipe", "val_score", "error"} for r in rows["rows"])
-    assert set(rows["profile"]) == {"n_rows", "n_features", "n_classes", "imbalance", "has_categorical"}
-    out = testing.tool("write_card", "--pack", actor, "--task", T1, "--as", verifier, "--cards", json.dumps(rows["cards_by_rule"]))
-    assert out["written"] == len(rows["cards_by_rule"]) and out["refused"] == 0 and out["by"] == "adult-income-verifier"
-    cards = memory.load(actor / "memory.json")
-    assert any(c["then"] == {"field": "encode", "prefer": "onehot"} for c in cards)      # ordinal hurt logreg
-    assert all(set(c) == {"if", "then", "evidence", "counter"} for c in cards)
+# ---------------------------------------------------------------- reading packs
 
 
-def test_write_card_refuses_test_intent_and_extra_fields(tmp_path):
-    actor, verifier = packs_in(tmp_path)
-    base = {"if": {"key": "imbalance", "op": "<", "value": 0.35}, "then": {"field": "class_weight", "prefer": "balanced"}, "evidence": 1, "counter": 0}
-    for bad, why in [
-        (dict(base, note="peeked at the test split"), "Additional properties"),
-        (dict(base, then={"field": "class_weight", "prefer": "test"}), "may not mention 'test'"),
-        (dict(base, then={"field": "class_weight", "prefer": "intent"}), "may not mention 'intent'"),
-        (dict(base, then={"field": "class_weight", "prefer": "balanced", "forbid": "none"}), "valid under each of"),
-        (dict(base, **{"if": {"key": "target_mean", "op": "<", "value": 1}}), "is not one of"),
-    ]:
-        out = testing.tool("write_card", "--pack", actor, "--task", T1, "--as", verifier, "--card", json.dumps(bad))
-        assert "error" in out and why in out["error"], (bad, out)
-    assert memory.load(actor / "memory.json") == []
-    # the actor cannot write a card; the verifier cannot fit
-    assert "not in adult-income's tools.md" in testing.tool("write_card", "--pack", actor, "--task", T1, "--as", actor, "--card", json.dumps(base))["error"]
-    assert "not in adult-income-verifier's tools.md" in testing.tool("fit_recipe", "--pack", verifier, "--task", T1, "--recipe", json.dumps(recipe.BASELINE))["error"]
+def front_matter(text):
+    assert text.startswith("---\n"), "no front matter"
+    head, body = text[4:].split("\n---\n", 1)
+    return yaml.safe_load(head), body
 
 
-def test_planted_wrong_card_is_demoted_and_forbid_card_refuses_a_fit(tmp_path):
-    actor, verifier = packs_in(tmp_path)
-    wrong = {"if": {"key": "n_rows", "op": ">=", "value": 1000}, "then": {"field": "model", "prefer": "logreg"}, "evidence": 1, "counter": 0}
-    first = testing.tool("write_card", "--pack", actor, "--task", T1, "--as", verifier, "--card", json.dumps(wrong))
-    assert first["added"] and first["active"]
-    counter = testing.tool("write_card", "--pack", actor, "--task", T1, "--as", verifier, "--card", json.dumps(dict(wrong, evidence=0, counter=1)))
-    assert counter["demoted"] and not counter["active"] and counter["card"]["evidence"] == 1 and counter["card"]["counter"] == 1
-    forbid = {"if": {"key": "has_categorical", "op": "==", "value": 1}, "then": {"field": "encode", "forbid": "ordinal"}, "evidence": 1, "counter": 0}
-    testing.tool("write_card", "--pack", actor, "--task", T1, "--as", verifier, "--card", json.dumps(forbid))
-    testing.tool("load_splits", "--pack", actor, "--task", T1)
-    out = testing.tool("fit_recipe", "--pack", actor, "--task", T1, "--recipe", json.dumps(dict(recipe.BASELINE, encode="ordinal")))
-    assert out["refused"] and "forbid card rules this recipe out" in out["error"]
-    assert testing.tool("scorecard", "--pack", actor, "--task", T1)["fits_used"] == 0
-    assert testing.tool("fit_recipe", "--pack", actor, "--task", T1, "--recipe", json.dumps(recipe.BASELINE))["n"] == 1
+def section(body, name):
+    """The text under `## <name>` up to the next `## ` heading ("" when absent)."""
+    m = re.search(rf"^## {re.escape(name)}\s*$", body, re.M)
+    if not m:
+        return ""
+    rest = body[m.end():]
+    nxt = re.search(r"^## ", rest, re.M)
+    return rest[: nxt.start()] if nxt else rest
 
 
-def test_memory_arm_beats_control_on_problem_2_after_problem_1(tmp_path):
-    actor, verifier = packs_in(tmp_path)
-    control_1 = testing.play_arm(actor, T1, arm="control", memory_off=True)
-    memory_1 = testing.play_arm(actor, T1)
-    assert memory_1["best_val_score"] == control_1["best_val_score"]         # an empty memory is the static walk
-    v = testing.play_verifier(actor, T1, verifier)
-    assert v["written"] >= 3
-    control_2 = testing.play_arm(actor, T2, arm="control", memory_off=True)
-    memory_2 = testing.play_arm(actor, T2)
-    # breast cancer is nearly saturated (the baseline is within 0.005 of the static grid's best, so both arms
-    # "waste" 0 fits); the memory arm still finds a better recipe because the model belief sends it to hgb's
-    # hyper variants the static list never visits: +0.0012 val, +0.0039 test on this machine
-    assert memory_2["best_val_score"] > control_2["best_val_score"]
-    assert memory_2["test_score"] > control_2["test_score"]
-    assert memory_2["wasted_fits"] <= control_2["wasted_fits"]
-    assert memory_2["best_recipe"]["hyper"] not in (1, 16, 0.1)      # a hyper variant: outside the static list
-    assert memory_2["test_scored_once"] and control_2["test_scored_once"]
-    assert memory_2["fits_used"] == control_2["fits_used"] == 24
-    assert memory_2["cards_active"] >= 3 and control_2["cards_active"] == 0
+def forbidden_tools(tools_md):
+    """The tool names under `## Forbidden`: each bullet is `name, name - why`."""
+    out = []
+    for line in section(tools_md, "Forbidden").splitlines():
+        if line.startswith("- "):
+            out += [t.strip().strip("`") for t in line[2:].split(" - ")[0].split(",")]
+    return [t for t in out if t]
 
 
-def test_pack_contract():
-    assert testing.pack_contract(HERE) == []
+def tree(root):
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+
+
+def skill(pack):
+    return front_matter((SKILLS / pack / "SKILL.md").read_text(encoding="utf-8"))
+
+
+def rows(path):
+    return [json.loads(l) for l in Path(path).read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def state(pack, task, arm):
+    return json.loads((RUNS / pack / task / arm / "state.json").read_text(encoding="utf-8"))
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# ---------------------------------------------------------------- the pack contract (every lesson)
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_front_matter(pack):
+    meta, body = skill(pack)
+    assert meta["name"] == pack and meta["description"]
+    assert set(meta["metadata"]) >= {"type", "version", "rsi"}
+    for heading in ("Boot order", "Procedure", "Rules", "Done when"):
+        assert f"## {heading}" in body, f"{pack}: no {heading}"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_procedure_names_existing_files(pack):
+    """Every backticked file the SKILL.md names exists: in the pack, the lesson, or the series (../tasks, ../data)."""
+    meta, body = skill(pack)
+    for name in set(FILE_RE.findall(body)):
+        if any(s in name for s in ("runs/", "<", "*", "helpers/", "proposals/", "versions/")) or re.match(r"[A-Z]/", name):
+            continue
+        if name.split("/")[-1] in RUNTIME_FILES or re.match(r"p\d{3}", name.split("/")[-1]):
+            continue
+        candidates = [SKILLS / pack / name, SKILLS / pack / "template" / name, HERE / name, RSI / name.lstrip("./"), SKILLS / name,
+                      *(other / name for other in SKILLS.iterdir())]
+        assert any(c.exists() for c in candidates), f"{pack}: SKILL.md names {name}, which does not exist"
+
+
+@pytest.mark.parametrize("pack", PACKS)
+def test_forbidden_tools_absent_from_procedure(pack):
+    tools_md = (SKILLS / pack / "tools.md").read_text(encoding="utf-8")
+    forbidden = forbidden_tools(tools_md)
+    assert forbidden, f"{pack}: tools.md has no Forbidden list"
+    procedure = section(skill(pack)[1], "Procedure")
+    for name in forbidden:
+        assert not re.search(rf"`{name}\b", procedure), f"{pack}: the procedure names `{name}`, which tools.md forbids"
+    for name in forbidden:
+        assert f"`{name}(" not in section(tools_md, "Allowed"), f"{pack}: {name} is both allowed and forbidden"
+
+
+def test_mirror_identical():
+    assert tree(SKILLS) == tree(MIRROR), ".claude/skills and .agents/skills differ"
+
+
+def test_hook_installed():
+    settings = json.loads((HERE / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    hooks = [h for entry in settings["hooks"]["PreToolUse"] if entry["matcher"] == "Bash" for h in entry["hooks"]]
+    command = hooks[0]["command"]
+    assert "score_test" in command and '"frozen": true' in command, "the hook does not gate score_test on FREEZE"
+    assert "apply" in command and ".approved" in command, "the hook does not gate apply on an approval file"
+    assert "exit 2" in command
+
+
+def test_no_python_shipped():
+    """The owner's rule: nothing under a lesson is Python except this file (runs/ is the agent's, not shipped)."""
+    shipped = [p for p in HERE.rglob("*.py") if "runs" not in p.parts and "__pycache__" not in p.parts]
+    assert [p.name for p in shipped] == ["test_step.py"], shipped
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_intent_contract(intent):
+    meta, body = front_matter((HERE / intent).read_text(encoding="utf-8"))
+    for key in ("name", "index", "title", "role", "target", "metric", "budget_fits", "models", "data", "test", "profile_keys"):
+        assert key in meta, f"{intent}: front matter lacks {key}"
+    assert meta["budget_fits"] == 24 and meta["test"] == "locked, scored once after FREEZE"
+    assert meta["metric"] in ("roc_auc", "roc_auc_ovr_macro") and set(meta["models"]) <= {"logreg", "rf", "hgb"}
+    assert meta["data"]["kind"] in ("csv", "sklearn", "synthetic")
+    for heading in ("What to improve", "Why", "What counts as success", "What is off limits", "The profile the verifier may condition on"):
+        assert f"## {heading}" in body, f"{intent}: body lacks {heading}"
+
+
+# ---------------------------------------------------------------- this lesson's claims (offline)
+
+ACTOR = SKILLS / "adult-income"
+VERIFIER = SKILLS / "adult-income-verifier"
+
+
+def test_memory_starts_empty_and_the_schema_types_a_card():
+    assert json.loads((ACTOR / "memory.json").read_text(encoding="utf-8")) == []
+    schema = json.loads((ACTOR / "memory.schema.json").read_text(encoding="utf-8"))
+    assert schema["required"] == ["if", "then", "evidence", "counter"] and schema["additionalProperties"] is False
+    assert schema["properties"]["if"]["properties"]["key"]["enum"] == ["n_rows", "n_features", "n_classes", "imbalance", "has_categorical"]
+    assert (ACTOR / "memory.schema.json").read_bytes() == (VERIFIER / "memory.schema.json").read_bytes()
+
+
+def test_config_has_the_off_switches():
+    meta, body = front_matter((ACTOR / "config.md").read_text(encoding="utf-8"))
+    assert meta == {"memory": "on", "meta": "on"} and "MEMORY_OFF" in body and "META_OFF" in body
+
+
+def test_verifier_is_blind_by_contract():
+    meta, body = skill("adult-income-verifier")
+    assert "Contract: the verifier sees only {recipe, val_score, error, profile}" in body
+    assert "write_card" in section(body, "Procedure") and "`score_test" not in section(body, "Procedure")
+    tools = (VERIFIER / "tools.md").read_text(encoding="utf-8")
+    assert "whose serialised text contains `test` or `intent`" in tools and "only the verifier writes cards" in tools
+    assert "refuse when the task's `role` is `exam`" in tools
+
+
+def test_actor_never_writes_a_card_and_scores_once():
+    body = skill("adult-income")[1]
+    assert "`write_card" not in section(body, "Procedure") and "Search policy: obey-memory" in body
+    assert "MEMORY_OFF" in section(body, "Off switch") and "must be equal to the control arm's" in section(body, "Off switch")
+
+
+def test_the_pairwise_rule_is_stated_with_its_thresholds():
+    body = skill("adult-income-verifier")[1]
+    for rule in ("`class_weight` -> `imbalance` 0.35", "`encode` -> `has_categorical` == 0 / 1", "`scale` -> `n_features` 10",
+                 "`model` -> `n_rows` 1000", "`hyper` -> `n_classes` 3"):
+        assert rule in body
+
+# ---------------------------------------------------------------- the recorded run (RSI_LIVE=1)
+
+
+def readme_prompt():
+    """The prompt the README tells the reader to type: the first ```text block after "How to execute it"."""
+    text = (HERE / "README.md").read_text(encoding="utf-8").split("## How to execute it", 1)[1]
+    return re.search(r"```text\n(.*?)```", text, re.S).group(1).strip()
+
+
+def reset():
+    """Start from the shipped packs: on the first live run copy both mirrors to runs/_pristine, afterwards restore them
+    from there; everything else under runs/ is cleared. The README says how to reset by hand."""
+    pristine = RUNS / "_pristine"
+    if not pristine.exists():
+        pristine.mkdir(parents=True)
+        shutil.copytree(SKILLS, pristine / ".claude")
+        shutil.copytree(MIRROR, pristine / ".agents")
+    for child in RUNS.iterdir():
+        if child.name != "_pristine":
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
+    for root, src in ((SKILLS, ".claude"), (MIRROR, ".agents")):
+        shutil.rmtree(root)
+        shutil.copytree(pristine / src, root)
+    for extra in []:
+        if (HERE / extra).exists():
+            shutil.rmtree(HERE / extra) if (HERE / extra).is_dir() else (HERE / extra).unlink()
+
+
+def claude(prompt, cont=False, timeout=3600):
+    """One `claude -p` turn from this directory; the stream is recorded under runs/_recording/, the final text returned."""
+    exe = shutil.which("claude")
+    assert exe, "claude is not on the PATH"
+    args = [exe, "-p"] + (["--continue"] if cont else []) + [prompt, *CLAUDE_ARGS, "--output-format", "stream-json", "--verbose"]
+    started = time.time()
+    proc = subprocess.run(args, cwd=HERE, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          stdin=subprocess.DEVNULL, timeout=timeout)
+    (RUNS / "_recording").mkdir(parents=True, exist_ok=True)
+    n = len(list((RUNS / "_recording").glob("*.jsonl"))) + 1
+    (RUNS / "_recording" / f"{n:02d}.jsonl").write_text(proc.stdout, encoding="utf-8")
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    result = [o for o in (json.loads(l) for l in proc.stdout.splitlines() if l.startswith("{")) if o.get("type") == "result"]
+    assert result and not result[-1].get("is_error"), proc.stdout[-2000:]
+    print(f"[{result[-1]['num_turns']} turns, {int(time.time() - started)} s]")
+    return result[-1]["result"]
+
+
+def live_or_skip():
+    if os.environ.get("RSI_LIVE") != "1":
+        pytest.skip("set RSI_LIVE=1 to record the lesson with claude -p")
+
+
+def card_key(c):
+    return json.dumps({"if": c["if"], "then": c["then"]}, sort_keys=True)
 
 
 def test_live_claude_code():
-    text = testing.live(HERE)
-    assert "card" in text.lower()
+    """The recorded run: both arms 24 fits, one test score each, the memory arm with no cards equals the control arm; the verifier
+    wrote cards into memory.json (both mirrors) that name no test and no intent; a second memory arm booted them."""
+    live_or_skip()
+    reset()
+    text = claude(readme_prompt())
+    task = "adult_income"
+    for arm in ("control", "memory", "memory-r2"):
+        s = state("adult-income", task, arm)
+        assert s["fits_used"] == 24 and s["frozen"] is True and s["test_scored"] == 1, arm
+        events = [r["event"] for r in rows(RUNS / "adult-income" / task / arm / "traces.jsonl") if "event" in r]
+        assert events.count("score_test") == 1 and events.index("FREEZE") < events.index("score_test"), arm
+    cards = {arm: json.loads((RUNS / "adult-income" / task / arm / "scorecard.json").read_text(encoding="utf-8")) for arm in ("control", "memory", "memory-r2")}
+    assert cards["control"]["best_val_score"] == cards["memory"]["best_val_score"], "an empty memory must give the control arm's numbers"
+    assert cards["control"]["cards_active"] == 0 and cards["memory-r2"]["cards_active"] >= 1
+    memory = json.loads((ACTOR / "memory.json").read_text(encoding="utf-8"))
+    assert memory and all(set(c) == {"if", "then", "evidence", "counter"} for c in memory)
+    assert "test" not in json.dumps(memory) and "intent" not in json.dumps(memory)
+    assert len({card_key(c) for c in memory}) == len(memory), "a card is merged, not duplicated"
+    assert tree(SKILLS) == tree(MIRROR)
+    write_events = [r for r in rows(RUNS / "adult-income" / task / "memory" / "traces.jsonl") if r.get("event") == "write_card"]
+    assert write_events and write_events[0]["as"] == "adult-income-verifier"
+    assert str(cards["memory-r2"]["best_val_score"])[:4] in text

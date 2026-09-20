@@ -1,6 +1,6 @@
 ---
 name: adult-income-regular
-description: Train a classifier for the Adult income problem by walking a fixed list of 24 recipes, the same way every run, with helpers you build from the contracts in tools.md. Use in rsi/step_01_regular_harness, when the task is adult_income and the pack has no loop, graph or memory file.
+description: "Train a classifier for the Adult income problem by walking a fixed list of 24 recipes, the same way every run, with helpers you build from the contracts in tools.md. Use in rsi/step_01_regular_harness, when the task is adult_income and the pack has no loop, graph or memory file."
 metadata:
   type: workflow
   version: "3.0"

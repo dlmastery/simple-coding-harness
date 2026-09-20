@@ -3,10 +3,7 @@
  "target": "target",
  "metric": "roc_auc",
  "n_fits": 24,
- "test_rule": {
-  "scores": 1,
-  "after": "FREEZE"
- },
+ "test_rule": "locked, scored once after FREEZE",
  "models": [
   "logreg",
   "rf",
@@ -54,5 +51,175 @@
   "scale": "yes",
   "encode": "onehot",
   "class_weight": "none"
- }
+ },
+ "recipes": [
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "logreg",
+   "hyper": 1,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "rf",
+   "hyper": 16,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "yes",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "yes",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "none"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "no",
+   "encode": "onehot",
+   "class_weight": "balanced"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "none"
+  },
+  {
+   "model": "hgb",
+   "hyper": 0.1,
+   "scale": "no",
+   "encode": "ordinal",
+   "class_weight": "balanced"
+  }
+ ]
 }

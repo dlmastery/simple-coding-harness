@@ -1,7 +1,7 @@
 ---
 name: breast_cancer
 index: 2
-title: Breast cancer (malignant)
+title: "Breast cancer (malignant)"
 role: curriculum
 target: target
 metric: roc_auc

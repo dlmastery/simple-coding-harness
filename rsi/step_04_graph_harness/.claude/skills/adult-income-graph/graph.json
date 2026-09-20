@@ -1,23 +1,92 @@
 {
- "mutable": false,
  "nodes": {
-  "load": {"op": "load_splits"},
-  "scale": {"op": "scale", "values": ["yes", "no"]},
-  "encode": {"op": "encode", "values": ["onehot", "ordinal"]},
-  "model": {"op": "model", "values": ["logreg", "rf", "hgb"], "binds": ["hyper", "class_weight"]},
-  "fit": {"op": "fit_recipe"},
-  "score_test": {"op": "score_test", "gate": "freeze_only", "sink": true}
+  "load": {
+   "kind": "source"
+  },
+  "scale": {
+   "kind": "operator",
+   "field": "scale",
+   "values": [
+    "yes",
+    "no"
+   ]
+  },
+  "encode": {
+   "kind": "operator",
+   "field": "encode",
+   "values": [
+    "onehot",
+    "ordinal"
+   ]
+  },
+  "class_weight": {
+   "kind": "operator",
+   "field": "class_weight",
+   "values": [
+    "none",
+    "balanced"
+   ]
+  },
+  "model": {
+   "kind": "operator",
+   "field": "model",
+   "values": [
+    "logreg",
+    "rf",
+    "hgb"
+   ],
+   "hyper": "the model's middle value"
+  },
+  "fit": {
+   "kind": "sink",
+   "counts": true
+  },
+  "FREEZE": {
+   "kind": "gate",
+   "when": "fits_used == N"
+  },
+  "score_test": {
+   "kind": "sink",
+   "gate": "freeze_only",
+   "once": true
+  }
  },
  "edges": [
-  ["load", "scale"],
-  ["scale", "encode"],
-  ["encode", "model"],
-  ["model", "fit"],
-  ["fit", "score_test"]
+  [
+   "load",
+   "scale"
+  ],
+  [
+   "scale",
+   "encode"
+  ],
+  [
+   "encode",
+   "class_weight"
+  ],
+  [
+   "class_weight",
+   "model"
+  ],
+  [
+   "model",
+   "fit"
+  ],
+  [
+   "fit",
+   "FREEZE"
+  ],
+  [
+   "FREEZE",
+   "score_test"
+  ]
  ],
- "constraints": {
-  "one_of": ["scale", "encode", "model"],
-  "no_cycles": true,
-  "sink_after_freeze": "score_test"
- }
+ "constraints": [
+  "one scale per path",
+  "one encode per path",
+  "one model per path",
+  "no cycles",
+  "score_test only as the last node, after FREEZE, once"
+ ],
+ "mutable": false
 }

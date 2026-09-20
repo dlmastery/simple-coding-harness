@@ -21,8 +21,9 @@ item) that you read, never a crash you retry.
   (the lesson's hook greps `runs/` for it before it lets a `score_test` command run).
 - **Trace.** `traces.jsonl` next to it, append-only, one JSON object per line: a fit row
   `{"t": n, "arm", "seed", "problem", "recipe", "val_score", "error"}` and event rows
-  `{"event": "open" | "FREEZE" | "score_test" | "write_card" | "propose" | "apply" | "gate" | "rollback", ...}`.
-  Never rewrite or delete a line.
+  `{"event": "open" | "FREEZE" | "score_test" | "scorecard" | "write_card" | "propose" | "apply" | "gate" | "rollback", ...}`
+  (`scorecard` is the scorecard tool's own event; `write_card` is the verifier's and appears only when a
+  card was written). Never rewrite or delete a line.
 - **Data.** `data.kind: csv` reads `data.path` relative to the series root (`..` from this
   lesson); `kind: sklearn` is `sklearn.datasets.load_<name>()` as a frame with the feature
   names and an integer `target`; `kind: synthetic` is
@@ -37,7 +38,8 @@ item) that you read, never a crash you retry.
   every machine. Only `score_test` may read the test part; only `private_score` the private part.
 - **Recipe.** Exactly `{"model", "hyper", "scale", "encode", "class_weight"}` with values from
   `schema.json -> fields` (`hyper` from the model's own list; the middle value is the default:
-  logreg 1, rf 16, hgb 0.1). Pipeline: `ColumnTransformer` with `StandardScaler` (scale `yes`)
+  logreg 1, rf 16, hgb 0.1). Pipeline: `ColumnTransformer(..., sparse_threshold=0)` (dense
+  output: the boosting model takes no sparse matrix) with `StandardScaler` (scale `yes`)
   or passthrough on the numeric columns and `OneHotEncoder(handle_unknown="ignore")` (encode
   `onehot`) or `OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)` on the
   categorical ones, then `LogisticRegression(C=hyper, max_iter=2000)` |
@@ -45,8 +47,9 @@ item) that you read, never a crash you retry.
   `HistGradientBoostingClassifier(learning_rate=hyper, max_iter=40, max_bins=64, random_state=0)`,
   with `class_weight="balanced"` or `None`. Metric `roc_auc` = ROC-AUC of the positive-class
   probability; `roc_auc_ovr_macro` = one-vs-rest macro ROC-AUC over `predict_proba`. Round
-  `val_score` to 4 decimals. A fit that raises is a result too - `val_score` null, `error`
-  `"<Type>: <message>"` - and it still counts against the budget.
+  `val_score` to 4 decimals; silence scikit-learn's warnings (a convergence warning is not an
+  error). A fit that raises is a result too - `val_score` null, `error` `"<Type>: <message>"` -
+  and it still counts against the budget.
 - **Two mirrors, one pack.** Every file a tool changes inside a pack (`memory.json`,
   `SKILL.md`, `schema.json`, `roles/`, ...) changes in `.claude/skills/<pack name>/` and in
   `.agents/skills/<pack name>/` alike; `write_card`, `apply`, `gate`, `rollback` and

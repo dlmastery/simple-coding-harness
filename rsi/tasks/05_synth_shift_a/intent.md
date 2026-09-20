@@ -1,7 +1,7 @@
 ---
 name: synth_shift_a
 index: 5
-title: Synthetic shifted table A (one cluster per class)
+title: "Synthetic shifted table A (one cluster per class)"
 role: curriculum
 target: target
 metric: roc_auc

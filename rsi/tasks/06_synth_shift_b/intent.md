@@ -1,7 +1,7 @@
 ---
 name: synth_shift_b
 index: 6
-title: Synthetic shifted table B (three clusters per class, imbalanced, small)
+title: "Synthetic shifted table B (three clusters per class, imbalanced, small)"
 role: curriculum
 target: target
 metric: roc_auc

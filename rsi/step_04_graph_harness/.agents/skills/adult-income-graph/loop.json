@@ -4,19 +4,20 @@
  "counter": "t",
  "error_still_counts": true,
  "body": [
-  "path = paths[t]",
-  "walk_path.py --path path.id  (or --paths p00,...,p05: six per call)"
+  "path = paths.json[t - 1]",
+  "walk_path(path.id)  # legal: bound to a recipe and fitted; illegal: skipped and counted"
  ],
  "exit": [
   "FREEZE",
-  "score_test",
+  "score_test once, with the best val recipe",
   "save_model",
   "scorecard"
  ],
  "illegal": [
   "change N",
-  "reorder paths",
-  "add or repair a path",
+  "reorder paths.json",
+  "invent a path",
+  "replace an illegal path",
   "a second while",
   "score_test before FREEZE"
  ]

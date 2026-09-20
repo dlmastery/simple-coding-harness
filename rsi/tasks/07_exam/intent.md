@@ -1,7 +1,7 @@
 ---
 name: exam
 index: 7
-title: Exam: a held-out synthetic table the pack never wrote to
+title: "Exam: a held-out synthetic table the pack never wrote to"
 role: exam
 target: target
 metric: roc_auc

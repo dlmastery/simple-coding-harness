@@ -1,6 +1,6 @@
 ---
 name: loop-writer
-description: A meta skill whose output is a loop harness: from a problem's intent.md write the five files of a loop pack (SKILL.md, tools.md, loop.json, recipes.json, schema.json) by filling the template, lint them against the intent, propose them, and land them only with the user's words. Use in rsi/step_03_meta_generates_loop; never fits a model.
+description: "A meta skill whose output is a loop harness: from a problem's intent.md write the five files of a loop pack (SKILL.md, tools.md, loop.json, recipes.json, schema.json) by filling the template, lint them against the intent, propose them, and land them only with the user's words. Use in rsi/step_03_meta_generates_loop; never fits a model."
 metadata:
   type: workflow
   version: "3.0"

@@ -1,7 +1,7 @@
 ---
 name: wine
 index: 3
-title: Wine (3 classes)
+title: "Wine (3 classes)"
 role: curriculum
 target: target
 metric: roc_auc_ovr_macro

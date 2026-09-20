@@ -1,36 +1,34 @@
 ---
 name: adult-income-graph
-description: Train a classifier for the Adult income problem by walking the paths of graph.json in the order of paths.json, one counted loop over paths. Use in rsi/step_04_graph_harness, when the pack has graph.json and paths.json and no memory file.
+description: "Train a classifier for the Adult income problem by walking the 24 paths of paths.json through the DAG of graph.json with the counted loop of loop.json - an illegal path is skipped and counted, never replaced - with helpers you build from the contracts in tools.md. Use in rsi/step_04_graph_harness, when the pack has graph.json and paths.json."
 metadata:
   type: workflow
-  version: "2.0"
+  version: "3.0"
   rsi: "off"
 ---
 # Graph harness: the job is a DAG, a recipe is a path, the loop walks paths
 
-Run every command through the Bash tool from this lesson's directory. This
-pack's directory is `.claude/skills/adult-income-graph` (`P` below); the task
-is `../tasks/01_adult_income.json` (`T` below).
+Run every helper through the Bash tool from this lesson's directory. This pack's directory
+is `.claude/skills/adult-income-graph` (`P`); the problem is `../tasks/01_adult_income` (`T`);
+the one arm is `control`.
 
 ## Boot order
-1. This file. 2. `tools.md`. 3. `schema.json`: the recipe space, the budget, the test rule. 4. `graph.json`: the nodes (legal operators), the edges (hard dependencies), the constraints; `mutable: false`. 5. `paths.json`: the baseline and 23 more paths with their bindings; `mutable: false`. 6. `loop.json`: the counted while over paths.
-Nothing else is read. The two graph files are never written.
+1. This file. 2. `tools.md`. 3. `graph.json`: the nodes (legal operators), the edges (hard dependencies), the constraints; `score_test` is a sink behind the `FREEZE` gate. 4. `paths.json`: the baseline and the 24 paths with their bindings. 5. `loop.json`: the counted while now iterates over paths. 6. `schema.json`, `T/intent.md`.
 
 ## Procedure
-Run `loop.json` exactly as written:
-1. `python ../tools/load_splits.py --pack P --task T` once.
-2. `counted_while` with counter `t` from 0 to `N` - 1 (`N` is 24): walk `paths[t]` by its id. Walk six paths per command, in `paths.json` order, four commands in all:
-   `python ../tools/walk_path.py --pack P --task T --paths p00,p01,p02,p03,p04,p05`
-   then `p06..p11`, `p12..p17`, `p18..p23`. The script checks each path against the graph: a legal path fits the recipe its bindings form; an illegal one (a missing edge, two model nodes, a path that reaches `score_test`) is skipped and still counts as a fit, with the reason in its `error`. A path id that is not in `paths.json` is refused. You never repair a path and never invent one.
-3. When the last result says `FREEZE`, pick the walked path with the highest `val_score`. `score_test` is a sink behind `gate: freeze_only`; then, after FREEZE:
-   `python ../tools/score_test.py --pack P --task T --recipe model=<m>,hyper=<h>,scale=<s>,encode=<e>,class_weight=<c>`
-   `python ../tools/save_model.py --pack P --task T --recipe model=<m>,hyper=<h>,scale=<s>,encode=<e>,class_weight=<c>`
-4. `python ../tools/scorecard.py --pack P --task T` and answer in text with the best val_score, the test score, the fits used and how many paths were illegal. Stop.
+1. Build the helpers of `tools.md` under `runs/adult-income-graph/helpers/` if they are not there yet. `walk_path` is the new one: it checks a path against `graph.json` before it binds and fits it.
+2. Open the arm: `load_splits P T --arm control --memory off`.
+3. Run `loop.json`: for `t` from 1 to `N`, `walk_path P T --arm control --path <paths.json[t - 1].id>`. A legal path is bound to its recipe (the bindings, the model at its middle hyper value) and fitted through `fit_recipe`; an illegal path - a node the graph lacks, a step that is not an edge, a broken constraint - is skipped and counted: one fit of the budget, a trace row with `error: "illegal path: <why>"`, no fit. Never replace it, never invent a path. You may walk several paths per call if your helper accepts a list.
+4. The exit as `loop.json` lists it: `FREEZE`; `score_test P T --arm control --recipe <best val recipe>` once; `save_model`; `scorecard`.
+5. Answer in text with the number of legal and illegal paths, the best val_score, the test score and the fits used. Stop.
 
 ## Rules
-- Paths in the order of `paths.json`, each once. Never run `fit_recipe.py`: a recipe reaches the fitter only as a path of the graph, and `fit_recipe` is not in your `tools.md`.
-- Never run `score_test.py` before FREEZE, never twice.
-- `graph.json` and `paths.json` are `mutable: false`: you do not edit them, add a path or remove an edge.
+- `graph.json` and `paths.json` are `mutable: false`: a run never changes them (the test compares their bytes).
+- Everything under `illegal` in `loop.json` is illegal; an illegal path costs a fit because the budget counts attempts, not successes.
+- Never run `score_test` before FREEZE, never twice: `score_test` is a sink the graph puts behind the gate, the hook blocks it and the helper refuses it.
+
+## Off switch
+None: no memory. Still not RSI: the next run walks the same paths in the same order.
 
 ## Done when
-`t` reached `N`, `score_test.py` answered once and `save_model.py` once.
+`t` reached `N`, `score_test` answered once, `save_model` once.
