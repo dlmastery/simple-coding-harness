@@ -35,11 +35,17 @@ Task rules define the current problem. Reference knowledge explains how to act. 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 05.03, Retrieve what matters and retain task state, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 05.03, Retrieve what
+matters and retain task state, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which is more important for resuming: a long generic ML article or the current candidate ledger?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Separate information by role.
 
 ```text
-Create CONTEXT.md for resuming the bike run. Include current contract, candidate state, remaining budget, and the relevant data-card passages. Exclude wine-specific metric instructions and unrelated history.
+Create CONTEXT.md for resuming the bike run.
+Include current contract, candidate state,
+remaining budget, and the relevant data-card
+passages. Exclude wine-specific metric
+instructions and unrelated history.
 ```
 
 **Observe:** The packet is short enough to inspect and sufficient for the next action.
@@ -59,7 +69,11 @@ Create CONTEXT.md for resuming the bike run. Include current contract, candidate
 Make a conflict visible.
 
 ```text
-Supply a labelled stale note that says the run has three attempts left when the ledger shows one. Have the state check reject the conflict and identify the authoritative record.
+Supply a labelled stale note that says the
+run has three attempts left when the ledger
+shows one. Have the state check reject the
+conflict and identify the authoritative
+record.
 ```
 
 **Observe:** Retrieval cannot silently reset spent budget.

@@ -35,11 +35,17 @@ Working state records the current run: active candidate, pending check, remainin
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.06, Separate working state from reusable experience, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.06, Separate working
+state from reusable experience, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should the next task inherit the previous task’s “one attempt remaining” note?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Give each artifact a clear lifetime.
 
 ```text
-Create WORKING.md for the current run and EXPERIENCE.md for one reusable lesson. Label source run, scope, and update rule. Keep raw traces unchanged.
+Create WORKING.md for the current run and
+EXPERIENCE.md for one reusable lesson. Label
+source run, scope, and update rule. Keep raw
+traces unchanged.
 ```
 
 **Observe:** State and knowledge are distinguishable.
@@ -59,7 +68,11 @@ Create WORKING.md for the current run and EXPERIENCE.md for one reusable lesson.
 Check what transfers to a new run.
 
 ```text
-Create a new task context. Retrieve the relevant experience but initialize state from the new contract. Test a stale candidate-ID fixture and require a mismatch report.
+Create a new task context. Retrieve the
+relevant experience but initialize state
+from the new contract. Test a stale
+candidate-ID fixture and require a mismatch
+report.
 ```
 
 **Observe:** A prior lesson transfers without importing stale run identity.

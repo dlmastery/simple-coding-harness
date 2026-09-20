@@ -35,11 +35,17 @@ ScientistTwo motivates a research workflow built around hypotheses and experimen
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.18, Turn a limitation into a scientific hypothesis, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.18, Turn a
+limitation into a scientific hypothesis, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What observation would make you reject the proposed explanation?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Connect a limitation to a measurable consequence.
 
 ```text
-Create HYPOTHESIS.md with observed limitation, proposed mechanism, intervention, metric, baseline, expected result, alternative explanation, and rejection condition. Use the fixed bike contract.
+Create HYPOTHESIS.md with observed
+limitation, proposed mechanism,
+intervention, metric, baseline, expected
+result, alternative explanation, and
+rejection condition. Use the fixed bike
+contract.
 ```
 
 **Observe:** The hypothesis could be wrong.
@@ -59,7 +70,10 @@ Create HYPOTHESIS.md with observed limitation, proposed mechanism, intervention,
 Produce evidence for the stated question.
 
 ```text
-Fit linear/calendar and linear/all under matching settings. Save predictions, slice errors, costs, and a conclusion tied to the predeclared question.
+Fit linear/calendar and linear/all under
+matching settings. Save predictions, slice
+errors, costs, and a conclusion tied to the
+predeclared question.
 ```
 
 **Observe:** The conclusion addresses the intervention rather than a broad intelligence claim.

@@ -35,11 +35,17 @@ Procedure A repeats a declared baseline recipe. Procedure B uses the first resul
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.06, Compare two ways to spend the same attempts, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.06, Compare two ways
+to spend the same attempts, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a feedback-guided procedure lose despite having a sensible explanation?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Prevent a favorable retrospective choice.
 
 ```text
-Write COMPARISON-PLAN.md. Arm A runs constant/calendar twice. Arm B runs constant/calendar then chooses one model change from selection error evidence. Use seed 17 and two attempts per arm. Record the decision before its fit.
+Write COMPARISON-PLAN.md. Arm A runs
+constant/calendar twice. Arm B runs
+constant/calendar then chooses one model
+change from selection error evidence. Use
+seed 17 and two attempts per arm. Record the
+decision before its fit.
 ```
 
 **Observe:** The comparison rule exists before the second results.
@@ -59,7 +70,12 @@ Write COMPARISON-PLAN.md. Arm A runs constant/calendar twice. Arm B runs constan
 Measure retained outputs and costs.
 
 ```text
-Execute both arms in separate workspaces. Compare retained selection MAE, attempted recipes, elapsed fit time, and available agent cost. State the same-context limitation if no fresh agent context was used.
+Execute both arms in separate workspaces.
+Compare retained selection MAE, attempted
+recipes, elapsed fit time, and available
+agent cost. State the same-context
+limitation if no fresh agent context was
+used.
 ```
 
 **Observe:** The report distinguishes model-fit budget from total research cost.

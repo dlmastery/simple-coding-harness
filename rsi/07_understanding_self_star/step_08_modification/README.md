@@ -35,11 +35,17 @@ Self-modification means the system changes part of its own implementation or ins
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.08, Make a self-modification inspectable, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.08, Make a
+self-modification inspectable, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a modification make the system worse while still being genuine self-modification?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Identify the mutable surface.
 
 ```text
-Ask the current agent to revise one learner-owned task skill using a recorded failure. Preserve parent and child versions, explain the changed instruction, and keep the evaluator fixed.
+Ask the current agent to revise one
+learner-owned task skill using a recorded
+failure. Preserve parent and child versions,
+explain the changed instruction, and keep
+the evaluator fixed.
 ```
 
 **Observe:** The change has a clear target and ancestry.
@@ -59,7 +69,11 @@ Ask the current agent to revise one learner-owned task skill using a recorded fa
 Separate modification from acceptance.
 
 ```text
-Run the relevant passing and failing cases. Use the declared acceptance rule. If the child regresses, restore the parent as active while keeping the child and its evidence.
+Run the relevant passing and failing cases.
+Use the declared acceptance rule. If the
+child regresses, restore the parent as
+active while keeping the child and its
+evidence.
 ```
 
 **Observe:** A rejection is retained as part of the history.

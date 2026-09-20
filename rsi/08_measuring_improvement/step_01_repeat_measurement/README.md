@@ -35,11 +35,17 @@ Use the same prespecified seeds for both recipes. Compare paired differences, re
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.01, Distinguish a result from a reliable comparison, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.01, Distinguish a
+result from a reliable comparison, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If all three differences favor one recipe, what uncertainty remains?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Prevent favorable seed selection.
 
 ```text
-Write a plan comparing tree and forest on calendar inputs with seeds 17, 29, and 43. Fix the split and metric. Explain that model and complexity differ and that the goal is stability of this comparison.
+Write a plan comparing tree and forest on
+calendar inputs with seeds 17, 29, and 43.
+Fix the split and metric. Explain that model
+and complexity differ and that the goal is
+stability of this comparison.
 ```
 
 **Observe:** Every planned run is named before results.
@@ -59,7 +69,12 @@ Write a plan comparing tree and forest on calendar inputs with seeds 17, 29, and
 Show the whole distribution of outcomes.
 
 ```text
-Execute all six fits in separate or compatible bounded workspaces. Report paired MAE differences, mean, range, and total measured fit time. Generate a plot from actual values. Do not claim statistical certainty from three seeds.
+Execute all six fits in separate or
+compatible bounded workspaces. Report paired
+MAE differences, mean, range, and total
+measured fit time. Generate a plot from
+actual values. Do not claim statistical
+certainty from three seeds.
 ```
 
 **Observe:** The report includes unfavorable pairs as well as favorable ones.

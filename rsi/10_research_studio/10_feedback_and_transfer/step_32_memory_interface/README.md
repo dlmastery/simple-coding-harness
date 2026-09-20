@@ -35,11 +35,17 @@ The task asks the agent to recover the final state from a sequence. One conditio
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.32, Compare raw history and summarized memory, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.32, Compare raw
+history and summarized memory, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a shorter summary be worse if it omits one state-changing event?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Give the comparison an executable ground truth.
 
 ```text
-Generate a small deterministic inventory event sequence and a checker. Save raw events and a correct summary at a declared checkpoint. Keep the final answer outside the actor prompt where the host can enforce it.
+Generate a small deterministic inventory
+event sequence and a checker. Save raw
+events and a correct summary at a declared
+checkpoint. Keep the final answer outside
+the actor prompt where the host can enforce
+it.
 ```
 
 **Observe:** The answer follows from explicit operations.
@@ -59,7 +70,11 @@ Generate a small deterministic inventory event sequence and a checker. Save raw 
 Measure retrieval and summary failure.
 
 ```text
-Run raw-history and summary-plus-tail conditions with matched budgets. Then use a labelled summary missing one removal event. Check all answers and state context-exposure limits.
+Run raw-history and summary-plus-tail
+conditions with matched budgets. Then use a
+labelled summary missing one removal event.
+Check all answers and state context-exposure
+limits.
 ```
 
 **Observe:** A compact memory can help or introduce a systematic error.

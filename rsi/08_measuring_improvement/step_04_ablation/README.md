@@ -35,11 +35,17 @@ Compare parent without memory, parent with memory, child without memory, and chi
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.04, Separate the effects of memory and procedure changes, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.04, Separate the
+effects of memory and procedure changes, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could useful memory become harmful when paired with a changed skill?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Separate main effects and interaction.
 
 ```text
-Write ABLATION-PLAN.md with the four component combinations, same task, same budget, and fixed acceptance metric. Identify possible conflicting instructions.
+Write ABLATION-PLAN.md with the four
+component combinations, same task, same
+budget, and fixed acceptance metric.
+Identify possible conflicting instructions.
 ```
 
 **Observe:** Each arm answers a distinct comparison.
@@ -59,7 +68,11 @@ Write ABLATION-PLAN.md with the four component combinations, same task, same bud
 Retain interactions and failures.
 
 ```text
-Run all arms from clean starting state where possible. Record context boundaries, actual decisions, results, and costs. Explain whether the combination behaves differently from the individual changes.
+Run all arms from clean starting state where
+possible. Record context boundaries, actual
+decisions, results, and costs. Explain
+whether the combination behaves differently
+from the individual changes.
 ```
 
 **Observe:** A component’s effect can depend on the other component.

@@ -35,11 +35,16 @@ Start with what changes and how it is evaluated. Then inspect inheritance, resou
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 11.04, Audit an unfamiliar RSI claim, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 11.04, Audit an
+unfamiliar RSI claim, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which missing detail would most change your interpretation of the claim?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Build a source trail.
 
 ```text
-Search the preceding month with explicit dates. Select one primary paper, lab report, or original author announcement. Read relevant methods and limitations. Save the exact query, source version, reading depth, and access gaps.
+Search the preceding month with explicit
+dates. Select one primary paper, lab report,
+or original author announcement. Read
+relevant methods and limitations. Save the
+exact query, source version, reading depth,
+and access gaps.
 ```
 
 **Observe:** The audit distinguishes what was read from what was inferred.
@@ -59,7 +69,12 @@ Search the preceding month with explicit dates. Select one primary paper, lab re
 Make the next step testable.
 
 ```text
-Use audit-rsi-claim. Produce a two-page-equivalent note with supported claim, strongest evidence, main limitation, alternative explanation, and the smallest useful follow-up. If running a toy check, label its relation to the source.
+Use audit-rsi-claim. Produce a
+two-page-equivalent note with supported
+claim, strongest evidence, main limitation,
+alternative explanation, and the smallest
+useful follow-up. If running a toy check,
+label its relation to the source.
 ```
 
 **Observe:** The critique identifies evidence that could change the conclusion.

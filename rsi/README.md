@@ -13,10 +13,14 @@ This course builds that distinction slowly. You begin with one understandable pr
 Open the repository root in your coding agent and paste this first instruction. If you need the local copy, [Start here](START-HERE.md) explains the branch to clone.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Start lab 00.01 with me. Explain the prediction task before running code.
-You write the implementation; I will predict, inspect, and explain.
-Wait at the learning checkpoints. Keep my work in a sibling rsi-work folder.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Start lab 00.01 with me.
+Explain the prediction task before running code.
+You write the implementation.
+I will predict, inspect, and explain.
+Wait at the learning checkpoints.
+Keep my work in a sibling rsi-work folder.
 ```
 
 Your first session starts with a few rows of data and a question about what can be predicted. Setup and the first measured model result follow in the next labs. You build the larger system only after those basics are clear.
@@ -66,7 +70,7 @@ A meta-harness answers another question: can a procedure generate a usable harne
 
 ![Three stages: make one experiment trustworthy, build and evaluate the research system, then test inherited improvement](assets/course-overview.png)
 
-*The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-* systems follow one universal ladder.*
+*The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-\* systems follow one universal ladder.*
 
 | Theme | The question you will answer |
 |---|---|

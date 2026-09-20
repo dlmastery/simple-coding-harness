@@ -35,11 +35,16 @@ Learning can be implemented through changed weights, memory, skills, or other re
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.03, Retain and use a lesson, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.03, Retain and use a
+lesson, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What would demonstrate use of the memory rather than mere file existence?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Preserve scope and evidence.
 
 ```text
-Write MEMORY-v1.md with the validated rule, when it applies, when it does not, and links to its supporting and failing cases. Keep the original trace separate.
+Write MEMORY-v1.md with the validated rule,
+when it applies, when it does not, and links
+to its supporting and failing cases. Keep
+the original trace separate.
 ```
 
 **Observe:** The note retains a bounded lesson, not an unconditional slogan.
@@ -59,7 +67,12 @@ Write MEMORY-v1.md with the validated rule, when it applies, when it does not, a
 Trace persistence into behavior.
 
 ```text
-In a new task context, read MEMORY-v1.md and record the decision it changes before execution. Run the task and compare with the declared no-memory behavior. Label a same-context exercise if a new session is unavailable.
+In a new task context, read MEMORY-v1.md and
+record the decision it changes before
+execution. Run the task and compare with the
+declared no-memory behavior. Label a
+same-context exercise if a new session is
+unavailable.
 ```
 
 **Observe:** A decision trace supports actual use.

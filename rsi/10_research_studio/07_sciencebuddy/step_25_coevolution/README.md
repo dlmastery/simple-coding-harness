@@ -35,11 +35,17 @@ ScienceBuddy couples harness adaptation with weight learning across repeated cyc
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.25, Track model–harness pairs across cycles, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.25, Track
+model–harness pairs across cycles, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Must the best harness for model A remain best for model B?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Avoid mixing incompatible versions.
 
 ```text
-Generate a labelled synthetic 2-by-2 table of model and harness versions with an interaction. Record the constructed values and why they illustrate the concept. Create PAIRS.md with both version IDs for each result.
+Generate a labelled synthetic 2-by-2 table
+of model and harness versions with an
+interaction. Record the constructed values
+and why they illustrate the concept. Create
+PAIRS.md with both version IDs for each
+result.
 ```
 
 **Observe:** Each result belongs to a pair.
@@ -59,7 +70,11 @@ Generate a labelled synthetic 2-by-2 table of model and harness versions with an
 Track what changes at each stage.
 
 ```text
-Run one harness-selection step, one model-update placeholder, and another harness-selection step over the table. Mark the model update as a simulation, not training. Keep a fixed evaluation table.
+Run one harness-selection step, one
+model-update placeholder, and another
+harness-selection step over the table. Mark
+the model update as a simulation, not
+training. Keep a fixed evaluation table.
 ```
 
 **Observe:** Changing one component can change the best partner.

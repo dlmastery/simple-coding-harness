@@ -35,11 +35,16 @@ Emergence describes a pattern at the collective level that arises from component
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.06, Observe a collective pattern, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.06, Observe a
+collective pattern, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will the clustering persist if workers ignore recent jobs?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Choose an observable collective property.
 
 ```text
-Extend the synthetic queue with job types and a fixed local preference for the previous type. Define a clustering statistic before running. Keep the job list fixed.
+Extend the synthetic queue with job types
+and a fixed local preference for the
+previous type. Define a clustering statistic
+before running. Keep the job list fixed.
 ```
 
 **Observe:** The claimed pattern has a measurement.
@@ -59,7 +67,11 @@ Extend the synthetic queue with job types and a fixed local preference for the p
 Test dependence on local rules.
 
 ```text
-Compare the preference rule with a rule that ignores job type and one that randomizes history using a fixed seed. Save traces and clustering values. Label every result as simulation.
+Compare the preference rule with a rule that
+ignores job type and one that randomizes
+history using a fixed seed. Save traces and
+clustering values. Label every result as
+simulation.
 ```
 
 **Observe:** The ablation tests whether the interaction drives the pattern.

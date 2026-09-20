@@ -35,11 +35,16 @@ A scalar score says how well a candidate performed. Error slices help locate the
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.03, Turn an error into a different action, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.03, Turn an error
+into a different action, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could adding relevant-looking inputs make selection error worse?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Turn observations into a falsifiable proposal.
 
 ```text
-Read the selection error slices. Write FEEDBACK.md with an observed weakness, a proposed weather-feature test, an alternative explanation, and the expected result. Do not inspect final outcomes.
+Read the selection error slices. Write
+FEEDBACK.md with an observed weakness, a
+proposed weather-feature test, an
+alternative explanation, and the expected
+result. Do not inspect final outcomes.
 ```
 
 **Observe:** The diagnosis separates observed facts from guesses.
@@ -59,7 +68,11 @@ Read the selection error slices. Write FEEDBACK.md with an observed weakness, a 
 Record the decision it changed.
 
 ```text
-Fit linear/calendar and linear/all with the same seed and contract. Record in DECISION.md exactly which feedback led to the feature change. Compare errors and retain both candidates.
+Fit linear/calendar and linear/all with the
+same seed and contract. Record in
+DECISION.md exactly which feedback led to
+the feature change. Compare errors and
+retain both candidates.
 ```
 
 **Observe:** The trace connects feedback to an actual different action.

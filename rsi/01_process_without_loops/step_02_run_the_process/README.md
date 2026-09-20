@@ -35,11 +35,16 @@ Reproducibility begins with a fixed recipe and known inputs. Record versions and
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 01.02, Run the process without changing it, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.02, Run the process
+without changing it, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should this run reproduce the earlier baseline score? Which differences would be harmless?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Test whether the written process is sufficient.
 
 ```text
-Follow PROCESS.md from a clean workspace. Use pinned data and the constant bike model. Record each action, input artifact, output artifact, exit status, and elapsed time in TRACE.md. Do not improve the recipe.
+Follow PROCESS.md from a clean workspace.
+Use pinned data and the constant bike model.
+Record each action, input artifact, output
+artifact, exit status, and elapsed time in
+TRACE.md. Do not improve the recipe.
 ```
 
 **Observe:** The same data and recipe give the same metric within numerical tolerance.
@@ -59,7 +68,10 @@ Follow PROCESS.md from a clean workspace. Use pinned data and the constant bike 
 Separate reproducibility from performance improvement.
 
 ```text
-Compare the new and old baseline settings, row identities, predictions, score, and runtime. Save REPEATABILITY.md. Explain any difference instead of replacing it.
+Compare the new and old baseline settings,
+row identities, predictions, score, and
+runtime. Save REPEATABILITY.md. Explain any
+difference instead of replacing it.
 ```
 
 **Observe:** Wall time may differ even when predictions match.

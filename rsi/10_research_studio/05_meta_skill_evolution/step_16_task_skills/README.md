@@ -35,11 +35,17 @@ A meta-skill is a procedure for working on skills. Keep the meta-skill fixed whi
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.16, Improve task skills with a fixed pipeline, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.16, Improve task
+skills with a fixed pipeline, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which version should remain unchanged while task skills vary?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Make its responsibilities visible.
 
 ```text
-Write META-SKILL-v0.md with diagnosis, proposal, evaluation, and retention steps. Define one permitted task-skill change and its acceptance rule.
+Write META-SKILL-v0.md with diagnosis,
+proposal, evaluation, and retention steps.
+Define one permitted task-skill change and
+its acceptance rule.
 ```
 
 **Observe:** The updater is explicit and fixed.
@@ -59,7 +68,10 @@ Write META-SKILL-v0.md with diagnosis, proposal, evaluation, and retention steps
 Measure the output of the pipeline.
 
 ```text
-Run one task-skill revision through v0. Execute a target and regression check. Save parent, child, updater version, and promotion decision.
+Run one task-skill revision through v0.
+Execute a target and regression check. Save
+parent, child, updater version, and
+promotion decision.
 ```
 
 **Observe:** The task skill can change while the pipeline stays the same.

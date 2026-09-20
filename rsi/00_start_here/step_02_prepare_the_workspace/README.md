@@ -39,11 +39,17 @@ This author-run chart uses all public teaching rows. It describes the data; it i
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 00.02, Prepare a workspace you can inspect, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 00.02, Prepare a
+workspace you can inspect, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which capability would fail first if the agent could read files but could not run commands?
@@ -53,7 +59,13 @@ Ask me to predict the result before the experiment.
 Find the actual execution path.
 
 ```text
-Read the tutor skill and tool README. Check file access, command execution, Python, package installation, and plot creation. Set up the project-local environment. Save CAPABILITIES.md with versions, what you executed, and any missing capability. Do not display credentials.
+Read the tutor skill and tool README. Check
+file access, command execution, Python,
+package installation, and plot creation. Set
+up the project-local environment. Save
+CAPABILITIES.md with versions, what you
+executed, and any missing capability. Do not
+display credentials.
 ```
 
 **Observe:** The report names executed checks, not only advertised features.
@@ -63,7 +75,10 @@ Read the tutor skill and tool README. Check file access, command execution, Pyth
 Confirm that the supplied source is intact.
 
 ```text
-Run the bike data inspection in this lab workspace. Open DATA-REPORT.md and data-overview.png. Explain the row count and fixed partitions.
+Run the bike data inspection in this lab
+workspace. Open DATA-REPORT.md and
+data-overview.png. Explain the row count and
+fixed partitions.
 ```
 
 **Observe:** The pinned file contains 17,379 rows. The chart and report come from actual data.

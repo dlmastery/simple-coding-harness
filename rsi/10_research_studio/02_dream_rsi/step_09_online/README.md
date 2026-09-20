@@ -35,11 +35,16 @@ Freeze the selected policy, then give it and the baseline comparable new work. T
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.09, Test the replay winner on fresh work, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.09, Test the replay
+winner on fresh work, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could a replay winner lose online even if the replay implementation is correct?
@@ -49,7 +54,9 @@ Ask me to predict the result before the experiment.
 Prevent online results from rewriting selection history.
 
 ```text
-Record policy versions and a new comparison task before execution. State what makes the cases new relative to the replay tree.
+Record policy versions and a new comparison
+task before execution. State what makes the
+cases new relative to the replay tree.
 ```
 
 **Observe:** Selection and confirmation phases are separated.
@@ -59,7 +66,11 @@ Record policy versions and a new comparison task before execution. State what ma
 Measure actual environment outcomes.
 
 ```text
-Run both policies under matched two-fit budgets. Compare retained quality, failures, and total known cost including replay preparation. State whether the task change limits comparability.
+Run both policies under matched two-fit
+budgets. Compare retained quality, failures,
+and total known cost including replay
+preparation. State whether the task change
+limits comparability.
 ```
 
 **Observe:** The online result may disagree with replay.

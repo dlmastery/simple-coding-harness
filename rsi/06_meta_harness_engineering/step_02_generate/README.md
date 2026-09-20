@@ -35,11 +35,16 @@ The builder is a meta-harness: it creates another harness. The generated harness
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.02, Generate a first harness, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.02, Generate a first
+harness, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What output would distinguish a finished harness from a folder of plans?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Let the agent supply implementation syntax.
 
 ```text
-Use build-ml-harness with HARNESS-BRIEF.md. Generate a README, task contract, workflow, tools, checks, dependency record, and recovery guide in my workspace. Prefer the supplied ML tools where appropriate.
+Use build-ml-harness with HARNESS-BRIEF.md.
+Generate a README, task contract, workflow,
+tools, checks, dependency record, and
+recovery guide in my workspace. Prefer the
+supplied ML tools where appropriate.
 ```
 
 **Observe:** The generated entry point names concrete operations.
@@ -59,7 +68,11 @@ Use build-ml-harness with HARNESS-BRIEF.md. Generate a README, task contract, wo
 Prove that the generated system executes.
 
 ```text
-Run its one-attempt baseline from a clean subfolder. Save commands, exit status, predictions, and the checked result. Do not mark generation complete until the run finishes or a specific failure is recorded.
+Run its one-attempt baseline from a clean
+subfolder. Save commands, exit status,
+predictions, and the checked result. Do not
+mark generation complete until the run
+finishes or a specific failure is recorded.
 ```
 
 **Observe:** A real result supports the generated instructions.

@@ -35,11 +35,17 @@ Recreation uses the saved brief, builder version, generated files, dependencies,
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.06, Recreate and compare generated harnesses, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.06, Recreate and
+compare generated harnesses, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Must two valid generated harnesses have identical code?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Remove dependence on the old chat.
 
 ```text
-Write a handoff for each harness with brief, builder version, generated entry point, pinned data, setup, and acceptance checks. Create clean output folders.
+Write a handoff for each harness with brief,
+builder version, generated entry point,
+pinned data, setup, and acceptance checks.
+Create clean output folders.
 ```
 
 **Observe:** A reader can locate every dependency.
@@ -59,7 +68,11 @@ Write a handoff for each harness with brief, builder version, generated entry po
 Compare behavior under the same task contract.
 
 ```text
-Run each baseline from the saved generated system. Compare predictions, metric, refusal behavior, and versions with the earlier run. Record any difference without selecting the most favorable rerun.
+Run each baseline from the saved generated
+system. Compare predictions, metric, refusal
+behavior, and versions with the earlier run.
+Record any difference without selecting the
+most favorable rerun.
 ```
 
 **Observe:** The report distinguishes reproduction of behavior from identical generated text.

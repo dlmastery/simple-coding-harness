@@ -35,11 +35,16 @@ A process says what actions turn an input into an output. For this task: frame t
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 01.01, Write the data science process, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.01, Write the data
+science process, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which action must happen before fitting if you want a meaningful comparison later?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Turn intentions into observable work.
 
 ```text
-Create PROCESS.md with five actions: frame, inspect, split, fit, check. For each give its input, output, and completion check. Use the bike task. Do not add retries or search.
+Create PROCESS.md with five actions: frame,
+inspect, split, fit, check. For each give
+its input, output, and completion check. Use
+the bike task. Do not add retries or search.
 ```
 
 **Observe:** Every action leaves something a reader can inspect.
@@ -59,7 +67,10 @@ Create PROCESS.md with five actions: frame, inspect, split, fit, check. For each
 Check that the sequence has no unexplained jump.
 
 ```text
-Trace one baseline result backward through this process. Identify where the target, input availability, partition, and metric were fixed. Save a short gap review.
+Trace one baseline result backward through
+this process. Identify where the target,
+input availability, partition, and metric
+were fixed. Save a short gap review.
 ```
 
 **Observe:** The choices that make the score meaningful precede the fit.

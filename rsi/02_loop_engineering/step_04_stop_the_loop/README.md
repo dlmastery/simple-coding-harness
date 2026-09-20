@@ -35,11 +35,16 @@ A recipe fingerprint identifies task, model, features, seed, and tool version. I
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.04, Stop repeated failure and oscillation, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.04, Stop repeated
+failure and oscillation, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should the sequence linear → tree → linear count as three new ideas?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Give repetition an observable definition.
 
 ```text
-Generate a controller in my workspace that fingerprints proposed recipes and rejects unlabelled duplicates. Preserve the sequence linear/calendar, tree/calendar, linear/calendar as a teaching input. Write its stop rules in LOOP.md.
+Generate a controller in my workspace that
+fingerprints proposed recipes and rejects
+unlabelled duplicates. Preserve the sequence
+linear/calendar, tree/calendar,
+linear/calendar as a teaching input. Write
+its stop rules in LOOP.md.
 ```
 
 **Observe:** The third proposal is recognized as a duplicate.
@@ -59,7 +69,10 @@ Generate a controller in my workspace that fingerprints proposed recipes and rej
 Verify behavior, including rejection.
 
 ```text
-Execute at most the first two recipes. Attempt the duplicate and an over-budget request. Keep the refusal records and show that neither starts an extra fit.
+Execute at most the first two recipes.
+Attempt the duplicate and an over-budget
+request. Keep the refusal records and show
+that neither starts an extra fit.
 ```
 
 **Observe:** The attempt ledger and execution count agree.

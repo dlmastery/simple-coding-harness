@@ -35,11 +35,17 @@ For every edge, ask which artifact changed and who produced the change. Then ask
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.12, Compare agent evolution and improver evolution, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.12, Compare agent
+evolution and improver evolution, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could every node in an agent family tree be different while the improver stays identical?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Avoid relying on secondary labels.
 
 ```text
-Use audit-rsi-claim to inspect the primary DGM and HyperAgents method descriptions. Record mutable surfaces, parent selection, evaluation, and inheritance. Mark any inaccessible detail unresolved.
+Use audit-rsi-claim to inspect the primary
+DGM and HyperAgents method descriptions.
+Record mutable surfaces, parent selection,
+evaluation, and inheritance. Mark any
+inaccessible detail unresolved.
 ```
 
 **Observe:** The comparison is source-specific.
@@ -59,7 +69,11 @@ Use audit-rsi-claim to inspect the primary DGM and HyperAgents method descriptio
 Apply the same questions locally.
 
 ```text
-Annotate each edge in your solver and improver lineage with the changed artifact and the procedure that generated it. Identify which edges support structural recursion.
+Annotate each edge in your solver and
+improver lineage with the changed artifact
+and the procedure that generated it.
+Identify which edges support structural
+recursion.
 ```
 
 **Observe:** Agent evolution and improver evolution can be distinguished.

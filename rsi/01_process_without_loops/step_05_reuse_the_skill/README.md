@@ -35,11 +35,16 @@ A fresh session has a new working context. It reads the stored skill and task to
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 01.05, Reuse the skill in a fresh session, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.05, Reuse the skill
+in a fresh session, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which information must survive outside the old conversation for the run to succeed?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Retain only the necessary starting information.
 
 ```text
-Create HANDOFF.md with the task, skill path and hash, environment setup, workspace rule, and one-fit limit. Do not include the earlier metric as a target to imitate.
+Create HANDOFF.md with the task, skill path
+and hash, environment setup, workspace rule,
+and one-fit limit. Do not include the
+earlier metric as a target to imitate.
 ```
 
 **Observe:** The handoff describes how to run, not what number to manufacture.
@@ -59,7 +67,11 @@ Create HANDOFF.md with the task, skill path and hash, environment setup, workspa
 Test the real context boundary available.
 
 ```text
-In the new session, read HANDOFF.md and run the fixed skill. Record whether this was a genuinely fresh session or a same-context simulation. Compare the new predictions with the old recipe.
+In the new session, read HANDOFF.md and run
+the fixed skill. Record whether this was a
+genuinely fresh session or a same-context
+simulation. Compare the new predictions with
+the old recipe.
 ```
 
 **Observe:** The procedure is recovered from files. Any weaker session boundary is stated.

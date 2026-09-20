@@ -35,11 +35,17 @@ Swap the role being tested. Give each researcher the same task of improving a re
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.15, Test the ignition claim separately, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.15, Test the
+ignition claim separately, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can the researcher that wins on task search lose at designing a better search procedure?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Avoid reusing the old score as proof.
 
 ```text
-Write IGNITION-PLAN.md comparing parent and child as outer improvers. Define starting researcher, allowed edits, evaluation cases, total budget, and how improvement produced will be measured.
+Write IGNITION-PLAN.md comparing parent and
+child as outer improvers. Define starting
+researcher, allowed edits, evaluation cases,
+total budget, and how improvement produced
+will be measured.
 ```
 
 **Observe:** The new comparison asks a different question.
@@ -59,7 +69,12 @@ Write IGNITION-PLAN.md comparing parent and child as outer improvers. Define sta
 Inspect what the evidence can support.
 
 ```text
-Have each frozen procedure produce one outer proposal under matched conditions. Evaluate on the same prespecified small fixtures. Report structural differences, outcomes, costs, and uncertainty. Label this a limited mechanism exercise.
+Have each frozen procedure produce one outer
+proposal under matched conditions. Evaluate
+on the same prespecified small fixtures.
+Report structural differences, outcomes,
+costs, and uncertainty. Label this a limited
+mechanism exercise.
 ```
 
 **Observe:** The outcome can be inconclusive without invalidating the earlier inner-research result.

@@ -35,11 +35,17 @@ A majority classifier can be accurate on imbalanced data while detecting no posi
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.06, Reject a misleading win and roll back, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.06, Reject a
+misleading win and roll back, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should a candidate with high ordinary accuracy but zero positive recall be promoted under the declared rule?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Recompute the metric that was promised.
 
 ```text
-Calculate ordinary accuracy, both class recalls, and balanced accuracy from the majority baseline predictions. Compare the promotional summary with the task contract.
+Calculate ordinary accuracy, both class
+recalls, and balanced accuracy from the
+majority baseline predictions. Compare the
+promotional summary with the task contract.
 ```
 
 **Observe:** The apparently strong accuracy coexists with balanced accuracy 0.5.
@@ -59,7 +68,11 @@ Calculate ordinary accuracy, both class recalls, and balanced accuracy from the 
 Keep the evidence while restoring the active version.
 
 ```text
-Write PROMOTION.md rejecting any unsupported metric-switch claim. Restore the previously valid active skill or recipe if it was replaced in the fixture. Keep the rejected version, reason, and cost.
+Write PROMOTION.md rejecting any unsupported
+metric-switch claim. Restore the previously
+valid active skill or recipe if it was
+replaced in the fixture. Keep the rejected
+version, reason, and cost.
 ```
 
 **Observe:** Rollback changes the active choice without erasing history.

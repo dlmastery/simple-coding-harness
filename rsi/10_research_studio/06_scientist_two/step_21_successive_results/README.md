@@ -35,11 +35,17 @@ A previous result can become the baseline for a new investigation. Track the res
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.21, Distinguish better discoveries from a better scientist, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.21, Distinguish
+better discoveries from a better scientist,
+one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a fixed scientist procedure produce several better solutions in sequence?
@@ -49,7 +55,9 @@ Ask me to predict the result before the experiment.
 Separate artifacts from their producer.
 
 ```text
-Create DISCOVERY-LINEAGE.md with hypotheses, baselines, retained results, and costs. Add the researcher-procedure hash to every edge.
+Create DISCOVERY-LINEAGE.md with hypotheses,
+baselines, retained results, and costs. Add
+the researcher-procedure hash to every edge.
 ```
 
 **Observe:** Result progression and researcher changes are visible separately.
@@ -59,7 +67,12 @@ Create DISCOVERY-LINEAGE.md with hypotheses, baselines, retained results, and co
 Apply the same standard to local and paper-reported work.
 
 ```text
-Use audit-rsi-claim to classify your lineage. Read ScientistTwo’s evaluation sections and state which outputs they assess. Distinguish improved scientific artifacts from demonstrated improvement of an improver.
+Use audit-rsi-claim to classify your
+lineage. Read ScientistTwo’s evaluation
+sections and state which outputs they
+assess. Distinguish improved scientific
+artifacts from demonstrated improvement of
+an improver.
 ```
 
 **Observe:** The conclusion follows the measured object.

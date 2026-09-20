@@ -35,11 +35,17 @@ Reflection interprets an attempt. It may identify a failure, suggest a cause, an
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.02, Test a reflection before trusting it, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.02, Test a
+reflection before trusting it, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can an eloquent explanation reduce performance when followed?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Avoid treating explanation as proof.
 
 ```text
-Create REFLECTION.md with observed facts, one causal hypothesis, an alternative explanation, and a proposed procedural rule. Use the actual failed trace.
+Create REFLECTION.md with observed facts,
+one causal hypothesis, an alternative
+explanation, and a proposed procedural rule.
+Use the actual failed trace.
 ```
 
 **Observe:** The note makes uncertainty visible.
@@ -59,7 +68,11 @@ Create REFLECTION.md with observed facts, one causal hypothesis, an alternative 
 Compare behavior on a new case.
 
 ```text
-Predeclare one case where the rule should help and one where it might hurt. Execute the relevant check or bounded fit in each. Keep both outcomes before deciding whether to retain the rule.
+Predeclare one case where the rule should
+help and one where it might hurt. Execute
+the relevant check or bounded fit in each.
+Keep both outcomes before deciding whether
+to retain the rule.
 ```
 
 **Observe:** A reflection can be rejected even when it sounds sensible.

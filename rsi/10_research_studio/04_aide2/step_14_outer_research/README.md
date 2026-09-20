@@ -35,11 +35,17 @@ The outer task changes the inner researcher’s procedure. It might revise which
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.14, Improve the inner researcher under a total budget, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.14, Improve the
+inner researcher under a total budget, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What cost is missing if only the winning inner search is counted?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Target research behavior.
 
 ```text
-Use the inner trace to propose one change to operator selection or budget allocation. Preserve parent and child researcher procedures and freeze the comparison before execution.
+Use the inner trace to propose one change to
+operator selection or budget allocation.
+Preserve parent and child researcher
+procedures and freeze the comparison before
+execution.
 ```
 
 **Observe:** The edited object is the researcher, not only a task candidate.
@@ -59,7 +69,11 @@ Use the inner trace to propose one change to operator selection or budget alloca
 Count the whole nested experiment.
 
 ```text
-Run each inner researcher with three fits from the same baseline. Compare retained quality, failed work, proposal overhead, and evaluation calls. Report unknown provider costs.
+Run each inner researcher with three fits
+from the same baseline. Compare retained
+quality, failed work, proposal overhead, and
+evaluation calls. Report unknown provider
+costs.
 ```
 
 **Observe:** The outer evaluation measures results produced by each researcher.

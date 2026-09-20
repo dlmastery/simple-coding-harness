@@ -35,11 +35,16 @@ The control graph says which action may follow. Data flow says which artifact ea
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.06, Read the plan, data flow, and trace, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.06, Read the plan,
+data flow, and trace, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Does a drawn verifier node prove that the verifier ran?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Make their questions distinct.
 
 ```text
-Create VIEWS.md with a control graph, a data-flow table, and a time-ordered trace for one completed run. Use actual artifact names and candidate IDs.
+Create VIEWS.md with a control graph, a
+data-flow table, and a time-ordered trace
+for one completed run. Use actual artifact
+names and candidate IDs.
 ```
 
 **Observe:** Each view answers a different question.
@@ -59,7 +67,10 @@ Create VIEWS.md with a control graph, a data-flow table, and a time-ordered trac
 Use a failed run to test the distinction.
 
 ```text
-Compare the failed trace with the intended graph. Identify an allowed-but-unexecuted action and an output that therefore cannot be claimed. Save the audit.
+Compare the failed trace with the intended
+graph. Identify an allowed-but-unexecuted
+action and an output that therefore cannot
+be claimed. Save the audit.
 ```
 
 **Observe:** The audit refuses to treat a planned check as completed evidence.

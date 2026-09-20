@@ -35,11 +35,16 @@ Suppose the fixed improver promotes a skill after one favorable case and misses 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.03, Propose a change to the improver, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.03, Propose a change
+to the improver, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could an extra regression check improve reliability while reducing the number of proposals tried?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Target a procedural failure rather than a model setting.
 
 ```text
-Use the full lineage to identify one weakness in IMPROVER-v0. Write a proposal changing one diagnosis, proposal, allocation, or selection rule. State its expected benefit, overhead, and falsifying case.
+Use the full lineage to identify one
+weakness in IMPROVER-v0. Write a proposal
+changing one diagnosis, proposal,
+allocation, or selection rule. State its
+expected benefit, overhead, and falsifying
+case.
 ```
 
 **Observe:** The mutable target is the improvement procedure.
@@ -59,7 +69,10 @@ Use the full lineage to identify one weakness in IMPROVER-v0. Write a proposal c
 Preserve a runnable version.
 
 ```text
-Save IMPROVER-v1.md without overwriting v0. Test its instructions on one favorable and one regressing fixture. Keep the evaluator unchanged and record the changed decision.
+Save IMPROVER-v1.md without overwriting v0.
+Test its instructions on one favorable and
+one regressing fixture. Keep the evaluator
+unchanged and record the changed decision.
 ```
 
 **Observe:** The candidate improver has a concrete behavioral difference.

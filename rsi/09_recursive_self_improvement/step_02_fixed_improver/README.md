@@ -35,11 +35,17 @@ Generation labels track ancestry. The improver reads a solver’s failures, prop
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.02, Run repeated improvement with an unchanged improver, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.02, Run repeated
+improvement with an unchanged improver, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can the solver improve twice without the improver improving at all?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Make the baseline identifiable.
 
 ```text
-Save IMPROVER-v0.md and its hash. Predeclare two generations and a two-fit budget for each. Write the task-skill acceptance rule and permitted changes.
+Save IMPROVER-v0.md and its hash. Predeclare
+two generations and a two-fit budget for
+each. Write the task-skill acceptance rule
+and permitted changes.
 ```
 
 **Observe:** The control procedure is fixed before the run.
@@ -59,7 +68,11 @@ Save IMPROVER-v0.md and its hash. Predeclare two generations and a two-fit budge
 Preserve all proposals and decisions.
 
 ```text
-Use the same improver for both rounds. Save each parent and child skill, proposal, evaluation, rejection or promotion, and costs. Verify the improver hash stays unchanged.
+Use the same improver for both rounds. Save
+each parent and child skill, proposal,
+evaluation, rejection or promotion, and
+costs. Verify the improver hash stays
+unchanged.
 ```
 
 **Observe:** The lineage can show repeated solver changes under a fixed method.

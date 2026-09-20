@@ -35,11 +35,17 @@ Use several task-level outcomes to motivate a less frequent updater change. Free
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.17, Update the skill updater on a slower schedule, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.17, Update the skill
+updater on a slower schedule, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What becomes ambiguous if the task skill, updater, and evaluator all change together?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Use accumulated evidence at the right level.
 
 ```text
-Review the two task-skill traces. Propose one META-SKILL-v1 change, with expected benefit, overhead, and a counterexample. Keep the evaluator fixed.
+Review the two task-skill traces. Propose
+one META-SKILL-v1 change, with expected
+benefit, overhead, and a counterexample.
+Keep the evaluator fixed.
 ```
 
 **Observe:** The edit targets the update procedure.
@@ -59,7 +68,11 @@ Review the two task-skill traces. Propose one META-SKILL-v1 change, with expecte
 Observe the slower change in later work.
 
 ```text
-Run a later task-skill improvement round using v1. Record the changed instruction that affects its action. Compare with v0 under matched small conditions and state remaining uncertainty.
+Run a later task-skill improvement round
+using v1. Record the changed instruction
+that affects its action. Compare with v0
+under matched small conditions and state
+remaining uncertainty.
 ```
 
 **Observe:** The meta-skill revision enters actual subsequent improvement.

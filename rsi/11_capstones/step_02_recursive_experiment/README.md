@@ -35,11 +35,17 @@ First establish the fixed-improver baseline. Propose one improver revision from 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 11.02, Run and audit a bounded recursive experiment, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 11.02, Run and audit a
+bounded recursive experiment, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which result would demonstrate structure but fail to show effective improvement?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Prevent claims from following favorable accidents.
 
 ```text
-Write a complete bounded protocol: solver and improver versions, permitted edits, tasks, metrics, resource limits, promotion, rollback, context boundary, and stop conditions. Identify the final evaluation exposure.
+Write a complete bounded protocol: solver
+and improver versions, permitted edits,
+tasks, metrics, resource limits, promotion,
+rollback, context boundary, and stop
+conditions. Identify the final evaluation
+exposure.
 ```
 
 **Observe:** The experiment’s claims have explicit acceptance evidence.
@@ -59,7 +70,12 @@ Write a complete bounded protocol: solver and improver versions, permitted edits
 Keep the complete lineage.
 
 ```text
-Execute the protocol, including rejected proposals. Save inheritance traces, matched comparisons, costs, and final retained versions. Use audit-rsi-claim and write a conclusion that may be negative or inconclusive.
+Execute the protocol, including rejected
+proposals. Save inheritance traces, matched
+comparisons, costs, and final retained
+versions. Use audit-rsi-claim and write a
+conclusion that may be negative or
+inconclusive.
 ```
 
 **Observe:** The claim follows the complete record rather than the best isolated score.

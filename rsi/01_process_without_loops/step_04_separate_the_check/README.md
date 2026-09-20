@@ -35,11 +35,17 @@ A separate calculation can recompute a metric without trusting the report writer
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 01.04, Check outputs with a separate calculation, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.04, Check outputs
+with a separate calculation, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could a mathematically correct checker still approve the wrong candidate?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Give the check its own inputs.
 
 ```text
-Generate a checker that reads the candidate ID, prediction rows, expected partition row IDs, and declared metric. Recompute MAE and reject missing, duplicate, or mismatched rows. Run it on the baseline. Save its code and output.
+Generate a checker that reads the candidate
+ID, prediction rows, expected partition row
+IDs, and declared metric. Recompute MAE and
+reject missing, duplicate, or mismatched
+rows. Run it on the baseline. Save its code
+and output.
 ```
 
 **Observe:** The checker checks identity and completeness as well as arithmetic.
@@ -59,7 +70,10 @@ Generate a checker that reads the candidate ID, prediction rows, expected partit
 Demonstrate an actual refusal.
 
 ```text
-In a labelled copy, replace one selection row ID with a training row ID. Run the checker and retain its nonzero result. Do not alter the original predictions.
+In a labelled copy, replace one selection
+row ID with a training row ID. Run the
+checker and retain its nonzero result. Do
+not alter the original predictions.
 ```
 
 **Observe:** The wrong partition row is rejected even if the summary score looks reasonable.

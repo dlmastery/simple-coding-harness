@@ -35,11 +35,16 @@ Two checks can inspect different properties of the same candidate. Their results
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.03, Join independent checks, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.03, Join independent
+checks, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should a data pass for candidate A combine with a budget pass for candidate B?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 State what must agree.
 
 ```text
-Generate separate data and resource check functions. Their results must identify candidate and contract. Add a join that requires both passes for the same candidate. Do not launch agent subworkers.
+Generate separate data and resource check
+functions. Their results must identify
+candidate and contract. Add a join that
+requires both passes for the same candidate.
+Do not launch agent subworkers.
 ```
 
 **Observe:** The dependency structure is explicit without needing multiple agents.
@@ -59,7 +68,10 @@ Generate separate data and resource check functions. Their results must identify
 Test missing and stale results.
 
 ```text
-Run three cases: both checks pass for A; A has only one result; data passes for A while resources pass for B. Retain JOIN-REPORT.md and all check records.
+Run three cases: both checks pass for A; A
+has only one result; data passes for A while
+resources pass for B. Retain JOIN-REPORT.md
+and all check records.
 ```
 
 **Observe:** Only the complete matching case proceeds.

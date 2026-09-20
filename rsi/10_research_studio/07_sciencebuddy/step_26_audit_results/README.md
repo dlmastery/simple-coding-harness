@@ -35,11 +35,17 @@ The paper reports held-out single-attempt accuracy rising from 42.2% to 73.3% ac
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.26, Read the ScienceBuddy results precisely, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.26, Read the
+ScienceBuddy results precisely, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Would pass-at-four coverage be directly comparable with single-attempt accuracy?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Read definitions beside numbers.
 
 ```text
-Create RESULTS-AUDIT.md with each selected metric, split, number of attempts, baseline, final value, feedback source, and paper section. Recompute percentage-point and relative changes with a small tool.
+Create RESULTS-AUDIT.md with each selected
+metric, split, number of attempts, baseline,
+final value, feedback source, and paper
+section. Recompute percentage-point and
+relative changes with a small tool.
 ```
 
 **Observe:** The same number can mean different things under different denominators.
@@ -59,7 +69,11 @@ Create RESULTS-AUDIT.md with each selected metric, split, number of attempts, ba
 Separate changed and fixed components.
 
 ```text
-Map the reported harness and weight changes, coupled cycles, and fixed reflector. Contrast the full study with your laptop exercises. State what you did not reproduce and what would require GPU training.
+Map the reported harness and weight changes,
+coupled cycles, and fixed reflector.
+Contrast the full study with your laptop
+exercises. State what you did not reproduce
+and what would require GPU training.
 ```
 
 **Observe:** The classroom record and paper record remain distinct.

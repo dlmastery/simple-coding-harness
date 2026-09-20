@@ -35,11 +35,17 @@ HarnessDev evaluates created and revised harnesses, with creator and executor ro
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.31, Compare harness generation and harness improvement, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.31, Compare harness
+generation and harness improvement, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If a generated harness improves, must its generator have improved?
@@ -49,7 +55,15 @@ Ask me to predict the result before the experiment.
 Identify the changed object in each source.
 
 ```text
-Read each paper’s methods, experiments, and limitations. Create a two-column map of fixed components, changed artifact, evaluation, and resources, with section links. For Harness-of-Harness, distinguish the developed software from the fixed agent harness. For HarnessDev, distinguish feedback-set adaptation from held-out evaluation.
+Read each paper’s methods, experiments, and
+limitations. Create a two-column map of
+fixed components, changed artifact,
+evaluation, and resources, with section
+links. For Harness-of-Harness, distinguish
+the developed software from the fixed agent
+harness. For HarnessDev, distinguish
+feedback-set adaptation from held-out
+evaluation.
 ```
 
 **Observe:** The mapping is based on primary methods rather than titles.
@@ -59,7 +73,11 @@ Read each paper’s methods, experiments, and limitations. Create a two-column m
 Keep the changed object explicit.
 
 ```text
-Revise one component of your generated harness using an observed failure. Test parent and child under matching conditions. Record the unchanged builder version and explain the limit of the analogy.
+Revise one component of your generated
+harness using an observed failure. Test
+parent and child under matching conditions.
+Record the unchanged builder version and
+explain the limit of the analogy.
 ```
 
 **Observe:** The local result concerns the harness, not automatically its generator.

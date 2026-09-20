@@ -35,11 +35,17 @@ A negative test supplies a specific forbidden request and checks the resulting b
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.04, Test the generated harness’s boundaries, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.04, Test the
+generated harness’s boundaries, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could an old successful result from another run accidentally satisfy a weak check?
@@ -49,7 +55,9 @@ Ask me to predict the result before the experiment.
 Establish the intended path.
 
 ```text
-Execute one valid baseline and retain its exact run and candidate identity. Save the completed checks.
+Execute one valid baseline and retain its
+exact run and candidate identity. Save the
+completed checks.
 ```
 
 **Observe:** The success evidence belongs to this run.
@@ -59,7 +67,11 @@ Execute one valid baseline and retain its exact run and candidate identity. Save
 Check request-specific enforcement.
 
 ```text
-Submit a leaked-feature request and an over-budget request. Also place an unrelated successful report in a separate fixture folder. Confirm it cannot authorize either request. Keep refusals and fit counts.
+Submit a leaked-feature request and an
+over-budget request. Also place an unrelated
+successful report in a separate fixture
+folder. Confirm it cannot authorize either
+request. Keep refusals and fit counts.
 ```
 
 **Observe:** Rejection depends on the current request and contract.

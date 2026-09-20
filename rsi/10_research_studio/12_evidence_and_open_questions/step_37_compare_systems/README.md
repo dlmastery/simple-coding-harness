@@ -35,11 +35,17 @@ Compare the same questions across systems: what changes, what remains fixed, who
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.37, Compare systems without flattening their differences, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.37, Compare systems
+without flattening their differences, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which two systems share a label but change different objects?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Use dimensions rather than a forced ranking.
 
 ```text
-Create SYSTEM-COMPARISON.md for the six named systems and the local course run. Link each row to primary evidence. Include mutable surface, fixed components, feedback source, inheritance, evaluation boundary, resources, and reading depth.
+Create SYSTEM-COMPARISON.md for the six
+named systems and the local course run. Link
+each row to primary evidence. Include
+mutable surface, fixed components, feedback
+source, inheritance, evaluation boundary,
+resources, and reading depth.
 ```
 
 **Observe:** The matrix makes differences visible without declaring a universal winner.
@@ -59,7 +70,11 @@ Create SYSTEM-COMPARISON.md for the six named systems and the local course run. 
 Test whether the evidence supports the label.
 
 ```text
-Choose one row and construct a plausible weaker explanation of its result. State the experiment or source detail that would distinguish the explanations. Mark unresolved cases.
+Choose one row and construct a plausible
+weaker explanation of its result. State the
+experiment or source detail that would
+distinguish the explanations. Mark
+unresolved cases.
 ```
 
 **Observe:** The comparison identifies a useful next question.

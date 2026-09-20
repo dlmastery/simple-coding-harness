@@ -35,11 +35,17 @@ A claim needs a chain of support. The report names a candidate; that candidate h
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 00.04, Check the evidence behind the answer, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 00.04, Check the
+evidence behind the answer, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could a report say “MAE 10” while its prediction file implies a much larger error?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Follow evidence from claim to rows.
 
 ```text
-Audit the baseline result. Recompute MAE from its prediction file with generated code. Check row count, candidate identity, partition, and target unit. Save EVIDENCE.md with file paths and the observed result.
+Audit the baseline result. Recompute MAE
+from its prediction file with generated
+code. Check row count, candidate identity,
+partition, and target unit. Save EVIDENCE.md
+with file paths and the observed result.
 ```
 
 **Observe:** The score and underlying predictions agree.
@@ -59,7 +69,10 @@ Audit the baseline result. Recompute MAE from its prediction file with generated
 Test the check with a deliberate mistake.
 
 ```text
-Make a clearly labelled teaching copy of the report with its MAE changed to 10. Keep the predictions unchanged. Run the same check and preserve the failure.
+Make a clearly labelled teaching copy of the
+report with its MAE changed to 10. Keep the
+predictions unchanged. Run the same check
+and preserve the failure.
 ```
 
 **Observe:** The checker rejects the copied claim. The original evidence remains intact.

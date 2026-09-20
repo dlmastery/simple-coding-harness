@@ -35,11 +35,17 @@ An improvement hypothesis connects an observed error to a proposed change. Here 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.01, Let a failure motivate a second attempt, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.01, Let a failure
+motivate a second attempt, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will the linear model reduce the selection MAE? What result would contradict your explanation?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Choose a change for a reason.
 
 ```text
-Inspect the baseline error-by-hour report. Explain the likely limitation without reading final evaluation rows. Write a hypothesis for replacing the constant predictor with a calendar-based linear model.
+Inspect the baseline error-by-hour report.
+Explain the likely limitation without
+reading final evaluation rows. Write a
+hypothesis for replacing the constant
+predictor with a calendar-based linear
+model.
 ```
 
 **Observe:** The hypothesis names a mechanism and a possible failure.
@@ -59,7 +70,11 @@ Inspect the baseline error-by-hour report. Explain the likely limitation without
 Measure a controlled change.
 
 ```text
-Use run-ml-experiment to fit constant/calendar and linear/calendar with seed 17 in one fresh workspace. Compare their selection MAE and hourly errors. Keep both. Do not select on final data.
+Use run-ml-experiment to fit
+constant/calendar and linear/calendar with
+seed 17 in one fresh workspace. Compare
+their selection MAE and hourly errors. Keep
+both. Do not select on final data.
 ```
 
 **Observe:** The author’s pinned run favored the linear model; your own measured result decides the conclusion.

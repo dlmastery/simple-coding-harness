@@ -35,11 +35,16 @@ Self-correction revises a current output using feedback. Here the checker expose
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.01, Correct one result, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.01, Correct one
+result, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will correcting this report prevent the same mistake in a new session?
@@ -49,7 +54,9 @@ Ask me to predict the result before the experiment.
 Make correction depend on evidence.
 
 ```text
-Recompute MAE from the copied report’s predictions. Show the mismatch and preserve the original report.
+Recompute MAE from the copied report’s
+predictions. Show the mismatch and preserve
+the original report.
 ```
 
 **Observe:** The correction has a concrete reason.
@@ -59,7 +66,10 @@ Recompute MAE from the copied report’s predictions. Show the mismatch and pres
 Change only the current artifact.
 
 ```text
-Write a corrected report and a short correction note. Do not edit or save a reusable skill. Explain what changed and what did not.
+Write a corrected report and a short
+correction note. Do not edit or save a
+reusable skill. Explain what changed and
+what did not.
 ```
 
 **Observe:** The current report improves while the future procedure stays fixed.

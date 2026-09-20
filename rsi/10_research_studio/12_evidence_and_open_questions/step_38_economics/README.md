@@ -35,11 +35,17 @@ Total progress depends on the whole research process. If evaluation takes most o
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.38, Reason about bottlenecks and acceleration, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.38, Reason about
+bottlenecks and acceleration, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** How much total time can be saved if proposals take one minute and evaluation takes nine?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Make assumptions visible.
 
 ```text
-Generate a small calculator with proposal, execution, and evaluation times. Use a labelled 1-plus-9-minute example, then compare faster proposals, faster evaluation, and added checking overhead. Save assumptions and outputs.
+Generate a small calculator with proposal,
+execution, and evaluation times. Use a
+labelled 1-plus-9-minute example, then
+compare faster proposals, faster evaluation,
+and added checking overhead. Save
+assumptions and outputs.
 ```
 
 **Observe:** The slow stage limits total speedup.
@@ -59,7 +70,13 @@ Generate a small calculator with proposal, execution, and evaluation times. Use 
 Require evidence for the rate claim.
 
 ```text
-Use your lineage and cost ledger to distinguish cumulative gain, gain per generation, and gain per unit total resource. List missing evidence for sustained acceleration. Read the economics paper’s assumptions before attributing its conclusions.
+Use your lineage and cost ledger to
+distinguish cumulative gain, gain per
+generation, and gain per unit total
+resource. List missing evidence for
+sustained acceleration. Read the economics
+paper’s assumptions before attributing its
+conclusions.
 ```
 
 **Observe:** The audit can reject an acceleration claim while accepting useful improvements.

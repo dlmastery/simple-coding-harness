@@ -35,11 +35,16 @@ The inner researcher proposes ML candidates, evaluates them, and chooses what to
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.13, Inspect an inner ML researcher, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.13, Inspect an inner
+ML researcher, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could changing the order of the same operators alter the best result under a small budget?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Expose the research procedure.
 
 ```text
-Write INNER-RESEARCHER.md with permitted proposal operators, parent selection, retention, and a four-fit limit. Keep the data and evaluator fixed.
+Write INNER-RESEARCHER.md with permitted
+proposal operators, parent selection,
+retention, and a four-fit limit. Keep the
+data and evaluator fixed.
 ```
 
 **Observe:** The procedure is more than a list of scores.
@@ -59,7 +67,10 @@ Write INNER-RESEARCHER.md with permitted proposal operators, parent selection, r
 Save the complete search trace.
 
 ```text
-Execute the declared researcher. Record each operator, parent, candidate, outcome, and cost. Retain the selected recipe and rejected attempts.
+Execute the declared researcher. Record each
+operator, parent, candidate, outcome, and
+cost. Retain the selected recipe and
+rejected attempts.
 ```
 
 **Observe:** The inner researcher produces a task solution under a fixed procedure.

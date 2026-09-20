@@ -35,11 +35,17 @@ Keep the language model and procedures fixed. The skill chooses actions; the too
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 05.01, Combine fixed components into a useful system, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 05.01, Combine fixed
+components into a useful system, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which component should stop a leaked feature before fitting?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Avoid giving every component an undefined job.
 
 ```text
-Create SYSTEM.md mapping framing, data checks, domain checks, fitting, metric checks, and reporting to the existing components. State what each reads and writes.
+Create SYSTEM.md mapping framing, data
+checks, domain checks, fitting, metric
+checks, and reporting to the existing
+components. State what each reads and
+writes.
 ```
 
 **Observe:** Responsibilities and evidence paths are explicit.
@@ -59,7 +69,10 @@ Create SYSTEM.md mapping framing, data checks, domain checks, fitting, metric ch
 Observe coordinated behavior.
 
 ```text
-Run one valid baseline through the complete workflow. Then submit a target-derived feature fixture and confirm it stops before fitting. Retain the full trace.
+Run one valid baseline through the complete
+workflow. Then submit a target-derived
+feature fixture and confirm it stops before
+fitting. Retain the full trace.
 ```
 
 **Observe:** The system produces one checked result and one meaningful refusal.

@@ -35,11 +35,17 @@ Begin with your artifacts, then apply the paper’s definitions. Keep execution 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.01, Use a framework without turning it into a ladder, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.01, Use a framework
+without turning it into a ladder, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a system satisfy a structural criterion while failing a performance comparison?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Anchor terminology to the source.
 
 ```text
-Read the paper’s definitions and relevant examples. Create FRAMEWORK.md with a short paraphrase, section reference, and evidence needed for each distinction. Do not copy the paper’s full text.
+Read the paper’s definitions and relevant
+examples. Create FRAMEWORK.md with a short
+paraphrase, section reference, and evidence
+needed for each distinction. Do not copy the
+paper’s full text.
 ```
 
 **Observe:** The mapping uses the paper’s actual criteria.
@@ -59,7 +69,10 @@ Read the paper’s definitions and relevant examples. Create FRAMEWORK.md with a
 Make the framework answer a concrete question.
 
 ```text
-Apply the framework to fixed retries, saved memory, and your inherited improver experiment. For each cite your own artifacts and state the strongest supported claim.
+Apply the framework to fixed retries, saved
+memory, and your inherited improver
+experiment. For each cite your own artifacts
+and state the strongest supported claim.
 ```
 
 **Observe:** A label follows evidence rather than replacing it.

@@ -35,11 +35,17 @@ ScienceBuddy connects scientific interactions and artifacts to improvement work.
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.22, Turn a researcher correction into a task, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.22, Turn a
+researcher correction into a task, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which part of the request can become an executable check?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Retain the human-origin distinction.
 
 ```text
-Save the quoted classroom request as a labelled synthetic fixture. Create TASK.md and RUBRIC.md with observable criteria and evidence needed for each. Do not present it as an actual expert interview.
+Save the quoted classroom request as a
+labelled synthetic fixture. Create TASK.md
+and RUBRIC.md with observable criteria and
+evidence needed for each. Do not present it
+as an actual expert interview.
 ```
 
 **Observe:** The correction becomes a testable requirement.
@@ -59,7 +69,10 @@ Save the quoted classroom request as a labelled synthetic fixture. Create TASK.m
 Compare a complete and incomplete report.
 
 ```text
-Check one report containing both class recalls and a copy omitting minority recall. Generate any needed checker and retain both verdicts.
+Check one report containing both class
+recalls and a copy omitting minority recall.
+Generate any needed checker and retain both
+verdicts.
 ```
 
 **Observe:** The rubric detects the omission it was designed to catch.

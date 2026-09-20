@@ -35,11 +35,16 @@ A checkpoint records durable state: contract, completed and interrupted attempts
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.05, Resume without losing the experiment, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.05, Resume without
+losing the experiment, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** After one fit and a restart, how many attempts remain in a three-attempt experiment?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Save a state you can inspect.
 
 ```text
-Run only the constant/calendar candidate. Save PROGRESS.md with its ID, contract, consumed attempt, two remaining attempts, and the next planned action. Stop further fitting.
+Run only the constant/calendar candidate.
+Save PROGRESS.md with its ID, contract,
+consumed attempt, two remaining attempts,
+and the next planned action. Stop further
+fitting.
 ```
 
 **Observe:** The checkpoint accounts for completed work.
@@ -59,7 +68,11 @@ Run only the constant/calendar candidate. Save PROGRESS.md with its ID, contract
 Continue the same experiment.
 
 ```text
-Read PROGRESS.md and the actual ledger. Inspect active processes and locks. Resume the next two distinct recipes without overwriting the first trial. Stop at the original total limit.
+Read PROGRESS.md and the actual ledger.
+Inspect active processes and locks. Resume
+the next two distinct recipes without
+overwriting the first trial. Stop at the
+original total limit.
 ```
 
 **Observe:** The final ledger contains the whole experiment across sessions.

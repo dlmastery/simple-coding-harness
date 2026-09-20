@@ -35,11 +35,16 @@ Loop state is the information needed for the next step: attempts used, candidate
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 02.02, Give the loop state and a budget, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 02.02, Give the loop
+state and a budget, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If the third candidate is worse, should the loop return it or the earlier best?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Make the next action inspectable.
 
 ```text
-Write LOOP.md with attempt limit three, permitted recipes, lower-MAE retention rule, tie rule, and stop conditions. Keep task, metric, and partitions fixed.
+Write LOOP.md with attempt limit three,
+permitted recipes, lower-MAE retention rule,
+tie rule, and stop conditions. Keep task,
+metric, and partitions fixed.
 ```
 
 **Observe:** The loop can decide when to stop before any score is known.
@@ -59,7 +67,11 @@ Write LOOP.md with attempt limit three, permitted recipes, lower-MAE retention r
 Follow the declared loop.
 
 ```text
-Run constant, linear, and tree with calendar inputs and seed 17. After each fit, update a readable state note with current and retained candidate. Stop after attempt three and run the comparison tool.
+Run constant, linear, and tree with calendar
+inputs and seed 17. After each fit, update a
+readable state note with current and
+retained candidate. Stop after attempt three
+and run the comparison tool.
 ```
 
 **Observe:** The retained result may come from an earlier attempt.

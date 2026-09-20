@@ -35,11 +35,17 @@ The coordinator tracks task state, chooses the next allowed action, and handles 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 05.04, Coordinate planning, execution, and checking, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 05.04, Coordinate
+planning, execution, and checking, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Should a coordinator repair an ambiguous target definition automatically?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Make completion requirements explicit.
 
 ```text
-Create a coordinator procedure with states ready, running, awaiting-check, complete, and needs-clarification. Define the artifact and condition for each transition.
+Create a coordinator procedure with states
+ready, running, awaiting-check, complete,
+and needs-clarification. Define the artifact
+and condition for each transition.
 ```
 
 **Observe:** The next action follows a visible condition.
@@ -59,7 +68,11 @@ Create a coordinator procedure with states ready, running, awaiting-check, compl
 Test more than a successful path.
 
 ```text
-Run one baseline through the coordinator. Then test a missing checker result and an ambiguous target brief using fixtures. Save transitions and stop reasons. Do not invent human approval.
+Run one baseline through the coordinator.
+Then test a missing checker result and an
+ambiguous target brief using fixtures. Save
+transitions and stop reasons. Do not invent
+human approval.
 ```
 
 **Observe:** Incomplete evidence and scientific ambiguity take explicit stop paths.

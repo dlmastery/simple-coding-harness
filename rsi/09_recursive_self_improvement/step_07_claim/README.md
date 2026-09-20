@@ -35,11 +35,16 @@ Structural recursion means a changed improvement procedure enters later improvem
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.07, State the result without overstating it, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.07, State the result
+without overstating it, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which of these claims would survive if the inherited improver made every later result worse?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Match each claim to its necessary observation.
 
 ```text
-Use audit-rsi-claim on the complete experiment. Write CLAIM-AUDIT.md with supported claim, missing evidence, costs, context limits, negative results, and one plausible alternative explanation.
+Use audit-rsi-claim on the complete
+experiment. Write CLAIM-AUDIT.md with
+supported claim, missing evidence, costs,
+context limits, negative results, and one
+plausible alternative explanation.
 ```
 
 **Observe:** The conclusion may stop at structure or report no effective improvement.
@@ -59,7 +68,12 @@ Use audit-rsi-claim on the complete experiment. Write CLAIM-AUDIT.md with suppor
 Test whether the distinction transfers.
 
 ```text
-Ask me to explain three new cases: repeated model search, persistent memory under a fixed updater, and an inherited improver that loses a matched comparison. Give hints before answers and record unattempted responses honestly.
+Ask me to explain three new cases: repeated
+model search, persistent memory under a
+fixed updater, and an inherited improver
+that loses a matched comparison. Give hints
+before answers and record unattempted
+responses honestly.
 ```
 
 **Observe:** The explanation identifies what changed and what evidence is missing.

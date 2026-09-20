@@ -35,11 +35,16 @@ The task brief identifies the target type and evaluation rule. Regression estima
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 05.02, Choose a skill for the task, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 05.02, Choose a skill
+for the task, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Would a majority-only wine classifier look better under accuracy than under balanced accuracy?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Connect task meaning to method.
 
 ```text
-Write ROUTING.md with input task, target type, data card, model baseline, metric, and required checks. Reject an unrecognized task instead of guessing.
+Write ROUTING.md with input task, target
+type, data card, model baseline, metric, and
+required checks. Reject an unrecognized task
+instead of guessing.
 ```
 
 **Observe:** Each route has a scientifically appropriate metric.
@@ -59,7 +67,10 @@ Write ROUTING.md with input task, target type, data card, model baseline, metric
 Test transfer of the system structure.
 
 ```text
-Run a constant bike baseline and a majority wine baseline. Inspect wine class balance and both class recalls. Save a comparison of what is shared and what differs.
+Run a constant bike baseline and a majority
+wine baseline. Inspect wine class balance
+and both class recalls. Save a comparison of
+what is shared and what differs.
 ```
 
 **Observe:** The majority classifier has balanced accuracy 0.5 when both classes occur.

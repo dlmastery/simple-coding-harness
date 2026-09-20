@@ -35,11 +35,17 @@ The classroom exercise first probes two distinct limitations, then spends the la
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.03, Choose experiments that reduce uncertainty, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.03, Choose
+experiments that reduce uncertainty, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Would three nearly identical fits reveal as much as two contrasting probes and one targeted follow-up?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 State what each attempt teaches.
 
 ```text
-Plan a constant baseline and a calendar linear model. For each state the uncertainty it addresses. Freeze the task and three-fit budget.
+Plan a constant baseline and a calendar
+linear model. For each state the uncertainty
+it addresses. Freeze the task and three-fit
+budget.
 ```
 
 **Observe:** The probes ask different questions.
@@ -59,7 +68,10 @@ Plan a constant baseline and a calendar linear model. For each state the uncerta
 Use observed outcomes to allocate work.
 
 ```text
-Run the probes, inspect selection errors, and choose one final permitted recipe to test a specific unresolved hypothesis. Record the decision before fitting.
+Run the probes, inspect selection errors,
+and choose one final permitted recipe to
+test a specific unresolved hypothesis.
+Record the decision before fitting.
 ```
 
 **Observe:** The final action follows evidence from exploration.

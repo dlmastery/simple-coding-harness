@@ -35,11 +35,17 @@ MetaRSI composes operators over data, harness, and model state, with a policy th
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.35, Compose changes to data, harness, and model, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.35, Compose changes
+to data, harness, and model, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could the same two operators give different results when applied in the opposite order?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Make each mutable surface visible.
 
 ```text
-Generate a small simulator with separate data, harness, and model version fields. Give each operator a declared read/write contract and a synthetic outcome rule. Reject stale evidence and undeclared writes. Label every value synthetic.
+Generate a small simulator with separate
+data, harness, and model version fields.
+Give each operator a declared read/write
+contract and a synthetic outcome rule.
+Reject stale evidence and undeclared writes.
+Label every value synthetic.
 ```
 
 **Observe:** Composition is checked through interfaces and versions.
@@ -59,7 +70,12 @@ Generate a small simulator with separate data, harness, and model version fields
 Trace a meta-level change into later work.
 
 ```text
-Compare two allowed schedules, propose one scheduler-rule revision from their outcomes, and use it in a later simulated term. Preserve the original scheduler and fixed evaluator. Audit structure separately from synthetic benefit.
+Compare two allowed schedules, propose one
+scheduler-rule revision from their outcomes,
+and use it in a later simulated term.
+Preserve the original scheduler and fixed
+evaluator. Audit structure separately from
+synthetic benefit.
 ```
 
 **Observe:** The revised scheduling rule is actually inherited.

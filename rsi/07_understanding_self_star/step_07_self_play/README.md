@@ -35,11 +35,17 @@ A policy is a rule for choosing an action. Here its parameters are numbers in a 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.07, Learn what self-play does and does not provide, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.07, Learn what
+self-play does and does not provide, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If two players interact but no table values change, what has been learned?
@@ -49,7 +55,17 @@ Ask me to predict the result before the experiment.
 Keep evaluation choices outside the learning loop.
 
 ```text
-Read rsi/tools/self_play.py and the self-play section of rsi/tools/README.md. Save the fixed protocol in my lab workspace: 3,000 training games, seed 17, exploration 0.2, learning rate 0.2, and 500 frozen games per policy with equal X/O seats. Keep the supplied evaluation seed schedules. Explain legal moves, terminal returns, and the untrained zero table. Run the small game-rule and learning-boundary tests; retain their result separately.
+Read rsi/tools/self_play.py and the
+self-play section of rsi/tools/README.md.
+Save the fixed protocol in my lab workspace:
+3,000 training games, seed 17, exploration
+0.2, learning rate 0.2, and 500 frozen games
+per policy with equal X/O seats. Keep the
+supplied evaluation seed schedules. Explain
+legal moves, terminal returns, and the
+untrained zero table. Run the small
+game-rule and learning-boundary tests;
+retain their result separately.
 ```
 
 **Observe:** The game outcome and update rule have precise meanings before training.
@@ -59,7 +75,14 @@ Read rsi/tools/self_play.py and the self-play section of rsi/tools/README.md. Sa
 Inspect a parameter change caused by a game.
 
 ```text
-Use the supplied self-play tool to execute this fixed experiment in a new folder in my workspace. Keep all training moves, value updates, episode outcomes, table files, and evaluation traces. Apply a 60-second command limit. Preserve a failed run instead of overwriting it. Show one winning and one losing player update from the saved trace.
+Use the supplied self-play tool to execute
+this fixed experiment in a new folder in my
+workspace. Keep all training moves, value
+updates, episode outcomes, table files, and
+evaluation traces. Apply a 60-second command
+limit. Preserve a failed run instead of
+overwriting it. Show one winning and one
+losing player update from the saved trace.
 ```
 
 **Observe:** Both players generate experience; their terminal returns change stored action values.
@@ -69,7 +92,15 @@ Use the supplied self-play tool to execute this fixed experiment in a new folder
 Separate learning from measured benefit.
 
 ```text
-Read evaluation-counts.csv and evaluation-policy-hashes.csv. Confirm 500 games per policy and equal X/O seats. Show wins, draws, and losses overall and by seat. Verify the policy hashes do not change during evaluation. Plot these measured counts and identify a remaining trained-policy loss. Do not tune the table or training choices after these results.
+Read evaluation-counts.csv and
+evaluation-policy-hashes.csv. Confirm 500
+games per policy and equal X/O seats. Show
+wins, draws, and losses overall and by seat.
+Verify the policy hashes do not change
+during evaluation. Plot these measured
+counts and identify a remaining
+trained-policy loss. Do not tune the table
+or training choices after these results.
 ```
 
 **Observe:** The untrained policy interacts without learning. The trained policy uses retained values without changing them during the test.
@@ -79,7 +110,14 @@ Read evaluation-counts.csv and evaluation-policy-hashes.csv. Confirm 500 games p
 Keep the claim tied to the mutable object.
 
 ```text
-Write SELF-PLAY-REPORT.md: what generated experience, what supplied feedback, what changed, what stayed fixed, and what the comparison supports. Contrast this with a proposer–critic exchange that saves only dialogue. Explain why this run is self-play learning but does not revise its own learning procedure.
+Write SELF-PLAY-REPORT.md: what generated
+experience, what supplied feedback, what
+changed, what stayed fixed, and what the
+comparison supports. Contrast this with a
+proposer–critic exchange that saves only
+dialogue. Explain why this run is self-play
+learning but does not revise its own
+learning procedure.
 ```
 
 **Observe:** A changed policy and a changed improver are different experiments.

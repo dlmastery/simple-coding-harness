@@ -35,11 +35,16 @@ Represent each attempted recipe as a node with a parent, action, outcome, and co
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.07, Build a tree of attempted solutions, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.07, Build a tree of
+attempted solutions, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can an unvisited branch be assigned the score of a similar visited branch?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Make lineage explicit.
 
 ```text
-Plan a baseline root and two child recipe changes. Create a discovery table with node ID, parent, recipe, result path, and cost. Leave outcomes blank until execution.
+Plan a baseline root and two child recipe
+changes. Create a discovery table with node
+ID, parent, recipe, result path, and cost.
+Leave outcomes blank until execution.
 ```
 
 **Observe:** Unexecuted nodes remain unmeasured.
@@ -59,7 +67,10 @@ Plan a baseline root and two child recipe changes. Create a discovery table with
 Link nodes to evidence.
 
 ```text
-Run the three recipes within budget. Fill the tree from actual predictions and reports. Render the tree and mark rejected or failed nodes distinctly.
+Run the three recipes within budget. Fill
+the tree from actual predictions and
+reports. Render the tree and mark rejected
+or failed nodes distinctly.
 ```
 
 **Observe:** Each measured node has a corresponding execution artifact.

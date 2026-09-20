@@ -35,11 +35,16 @@ Trace requirements forward to implementation and evidence backward to requiremen
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.03, Inspect what the builder decided, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.03, Inspect what the
+builder decided, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Where would you look to verify the attempt limit?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Connect intent to actual behavior.
 
 ```text
-Create REVIEW.md mapping target, features, split, metric, budget, refusal, and outputs to generated files and runtime evidence. Mark undocumented builder choices.
+Create REVIEW.md mapping target, features,
+split, metric, budget, refusal, and outputs
+to generated files and runtime evidence.
+Mark undocumented builder choices.
 ```
 
 **Observe:** Every key requirement has an implementation location or a visible gap.
@@ -59,7 +67,11 @@ Create REVIEW.md mapping target, features, split, metric, budget, refusal, and o
 Find a plausible failure before it scales.
 
 ```text
-Inspect preprocessing and candidate selection. Verify transformations fit only on training data and selection uses the declared partition. Save the evidence and any repair needed.
+Inspect preprocessing and candidate
+selection. Verify transformations fit only
+on training data and selection uses the
+declared partition. Save the evidence and
+any repair needed.
 ```
 
 **Observe:** The review reaches operations, not only documentation.

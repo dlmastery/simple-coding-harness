@@ -35,11 +35,16 @@ Check each edit alone and then the combination under the same interface contract
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.11, Integrate edits and test transfer, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.11, Integrate edits
+and test transfer, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can two individually passing components fail together?
@@ -49,7 +54,15 @@ Ask me to predict the result before the experiment.
 Look for conflicting assumptions.
 
 ```text
-Write an interface table for the two edits: produced fields, consumed fields, meanings, and failure behavior. Identify one possible conflict before running. Save baseline, edit A alone, edit B alone, and combined versions. Declare one original fixture, one fresh transfer fixture, and a malformed-interface fixture. Replace real fitting with a recorded stub.
+Write an interface table for the two edits:
+produced fields, consumed fields, meanings,
+and failure behavior. Identify one possible
+conflict before running. Save baseline, edit
+A alone, edit B alone, and combined
+versions. Declare one original fixture, one
+fresh transfer fixture, and a
+malformed-interface fixture. Replace real
+fitting with a recorded stub.
 ```
 
 **Observe:** The combined system has a declared contract.
@@ -59,7 +72,13 @@ Write an interface table for the two edits: produced fields, consumed fields, me
 Measure the whole combination.
 
 ```text
-Run all four versions on the original fixture. Run the unchanged baseline and combined version on the fresh fixture. Preserve all six outcomes, component hashes, and any failure. Reserve the seventh execution for the missing-field check below. Do not start model training.
+Run all four versions on the original
+fixture. Run the unchanged baseline and
+combined version on the fresh fixture.
+Preserve all six outcomes, component hashes,
+and any failure. Reserve the seventh
+execution for the missing-field check below.
+Do not start model training.
 ```
 
 **Observe:** The combined result is evaluated rather than inferred from local wins.

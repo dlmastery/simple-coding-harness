@@ -14,6 +14,17 @@ const rsi = resolve(repo, 'rsi');
 const save = (path, body) => {mkdirSync(dirname(path), {recursive:true}); writeFileSync(path, body.trim().replace(/\n{3,}/g,'\n\n')+'\n');};
 const link = (from, to) => relative(from, to).split(sep).join('/');
 const lessonPath = l => resolve(rsi, themes[l.theme].directory, l.group || '', `step_${l.id.split('.')[1]}_${l.slug}`);
+// These are natural-language prompts, not executable snippets. Keep whole words
+// and paragraph breaks while making the copyable blocks readable in narrow panes.
+const wrapPrompt = text => text.split('\n').map(line => {
+  const lines = [''];
+  for (const word of line.split(/\s+/).filter(Boolean)) {
+    const last = lines.length - 1;
+    if (lines[last] && lines[last].length + word.length + 1 > 44) lines.push(word);
+    else lines[last] += (lines[last] ? ' ' : '') + word;
+  }
+  return lines.join('\n');
+}).join('\n');
 
 for (let index=0; index<lessons.length; index++) {
   const l=lessons[index], folder=lessonPath(l), theme=themes[l.theme];
@@ -29,7 +40,7 @@ for (let index=0; index<lessons.length; index++) {
   const nav=`[Course](${to('README.md')}) · [Theme](${to(theme.directory+'/README.md')})`;
   const previous=prev ? `[${prev.id}: ${prev.title}](${link(folder,lessonPath(prev))}/README.md)` : `[Start here](${to('START-HERE.md')})`;
   const after=next ? `[${next.id}: ${next.title}](${link(folder,lessonPath(next))}/README.md)` : `[Teaching portfolio](${to('instructor/README.md')})`;
-  const steps=l.steps.map((s,i)=>`### ${i+1}. ${s[0]}\n\n${s[1]}\n\n\`\`\`text\n${s[2]}\n\`\`\`\n\n**Observe:** ${s[3]}`).join('\n\n');
+  const steps=l.steps.map((s,i)=>`### ${i+1}. ${s[0]}\n\n${s[1]}\n\n\`\`\`text\n${wrapPrompt(s[2])}\n\`\`\`\n\n**Observe:** ${s[3]}`).join('\n\n');
   const quiz=l.quiz.map((q,i)=>`${i+1}. ${q[0]}`).join('\n');
   const answers=l.quiz.map((q,i)=>`${i+1}. ${q[1]}`).join('\n\n');
   const source=l.source ? `\n## Research connection\n\n${l.source}\n\n${l.adaptation || 'This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.'}\n` : '';
@@ -70,11 +81,11 @@ ${l.figure || ''}
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 \`\`\`text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+${wrapPrompt(`Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
 Guide me through lab ${l.id}, ${l.title}, one step at a time.
 Read its README and BRIEF. Prepare its separate workspace.
 You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Ask me to predict the result before the experiment.`)}
 \`\`\`
 
 **Make a prediction:** ${l.predict}

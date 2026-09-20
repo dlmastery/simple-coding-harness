@@ -35,11 +35,16 @@ An entity is an object you need to distinguish. A type states what kind of objec
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 04.01, Name the objects in an experiment, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 04.01, Name the objects
+in an experiment, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Are “MAE” and “159.948 rentals per hour” the same kind of thing?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Ground each term in an actual artifact.
 
 ```text
-Use review-domain. Create VOCABULARY.md with object, type, plain-language definition, and example from the baseline. Include dataset, column, target role, partition, fitted model, recipe, metric, and measurement.
+Use review-domain. Create VOCABULARY.md with
+object, type, plain-language definition, and
+example from the baseline. Include dataset,
+column, target role, partition, fitted
+model, recipe, metric, and measurement.
 ```
 
 **Observe:** The vocabulary distinguishes a rule from its result.
@@ -59,7 +68,10 @@ Use review-domain. Create VOCABULARY.md with object, type, plain-language defini
 Test whether definitions help.
 
 ```text
-Classify the phrase “the model improved” in three cases: lower selection error, edited research skill, and changed language-model weights. Rewrite each claim precisely.
+Classify the phrase “the model improved” in
+three cases: lower selection error, edited
+research skill, and changed language-model
+weights. Rewrite each claim precisely.
 ```
 
 **Observe:** Different mutable objects receive different names.

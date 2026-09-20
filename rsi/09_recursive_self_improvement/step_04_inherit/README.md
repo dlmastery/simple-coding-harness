@@ -35,11 +35,17 @@ Structural recursion requires a path from a procedure revision into later improv
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.04, Use the revised improver in the next round, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.04, Use the revised
+improver in the next round, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What would show that the new regression-check rule actually governed the next round?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Make selection explicit.
 
 ```text
-Read IMPROVER-v1 as the active improvement procedure. Save its hash and parent link. Create a fresh round with the same external evaluator rules and the declared budget.
+Read IMPROVER-v1 as the active improvement
+procedure. Save its hash and parent link.
+Create a fresh round with the same external
+evaluator rules and the declared budget.
 ```
 
 **Observe:** The active procedure is unambiguous.
@@ -59,7 +68,12 @@ Read IMPROVER-v1 as the active improvement procedure. Save its hash and parent l
 Trace instructions into later improvement.
 
 ```text
-Use v1 to propose and evaluate a new task-skill revision. Record the contrasting-case check it requires, its actual result, and the promotion decision. State whether v0 would have required the same action.
+Use v1 to propose and evaluate a new
+task-skill revision. Record the
+contrasting-case check it requires, its
+actual result, and the promotion decision.
+State whether v0 would have required the
+same action.
 ```
 
 **Observe:** The inherited rule affects an executed improvement step.

@@ -35,11 +35,16 @@ Freeze the memory artifact before the comparison. Both arms use the same task an
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.05, Evaluate with memory frozen, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.05, Evaluate with
+memory frozen, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What would be confounded if only the memory arm could learn from test feedback?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Identify exactly what is evaluated.
 
 ```text
-Record the memory hash, scope, and evaluation cases before running. Prepare memory and no-memory arms with matched starting artifacts and budgets.
+Record the memory hash, scope, and
+evaluation cases before running. Prepare
+memory and no-memory arms with matched
+starting artifacts and budgets.
 ```
 
 **Observe:** The candidate is fixed before outcomes.
@@ -59,7 +67,11 @@ Record the memory hash, scope, and evaluation cases before running. Prepare memo
 Measure the retained state.
 
 ```text
-Run both arms and record actual decisions, results, and costs. Check the memory hash afterward. If using one context, state that the no-memory arm may be contaminated and do not claim a clean ablation.
+Run both arms and record actual decisions,
+results, and costs. Check the memory hash
+afterward. If using one context, state that
+the no-memory arm may be contaminated and do
+not claim a clean ablation.
 ```
 
 **Observe:** The boundary determines the strength of the conclusion.

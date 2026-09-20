@@ -35,11 +35,16 @@ A cycle returns to an earlier action. Its state must include attempts used and t
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.04, Put a bounded retry inside the graph, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.04, Put a bounded
+retry inside the graph, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If a repair does not change the missing field, what should the second failure cause?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Preserve state across the return edge.
 
 ```text
-Extend the local graph with check, repair, and recheck nodes. Permit two repairs. Keep the original validation rule fixed. Save the graph and state transitions.
+Extend the local graph with check, repair,
+and recheck nodes. Permit two repairs. Keep
+the original validation rule fixed. Save the
+graph and state transitions.
 ```
 
 **Observe:** The cycle carries attempt count and failure reason.
@@ -59,7 +67,11 @@ Extend the local graph with check, repair, and recheck nodes. Permit two repairs
 Check both exit paths.
 
 ```text
-Run a fixture whose first repair restores the field, then a fixture whose repair leaves it missing. Keep both traces. Verify that the second run ends at the budget, without claiming success.
+Run a fixture whose first repair restores
+the field, then a fixture whose repair
+leaves it missing. Keep both traces. Verify
+that the second run ends at the budget,
+without claiming success.
 ```
 
 **Observe:** A stopped failure is a valid terminal outcome.

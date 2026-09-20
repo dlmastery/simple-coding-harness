@@ -35,11 +35,16 @@ A harness organizes an agent’s instructions, tools, state, evaluation, and lim
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.01, Describe the harness you need, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.01, Describe the
+harness you need, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which missing choice would make two generated harnesses incomparable?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 State scientific and operating rules.
 
 ```text
-Create HARNESS-BRIEF.md for bike regression. Include prediction setting, source, permitted inputs, split, MAE, baseline, two-attempt limit, outputs, stop rules, and refusal of leakage. Use prose and a small table only.
+Create HARNESS-BRIEF.md for bike regression.
+Include prediction setting, source,
+permitted inputs, split, MAE, baseline,
+two-attempt limit, outputs, stop rules, and
+refusal of leakage. Use prose and a small
+table only.
 ```
 
 **Observe:** The brief is readable without knowing a configuration language.
@@ -59,7 +69,12 @@ Create HARNESS-BRIEF.md for bike regression. Include prediction setting, source,
 Find missing decisions before generation.
 
 ```text
-Use build-ml-harness to inspect the brief without building yet. List ambiguous scientific choices and routine implementation choices separately. Resolve the scientific choices from the existing task contract.
+Use build-ml-harness to inspect the brief
+without building yet. List ambiguous
+scientific choices and routine
+implementation choices separately. Resolve
+the scientific choices from the existing
+task contract.
 ```
 
 **Observe:** The generator can proceed without guessing the definition of success.

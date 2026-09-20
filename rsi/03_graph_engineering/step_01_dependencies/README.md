@@ -35,11 +35,16 @@ Draw each action as a node. An arrow from inspect data to validate split means t
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.01, Draw the dependencies, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.01, Draw the
+dependencies, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can the metric checker run before predictions exist?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Explain order through required inputs.
 
 ```text
-Create WORKFLOW.md with nodes frame, inspect, split, fit, check, report. For each edge, name the artifact it carries. Render a simple diagram and retain the editable source.
+Create WORKFLOW.md with nodes frame,
+inspect, split, fit, check, report. For each
+edge, name the artifact it carries. Render a
+simple diagram and retain the editable
+source.
 ```
 
 **Observe:** Every arrow has a reason.
@@ -59,7 +68,10 @@ Create WORKFLOW.md with nodes frame, inspect, split, fit, check, report. For eac
 Turn the graph into a small executable check.
 
 ```text
-Generate a local graph-order checker. Verify the normal sequence, then try an order that checks predictions before fitting. Keep the failure and explanation.
+Generate a local graph-order checker. Verify
+the normal sequence, then try an order that
+checks predictions before fitting. Keep the
+failure and explanation.
 ```
 
 **Observe:** The invalid order fails because a required artifact is unavailable.

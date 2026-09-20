@@ -35,11 +35,16 @@ An invariant is a condition that must hold for every accepted record in this tas
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 04.03, State rules that must always hold, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 04.03, State rules that
+must always hold, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a perfectly formatted table describe an invalid experiment?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Make each rule testable.
 
 ```text
-Write RULES.md with the three invariants. For each, generate a passing fact table and one failing table. Keep the intended violation explicit.
+Write RULES.md with the three invariants.
+For each, generate a passing fact table and
+one failing table. Keep the intended
+violation explicit.
 ```
 
 **Observe:** Each example isolates one rule.
@@ -59,7 +67,9 @@ Write RULES.md with the three invariants. For each, generate a passing fact tabl
 Verify the rules have consequences.
 
 ```text
-Use audit-domain on all six tables. Record expected and actual verdicts in RULE-TESTS.md. Keep every input and output.
+Use audit-domain on all six tables. Record
+expected and actual verdicts in
+RULE-TESTS.md. Keep every input and output.
 ```
 
 **Observe:** Three valid cases pass and three targeted violations fail.

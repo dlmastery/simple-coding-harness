@@ -35,11 +35,17 @@ EvoSkill-GUI motivates separating reusable skills from task traces and critique.
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.29, Repair a skill for an experiment-results page, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.29, Repair a skill
+for an experiment-results page, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could a critic mark a task complete even when the visible page shows the wrong candidate?
@@ -49,7 +55,14 @@ Ask me to predict the result before the experiment.
 Make the interface small and inspectable.
 
 ```text
-Generate a local static experiment-results page from real saved metrics. Add a filter and candidate detail view, with an invalid candidate’s warning visible only in its detail view from the first attempt onward. Ask the browser-capable agent to select the best valid candidate under the fixed rule and record visible actions.
+Generate a local static experiment-results
+page from real saved metrics. Add a filter
+and candidate detail view, with an invalid
+candidate’s warning visible only in its
+detail view from the first attempt onward.
+Ask the browser-capable agent to select the
+best valid candidate under the fixed rule
+and record visible actions.
 ```
 
 **Observe:** The trace can be checked against the page state.
@@ -59,7 +72,12 @@ Generate a local static experiment-results page from real saved metrics. Add a f
 Give the critic a defined evidence packet.
 
 ```text
-Provide the task and visible action trace to a separate critic context if available; otherwise label shared context. Compare its verdict with an executable selected-candidate check. Revise one skill instruction and retry once.
+Provide the task and visible action trace to
+a separate critic context if available;
+otherwise label shared context. Compare its
+verdict with an executable
+selected-candidate check. Revise one skill
+instruction and retry once.
 ```
 
 **Observe:** A critic’s approval can be wrong and must be checked.

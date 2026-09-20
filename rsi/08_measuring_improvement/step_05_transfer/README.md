@@ -35,11 +35,16 @@ Transfer asks whether a retained change helps in a different setting. Keep the s
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.05, Test whether the lesson transfers, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.05, Test whether the
+lesson transfers, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which bike-specific advice could fail on imbalanced classification?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Separate general procedure from task-specific facts.
 
 ```text
-Record parent and child hashes. Map their instructions to the wine task without reading new results. Flag bike-specific assumptions, such as minimizing MAE, before execution.
+Record parent and child hashes. Map their
+instructions to the wine task without
+reading new results. Flag bike-specific
+assumptions, such as minimizing MAE, before
+execution.
 ```
 
 **Observe:** The transfer conditions are explicit.
@@ -59,7 +68,11 @@ Record parent and child hashes. Map their instructions to the wine task without 
 Observe generalization and negative transfer.
 
 ```text
-Give each procedure two wine fits under the same classification contract. Compare retained balanced accuracy, both class recalls, decisions, and costs. Keep any failed transfer.
+Give each procedure two wine fits under the
+same classification contract. Compare
+retained balanced accuracy, both class
+recalls, decisions, and costs. Keep any
+failed transfer.
 ```
 
 **Observe:** A useful regression procedure can be neutral or harmful here.

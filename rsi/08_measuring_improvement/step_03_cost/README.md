@@ -35,11 +35,16 @@ Resources are not interchangeable. Record agent tokens or provider charges when 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.03, Count the cost of research, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.03, Count the cost
+of research, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which procedure could appear efficient if its failed proposals were omitted?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Account for the full route to the result.
 
 ```text
-Create COST.md for both traces. Include proposal generation, data inspection, fitting, evaluation, review, retries, failures, and final checking. Mark unavailable agent costs explicitly.
+Create COST.md for both traces. Include
+proposal generation, data inspection,
+fitting, evaluation, review, retries,
+failures, and final checking. Mark
+unavailable agent costs explicitly.
 ```
 
 **Observe:** No cost category silently becomes zero.
@@ -59,7 +68,10 @@ Create COST.md for both traces. Include proposal generation, data inspection, fi
 Match the conclusion to available accounting.
 
 ```text
-Compare retained quality at matched known resources. State whether total-cost superiority can be assessed. Show the effect of including rejected attempts in the count.
+Compare retained quality at matched known
+resources. State whether total-cost
+superiority can be assessed. Show the effect
+of including rejected attempts in the count.
 ```
 
 **Observe:** A narrower defensible conclusion may replace an attractive broad claim.

@@ -35,11 +35,17 @@ Tell the story from a row of data to a model result, then from a failure to a sk
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 11.05, Teach the mechanism and defend the evidence, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 11.05, Teach the
+mechanism and defend the evidence, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which part of your claim would a careful peer find hardest to verify?
@@ -49,7 +55,13 @@ Ask me to predict the result before the experiment.
 Make the evidence navigable.
 
 ```text
-Create PORTFOLIO.md with task, starting command through the agent, generated artifacts, one successful run, one failure, lineage, costs, and claim limits. Link every result to its source file. Include a simple mechanism illustration with an accurate caption.
+Create PORTFOLIO.md with task, starting
+command through the agent, generated
+artifacts, one successful run, one failure,
+lineage, costs, and claim limits. Link every
+result to its source file. Include a simple
+mechanism illustration with an accurate
+caption.
 ```
 
 **Observe:** A peer can follow one complete chain without reading the entire history.
@@ -59,7 +71,12 @@ Create PORTFOLIO.md with task, starting command through the agent, generated art
 Test understanding beyond memorized wording.
 
 ```text
-Guide a peer through one small run. Ask them to explain process, loop, graph, ontology, meta-harness, self-improvement, and recursion using your project. Record actual feedback and unanswered questions. Do not invent a peer session if none is available.
+Guide a peer through one small run. Ask them
+to explain process, loop, graph, ontology,
+meta-harness, self-improvement, and
+recursion using your project. Record actual
+feedback and unanswered questions. Do not
+invent a peer session if none is available.
 ```
 
 **Observe:** The portfolio separates executed validation from pending learner review.

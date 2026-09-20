@@ -35,11 +35,17 @@ Give each simulated worker the same fixed rule: take an available job when idle.
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.05, Let work reorganize under local rules, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.05, Let work
+reorganize under local rules, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will dynamic assignment always beat a fixed assignment?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Create a baseline organization.
 
 ```text
-Generate a deterministic queue simulation with job durations and expected results. Run a fixed assignment and save the event trace. Label durations as synthetic.
+Generate a deterministic queue simulation
+with job durations and expected results. Run
+a fixed assignment and save the event trace.
+Label durations as synthetic.
 ```
 
 **Observe:** The baseline organization is visible.
@@ -59,7 +68,10 @@ Generate a deterministic queue simulation with job durations and expected result
 Observe organization without changing skills.
 
 ```text
-Run the same jobs with idle workers taking the next available job. Compare assignment, completion time, and lost or duplicate jobs. Keep worker rules fixed.
+Run the same jobs with idle workers taking
+the next available job. Compare assignment,
+completion time, and lost or duplicate jobs.
+Keep worker rules fixed.
 ```
 
 **Observe:** The organization changes through local interaction, not a rewritten ML solver.

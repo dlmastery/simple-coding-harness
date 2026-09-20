@@ -35,11 +35,16 @@ A skill describes when to act, what to read, which tools to use, what outputs to
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 01.03, Turn the process into a skill, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.03, Turn the process
+into a skill, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If a skill says “never use leaked features,” what would show that the restriction is actually checked?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Preserve the process outside chat.
 
 ```text
-Create a learner-owned baseline skill in Markdown from PROCESS.md. Include inputs, actions, evidence, one-fit limit, and refusal conditions. Keep it shorter than the execution report. Do not modify the canonical course skills.
+Create a learner-owned baseline skill in
+Markdown from PROCESS.md. Include inputs,
+actions, evidence, one-fit limit, and
+refusal conditions. Keep it shorter than the
+execution report. Do not modify the
+canonical course skills.
 ```
 
 **Observe:** The skill is a procedure, not a copied transcript.
@@ -59,7 +69,10 @@ Create a learner-owned baseline skill in Markdown from PROCESS.md. Include input
 Check that its instructions govern execution.
 
 ```text
-Read the new skill and run its one-attempt process in a fresh workspace. Record which instruction led to each action. Compare its outputs with the prior process.
+Read the new skill and run its one-attempt
+process in a fresh workspace. Record which
+instruction led to each action. Compare its
+outputs with the prior process.
 ```
 
 **Observe:** The tool outputs support the skill’s completion claim.

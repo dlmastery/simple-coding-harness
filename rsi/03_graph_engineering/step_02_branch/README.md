@@ -35,11 +35,16 @@ A branch is a decision with explicit conditions. If required fields are absent, 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.02, Route different failures differently, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.02, Route different
+failures differently, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What should happen when a data check has no result at all?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Make each route meaningful.
 
 ```text
-Generate a small routing tool with states valid, invalid, and unknown. Use a valid sample, a copy missing cnt, and a missing check report. Write the route conditions in WORKFLOW.md.
+Generate a small routing tool with states
+valid, invalid, and unknown. Use a valid
+sample, a copy missing cnt, and a missing
+check report. Write the route conditions in
+WORKFLOW.md.
 ```
 
 **Observe:** Unknown has its own stop or review route.
@@ -59,7 +68,11 @@ Generate a small routing tool with states valid, invalid, and unknown. Use a val
 Test the conditions instead of only the happy path.
 
 ```text
-Execute each fixture through the router. Save ROUTES.md with input, condition, chosen action, and exit status. Confirm that invalid and unknown inputs cannot reach fitting.
+Execute each fixture through the router.
+Save ROUTES.md with input, condition, chosen
+action, and exit status. Confirm that
+invalid and unknown inputs cannot reach
+fitting.
 ```
 
 **Observe:** The trace explains why each route was taken.

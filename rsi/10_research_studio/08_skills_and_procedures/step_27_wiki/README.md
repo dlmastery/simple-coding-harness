@@ -35,11 +35,17 @@ WikiSkill separates raw experience, a persistent knowledge layer, and active ski
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.27, Keep traces, knowledge, and active skills separate, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.27, Keep traces,
+knowledge, and active skills separate, one
+step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a failed proposal add useful knowledge without becoming the active procedure?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Give each store its own job.
 
 ```text
-Create immutable TRACE.md, a source-linked NOTEBOOK.md, and ACTIVE-SKILL.md. Use a real failed proposal. State which role may read each during this exercise.
+Create immutable TRACE.md, a source-linked
+NOTEBOOK.md, and ACTIVE-SKILL.md. Use a real
+failed proposal. State which role may read
+each during this exercise.
 ```
 
 **Observe:** Evidence, interpretation, and active instructions are distinct.
@@ -59,7 +68,11 @@ Create immutable TRACE.md, a source-linked NOTEBOOK.md, and ACTIVE-SKILL.md. Use
 Test the retention rule.
 
 ```text
-Propose one atomic active-skill edit and evaluate it on two cases. If it fails, retain the old active skill while keeping a scoped notebook note about the failure. Record access limits and actual reads.
+Propose one atomic active-skill edit and
+evaluate it on two cases. If it fails,
+retain the old active skill while keeping a
+scoped notebook note about the failure.
+Record access limits and actual reads.
 ```
 
 **Observe:** Knowledge can survive a rejected procedure change.

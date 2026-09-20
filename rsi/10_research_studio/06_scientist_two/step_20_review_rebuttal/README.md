@@ -35,11 +35,16 @@ A reviewer can identify a missing baseline, confound, or unsupported generalizat
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.20, Answer a criticism with evidence, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.20, Answer a
+criticism with evidence, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What criticism can be resolved with an experiment rather than a wording change?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Identify one consequential weakness.
 
 ```text
-Use audit-rsi-claim to review the research note. Separate a factual error, an unsupported inference, and a useful next experiment. Label the review as agent-generated in the current context.
+Use audit-rsi-claim to review the research
+note. Separate a factual error, an
+unsupported inference, and a useful next
+experiment. Label the review as
+agent-generated in the current context.
 ```
 
 **Observe:** The review’s source and limits are clear.
@@ -59,7 +68,10 @@ Use audit-rsi-claim to review the research note. Separate a factual error, an un
 Let new evidence change the conclusion.
 
 ```text
-Choose one criticism, predeclare a two-fit follow-up, and execute it. Write RESPONSE.md linking the new result and the revised claim. If the criticism stands, say so.
+Choose one criticism, predeclare a two-fit
+follow-up, and execute it. Write RESPONSE.md
+linking the new result and the revised
+claim. If the criticism stands, say so.
 ```
 
 **Observe:** The response can narrow the original conclusion.

@@ -35,11 +35,16 @@ The baseline predicts the training median for every selection row. A median mini
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 00.03, Run one baseline, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 00.03, Run one
+baseline, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will one fixed count handle both quiet nights and busy afternoons well?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Create an actual baseline.
 
 ```text
-Use the run-ml-experiment skill. Fit the bike constant model once, using all permitted features and seed 17. State that the median predictor ignores those features. Do not try another model. Open its proposal and result.
+Use the run-ml-experiment skill. Fit the
+bike constant model once, using all
+permitted features and seed 17. State that
+the median predictor ignores those features.
+Do not try another model. Open its proposal
+and result.
 ```
 
 **Observe:** The selection MAE is about 159.948 with the pinned runtime. Your measured report is the authority for your run.
@@ -59,7 +69,11 @@ Use the run-ml-experiment skill. Fit the bike constant model once, using all per
 Connect the score to individual predictions.
 
 ```text
-Show three saved prediction rows. For each, calculate the absolute error. Average those three and explain why that small mean can differ from the full MAE. Save the calculation in BASELINE-NOTE.md.
+Show three saved prediction rows. For each,
+calculate the absolute error. Average those
+three and explain why that small mean can
+differ from the full MAE. Save the
+calculation in BASELINE-NOTE.md.
 ```
 
 **Observe:** The score summarizes many ordinary prediction errors.

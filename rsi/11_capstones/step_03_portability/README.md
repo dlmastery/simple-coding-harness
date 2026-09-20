@@ -35,11 +35,17 @@ Task transfer changes the scientific problem. Agent portability changes the host
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 11.03, Test transfer and portability separately, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 11.03, Test transfer
+and portability separately, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Does a successful Codex run prove the same hooks work in Claude or Gemini?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Separate compatibility questions.
 
 ```text
-Create PORTABILITY.md with task, agent, runtime version, backend, required capabilities, and status. Use statuses planned, generated, inspected, and executed. Choose two small tests you can actually run.
+Create PORTABILITY.md with task, agent,
+runtime version, backend, required
+capabilities, and status. Use statuses
+planned, generated, inspected, and executed.
+Choose two small tests you can actually run.
 ```
 
 **Observe:** Unsupported combinations remain explicit.
@@ -59,7 +69,12 @@ Create PORTABILITY.md with task, agent, runtime version, backend, required capab
 Replace intended support with evidence.
 
 ```text
-Run the selected smoke tests through canonical skills. Check outputs, refusal behavior, recovery, and dependency versions. For a cluster test, record job ID, cancel, resume, and cost. Do not launch unavailable infrastructure or invent results.
+Run the selected smoke tests through
+canonical skills. Check outputs, refusal
+behavior, recovery, and dependency versions.
+For a cluster test, record job ID, cancel,
+resume, and cost. Do not launch unavailable
+infrastructure or invent results.
 ```
 
 **Observe:** Each executed cell has evidence and limits.

@@ -35,11 +35,16 @@ Keep the agent’s language-model weights fixed. Edit a learner-owned reporting 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.23, Adapt the harness to the rubric, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.23, Adapt the
+harness to the rubric, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Would saving a new reporting instruction change the language model’s parameters?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Target the observed omission.
 
 ```text
-Create a child reporting skill from the failed rubric case. Require evidence-linked class recalls and an explicit limit statement. Preserve parent and child versions.
+Create a child reporting skill from the
+failed rubric case. Require evidence-linked
+class recalls and an explicit limit
+statement. Preserve parent and child
+versions.
 ```
 
 **Observe:** The changed artifact is an external skill.
@@ -59,7 +68,13 @@ Create a child reporting skill from the failed rubric case. Require evidence-lin
 Measure the revised behavior.
 
 ```text
-Use parent and child on the same complete and incomplete evidence fixtures, making four report/check pairs. Retain every output and verdict. Do not invent missing class evidence to satisfy the rubric. State whether the shared agent context limits causal interpretation.
+Use parent and child on the same complete
+and incomplete evidence fixtures, making
+four report/check pairs. Retain every output
+and verdict. Do not invent missing class
+evidence to satisfy the rubric. State
+whether the shared agent context limits
+causal interpretation.
 ```
 
 **Observe:** The child’s actual output can be compared with its parent.

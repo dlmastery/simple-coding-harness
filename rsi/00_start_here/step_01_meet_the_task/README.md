@@ -35,11 +35,16 @@ One row describes one recorded hour. The target, cnt, is the number of rentals. 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 00.01, Meet the prediction task, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 00.01, Meet the
+prediction task, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Would knowing casual and registered rentals make the target easy to predict? Would those counts be available for the intended decision?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Start with a row you can understand.
 
 ```text
-Read the bike data card. Show me eight source rows as a small readable table. Explain cnt, hr, temp, casual, and registered using the original data description. Do not fit a model.
+Read the bike data card. Show me eight
+source rows as a small readable table.
+Explain cnt, hr, temp, casual, and
+registered using the original data
+description. Do not fit a model.
 ```
 
 **Observe:** The counts describe related quantities. Ask which are inputs and which are outcomes.
@@ -59,7 +68,12 @@ Read the bike data card. Show me eight source rows as a small readable table. Ex
 Make the prediction setting explicit.
 
 ```text
-Write TASK.md in my lab workspace: prediction unit, target, available inputs, excluded fields, MAE, chronological partitions, and one limitation. Explain why observed weather does not establish an advance forecast.
+Write TASK.md in my lab workspace:
+prediction unit, target, available inputs,
+excluded fields, MAE, chronological
+partitions, and one limitation. Explain why
+observed weather does not establish an
+advance forecast.
 ```
 
 **Observe:** A reader can tell exactly what would count as a valid prediction.

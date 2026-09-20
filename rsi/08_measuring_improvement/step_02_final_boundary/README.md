@@ -37,11 +37,16 @@ Selection chooses a recipe using development feedback. Final evaluation measures
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 08.02, Freeze selection before final evaluation, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 08.02, Freeze selection
+before final evaluation, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What should happen if you request a new candidate after seeing the final score?
@@ -51,7 +56,10 @@ Ask me to predict the result before the experiment.
 Commit before observing final outcomes.
 
 ```text
-Write SELECTION-DECISION.md with the chosen candidate, recipe, reason, and source contract. Confirm no final results were used to choose it.
+Write SELECTION-DECISION.md with the chosen
+candidate, recipe, reason, and source
+contract. Confirm no final results were used
+to choose it.
 ```
 
 **Observe:** The retained object is unambiguous.
@@ -61,7 +69,11 @@ Write SELECTION-DECISION.md with the chosen candidate, recipe, reason, and sourc
 Test the lock as well as the score.
 
 ```text
-Run the supplied final evaluation for that candidate. Inspect FINAL.md and predictions. Then attempt another selection fit and retain the refusal. Do not reopen the workspace.
+Run the supplied final evaluation for that
+candidate. Inspect FINAL.md and predictions.
+Then attempt another selection fit and
+retain the refusal. Do not reopen the
+workspace.
 ```
 
 **Observe:** The score exists and post-final search is blocked.

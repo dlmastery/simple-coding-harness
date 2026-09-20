@@ -35,11 +35,16 @@ Preserve the high-level data science workflow. Change the target to quality at l
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 06.05, Generate a classification harness, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.05, Generate a
+classification harness, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which parts of the bike harness can transfer unchanged?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Keep the student interface readable.
 
 ```text
-Write a wine HARNESS-BRIEF.md from the data card. Predeclare the binary threshold, the fixed wine-v1 split that keeps identical input vectors together, balanced accuracy, both class recalls, two-fit budget, and source attribution.
+Write a wine HARNESS-BRIEF.md from the data
+card. Predeclare the binary threshold, the
+fixed wine-v1 split that keeps identical
+input vectors together, balanced accuracy,
+both class recalls, two-fit budget, and
+source attribution.
 ```
 
 **Observe:** The brief makes the derived label explicit.
@@ -59,7 +69,12 @@ Write a wine HARNESS-BRIEF.md from the data card. Predeclare the binary threshol
 Test actual adaptation.
 
 ```text
-Use the unchanged builder to generate and run the classification harness. Fit the majority and balanced logistic candidates. Compare generated task, preprocessing, metric, and error analysis with the bike harness.
+Use the unchanged builder to generate and
+run the classification harness. Fit the
+majority and balanced logistic candidates.
+Compare generated task, preprocessing,
+metric, and error analysis with the bike
+harness.
 ```
 
 **Observe:** The classification report includes minority-class behavior.

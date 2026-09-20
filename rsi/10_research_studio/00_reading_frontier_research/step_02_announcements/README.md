@@ -35,11 +35,16 @@ Record who made the claim, when it first appeared, what was measured, and what t
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.02, Audit a frontier announcement, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.02, Audit a frontier
+announcement, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Does a recent repost make an older experiment a new release?
@@ -49,7 +54,13 @@ Ask me to predict the result before the experiment.
 Keep discovery time-bounded.
 
 ```text
-Search the preceding month with explicit dates for one frontier-lab or author RSI announcement, including original X threads where available. Verify identity, affiliation, canonical URL, first date, and linked work. Save exact queries and access gaps.
+Search the preceding month with explicit
+dates for one frontier-lab or author RSI
+announcement, including original X threads
+where available. Verify identity,
+affiliation, canonical URL, first date, and
+linked work. Save exact queries and access
+gaps.
 ```
 
 **Observe:** Publication and crawl dates are separated.
@@ -59,7 +70,11 @@ Search the preceding month with explicit dates for one frontier-lab or author RS
 Read beyond the headline.
 
 ```text
-Create CLAIM-CARD.md linking the announcement, methods, evaluation, code availability, and limitations. Distinguish reported performance from a result you actually ran. Use audit-rsi-claim.
+Create CLAIM-CARD.md linking the
+announcement, methods, evaluation, code
+availability, and limitations. Distinguish
+reported performance from a result you
+actually ran. Use audit-rsi-claim.
 ```
 
 **Observe:** The card states what can and cannot be checked.

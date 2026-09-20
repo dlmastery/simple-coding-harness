@@ -35,11 +35,16 @@ ModularRSI organizes changes across agent loop, tool use, observation, context, 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.10, Localize a harness problem, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.10, Localize a
+harness problem, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If the tool output is correct but the agent misreads its units, which component deserves attention first?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Find the earliest relevant divergence.
 
 ```text
-Compare a successful and failed trace. Map each failure to loop, tool, observation, context, or completion behavior. Choose one component and cite the evidence.
+Compare a successful and failed trace. Map
+each failure to loop, tool, observation,
+context, or completion behavior. Choose one
+component and cite the evidence.
 ```
 
 **Observe:** The diagnosis targets a concrete interface or action.
@@ -59,7 +67,10 @@ Compare a successful and failed trace. Map each failure to loop, tool, observati
 Test a narrow intervention.
 
 ```text
-Create a versioned patch to that component only. Rerun the failing case and a contrasting passing case. Save the unchanged-component hashes and outcomes.
+Create a versioned patch to that component
+only. Rerun the failing case and a
+contrasting passing case. Save the
+unchanged-component hashes and outcomes.
 ```
 
 **Observe:** The patch can fix one case while exposing a regression elsewhere.

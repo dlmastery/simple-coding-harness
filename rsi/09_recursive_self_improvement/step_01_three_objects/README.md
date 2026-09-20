@@ -35,11 +35,17 @@ The solver runs ML research. The improver proposes and tests changes to the solv
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.01, Identify the solver, improver, and evaluator, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.01, Identify the
+solver, improver, and evaluator, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** If only a tree depth changes, which component has changed?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Name the objects before classifying the result.
 
 ```text
-Create COMPONENTS.md with solver, improver, evaluator, inputs, outputs, writable artifacts, and version hashes. Identify who or what currently supplies each role.
+Create COMPONENTS.md with solver, improver,
+evaluator, inputs, outputs, writable
+artifacts, and version hashes. Identify who
+or what currently supplies each role.
 ```
 
 **Observe:** The word self has an explicit referent.
@@ -59,7 +68,10 @@ Create COMPONENTS.md with solver, improver, evaluator, inputs, outputs, writable
 Test the map on concrete examples.
 
 ```text
-Classify a new model setting, a revised task skill, and a revised improver rule. For each state what later behavior would need to change and what evidence would show it.
+Classify a new model setting, a revised task
+skill, and a revised improver rule. For each
+state what later behavior would need to
+change and what evidence would show it.
 ```
 
 **Observe:** The three edits support different claims.

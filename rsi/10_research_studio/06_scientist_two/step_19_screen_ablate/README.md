@@ -35,11 +35,17 @@ Screening uses a cheaper test to choose which idea deserves more work. Confirmat
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.19, Screen ideas and test their contributions, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.19, Screen ideas and
+test their contributions, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could the idea that wins a small-data screen lose on the full training period?
@@ -49,7 +55,15 @@ Ask me to predict the result before the experiment.
 Specify what the cheap test can establish.
 
 ```text
-Plan two small development-only screening experiments. State subset selection, metric, cost limit, and the rule for advancing one idea. Have the agent generate a separate screening runner; the supplied general tool keeps its training partition fixed. Preserve the original data and contracts, fit preprocessing only on the declared training subset, and keep final data untouched.
+Plan two small development-only screening
+experiments. State subset selection, metric,
+cost limit, and the rule for advancing one
+idea. Have the agent generate a separate
+screening runner; the supplied general tool
+keeps its training partition fixed. Preserve
+the original data and contracts, fit
+preprocessing only on the declared training
+subset, and keep final data untouched.
 ```
 
 **Observe:** The proxy and its limitations are explicit.
@@ -59,7 +73,10 @@ Plan two small development-only screening experiments. State subset selection, m
 Test the selected contribution.
 
 ```text
-Run the selected idea and its ablation under matching fuller conditions within the total fit budget. Compare with the screen and record ranking changes.
+Run the selected idea and its ablation under
+matching fuller conditions within the total
+fit budget. Compare with the screen and
+record ranking changes.
 ```
 
 **Observe:** The full comparison can overturn screening.

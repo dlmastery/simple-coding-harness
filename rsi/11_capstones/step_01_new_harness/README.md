@@ -35,11 +35,17 @@ Begin with the scientific contract, not a preferred optimizer. State target, pre
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 11.01, Build a harness for a new prediction brief, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 11.01, Build a harness
+for a new prediction brief, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which assumption from the bike task is least safe to reuse unchanged?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Make the new task scientifically coherent.
 
 ```text
-Create a task brief and data card with source, permission, checksum, prediction unit, input availability, split design, metric, baseline, and budget. Use plain language. Resolve scientific ambiguity before training.
+Create a task brief and data card with
+source, permission, checksum, prediction
+unit, input availability, split design,
+metric, baseline, and budget. Use plain
+language. Resolve scientific ambiguity
+before training.
 ```
 
 **Observe:** The brief can be understood without the old course chat.
@@ -59,7 +70,11 @@ Create a task brief and data card with source, permission, checksum, prediction 
 Deliver behavior as well as files.
 
 ```text
-Use build-ml-harness to generate the system. Run its baseline and one intended refusal. Save setup, commands, exit status, predictions, checks, and a clean-start handoff.
+Use build-ml-harness to generate the system.
+Run its baseline and one intended refusal.
+Save setup, commands, exit status,
+predictions, checks, and a clean-start
+handoff.
 ```
 
 **Observe:** A peer can reproduce a small valid run and see the boundary work.

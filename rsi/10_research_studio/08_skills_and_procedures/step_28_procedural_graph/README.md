@@ -35,11 +35,16 @@ A procedural graph represents actions and transitions. Our exercise gives the ex
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.28, Refine a procedure graph, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.28, Refine a
+procedure graph, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can changing a transition fix a workflow without changing any domain definition?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Show only guidance needed for the next action.
 
 ```text
-Generate a small procedure runner from the existing workflow. At each node expose its inputs, action, stop condition, and neighboring transitions. Keep the domain facts separate.
+Generate a small procedure runner from the
+existing workflow. At each node expose its
+inputs, action, stop condition, and
+neighboring transitions. Keep the domain
+facts separate.
 ```
 
 **Observe:** The runner follows an execution structure, not an ontology.
@@ -59,7 +68,13 @@ Generate a small procedure runner from the existing workflow. At each node expos
 Test the change before promotion.
 
 ```text
-Use one success and one failure to propose a transition edit. Run the target and regression selection fixtures, preserve rejected edits, freeze the chosen graph, and test a fresh fixture. Use a fit stub throughout. Reserve the fourth check for the semantic-error fixture below.
+Use one success and one failure to propose a
+transition edit. Run the target and
+regression selection fixtures, preserve
+rejected edits, freeze the chosen graph, and
+test a fresh fixture. Use a fit stub
+throughout. Reserve the fourth check for the
+semantic-error fixture below.
 ```
 
 **Observe:** Selection performance and fresh-test performance remain distinct.

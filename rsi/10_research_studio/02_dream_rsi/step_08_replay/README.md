@@ -35,11 +35,16 @@ Dream-RSI uses replay over realized discovery structure. Our replay tool walks r
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.08, Replay only what the history can answer, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.08, Replay only what
+the history can answer, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can replay alone decide whether a brand-new model family would win?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Define its evidence boundary.
 
 ```text
-Generate a local replay tool that reads the frozen tree and accepts a node-order policy and cost budget. It may return only recorded outcomes. An absent edge or node must return unknown.
+Generate a local replay tool that reads the
+frozen tree and accepts a node-order policy
+and cost budget. It may return only recorded
+outcomes. An absent edge or node must return
+unknown.
 ```
 
 **Observe:** The replay cannot invent environment evidence.
@@ -59,7 +68,11 @@ Generate a local replay tool that reads the frozen tree and accepts a node-order
 Separate selection from new execution.
 
 ```text
-Replay two node-order policies. Count environment fits saved and policy-computation cost separately. Query one absent branch and retain its unknown result.
+Replay two node-order policies. Count
+environment fits saved and
+policy-computation cost separately. Query
+one absent branch and retain its unknown
+result.
 ```
 
 **Observe:** A replay winner is selected within the recorded coverage.

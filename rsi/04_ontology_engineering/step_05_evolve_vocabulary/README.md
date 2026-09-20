@@ -35,11 +35,17 @@ Changing “observed weather” to “weather forecast available one day earlier
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 04.05, Change a definition without losing its consequences, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 04.05, Change a
+definition without losing its consequences,
+one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which previous scores can be reused as evidence for the new day-ahead forecasting task?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 State the changed scientific question.
 
 ```text
-Create vocabulary version 2 for a day-ahead demand task. Define forecast origin and input availability. Preserve version 1. Write the change and its reason in CHANGE.md.
+Create vocabulary version 2 for a day-ahead
+demand task. Define forecast origin and
+input availability. Preserve version 1.
+Write the change and its reason in
+CHANGE.md.
 ```
 
 **Observe:** The new task is distinguishable from the old one.
@@ -59,7 +69,12 @@ Create vocabulary version 2 for a day-ahead demand task. Define forecast origin 
 Connect meaning changes to work that must be redone.
 
 ```text
-Use the relation table and execution graph to list affected data sources, features, split rules, recipes, and reports. Generate a small availability check that rejects an observed future weather input. Save its failing test.
+Use the relation table and execution graph
+to list affected data sources, features,
+split rules, recipes, and reports. Generate
+a small availability check that rejects an
+observed future weather input. Save its
+failing test.
 ```
 
 **Observe:** The impact reaches more than a renamed column.

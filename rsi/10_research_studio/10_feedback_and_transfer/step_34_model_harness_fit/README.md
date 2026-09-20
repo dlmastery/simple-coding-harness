@@ -35,11 +35,17 @@ The source contrasts training from full expert trajectories with correction on t
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.34, Keep model training aligned with its harness, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.34, Keep model
+training aligned with its harness, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a more polished response fail because it violates a tool contract?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Make compatibility executable.
 
 ```text
-Generate a parser for a simple candidate report format. Test a correct response and a polished response using a different field convention. Keep both fixtures.
+Generate a parser for a simple candidate
+report format. Test a correct response and a
+polished response using a different field
+convention. Keep both fixtures.
 ```
 
 **Observe:** Surface quality and interface validity differ.
@@ -59,7 +68,11 @@ Generate a parser for a simple candidate report format. Test a correct response 
 Connect the toy idea to the actual study carefully.
 
 ```text
-Apply a minimal correction to the mismatched field and rerun the check. Read the paper’s training comparison, model families, data, and hardware. Explain what the toy omits and what real on-policy training would require.
+Apply a minimal correction to the mismatched
+field and rerun the check. Read the paper’s
+training comparison, model families, data,
+and hardware. Explain what the toy omits and
+what real on-policy training would require.
 ```
 
 **Observe:** The local repair restores compatibility without pretending to train a model.

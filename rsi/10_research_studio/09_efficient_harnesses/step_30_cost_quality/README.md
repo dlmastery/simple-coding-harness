@@ -35,11 +35,17 @@ SoL-Pi motivates harness search for efficiency subject to quality requirements. 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.30, Reduce cost without hiding quality loss, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.30, Reduce cost
+without hiding quality loss, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which report step can be removed without losing evidence needed for acceptance?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Prevent cost savings from weakening the task.
 
 ```text
-Write QUALITY-COST.md with required evidence, allowed quality tolerance, failure handling, and measured cost fields. Propose one removal of redundant work.
+Write QUALITY-COST.md with required
+evidence, allowed quality tolerance, failure
+handling, and measured cost fields. Propose
+one removal of redundant work.
 ```
 
 **Observe:** The quality floor precedes the optimization.
@@ -59,7 +68,11 @@ Write QUALITY-COST.md with required evidence, allowed quality tolerance, failure
 Count the work needed to obtain each result.
 
 ```text
-Run baseline and candidate on matched fixtures or tasks. Compare quality, missing evidence, tool calls, wall time, and available agent usage. Include the cost of proposing and evaluating the change.
+Run baseline and candidate on matched
+fixtures or tasks. Compare quality, missing
+evidence, tool calls, wall time, and
+available agent usage. Include the cost of
+proposing and evaluating the change.
 ```
 
 **Observe:** A cheaper invalid result is rejected.

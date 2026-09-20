@@ -35,11 +35,17 @@ The task skill chooses ML experiments. The improver reads failures, proposes one
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 07.04, Improve a task skill with a fixed procedure, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.04, Improve a task
+skill with a fixed procedure, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which file must stay unchanged for this to remain the fixed-improver comparison?
@@ -49,7 +55,12 @@ Ask me to predict the result before the experiment.
 Target a documented procedural weakness.
 
 ```text
-Use improve-research-skill. Preserve the parent task skill. Propose one edit based on selection evidence, such as requiring an error-slice diagnosis before the second model choice. Save the unchanged improver hash and child skill.
+Use improve-research-skill. Preserve the
+parent task skill. Propose one edit based on
+selection evidence, such as requiring an
+error-slice diagnosis before the second
+model choice. Save the unchanged improver
+hash and child skill.
 ```
 
 **Observe:** The proposal identifies its mutable target.
@@ -59,7 +70,11 @@ Use improve-research-skill. Preserve the parent task skill. Propose one edit bas
 Measure behavior and cost.
 
 ```text
-Give parent and child the same starting task and two fits each. Record their choices before fitting, retained results, and available total costs. Keep a child that fails acceptance as a rejected candidate.
+Give parent and child the same starting task
+and two fits each. Record their choices
+before fitting, retained results, and
+available total costs. Keep a child that
+fails acceptance as a rejected candidate.
 ```
 
 **Observe:** The comparison may support benefit, harm, or uncertainty.

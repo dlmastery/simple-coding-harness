@@ -35,11 +35,16 @@ A rollout is one sampled attempt. A reward scores it. In a grouped-relative illu
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.24, See what grouped rewards contribute, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.24, See what grouped
+rewards contribute, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What happens when all four rewards are identical?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Expose the signal behind the update.
 
 ```text
-Generate a small CPU tool for rewards 0,0,1,1. Print mean, population standard deviation, normalized advantages, and a labelled toy categorical-policy update. Define the toy objective and learning rate. Save code and output.
+Generate a small CPU tool for rewards
+0,0,1,1. Print mean, population standard
+deviation, normalized advantages, and a
+labelled toy categorical-policy update.
+Define the toy objective and learning rate.
+Save code and output.
 ```
 
 **Observe:** Relative reward supplies a direction, not a guarantee of better future behavior.
@@ -59,7 +69,12 @@ Generate a small CPU tool for rewards 0,0,1,1. Print mean, population standard d
 Make the limits concrete.
 
 ```text
-Repeat with all-equal rewards and one incorrectly scored rollout. Show zero centered signal in the equal case and how a wrong reward can push the toy policy in the wrong direction. Label every result numerical illustration.
+Repeat with all-equal rewards and one
+incorrectly scored rollout. Show zero
+centered signal in the equal case and how a
+wrong reward can push the toy policy in the
+wrong direction. Label every result
+numerical illustration.
 ```
 
 **Observe:** Reward quality controls the direction of learning.

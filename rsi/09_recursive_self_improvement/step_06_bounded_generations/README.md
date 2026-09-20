@@ -35,11 +35,16 @@ Each generation records the active solver, active improver, proposal, evaluation
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.06, Run bounded recursive generations, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.06, Run bounded
+recursive generations, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** What should the next generation inherit after an improver proposal is rejected?
@@ -49,7 +54,10 @@ Ask me to predict the result before the experiment.
 Make inheritance and limits explicit.
 
 ```text
-Create LINEAGE.md with two generation slots, solver and improver parent IDs, acceptance rules, cumulative budget, and stop conditions. Keep evaluator version fixed.
+Create LINEAGE.md with two generation slots,
+solver and improver parent IDs, acceptance
+rules, cumulative budget, and stop
+conditions. Keep evaluator version fixed.
 ```
 
 **Observe:** The plan distinguishes proposed from active descendants.
@@ -59,7 +67,11 @@ Create LINEAGE.md with two generation slots, solver and improver parent IDs, acc
 Keep every transition reviewable.
 
 ```text
-Run the bounded generations using the selected active improver. Save proposals, checks, costs, and promotion decisions. At each boundary write PROGRESS.md. Stop at the declared limit and audit inherited versions.
+Run the bounded generations using the
+selected active improver. Save proposals,
+checks, costs, and promotion decisions. At
+each boundary write PROGRESS.md. Stop at the
+declared limit and audit inherited versions.
 ```
 
 **Observe:** The lineage records both successful and rejected changes.

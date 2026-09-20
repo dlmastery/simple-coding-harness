@@ -35,11 +35,17 @@ The outcome is the improvement each procedure produces from the same starting so
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 09.05, Measure whether the revised improver helps, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 09.05, Measure whether
+the revised improver helps, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Could v1 win on the current task but lose on improvement produced per unit cost?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Define the comparison before execution.
 
 ```text
-Write IMPROVER-COMPARISON.md with starting skill, tasks, budgets, acceptance rule, repetitions, context boundary, and measured costs. Do not use cases that selected v1 as fresh evidence.
+Write IMPROVER-COMPARISON.md with starting
+skill, tasks, budgets, acceptance rule,
+repetitions, context boundary, and measured
+costs. Do not use cases that selected v1 as
+fresh evidence.
 ```
 
 **Observe:** The comparison is about future improvement work.
@@ -59,7 +69,13 @@ Write IMPROVER-COMPARISON.md with starting skill, tasks, budgets, acceptance rul
 Measure descendants and overhead.
 
 ```text
-Execute v0 and v1 from matched starting artifacts. Keep all proposals, failed checks, descendants, and costs. Compare retained gains over the common baseline and report uncertainty. If fresh independent contexts are unavailable, label that limitation prominently.
+Execute v0 and v1 from matched starting
+artifacts. Keep all proposals, failed
+checks, descendants, and costs. Compare
+retained gains over the common baseline and
+report uncertainty. If fresh independent
+contexts are unavailable, label that
+limitation prominently.
 ```
 
 **Observe:** The evidence can show benefit, regression, or insufficient information.

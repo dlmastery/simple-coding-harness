@@ -35,11 +35,17 @@ An action hint suggests the next operation. An enriched observation exposes usef
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.33, Compare action hints and richer observations, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.33, Compare action
+hints and richer observations, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which assistance remains useful if the task’s next action changes but the state description stays accurate?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Avoid mixing instruction and observation.
 
 ```text
-Generate a small missing-field task. Prepare one action-hint condition and one richer-observation condition, with the same underlying task and budget. Define exact completion checks.
+Generate a small missing-field task. Prepare
+one action-hint condition and one
+richer-observation condition, with the same
+underlying task and budget. Define exact
+completion checks.
 ```
 
 **Observe:** The interventions supply different information.
@@ -59,7 +69,11 @@ Generate a small missing-field task. Prepare one action-hint condition and one r
 Inspect dependence on assistance.
 
 ```text
-Run both conditions and then an unassisted attempt on a fresh fixture. Keep traces, checks, and context limits. Do not call inference-time improvement learned weight capability.
+Run both conditions and then an unassisted
+attempt on a fresh fixture. Keep traces,
+checks, and context limits. Do not call
+inference-time improvement learned weight
+capability.
 ```
 
 **Observe:** Performance with help can differ from unassisted performance.

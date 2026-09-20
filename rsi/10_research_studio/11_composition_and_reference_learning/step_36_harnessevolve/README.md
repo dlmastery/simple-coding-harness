@@ -35,11 +35,17 @@ HarnessEvolve uses answer-conditioned reference trajectories, checks that they c
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.36, Diagnose failures with checked reference trajectories, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.36, Diagnose
+failures with checked reference
+trajectories, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Is a reference that immediately prints the known answer a useful execution path?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Reject a shortcut before using it as teaching evidence.
 
 ```text
-Generate two reference fixtures for a missing-data task: one with valid tool actions and one that only repeats the known answer. Validate required action evidence and retain the rejected shortcut.
+Generate two reference fixtures for a
+missing-data task: one with valid tool
+actions and one that only repeats the known
+answer. Validate required action evidence
+and retain the rejected shortcut.
 ```
 
 **Observe:** Correct final text alone does not establish a useful reference trajectory.
@@ -59,7 +69,12 @@ Generate two reference fixtures for a missing-data task: one with valid tool act
 Keep the improvement general and nonregressing.
 
 ```text
-Compare the failed trace with the valid reference. Propose one general skill edit. Check for answer copying and unnecessary growth, then test the current and a prior fixture before promotion. Keep every verdict.
+Compare the failed trace with the valid
+reference. Propose one general skill edit.
+Check for answer copying and unnecessary
+growth, then test the current and a prior
+fixture before promotion. Keep every
+verdict.
 ```
 
 **Observe:** A current-case gain can be rejected for leakage or regression.

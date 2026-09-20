@@ -35,11 +35,17 @@ RSIAgent separates outcome verification from actor-owned memory updates. The ver
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 10.04, Verify the outcome, then let the actor write memory, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.04, Verify the
+outcome, then let the actor write memory,
+one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Can a correct outcome verdict be followed by an incorrect lesson?
@@ -49,7 +55,9 @@ Ask me to predict the result before the experiment.
 Keep the verifier’s role narrow.
 
 ```text
-Run the checker on one exploration outcome. Save its verdict and evidence without asking it to write a lesson.
+Run the checker on one exploration outcome.
+Save its verdict and evidence without asking
+it to write a lesson.
 ```
 
 **Observe:** The outcome record states what succeeded or failed.
@@ -59,7 +67,12 @@ Run the checker on one exploration outcome. Save its verdict and evidence withou
 Keep authorship explicit.
 
 ```text
-As the task actor, write one bounded lesson from the trace and verdict. Save MEMORY.md with authorship and supporting evidence. Test a counterexample to its wording using an existing case. Do not relabel this as verifier-approved memory.
+As the task actor, write one bounded lesson
+from the trace and verdict. Save MEMORY.md
+with authorship and supporting evidence.
+Test a counterexample to its wording using
+an existing case. Do not relabel this as
+verifier-approved memory.
 ```
 
 **Observe:** A valid outcome can still lead to an overgeneralized lesson.

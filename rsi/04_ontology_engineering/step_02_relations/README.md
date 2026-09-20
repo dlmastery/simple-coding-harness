@@ -35,11 +35,16 @@ A relation connects two objects with a named meaning: scaler “fit on” train;
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 04.02, Connect data, models, and evidence, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 04.02, Connect data,
+models, and evidence, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Does “model measured by MAE” tell you which action runs next?
@@ -49,7 +54,12 @@ Ask me to predict the result before the experiment.
 Turn relationships into complete sentences.
 
 ```text
-Create DOMAIN.md as a Subject, Relation, Object Markdown table. Include model uses feature hr; scaler fit on train; search selects on selection; model measured by MAE; model predicts cnt. Explain each row in plain language.
+Create DOMAIN.md as a Subject, Relation,
+Object Markdown table. Include model uses
+feature hr; scaler fit on train; search
+selects on selection; model measured by MAE;
+model predicts cnt. Explain each row in
+plain language.
 ```
 
 **Observe:** The table describes meaning rather than execution order.
@@ -59,7 +69,10 @@ Create DOMAIN.md as a Subject, Relation, Object Markdown table. Include model us
 Run the small supplied semantic checker.
 
 ```text
-Run audit-domain on DOMAIN.md and save DOMAIN-CHECK.md. Explain its allowed relations and the limits of its three invariants.
+Run audit-domain on DOMAIN.md and save
+DOMAIN-CHECK.md. Explain its allowed
+relations and the limits of its three
+invariants.
 ```
 
 **Observe:** A pass means only that the supplied rules found no violation.

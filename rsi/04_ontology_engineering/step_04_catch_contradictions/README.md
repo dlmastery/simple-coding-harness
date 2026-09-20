@@ -35,11 +35,17 @@ Suppose a model uses a feature called total_users. Another fact says total_users
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 04.04, Catch a plausible but invalid experiment, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 04.04, Catch a
+plausible but invalid experiment, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will renaming a leaked feature make it a valid input?
@@ -49,7 +55,11 @@ Ask me to predict the result before the experiment.
 Make the error about meaning, not syntax.
 
 ```text
-In a teaching DOMAIN.md, add model uses feature total_users and total_users derived from target. Also set scaler fit on final and search selects on final. Keep the table well formed. Run audit-domain.
+In a teaching DOMAIN.md, add model uses
+feature total_users and total_users derived
+from target. Also set scaler fit on final
+and search selects on final. Keep the table
+well formed. Run audit-domain.
 ```
 
 **Observe:** The report identifies three semantic violations.
@@ -59,7 +69,12 @@ In a teaching DOMAIN.md, add model uses feature total_users and total_users deri
 Correct facts without erasing the failure.
 
 ```text
-Save a corrected table that removes the leaked input, fits the scaler on train, and selects on selection. Recheck it. Explain which actual implementation actions would also need correction if this were a real run.
+Save a corrected table that removes the
+leaked input, fits the scaler on train, and
+selects on selection. Recheck it. Explain
+which actual implementation actions would
+also need correction if this were a real
+run.
 ```
 
 **Observe:** Editing a record alone cannot repair an already leaked experiment.

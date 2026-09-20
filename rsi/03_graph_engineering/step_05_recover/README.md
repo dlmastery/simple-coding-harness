@@ -35,11 +35,16 @@ If report formatting fails, valid predictions need not be recomputed. If the dat
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 03.05, Resume only the affected work, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.05, Resume only the
+affected work, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Which nodes should rerun after a report-writing failure? What if the split changed instead?
@@ -49,7 +54,11 @@ Ask me to predict the result before the experiment.
 Keep upstream computation valid.
 
 ```text
-Copy the baseline artifacts into a diagnostic workspace. Make the report node fail intentionally while preserving predictions and checks. Record the failure and dependencies.
+Copy the baseline artifacts into a
+diagnostic workspace. Make the report node
+fail intentionally while preserving
+predictions and checks. Record the failure
+and dependencies.
 ```
 
 **Observe:** The model output remains available despite the failed report.
@@ -59,7 +68,11 @@ Copy the baseline artifacts into a diagnostic workspace. Make the report node fa
 Use dependencies to decide what to reuse.
 
 ```text
-Repair only the report node and resume. Show that no new fit ran. Then simulate a changed split version and list the descendants that would need invalidation, without mixing their old scores.
+Repair only the report node and resume. Show
+that no new fit ran. Then simulate a changed
+split version and list the descendants that
+would need invalidation, without mixing
+their old scores.
 ```
 
 **Observe:** The recovery plan differs for a downstream formatting error and an upstream scientific change.

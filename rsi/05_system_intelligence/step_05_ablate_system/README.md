@@ -35,11 +35,17 @@ An ablation removes one component while holding the rest as steady as possible. 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.
 
 ```text
-Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
-Guide me through lab 05.05, Find which component makes the difference, one step at a time.
-Read its README and BRIEF. Prepare its separate workspace.
-You write and run the implementation. Keep the reports and failures.
-Ask me to predict the result before the experiment.
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 05.05, Find which
+component makes the difference, one step at
+a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
 ```
 
 **Make a prediction:** Will removing the domain check change the valid case, the invalid case, or both?
@@ -49,7 +55,10 @@ Ask me to predict the result before the experiment.
 Avoid choosing the metric after the result.
 
 ```text
-Write ABLATION-PLAN.md comparing full system and system without the domain check. Use the same valid and leaked-feature fixtures. Measure whether each reaches the fit stub.
+Write ABLATION-PLAN.md comparing full system
+and system without the domain check. Use the
+same valid and leaked-feature fixtures.
+Measure whether each reaches the fit stub.
 ```
 
 **Observe:** The test targets the check’s specific job.
@@ -59,7 +68,11 @@ Write ABLATION-PLAN.md comparing full system and system without the domain check
 Measure the component’s contribution.
 
 ```text
-Execute both systems on both fixtures. Preserve the versions and outcomes. Explain any overlapping protection from another component rather than forcing the expected result.
+Execute both systems on both fixtures.
+Preserve the versions and outcomes. Explain
+any overlapping protection from another
+component rather than forcing the expected
+result.
 ```
 
 **Observe:** Redundant checks may hide the effect of removing one component.
