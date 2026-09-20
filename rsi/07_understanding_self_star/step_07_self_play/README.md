@@ -4,7 +4,7 @@
 
 ## What you will build
 
-A bounded proposer–critic exchange over ML experiment proposals.
+A bounded proposer–critic exchange and a clear account of what a self-play learning system would add.
 
 ## Why this matters
 
@@ -18,17 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Three labelled experiment proposals: valid, leaked-feature, and final-set selection. Use sequential role passes, not extra agent processes.
 
-**Budget:** Two exchange rounds per proposal, no fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two exchange rounds per proposal, no fits or weight updates. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
-Self-play uses interaction among system roles or copies to generate experience. Here a proposer defends a recipe and a critic challenges it. The domain checker still determines the declared validity facts. A same-context role switch can illustrate interaction but does not create independent judgment.
+In self-play, a system generates experience by playing against versions of itself or by coupling challenge generation with solving. Learning systems use that experience in a declared update. Here you run only a small interaction analogy: one role proposes an ML recipe and another challenges it. You do not train either role, generate a learned curriculum, or establish independent judgment. The domain checker supplies the declared validity check. Separate interaction, feedback, retained change, and evidence of benefit.
 
 
 
-![Self-play supplies interactions or challenges. Transfer still needs an evaluation outside those interactions.](../../assets/diagrams/lab-07-07.png)
+![This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.](../../assets/diagrams/lab-07-07.png)
 
-*Read the diagram:* Self-play supplies interactions or challenges. Transfer still needs an evaluation outside those interactions.
+*Read the diagram:* This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.
 
 
 
@@ -68,7 +68,7 @@ Run the domain rules against each final proposal. Compare the roles’ claims wi
 
 ## Check your result
 
-The exchange is bounded. The report labels shared context and retains mistakes. Debate does not override the checker.
+The exchange is bounded. The report labels the interaction analogy and shared context, retains mistakes, and states that no self-play training occurred. Debate does not override the checker.
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
@@ -85,16 +85,22 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 ## Key takeaways
 
 - Interaction can generate useful challenges.
-- Shared blind spots can survive debate.
+- A role exchange alone does not demonstrate self-play learning.
 - Correctness needs evidence beyond role agreement.
+
+## Research connection
+
+[SQL-Zero, 4 September 2026](https://arxiv.org/html/2609.04697v1), offers a recent contrast: a challenger generates tasks, database execution supplies feedback, and alternating GRPO steps update the challenger and solver.
+
+This lab illustrates interaction and checking only. It omits SQL generation, curriculum learning, and parameter training. It does not reproduce SQL-Zero or establish the benefits of self-play.
 
 ## Check your understanding
 
 Answer before opening the explanation. You can ask the tutor for a hint.
 
-1. What changes through self-play here?
+1. Does this exchange demonstrate self-play training?
 2. Are the two roles independent evaluators?
-3. Can self-play occur without RSI?
+3. Can self-play learning occur without RSI?
 4. What should resolve an invalid proposal?
 
 <details>
@@ -107,11 +113,11 @@ Trace what changed, what stayed fixed, and which observation supports the conclu
 <details>
 <summary>Explained answers</summary>
 
-1. The visible proposals and critiques within an interaction.
+1. No. It illustrates challenge and response without an executed training update.
 
 2. No. They share the same context and host unless a real separate boundary is created.
 
-3. Yes. The interaction and update procedure can remain fixed.
+3. Yes. A fixed training procedure can update players without revising the improvement procedure itself.
 
 4. The task’s actual evidence and declared checks, not the number of agreeing roles.
 

@@ -14,7 +14,7 @@ Each lab changes one property of the same small research workflow. Ask what pers
 | [07.04 · Improve a task skill with a fixed procedure](step_04_self_improvement/README.md) | A parent and child research skill compared under one unchanged improvement procedure. |
 | [07.05 · Let work reorganize under local rules](step_05_organization/README.md) | A small simulation in which queued checks redistribute between two workers. |
 | [07.06 · Observe a collective pattern](step_06_emergence/README.md) | A labelled simulation that shows how a system-level pattern depends on local interactions. |
-| [07.07 · Learn what self-play does and does not provide](step_07_self_play/README.md) | A bounded proposer–critic exchange over ML experiment proposals. |
+| [07.07 · Learn what self-play does and does not provide](step_07_self_play/README.md) | A bounded proposer–critic exchange and a clear account of what a self-play learning system would add. |
 | [07.08 · Make a self-modification inspectable](step_08_modification/README.md) | A versioned edit to a learner-owned procedure with tests and rollback. |
 
 Start with the first lab and follow its next link. Each lab uses a separate workspace and keeps its evidence. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).

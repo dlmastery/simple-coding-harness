@@ -10,8 +10,8 @@ const destination=resolve(repo, 'rsi/assets/diagrams');
 mkdirSync(destination,{recursive:true});
 const records=[];
 for(const [i,l] of lessons.entries()) {
-  const revision=l.id==='00.01'?'v3':'v2';
-  const index=l.id==='00.01'?1:i+1;
+  const overrides={'00.01':['v3',1], '07.07':['v4',1]};
+  const [revision,index]=overrides[l.id] || ['v2',i+1];
   const input=resolve(provenance,`rendered-${revision}/rendered-gallery-${revision}-${index}.png`);
   if(!existsSync(input)) throw new Error(`Rendering is incomplete: ${input}`);
   const bytes=readFileSync(input);
@@ -23,7 +23,7 @@ for(const [i,l] of lessons.entries()) {
 }
 writeFileSync(resolve(destination,'README.md'),`# Technical schematics\n\nOriginal course diagrams rendered with Mermaid CLI 11.17.0 on a white background. These are schematic explanations, not measured results or Imagen-generated illustrations.\n\nThe [source and review record](../../../how-did-i-generate-it/rsi/visuals/REVIEW.md) retains the first and revised galleries. Each published image maps to its gallery revision and index below. Source code: [lesson-diagrams.mjs](../../../how-did-i-generate-it/rsi/scripts/lesson-diagrams.mjs).\n\n| Lab | Gallery revision and index | Pixels | SHA-256 |\n|---|---|---|---|\n${records.join('\n')}\n`);
 // Mermaid CLI emits Windows separators in Markdown image targets. Normalize for GitHub.
-for(const filename of ['rendered-gallery.md','rendered-gallery-v2.md','rendered-gallery-v3.md']) {
+for(const filename of ['rendered-gallery.md','rendered-gallery-v2.md','rendered-gallery-v3.md','rendered-gallery-v4.md']) {
   const path=resolve(provenance,filename);
   writeFileSync(path,readFileSync(path,'utf8').replaceAll('\\','/'));
 }

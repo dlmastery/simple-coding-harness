@@ -12,6 +12,8 @@ HarnessDev methods, selected evaluation details, and limitations were inspected.
 
 The remainder preserves the original 19 September sweep. Reading-depth cells for those three sources have been updated; its original counts describe that earlier sweep.
 
+A focused self-play terminology check then added [SQL-Zero](https://arxiv.org/abs/2609.04697), submitted 4 September. Selected methods and limitations were inspected. It informs a correction to lab 07.07 without adding a lab. The current inventory is **27 papers and five reports**; earlier counts above record earlier checkpoints.
+
 Research window: **20 August–19 September 2026**. Priority window: **6–19 September 2026**. This inventory contains 23 papers and five lab or benchmark reports from that month. Earlier foundations are listed separately.
 
 The first reading list was too narrow. The broader sweep adds work on procedure graphs, skill libraries, feedback design, model–harness compatibility, efficiency, and failed improvement. These additions change the proposed experiments, not just the bibliography.

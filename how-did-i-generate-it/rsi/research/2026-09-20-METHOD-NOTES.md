@@ -19,3 +19,7 @@ These notes record selected primary-source reading. No paper implementation was 
 [VideoHarness-RSI](https://arxiv.org/abs/2608.24302) first appeared 25 August; version 2 appeared 3 September. Abstract and metadata only. The authors study executable context construction around a frozen vision-language model. This is a useful optional comparison for context-management lessons. Read full methods before making stronger claims.
 
 The date-filtered social search did not verify a new Meta/FAIR post-only result. This is an access and discovery limit, not evidence that none exists. Older results returned by the search engine were not counted as current-month releases.
+
+## SQL-Zero
+
+[Version 1](https://arxiv.org/html/2609.04697v1), submitted 4 September. Authors: Daniel Machado Pedrozo, Julia Soares Dollis, Bryan Lincoln Marques de Oliveira, Vinicius Alboneti Aguiar, Sávio Salvarino Teles de Oliveira, and Telma Woerle de Lima Soares; Universidade Federal de Goiás. Sections 3–6 inspected. Caveats include single training runs, unequal gold-control update budgets, unresolved paired margins, and degraded later 7B transfer. Code was not run. Teaching consequence: lab 07.07 must label its untrained role exchange as an analogy.

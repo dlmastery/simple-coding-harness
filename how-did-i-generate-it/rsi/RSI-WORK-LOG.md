@@ -117,3 +117,13 @@ Pushed `fef74315d8de205be050a527dc1b04e8dfe5ba0e` and verified the remote hash. 
 Pushed the display corrections as `112805fa040086724ba31844d83491eead573292` and verified the remote hash. The user again asked about periodic check-ins; the branch was clean and GitHub held all three recent checkpoints.
 
 Inspection found failures in the repository-wide workflow. The latest completed Linux job passed all 15 RSI behavior tests but failed in other course sections. Added a dedicated RSI workflow for clean Python 3.12 installs on Linux, macOS, and Windows. It keeps all three platform results, checks generated-page consistency, and does not change or suppress the broader workflow. Remote results remain pending until the next push.
+
+Pushed `eceeeab64aa37206355f6b840b28c4d30c938c3f` and verified the remote hash. Its dedicated RSI run passed on all three operating systems. Archived exact environments and selected logs. The prior aggregate failure families were also verified in the planning-only checkpoint's public job log. Kept those issues separate from RSI support claims.
+
+## 20 September: test organization and clarify self-play
+
+Rechecked the revised overview on published GitHub in dark mode and the first lesson at phone width. Both targeted corrections displayed as intended. Closed the review tab and reset the viewport.
+
+Ran eight small scheduling simulations for labs 07.05 and 07.06. Retained every input and event trace. The examples show dynamic dispatch losing under extra overhead and clustered work increasing urgent-job lateness. The randomized-history control still clustered, so the interpretation explicitly avoids claiming that accurate memory uniquely caused the pattern.
+
+A focused, month-filtered search supported a self-play terminology correction. Read selected SQL-Zero methods, comparison details, and limitations. Labelled the existing proposer–critic activity as an interaction analogy without training. Updated its diagram, quiz, glossary entry, and the reusable skill's RSI preset. The source inventory now has 27 papers and five reports; three other returned titles remain unreviewed leads. No additional paper reproduction or native agent execution is claimed.

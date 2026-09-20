@@ -23,6 +23,7 @@ Claude, Codex, and Gemini do not necessarily share hook, permission, isolation, 
 | Path | Status |
 |---|---|
 | Codex desktop reading canonical files and running local tools | Used during course authoring; see the dated evidence record |
+| Shared CPU runtime and lesson publisher on Linux, macOS, and Windows | Passed clean hosted-runner checks on Python 3.12; [exact versions and scope](../../how-did-i-generate-it/rsi/validation/CROSS-PLATFORM-CHECKS.md) |
 | A student following the whole lesson in Codex | Learner study pending |
 | Claude Code native skill discovery and execution | Not yet tested for the rebuilt course |
 | Gemini CLI native skill discovery and execution | Not yet tested for the rebuilt course |

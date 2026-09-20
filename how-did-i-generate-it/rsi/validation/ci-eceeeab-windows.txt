@@ -1,0 +1,41 @@
+2026-09-20T11:08:01.3510537Z Complete job name: CPU checks (windows-latest, Python 3.12)
+2026-09-20T11:08:14.9371287Z node: v22.23.2
+2026-09-20T11:08:20.3839098Z Collecting scikit-learn==1.7.2 (from -r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:20.7920069Z Collecting pandas==2.3.2 (from -r rsi/tools/requirements.txt (line 3))
+2026-09-20T11:08:21.0509469Z Collecting matplotlib==3.10.6 (from -r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:21.1213866Z Collecting pytest==8.4.2 (from -r rsi/tools/requirements.txt (line 5))
+2026-09-20T11:08:21.3905540Z Collecting numpy>=1.22.0 (from scikit-learn==1.7.2->-r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:21.6238803Z Collecting scipy>=1.8.0 (from scikit-learn==1.7.2->-r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:21.7485763Z Collecting joblib>=1.2.0 (from scikit-learn==1.7.2->-r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:21.8033193Z Collecting threadpoolctl>=3.1.0 (from scikit-learn==1.7.2->-r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:21.8690379Z Collecting python-dateutil>=2.8.2 (from pandas==2.3.2->-r rsi/tools/requirements.txt (line 3))
+2026-09-20T11:08:21.9450453Z Collecting pytz>=2020.1 (from pandas==2.3.2->-r rsi/tools/requirements.txt (line 3))
+2026-09-20T11:08:22.0420068Z Collecting tzdata>=2022.7 (from pandas==2.3.2->-r rsi/tools/requirements.txt (line 3))
+2026-09-20T11:08:22.1612132Z Collecting contourpy>=1.0.1 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:22.2314802Z Collecting cycler>=0.10 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:22.4588879Z Collecting fonttools>=4.22.0 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:22.6211227Z Collecting kiwisolver>=1.3.1 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:22.6748034Z Requirement already satisfied: packaging>=20.0 in C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4)) (26.3)
+2026-09-20T11:08:22.9009380Z Collecting pillow>=8 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:23.0062643Z Collecting pyparsing>=2.3.1 (from matplotlib==3.10.6->-r rsi/tools/requirements.txt (line 4))
+2026-09-20T11:08:23.0411032Z Requirement already satisfied: colorama>=0.4 in C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages (from pytest==8.4.2->-r rsi/tools/requirements.txt (line 5)) (0.4.6)
+2026-09-20T11:08:23.0699547Z Collecting iniconfig>=1 (from pytest==8.4.2->-r rsi/tools/requirements.txt (line 5))
+2026-09-20T11:08:23.1326806Z Collecting pluggy<2,>=1.5 (from pytest==8.4.2->-r rsi/tools/requirements.txt (line 5))
+2026-09-20T11:08:23.2217780Z Collecting pygments>=2.7.2 (from pytest==8.4.2->-r rsi/tools/requirements.txt (line 5))
+2026-09-20T11:08:23.2894562Z Collecting cloudpickle>=3.0 (from joblib>=1.2.0->scikit-learn==1.7.2->-r rsi/tools/requirements.txt (line 2))
+2026-09-20T11:08:23.3699966Z Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas==2.3.2->-r rsi/tools/requirements.txt (line 3))
+2026-09-20T11:09:04.5620781Z Python 3.12.10
+2026-09-20T11:09:04.9844918Z matplotlib==3.10.6
+2026-09-20T11:09:04.9845223Z numpy==2.5.3
+2026-09-20T11:09:04.9845813Z pandas==2.3.2
+2026-09-20T11:09:04.9847951Z pytest==8.4.2
+2026-09-20T11:09:04.9876728Z scikit-learn==1.7.2
+2026-09-20T11:09:04.9877018Z scipy==1.18.1
+2026-09-20T11:09:05.0377239Z v22.23.2
+2026-09-20T11:09:09.2570883Z Checked 101 lessons and 1601 local links.
+2026-09-20T11:09:09.2571897Z 0 publication problems.
+2026-09-20T11:09:09.2632787Z rsi/maintenance                              15 passed in 2.70s
+2026-09-20T11:09:09.8186985Z 0 snippets checked, 0 problems
+2026-09-20T11:09:10.4326107Z Published 101 lessons in 12 theme definitions.
+2026-09-20T11:09:10.5597169Z ##[group]Run git diff --exit-code -- rsi
+2026-09-20T11:09:10.5597567Z [36;1mgit diff --exit-code -- rsi[0m

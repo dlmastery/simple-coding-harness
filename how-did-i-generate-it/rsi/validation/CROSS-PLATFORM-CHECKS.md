@@ -16,7 +16,17 @@ Retained [planning-run excerpts](aggregate-ci-planning-excerpt.txt) and [fef7431
 
 ## Results
 
-The dedicated workflow has been added. Its first remote execution is pending. The earlier clean-install check establishes only the local Windows result described in [the clean-source record](CLEAN-SOURCE-CHECK.md).
+The dedicated [run at eceeeab](https://github.com/dlmastery/simple-coding-harness/actions/runs/35506978384) passed on all three platforms. Exact tested commit: `eceeeab64aa37206355f6b840b28c4d30c938c3f`. The run completed on 20 September 2026 at 11:09:15 UTC.
+
+| Hosted runner | Actual Python | Behavior tests | Publication and publisher |
+|---|---|---|---|
+| Ubuntu | 3.12.14 | 15 passed in 4.00 seconds | 101 lessons; 1,601 links; no issues; clean generated diff |
+| macOS | 3.12.10 | 15 passed in 1.80 seconds | Same checks passed |
+| Windows | 3.12.10 | 15 passed in 2.70 seconds | Same checks passed |
+
+All three resolved NumPy 2.5.3 and SciPy 1.18.1 alongside the four pinned direct dependencies. Node was 22.23.2. These actual patch versions differ from the author's Python 3.12.12 environment. Declaring Python 3.12 support does not mean every environment used the same patch version.
+
+Retained selected job logs: [Linux](ci-eceeeab-linux.txt), [macOS](ci-eceeeab-macos.txt), [Windows](ci-eceeeab-windows.txt). The [machine-generated run metadata](ci-eceeeab-status.txt) includes job outcomes and URLs; it is provenance, not a student configuration file. Every matrix job also passed snippet discovery and its final generated-page check. Broader repository CI still has the separately documented failures.
 
 Before pushing, the local equivalent passed: 15 tests, 101 lessons, 1,599 local targets, no publication problems, and a clean generated-page diff. Snippet discovery found all 101 labs and no runnable student code blocks; it is not evidence of 101 executed activities.
 

@@ -10,11 +10,13 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course structure, task choice, teaching approach, execution, and acceptance criteria |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Recent primary sources, reading status, gaps, and proposed lesson use |
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
+| [GitHub checkpoints](CHECKPOINTS.md) | Published milestones and the working branch |
 | [Implementation record](IMPLEMENTATION-RECORD.md) | Execution design, migration, research additions, and unresolved decisions |
 | [Lesson publishing source](scripts/lesson-content.mjs) | Index of the authored lesson modules and reproducible Markdown publisher |
 | [Visual explanations and review](visuals/REVIEW.md) | Technical diagrams, retained revisions, raster prompts, and review limits |
 | [Compute extension](../../rsi/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
 | [Course evidence](../../rsi/evidence/2026-09-20/README.md) | Actual model fits, mechanism checks, and limits |
+| [Cross-platform checks](validation/CROSS-PLATFORM-CHECKS.md) | Successful RSI jobs on Linux, macOS, and Windows; separate aggregate failures |
 | [Artifact index](ARTIFACTS.md) | Intermediate artifacts, source hashes, validation, and explicit retention gaps |
 | [Reusable course-building skill](../../skills/build-research-codelabs/SKILL.md) | The complete reusable method, with references and an RSI preset |
 | [Requirement coverage](SKILL-REQUIREMENT-COVERAGE.md) | Where each user instruction is preserved in the skill |

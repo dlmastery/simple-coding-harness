@@ -13,6 +13,7 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873) | 10 Sep 2026 | Definitions and evidence framework |
 | [RSIAgent](https://arxiv.org/abs/2609.15364) | 14 Sep | Exploration, outcome verification, actor memory |
 | [Recuris](https://arxiv.org/abs/2608.24876) | 25 Aug | Working state and reusable experience |
+| [SQL-Zero](https://arxiv.org/abs/2609.04697) | 4 Sep | Contrast for the interaction analogy in lab 07.07; selected methods and limits inspected |
 | [Dream-RSI](https://arxiv.org/abs/2609.14858) | 14 Sep | Discovery history, replay coverage, online confirmation |
 | [ModularRSI](https://arxiv.org/abs/2609.14857) | 14 Sep | Restricted edits and integration |
 | [ScientistTwo](https://arxiv.org/abs/2609.19644) | 17 Sep | Hypotheses, screening, ablations, review, result lineage |

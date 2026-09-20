@@ -58,3 +58,11 @@ The requested Imagen raster illustrations remain pending the provider decision. 
 ## Cross-platform validation
 
 Added a dedicated RSI workflow after finding that unrelated course failures cancelled much of the repository-wide matrix. Its first results are pending. See [the scope and evidence record](validation/CROSS-PLATFORM-CHECKS.md). Continue by inspecting every platform result and resolving RSI failures before adding compatibility claims.
+
+All three jobs subsequently passed at `eceeeab`. Retained the actual patch versions, selected job logs, and run metadata. Rechecked the published overview and first-lab image after their display fixes.
+
+## Self-* execution and terminology review
+
+Executed eight synthetic scheduling cases for organization and emergence. Preserved the input tables, protocol, complete event traces, results, driver hash, and interpretation review. Accurate local history was not uniquely necessary for grouping in this fixture: randomized history retained much of the pattern. The course now explains that limit alongside the throughput/lateness tradeoff.
+
+Corrected the self-play lesson's scope. Its bounded role exchange illustrates interaction and checking; it does not execute a learning update. Selected primary methods and limitations from SQL-Zero supply a recent contrast. Updated the glossary, diagram, quiz, and reusable RSI preset. Full source-system reproduction remains outside the claim.

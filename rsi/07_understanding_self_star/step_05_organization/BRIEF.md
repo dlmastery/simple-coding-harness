@@ -6,7 +6,7 @@ Starting state: A generated local simulation with two workers and six labelled c
 
 Prediction to ask: Will dynamic assignment always beat a fixed assignment?
 
-Execution limit: Two short simulations, no model fits.
+Execution limit: Two main simulations and one optional overhead counterexample; no model fits.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

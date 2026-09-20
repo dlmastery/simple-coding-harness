@@ -37,3 +37,9 @@ The shared suite now passes 15 tests. These checks and the synthetic mechanism f
 The [generated harness](generated-harness/package/README.md) follows a [readable brief](generated-harness/HARNESS-BRIEF.md). Its [execution record](generated-harness/EXECUTION.md) shows one checked baseline, a leaked-feature refusal, and refusal after two charged attempts. The builder and the generated package are separate objects. This checks generation and execution, not improvement of the builder.
 
 An exported Git checkpoint passed all 15 tests, both with the existing environment and after a fresh dependency installation. A separate [clean-source baseline](clean-source-baseline/CHECK.md) also recomputed correctly. See the [setup record](../../../how-did-i-generate-it/rsi/validation/CLEAN-SOURCE-CHECK.md) for commands and limits.
+
+The dedicated RSI workflow later passed on Linux, macOS, and Windows with clean Python 3.12 installations. See [the cross-platform record](../../../how-did-i-generate-it/rsi/validation/CROSS-PLATFORM-CHECKS.md) for the exact commit, patch versions, and retained logs. This tests the runtime and publisher, not another coding agent's native integration.
+
+## Organization and emergence
+
+The [synthetic scheduling walkthrough](organization-and-emergence/README.md) executes eight cases for labs 07.05 and 07.06, including their optional counterexamples. Dynamic dispatch can help or hurt under different overhead assumptions. Grouping similar jobs can reduce total completion time while increasing lateness. The randomized-history control retains much of the grouping, which limits the causal claim about accurate memory. Read [the interpretation review](organization-and-emergence/REVIEW.md). All durations are invented simulation inputs; no model or agent worker is trained.

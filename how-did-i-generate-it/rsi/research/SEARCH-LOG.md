@@ -74,3 +74,13 @@ All following discovery queries used the available 31-day recency filter. The ex
 VideoHarness-RSI was new to the inventory; its primary abstract and version history confirmed eligibility. Other results included already recorded papers, an older May webinar, and undated or older leads. They were not counted as new releases. The final three-query batch returned no search results. That is not evidence of absence.
 
 Direct primary-page follow-up inspected HarnessDev, Harness-of-Harness, and S3Gym as recorded in [method notes](2026-09-20-METHOD-NOTES.md). Direct opens are source checks, not unfiltered discovery queries.
+
+## Self-play terminology check
+
+The following discovery query used the 31-day filter:
+
+```text
+self-play proposer solver agents reinforcement learning after:2026-08-20 before:2026-09-21 site:arxiv.org
+```
+
+It returned SQL-Zero (2609.04697), LURE (2608.21871), TIPCODER (2609.03309), and a searchless-chess study (2608.27757). Only SQL-Zero received direct metadata and method checks in this pass. The other three remain unreviewed leads and do not enter the source count. The purpose was to correct a role-exchange analogy in lab 07.07, not to add another required exercise.

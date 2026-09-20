@@ -111,9 +111,9 @@ B --> D["Matched task comparison"]
 C --> D`),
 '07.05':D('Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.',`A["Work and local routing rules"] --> B["Initial assignments"] --> C["Changed assignments"] --> D["Measure resulting behavior"]`),
 '07.06':D('A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.',`A["Local rules"] --> B["Repeated interactions"] --> C["Collective pattern"] --> D["Separate usefulness check"]`),
-'07.07':D('Self-play supplies interactions or challenges. Transfer still needs an evaluation outside those interactions.',`A["Role A"] -->|challenge| B["Role B"]
+'07.07':D('This role exchange illustrates interaction. It contains no training update and does not establish self-play learning.',`A["Proposer role"] -->|challenge| B["Critic role"]
 B -->|response| A
-A --> C["Retained experience"] --> D["Fresh external task check"]`),
+A --> C["Saved exchange"] --> D["Executable rule check"]`),
 '07.08':D('Self-modification changes a component. Keep its parent and evaluate the change before retaining it.',`A["Parent component"] --> B["Proposed modification"] --> C["Execute and check"]
 C -->|passes rule| D["Retain child"]
 C -->|fails rule| E["Keep parent and failure"]`),

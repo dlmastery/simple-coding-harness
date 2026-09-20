@@ -29,7 +29,7 @@
 | Self-improvement | Retained system change with demonstrated relevant benefit | A better task skill under a fixed improver |
 | Self-organization | Changed arrangement or coordination under system rules | Dynamic work redistribution, possibly without a gain |
 | Emergence | A specified collective pattern arising through interactions | Not automatic evidence of intelligence |
-| Self-play | Experience from interacting roles or copies | Agreement between roles is not ground truth |
+| Self-play | Experience from playing against system versions or from coupled challenge generation and solving | A proposer–critic exchange alone does not demonstrate self-play training; agreement is not ground truth |
 | Self-modification | Editing the system’s instructions or implementation | An edit can help, hurt, or do nothing |
 | Solver | The component that performs the task | An agent choosing ML experiments |
 | Improver | A procedure that proposes and tests changes to a solver or improver | A skill-editing and comparison procedure |

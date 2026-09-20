@@ -18,12 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A generated local simulation with two workers and six labelled check jobs. No agent subworkers are required.
 
-**Budget:** Two short simulations, no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two main simulations and one optional overhead counterexample; no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Give each simulated worker the same fixed rule: take an available job when idle. A shared queue and different job durations produce a changing assignment. Organization emerges from local scheduling rules. Measure completion time and correctness separately; redistribution can help one and harm another.
 
+**A concrete example.** The saved simulation gives six jobs invented durations of 8, 1, 7, 1, 6, and 1 ticks. Alternating fixed assignments leaves one worker with 21 ticks of work and the other with 3. Letting idle workers pull from a shared queue finishes at tick 14. Add three coordination ticks per dynamic assignment and completion moves to tick 23. No worker learned a new skill. The arrangement helped under one cost assumption and hurt under another.
 
 
 ![Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.](../../assets/diagrams/lab-07-05.png)

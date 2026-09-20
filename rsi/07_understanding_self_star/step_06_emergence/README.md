@@ -18,12 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The queue simulation and a small local-rule extension.
 
-**Budget:** Three deterministic simulations, no ML fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three main simulations and an optional two-run lateness comparison; no ML fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Emergence describes a pattern at the collective level that arises from component interactions. In this exercise, workers preferentially take jobs similar to their recent work, reducing a synthetic setup cost. Groups of similar jobs can form without a central grouping plan. This is a small operational example, not evidence of consciousness or general intelligence.
 
+**A concrete example.** In the saved synthetic trace, preference for the previous job type gives a same-type adjacency fraction of 0.80, compared with 0.00 for FIFO. But randomized history still gives 0.70: this small test does not establish that accurate memory uniquely causes grouping. In a separate deadline test, the local preference finishes all work at tick 8 instead of 12, while the most overdue job is 3 ticks late instead of 1. A stronger pattern and faster batch can still mean a worse urgent-job outcome.
 
 
 ![A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.](../../assets/diagrams/lab-07-06.png)

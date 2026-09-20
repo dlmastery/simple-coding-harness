@@ -82,7 +82,7 @@ Search primary sources from frontier labs, arXiv, author repositories and projec
 
 Explicit user requirements include arXiv 2609.11873, AIDE², Dream-RSI, ScientistTwo, ScienceBuddy, and RSIAgent. ModularRSI and related mechanisms are included. Give the named systems substantial advanced treatment, with prerequisites and practical exercises. Separate papers, lab self-reports, forecasts, social announcements, and independently reproduced evidence.
 
-The broader inventory currently has 26 papers and five reports within the month. It records reading depth. Some entries have only abstract and metadata checks; complete their method review before writing authoritative lessons. Do not claim that every paper has been read in full or reproduced.
+The broader inventory currently has 27 papers and five reports within the month. It records reading depth. Some entries have only abstract and metadata checks; complete their method review before writing authoritative lessons. Do not claim that every paper has been read in full or reproduced.
 
 Older foundations such as AIDE² are explicit exceptions. Keep them visibly dated. The course's small historical datasets are teaching fixtures, not recent research claims.
 
@@ -123,4 +123,6 @@ Skill creation and local installation are complete. All seven installed files ma
 
 Current implementation: 101 authored labs in 12 main themes, including 38 advanced labs in 13 subdirectories, with technical diagrams and explained quizzes. Shared tests pass, including in an exported source tree with a fresh dependency installation. Controlled ML, domain, generated-harness, and author-guided inheritance walkthroughs are retained. The compute path has a readable brief, adapter contract, and acceptance checks; no GPU or cluster was run. Full lab-by-lab clean-session execution, independent improver comparisons, remaining deep source audits, requested raster illustrations, learner validation, and further agent/backend tests remain incomplete. Continue from IMPLEMENTATION-RECORD.md; do not rebuild the written sequence.
 
-Latest validation work adds a dedicated Linux/macOS/Windows RSI workflow. Its first remote results are pending. The repository-wide workflow has prior failures in other course sections; retained log excerpts distinguish these from passing RSI checks. Read `validation/CROSS-PLATFORM-CHECKS.md` before making compatibility or overall CI claims.
+The dedicated Linux/macOS/Windows RSI workflow passed all three jobs at `eceeeab64aa37206355f6b840b28c4d30c938c3f`. The repository-wide workflow has prior failures in other course sections; retained log excerpts distinguish these from passing RSI checks. Read `validation/CROSS-PLATFORM-CHECKS.md` before making compatibility or overall CI claims.
+
+Latest author walkthrough: eight executed synthetic scheduling cases for 07.05 and 07.06, including overhead and lateness counterexamples. Lab 07.07 now calls its proposer–critic exchange an interaction analogy, not self-play training; SQL-Zero supplies a dated research contrast. The reusable RSI preset preserves that distinction. Requested raster illustrations, complete activity execution, stronger improver comparisons, further source audits, native agent tests, and learner validation remain open.

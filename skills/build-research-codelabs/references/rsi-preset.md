@@ -23,6 +23,8 @@ The audience is an advanced AI/ML class that may know no RSI. Students use skill
 
 “No loops” refers to the learner-designed workflow. A coding agent or fitting algorithm can already iterate internally. Explain this early. Do not confuse a workflow graph with an ontology, persistence with effective improvement, or self-organization with emergence.
 
+A proposer–critic exchange can illustrate interaction, but does not by itself demonstrate self-play training. Identify challenge generation, outcomes, the actual update, and retained state. Label an exercise that omits learning as an interaction analogy. For organization and emergence, compare throughput, correctness, and lateness separately; an attractive collective pattern can harm the task.
+
 ## Running ML project
 
 Use generic tabular ML hill climbing. The concrete proposal uses UCI Bike Sharing regression and UCI Wine Quality classification. Verify source files, license, schema, row count, splits, and task definitions before implementation. These historical datasets are small teaching fixtures, not recent research releases.
