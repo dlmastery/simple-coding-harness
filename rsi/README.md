@@ -17,9 +17,10 @@ refusal the contract makes the helper implement and (b), for the two that
 matter most, a shell one-liner hook in `.claude/settings.json` that blocks
 the Bash command before it runs: no `score_test` until a `state.json` says
 `"frozen": true`, no `apply` without a `proposals/*.approved` file holding
-the user's words. Every lesson page carries a transcript recorded with
+the user's words. Fifteen lesson pages carry a transcript recorded with
 `claude -p` from that directory, and the `RSI_LIVE=1` tests are the runs
-that produced them. The plan of record is [`OUTLINE.md`](OUTLINE.md) (v11).
+that produced them; three (12, 14, 17) carry a marked "Recording pending"
+block that says how to produce theirs. The plan of record is [`OUTLINE.md`](OUTLINE.md) (v11).
 Layout and lesson format follow the Claude Academy *AI-native SDLC
 playbook*: six stages, one lesson per step, the same seven headings on every
 page.
@@ -73,10 +74,14 @@ validation score, per problem; the exam over five seeds, memory vs control):
   13 Recuris                   +0.0000        +0.0000     0        0        +0.0000        +0.0000   1/5  -0.0178  (five card updates; the exam's 90-row val split overfit)
   11 RSIAgent                  +0.0000        +0.0000     0        0        +0.0000        +0.0000   5/5   0.0000  (every win on fewer wasted fits at an equal test score)
   15 AIDE2 (v2 - v1)           +0.0000        +0.0000     0        0        +0.0000        +0.0000   rewrite rolled back: total gain 0.0, the same 24 recipes both versions
-  16 MetaSkill            <!-- 16 -->
+  16 MetaSkill                 +0.0000        +0.0006     0        0        +0.0000        +0.0000   3/5  +0.0014  (fast loop: the same two patches as 09; slow loop: two approved role-file lines)
 ```
 
-Every lesson that recorded a curriculum reports the same shape: a flat
+Lessons 12 (ModularRSI), 14 (the DGM lineage) and 17 (the map) carry a marked
+"Recording pending" block instead of a transcript: the weekly usage cap of the
+recording account was reached after lesson 16; their packs, contracts and tests
+are complete, and `RSI_LIVE=1 python -m pytest test_step.py` in each directory
+produces the recording. Every lesson that recorded a curriculum reports the same shape: a flat
 curve (this recipe space has one best recipe per table, and both arms find
 it) and a memory arm that spends fewer fits to get there. That is the
 honest result of a hello world, and the pages say so instead of choosing a
@@ -4351,24 +4356,84 @@ k: 3
 The recorded run (Claude Code 2.1.278, headless; the arms trimmed, the
 fast-loop verdicts in one line each, the slow-loop visits in full):
 
-<!-- transcript -->
-
-Files:
-
 ```text
-step_16_rsi_meta_skills/
-├── README.md
-├── test_step.py
-├── .claude/settings.json
-├── .claude/skills/
-│   ├── adult-income/                 lesson 09's actor
-│   ├── adult-income-verifier/
-│   ├── task-skills-meta/             the fast loop: SKILL.md, tools.md, config.md, roles/{analyzer,retriever,allocator,proposer,evolver}.md
-│   ├── meta-evolver/                 the slow loop: SKILL.md, tools.md, config.md (k: 3)
-│   └── adult-income-curriculum/
-├── .agents/skills/                   the same
-└── runs/                             (after a run) adult-income/{..., versions/}, task-skills-meta/{helpers/, versions/ (the meta pack's own history)}, meta-evolver/
-```
+[Skill adult-income-curriculum]
+[Read the five packs' SKILL.md / tools.md, eval.md, roles/*.md, the two config.md, schema, memory schema, memory.json]
+[Write runs/adult-income/helpers/{rt.py, tools.py, show.py}]  [Write runs/adult-income-verifier/helpers/verify.py]  [Write runs/task-skills-meta/helpers/meta.py]  [Write runs/meta-evolver/helpers/evolve.py]  [Write runs/adult-income-curriculum/helpers/curriculum.py]
+$ ... problem 1: run_arm control; run_arm memory (policy line static) ...
+agent> Both arms of problem 1 identical (0.9177 val, 0.9049 test) as expected with no cards. Now the verifier on problem 1.
+$ ... read_traces --tally; write_card ... --as .claude/skills/adult-income-verifier ...
+{"n": 9, "new": 9, "demoted": 5, "active": 4}
+agent> Rule (a) applies: policy is static and 4 cards are active (>= threshold 2). The patch is the whole SKILL.md with the one line flipped to obey-memory.
+$ ... meta.py propose ... --visit 1; ... meta.py gate ... p001
+{"decision": "keep", "before": 0.8977, "after": 0.8977, "landed": true, "version": "gen_001"}
+$ ... problem 2 (breast_cancer): control 0.9954, memory 0.996 (obey-memory, one card applicable); verifier; fast loop visit 2 ...
+agent> Rule (b) applies on visit 2: encode=ordinal lost all 12 of its one-field comparisons across the log and never won. The patch adds it to schema.json -> forbid.
+{"decision": "keep", "before": 1.0, "after": 1.0, "landed": true, "version": "gen_002"}
+agent> Wine saturates (1.0 on both arms, gap 0 - the honest number). Verifier on problem 3:
+$ ... fast loop visit 3: nothing to propose ...
+$ python $H clock $E $T ...; python $H judge $E $T ...
+{'problem': 'wine', 'index': 3, 'k': 3, 'on_clock': True, 'visit': 1, 'meta': 'on'}
+agent> Now the slow-loop proposal: Cards per visit: 3 -> 4 in roles/proposer.md.
+$ ... python - <<'EOF' (rewrite the one line of roles/proposer.md under runs/meta-evolver/patch/roles/) ... ; python $H propose $E $T --target task-skills-meta --files runs/meta-evolver/patch --recipe ... --summary "proposer: Cards per visit 3 -> 4" --visit 1
+patch written
+{"id": "p001", "visit": 1, "target": "task-skills-meta", "files": ["roles/proposer.md"], "changed_lines": 1, "lint": "ok", ...}
+agent> Progress so far (problems 1-3 done):
+| 1 adult_income  | 0.9177 | 0.9177 | 0.0     | p001: Search policy: static -> obey-memory (4 cards active >= threshold 2) - gate keep (0.8977 vs 0.8977) | gen_001 |
+| 2 breast_cancer | 0.9954 | 0.9960 | +0.0006 | p002: schema.json forbid encode=ordinal (lost 12/12 comparisons across the log) - gate keep (1.0 vs 1.0) | gen_002 |
+| 3 wine          | 1.0    | 1.0    | 0.0 (saturated) | nothing to propose | - |
+Slow loop after problem 3 (meta-evolver, visit 1, on the clock: 3 = 1*k). Its judgement of the fast loop over problems 1-3: 8 active cards were added, but the gap is not growing (0.0 -> 0.0006 -> 0.0), so by its rule it raises Cards per visit by one. Proposal p001 (target task-skills-meta, one line of one role file):
+--- a/task-skills-meta/roles/proposer.md
++++ b/task-skills-meta/roles/proposer.md
+ # Role: proposer
+ One patch per visit. Cards are merged from the last problem's pairs, evidence 1 each.
+-Cards per visit: 3
++Cards per visit: 4
+approve / edit / reject? Nothing lands until you answer; on approve it is snapshotted under runs/task-skills-meta/versions/gen_001/ and applied to both mirrors, then I continue with problems 4-6.
+[41 turns, 728 s]
+
+--- turn 2: claude -p --continue "approve"
+[Write runs/meta-evolver/wine/proposals/p001.approved]
+$ python $H apply $E $T p001 --approved "approve"
+{"id": "p001", "approved": "approve", "version": "gen_001", "files": ["roles/proposer.md"], "landed": true}
+agent> Landed: Cards per visit: 4, meta pack snapshotted as runs/task-skills-meta/versions/gen_001. Continuing with problem 4 (digits).
+$ ... problems 4, 5, 6: both arms, verifier, fast loop visits 4-6 (nothing to propose) ...
+agent> Fast loop visit 6: nothing to propose. Now the slow loop after problem 6 (visit 2, on the clock: 6 = 2*k).
+$ python $H clock $E $T | ...; python $H read_memory $P $T | ...; python $H read_pack $M | ...; python $H judge $E $T | ...
+{'problem': 'synth_shift_b', 'index': 6, 'k': 3, 'on_clock': True, 'visit': 2, 'meta': 'on'}
+cards 25 active 9
+roles {'policy_flip_threshold': 2, 'cards_per_visit': 4} versions ['gen_001']
+$ ... propose p002 (roles/proposer.md: Cards per visit 4 -> 5) --visit 2
+agent> Problems 4-6 done. Learning curve so far (the full table follows after the exam):
+| 4 digits        | 0.999  | 0.999  | 0.0 | 0 / 0 | nothing to propose |
+| 5 synth_shift_a | 0.9378 | 0.9378 | 0.0 | 1 / 4 | nothing to propose |
+| 6 synth_shift_b | 0.7685 | 0.7685 | 0.0 | 4 / 5 | nothing to propose |
+The fast loop found nothing on visits 3-6: the verifier had already written every card the pairs yield (rule c), no field value lost every comparison across the log (rule b), and the policy line had already flipped (rule a).
+Slow loop after problem 6 (meta-evolver, visit 2, on the clock: 6 = 2*k). Its judgement of the fast loop over problems 4-6: cards are still being added (9 written, active count 8 -> 9) but the gap is not growing (0.0 -> 0.0 -> 0.0; the memory arm beat control on none of the three, though it wasted fewer fits on 5 and 6). By its rule it raises Cards per visit again. Proposal p002:
+-Cards per visit: 4
++Cards per visit: 5
+One honest caveat: raising this number has had no observable effect, because rule c never fired (the verifier writes all cards before the fast loop visits). Rejecting is a reasonable answer too.
+approve / edit / reject? On approve it is snapshotted as runs/task-skills-meta/versions/gen_002 and applied; then I run the curve, the exam over seeds 0-4, and the report.
+[11 turns, 240 s]
+
+--- turn 3: claude -p --continue "approve"
+$ python $H apply $E $T p002 --approved "approve"
+{"id": "p002", "approved": "approve", "version": "gen_002", "files": ["roles/proposer.md"], "landed": true}
+agent> Landed as gen_002. Now the learning curve, then the exam (sha256 of memory.json recorded first).
+$ python runs/adult-income-curriculum/helpers/curriculum.py curve $P --tasks ../tasks | ...; sha256sum $P/memory.json | cut -d' ' -f1 | tee runs/adult-income/exam/memory_sha_before.txt
+(the table below)
+c5ddb70d57d97e56fd1ced5c32e03b1520972fb461a2607fd55e5c838a8261d4
+$ for s in 0 1 2 3 4; do ... run_arm $P ../tasks/07_exam --arm control --memory off --seed $s | show.py; ... run_arm ... --arm memory --seed $s | show.py; done
+exam control s0 memory=off policy=static applicable=0
+   static [(1, 0.827, None), (2, 0.8355, None), ..., (24, 0.9062, None)]
+  best_val=0.9389 best={"model": "rf", "hyper": 16, ...} test=0.7831 fits=24 wasted=4 touched_before_freeze=False
+exam memory s0 memory=on policy=obey-memory applicable=4 preferred={'hyper': 16, 'scale': 'yes', 'class_weight': 'none'}
+   obey-memory [(1, 0.827, None), (2, 0.9389, None), (3, 0.9146, None)]
+   obey-memory [(4, 0.9389, None), ..., (8, 0.9412, None), ...]
+... (8 more arms)
+$ python runs/adult-income-curriculum/helpers/curriculum.py exam $P ../tasks/07_exam --seeds 0,1,2,3,4 | ...; ... read_pack $P --checksums ...
+(the table below)
+agent> Done. curve.json and exam.json are under runs/adult-income/, both mirrors identical, every arm scored once after FREEZE.
 
 **Governance.**
 
@@ -4493,10 +4558,20 @@ metadata:
 - `map(lessons)` - read each lesson directory's `runs/<pack>/curve.json` and `exam.json` where they exist and print: the ladder (rung, lessons, the decision the system takes, what stays human), the learning curves side by side (a lesson without a curve is `not run yet`, never invented), the file-and-approver table, the six terms, and the numbers quoted from papers - each marked *reported* with its source. Costs no fit; changes no file.
 ```
 
-The recorded run (Claude Code 2.1.278, headless, after the other lessons
-were recorded on this machine):
+The recorded run (not yet recorded on this machine; the weekly usage cap was reached
+after lesson 16's recording - the block below says how to produce it, and the curves it
+will read are the ones lessons 07, 09, 10, 11, 13, 15 and 16 left under their `runs/`):
 
-<!-- transcript -->
+```text
+Recording pending - this lesson's transcript has not been recorded yet.
+Run it here to produce it (about a minute in Claude Code; the live test records the run
+under runs/_recording/ and asserts on the artifacts):
+
+    RSI_LIVE=1 python -m pytest -q test_step.py -k live -s
+
+Nothing above is invented: the pack, the contracts and the tests are complete, and the
+"What to notice" paragraph will be written from the recording.
+```
 
 Files:
 

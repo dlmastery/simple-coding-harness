@@ -32,7 +32,7 @@ lesson adds `rsi-map` (`SKILL.md`, `tools.md` with the `map` contract,
 
 2. No approval; nothing changes.
 
-3. Headless, as recorded:
+3. Headless, as the live test runs it:
 
    ```bash
    claude -p "Use the rsi-map skill: print the map of the series from the runs that exist and report." \
@@ -68,10 +68,20 @@ lesson adds `rsi-map` (`SKILL.md`, `tools.md` with the `map` contract,
 - `map(lessons)` - read each lesson directory's `runs/<pack>/curve.json` and `exam.json` where they exist and print: the ladder (rung, lessons, the decision the system takes, what stays human), the learning curves side by side (a lesson without a curve is `not run yet`, never invented), the file-and-approver table, the six terms, and the numbers quoted from papers - each marked *reported* with its source. Costs no fit; changes no file.
 ```
 
-The recorded run (Claude Code 2.1.278, headless, after the other lessons
-were recorded on this machine):
+The recorded run (not yet recorded on this machine; the weekly usage cap was reached
+after lesson 16's recording - the block below says how to produce it, and the curves it
+will read are the ones lessons 07, 09, 10, 11, 13, 15 and 16 left under their `runs/`):
 
-<!-- transcript -->
+```text
+Recording pending - this lesson's transcript has not been recorded yet.
+Run it here to produce it (about a minute in Claude Code; the live test records the run
+under runs/_recording/ and asserts on the artifacts):
+
+    RSI_LIVE=1 python -m pytest -q test_step.py -k live -s
+
+Nothing above is invented: the pack, the contracts and the tests are complete, and the
+"What to notice" paragraph will be written from the recording.
+```
 
 Files:
 
