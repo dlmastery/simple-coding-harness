@@ -101,7 +101,7 @@
    "prefer": "none"
   },
   "evidence": 2,
-  "counter": 0
+  "counter": 1
  },
  {
   "if": {
@@ -113,7 +113,7 @@
    "field": "class_weight",
    "prefer": "balanced"
   },
-  "evidence": 0,
+  "evidence": 1,
   "counter": 2
  },
  {
@@ -127,7 +127,7 @@
    "prefer": "hgb"
   },
   "evidence": 1,
-  "counter": 0
+  "counter": 1
  },
  {
   "if": {
@@ -140,7 +140,7 @@
    "prefer": "logreg"
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 3
  },
  {
   "if": {
@@ -152,7 +152,7 @@
    "field": "model",
    "prefer": "rf"
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 2
  },
  {
@@ -229,6 +229,32 @@
   "then": {
    "field": "scale",
    "prefer": "no"
+  },
+  "evidence": 0,
+  "counter": 1
+ },
+ {
+  "if": {
+   "key": "n_features",
+   "op": "<",
+   "value": 10
+  },
+  "then": {
+   "field": "scale",
+   "prefer": "no"
+  },
+  "evidence": 1,
+  "counter": 0
+ },
+ {
+  "if": {
+   "key": "n_features",
+   "op": "<",
+   "value": 10
+  },
+  "then": {
+   "field": "scale",
+   "prefer": "yes"
   },
   "evidence": 0,
   "counter": 1

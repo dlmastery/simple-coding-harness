@@ -9,7 +9,7 @@
    "field": "model",
    "prefer": "hgb"
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -23,7 +23,7 @@
    "prefer": "logreg"
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 4
  },
  {
   "if": {
@@ -36,7 +36,7 @@
    "prefer": "rf"
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -48,8 +48,8 @@
    "field": "hyper",
    "prefer": 0.1
   },
-  "evidence": 1,
-  "counter": 1
+  "evidence": 2,
+  "counter": 4
  },
  {
   "if": {
@@ -62,7 +62,7 @@
    "prefer": 0.3
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 6
  },
  {
   "if": {
@@ -75,7 +75,7 @@
    "prefer": 4
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 4
  },
  {
   "if": {
@@ -87,7 +87,7 @@
    "field": "scale",
    "prefer": "yes"
   },
-  "evidence": 3,
+  "evidence": 6,
   "counter": 0
  },
  {
@@ -101,7 +101,7 @@
    "prefer": "no"
   },
   "evidence": 0,
-  "counter": 3
+  "counter": 6
  },
  {
   "if": {
@@ -113,7 +113,7 @@
    "field": "encode",
    "prefer": "onehot"
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -127,7 +127,7 @@
    "prefer": "ordinal"
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -139,8 +139,8 @@
    "field": "class_weight",
    "prefer": "none"
   },
-  "evidence": 1,
-  "counter": 1
+  "evidence": 2,
+  "counter": 4
  },
  {
   "if": {
@@ -152,8 +152,8 @@
    "field": "class_weight",
    "prefer": "balanced"
   },
-  "evidence": 1,
-  "counter": 1
+  "evidence": 4,
+  "counter": 2
  },
  {
   "if": {
@@ -165,7 +165,7 @@
    "field": "model",
    "prefer": "hgb"
   },
-  "evidence": 1,
+  "evidence": 4,
   "counter": 0
  },
  {
@@ -179,7 +179,7 @@
    "prefer": "logreg"
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 6
  },
  {
   "if": {
@@ -191,8 +191,8 @@
    "field": "model",
    "prefer": "rf"
   },
-  "evidence": 1,
-  "counter": 1
+  "evidence": 2,
+  "counter": 4
  },
  {
   "if": {
@@ -204,7 +204,7 @@
    "field": "hyper",
    "prefer": 0.25
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -217,8 +217,8 @@
    "field": "hyper",
    "prefer": 0.05
   },
-  "evidence": 0,
-  "counter": 1
+  "evidence": 2,
+  "counter": 2
  },
  {
   "if": {
@@ -230,7 +230,7 @@
    "field": "class_weight",
    "prefer": "none"
   },
-  "evidence": 2,
+  "evidence": 4,
   "counter": 0
  },
  {
@@ -244,7 +244,7 @@
    "prefer": "balanced"
   },
   "evidence": 0,
-  "counter": 2
+  "counter": 4
  },
  {
   "if": {
@@ -256,7 +256,7 @@
    "field": "hyper",
    "prefer": 0.3
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -270,7 +270,7 @@
    "prefer": 0.05
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -283,7 +283,7 @@
    "prefer": 0.1
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -296,7 +296,7 @@
    "prefer": 4
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -309,7 +309,7 @@
    "prefer": 8
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 2
  },
  {
   "if": {
@@ -321,7 +321,7 @@
    "field": "hyper",
    "prefer": 16
   },
-  "evidence": 1,
+  "evidence": 2,
   "counter": 0
  },
  {
@@ -335,7 +335,7 @@
    "prefer": 8
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 4
  },
  {
   "if": {
@@ -347,7 +347,7 @@
    "field": "scale",
    "prefer": "no"
   },
-  "evidence": 1,
+  "evidence": 4,
   "counter": 0
  },
  {
@@ -361,6 +361,6 @@
    "prefer": "yes"
   },
   "evidence": 0,
-  "counter": 1
+  "counter": 4
  }
 ]
