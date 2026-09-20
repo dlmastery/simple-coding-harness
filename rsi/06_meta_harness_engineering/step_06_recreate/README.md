@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Recreation uses the saved brief, builder version, generated files, dependencies, and data versions. Different source code can implement the same contract, so compare behavior and evidence as well as file hashes. If generation is stochastic, do not assume byte-identical output.
 
+**A concrete example.** Running a saved generated package in a new output folder tests whether its recorded files and dependencies are sufficient. Asking the builder to generate another package from prose is a different test. This lab performs the first. Equal baseline predictions support repeatability of that package; they do not prove independent regeneration or a better builder.
+
 ![Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.](../../assets/diagrams/lab-06-06.png)
 
 *Read the diagram:* Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.
@@ -66,6 +68,16 @@ Run each baseline from the saved generated system. Compare predictions, metric, 
 
 Both task contracts remain intact. Actual runs and negative checks are recorded. The report does not confuse generator output diversity with improvement.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Two handoffs | Identify brief, builder, generated entry, data, environment, and acceptance checks for bike and wine. |
+| Two recreated baseline runs | Use clean output state and preserve their predictions, metrics, and negative checks. |
+| Reproducibility report | Compares behavior and versions without replacing an unfavorable original run. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Change the builder’s proposal instructions and label it a new builder version.
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the run needs a file from an undeclared absolute path, add the dependency to the handoff and record the failed clean start. If predictions differ, compare environment and contract before selecting a preferred result. If you also regenerate from prose, label that extra experiment and declare its own budget rather than merging it into this reproduction.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Name what was repeated: execution of saved code, generation from a saved brief, or improvement of the builder. Each requires different evidence.
 
 </details>
 

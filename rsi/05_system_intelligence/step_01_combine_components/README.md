@@ -68,6 +68,16 @@ Run one valid baseline through the complete workflow. Then submit a target-deriv
 
 The valid run passes the intended checks. The invalid fixture does not reach fitting. No component is silently revised during the comparison.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| SYSTEM.md | Assigns each responsibility to a component and names its inputs and outputs. |
+| Valid baseline trace | Shows domain checks, fitting, result checking, and reporting for the same candidate. |
+| Leaked-input refusal | Shows where the invalid fixture stopped and confirms that it did not start another fit. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Remove the domain check in a labelled diagnostic copy and observe which protecti
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If every component appears responsible for “quality,” give each one a concrete job and completion check. If leakage reaches fitting, inspect whether the domain check actually ran before the fit action and whether its verdict controlled that action. Keep all component versions fixed during this comparison; a repair is a new recorded change.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Follow the candidate through the system. Which component supplies an action, which executes it, and which can reject its input or output?
 
 </details>
 

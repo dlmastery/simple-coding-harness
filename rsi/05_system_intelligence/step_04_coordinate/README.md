@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The coordinator tracks task state, chooses the next allowed action, and handles incomplete evidence. It should stop when the scientific brief is ambiguous or a required check is missing. It does not acquire evaluator independence by naming a “reviewer” role in the same conversation.
 
+**A concrete example.** A tool can finish training while the coordinator remains in awaiting-check. That is a valid intermediate state: computation exists, but acceptance is incomplete. If the returned check belongs to another candidate, the coordinator must stay there or stop. A generic “success” string cannot close the current run.
+
 ![Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.](../../assets/diagrams/lab-05-04.png)
 
 *Read the diagram:* Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.
@@ -66,6 +68,16 @@ Run one baseline through the coordinator. Then test a missing checker result and
 
 The coordinator never marks incomplete work complete. Its report states that role separation is organizational unless an actual access boundary exists.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Coordinator procedure | Defines ready, running, awaiting-check, complete, and needs-clarification transitions. |
+| Baseline transition trace | Connects state changes to actual artifacts and verdicts for one candidate. |
+| Two handoff-failure records | Preserve the missing-check stop and unresolved target-meaning stop without inventing approval. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Have a tool return a valid score for the wrong candidate. Require the coordinato
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the coordinator marks work complete immediately after fitting, inspect the required checker transition. If the target brief admits incompatible interpretations, identify the specific scientific decision that needs clarification; routine file naming does not need the same pause. Record actual decisions rather than supplying a fictional human approval to keep the run moving.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask what new evidence permits each state change. Finishing an operation and accepting its result are two separate transitions.
 
 </details>
 

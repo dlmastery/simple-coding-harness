@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The task brief identifies the target type and evaluation rule. Regression estimates a count and uses MAE. The derived wine classification task predicts whether quality is at least 7 and uses balanced accuracy. Routing chooses an already defined procedure; it does not learn a new one.
 
+**A concrete example.** For an illustrative classification set with 90 negative and 10 positive cases, predicting negative every time gives 90% ordinary accuracy. Negative recall is 1 and positive recall is 0, so balanced accuracy is (1 + 0) / 2 = 0.5. The apparent success depends on the metric. The wine route must make the minority-class failure visible.
+
 ![Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.](../../assets/diagrams/lab-05-02.png)
 
 *Read the diagram:* Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.
@@ -66,6 +68,16 @@ Run a constant bike baseline and a majority wine baseline. Inspect wine class ba
 
 The two tasks use their own contracts. Identical wine feature rows stay in one partition. Unknown tasks are rejected.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| ROUTING.md | Maps each recognized task to its data card, target, baseline, metric, and checks. |
+| Separate bike and wine baseline records | Use distinct contracts and preserve each task’s actual predictions and metric. |
+| Task comparison and unknown-task refusal | Explain shared structure, changed scientific choices, both wine class recalls, and the rejected unknown input. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Give the router a task with no target type. Require a clarification of the scien
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If both routes report MAE or the same target name, inspect whether the task contract was copied without adaptation. If wine results omit a class, check the duplicate-group split and class presence before interpreting balanced accuracy. An unknown target type needs a task decision before the router can select a meaningful evaluator.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Ask what an all-negative classifier gets right and what it never gets right. Then check whether the chosen metric exposes both facts.
 
 </details>
 

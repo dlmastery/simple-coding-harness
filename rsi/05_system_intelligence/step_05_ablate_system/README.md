@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The fixed coordinator and the leaked-feature fixture used earlier.
 
-**Budget:** No fits required. Two controlled fixture runs. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Four fixture executions: two inputs under each of two system versions. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 An ablation removes one component while holding the rest as steady as possible. Here the outcome is whether an invalid proposal reaches fitting. Use a dry-run fitting stub so the ablated system cannot accidentally train a leaked model. Reliability is the measured property, not prediction quality.
+
+**A concrete example.** Run the same valid and leaked fixtures through the full system and a copy without the domain check. That makes four fixture executions. If a second input validator still blocks leakage in the ablated copy, the removal has no observed effect in this test. It does not prove the domain check is useless: the two protections may overlap.
 
 ![An ablation removes one component under matched conditions. Its effect may depend on the other components.](../../assets/diagrams/lab-05-05.png)
 
@@ -66,6 +68,16 @@ Execute both systems on both fixtures. Preserve the versions and outcomes. Expla
 
 Only one component differs. The report accounts for redundant checks and does not claim a predictive-performance gain.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| ABLATION-PLAN.md | Declares the one removed component, fixed fixtures, and whether the fit stub is reached. |
+| Four fixture outcomes | Cover valid/invalid inputs under full/ablated systems, with no model training. |
+| Interpretation | Names redundant protections and limits the conclusion to the tested reliability behavior. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove both overlapping checks in a separate declared ablation. Explain why this
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a real fit starts, stop the diagnostic and inspect why the fitting action was not replaced by the declared stub. If the result differs from your prediction, trace all remaining guards rather than weakening them to make the expected effect appear. Removing another guard requires a separately labelled ablation.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Compare one fixture across the two system versions before comparing different fixtures. Only the component removal should explain that paired difference.
 
 </details>
 

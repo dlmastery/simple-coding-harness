@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A harness organizes an agent’s instructions, tools, state, evaluation, and limits. A harness brief states the task and required behavior while leaving implementation syntax to the coding agent. A good brief includes what must fail, not only what should succeed.
 
+**A concrete example.** “Build a bike agent” leaves success undefined. “Estimate hourly cnt from calendar fields, compare by MAE on the fixed selection period, admit at most two attempts, and refuse target-derived inputs” gives the builder decisions it can implement and test. File layout can remain its choice. The target and evaluator cannot quietly become its choice after it sees results.
+
 ![The brief fixes scientific choices and required behavior. The builder supplies implementation details.](../../assets/diagrams/lab-06-01.png)
 
 *Read the diagram:* The brief fixes scientific choices and required behavior. The builder supplies implementation details.
@@ -66,6 +68,15 @@ Use build-ml-harness to inspect the brief without building yet. List ambiguous s
 
 The brief fixes target, inputs, metric, partitions, resources, and required rejection. It does not require the student to write code or schemas.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| HARNESS-BRIEF.md | Fixes task meaning, source, inputs, split, metric, baseline, two admitted attempts, outputs, and refusal behavior. |
+| Ambiguity review | Separates unresolved scientific choices from routine implementation decisions and records their resolution. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +85,7 @@ Remove the metric and ask two plausible alternatives. Explain why choosing one a
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the builder starts coding before it knows the target or metric, return to the brief. If it asks the student to write a schema, have it generate that representation from the readable brief. A new scientific assumption must be visible; routine choices such as module names can be made by the agent.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +107,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Imagine two builders reading the same brief. Which choices must agree for their results to answer the same scientific question?
 
 </details>
 

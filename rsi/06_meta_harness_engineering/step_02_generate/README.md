@@ -18,7 +18,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** HARNESS-BRIEF.md from 06.01 and a fresh generated-harness folder.
 
-**Budget:** One baseline fit plus one intended refusal; no autonomous search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One baseline fit; no autonomous search. The dedicated refusal tests follow in 06.04. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -68,6 +68,16 @@ Run its one-attempt baseline from a clean subfolder. Save commands, exit status,
 
 The generated system executes its baseline. The result follows the original brief. Missing capabilities are reported, not replaced with simulated success.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Generated package | Contains its README, task contract, workflow, executable entry, checks, dependencies, and recovery instructions. |
+| Generation record | Links the brief, builder version, and generated files. |
+| Baseline execution record | Retains the real command result, predictions, measured metric, and check under the brief’s task contract. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -76,7 +86,7 @@ Ask what would happen if the builder were removed after generation. The generate
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the entry point is only pseudocode, generation has not produced an executable harness. Have the agent implement it and retain any failed attempt. If imports or data paths fail, inspect whether the generated package declares its dependency on the course tools and pinned data. Do not describe a package as standalone when it imports the repository.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -98,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Remove the builder from your imagined run. Which saved instructions and executable files must still exist for the generated harness to do the task?
 
 </details>
 

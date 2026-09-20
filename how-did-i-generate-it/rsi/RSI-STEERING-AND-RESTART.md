@@ -116,7 +116,7 @@ Skill creation and local installation are complete. All seven installed files ma
 
 ## Restart checklist
 
-The active goal is to complete all original themes and tasks and every individual and main README. Read [the completion ledger](COURSE-COMPLETION-LEDGER.md) before continuing. Do not redefine completion as the selected author route. The current editorial pass has added full teaching support through 04.05 (26 labs); continue at theme 05, then 06–09, all research studios, and capstones. The source is `scripts/lesson-guidance.mjs`; the [coverage inventory](validation/README-GUIDANCE-COVERAGE.md) keeps unfinished rows visible. Regenerate pages and the inventory after edits. Original backups remain untouched.
+The active goal is to complete all original themes and tasks and every individual and main README. Read [the completion ledger](COURSE-COMPLETION-LEDGER.md) before continuing. Do not redefine completion as the selected author route. The current editorial pass has added full teaching support through 06.06 (37 labs); next expand 07.07 with real small self-play learning, then finish 07–09, all research studios, and capstones. The source is `scripts/lesson-guidance.mjs`; the [coverage inventory](validation/README-GUIDANCE-COVERAGE.md) keeps unfinished rows visible. Regenerate pages and the inventory after edits. Original backups remain untouched.
 
 1. Read this file and the latest user messages. Implementation is approved; incorporate later steering.
 2. Check Git status, branch, remote, and recent commits. Preserve work already present.

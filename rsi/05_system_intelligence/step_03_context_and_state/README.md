@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Task rules define the current problem. Reference knowledge explains how to act. State records what has already happened. A retrieval step should select relevant references without overwriting current state. A past experiment’s final score is not a new task’s target to imitate.
 
+**A concrete example.** A saved summary says “three attempts remain.” The current ledger shows two admitted attempts in a three-attempt experiment. The next session has one attempt left. Copying the summary into a fresh context does not turn its outdated statement into current state. Use the summary to find the evidence, then reconcile it with the ledger.
+
 ![Retrieve relevant reusable knowledge, but initialize current state from the active task.](../../assets/diagrams/lab-05-03.png)
 
 *Read the diagram:* Retrieve relevant reusable knowledge, but initialize current state from the active task.
@@ -66,6 +68,16 @@ Supply a labelled stale note that says the run has three attempts left when the 
 
 The packet preserves current task identity and ledger state. A stale budget note produces a visible conflict.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| CONTEXT.md | Separates the active contract, current state, and relevant reference knowledge, with links back to their sources. |
+| Two selection checks | Show appropriate bike context and a conflict caused by the labelled stale budget note. |
+| Conflict record | Names the outdated statement and the authoritative evidence used to resolve it. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove the data card’s input-availability rule and ask which next decision bec
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If the packet includes wine-specific metric instructions for the bike task, remove them from the active instructions and retain their provenance as unrelated context. If a summary and ledger disagree, inspect the ledger’s contract and run identity before trusting either. Do not resolve the conflict by silently editing past attempts.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Put each statement into one of three roles: rule for this task, general reference, or fact about this run. The authority and expiry of a statement depend on its role.
 
 </details>
 

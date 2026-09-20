@@ -2,7 +2,7 @@
 
 Generated from the current lesson source and published READMEs. This inventory checks presence and source/publication agreement. It does not establish factual correctness, visual quality, runtime completion, or student learning.
 
-26 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 37 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
+37 of 101 lessons have individually authored output guides, recovery advice, and hints in the current editorial pass. 46 have a worked example. The remaining rows stay visibly pending; having a section heading is not counted as having the missing teaching content.
 
 The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. Editorial observations and actual execution evidence remain separate.
 
@@ -34,17 +34,17 @@ The [completion ledger](../COURSE-COMPLETION-LEDGER.md) retains the full scope. 
 | [04.03](../../../rsi/04_ontology_engineering/step_03_invariants/README.md) | present | authored | specific | specific |
 | [04.04](../../../rsi/04_ontology_engineering/step_04_catch_contradictions/README.md) | present | authored | specific | specific |
 | [04.05](../../../rsi/04_ontology_engineering/step_05_evolve_vocabulary/README.md) | present | authored | specific | specific |
-| [05.01](../../../rsi/05_system_intelligence/step_01_combine_components/README.md) | present | pending | generic or pending | generic or pending |
-| [05.02](../../../rsi/05_system_intelligence/step_02_route_tasks/README.md) | missing | pending | generic or pending | generic or pending |
-| [05.03](../../../rsi/05_system_intelligence/step_03_context_and_state/README.md) | missing | pending | generic or pending | generic or pending |
-| [05.04](../../../rsi/05_system_intelligence/step_04_coordinate/README.md) | missing | pending | generic or pending | generic or pending |
-| [05.05](../../../rsi/05_system_intelligence/step_05_ablate_system/README.md) | missing | pending | generic or pending | generic or pending |
-| [06.01](../../../rsi/06_meta_harness_engineering/step_01_write_a_brief/README.md) | missing | pending | generic or pending | generic or pending |
-| [06.02](../../../rsi/06_meta_harness_engineering/step_02_generate/README.md) | present | pending | generic or pending | generic or pending |
-| [06.03](../../../rsi/06_meta_harness_engineering/step_03_inspect_generated/README.md) | missing | pending | generic or pending | generic or pending |
-| [06.04](../../../rsi/06_meta_harness_engineering/step_04_test_refusal/README.md) | missing | pending | generic or pending | generic or pending |
-| [06.05](../../../rsi/06_meta_harness_engineering/step_05_second_task/README.md) | missing | pending | generic or pending | generic or pending |
-| [06.06](../../../rsi/06_meta_harness_engineering/step_06_recreate/README.md) | missing | pending | generic or pending | generic or pending |
+| [05.01](../../../rsi/05_system_intelligence/step_01_combine_components/README.md) | present | authored | specific | specific |
+| [05.02](../../../rsi/05_system_intelligence/step_02_route_tasks/README.md) | present | authored | specific | specific |
+| [05.03](../../../rsi/05_system_intelligence/step_03_context_and_state/README.md) | present | authored | specific | specific |
+| [05.04](../../../rsi/05_system_intelligence/step_04_coordinate/README.md) | present | authored | specific | specific |
+| [05.05](../../../rsi/05_system_intelligence/step_05_ablate_system/README.md) | present | authored | specific | specific |
+| [06.01](../../../rsi/06_meta_harness_engineering/step_01_write_a_brief/README.md) | present | authored | specific | specific |
+| [06.02](../../../rsi/06_meta_harness_engineering/step_02_generate/README.md) | present | authored | specific | specific |
+| [06.03](../../../rsi/06_meta_harness_engineering/step_03_inspect_generated/README.md) | present | authored | specific | specific |
+| [06.04](../../../rsi/06_meta_harness_engineering/step_04_test_refusal/README.md) | present | authored | specific | specific |
+| [06.05](../../../rsi/06_meta_harness_engineering/step_05_second_task/README.md) | present | authored | specific | specific |
+| [06.06](../../../rsi/06_meta_harness_engineering/step_06_recreate/README.md) | present | authored | specific | specific |
 | [07.01](../../../rsi/07_understanding_self_star/step_01_correction/README.md) | missing | pending | generic or pending | generic or pending |
 | [07.02](../../../rsi/07_understanding_self_star/step_02_reflection/README.md) | missing | pending | generic or pending | generic or pending |
 | [07.03](../../../rsi/07_understanding_self_star/step_03_persistent_learning/README.md) | present | pending | generic or pending | generic or pending |

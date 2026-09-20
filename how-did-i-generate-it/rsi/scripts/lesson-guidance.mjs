@@ -151,4 +151,68 @@ export const guidance = {
     recovery:'If a new forecast score appears without a forecast source, stop and inspect which data was actually used. Keep the activity as an impact analysis until the required historical inputs exist. If timestamps are ambiguous, define their time zone and release-time meaning before testing availability. Do not rename observed weather and treat it as a forecast.',
     hint:'Keep two times separate: when the event occurs and when the input becomes available. The second decides whether the feature belongs in a prediction made at a given origin.'
   },
+  '05.01': {
+    outputs:[['SYSTEM.md','Assigns each responsibility to a component and names its inputs and outputs.'],['Valid baseline trace','Shows domain checks, fitting, result checking, and reporting for the same candidate.'],['Leaked-input refusal','Shows where the invalid fixture stopped and confirms that it did not start another fit.']],
+    recovery:'If every component appears responsible for “quality,” give each one a concrete job and completion check. If leakage reaches fitting, inspect whether the domain check actually ran before the fit action and whether its verdict controlled that action. Keep all component versions fixed during this comparison; a repair is a new recorded change.',
+    hint:'Follow the candidate through the system. Which component supplies an action, which executes it, and which can reject its input or output?'
+  },
+  '05.02': {
+    example:'For an illustrative classification set with 90 negative and 10 positive cases, predicting negative every time gives 90% ordinary accuracy. Negative recall is 1 and positive recall is 0, so balanced accuracy is (1 + 0) / 2 = 0.5. The apparent success depends on the metric. The wine route must make the minority-class failure visible.',
+    outputs:[['ROUTING.md','Maps each recognized task to its data card, target, baseline, metric, and checks.'],['Separate bike and wine baseline records','Use distinct contracts and preserve each task’s actual predictions and metric.'],['Task comparison and unknown-task refusal','Explain shared structure, changed scientific choices, both wine class recalls, and the rejected unknown input.']],
+    recovery:'If both routes report MAE or the same target name, inspect whether the task contract was copied without adaptation. If wine results omit a class, check the duplicate-group split and class presence before interpreting balanced accuracy. An unknown target type needs a task decision before the router can select a meaningful evaluator.',
+    hint:'Ask what an all-negative classifier gets right and what it never gets right. Then check whether the chosen metric exposes both facts.'
+  },
+  '05.03': {
+    example:'A saved summary says “three attempts remain.” The current ledger shows two admitted attempts in a three-attempt experiment. The next session has one attempt left. Copying the summary into a fresh context does not turn its outdated statement into current state. Use the summary to find the evidence, then reconcile it with the ledger.',
+    outputs:[['CONTEXT.md','Separates the active contract, current state, and relevant reference knowledge, with links back to their sources.'],['Two selection checks','Show appropriate bike context and a conflict caused by the labelled stale budget note.'],['Conflict record','Names the outdated statement and the authoritative evidence used to resolve it.']],
+    recovery:'If the packet includes wine-specific metric instructions for the bike task, remove them from the active instructions and retain their provenance as unrelated context. If a summary and ledger disagree, inspect the ledger’s contract and run identity before trusting either. Do not resolve the conflict by silently editing past attempts.',
+    hint:'Put each statement into one of three roles: rule for this task, general reference, or fact about this run. The authority and expiry of a statement depend on its role.'
+  },
+  '05.04': {
+    example:'A tool can finish training while the coordinator remains in awaiting-check. That is a valid intermediate state: computation exists, but acceptance is incomplete. If the returned check belongs to another candidate, the coordinator must stay there or stop. A generic “success” string cannot close the current run.',
+    outputs:[['Coordinator procedure','Defines ready, running, awaiting-check, complete, and needs-clarification transitions.'],['Baseline transition trace','Connects state changes to actual artifacts and verdicts for one candidate.'],['Two handoff-failure records','Preserve the missing-check stop and unresolved target-meaning stop without inventing approval.']],
+    recovery:'If the coordinator marks work complete immediately after fitting, inspect the required checker transition. If the target brief admits incompatible interpretations, identify the specific scientific decision that needs clarification; routine file naming does not need the same pause. Record actual decisions rather than supplying a fictional human approval to keep the run moving.',
+    hint:'Ask what new evidence permits each state change. Finishing an operation and accepting its result are two separate transitions.'
+  },
+  '05.05': {
+    example:'Run the same valid and leaked fixtures through the full system and a copy without the domain check. That makes four fixture executions. If a second input validator still blocks leakage in the ablated copy, the removal has no observed effect in this test. It does not prove the domain check is useless: the two protections may overlap.',
+    outputs:[['ABLATION-PLAN.md','Declares the one removed component, fixed fixtures, and whether the fit stub is reached.'],['Four fixture outcomes','Cover valid/invalid inputs under full/ablated systems, with no model training.'],['Interpretation','Names redundant protections and limits the conclusion to the tested reliability behavior.']],
+    recovery:'If a real fit starts, stop the diagnostic and inspect why the fitting action was not replaced by the declared stub. If the result differs from your prediction, trace all remaining guards rather than weakening them to make the expected effect appear. Removing another guard requires a separately labelled ablation.',
+    hint:'Compare one fixture across the two system versions before comparing different fixtures. Only the component removal should explain that paired difference.'
+  },
+  '06.01': {
+    example:'“Build a bike agent” leaves success undefined. “Estimate hourly cnt from calendar fields, compare by MAE on the fixed selection period, admit at most two attempts, and refuse target-derived inputs” gives the builder decisions it can implement and test. File layout can remain its choice. The target and evaluator cannot quietly become its choice after it sees results.',
+    outputs:[['HARNESS-BRIEF.md','Fixes task meaning, source, inputs, split, metric, baseline, two admitted attempts, outputs, and refusal behavior.'],['Ambiguity review','Separates unresolved scientific choices from routine implementation decisions and records their resolution.']],
+    recovery:'If the builder starts coding before it knows the target or metric, return to the brief. If it asks the student to write a schema, have it generate that representation from the readable brief. A new scientific assumption must be visible; routine choices such as module names can be made by the agent.',
+    hint:'Imagine two builders reading the same brief. Which choices must agree for their results to answer the same scientific question?'
+  },
+  '06.02': {
+    outputs:[['Generated package','Contains its README, task contract, workflow, executable entry, checks, dependencies, and recovery instructions.'],['Generation record','Links the brief, builder version, and generated files.'],['Baseline execution record','Retains the real command result, predictions, measured metric, and check under the brief’s task contract.']],
+    recovery:'If the entry point is only pseudocode, generation has not produced an executable harness. Have the agent implement it and retain any failed attempt. If imports or data paths fail, inspect whether the generated package declares its dependency on the course tools and pinned data. Do not describe a package as standalone when it imports the repository.',
+    hint:'Remove the builder from your imagined run. Which saved instructions and executable files must still exist for the generated harness to do the task?'
+  },
+  '06.03': {
+    example:'The README says “two attempts,” but a loop in the generated code permits ten. The requirement is stated, implementation disagrees, and no two-attempt refusal has yet run. Keep those three evidence states distinct in the review. A row saying “budget: checked” would conceal the exact gap.',
+    outputs:[['REVIEW.md','Maps each scientific and operating requirement to implementation and actual evidence, marking untested behavior separately.'],['Preprocessing and selection inspection','Shows where transforms fit and which partition drives candidate selection.'],['Assumption and repair notes','Preserve any undocumented choice, its effect, and the correction required before acceptance.']],
+    recovery:'If a requirement points only to another sentence in the README, trace it into the running operation or leave it unverified. If train-only preprocessing is unclear, inspect the actual fit inputs, not just the estimator name. Preserve the first generated version before repairing it so the builder’s mistake remains visible.',
+    hint:'For one requirement, find three locations: where it is requested, where it is implemented, and where its behavior was observed. Missing one is a useful finding.'
+  },
+  '06.04': {
+    example:'The brief permits two admitted attempts. A valid baseline consumes one. A leaked-feature request is admitted for validation, rejected before fitting, and consumes the second. A third distinct recipe must then fail on the budget. An unrelated old success report changes none of those identities or counts.',
+    outputs:[['Valid candidate record','Binds its predictions and checks to the current run and contract.'],['Leakage and budget refusals','Identify the current requests, failed checks, and fit counts.'],['Unrelated-report fixture','Demonstrates that another run’s success cannot satisfy this request’s acceptance checks.']],
+    recovery:'If an invalid request is given a model score without a fit, inspect whether an old report was reused. If the budget refusal occurs at an unexpected time, distinguish admitted attempts from fits: the leaked request consumes an attempt while performing no fit. A missing candidate identity should produce incomplete evidence, not a search for any available success file.',
+    hint:'Trace the exact request that needs authorization. Neither a pass for another candidate nor an unspent model-fit count replaces this experiment’s admitted-attempt ledger.'
+  },
+  '06.05': {
+    example:'The bike brief asks for a rental count; the wine brief asks whether a recorded quality score is at least 7. Reusing the workflow is sensible, but reusing the regression evaluator is not. The generated wine harness must also keep repeated input vectors in the same partition, so copying the same measurement into another split cannot make evaluation appear easier.',
+    outputs:[['Wine HARNESS-BRIEF.md','Declares the binary threshold, duplicate-group partition rule, balanced accuracy, both recalls, and two fits.'],['Generated classification package and runs','Retain the majority and balanced logistic candidates under the wine contract.'],['Transfer comparison','Names the unchanged builder version, shared workflow, and changed target, split, model, metric, and error analysis.']],
+    recovery:'If the output still uses a bike target or MAE, inspect the task-specific portion of generation. If duplicate input groups cross partitions, fix the split in a new experiment before trusting the scores. Do not choose the quality threshold after seeing class balance or candidate performance and keep calling it the same predefined task.',
+    hint:'Separate reusable steps from task-specific meanings. Inspection, fitting, and checking transfer; what they inspect, fit, and measure can change.'
+  },
+  '06.06': {
+    example:'Running a saved generated package in a new output folder tests whether its recorded files and dependencies are sufficient. Asking the builder to generate another package from prose is a different test. This lab performs the first. Equal baseline predictions support repeatability of that package; they do not prove independent regeneration or a better builder.',
+    outputs:[['Two handoffs','Identify brief, builder, generated entry, data, environment, and acceptance checks for bike and wine.'],['Two recreated baseline runs','Use clean output state and preserve their predictions, metrics, and negative checks.'],['Reproducibility report','Compares behavior and versions without replacing an unfavorable original run.']],
+    recovery:'If the run needs a file from an undeclared absolute path, add the dependency to the handoff and record the failed clean start. If predictions differ, compare environment and contract before selecting a preferred result. If you also regenerate from prose, label that extra experiment and declare its own budget rather than merging it into this reproduction.',
+    hint:'Name what was repeated: execution of saved code, generation from a saved brief, or improvement of the builder. Each requires different evidence.'
+  },
 };

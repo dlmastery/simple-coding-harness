@@ -18,11 +18,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The reviewed harness and a fresh test workspace.
 
-**Budget:** One valid fit; leakage and over-budget requests must not start extra fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two admitted attempts: one valid fit and one leaked-input failure before fitting. A third distinct request must be refused on budget. No extra fit for either refusal. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A negative test supplies a specific forbidden request and checks the resulting behavior. The requested action, candidate, run, and contract must match the evidence used to decide it. An unrelated old approval or successful report must not authorize this request.
+
+**A concrete example.** The brief permits two admitted attempts. A valid baseline consumes one. A leaked-feature request is admitted for validation, rejected before fitting, and consumes the second. A third distinct recipe must then fail on the budget. An unrelated old success report changes none of those identities or counts.
 
 ![A boundary is demonstrated by a meaningful refusal tied to the current request.](../../assets/diagrams/lab-06-04.png)
 
@@ -66,6 +68,16 @@ Submit a leaked-feature request and an over-budget request. Also place an unrela
 
 Invalid requests do not fit models. An unrelated result cannot satisfy the current candidate’s check. All attempts and refusal costs remain visible.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Valid candidate record | Binds its predictions and checks to the current run and contract. |
+| Leakage and budget refusals | Identify the current requests, failed checks, and fit counts. |
+| Unrelated-report fixture | Demonstrates that another run’s success cannot satisfy this request’s acceptance checks. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ Remove candidate identity from a check fixture and verify that the system treats
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If an invalid request is given a model score without a fit, inspect whether an old report was reused. If the budget refusal occurs at an unexpected time, distinguish admitted attempts from fits: the leaked request consumes an attempt while performing no fit. A missing candidate identity should produce incomplete evidence, not a search for any available success file.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+Trace the exact request that needs authorization. Neither a pass for another candidate nor an unspent model-fit count replaces this experiment’s admitted-attempt ledger.
 
 </details>
 

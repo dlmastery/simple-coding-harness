@@ -24,6 +24,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Trace requirements forward to implementation and evidence backward to requirements. For example, “two attempts maximum” should appear in control logic and an over-budget refusal. A sentence in the README alone does not show the limit runs.
 
+**A concrete example.** The README says “two attempts,” but a loop in the generated code permits ten. The requirement is stated, implementation disagrees, and no two-attempt refusal has yet run. Keep those three evidence states distinct in the review. A row saying “budget: checked” would conceal the exact gap.
+
 ![Trace each important requirement to implementation and then to observed behavior.](../../assets/diagrams/lab-06-03.png)
 
 *Read the diagram:* Trace each important requirement to implementation and then to observed behavior.
@@ -66,6 +68,16 @@ Inspect preprocessing and candidate selection. Verify transformations fit only o
 
 The review distinguishes stated, implemented, and executed requirements. Any generated assumption is explicit.
 
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| REVIEW.md | Maps each scientific and operating requirement to implementation and actual evidence, marking untested behavior separately. |
+| Preprocessing and selection inspection | Shows where transforms fit and which partition drives candidate selection. |
+| Assumption and repair notes | Preserve any undocumented choice, its effect, and the correction required before acceptance. |
+
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
@@ -74,7 +86,7 @@ In a diagnostic copy, alter the README’s budget while leaving code unchanged. 
 
 ## If something goes wrong
 
-If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+If a requirement points only to another sentence in the README, trace it into the running operation or leave it unverified. If train-only preprocessing is unclear, inspect the actual fit inputs, not just the estimator name. Preserve the first generated version before repairing it so the builder’s mistake remains visible.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 
@@ -96,7 +108,7 @@ Answer before opening the explanation. You can ask the tutor for a hint.
 <details>
 <summary>Hint</summary>
 
-Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+For one requirement, find three locations: where it is requested, where it is implemented, and where its behavior was observed. Missing one is a useful finding.
 
 </details>
 
