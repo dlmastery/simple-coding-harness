@@ -27,6 +27,7 @@ This log records completed actions, findings, decisions, and next steps. It is a
 | 19 | Validated the skill and documentation | The skill validator passed after supplying its missing PyYAML dependency. The link checker found a validation file that had not yet been written; the record was added for the next check. |
 | 20 | Rechecked links and installed the skill | All 85 local links across 17 Markdown files resolved. All seven installed skill files matched repository hashes; the installed package passed the validator. |
 | 21 | Checked the redacted source | Output hash matched the manifest. No email addresses or original forwarded-message identifiers remained under the applied checks. |
+| 22 | Pushed the complete skill and provenance checkpoint | Commit `6ae9a411d7dec732debb0293f9817350bc08dc11` was pushed; the remote hash matched local HEAD and the working tree was clean. |
 
 ## Why the plan changed
 
@@ -62,10 +63,9 @@ Implementation checkpoints should include relevant runtime evidence and failures
 
 ## Next steps
 
-1. Push and verify the second checkpoint containing the full skill and intermediate provenance.
-2. Present the skill and revised plan for the user's review.
-3. After approval, complete the remaining source and repository audit.
-4. Build representative onboarding, ML loop, ontology, and recursion lessons before expanding the pattern.
-5. Validate the laptop path and the declared agent adapters. Record actual resource use.
-6. Produce and inspect the requested illustrations after generator access is resolved.
-7. Continue through the full course, updating this log and checkpointing progress.
+1. The reusable skill is installed and its complete package is on GitHub. Present it with the revised plan for review.
+2. After plan approval, complete the remaining source and repository audit.
+3. Build representative onboarding, ML loop, ontology, and recursion lessons before expanding the pattern.
+4. Validate the laptop path and the declared agent adapters. Record actual resource use.
+5. Produce and inspect the requested illustrations after generator access is resolved.
+6. Continue through the full course, updating this log and checkpointing progress.

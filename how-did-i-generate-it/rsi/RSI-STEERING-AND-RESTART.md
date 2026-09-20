@@ -110,7 +110,7 @@ The user explicitly requested that every instruction and the final outcome becom
 
 The canonical package is [build-research-codelabs](../../skills/build-research-codelabs/SKILL.md). Its common course standard applies across topics; the RSI sequence and dataset decisions are in a separate preset. The [coverage checklist](SKILL-REQUIREMENT-COVERAGE.md) maps the user's guidance to the skill. Do not force the RSI ladder or current lab count onto another subject.
 
-Skill creation and local installation are current authorized work. They do not imply approval to implement the proposed RSI course.
+Skill creation and local installation are complete. All seven installed files match the canonical repository package, and the skill validator passed. The full package and provenance were pushed and verified in checkpoint `6ae9a411d7dec732debb0293f9817350bc08dc11`. This does not imply approval to implement the proposed RSI course.
 
 ## Restart checklist
 

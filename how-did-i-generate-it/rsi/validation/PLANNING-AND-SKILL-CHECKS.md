@@ -27,8 +27,10 @@ These checks cover documentation, the reusable skill package, and the redacted p
 | Design review | Common guidance remains topic-independent; RSI requirements use a separate preset; ambiguous topic terms need source verification |
 | Working-tree diff check | `git diff --check` passed for tracked edits |
 | Staged source whitespace | The initial stage found an extra final blank line; the redaction script now produces canonical UTF-8/LF text, and the manifest records both hashes |
+| Final staged diff check | `git diff --cached --check` passed before the skill/provenance commit |
+| Second GitHub checkpoint | `6ae9a411d7dec732debb0293f9817350bc08dc11` pushed and verified against the remote; working tree clean |
 
-The next checkpoint contains these validated records and the complete skill package. Its push and remote verification are recorded in the work log after they run.
+The full skill and intermediate provenance are on the working branch. Later documentation-only checkpoints record the completed verification. Git history is the source for the latest commit.
 
 ## Repeating the relevant checks
 
