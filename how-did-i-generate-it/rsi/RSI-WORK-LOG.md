@@ -293,3 +293,17 @@ Found three stale eighteen-lesson descriptions and old prerequisites in the root
 The remote illustration checkpoint 5e8daae was verified before these edits. This is a documentation and navigation checkpoint. Pending ModularRSI outputs and the meta-skill prompt remain local work for the next illustration batch; no new generation, ML execution, or full-course verification occurred during this structure clarification.
 
 Publication check after the navigation edit: 101 labs, 2,395 local links, zero problems; git diff --check passed. These are documentation checks, not new execution evidence.
+
+## 20 September: illustrate modular repairs, meta-skills, and saved-state coordination
+
+The previous goal turn made progress: 48d0eb6 corrected stale root navigation and added the course folder map. Resumed the two saved ModularRSI images and the exact saved meta-skill prompt. Generated three meta-skill versions and three coordination versions, preserving every output and submitted prompt. The selected set is modular-harness-v2, meta-skill-schedules-v3, and system-coordination-v3. The archive now has thirty-seven versions and seventeen selected figures. All original generations used the main overview as an actual style reference.
+
+The meta-skill revisions repaired confused task/updater instructions, an invalid target-like input, proposal/check ordering, and a rejected-proposal path into activation. The coordination revisions restored the retrospective bike task, removed a state-bypass arrow, and replaced a failed connector with numbered actions and a matching saved-state precondition. Full-size review inspected all three selected images. These are conceptual figures, not new experiment records.
+
+Integrated 05.04, 10.10, and 10.17, the system theme, and two additional research-group introductions. The seven illustrated research groups now have mechanism-specific reading prompts. Reopened the two primary methods for narrow authoring checks; no complete source or benchmark audit is claimed. The same-pipeline mechanism exposed a gap in 10.17's run prompt. It now uses v0 to propose an edit to its own instructions, then freezes each updater during a matched four-fit comparison with an explicit retention decision. Its later execution remains pending.
+
+Updated the reusable authoring skill to check procedural roles and align images with run instructions; synchronized the installed reference. Corrected the stale unresolved-provider statement in skill requirement coverage. The early image-generation approval remains valid. A documentation patch with an inaccurate context line was rejected before any edit; a corrected patch then applied. No generated image was overwritten or discarded.
+
+Next: dependency-graph recovery, fair improvement comparisons, and a capstone evidence map, followed by remaining research mechanisms and per-lab illustrations. Continue authoring and periodic pushes before the full verification pass. The overall completion goal remains active.
+
+Basic publication results: 101 lessons, seventeen visual-guide figures, thirty-seven archived PNGs, seventeen matching selected copies, and 2,438 valid local links. The authoring skill validates and all seven installed files match. Reviewed the generated affected pages as text; published-width review remains queued. No runtime suite or ML experiment ran in this pass.

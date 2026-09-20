@@ -1,6 +1,6 @@
 # GitHub checkpoints
 
-Latest verified checkpoint before this navigation correction: `5e8daae83e767f5a3078e79c3860e45307dd9619`, confirmed against the remote branch on 20 September. It adds AIDE², ScientistTwo, the fixed data process, and illustrated research-group introductions. This correction updates stale eighteen-lesson references in the repository README and adds the course folder map. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. These checkpoints are not full-course acceptance results.
+Latest verified checkpoint before this illustration set: `48d0eb6ea503f0308c211a23fc2631f52a0e6948`, confirmed against the remote branch on 20 September. It corrects stale eighteen-lesson descriptions and adds the course folder map. The next set adds ModularRSI, meta-skill evolution, and saved-state coordination figures, plus an explicit self-application step in lab 10.17. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. These checkpoints are not full-course acceptance results.
 
 The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is in its verified history. The branch history and work log retain intermediate checkpoints.
 
@@ -8,6 +8,7 @@ These are pushed checkpoints, not a merge into main or a claim that the whole co
 
 | Commit | Milestone |
 |---|---|
+| [48d0eb6](https://github.com/dlmastery/simple-coding-harness/commit/48d0eb6ea503f0308c211a23fc2631f52a0e6948) | Correct repository navigation and show the twelve-theme, 101-lab folder structure |
 | [5e8daae](https://github.com/dlmastery/simple-coding-harness/commit/5e8daae83e767f5a3078e79c3860e45307dd9619) | Add AIDE², ScientistTwo, and fixed data-science illustrations, plus research-group introductions and visual teaching guidance |
 | [17eff27](https://github.com/dlmastery/simple-coding-harness/commit/17eff27fd54bee381d0982e83cc23152283d5f3b) | Restore the original visual standard, redesign ScienceBuddy, add RSIAgent, and record the authoring-first priority |
 | [641898c](https://github.com/dlmastery/simple-coding-harness/commit/641898cade39932d1c758054f3ca67b7f3f65d7e) | Publish the first ten selected illustrations, seventeen versions, and the student visual guide |

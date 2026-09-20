@@ -35,7 +35,15 @@ const outputs=[
   ['data-science-process-v1','exec-b178eeb0-7f43-45e3-b10d-cfc948498221.png',false],
   ['data-science-process-v2','exec-c7bd4200-6fb7-4a3e-aa01-a207af53433c.png',false],
   ['data-science-process-v3','exec-25b01f66-df36-4dab-8b11-7bafcd9cd782.png',false],
-  ['data-science-process-v4','exec-31c077dd-4c15-49a2-9e84-7814d2ad481d.png',true]
+  ['data-science-process-v4','exec-31c077dd-4c15-49a2-9e84-7814d2ad481d.png',true],
+  ['modular-harness-v1','exec-cb2e8854-06c3-4d48-81d4-9f1c84d303cb.png',false],
+  ['modular-harness-v2','exec-e125e687-f34f-4001-ad1c-980eb9f92af6.png',true],
+  ['meta-skill-schedules-v1','exec-f369ff93-ff85-4773-a196-6f4d67121165.png',false],
+  ['meta-skill-schedules-v2','exec-ef836f7e-ec20-43a8-a82a-6b3b7dbed7f5.png',false],
+  ['meta-skill-schedules-v3','exec-716d81b6-be8d-466f-a52d-a7aebbf18840.png',true],
+  ['system-coordination-v1','exec-0ac5c449-34fc-4b2d-8f5d-55c38848dbff.png',false],
+  ['system-coordination-v2','exec-352b5076-052e-4ba0-b9f4-7b5abc0698fe.png',false],
+  ['system-coordination-v3','exec-0e531d96-5253-4c2d-b390-a4fbb6040ce0.png',true]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

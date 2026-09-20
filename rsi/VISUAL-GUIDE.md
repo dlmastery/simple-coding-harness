@@ -56,6 +56,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 04.02: Connect data, models, and evidence](04_ontology_engineering/step_02_relations/README.md).
 
+## Save the state. Check the handoff.
+
+![Numbered steps read ready, save running, and fit candidate C1. Saved awaiting-check state survives a process exit. A new process checks C1; a C2 report, missing check, or unclear target cannot complete the task.](assets/illustrations/system-coordination-v3.png)
+
+*Read steps 1, 2, and 3 in order: starting the fit requires running to be saved first. Matching C1 labels connect the scenes across the process boundary. The checkmarks illustrate a possible accepted handoff, not a new measured run. A missing check leaves work pending; a wrong candidate is refused. The coordinator remains fixed. Its read-only label describes the procedure, not an independently enforced permission boundary.*
+
+[Open the illustration at full size](assets/illustrations/system-coordination-v3.png).
+
+[Lab 05.04: Coordinate planning, execution, and checking](05_system_intelligence/step_04_coordinate/README.md).
+
 ## The builder and the system it builds
 
 ![A task brief enters an unchanged meta-harness builder. It produces a separate package of skills, tools, state, checks, and limits. The package then runs a model and produces predictions and a checked report.](assets/illustrations/meta-harness-v2.png)
@@ -106,6 +116,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.08: Replay only what the history can answer](10_research_studio/02_dream_rsi/step_08_replay/README.md).
 
+## Repair a component. Check the system.
+
+![Passing and failing traces differ at a context handoff. Only the Context module changes to preserve candidate identity; the other four modules stay fixed. Original and passing cases, integration, and later transfer need separate checks.](assets/illustrations/modular-harness-v2.png)
+
+*The missing candidate ID is an original classroom example inspired by ModularRSI. A trace suggests a cause; the restricted edit still needs testing. Empty boxes mark checks to perform, not recorded passes. The same H1 identity appears before and after freezing for transfer. Keeping H1 is a possible outcome; rejection retains the prior harness. The next lab examines two edits and their interaction. This figure does not reproduce a paper benchmark.*
+
+[Open the illustration at full size](assets/illustrations/modular-harness-v2.png).
+
+[Lab 10.10: Localize a harness problem](10_research_studio/03_modular_harness_evolution/step_10_localize/README.md).
+
 ## Improve the researcher, then test the improver
 
 ![A researcher directs task search. Parent and candidate researchers are compared under the same task and total budget. A separate test uses each as an improver of an identical starting researcher, then executes their proposals.](assets/illustrations/nested-research-v2.png)
@@ -115,6 +135,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/nested-research-v2.png).
 
 [Lab 10.14: Improve the inner researcher under a total budget](10_research_studio/04_aide2/step_14_outer_research/README.md).
+
+## Improve the skill—and the way you revise it
+
+![Task skills S0, S1, and S2 change under the same updater U0. The pipeline then proposes a change to U0 itself. An accepted U1 uses its new contrasting-case rule on a later S3 proposal before keeping or rejecting it.](assets/illustrations/meta-skill-schedules-v3.png)
+
+*The notebook lines are classroom examples, not complete skills. The updater edits procedures; the task skills direct experiments. Match Activate U1 to Active U1, then follow the same new rule into the later check. Acceptance is a possible path, not a guaranteed gain. The four-line updater is a teaching simplification of MetaSkill-Evolve’s July method. Keep the external comparison fixed and measure later behavior; a saved revision or a slower schedule alone does not establish benefit.*
+
+[Open the illustration at full size](assets/illustrations/meta-skill-schedules-v3.png).
+
+[Lab 10.17: Update the skill updater on a slower schedule](10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md).
 
 ## Turn a limitation into a tested claim
 

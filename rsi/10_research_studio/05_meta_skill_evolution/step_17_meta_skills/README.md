@@ -22,13 +22,24 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ## How it works
 
-Use several task-level outcomes to motivate a less frequent updater change. Freeze the revised updater during the next task-skill round. The schedule helps separate observations used to design the updater from outcomes used to evaluate its later behavior.
+Use several task-level outcomes to motivate a less frequent updater change. Apply the existing update pipeline to its own META-SKILL-v0 instructions, keeping the original version intact. Freeze each updater during the later matched task-skill round. The schedule separates observations used to propose the updater from outcomes used to evaluate its later behavior.
 
 **A concrete example.** Several task-level outcomes expose a repeated omission: the updater tests only favorable cases. A slower meta-skill revision adds a contrasting check. Freeze that revised updater during the next task-skill round, then compare the decisions it produces with v0. Changing both layers after each result would obscure which change mattered.
+
+![Task skills S0, S1, and S2 change under the same updater U0. The pipeline then proposes a change to U0 itself. An accepted U1 uses its new contrasting-case rule on a later S3 proposal before keeping or rejecting it.](../../../assets/illustrations/meta-skill-schedules-v3.png)
+
+*The notebook lines are classroom examples, not complete skills. The updater edits procedures; the task skills direct experiments. Match Activate U1 to Active U1, then follow the same new rule into the later check. Acceptance is a possible path, not a guaranteed gain. The four-line updater is a teaching simplification of MetaSkill-Evolve’s July method. Keep the external comparison fixed and measure later behavior; a saved revision or a slower schedule alone does not establish benefit.*
+
+[Open the illustration at full size](../../../assets/illustrations/meta-skill-schedules-v3.png).
+
+<details>
+<summary>See the step diagram</summary>
 
 ![Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.](../../../assets/diagrams/lab-10-17.png)
 
 *Read the diagram:* Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.
+
+</details>
 
 ## Run the lab
 
@@ -55,27 +66,37 @@ experiment.
 Use accumulated evidence at the right level.
 
 ```text
-Review the two task-skill traces. Propose
-one META-SKILL-v1 change, with expected
-benefit, overhead, and a counterexample.
-Keep the evaluator fixed.
+Review the two task-skill traces. Use the
+diagnosis and proposal procedure in
+META-SKILL-v0, with its own instructions as
+the object to revise. Save the unchanged v0
+and one candidate v1, its motivating
+evidence, expected benefit, overhead, and
+counterexample. Keep the external evaluator
+fixed. Declare the later comparison and
+retention rule before running.
 ```
 
-**Observe:** The edit targets the update procedure.
+**Observe:** The recorded updater produces a proposal about its own procedure.
 
 ### 2. Inherit and compare
 
 Observe the slower change in later work.
 
 ```text
-Run a later task-skill improvement round
-using v1. Record the changed instruction
-that affects its action. Compare with v0
-under matched small conditions and state
-remaining uncertainty.
+From the same starting task skill and
+inputs, run one improvement round under v0
+and one under candidate v1 in separate
+folders. Allow at most two fits per arm,
+four total. Freeze each updater during its
+arm. Record where the changed instruction
+affects an action. Compare behavior and
+cost, then keep or reject v1 under the
+declared rule. Preserve negative and
+inconclusive results.
 ```
 
-**Observe:** The meta-skill revision enters actual subsequent improvement.
+**Observe:** A candidate updater governs later work; its use and benefit are assessed separately.
 
 ## Check your result
 
@@ -88,8 +109,8 @@ The agent keeps these in your lab workspace or records the original experiment p
 | Output | What to inspect |
 |---|---|
 | Accumulated trace review | Uses existing update traces with their actual updater identities and outcomes. |
-| META-SKILL-v1.md and schedule | Record the one updater edit, its intended effect, overhead, and limit. |
-| Later matched improvement record | Shows inheritance, behavior under each updater, at most four fits, and separate structure/benefit conclusions. |
+| Unchanged v0, candidate v1, and proposal trace | Show the original pipeline acting on its own instructions, the proposed edit, overhead, and limit. |
+| Later matched improvement record and retention decision | Uses the same starting task skill, at most two fits per arm, frozen updater identities, and separate structure/benefit conclusions. Separate folders do not erase shared agent context. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 

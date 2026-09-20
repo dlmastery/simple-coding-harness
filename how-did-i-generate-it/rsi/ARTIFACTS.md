@@ -14,6 +14,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Completion ledger](COURSE-COMPLETION-LEDGER.md) | Full active goal, requirement evidence, and next work | Partial completion remains explicit |
 | [Research and process illustration pass](validation/RESEARCH-AND-PROCESS-ILLUSTRATIONS.md) | AIDE², ScientistTwo, data-process art, group introductions, source corrections, and publication checks | Authoring checkpoint; full verification queued |
+| [Modular, meta-skill, and coordination figures](validation/MODULAR-META-COORDINATION-ILLUSTRATIONS.md) | Eight retained versions, three selected images, clearer updater instructions, and authoring-skill correction | Full-size review complete; published-page and execution checks queued |
 | [README guidance coverage](validation/README-GUIDANCE-COVERAGE.md) | Per-lab presence and publication checks for examples, outputs, recovery, and hints | Editorial support complete for 101 labs; not learner validation |
 | [Required activity coverage](validation/REQUIRED-ACTIVITY-COVERAGE.md) | Every lab's core actions, additional change, acceptance, evidence, and remaining gap | 63 related execution mappings; no automatic completed-lab count |
 | [Original course backups](backups/README.md) | Byte-verified original README and complete tracked RSI ZIP | Extracted from pre-rewrite commit `eed9cbb`; Git history preserved |

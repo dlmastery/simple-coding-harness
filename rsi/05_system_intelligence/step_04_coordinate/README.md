@@ -26,9 +26,20 @@ The coordinator tracks task state, chooses the next allowed action, and handles 
 
 **A concrete example.** The [live coordinator run](../../evidence/2026-09-20/live-coordinator/README.md) saved awaiting-check after fitting, exited, and read that state in a new process before checking. One fixture supplied a valid check for a different baseline. Even its prediction bytes matched, but its candidate identity did not. The handoff was rejected. Only a matching check let the actual run enter complete; a later fit request was refused.
 
+![Numbered steps read ready, save running, and fit candidate C1. Saved awaiting-check state survives a process exit. A new process checks C1; a C2 report, missing check, or unclear target cannot complete the task.](../../assets/illustrations/system-coordination-v3.png)
+
+*Read steps 1, 2, and 3 in order: starting the fit requires running to be saved first. Matching C1 labels connect the scenes across the process boundary. The checkmarks illustrate a possible accepted handoff, not a new measured run. A missing check leaves work pending; a wrong candidate is refused. The coordinator remains fixed. Its read-only label describes the procedure, not an independently enforced permission boundary.*
+
+[Open the illustration at full size](../../assets/illustrations/system-coordination-v3.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.](../../assets/diagrams/lab-05-04.png)
 
 *Read the diagram:* Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.
+
+</details>
 
 ## Run the lab
 

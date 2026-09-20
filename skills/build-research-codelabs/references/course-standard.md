@@ -121,6 +121,8 @@ Precise technical schematics may use Mermaid or SVG as a companion. Preserve the
 
 Draw measured charts from real data with plotting tools. Mark schematic curves as schematic. Do not use image generation to manufacture empirical evidence. Check source licensing before reusing a paper figure; prefer original explanatory illustrations with citations.
 
+For diagrams with several procedural levels, check what each procedure acts on. A task skill can fit models; an updater proposes and checks edits to skills. Do not give both the same checklist. Show the candidate before its check, preserve the changed rule at later use, and ensure rejection cannot lead to activation. Check accompanying run prompts for the same mechanism; a correct picture cannot repair a missing execution instruction.
+
 ## Assessment
 
 Every codelab ends with a quiz, normally four to six short questions, followed by “What's next.” Adjust length to the lab. Test recognition, interpretation of the student's result, a changed condition, and an explanation in the student's own words. Use debugging or transfer questions when useful.

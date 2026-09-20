@@ -26,9 +26,20 @@ ModularRSI organizes changes across agent loop, tool use, observation, context, 
 
 **A concrete example.** A tool correctly reports seconds, but the summary interprets the value as minutes. Changing the estimator will not repair that interface error. Restrict the candidate edit to the observation-to-report step, then test the original unit mismatch and a case whose units were already handled correctly.
 
+![Passing and failing traces differ at a context handoff. Only the Context module changes to preserve candidate identity; the other four modules stay fixed. Original and passing cases, integration, and later transfer need separate checks.](../../../assets/illustrations/modular-harness-v2.png)
+
+*The missing candidate ID is an original classroom example inspired by ModularRSI. A trace suggests a cause; the restricted edit still needs testing. Empty boxes mark checks to perform, not recorded passes. The same H1 identity appears before and after freezing for transfer. Keeping H1 is a possible outcome; rejection retains the prior harness. The next lab examines two edits and their interaction. This figure does not reproduce a paper benchmark.*
+
+[Open the illustration at full size](../../../assets/illustrations/modular-harness-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.](../../../assets/diagrams/lab-10-10.png)
 
 *Read the diagram:* Use repeated contrasting traces to localize a failure, then restrict the proposed edit to a declared module.
+
+</details>
 
 ## Run the lab
 

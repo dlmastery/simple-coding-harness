@@ -23,6 +23,8 @@ export const researchGroups = {
     exit:'Keep separate records for history collection, replay selection, and online confirmation, including their costs. A successful replay does not supply evidence for an unvisited branch.'
   },
   '03_modular_harness_evolution': {
+    figure:'10.10',
+    reading:'Find the first relevant difference between the two traces, then identify the one editable module. Predict a case where preserving candidate identity could still leave another interface broken. Follow the local check with integration and, after freezing, transfer.',
     title:'Local changes and their interactions', question:'Which component failed, and does its repair still work in the whole system?',
     intro:'Diagnose one interface or action from contrasting traces. Restrict the edit, then test how it interacts with a second change. Finish by distinguishing a lineage of changed agents from a lineage of changed improvement procedures.',
     entry:'Bring one valid and one failed workflow trace, versioned harness components, and your solver/improver map. The integration activity uses seven small fixtures and no training.',
@@ -37,6 +39,8 @@ export const researchGroups = {
     exit:'Keep inner-search traces, the outer comparison, and the separate ignition audit. A task-search gain cannot answer the role-transfer question by itself.'
   },
   '05_meta_skill_evolution': {
+    figure:'10.17',
+    reading:'The upper row changes task skills under U0. The lower row makes U0 itself the input to its update pipeline. On the right, point to the inherited rule and the action it changes. Explain separately whether the revision was used and whether it helped.',
     title:'Task skills and the skills that revise them', question:'What changes when the updater itself is revised?',
     intro:'Establish a task-skill update under one fixed meta-skill. Then use accumulated evidence to propose a less frequent updater revision and trace its effect on a later round. Keep the two version histories separate.',
     entry:'Bring task-skill traces and the same fixed-evaluator discipline used in theme 09. Prepare missing prerequisite traces explicitly instead of inventing prior rounds.',

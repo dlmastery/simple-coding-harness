@@ -4,7 +4,7 @@ User direction, 20 September 2026: prioritize diagrams, every README, and skills
 
 ## Current material
 
-All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. Fourteen selected generated illustrations now cover the overview, leakage, bounded state, graph/ontology distinction, meta-harness, self-* comparison, inherited improver, RSIAgent memory, Dream-RSI replay, ScienceBuddy pairs, AIDE² nested research, ScientistTwo experiments, the fixed data process, and compute contracts. These counts do not establish uniform visual quality or tested activities.
+All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. Seventeen selected generated illustrations now cover the overview, leakage, bounded state, graph/ontology distinction, meta-harness, self-* comparison, inherited improver, RSIAgent memory, Dream-RSI replay, ScienceBuddy pairs, AIDE² nested research, ScientistTwo experiments, the fixed data process, modular repairs, meta-skill schedules, saved-state coordination, and compute contracts. These counts do not establish uniform visual quality or tested activities.
 
 The user prefers the initial main README overview. Use that actual image as the craft reference. The ScienceBuddy redesign and RSIAgent figure establish the revised direction: concrete scenes, meaningful detail, clear causal paths, readable labels, and white backgrounds. Preserve earlier versions. Do not multiply a generic folder-and-chip template or copy the same workbench composition into every method.
 
@@ -12,7 +12,7 @@ The user prefers the initial main README overview. Use that actual image as the 
 
 | Work | Next material |
 |---|---|
-| Named research methods | AIDE² and ScientistTwo figures now embedded with group introductions; continue modular harness changes and task/meta-skill evolution |
+| Named research methods | AIDE², ScientistTwo, modular repairs, and task/meta-skill evolution are illustrated; continue the remaining mechanism groups and their lab explanations |
 | Existing research art | Revisit Dream-RSI replay and ScienceBuddy/RSIAgent captions against the initial visual standard; preserve precise scope |
 | Other research groups | Complete mechanism-specific figures for modular harness changes, task/meta-skills, procedural graphs, memory and feedback, compatibility, and economics where a visual explains a new distinction |
 | Data science foundations | Connect question, data provenance, splits, baseline, error analysis, selection, and final evaluation through the bike/wine task |

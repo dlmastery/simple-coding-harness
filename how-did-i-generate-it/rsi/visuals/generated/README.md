@@ -1,8 +1,8 @@
 # Illustrations for the RSI course
 
-Fourteen selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
+Seventeen selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
 
-All twenty-nine generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All thirty-seven generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
@@ -122,6 +122,30 @@ Selected: [v2](scientific-claim-v2.png). Prompts: [v1](scientific-claim-v1.promp
 
 V1 sent a weather input directly to an output sheet and incorrectly connected a manuscript to the new experimental records. V2 routes both permitted inputs through the with-weather model, keeps the removed feature disconnected, and routes the follow-up experiment through its records to the revised claim. It also replaces an unsupported underfitting assertion with diagnostic questions and separates the two screening ideas. The paper drawing is illustrative; no generated scientific result or venue acceptance is claimed. Added to 10.18 and the ScientistTwo group README.
 
+## Repair a component. Check the system.
+
+![A localized context edit preserves candidate identity while the neighboring modules stay fixed; integration and transfer remain separate checks.](modular-harness-v2.png)
+
+Selected: [v2](modular-harness-v2.png). Prompts: [v1](modular-harness-v1.prompt.md), [v2](modular-harness-v2.prompt.md). Earlier output: [v1](modular-harness-v1.png).
+
+V1's brackets included the edited Context module among unchanged neighbors. V2 replaces them with an explicit statement about the other four components and preserves the same H1 identity at transfer. The candidate-ID fixture is an original classroom example. Empty checkboxes do not claim execution. The retained version is a possible accepted outcome. Added to 10.10 and the modular-harness group; 10.11 extends the idea to interactions between two edits.
+
+## Improve the skill—and the way you revise it
+
+![Task skills change under U0; the pipeline then revises U0, and a possible active U1 applies its new contrasting-case rule before retaining a later proposal.](meta-skill-schedules-v3.png)
+
+Selected: [v3](meta-skill-schedules-v3.png). Prompts: [v1](meta-skill-schedules-v1.prompt.md), [v2](meta-skill-schedules-v2.prompt.md), [v3](meta-skill-schedules-v3.prompt.md). Earlier outputs: [v1](meta-skill-schedules-v1.png), [v2](meta-skill-schedules-v2.png).
+
+V1 confused updater instructions with model-fitting instructions and introduced an invalid bike-count input. V2 separates their roles, removes invented fields, and puts the later proposal before its check. It introduced an archive-to-activation arrow; v3 removes that connection and gives rejection two independent outcomes: retain U0 and archive the proposal. Matching U1 labels bridge activation and later use. The notebooks contain teaching examples, not full executable procedures. Added to 10.17 and the meta-skill group. The lab now explicitly applies the retained pipeline to its own instructions and keeps the later comparison within four fits.
+
+## Save the state. Check the handoff.
+
+![Saved running state is required before fitting; awaiting-check survives a process exit; matching evidence completes C1 while C2, missing checks, and an unclear target stop progress.](system-coordination-v3.png)
+
+Selected: [v3](system-coordination-v3.png). Prompts: [v1](system-coordination-v1.prompt.md), [v2](system-coordination-v2.prompt.md), [v3](system-coordination-v3.prompt.md). Earlier outputs: [v1](system-coordination-v1.png), [v2](system-coordination-v2.png).
+
+V1 invented station-level forecasting and routed fitting directly from ready. V2 corrects the task brief and expected C1 identity but misroutes the new start-fit arrow and leaves a disconnected elbow. V3 removes both and uses numbered actions with the explicit precondition “Requires saved running.” The genuine laptop-to-predictions route remains. Saved state bridges the new process, and failure paths cannot enter complete. Read-only is a procedural description, not a permission claim. Added to 05.04 and its theme. The image illustrates the mechanism; the existing execution record remains separate.
+
 ## Review scope
 
-All fourteen selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in actual GitHub Markdown pages at about 814 pixels wide; the main and 00.01 also at a 390-pixel viewport. During the next review, the self-* comparison was seen at reading width, but the graph figure's lower part was outside the screenshot. Do not count that as a complete graph review. Browser screenshots were observed, not exported. The user then prioritized authoring and GitHub checkpoints before the full verification pass. Viewport overrides were reset. The new RSIAgent and revised ScienceBuddy images have full-size checks; their published-width review remains queued. Dense secondary labels require full-size viewing on phones. See [the authoring plan](../../AUTHORING-FIRST.md) for the current sequence and deferred checks.
+All seventeen selected PNGs were inspected at full size for wording, arrows, fixed and mutable components, missing stages, and scientific meaning. The rejected or superseded versions remain above. After checkpoint `b7550be`, the first four assets were inspected in actual GitHub Markdown pages at about 814 pixels wide; the main and 00.01 also at a 390-pixel viewport. During the next review, the self-* comparison was seen at reading width, but the graph figure's lower part was outside the screenshot. Do not count that as a complete graph review. Browser screenshots were observed, not exported. The user then prioritized authoring and GitHub checkpoints before the full verification pass. Viewport overrides were reset. The new RSIAgent and revised ScienceBuddy images have full-size checks; their published-width review remains queued. Dense secondary labels require full-size viewing on phones. See [the authoring plan](../../AUTHORING-FIRST.md) for the current sequence and deferred checks.
