@@ -2,6 +2,8 @@
 
 [Course](../../README.md) · [Theme](../README.md)
 
+**You are here:** Theme 07, Changes and their evidence → lab 7 of 8. [Find this theme in the course map](../../COURSE-MAP.md#theme-07) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A tiny tic-tac-toe player that learns from self-play, a saved policy table, and a frozen comparison with its untrained version.

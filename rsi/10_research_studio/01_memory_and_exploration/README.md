@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 01 of 00–12 → labs 10.03–10.06. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Start with broad probes of the familiar bike task, then use their errors to choose a focused follow-up. Separate checking a result from writing a lesson about it. Freeze memory when measuring its effect, and keep current run state distinct from reusable experience.
 
 ![A curriculum selects practice. The actor executes an experiment, the verifier checks observed evidence, and the actor writes a bounded memory. After exploration, the memory is frozen and read on a later task.](../../assets/illustrations/actor-memory-v2.png)

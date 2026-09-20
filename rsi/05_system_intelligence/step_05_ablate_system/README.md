@@ -2,6 +2,8 @@
 
 [Course](../../README.md) · [Theme](../README.md)
 
+**You are here:** Theme 05, A system and its builder → lab 5 of 5. [Find this theme in the course map](../../COURSE-MAP.md#theme-05) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 An ablation that compares the system with and without one domain check.

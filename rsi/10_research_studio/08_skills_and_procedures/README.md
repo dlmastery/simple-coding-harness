@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 08 of 00–12 → labs 10.27–10.29. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Separate original traces, retained knowledge, and accepted skills. Refine a procedure graph without confusing it with a domain ontology. Then apply the same evidence discipline to a local experiment-results page and a visible UI mistake.
 
 **Start with:** Bring a failed skill proposal, the workflow graph, and saved candidate metrics. Live UI execution requires a browser-capable agent; missing capability stays explicit.

@@ -2,6 +2,8 @@
 
 [Course](../../README.md) · [Theme](../README.md)
 
+**You are here:** Theme 05, A system and its builder → lab 4 of 5. [Find this theme in the course map](../../COURSE-MAP.md#theme-05) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A coordinator that advances work only when the required artifacts and checks are present.

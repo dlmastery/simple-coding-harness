@@ -15,6 +15,11 @@ This is an editorial coverage review. It does not prove that a future course mee
 | Combine strong research with simple, patient explanation | [Teaching and writing](../../skills/build-research-codelabs/references/course-standard.md) |
 | Use classic Google Codelabs principles | [Structure and lab standard](../../skills/build-research-codelabs/references/course-standard.md) |
 | Use themed directories rather than one long flat directory | [Structure](../../skills/build-research-codelabs/references/course-standard.md) |
+| Expose per-lab intent, source instructions, and shared skills separately from run artifacts | [Lab source index](../../skills/build-research-codelabs/references/provenance.md) |
+| Expand the course map, show position, and give research studio and capstones their own infographics | [Early visual feedback](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
+| Include objectives, duration, and prerequisites near the introduction | [Early visual feedback and structure](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
+| Prioritize diagrams for feedback before full execution verification | [Illustrations and acceptance](../../skills/build-research-codelabs/references/course-standard.md) |
+| Check technical content before generation and finish within two or three attempts | [Generation discipline](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
 | Create a clear, beautiful walkthrough README with context | [Structure and navigation](../../skills/build-research-codelabs/references/course-standard.md) |
 | Students work through skills, tools, and meta-harnesses | [Execution interface](../../skills/build-research-codelabs/SKILL.md) and [RSI preset](../../skills/build-research-codelabs/references/rsi-preset.md) |
 | Students do not handwrite Python or JSON; agents can generate them | [Skills as the interface](../../skills/build-research-codelabs/references/course-standard.md) |

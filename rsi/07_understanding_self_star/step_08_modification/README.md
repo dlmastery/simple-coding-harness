@@ -2,6 +2,8 @@
 
 [Course](../../README.md) · [Theme](../README.md)
 
+**You are here:** Theme 07, Changes and their evidence → lab 8 of 8. [Find this theme in the course map](../../COURSE-MAP.md#theme-07) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A versioned edit to a learner-owned procedure with tests and rollback.

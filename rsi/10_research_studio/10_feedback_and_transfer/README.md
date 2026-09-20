@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 10 of 00–12 → labs 10.32–10.34. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Compare raw events with compact memory, distinguish action hints from richer observations, and test a local interface mismatch. These small checks make it easier to read training papers without mistaking a prompt intervention for a parameter update.
 
 **Start with:** The tutor creates exact-checker fixtures with explicit budgets. Bring the earlier information-boundary and model/harness distinctions.

@@ -9,6 +9,7 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Requirements and restart notes](RSI-STEERING-AND-RESTART.md) | The user's directions, current decisions, and how to resume |
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course structure, task choice, teaching approach, execution, and acceptance criteria |
 | [Course folder map](../../rsi/STRUCTURE.md) | Final organization, actual theme counts, lab contents, and the distinction from other repository courses |
+| [Source instructions for all labs](../../rsi/SOURCE-ARTIFACTS.md) | Every lab procedure, intent brief, authoring module, shared skill, and whole-course requirement |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Recent primary sources, reading status, gaps, and proposed lesson use |
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
 | [GitHub checkpoints](CHECKPOINTS.md) | Published milestones and the working branch |

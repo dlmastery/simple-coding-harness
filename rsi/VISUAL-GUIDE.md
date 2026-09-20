@@ -6,6 +6,36 @@ Use these illustrations to preview an idea or revisit a distinction. Follow the 
 
 These are conceptual illustrations. Measured results appear as separate plots with their data and execution records.
 
+## Your route through all twelve themes
+
+![A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](assets/illustrations/course-mindmap-v2.png)
+
+*Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.*
+
+[Open the illustration at full size](assets/illustrations/course-mindmap-v2.png).
+
+[The guided course map](COURSE-MAP.md).
+
+## Inside the research studio
+
+![The research studio contains thirteen groups across four areas: reading and retaining evidence, changing research procedures, scientific work, and composition, transfer, and assessment.](assets/illustrations/research-studio-map-v3.png)
+
+*Read group numbers 00–12 in order. The four areas organize questions; each method has its own mechanism and evidence limits. These miniature scenes are abridged explanations, not execution traces or paper results. The ScienceBuddy laptop activities use numerical and synthetic examples; they do not train an LLM. Follow the group links for the source, adaptation, and focused figure.*
+
+[Open the illustration at full size](assets/illustrations/research-studio-map-v3.png).
+
+[The research studio and its thirteen groups](10_research_studio/README.md).
+
+## The capstones: build, test, and explain
+
+![Five capstones build a new harness, run a bounded recursive comparison, test task, agent, and compute portability, audit an unfamiliar claim, and teach a project portfolio.](assets/illustrations/capstone-map-v3.png)
+
+*The portfolio connects the five activities. In 11.02, the changed rule is used in a provisional I1 trial before the keep-or-reject decision. Match starting artifacts and resources, keep the external comparison fixed, and record later behavior. Two generations and eight CPU fits are maxima, not a guarantee of useful results; also declare the inference limit. Empty portability boxes and illustrative records do not certify completed tests. Explain a gain, regression, or inconclusive result from actual evidence.*
+
+[Open the illustration at full size](assets/illustrations/capstone-map-v3.png).
+
+[The five capstone labs](11_capstones/README.md).
+
 ## From one experiment to RSI
 
 ![Three objects can change: a task model, a research skill, and the improver that revises skills. A proposed improver is checked, accepted or rejected, and an accepted version governs a later round under fixed evaluation.](assets/illustrations/main-overview-v2.png)

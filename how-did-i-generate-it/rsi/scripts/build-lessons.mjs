@@ -9,6 +9,7 @@ import {examples} from './lesson-examples.mjs';
 import {guidance} from './lesson-guidance.mjs';
 import {researchGroups} from './research-groups.mjs';
 import {renderIllustration} from './lesson-illustrations.mjs';
+import {themeCheckpoints, themeBlocks} from './course-orientation.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const rsi = resolve(repo, 'rsi');
@@ -43,6 +44,8 @@ for (let index=0; index<lessons.length; index++) {
     ? `${illustration}\n\n<details>\n<summary>See the step diagram</summary>\n\n${schematic}\n\n</details>`
     : schematic;
   const nav=`[Course](${to('README.md')}) · [Theme](${to(theme.directory+'/README.md')})`;
+  const themeLabs=lessons.filter(item=>item.theme===l.theme);
+  const location=`**You are here:** Theme ${l.theme}, ${themeBlocks[l.theme]} → lab ${themeLabs.findIndex(item=>item.id===l.id)+1} of ${themeLabs.length}. [Find this theme in the course map](${to('COURSE-MAP.md')}#theme-${l.theme}) · [Whole-course mindmap](${to('COURSE-MAP.md')}#whole-course-mindmap).`;
   const previous=prev ? `[${prev.id}: ${prev.title}](${link(folder,lessonPath(prev))}/README.md)` : `[Start here](${to('START-HERE.md')})`;
   const after=next ? `[${next.id}: ${next.title}](${link(folder,lessonPath(next))}/README.md)` : `[Teaching portfolio](${to('instructor/README.md')})`;
   const steps=l.steps.map((s,i)=>`### ${i+1}. ${s[0]}\n\n${s[1]}\n\n\`\`\`text\n${wrapPrompt(s[2])}\n\`\`\`\n\n**Observe:** ${s[3]}`).join('\n\n');
@@ -52,6 +55,8 @@ for (let index=0; index<lessons.length; index++) {
   save(resolve(folder,'README.md'), `# ${l.id} · ${l.title}
 
 ${nav}
+
+${location}
 
 ## What you will build
 
@@ -151,10 +156,33 @@ for (const [key,t] of Object.entries(themes)) {
   if (!selected.length) continue;
   const folder=resolve(rsi,t.directory);
   const themeFigure=renderIllustration(`theme-${key}`,p=>link(folder,resolve(rsi,p)));
+  const wholeMap=renderIllustration('course-map',p=>link(folder,resolve(rsi,p)));
+  const orientation=`**You are here:** Theme ${key} of 00–11 · ${themeBlocks[key]} · ${selected.length} labs. [Your place in the guided map](../COURSE-MAP.md#theme-${key}).`;
+  const mapDisclosure=`<details>\n<summary>Find theme ${key} in the whole-course mindmap</summary>\n\n${wholeMap}\n\n</details>`;
   const contents=key==='10'
     ? `The 38 studio labs form 13 connected groups. Follow them in this order; each group explains its starting evidence and what you will carry forward.\n\n| Group | Question | Labs |\n|---|---|---|\n${Object.entries(researchGroups).map(([group,g])=>{const items=selected.filter(l=>l.group===group);return `| [${g.title}](${group}/README.md) | ${g.question} | ${items[0].id}–${items.at(-1).id} |`;}).join('\n')}\n\nThe [complete course map](../COURSE-MAP.md) also lists every individual lab.`
     : `| Lab | What you will build |\n|---|---|\n${selected.map(l=>`| [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md) | ${l.build} |`).join('\n')}`;
-  save(resolve(folder,'README.md'), `# ${t.title}\n\n[Course](../README.md)\n\n${t.intro}\n\n${t.bridge}\n\n${themeFigure}\n\n${contents}\n\nStart with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).\n\n${t.exit}`);
+  save(resolve(folder,'README.md'), `# ${t.title}
+
+[Course](../README.md)
+
+${orientation}
+
+${t.intro}
+
+${t.bridge}
+
+${themeFigure || wholeMap}
+
+${themeFigure ? mapDisclosure : ''}
+
+${contents}
+
+Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
+
+**Ready to continue when:** ${themeCheckpoints[key]}
+
+${t.exit}`);
 }
 
 for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {
@@ -164,8 +192,9 @@ for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {
   if(!g) throw new Error(`Missing research-group introduction: ${group}`);
   const groupFigure=g.figure ? renderIllustration(g.figure,p=>link(folder,resolve(rsi,p))) : '';
   const opening=[g.intro,groupFigure,g.reading].filter(Boolean).join('\n\n');
-  save(resolve(folder,'README.md'), `# ${g.title}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n${opening}\n\n**Start with:** ${g.entry}\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\n**Carry forward:** ${g.exit}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
+  save(resolve(folder,'README.md'), `# ${g.title}\n\n[Research studio](../README.md) · [Course](../../README.md)\n\n**You are here:** Theme 10 → research group ${group.slice(0,2)} of 00–12 → labs ${selected[0].id}–${selected.at(-1).id}. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).\n\n${opening}\n\n**Start with:** ${g.entry}\n\n${selected.map(l=>`- [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md): ${l.build}`).join('\n')}\n\n**Carry forward:** ${g.exit}\n\nRead the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.\n`);
 }
 
-save(resolve(rsi,'COURSE-MAP.md'), `# Course map\n\n[Course](README.md)\n\nThis is the current authored sequence. The [validation record](evidence/2026-09-20/README.md) states which runs have actually been checked. A written lesson is not automatically a validated lesson.\n\n| Lab | Theme | Lesson |\n|---|---|---|\n${lessons.map(l=>`| ${l.id} | ${themes[l.theme].title} | [${l.title}](${link(rsi,lessonPath(l))}/README.md) |`).join('\n')}\n`);
+await import('./build-course-map.mjs');
 console.log(`Published ${lessons.length} lessons in ${Object.keys(themes).length} theme definitions.`);
+await import('./build-source-index.mjs');

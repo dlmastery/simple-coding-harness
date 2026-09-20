@@ -2,6 +2,8 @@
 
 [Course](../../README.md) · [Theme](../README.md)
 
+**You are here:** Theme 03, Dependable workflows → lab 4 of 6. [Find this theme in the course map](../../COURSE-MAP.md#theme-03) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A graph with one explicit repair cycle and a terminal failure path.

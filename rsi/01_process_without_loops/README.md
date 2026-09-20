@@ -2,6 +2,8 @@
 
 [Course](../README.md)
 
+**You are here:** Theme 01 of 00–11 · One experiment · 5 labs. [Your place in the guided map](../COURSE-MAP.md#theme-01).
+
 You can inspect an agent’s output. Now make the actions behind it explicit and repeatable. Run a simple data science process once, then package it as a skill.
 
 The process stays fixed. “No loops” means no learner-designed search or revision loop. The coding agent and numerical libraries can still have internal iterations.
@@ -12,6 +14,17 @@ The process stays fixed. “No loops” means no learner-designed search or revi
 
 [Open the illustration at full size](../assets/illustrations/data-science-process-v4.png).
 
+<details>
+<summary>Find theme 01 in the whole-course mindmap</summary>
+
+![A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](../assets/illustrations/course-mindmap-v2.png)
+
+*Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.*
+
+[Open the illustration at full size](../assets/illustrations/course-mindmap-v2.png).
+
+</details>
+
 | Lab | What you will build |
 |---|---|
 | [01.01 · Write the data science process](step_01_describe_the_process/README.md) | A five-action process from task framing to a checked baseline report. |
@@ -21,5 +34,7 @@ The process stays fixed. “No loops” means no learner-designed search or revi
 | [01.05 · Reuse the skill in a fresh session](step_05_reuse_the_skill/README.md) | A handoff that another session can execute from files alone. |
 
 Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
+
+**Ready to continue when:** Show a readable fixed procedure, an actual checked baseline, and enough saved context for another session to repeat it.
 
 A repeatable process gives you a useful starting point. The next theme asks what to do when that process produces a weak result.

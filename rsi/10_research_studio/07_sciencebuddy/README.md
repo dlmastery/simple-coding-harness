@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 07 of 00–12 → labs 10.22–10.26. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Start with a labelled correction about the wine report. Turn it into a rubric and revise the reporting skill. Then inspect grouped rewards numerically, simulate model–harness interactions, and audit the paper’s reported metrics. Each activity states whether it is execution, arithmetic, simulation, or source review.
 
 ![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](../../assets/illustrations/model-harness-v4.png)

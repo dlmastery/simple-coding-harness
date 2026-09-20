@@ -2,6 +2,8 @@
 
 [Course](../../../README.md) · [Theme](../../README.md)
 
+**You are here:** Theme 10, Research studio → lab 23 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A reporting-skill revision that responds to the rubric without changing model weights.

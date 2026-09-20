@@ -15,6 +15,7 @@ Keep these records:
 | Research | Dated queries, source index, paper cards, claim checks, corrections, exclusions, and reading status |
 | Work log | What was done, why it changed, what was learned, what was checked, and the next action |
 | Artifact index | Each intermediate and final artifact, its purpose, source inputs, version or hash, and status |
+| Lab source index | Direct links to each lab intent, procedure, canonical skills, and maintained authoring source; distinguish these from learner inputs and execution outputs |
 | Validation | Exact checks, environment and versions, outputs, failures, fixes, resource measurements, and limitations |
 | Restart | Current branch, checkpoint, work in progress, next step, and known blockers |
 

@@ -1,0 +1,4 @@
+Use case: precise-object-edit.
+Edit this infographic with ONE deletion only. In the upper-left panel "11.01 Build from a new brief", remove the blue elbow-shaped connector between the example-data table and the laptop. It currently has one arrowhead pointing left into the table and another pointing upward toward the laptop. Erase that whole short elbow connector and BOTH its arrowheads. Leave pure white background in its place. Do not draw any replacement line, arrow, label, or symbol there.
+
+Preserve the data table, laptop, all other arrows, the complete recursive panel, all text, five-panel composition, drawings, colors, and typography pixel-for-pixel as far as possible. Do not redesign or improve any other region. This small removal avoids an ambiguous data-flow direction; the provided data remains visibly next to the agent.

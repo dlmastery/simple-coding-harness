@@ -1,6 +1,21 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  'course-map': {
+    file: 'course-mindmap-v2.png',
+    alt: 'A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.',
+    caption: 'Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.'
+  },
+  'research-map': {
+    file: 'research-studio-map-v3.png',
+    alt: 'The research studio contains thirteen groups across four areas: reading and retaining evidence, changing research procedures, scientific work, and composition, transfer, and assessment.',
+    caption: 'Read group numbers 00–12 in order. The four areas organize questions; each method has its own mechanism and evidence limits. These miniature scenes are abridged explanations, not execution traces or paper results. The ScienceBuddy laptop activities use numerical and synthetic examples; they do not train an LLM. Follow the group links for the source, adaptation, and focused figure.'
+  },
+  'capstone-map': {
+    file: 'capstone-map-v3.png',
+    alt: 'Five capstones build a new harness, run a bounded recursive comparison, test task, agent, and compute portability, audit an unfamiliar claim, and teach a project portfolio.',
+    caption: 'The portfolio connects the five activities. In 11.02, the changed rule is used in a provisional I1 trial before the keep-or-reject decision. Match starting artifacts and resources, keep the external comparison fixed, and record later behavior. Two generations and eight CPU fits are maxima, not a guarantee of useful results; also declare the inference limit. Empty portability boxes and illustrative records do not certify completed tests. Explain a gain, regression, or inconclusive result from actual evidence.'
+  },
   '00.01': {
     file: 'target-leakage-v2.png',
     alt: 'Calendar and observed weather enter the model. Casual and registered counts add to total rentals, so their shortcut into features is blocked. Prediction and observation meet at the error check.',
@@ -90,8 +105,15 @@ export const illustrations = {
 
 // Reuse the reviewed comparison without duplicating its explanatory text.
 illustrations['theme-01']=illustrations['01.01'];
+illustrations['theme-00']=illustrations['00.01'];
+illustrations['theme-02']=illustrations['02.02'];
+illustrations['theme-04']=illustrations['04.02'];
 illustrations['theme-05']=illustrations['05.04'];
+illustrations['theme-06']=illustrations['06.02'];
 illustrations['theme-07']=illustrations['07.08'];
+illustrations['theme-09']=illustrations['09.01'];
+illustrations['theme-10']=illustrations['research-map'];
+illustrations['theme-11']=illustrations['capstone-map'];
 
 export function renderIllustration(id, to) {
   const item = illustrations[id];

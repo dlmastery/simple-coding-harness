@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 09 of 00–12 → labs 10.30–10.31. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Define the quality floor before removing redundant work. Count the cost of finding and checking the change. Then separate the quality of a generated harness from the quality of the procedure that generates harnesses.
 
 **Start with:** Bring the generated wine harness and cost ledger. Use existing fixtures where possible and retain unknown inference costs as unknown.

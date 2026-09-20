@@ -2,9 +2,28 @@
 
 [Course](../README.md)
 
+**You are here:** Theme 10 of 00–11 · Research studio · 38 labs. [Your place in the guided map](../COURSE-MAP.md#theme-10).
+
 Study the mechanism before the headline. Each studio lab maps a recent primary source to a small executable activity or an explicit result audit.
 
 Complete the foundation themes first. Laptop adaptations preserve an idea, not the scale or headline result of the original system.
+
+![The research studio contains thirteen groups across four areas: reading and retaining evidence, changing research procedures, scientific work, and composition, transfer, and assessment.](../assets/illustrations/research-studio-map-v3.png)
+
+*Read group numbers 00–12 in order. The four areas organize questions; each method has its own mechanism and evidence limits. These miniature scenes are abridged explanations, not execution traces or paper results. The ScienceBuddy laptop activities use numerical and synthetic examples; they do not train an LLM. Follow the group links for the source, adaptation, and focused figure.*
+
+[Open the illustration at full size](../assets/illustrations/research-studio-map-v3.png).
+
+<details>
+<summary>Find theme 10 in the whole-course mindmap</summary>
+
+![A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](../assets/illustrations/course-mindmap-v2.png)
+
+*Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.*
+
+[Open the illustration at full size](../assets/illustrations/course-mindmap-v2.png).
+
+</details>
 
 The 38 studio labs form 13 connected groups. Follow them in this order; each group explains its starting evidence and what you will carry forward.
 
@@ -27,5 +46,7 @@ The 38 studio labs form 13 connected groups. Follow them in this order; each gro
 The [complete course map](../COURSE-MAP.md) also lists every individual lab.
 
 Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
+
+**Ready to continue when:** Compare research systems by their changed object, feedback, inheritance, evaluation, and cost. Distinguish a source claim from your laptop adaptation and its observed result.
 
 Use the capstones to transfer the ideas to a new task and defend your conclusions with evidence.

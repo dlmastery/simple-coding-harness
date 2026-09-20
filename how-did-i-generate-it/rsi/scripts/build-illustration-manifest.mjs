@@ -43,7 +43,15 @@ const outputs=[
   ['meta-skill-schedules-v3','exec-716d81b6-be8d-466f-a52d-a7aebbf18840.png',true],
   ['system-coordination-v1','exec-0ac5c449-34fc-4b2d-8f5d-55c38848dbff.png',false],
   ['system-coordination-v2','exec-352b5076-052e-4ba0-b9f4-7b5abc0698fe.png',false],
-  ['system-coordination-v3','exec-0e531d96-5253-4c2d-b390-a4fbb6040ce0.png',true]
+  ['system-coordination-v3','exec-0e531d96-5253-4c2d-b390-a4fbb6040ce0.png',true],
+  ['course-mindmap-v1','exec-62f3ec67-edaa-4a7d-ae26-e1c3b85a0be4.png',false],
+  ['course-mindmap-v2','exec-10d4fc28-7a9e-4e4c-8264-adae4b1481ed.png',true],
+  ['research-studio-map-v1','exec-38373aae-4250-4696-a4f8-d8c07986e2cc.png',false],
+  ['research-studio-map-v2','exec-620ddafb-53bd-4c5d-86f5-461fd7d2a9f5.png',false],
+  ['research-studio-map-v3','exec-b5416c36-834a-4011-b336-8590f19cb522.png',true],
+  ['capstone-map-v1','exec-8c042091-c3e1-4f56-a72a-e64acba5af40.png',false],
+  ['capstone-map-v2','exec-e5b15904-dfb3-488f-a2d0-994861e7c058.png',false],
+  ['capstone-map-v3','exec-36f36ff9-3324-40fa-9c37-c92476b5a37f.png',true]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

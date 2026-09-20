@@ -2,6 +2,8 @@
 
 [Course](../../../README.md) · [Theme](../../README.md)
 
+**You are here:** Theme 10, Research studio → lab 22 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A task and rubric derived from a labelled researcher-request fixture.

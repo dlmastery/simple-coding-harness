@@ -2,6 +2,8 @@
 
 [Course](../README.md)
 
+**You are here:** Theme 07 of 00–11 · Changes and their evidence · 8 labs. [Your place in the guided map](../COURSE-MAP.md#theme-07).
+
 Correction, reflection, learning, improvement, organization, emergence, self-play, and modification describe different properties. They can overlap; they are not interchangeable.
 
 Most labs use the small ML workflow. Queue simulations expose organization and emergence; a tiny game exposes actual self-play learning. Ask what persists and what observation would establish a benefit.
@@ -11,6 +13,17 @@ Most labs use the small ML workflow. Queue simulations expose organization and e
 *These are examples of mechanisms, not mutually exclusive categories or a maturity ladder. A system can combine them. The self-play panel changes policy values under a fixed update rule; the modification panel changes active instructions without proving a benefit. The emergence drawing is a conceptual group-pattern analogy, not a measurement from the queue exercise. Ask what changed, what persisted, and how its effect was checked.*
 
 [Open the illustration at full size](../assets/illustrations/self-star-v2.png).
+
+<details>
+<summary>Find theme 07 in the whole-course mindmap</summary>
+
+![A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](../assets/illustrations/course-mindmap-v2.png)
+
+*Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.*
+
+[Open the illustration at full size](../assets/illustrations/course-mindmap-v2.png).
+
+</details>
 
 | Lab | What you will build |
 |---|---|
@@ -24,5 +37,7 @@ Most labs use the small ML workflow. Queue simulations expose organization and e
 | [07.08 · Make a self-modification inspectable](step_08_modification/README.md) | A versioned edit to a learner-owned procedure with tests and rollback. |
 
 Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
+
+**Ready to continue when:** For each self-* example, name what changes, what persists, and what stays fixed. Explain why a retry, memory file, or self-play update alone does not establish RSI.
 
 A mechanism can exist without helping. The next theme makes the evidence for improvement explicit.

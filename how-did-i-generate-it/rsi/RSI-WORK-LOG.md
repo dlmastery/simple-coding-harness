@@ -2,6 +2,16 @@
 
 This log records completed actions, findings, decisions, and next steps. It is a concise process record, not a raw chat transcript. Planning date: 19 September 2026.
 
+## Visual navigation and generation-efficiency correction
+
+The user asked for completed visuals first for early feedback, a clearer course map, an overall mindmap and location cues, expanded research-studio and capstone figures, and objectives/duration/prerequisites in the introduction. Added three selected maps with eight retained outputs. The capstone needed three attempts: a combined correction to the recursive comparison and audit, then deletion of one ambiguous input connector. The main overview remains the actual style reference.
+
+The user objected to wasted image-generation calls. The reusable course standard now requires a technical preflight, exact labels and relations, one combined substantive correction, no cosmetic alternatives, and at most three outputs per figure. The skill-creator workflow is used for this narrow reference update; guidance remains in the canonical package and installed copy.
+
+The course-map publisher now explains twelve theme bridges and readiness checks, all thirteen research groups, and all 101 labs. Per-lab location links and theme mindmaps make the route visible. The source index separately exposes each README, BRIEF, authoring module, and the seven shared skills. There is no claim of 101 separate native skill packages.
+
+The main README gives objectives, prerequisites, and approximately 50–82 hours of reading/discussion, calculated from existing author estimates. Independent project work, setup, and debugging are additional. Added the destination-map links. Full execution remains deferred; this is a content and visual checkpoint.
+
 ## Completed work
 
 | Step | Action | Result and implication |
@@ -307,3 +317,11 @@ Updated the reusable authoring skill to check procedural roles and align images 
 Next: dependency-graph recovery, fair improvement comparisons, and a capstone evidence map, followed by remaining research mechanisms and per-lab illustrations. Continue authoring and periodic pushes before the full verification pass. The overall completion goal remains active.
 
 Basic publication results: 101 lessons, seventeen visual-guide figures, thirty-seven archived PNGs, seventeen matching selected copies, and 2,438 valid local links. The authoring skill validates and all seven installed files match. Reviewed the generated affected pages as text; published-width review remains queued. No runtime suite or ML experiment ran in this pass.
+
+## 20 September: expose the source instructions for every codelab
+
+The previous goal turn made progress: bb81723 published three selected figures, all eight generated versions, and clearer updater instructions. Began reading graph recovery, paired comparison, and capstone labs for the next illustrations. No new image generation had started when the user asked where to find the source skills, intent, and complete lab list.
+
+Inspected the actual course map, per-lab BRIEFs, shared skills, and publishing modules. Clarified the current design: 101 READMEs and intent briefs use seven common course skills; there are no 101 independent native SKILL.md packages. Added a source-artifact index with direct links to each lab procedure, BRIEF.md, and canonical authoring module. Its opening table gives the complete course requirements, plan, reusable authoring skill, and all seven shared skills. It deliberately separates authored instructions from execution records.
+
+The lesson publisher now rebuilds this index from the actual lab collections and rejects duplicate or missing source assignments. Linked it prominently from both READMEs, the course map, folder map, skills index, and development index. Preserved the requirement for a per-lab source index in the reusable authoring skill and synchronized that installed reference. This improves discoverability; it does not claim new implementation or execution coverage. Next return to graph recovery, fair comparisons, and capstone illustrations.

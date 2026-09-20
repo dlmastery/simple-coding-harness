@@ -14,6 +14,23 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 **Begin with [Start here](START-HERE.md).** You use ordinary language and Markdown. The coding agent writes the code, configuration, tests, and launch files.
 
+To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
+
+## What you will learn
+
+By the end of the full course, you should be able to:
+
+- Build a small ML experiment from a data question through error analysis and checked evaluation.
+- Design bounded loops, dependencies, domain rules, and a harness generated from a readable brief.
+- Explain what changes in each self-* mechanism and test whether a revised improver helps later work.
+- Inspect current research, adapt its mechanism to a laptop, and defend a capstone with evidence and clear limits.
+
+**Prerequisites:** basic ML concepts—tables, features, targets, training, evaluation, and prediction error. No RSI or harness background is assumed. You need a coding agent with file and command access, a CPU laptop, and internet for setup and research. The agent writes implementation code and configuration.
+
+**Duration:** plan roughly **50–82 hours of reading and guided discussion** across 101 labs: 20–34 hours through RSI, 25–38 hours in the research studio, and 5–10 hours for capstone guidance. These are author estimates from the lab budgets, not measured student durations. Setup, debugging, deeper paper reading, and independent project work need additional time. The [guided course map](COURSE-MAP.md) gives the breakdown and readiness checks.
+
+## Start your first session
+
 Open the repository root in your coding agent and paste this first instruction. If you need the local copy, [Start here](START-HERE.md) explains the branch to clone.
 
 ```text
@@ -72,9 +89,9 @@ A meta-harness answers another question: can a procedure generate a usable harne
 
 ## Follow one learning path
 
-![Three stages: make one experiment trustworthy, build and evaluate the research system, then test inherited improvement](assets/course-overview.png)
+![A bike-demand project connects all twelve themes across one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](assets/illustrations/course-mindmap-v2.png)
 
-*The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-\* systems follow one universal ladder.*
+*Follow themes 00–11. The branches group ideas; they are not execution dependencies or a universal maturity ladder. Each lab and theme now links to its position in the [guided course map](COURSE-MAP.md). The research names shown here are examples; the studio contains thirteen groups.* [Open the mindmap at full size](assets/illustrations/course-mindmap-v2.png).
 
 The [visual guide](VISUAL-GUIDE.md) lets you preview the central mechanisms and return to their explanations, from a fixed data science process to research systems such as AIDE² and ScientistTwo. Follow the theme order below for the experiments and quizzes.
 
@@ -94,6 +111,8 @@ The [visual guide](VISUAL-GUIDE.md) lets you preview the central mechanisms and 
 | [11 · Capstones](11_capstones/README.md) | Can I build, transfer, audit, and explain a complete experiment? |
 
 The [course map](COURSE-MAP.md) links 101 authored lessons. The research studio has 38 labs in 13 themed subdirectories, including Dream-RSI, RSIAgent, ModularRSI, AIDE², ScientistTwo, ScienceBuddy, MetaRSI, and HarnessEvolve. Five capstones connect the ideas to independent work. Written coverage and completed execution validation are tracked separately. The [folder map](STRUCTURE.md) shows how themes, labs, skills, tools, illustrations, and development records fit together.
+
+Preview the destination in the expanded [research-studio map](10_research_studio/README.md) and [capstone map](11_capstones/README.md). They show the questions you will investigate and the portfolio you will assemble.
 
 Each lab explains the purpose, starting state, run prompts, expected observations, checks, and recovery. It ends with key takeaways, an explained quiz, and a next step. The tutor pauses for your prediction and interpretation.
 

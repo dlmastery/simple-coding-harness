@@ -51,6 +51,8 @@ and RSI. The advanced research studio groups 38 labs by mechanism; five
 capstones bring the ideas together. Students use natural language and
 skills while the coding agent writes the implementation. See the
 [folder map](rsi/STRUCTURE.md) and [first session](rsi/START-HERE.md).
+The [source-artifact index](rsi/SOURCE-ARTIFACTS.md) links all 101 lesson
+procedures, intent briefs, shared skills, and course-authoring materials.
 The rebuild is in progress; authored lessons and verified execution have
 separate status in the [course README](rsi/README.md).
 

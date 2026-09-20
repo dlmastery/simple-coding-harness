@@ -2,6 +2,8 @@
 
 [Course](../../../README.md) · [Theme](../../README.md)
 
+**You are here:** Theme 10, Research studio → lab 27 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 Three stores with different retention rules, including a rejected skill edit whose lesson survives.

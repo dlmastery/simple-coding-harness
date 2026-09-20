@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 06 of 00–12 → labs 10.18–10.21. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Use the bike task to write a falsifiable hypothesis, screen ideas, test a contribution, and answer a criticism with another experiment. Then inspect the difference between better research outputs and a better research procedure.
 
 ![A bike-demand limitation leads to a hypothesis, cheap screening and fuller experiments, matched weather-feature ablation, and an agent review answered by a follow-up experiment with retained records.](../../assets/illustrations/scientific-claim-v2.png)

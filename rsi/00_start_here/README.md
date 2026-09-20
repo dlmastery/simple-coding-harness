@@ -2,9 +2,28 @@
 
 [Course](../README.md)
 
+**You are here:** Theme 00 of 00–11 · One experiment · 4 labs. [Your place in the guided map](../COURSE-MAP.md#theme-00).
+
 A bike service wants an estimate of hourly demand. Before building an improving agent, learn to tell an executed prediction from a convincing description.
 
 You need basic familiarity with tables and prediction error. You do not need RSI, agent, or infrastructure experience.
+
+![Calendar and observed weather enter the model. Casual and registered counts add to total rentals, so their shortcut into features is blocked. Prediction and observation meet at the error check.](../assets/illustrations/target-leakage-v2.png)
+
+*The component counts already reveal the answer: casual + registered = total rentals. Keep them out of the input features. The checker still needs the observed total to measure error. This course uses observed weather for a retrospective teaching task; it does not assume that weather was known a day ahead.*
+
+[Open the illustration at full size](../assets/illustrations/target-leakage-v2.png).
+
+<details>
+<summary>Find theme 00 in the whole-course mindmap</summary>
+
+![A bike-demand research project connects six learning blocks and all twelve themes: one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](../assets/illustrations/course-mindmap-v2.png)
+
+*Follow theme numbers 00–11. The branches group concepts; they are not execution dependencies or a universal maturity ladder. The research names are selected examples. Use the theme number on each lesson to locate it here. This map describes the planned route, not completed experiments.*
+
+[Open the illustration at full size](../assets/illustrations/course-mindmap-v2.png).
+
+</details>
 
 | Lab | What you will build |
 |---|---|
@@ -15,4 +34,6 @@ You need basic familiarity with tables and prediction error. You do not need RSI
 
 Start with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).
 
-You are ready to continue when you can name the target, identify a measured result, and explain one way a good-looking score can mislead.
+**Ready to continue when:** Explain one prediction: its target, permitted inputs, partition, and checked error. Identify a feature that would leak the answer.
+
+The next theme turns these checked actions into a repeatable process.

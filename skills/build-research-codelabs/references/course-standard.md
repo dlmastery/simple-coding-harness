@@ -101,6 +101,10 @@ Read representative lessons aloud. Check that students can explain them in their
 
 ## Illustrations
 
+When the user wants early visual feedback, finish and show the overview maps and major mechanisms before the full execution pass. Include an overall mindmap, clear course-location links at each theme and lab, and expanded maps for the advanced studio and capstones. Introduce course objectives, prerequisites, and a clearly labelled duration estimate near the start. An inventory alone is not a guided course map.
+
+Use generation calls carefully. Before the first call, verify the figure against its lesson: exact labels, arrow directions, sequence, changed and fixed objects, version identity, and scientific claims. Supply a reviewed label list and tell the generator not to invent technical details. Aim for one usable draft; combine substantive corrections into one targeted edit and use no more than three outputs per figure. Do not regenerate for cosmetic alternatives. If the third output still has a material error, keep it as an unselected draft, explain the issue, and revise the specification before seeking further attempts. Preserve all outputs and the review record. This is the user's cost-and-quality preference for this course-authoring workflow.
+
 The saved preference is **Imagen 2.5**, a white background, professional composition, and rich but readable detail. Verify access to the requested generator. If unavailable, state the precise gap and preserve the requirement. Do not silently use another model while claiming compliance.
 
 An explicit user-approved alternative supersedes the provider preference for that project. Record the user's decision, actual tool, returned model identity when available, and remaining visual requirements. Do not reopen the same provider question or keep a stale provider blocker after approval. When the tool exposes no model identity, say so; do not infer one from appearance or a prompt. For this RSI rebuild, the user approved the available image generator on 20 September 2026.

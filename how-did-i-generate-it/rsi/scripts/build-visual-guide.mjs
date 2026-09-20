@@ -7,6 +7,9 @@ import {renderIllustration} from './lesson-illustrations.mjs';
 
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
 const topics=[
+  ['course-map','Your route through all twelve themes'],
+  ['research-map','Inside the research studio'],
+  ['capstone-map','The capstones: build, test, and explain'],
   ['09.01','From one experiment to RSI'],
   ['00.01','The answer hidden in an input'],
   ['01.01','Before the first improvement loop'],
@@ -27,8 +30,15 @@ const topics=[
 ];
 const sections=topics.map(([id,title])=>{
   const l=lessons.find(x=>x.id===id);
-  const destination=l ? `${themes[l.theme].directory}/${l.group ? l.group+'/' : ''}step_${l.id.split('.')[1]}_${l.slug}/README.md` : 'compute/README.md';
-  const label=l ? `Lab ${l.id}: ${l.title}` : 'The larger-compute guide';
+  const guides={
+    'course-map':['COURSE-MAP.md','The guided course map'],
+    'research-map':['10_research_studio/README.md','The research studio and its thirteen groups'],
+    'capstone-map':['11_capstones/README.md','The five capstone labs'],
+    'compute':['compute/README.md','The larger-compute guide']
+  };
+  if(!l && !guides[id]) throw new Error('Missing illustration destination: '+id);
+  const destination=l ? `${themes[l.theme].directory}/${l.group ? l.group+'/' : ''}step_${l.id.split('.')[1]}_${l.slug}/README.md` : guides[id][0];
+  const label=l ? `Lab ${l.id}: ${l.title}` : guides[id][1];
   return `## ${title}\n\n${renderIllustration(id,p=>p)}\n\n[${label}](${destination}).`;
 });
 writeFileSync(resolve(repo,'rsi/VISUAL-GUIDE.md'),`# A visual guide to the course\n\n[Course](README.md) · [Start here](START-HERE.md)\n\nUse these illustrations to preview an idea or revisit a distinction. Follow the [learning path](LEARNING-PATH.md) for the actual lesson order; this gallery does not replace the experiments, checks, or quizzes. Each figure links to the lab that explains its mechanism. Open dense figures at full size when reading on a phone.\n\nThese are conceptual illustrations. Measured results appear as separate plots with their data and execution records.\n\n${sections.join('\n\n')}\n`);

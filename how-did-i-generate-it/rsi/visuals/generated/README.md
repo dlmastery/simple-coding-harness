@@ -1,10 +1,36 @@
 # Illustrations for the RSI course
 
-Seventeen selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons.
+Twenty selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All thirty-seven generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All forty-five generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
+
+The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
+
+## Your route through the course
+
+![All twelve themes connect to the continuing ML research project.](course-mindmap-v2.png)
+
+Selected: [v2](course-mindmap-v2.png). Prompts: [initial](course-mindmap-v1.prompt.md), [revision](course-mindmap-v2.prompt.md). Earlier output: [v1](course-mindmap-v1.png).
+
+V2 corrects the premature RSI label on the generated harness, replaces unclear ontology edges with explicit model relations, and shows the revised improver's later use. All twelve theme numbers are present. Its grouping lines are conceptual, not execution dependencies. Embedded in the main README, guided course map, and theme orientation.
+
+## Inside the research studio
+
+![Thirteen research groups span evidence, procedure changes, scientific work, and composition and assessment.](research-studio-map-v3.png)
+
+Selected: [v3](research-studio-map-v3.png). Prompts: [v1](research-studio-map-v1.prompt.md), [v2](research-studio-map-v2.prompt.md), [v3](research-studio-map-v3.prompt.md). Earlier outputs: [v1](research-studio-map-v1.png), [v2](research-studio-map-v2.png).
+
+The review corrected an invented modular-component list, separated task-skill actions from updater actions, and removed a misleading connector. The final numbered procedure avoids a route that bypassed checking. All thirteen group IDs are present. The nearby caption distinguishes abridged scenes from actual source results and the ScienceBuddy laptop examples from LLM training.
+
+## The five capstones
+
+![Five capstones connect a generated harness, recursive comparison, portability, claim audit, and teaching portfolio.](capstone-map-v3.png)
+
+Selected: [v3](capstone-map-v3.png). Prompts: [v1](capstone-map-v1.prompt.md), [v2](capstone-map-v2.prompt.md), [v3](capstone-map-v3.prompt.md). Earlier outputs: [v1](capstone-map-v1.png), [v2](capstone-map-v2.png).
+
+The recursive panel now has four explicit stages: propose I1, run matched trials with changed-rule use, compare outcomes and cost, and keep or reject. V2 corrected automatic-looking inheritance and an audit label that presumed support; v3 removed one remaining ambiguous data connector. The map names all five labs and preserves the two-generation, eight-fit maximum. No acceptance or portability result is selected. See the [review record](../../validation/COURSE-NAVIGATION-ILLUSTRATIONS.md).
 
 ## From an experiment to RSI
 

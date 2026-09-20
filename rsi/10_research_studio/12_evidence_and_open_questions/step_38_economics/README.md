@@ -2,6 +2,8 @@
 
 [Course](../../../README.md) · [Theme](../../README.md)
 
+**You are here:** Theme 10, Research studio → lab 38 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
 ## What you will build
 
 A small resource model and an evidence checklist for an acceleration claim.

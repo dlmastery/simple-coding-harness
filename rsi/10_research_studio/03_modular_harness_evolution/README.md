@@ -2,6 +2,8 @@
 
 [Research studio](../README.md) · [Course](../../README.md)
 
+**You are here:** Theme 10 → research group 03 of 00–12 → labs 10.10–10.12. [Studio overview and mindmap](../README.md) · [Whole-course map](../../COURSE-MAP.md#theme-10).
+
 Diagnose one interface or action from contrasting traces. Restrict the edit, then test how it interacts with a second change. Finish by distinguishing a lineage of changed agents from a lineage of changed improvement procedures.
 
 ![Passing and failing traces differ at a context handoff. Only the Context module changes to preserve candidate identity; the other four modules stay fixed. Original and passing cases, integration, and later transfer need separate checks.](../../assets/illustrations/modular-harness-v2.png)

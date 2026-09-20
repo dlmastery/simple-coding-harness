@@ -18,6 +18,7 @@ simple-coding-harness/
 │   ├── START-HERE.md                 First session and agent setup
 │   ├── STRUCTURE.md                  This folder map
 │   ├── COURSE-MAP.md                 Links to all 101 labs
+│   ├── SOURCE-ARTIFACTS.md           Per-lab intents, procedures, and sources
 │   ├── LEARNING-PATH.md              Teaching blocks and checkpoints
 │   ├── VISUAL-GUIDE.md               Illustrations linked to their labs
 │   ├── GLOSSARY.md                   Terms, examples, and distinctions
@@ -68,6 +69,8 @@ For example, the first process theme uses this layout:
 ```
 
 Every lab has a README and a readable task brief. The README explains what to do, why it matters, how the mechanism works, and what evidence to inspect. It includes a concrete example, agent prompts, expected outputs, recovery guidance, key takeaways, an explained quiz, and the next lesson. Its illustrations are embedded where they help explain the mechanism.
+
+The [source-artifact index](SOURCE-ARTIFACTS.md) links every lab README and BRIEF directly. BRIEF.md is the per-lab intent file; there is no separate INTENT.md or dedicated SKILL.md in every folder. The lab-specific procedure and shared skills together guide the agent.
 
 The brief gives the agent the task and constraints. Shared skills and tools avoid copying the same implementation into every lab. Later labs ask the agent to generate a harness when that construction is the learning objective. Generated learner code, reports, and progress belong in a separate sibling `rsi-work/` workspace; the course source stays readable.
 

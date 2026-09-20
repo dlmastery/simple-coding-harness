@@ -13,3 +13,5 @@ A skill is a written procedure that a coding agent reads and follows. It can tel
 | [Scale an experiment](scale-experiment/SKILL.md) | Preserve the task contract while changing compute |
 
 These are the canonical files. Do not keep separately edited Claude, Codex, and Gemini copies. The [adapter notes](../adapters/README.md) explain the file-reading route and native discovery.
+
+For the lab-specific intent and procedure, use the [source-artifact index](../SOURCE-ARTIFACTS.md). It links all 101 READMEs and briefs, their authoring modules, and the whole-course requirements. These seven skills are shared procedures, not 101 separate native skill packages.
