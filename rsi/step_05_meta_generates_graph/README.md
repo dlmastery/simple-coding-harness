@@ -109,7 +109,103 @@ def test_bad_paths_are_refused_before_the_human():
 The recorded run (Claude Code 2.1.278, headless, two turns; the proposal
 trimmed):
 
-<!-- transcript -->
+```text
+[Skill graph-writer]
+[Read tools.md]  [Read template/* (six files)]  [Read bad_paths.json]  [Read ../tasks/01_adult_income/intent.md]
+agent> Six template files, the intent, the bad paths file and the contracts are read; no helpers exist yet under runs/graph-writer/helpers/, so I'll build them first.
+[Write runs/graph-writer/helpers/common.py (197 lines)]   [Write .../lint_pack.py (21 lines)]   [Write .../propose.py (68 lines)]   [Write .../apply.py (77 lines)]
+agent> Now fill the template into proposals/p001/ (byte-for-byte, only the placeholders replaced), then the self-check against bad_paths.json and the real lint.
+$ python - <<'EOF'
+fill = {"task": "adult_income", "task_slug": "adult-income", "task_dir": "01_adult_income", "title": "Adult Census Income (> 50k)", "metric": "roc_auc", "budget_fits": "24"}
+... (fill the six files; lint with bad_paths.json in place of paths.json; lint the real pack)
+graph.json 1194
+loop.json 479
+paths.json 5862
+schema.json 3412
+SKILL.md 2751
+--- self-check: bad_paths.json must be refused
+{"ok": false, "error": "refused: 6 problem(s)", "problems": [
+  "graph.json: cycle through load (edges into it: fit -> load)",
+  "p02: encode -> scale is not an edge of the graph",
+  "p02: one scale per path (2 found)",
+  "p02: one encode per path (2 found)",
+  "p03: model -> score_test is not an edge of the graph",
+  "p03: score_test as a step (the test sink may only be the last node, after FREEZE)"]}
+--- the real pack
+{"ok": true, "problems": []}
+agent> The self-check refused the bad paths naming the cycle fit -> load, the two-scale path (p02) and the path stepping through score_test (p03); the real pack passes. Now propose.
+$ python runs/graph-writer/helpers/propose.py .claude/skills/graph-writer ../tasks/01_adult_income --target adult-income-graph --files runs/graph-writer/adult_income/proposals/p001 --summary "adult-income-graph: the six-file graph pack filled from the template for Adult Census Income (roc_auc, 24 fits, 7-node DAG, 24 paths)"; ls runs/graph-writer/adult_income/proposals; cat runs/graph-writer/adult_income/traces.jsonl
+{"id": "p001", "target": "adult-income-graph", "summary": "...", "files": ["SKILL.md", "graph.json", "loop.json", "paths.json", "schema.json", "tools.md"], "lint": "ok", "diff_lines": 876}
+p001  p001.json
+{"event": "propose", "id": "p001", ...}
+agent> ## Proposal p001 - adult-income-graph
+Lint self-check - bad_paths.json refused (6 problems): (the six lines above)
+Lint of the real pack against T/intent.md: ok: true, problems: [].
+propose -> id p001, lint ok, 876 diff lines (all additions: the target pack does not exist yet). Nothing has landed.
+
+### graph.json - nodes / edges
+NODES
+  load          source
+  scale         operator  field=scale         values=[yes, no]
+  encode        operator  field=encode        values=[onehot, ordinal]
+  class_weight  operator  field=class_weight  values=[none, balanced]
+  model         operator  field=model         values=[logreg, rf, hgb]   hyper = the model's middle value
+  fit           sink      counts=true
+  FREEZE        gate      when: fits_used == N
+  score_test    sink      gate=freeze_only, once=true
+EDGES
+  load -> scale -> encode -> class_weight -> model -> fit -> FREEZE -> score_test
+CONSTRAINTS  one scale / one encode / one model per path; no cycles; score_test only as the last node, after FREEZE, once
+mutable: false
+
+### paths.json - baseline p01; every path walks load, scale, encode, class_weight, model, fit
+p01: scale=yes, encode=onehot,  class_weight=none,     model=logreg
+p02: scale=yes, encode=onehot,  class_weight=balanced, model=logreg
+... (20 more)
+p23: scale=no,  encode=ordinal, class_weight=none,     model=hgb
+p24: scale=no,  encode=ordinal, class_weight=balanced, model=hgb
+
+### SKILL.md   ### loop.json   ### schema.json   ### tools.md
+... (79 more lines)
+
+approve / edit / reject?
+[24 turns, 190 s]
+
+--- turn 2: claude -p --continue "edit: remove path p24"
+$ python - <<'EOF'
+(copy proposals/p001 to proposals/p001-edited; drop the path with id p24 from paths.json; lint the edited pack)
+paths: 24 -> 23 | baseline: p01
+other five files: byte-identical to p001
+--- lint the edited pack
+{"ok": true, "problems": [], "files": ["SKILL.md", "graph.json", "loop.json", "paths.json", "schema.json", "tools.md"]}
+agent> The edited pack lints clean (23 paths, DAG untouched). Writing your words to p001.approved, then applying the edited version.
+$ printf '%s' 'edit: remove path p24' > runs/graph-writer/adult_income/proposals/p001.approved && python runs/graph-writer/helpers/apply.py ... --approved "edit: remove path p24" --edited runs/graph-writer/adult_income/proposals/p001-edited
+PreToolUse:Bash hook error: gate: apply needs proposals/<id>.approved holding the user's exact words - show the proposal and ask first
+agent> The hook checks for the .approved file before the command runs, so it must exist in a separate step first.
+$ printf '%s' 'edit: remove path p24' > runs/graph-writer/adult_income/proposals/p001.approved && cat runs/graph-writer/adult_income/proposals/p001.approved
+edit: remove path p24
+$ python runs/graph-writer/helpers/apply.py .claude/skills/graph-writer ../tasks/01_adult_income p001 --approved "edit: remove path p24" --edited runs/graph-writer/adult_income/proposals/p001-edited
+{"id": "p001", "version": "gen_001", "approved": "edit: remove path p24", "edited": true, "files": ["SKILL.md", "graph.json", "loop.json", "paths.json", "schema.json", "tools.md"], "landed": [...]}
+$ python - <<'EOF'  (compare the two mirrors; count the landed paths; list the trace events)
+mirrors identical: True ['SKILL.md', 'graph.json', 'loop.json', 'paths.json', 'schema.json', 'tools.md']
+landed paths: 23 last: p23
+['propose', 'apply']
+['p001', 'p001-edited', 'p001.approved', 'p001.json']
+agent> Done - your version landed.
+- Proposal: p001 (target adult-income-graph)
+- Lint: bad_paths.json refused with the cycle fit -> load, p02's two scale nodes, and p03 stepping through score_test; the filled pack passed; the edited pack (p24 removed) passed too.
+- Decision: edit: remove path p24 - written verbatim to runs/graph-writer/adult_income/proposals/p001.approved; the edit made on a copy under proposals/p001-edited/ (only paths.json changed: 24 -> 23 paths, baseline still p01; the other five files byte-identical to the proposal).
+- Landed (apply, version gen_001): SKILL.md, tools.md, graph.json, paths.json, loop.json, schema.json into both .claude/skills/adult-income-graph/ and .agents/skills/adult-income-graph/ (mirrors verified identical). Trace: propose, apply with approved: "edit: remove path p24".
+[6 turns, 53 s]
+```
+
+What to notice: the writer's own lint found six problems in the planted
+file - more than the three the test computes, because it also names the
+edges the illegal steps break - and zero in its output, before the human saw
+anything. The proposal was shown as a node / edge list and 24 `id: bindings`
+lines, not as JSON. The edit landed as the human's version: 23 paths, five
+files untouched, the words in `p001.approved` and in the trace. And the hook
+fired again on the combined write-and-apply command, exactly as in lesson 03.
 
 Files:
 

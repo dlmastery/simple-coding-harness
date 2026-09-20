@@ -143,7 +143,103 @@ Contract: the verifier sees only {recipe, val_score, error, profile}; it never s
 
 The recorded run (Claude Code 2.1.278, headless; tool results trimmed):
 
-<!-- transcript -->
+```text
+[Skill adult-income]
+[Read tools.md]  [Read schema.json]  [Read memory.schema.json]  [Read config.md]  [Read memory.json]  [Read ../tasks/01_adult_income/intent.md]
+[Write runs/adult-income/helpers/tools.py (one module: load_splits, read_memory, fit_recipe, score_test, save_model, scorecard)]
+agent> Now the control arm: open it, then walk the static list in one call.
+$ python runs/adult-income/helpers/tools.py load_splits .claude/skills/adult-income ../tasks/01_adult_income --arm control --memory off
+{"arm": "control", "seed": 0, "problem": "adult_income", "profile": {"n_rows": 6000, "n_features": 14, "n_classes": 2, "imbalance": 0.239, "has_categorical": 1}, "split": {"train": 3300, "val": 900, "private": 600, "test": 1200}, ...}
+$ python -c "import json; json.dump(json.load(open('.claude/skills/adult-income/schema.json'))['recipes'], open('runs/adult-income/helpers/static.json','w'))" && python runs/adult-income/helpers/tools.py fit_recipe ... --arm control --recipes @runs/adult-income/helpers/static.json | ...
+1 0.9114  {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+2 0.911   ...
+... (17 0.9177 hgb onehot none; 24 rows)
+fits_left 0 FREEZE True
+$ R='{"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}' && python runs/adult-income/helpers/tools.py score_test ... --arm control --recipe "$R" && ... save_model ... && ... scorecard ... --arm control
+{"arm": "control", "recipe": {...}, "test_score": 0.9049, "error": null, "test_scored": 1}
+{"problem": "adult_income", "arm": "control", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 16, "best_val_score": 0.9177, ..., "test_score": 0.9049, "test_scored_once": true, "test_touched_before_freeze": false, "cards_active": 0, "cards_added": 0, "cards_demoted": 0}
+$ python runs/adult-income/helpers/tools.py load_splits ... --arm memory && python runs/adult-income/helpers/tools.py read_memory ... --arm memory --order obey-memory | ...
+{'memory': 'on', 'cards': 0, 'applicable': 0, 'preferred': {}, 'policy': 'static (no applicable card)', 'remaining': 72}
+$ python runs/adult-income/helpers/tools.py fit_recipe ... --arm memory --recipes @runs/adult-income/helpers/static.json | ...
+1 0.9114  {"model": "logreg", ...}
+... (the same 24 numbers as the control arm)
+fits_left 0 FREEZE True
+agent> Identical to the control arm, as the empty-memory check requires. Score, save, scorecard:
+$ ... score_test ... --arm memory --recipe "$R" ... && ... scorecard ... --arm memory
+test_score 0.9049 None
+{"problem": "adult_income", "arm": "memory", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 16, "best_val_score": 0.9177, ...}
+agent> Memory arm (round 1, empty memory) done: best val 0.9177, test 0.9049, 24 fits, 16 wasted - byte-for-byte equal to control, as expected with no cards. Now the verifier.
+[Skill adult-income-verifier]
+[Write runs/adult-income-verifier/helpers/verify.py (231 lines: read_traces, write_card)]
+$ python runs/adult-income-verifier/helpers/verify.py read_traces .claude/skills/adult-income ../tasks/01_adult_income --scope problem --tally > runs/adult-income-verifier/tally.json && python -c "... print the profile, the pair count, wins, losses, sample pairs, cards_by_rule ..."
+profile {'n_rows': 6000, 'n_features': 14, 'n_classes': 2, 'imbalance': 0.239, 'has_categorical': 1} rows 24 pairs 60
+wins {"class_weight": {"none": 8, "balanced": 4}, "encode": {"onehot": 12}, "scale": {"yes": 5, "no": 1}, "model": {"logreg": 3, "hgb": 16, "rf": 5}}
+losses {"class_weight": {"balanced": 8, "none": 4}, "encode": {"ordinal": 12}, "scale": {"no": 5, "yes": 1}, "model": {"rf": 11, "logreg": 13}}
+errored {}
+sample pairs:
+  {'field': 'class_weight', 'a': 'none', 'b': 'balanced', 'a_score': 0.9114, 'b_score': 0.911, 'result': 'win:"none"'}
+  {'field': 'encode', 'a': 'onehot', 'b': 'ordinal', 'a_score': 0.9114, 'b_score': 0.8544, 'result': 'win:"onehot"'}
+  {'field': 'model', 'a': 'logreg', 'b': 'hgb', 'a_score': 0.9114, 'b_score': 0.9177, 'result': 'win:"hgb"'}
+cards_by_rule:
+  {"if": {"key": "n_rows", "op": ">=", "value": 1000}, "then": {"field": "model", "prefer": "hgb"}, "evidence": 1, "counter": 0}
+  {"if": {"key": "n_rows", "op": ">=", "value": 1000}, "then": {"field": "model", "prefer": "logreg"}, "evidence": 0, "counter": 1}
+  {"if": {"key": "n_rows", "op": ">=", "value": 1000}, "then": {"field": "model", "prefer": "rf"}, "evidence": 0, "counter": 1}
+  {"if": {"key": "n_features", "op": ">=", "value": 10}, "then": {"field": "scale", "prefer": "yes"}, "evidence": 1, "counter": 0}
+  ... (5 more: has_categorical == 1 -> onehot; imbalance < 0.35 -> class_weight none; and the counter cards for scale no, ordinal, balanced)
+$ python runs/adult-income-verifier/helpers/verify.py write_card .claude/skills/adult-income ../tasks/01_adult_income --as .claude/skills/adult-income-verifier --cards @runs/adult-income-verifier/cards.json && diff .claude/skills/adult-income/memory.json .agents/skills/adult-income/memory.json && echo MIRRORS_EQUAL && tail -1 runs/adult-income/adult_income/memory/traces.jsonl
+{"n": 9, "new": 9, "demoted": 5, "total_on_disk": 9, "active": 4}
+MIRRORS_EQUAL
+{"event": "write_card", "as": "adult-income-verifier", "n": 9, "new": 9, "demoted": 5}
+$ python runs/adult-income/helpers/tools.py load_splits ... --arm memory-r2 | ... && python runs/adult-income/helpers/tools.py read_memory ... --arm memory-r2 --order obey-memory | ...
+memory on cards 9 applicable 4
+preferred {'model': 'hgb', 'hyper': None, 'scale': 'yes', 'encode': 'onehot', 'class_weight': 'none'}
+forbidden {'model': [], 'hyper': [], 'scale': [], 'encode': [], 'class_weight': []}
+policy obey-memory remaining 3
+  {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+  {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+  {"model": "rf", "hyper": 16, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+agent> The probe: hgb first (the preferred model), then logreg and rf, each with the preferred scale/encode/class_weight at the middle hyper.
+$ ... fit_recipe ... --arm memory-r2 --recipes @$H/next.json ... && ... read_memory ... --arm memory-r2 --order obey-memory ...
+1 0.9177  {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+2 0.9114  {"model": "logreg", "hyper": 1, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+3 0.9054  {"model": "rf", "hyper": 16, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+fits_left 21 FREEZE False
+next (remaining 69 ):
+  {"model": "hgb", "hyper": 0.1, "scale": "no", "encode": "onehot", "class_weight": "none"}
+  {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}
+  ... (the hgb family: static variants by preferred-value count, then hyper 0.05 and 0.3)
+$ for i in 1 2 3; do ... fit_recipe ... --arm memory-r2 --recipes @$H/next.json ...; ... read_memory ... --order obey-memory ...; done
+4 0.9177  {"model": "hgb", "hyper": 0.1, "scale": "no", "encode": "onehot", "class_weight": "none"}
+5 0.917   ...
+11 0.9173 {"model": "hgb", "hyper": 0.05, "scale": "yes", "encode": "onehot", "class_weight": "none"}
+12 0.9095 {"model": "hgb", "hyper": 0.3, ...}
+... (24 fits; the three surplus items of the last batch refused on budget)
+agent> FREEZE at 24 fits; the three surplus items were refused on budget without fitting. Best val is 0.9177 at fit 1. Score, save, scorecard:
+$ ... score_test ... --arm memory-r2 --recipe "$R" ... && ... scorecard ... --arm memory-r2 && python -c "... print the three scorecards side by side ..."; git status --short . | head
+{"problem": "adult_income", "arm": "memory-r2", "seed": 0, "n_fits": 24, "fits_used": 24, "wasted_fits": 0, "best_val_score": 0.9177, "best_recipe": {"model": "hgb", "hyper": 0.1, "scale": "yes", "encode": "onehot", "class_weight": "none"}, "test_score": 0.9049, ..., "cards_active": 4, "cards_added": 9, "cards_demoted": 5}
+agent> All three arms ran on ../tasks/01_adult_income (seed 0, 24 fits each, one shared helper/split).
+| arm                        | best val | test   | fits | wasted | cards active / added / demoted |
+| control (--memory off)     | 0.9177   | 0.9049 | 24   | 16     | 0 / 0 / 0 |
+| memory (empty memory.json) | 0.9177   | 0.9049 | 24   | 16     | 0 / 0 / 0 |
+| memory-r2 (9 cards)        | 0.9177   | 0.9049 | 24   | 0      | 4 / 9 / 5 |
+Every arm: test_scored_once true, test_touched_before_freeze false; score_test was run exactly once, after FREEZE.
+1. Control arm - walked the 24 static recipes in one call. Best appeared at fit 17 (the first hgb recipe), so 16 fits were wasted.
+2. Memory arm - memory.json was empty, so obey-memory degraded to static; the 24 val scores are identical to control's, number for number (the delete-the-file check).
+3. Verifier - read_traces --tally on the memory arm's log found 60 pairs one field apart; I hand-checked the first few. Net tallies: model hgb +16, logreg -10, rf -6; encode onehot +12; scale yes +4; class_weight none +4; no hyper pairs exist in the static list. Rule -> 9 cards written, 9 new, 5 demoted: 4 active prefer cards (n_rows>=1000 -> hgb, n_features>=10 -> scale yes, has_categorical==1 -> onehot, imbalance<0.35 -> class_weight none) plus 5 born-demoted counter cards (evidence 0 / counter 1) for logreg, rf, scale no, ordinal, balanced. Both mirrors are identical.
+4. memory-r2 - all 4 cards applied. The probe put hgb first with the preferred scale/encode/class_weight, and it scored the run's best (0.9177) on fit 1; then the search stayed in the hgb family. Nothing forbidden, nothing refused except the three surplus items after the 24th fit.
+What changed: wasted fits 16 -> 0. Memory moved the best recipe from fit 17 to fit 1; that's the whole effect, and it is exactly what the pass rule's "same score with fewer wasted fits" clause asks for. Best val and test score unchanged (0.9177 / 0.9049): the static list already contained the best recipe, and the extra family exploration memory-r2 bought found nothing better - so on this problem the gain is efficiency, not accuracy.
+[23 turns, 632 s]
+```
+
+What to notice: the memory arm with an empty memory reproduced the control
+arm number for number - the delete-the-file check, passed before anything
+was learned. The verifier's own `read_traces` found 60 pairs one field apart
+and turned them into nine typed cards by the rule; five of them are counter
+cards born demoted, which is how a value that lost gets remembered without
+ever being obeyed. Then `memory-r2` booted the four active cards and its
+probe put `hgb` first: the best recipe on fit 1 instead of fit 17, wasted
+fits 16 to 0, the same test score. On this problem the memory bought
+efficiency, not accuracy; the page says so, and the pass rule counts it.
 
 Files:
 

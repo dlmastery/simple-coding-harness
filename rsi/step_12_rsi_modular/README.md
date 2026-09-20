@@ -1,180 +1,154 @@
 # Lesson 12 - ModularRSI: a harness module, evolved off the benchmark
 
-ModularRSI (arXiv:2609.14857) treats the agent harness as modules - agent
-loop, tool use, observation management, context management, task completion
-detection - and evolves them one at a time on data the benchmark never
-sees. Here two actor packs share everything except `modules/context.md`:
-actor A's search policy is `static`, actor B's `obey-memory`. Both run the
-pool (two synthetic tables no curriculum or exam problem uses), the
-verifier writes the same cards into both after each pool task, and
-`contrast.py` pairs the success and the failure per task and names the one
-module file whose text differs. The meta pack patches the loser's module
-with the winner's text (`patches: ["modules/*.md"]`: any other file is
-refused) and the pool task's private split decides keep-or-rollback. The
-eval table is never used for validation. L2 -> L5 flavour: the system
-localises the bug and patches a harness module; the module boundaries and
-the pool stay human.
+ModularRSI (arXiv:2609.14857) treats the harness as modules - agent loop,
+tool use, observation management, context management, task completion - and
+evolves one at a time, validated on tasks disjoint from the benchmark. Here
+the actor's `SKILL.md` is a one-line pointer and the harness is five files
+under `modules/`. Two actors ship, `actor-a` and `actor-b`, identical except
+`modules/context.md` (one walks the static list, the other obeys memory).
+Both run the two tables of `pool/` - seeded `make_classification` tables no
+curriculum or exam problem uses - with the verifier writing to each. Then
+the meta pack's `contrast` pairs the success with the failure per pool task,
+names the one module whose text differs, and the loser gets the winner's
+module: one file, proposed, gated on the pool task's private split, never on
+the eval table. A patch that helps both actors improved the workshop, not
+one model's quirks; a benchmark-disjoint pool is what kills leaderboard
+overfitting. L2 in the choice of what to patch, L5 flavour in patching the
+harness text; the module boundaries and the pool stay human.
 
 ## Getting started
 
-New: `.claude/skills/actor-a/` and `actor-b/` (the actor split into
-`modules/agent_loop.md`, `tool_use.md`, `observation.md`, `context.md`,
-`completion.md`; `SKILL.md` only names them), `.claude/skills/modular-meta/`,
-the verifier (run once per actor), and `pool/` with two task files. One
-script: `../tools/contrast.py`. Reset after a run: `git checkout --
-.claude/skills pool`, mirror, `rm -rf runs`.
+Prerequisites: lesson 09 (the gate). This lesson ships `pool/` (two
+`intent.md` directories, `role: pool`), two five-module actors, the
+verifier (writing to whichever actor is named), and `modular-meta` with the
+`contrast` contract and `patches: ["modules/*.md"]`.
 
 ## How to execute it
 
-1. Type the prompt:
+1. Open your agent in this directory and type the prompt:
 
    ```text
-   Use the modular-meta skill: run both actors on the pool, contrast them, and patch the losing actor's module if the bug is localised.
+   Use the modular-meta skill: run both actors on the two pool tables (memory arms, the verifier after each), contrast them, patch the losing actor's differing module behind the gate, and report.
    ```
 
-   After the pool run (both actors, memory arms, the verifier for each on
-   both tasks) the meta pack runs:
+2. No approval: the gate decides on the pool task's private split.
+
+3. Headless, as recorded:
 
    ```bash
-   python ../tools/contrast.py --pack .claude/skills/modular-meta --task pool/02_pool_trees_2.json --a .claude/skills/actor-a --b .claude/skills/actor-b --tasks pool
-   python ../tools/patch_pack.py --pack .claude/skills/modular-meta --task pool/02_pool_trees_2.json --target .claude/skills/actor-a --files @runs/modular-meta/patch --recipe model=hgb,hyper=0.3,scale=yes,encode=onehot,class_weight=balanced --summary "modules/context.md <- actor-b's text" --visit 1
+   claude -p "<the prompt above>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config
    ```
 
-   No approval prompt: the pool's private gate decides.
+4. Tests: `python run_tests.py rsi`. Offline: the two actors differ in
+   exactly `context.md`; the pool's seeds are disjoint from the curriculum's;
+   the meta pack patches one module, on the pool only. `RSI_LIVE=1`: both
+   actors frozen and scored once on both pool tables; no curriculum table
+   under either actor's `runs/`; a `contrast` event naming `context.md` (or
+   `null`); if localised, a `gate` event and a version under the loser.
 
-2. By hand: patch `SKILL.md` instead - `may patch ['modules/*.md'] only`;
-   ask the meta pack to fit - `not in modular-meta's tools.md`.
-
-3. Headless: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill"`.
-   Tests: `python run_tests.py rsi`.
+5. To reset: `git checkout -- .claude .agents && rm -rf runs`.
 
 ## What it looks like
 
-`.claude/skills/actor-a/modules/context.md` - the one module the two actors
-differ in (actor B's says `obey-memory`):
+`.claude/skills/actor-a/modules/context.md` and `actor-b`'s - the one line
+that differs:
 
 ```markdown
 # Module: context
-- The cards in `memory.json` apply when their `if` holds for the profile, `evidence` >= 1 and `counter` is at most half the `evidence`.
+- The cards in `memory.json` apply when their `if` holds for the profile, `evidence` >= 1 and `counter * 2 < evidence`.
 - Search policy: static
-  (static: walk `schema.json` -> `recipes` in order, cards or no cards: `--recipes @P/schema.json`.)
-- MEMORY_OFF (`--memory off` on the arm, or `config.json`): no card is read; you run the static order.
+  (static: walk `schema.json -> recipes` in order, cards or no cards.)
+- MEMORY_OFF (`--memory off` on the arm, or `config.md`): no card is read; you run the static order.
 ```
 
-`.claude/skills/modular-meta/SKILL.md`:
+`.claude/skills/actor-a/SKILL.md` - the harness is the modules:
 
 ```markdown
----
-name: modular-meta
-description: ModularRSI's meta pack - localise a harness bug to one module by contrasting two actor packs on a benchmark-disjoint pool, patch that one module of the losing pack with the winning text, and validate on the pool's private split before it lands. Use in rsi/step_12_rsi_modular after both actors have run every pool task.
-metadata:
-  type: workflow
-  version: "2.0"
-  rsi: "on"
-  approval: gate
-  patches: ["modules/*.md"]
----
-# ModularRSI's meta pack: a module, evolved off the benchmark
+## Boot order
+1. This file. 2. `tools.md`. 3. `schema.json`, `memory.schema.json`, `config.md`, `memory.json`. 4. `modules/agent_loop.md`, `modules/tool_use.md`, `modules/observation.md`, `modules/context.md`, `modules/completion.md` - the harness is these five files, and the procedure below only says in which order to read them.
 
 ## Procedure
-2. Contrast the two actors over the pool:
-   `python ../tools/contrast.py --pack M --task T --a A --b B --tasks pool`
-   The script pairs, per pool task both actors ran, the success (higher best val) with the failure, names the one `modules/*.md` file whose text differs between the two packs (`module`), returns both texts, and the `winner`.
-3. If `winner` is null, or `module` is null (no single module differs, or several do), say so and stop: the bug is not localised.
+1. Do what `modules/agent_loop.md` says, reading `modules/context.md` for the next recipes, `modules/observation.md` for the result and `modules/completion.md` at FREEZE, under the rules of `modules/tool_use.md`.
 ```
 
-`../tools/contrast.py`:
+`.claude/skills/modular-meta/tools.md` - the contrast contract:
+
+```markdown
+- `contrast(pack, task, a, b, tasks)` - for every pool problem both actors ran (memory arms), pair the success (the higher best val) with the failure; name the one `modules/*.md` file whose text differs between the two packs (`module`; null when none or several differ), return both texts, and the `winner` (the actor that won more pool problems; null on a tie) with its best pool recipe. No fit is spent.
+```
+
+`pool/01_pool_trees_1/intent.md` - a pool problem's front matter:
+
+```markdown
+role: pool
+data:
+  kind: synthetic
+  n_samples: 500
+  n_features: 8
+  n_informative: 4
+  n_redundant: 1
+  n_clusters_per_class: 3
+  class_sep: 0.7
+  flip_y: 0.05
+  weights: [0.7, 0.3]
+  random_state: 101
+```
+
+`test_step.py`:
 
 ```python
-    differing = sorted(n for n in set(pa) | set(pb) if n.startswith("modules/") and pa.get(n) != pb.get(n))
+    assert [n for n in a if a[n] != b[n]] == ["context.md"]
 ```
 
-```python
-    winner = max((na, nb), key=lambda n: wins[n]) if decided and wins[na] != wins[nb] else None
-    module = differing[0] if len(differing) == 1 else None
-```
+The recorded run (Claude Code 2.1.278, headless; the arms trimmed, the
+contrast and the gate in full):
 
-The recorded run (Claude Code 2.1.278, headless, 33 turns, 621 s; the
-pool's fit calls trimmed to the agent's notes):
-
-```text
-[Skill modular-meta]
-agent> Only modules/context.md differs between the packs (A: static, B: obey-memory). Now the pool run -
-step 1, pool task 1, actor A first (memory arm). ... FREEZE. Best val 0.8966 with hgb,0.1,yes,onehot,balanced.
-agent> Now actor B on pool task 1 (obey-memory: read_memory prints the next eight, fit, repeat). No cards yet,
-so the policy falls back to the static order. ... Same walk as A. Best 0.8966.
-agent> Verifier for A: 4 cards written, 4 new, 0 demoted. Now the verifier with --pack B (B's log is
-identical, so the tally should be too - checking rather than assuming). Both actors now carry the same four cards.
-agent> Pool task 2 - actor A first (static walk, cards or no cards). FREEZE. Best 0.8847.
-agent> Now actor B with two applicable cards (prefer hgb, prefer scale=yes). The policy probes one recipe per
-model first (believed model hgb first, with scale=yes). ... Frozen at 24 fits. Best val 0.8945 with
-hgb,0.3,yes,onehot,balanced (first reached at t=20).
-agent> Verifier for A on task 2: 6 cards written, 4 new. Verifier for B on task 2: 8 cards written, 6 new.
-Pool run complete. Step 2 - contrast the two actors over the pool.
-$ python ../tools/contrast.py --pack .claude/skills/modular-meta --task pool/02_pool_trees_2.json --a .claude/skills/actor-a --b .claude/skills/actor-b --tasks pool
-{"pairs": [{"problem": "pool_trees_1", "skipped": "tie", ...}, {"problem": "pool_trees_2", "success": "actor-b", "failure": "actor-a", "best": {"actor-a": {"val": 0.8847, ...}, "actor-b": {"val": 0.8945, "recipe": {"model": "hgb", "hyper": 0.3, "scale": "yes", "encode": "onehot", "class_weight": "balanced"}, ...}}}],
- "modules_differing": ["modules/context.md"], "module": "modules/context.md", "winner": "actor-b", "wins": {"actor-a": 0, "actor-b": 1}, "texts": {...}, "fits_spent": 0}
-[Write runs/modular-meta/patch/modules/context.md]
-$ python ../tools/patch_pack.py --pack .claude/skills/modular-meta --task pool/02_pool_trees_2.json --target .claude/skills/actor-a --files @runs/modular-meta/patch --recipe model=hgb,hyper=0.3,scale=yes,encode=onehot,class_weight=balanced --summary "modules/context.md <- actor-b's text" --visit 1
-{"id": "g1", "decision": "y", "approved_by": "gate", "gate": {"before": 0.8737, "after": 0.879, "keep": true}, "landed": true, "version": "gen_001", "files": ["modules/context.md"], ...}
-agent> contrast.py has answered and patch_pack.py has answered once - done.
-Pool run: pool_trees_1 - A 0.8966 / B 0.8966 (no cards yet: identical walks); pool_trees_2 - A 0.8847 / B 0.8945.
-On task 2 B's two applicable cards (hgb, scale=yes) sent it into hgb's hyper variants, where
-hgb,0.3,yes,onehot,balanced beat anything on A's static grid. Contrast: pool_trees_1 tie, skipped;
-pool_trees_2 success actor-b. Module: modules/context.md - the only file whose text differs. Bug localised.
-Patch: modules/context.md <- actor-b's text; gate on the private split of pool_trees_2: before 0.8737,
-after 0.879 -> keep, landed as gen_001. Actor A now runs the obey-memory policy; the other four modules are
-untouched word for word.
-[33 turns, 621 s]
-```
-
-What to notice: the two actors' logs on pool task 1 are identical (no cards
-yet, and `obey-memory` with no applicable card is the static order), so the
-contrast is decided by one task; that is what the pool is for, and the
-verifier wrote the same cards into both packs so the only difference on
-task 2 was the module.
+<!-- transcript -->
 
 Files:
 
 ```text
 step_12_rsi_modular/
-├── README.md, test_step.py, .claude/settings.json
-├── pool/01_pool_trees_1.json, 02_pool_trees_2.json     benchmark-disjoint (1500 rows each)
-├── .claude/skills/actor-a/    SKILL.md, tools.md, schema.json, memory.json, memory.schema.json, eval.md, modules/{agent_loop,tool_use,observation,context,completion}.md
-├── .claude/skills/actor-b/    the same, context.md says obey-memory
-├── .claude/skills/adult-income-verifier/
-├── .claude/skills/modular-meta/   SKILL.md (approval: gate, patches: modules/*.md), tools.md
-└── .agents/skills/...
+├── README.md
+├── test_step.py
+├── pool/01_pool_trees_1/intent.md, 02_pool_trees_2/intent.md   the benchmark-disjoint pool
+├── .claude/settings.json
+├── .claude/skills/
+│   ├── actor-a/                      SKILL.md (a pointer), modules/{agent_loop,tool_use,observation,context,completion}.md, schema.json, memory.json ...
+│   ├── actor-b/                      the same, context.md says obey-memory
+│   ├── adult-income-verifier/        writes to whichever actor --pack names
+│   └── modular-meta/                 SKILL.md, tools.md (contrast, propose, gate ...), config.md
+├── .agents/skills/                   the same
+└── runs/                             (after a run) actor-a/, actor-b/ (pool tasks only), modular-meta/
 ```
 
 ## Governance considerations
 
-- **Who approves what.** The pool task's private gate; the module boundaries
-  (`patches:`), the allow-list and the pool are the human's.
-- **The hook.** The locked test.
-- **What the script refuses.** A patch outside `modules/*.md`; a fit for the
-  meta pack; a patch the private split scores lower (rolled back).
-- **What is and is not self-modified.** One module file of one actor, with
-  a snapshot. `SKILL.md`, `schema.json`, the verifier and the pool are not.
+- **Who approves what.** The gate, on the pool's private split. The human
+  wrote the module boundaries, the pool and the one-module rule.
+- **The hook.** As always.
+- **What the helper refuses.** `propose` refuses any file outside
+  `modules/*.md` and more than one module; `contrast` names nothing when no
+  single module differs; the eval table is never opened by the meta pack.
+- **What is and is not self-modified.** One `modules/*.md` of the losing
+  actor (versioned). The pool, the module list and the gate do not change.
+- **Attribution.** The patch is the winner's text, not the meta pack's
+  invention: ModularRSI's contrast localises, it does not compose.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| contrast names `modules/context.md` and the winner (actor B, once the cards exist; pool task 1 is a tie), spends zero fits; the meta pack cannot fit | `test_contrast_names_the_differing_module_and_the_winner` |
-| the patch touches exactly one module file, is validated on the pool task's private split (no eval-table run exists), and helps the loser on a fresh seed | `test_patch_touches_exactly_one_module_validated_on_the_pool_and_helps_the_loser` |
-| the pool is disjoint from the curriculum and the exam | `test_pool_is_disjoint_from_the_curriculum` |
-| the pack contract | `test_pack_contract` |
-| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
-
-What to notice: the pool tables carry 1500 rows because on 400-row tables
-the 40-row private split disagreed with validation (0.9427 vs 0.9068 for
-recipes ranked the other way on val) and rejected a patch that helped; a
-gate on a split that small is a coin, and the lesson says so.
+| the two actors have the same five modules and differ in `context.md` only (static vs obey-memory) | `test_two_actors_differ_in_exactly_one_module` |
+| the pool has two `role: pool` problems whose seeds are not the curriculum's | `test_the_pool_is_disjoint_from_the_curriculum` |
+| the meta pack patches one module, on the pool, behind the gate; the eval table is never used | `test_meta_patches_one_module_on_the_pool_only` |
+| the pack contract for four packs and the two pool intents | `test_front_matter` .. `test_intent_contract` |
+| the recorded run: both actors on both pool tables, no curriculum table touched, a contrast, a gate and a version when localised (`RSI_LIVE=1`) | `test_live_claude_code` |
 
 Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-[Lesson 13 - Recuris](../step_13_rsi_skill_memory/README.md). Previous:
-[Lesson 11 - RSIAgent](../step_11_rsi_agent/README.md).
+[Lesson 13 - Recuris](../step_13_rsi_skill_memory/README.md): memory as a
+skill package with a working memory. Previous:
+[lesson 11 - RSIAgent](../step_11_rsi_agent/README.md).

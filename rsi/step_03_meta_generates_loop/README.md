@@ -199,11 +199,15 @@ mirrors identical
 landed == proposal
 {"event": "propose", "id": "p001", ...}
 {"event": "apply", "id": "p001", "approved": "approve", "version": "gen_001", "files": [...]}
-agent> Landed.
-- Proposal: p001. Decision: approve (your exact word, recorded in p001.approved and in the trace's apply event).
-- Version: gen_001 (an empty snapshot under runs/adult-income-loop/versions/gen_001/ - there was no previous pack).
-- Files landed, byte-identical in both mirrors: .claude/skills/adult-income-loop/{SKILL.md, loop.json, recipes.json, schema.json, tools.md} and .agents/skills/adult-income-loop/{same five}.
-[4 turns, 44 s]
+agent> Proposal p001 - approved - landed as version gen_001 (the proposed version, unedited).
+Your words `approve` are in runs/loop-writer/adult_income/proposals/p001.approved; the trace at
+runs/loop-writer/adult_income/traces.jsonl holds the two events, propose then apply (with "approved": "approve").
+The pre-landing snapshot is runs/adult-income-loop/versions/gen_001/ (empty: the pack did not exist before).
+Files landed, byte-identical in both mirrors and identical to the proposal:
+- .claude/skills/adult-income-loop/SKILL.md, tools.md, loop.json, recipes.json, schema.json
+- .agents/skills/adult-income-loop/SKILL.md, tools.md, loop.json, recipes.json, schema.json
+Done.
+[4 turns, 33 s]
 ```
 
 What to notice: the writer read the intent, filled the template and

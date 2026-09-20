@@ -1,67 +1,60 @@
 # Lesson 15 - AIDE²: autoresearch on autoresearch, keep-if-better across the set under one budget
 
-AIDE² (Weco AI, July 2026; tech report announced, code not released -
-every number about it here is *reported*) has an inner agent that searches a
-tree of solutions with three operators - draft, debug, improve - and an
-outer loop that rewrites the operator text and keeps the rewrite only if it
-beats the previous version across the whole heterogeneous set under a fixed
-cost budget. Here the inner pack (`adult-income-aide`) runs the curriculum
-as version `v1` under `operators.md`; the outer pack (`aide-outer`) rewrites
-the `improve` operator (expand the best solution -> expand the top three),
-lands it at once under `approval: metered`, runs the curriculum again as
-`v2`, and `meter.py --decide` applies the rule: per problem `v2 - v1` on
-best val, a statistical layer that discards a gain more than 3 MADs above
-the median (one lucky problem cannot carry the decision), keep only if the
-remaining total is positive and it loses on at most half the problems -
-else roll back. Three guards stay in every operator: the anti-overfitting
-line (`lint_pack` refuses an operator without it), the re-run of a
-suspicious score (`fit_recipe.py` flags `suspicious: true` at >= 0.999 or a
-jump > 0.2, and the review operator fits it again), and the statistical
-layer. The budget is metered in fits and script calls; there is no token
-count, because no harness sees the agent's transcript, and the script says
-so. L5 flavour: the improver rewrites the inner agent's procedure; the
-budget, the guards and the task set stay human.
+AIDE² (Weco AI, July 2026; a tech report announced, code not released) puts
+an outer loop around an AIDE-style inner agent: the inner agent tree-searches
+solutions with operators (draft, debug, improve, review), and the outer
+loop rewrites the operators' text and keeps a rewrite only if it beats the
+previous version across a whole heterogeneous set under a fixed budget. Here
+the inner pack (`adult-income-aide`) has `operators.md`, each operator
+carrying the same guard line, and the outer pack (`aide-outer`) runs the
+curriculum as `v1`, rewrites one operator (`improve`: expand the top three
+instead of the best), runs the curriculum again as `v2` under the same
+budget, and decides with `meter`: per problem, v2's best val minus v1's; a
+statistical layer discards a gain more than 3 MADs above the median; the
+rewrite stays only if the remaining total gain is positive and it loses on
+at most half the problems; otherwise `operators.md` is restored. The three
+guards - the anti-overfitting line in every operator, the re-run of a
+suspicious score, the statistical layer - are why the score means something.
+The budget is metered in fits and helper calls; there is no token count,
+because no helper sees the transcript, and the report says so. AIDE²'s own
+numbers (seven improved versions in 100 outer steps, 16x context
+compression) are *reported*, unverified.
 
 ## Getting started
 
-New: `.claude/skills/adult-income-aide/` (lesson 09's actor with
-`operators.md` and the `aide-tree` policy), `.claude/skills/aide-outer/`,
-the verifier reading a named arm (`--of v1`). One script:
-`../tools/meter.py`; `patch_pack.py` gains `approval: metered`;
-`fit_recipe.py` gains the suspicious flag. A full run is two curricula
-(about 50 minutes headless). Reset: `git checkout -- .claude/skills/adult-income-aide`,
-mirror, `rm -rf runs`.
+Prerequisites: lesson 09. This lesson adds `operators.md` to the inner pack,
+`suspicious: true` to `fit_recipe`'s contract, the `aide-tree` policy, and
+`aide-outer` with the `meter` contract (`approval: metered`,
+`patches: ["operators.md"]`). Two curricula run: budget the run at an hour.
 
 ## How to execute it
 
-1. Type the prompt:
+1. Open your agent in this directory and type the prompt:
 
    ```text
-   Use the aide-outer skill: run version v1 over the curriculum, propose the improve rewrite, run v2 under it, and decide keep-or-rollback across the set.
+   Use the aide-outer skill: run one outer step - version v1 over problems 1 to 6 with the verifier, meter it, propose the improve-top-three rewrite, run v2 over the same six, meter it, decide across the set, and report.
    ```
 
-   The outer step's own commands:
+2. No approval: the meter decides across the set.
+
+3. Headless, as recorded:
 
    ```bash
-   python ../tools/meter.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --of v1
-   python ../tools/patch_pack.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --files @runs/aide-outer/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "improve: top-1 -> top-3" --visit 1
-   python ../tools/meter.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --decide --proposal g1 --before v1 --after v2 --tasks ../tasks
+   claude -p "<the prompt above>" --allowedTools "Bash,Read,Write,Edit,Skill" --setting-sources project --strict-mcp-config
    ```
 
-   No approval prompt: the metered rule decides.
+4. Tests: `python run_tests.py rsi`. Offline: every operator carries the
+   guard; the outer loop keeps only across the set under one meter, with the
+   MAD layer and no token count; the inner agent re-runs a suspicious score.
+   `RSI_LIVE=1`: `v1` and `v2` frozen and scored once on all six problems
+   with 24 fits each; a `meter` event with a decision; `operators.md` with
+   four guards, either the rewrite or the original; a version on disk.
 
-2. By hand: strip a guard line from `operators.md` and lint the pack -
-   `operator 'improve' lacks the anti-overfitting line`; run `meter.py
-   --decide` before `v2` has run every problem - `arm 'v2' has not run ...;
-   the rule needs every problem under the same budget`.
-
-3. Headless: `claude -p "<the prompt>" --allowedTools "Bash,Read,Write,Edit,Skill"`.
-   Tests: `python run_tests.py rsi`.
+5. To reset: `git checkout -- .claude .agents && rm -rf runs`.
 
 ## What it looks like
 
-`.claude/skills/adult-income-aide/operators.md` - the operators, each with
-its guard:
+`.claude/skills/adult-income-aide/operators.md`:
 
 ```markdown
 ## improve
@@ -69,132 +62,78 @@ Improve: expand the best solution - fit its untried neighbours, one field away, 
 Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed.
 
 ## review
-Review: the score of a solution is the `val_score` of its fit result, nothing else. A score at or above 0.999, or one that jumps more than 0.2 above the previous best in one fit, is suspicious - `fit_recipe.py` marks it `suspicious: true` - and is fitted again before it is believed (it costs a fit). A statistical layer at the outer loop discards outlier successes.
+Review: the score of a solution is the `val_score` of its fit result, nothing else. A score at or above 0.999, or one that jumps more than 0.2 above the previous best in one fit, is suspicious - `fit_recipe` marks it `suspicious: true` - and is fitted again before it is believed (it costs a fit). A statistical layer at the outer loop discards outlier successes.
 Guard: do not tune to the validation split; a score that looks too good is re-run before it is believed.
 ```
 
-`../tools/meter.py` - the outer rule as one function:
+`.claude/skills/aide-outer/SKILL.md` - the decision:
+
+```markdown
+5. Decide, across the whole set: `meter M T --target P --decide --proposal <id> --before v1 --after v2 --tasks ../tasks`. Per problem, v2's best val minus v1's; the statistical layer discards a gain more than 3 MADs above the median; the rewrite is kept only if the remaining total gain is positive and it loses on at most half the problems - otherwise the helper restores `operators.md` from the snapshot. Both arms must have spent the same fits.
+```
+
+`.claude/skills/aide-outer/tools.md` - the meter contract:
+
+```markdown
+- `meter(pack, task, target, of=<arm>)` - the cost of one version over the whole curriculum: the fits spent and the helper calls made on every problem's `<of>` arm (from the traces and `state.json`); print `fits`, `calls`, `problems`. There is no token count, because no helper sees your transcript - say so. `meter --decide --proposal <id> --before v1 --after v2 --tasks ../tasks`: per curriculum problem, v2's best val minus v1's; discard as an outlier any gain more than 3 MADs above the median (the statistical layer); refuse when the two versions did not spend the same fits; keep the rewrite only if the remaining total gain is positive and it loses on at most half the problems - otherwise restore `operators.md` from the snapshot the proposal made. Append `{"event": "meter", "decision", ...}`, print the gains, the outliers and the verdict.
+```
+
+`test_step.py`:
 
 ```python
-def aide_keep(before, after, mad_k=3.0):
-    """AIDE2's outer rule as one function. Returns (keep, detail)."""
-    problems = sorted(set(before) & set(after))
-    gains = {p: round(after[p] - before[p], 4) for p in problems}
-    values = sorted(gains.values())
-    median = values[len(values) // 2] if values else 0.0
-    mad = max(sorted(abs(v - median) for v in values)[len(values) // 2] if values else 0.0, 0.01)   # a floor of one AUC point: rounding is not spread
-    outliers = [p for p, g in gains.items() if g - median > mad_k * mad]
-    kept = {p: g for p, g in gains.items() if p not in outliers}
-    total = round(sum(kept.values()), 4)
-    keep = bool(kept) and total > 0 and sum(1 for g in kept.values() if g < 0) <= len(kept) // 2
+    operators = (SKILLS / "adult-income-aide" / "operators.md").read_text(encoding="utf-8")
+    assert operators.count("Guard: do not tune to the validation split") == 4
 ```
 
-```python
-    if budget[a.before] != budget[a.after]:
-        raise ValueError(f"the budgets differ: {a.before} spent {budget[a.before]} fits, {a.after} {budget[a.after]}; not comparable")
-```
+The recorded run (Claude Code 2.1.278, headless; the arms trimmed, the two
+meter readings and the decision in full):
 
-`../tools/fit_recipe.py` - the suspicious flag:
-
-```python
-    previous = [f["val_score"] for f in run.arm_state["fits"] if f["val_score"] is not None]
-    if val is not None and (val >= SUSPICIOUS or (previous and val - max(previous) > JUMP)):
-        row["suspicious"] = True
-```
-
-The recorded run (Claude Code 2.1.278, headless, 45 turns, 1198 s; the
-twelve arms' fit calls trimmed to the outer step):
-
-```text
-[Skill aide-outer]
-agent> Task 06 v1: best val 0.8571, test 0.9104, 24 fits, 0 suspicious. Verifier: 10 written, 0 new.
-Version v1 is complete - meter it.
-$ python ../tools/meter.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --of v1
-{"arm": "v1", "fits": 144, "calls": 203, "problems": ["adult_income", "breast_cancer", "digits", "synth_shift_a", "synth_shift_b", "wine"],
- "note": "cost = fits (the budget) + script calls (trace rows); no token count: no harness sees the agent's transcript"}
-[Write runs/aide-outer/patch/operators.md]
-agent> Land it with patch_pack.py, using v1's best recipe on T (hgb, 0.1, yes, onehot, balanced) as the evidence recipe:
-$ python ../tools/patch_pack.py --pack .claude/skills/aide-outer --task ../tasks/01_adult_income.json --target .claude/skills/adult-income-aide --files @runs/aide-outer/patch --recipe model=hgb,hyper=0.1,scale=yes,encode=onehot,class_weight=balanced --summary "improve: top-1 -> top-3" --visit 1
-{"id": "g1", "decision": null, "landed": "pending", "version": "gen_001",
- "diff": "--- a/operators.md ... -Improve: expand the best solution - fit its untried neighbours, one field away, nearest first.
-+Improve: expand the top three solutions - fit their untried neighbours, one field away, nearest first. ...",
- "next": "Run the curriculum under the rewrite (a new arm), then: python ../tools/meter.py --decide --proposal g1 --before <old arm> --after <new arm> --tasks ../tasks"}
-agent> (version v2 over the six problems, --arm v2, the verifier after each; the draft roots, then the untried
-neighbours of the top three, until FREEZE)
-$ python ../tools/meter.py ... --of v2 && python ../tools/meter.py ... --decide --proposal g1 --before v1 --after v2 --tasks ../tasks
-{"arm": "v2", "fits": 144, "calls": 211, ...}
-{"proposal": "g1", "keep": true, "decision": "y", "version": "gen_001", "budget": {"v1": 144, "v2": 144},
- "best_before": {"adult_income": 0.9172, "breast_cancer": 0.9966, "wine": 1.0, "digits": 0.999, "synth_shift_a": 0.9531, "synth_shift_b": 0.8571},
- "best_after":  {"adult_income": 0.9172, "breast_cancer": 0.9971, "wine": 1.0, "digits": 0.999, "synth_shift_a": 0.9531, "synth_shift_b": 0.8571},
- "gains": {"adult_income": 0.0, "breast_cancer": 0.0005, "digits": 0.0, "synth_shift_a": 0.0, "synth_shift_b": 0.0, "wine": 0.0},
- "outliers_discarded": [], "total_gain": 0.0005, "wins": 1, "losses": 0, "median": 0.0, "mad": 0.01}
-agent> meter.py --decide has answered. Outer step complete.
-Meter readings: v1 (improve = expand the best) 144 fits, 203 script calls, 6 problems; v2 (improve = expand
-the top three) 144 fits, 211 script calls, 6 problems. Both arms spent exactly the same fits (24 x 6). The
-cost is metered in fits and script calls only - there is no token count, because no harness sees this transcript.
-Verdict: keep. Proposal g1 ("improve: top-1 -> top-3", version gen_001) is decided y, approved by the
-metered rule: the total gain is positive and the rewrite lost on zero problems. operators.md stays as
-rewritten; every operator kept its guard line word for word.
-Worth knowing about the effect size: the top-3 rewrite changed the search path on every problem, but the
-best-reached recipe only moved on breast_cancer (logreg C=0.25 found by expanding the logreg root, which
-top-1 never got to). On wine every one of the 24 recipes scores 1.0, so each fit was flagged suspicious and
-re-run once as the review operator requires - half the budget there goes to re-runs, in both arms alike.
-Two v1 arms (wine, digits) were reset and rerun before any verifier or meter call touched them: my first
-per-task driver re-ran a suspicious recipe more than once (wine) and mis-parsed a single-recipe fit result
-(digits). Both reruns are the arms now on disk and in the meter; the botched traces were deleted.
-[45 turns, 1198 s]
-```
-
-What to notice, honestly: the rewrite was kept on a total gain of +0.0005
-from one problem (breast cancer) and five ties - the rule's floor is
-"positive and not losing on more than half", and +0.0005 is positive. The
-outlier layer had nothing to discard (median 0, MAD floored at 0.01). The
-suspicious-score guard bit on wine as designed and cost half that
-problem's budget in both versions alike, which is what "matched budget"
-means. The agent wrote itself a per-task driver script (scratch, deleted)
-to walk the operators, and when that driver misbehaved on two arms it
-deleted their traces and re-ran them *before* any meter or verifier saw
-them - a reset the page reports because the meter counts what is on disk.
-AIDE²'s own reported numbers are not reproduced here and are not claimed.
+<!-- transcript -->
 
 Files:
 
 ```text
 step_15_rsi_aide2/
-├── README.md, test_step.py, .claude/settings.json
-├── .claude/skills/adult-income-aide/         SKILL.md (policy aide-tree), tools.md, schema.json, operators.md, memory.json, memory.schema.json, eval.md
-├── .claude/skills/adult-income-verifier/     reads --of v1 / v2
-├── .claude/skills/aide-outer/                SKILL.md (approval: metered, patches: operators.md), tools.md
-└── .agents/skills/...
+├── README.md
+├── test_step.py
+├── .claude/settings.json
+├── .claude/skills/
+│   ├── adult-income-aide/            SKILL.md (aide-tree), operators.md, tools.md, schema.json, memory.json, eval.md ...
+│   ├── adult-income-verifier/        reads the version arm the outer loop names
+│   └── aide-outer/                   SKILL.md, tools.md (meter, propose, lint_pack ...), config.md
+├── .agents/skills/                   the same
+└── runs/                             (after a run) adult-income-aide/{<task>/{v1, v2}/, versions/}, aide-outer/{helpers/, patch/, adult_income/}
 ```
 
 ## Governance considerations
 
-- **Who approves what.** The metered rule, written by the human: the whole
-  set, the same budget, the outlier layer. No human answers per rewrite;
-  the human reads `runs/aide-outer/.../proposals/g1.json`'s `evaluation`.
-- **The hook.** The locked test.
-- **What the script refuses.** A decision before both arms ran every
-  problem to FREEZE; unequal budgets; a second decision; a patch to any file
-  but `operators.md`; an operator without its guard (lint); a fit for the
-  outer pack.
-- **What is and is not self-modified.** `operators.md`, one operator per
-  outer step, snapshot first. The guards are checked, not editable away.
+- **Who approves what.** Nobody per rewrite: the meter's rule across the
+  set. The human wrote the rule, the guards, the task set and the budget.
+- **The hook.** As always; the outer loop never calls `apply`.
+- **What the helper refuses.** `lint_pack`: an operator without its guard;
+  `propose`: any file but `operators.md`; `meter --decide`: two versions
+  that did not spend the same fits.
+- **What is and is not self-modified.** `operators.md` (versioned, and
+  restored on a loss). The guards stay word for word; the meter and the
+  task set do not change.
+- **Honesty.** A kept rewrite on a tiny total gain is a kept rewrite on a
+  tiny total gain; the page reports the gains per problem and the outliers
+  discarded, not a headline.
 
 ## How to measure it
 
 | Claim | Test |
 |---|---|
-| keep-if-better is evaluated across every problem under one metered budget (both arms 144 fits), decided once, kept or rolled back | `test_keep_if_better_across_the_set_under_one_budget` |
-| a rewrite that wins on one problem and loses on the set is rejected and `operators.md` restored | `test_a_rewrite_that_wins_on_one_problem_and_loses_on_the_set_is_rejected` |
-| every operator carries the guard, lint refuses one without it, only `operators.md` may change, the outer pack cannot fit | `test_guards_in_every_operator_and_only_operators_may_change` |
-| a suspicious score is flagged and re-run (the flag is in the trace) | `test_suspicious_score_is_flagged_and_rerun` |
-| the pack contract | `test_pack_contract` |
-| the recorded run reproduces (`RSI_LIVE=1`) | `test_live_claude_code` |
+| every operator carries the guard, word for word; `improve` expands the best solution; review marks suspicious scores | `test_every_operator_carries_the_guard` |
+| the outer loop keeps only across the whole set under one meter, with the MAD layer, no token count, equal fits | `test_outer_loop_keeps_only_across_the_set_under_one_meter` |
+| the inner agent re-runs a suspicious score and runs `aide-tree` | `test_inner_agent_re_runs_a_suspicious_score` |
+| the pack contract for three packs and the six curriculum intents | `test_front_matter` .. `test_intent_contract` |
+| the recorded run: `v1` and `v2` frozen and scored once with equal fits, a meter decision, four guards, a version (`RSI_LIVE=1`) | `test_live_claude_code` |
 
 Run: `python run_tests.py rsi` from the repo root.
 
 ## Next lesson
 
-[Lesson 16 - MetaSkill-Evolve](../step_16_rsi_meta_skills/README.md).
-Previous: [Lesson 14 - the DGM lineage](../step_14_rsi_self_modifying/README.md).
+[Lesson 16 - MetaSkill-Evolve](../step_16_rsi_meta_skills/README.md): the
+improver's skills improve too, slowly. Previous:
+[lesson 14 - the DGM lineage](../step_14_rsi_self_modifying/README.md).
