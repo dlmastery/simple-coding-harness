@@ -1,0 +1,122 @@
+# 10.06 · Separate working state from reusable experience
+
+[Course](../../../README.md) · [Theme](../../README.md)
+
+## What you will build
+
+Two memory stores with different lifetimes and update rules.
+
+## Why this matters
+
+A current candidate ID is useful state but a poor general lesson. Mixing the two makes future instructions stale.
+
+## Before you start
+
+Complete [10.05: Evaluate with memory frozen](../step_05_frozen_memory/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/10-06</code> and reports its absolute path. It checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** A completed ML trace and a partially completed new run.
+
+**Budget:** No fits. Two retrieval checks. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+Working state records the current run: active candidate, pending check, remaining budget. Reusable experience records a scoped procedure learned from prior work. The exercise separates them and checks that a new run does not inherit old spent-state values as if they were current.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.06, Separate working state from reusable experience, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Should the next task inherit the previous task’s “one attempt remaining” note?
+
+### 1. Separate the stores
+
+Give each artifact a clear lifetime.
+
+```text
+Create WORKING.md for the current run and EXPERIENCE.md for one reusable lesson. Label source run, scope, and update rule. Keep raw traces unchanged.
+```
+
+**Observe:** State and knowledge are distinguishable.
+
+### 2. Test retrieval
+
+Check what transfers to a new run.
+
+```text
+Create a new task context. Retrieve the relevant experience but initialize state from the new contract. Test a stale candidate-ID fixture and require a mismatch report.
+```
+
+**Observe:** A prior lesson transfers without importing stale run identity.
+
+## Check your result
+
+The new state reflects the new task. Experience retains its evidence and scope. Stale identities are rejected.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Merge both stores in a labelled copy and identify one ambiguous instruction that results.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Memory types have different lifetimes.
+- Experience should not overwrite current state.
+- Retrieval must preserve task identity.
+
+## Research connection
+
+[Recuris](https://arxiv.org/abs/2608.24876), 25 August 2026.
+
+This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Which store holds remaining attempts?
+2. Which store can hold a reusable diagnosis rule?
+3. Does retaining experience guarantee benefit?
+4. Why keep raw traces separate?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. Current working state, tied to a specific run.
+
+2. Experience, with scope and evidence.
+
+3. No. Retrieval and application can still be wrong.
+
+4. They preserve the original evidence when summaries change or omit details.
+
+</details>
+
+## What's next
+
+Build a discovery history that can later support replay. Continue to [10.07: Build a tree of attempted solutions](../../02_dream_rsi/step_07_discovery_tree/README.md).

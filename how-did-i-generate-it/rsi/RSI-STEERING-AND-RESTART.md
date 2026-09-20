@@ -121,4 +121,4 @@ Skill creation and local installation are complete. All seven installed files ma
 5. Keep the user's execution, writing, illustration, scale, and teaching requirements intact.
 6. Record new decisions and evidence. Checkpoint meaningful progress in GitHub.
 
-Current blueprint: 99 small labs in 12 main themes, including 36 advanced labs in 12 subdirectories. Counts are provisional. Clarity and learning dependencies take priority over reaching a particular number.
+Current implementation: 101 authored labs in 12 main themes, including 38 advanced labs in 13 subdirectories. MetaRSI and HarnessEvolve account for the additions. Shared runtime and publication checks pass. Individual clean-session walkthroughs, deeper source audits, illustrations, learner validation, and further agent/backend tests remain incomplete. Continue from IMPLEMENTATION-RECORD.md; do not rebuild the written sequence.

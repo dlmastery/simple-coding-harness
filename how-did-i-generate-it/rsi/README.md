@@ -1,6 +1,6 @@
 # How this course is being built
 
-This directory records the plan, research, user requirements, decisions, and checks behind the RSI course rebuild. The course is still in planning. The existing lessons have not been replaced.
+This directory records the plan, research, user requirements, decisions, and checks behind the RSI course rebuild. Implementation was authorized on 20 September. The new course has 101 authored labs; execution, research-depth, learner, and illustration validation remain separately tracked.
 
 Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual path from a fixed ML workflow to bounded recursive improvement, with laptop defaults and a path to larger compute.
 
@@ -10,6 +10,9 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course structure, task choice, teaching approach, execution, and acceptance criteria |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Recent primary sources, reading status, gaps, and proposed lesson use |
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
+| [Implementation record](IMPLEMENTATION-RECORD.md) | Execution design, migration, research additions, and unresolved decisions |
+| [Lesson publishing source](scripts/lesson-content.mjs) | Index of the authored lesson modules and reproducible Markdown publisher |
+| [Course evidence](../../rsi/evidence/2026-09-20/README.md) | Actual model fits, mechanism checks, and limits |
 | [Artifact index](ARTIFACTS.md) | Intermediate artifacts, source hashes, validation, and explicit retention gaps |
 | [Reusable course-building skill](../../skills/build-research-codelabs/SKILL.md) | The complete reusable method, with references and an RSI preset |
 | [Requirement coverage](SKILL-REQUIREMENT-COVERAGE.md) | Where each user instruction is preserved in the skill |

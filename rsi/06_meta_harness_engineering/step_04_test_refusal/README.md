@@ -1,0 +1,116 @@
+# 06.04 · Test the generated harness’s boundaries
+
+[Course](../../README.md) · [Theme](../README.md)
+
+## What you will build
+
+A retained valid run and two meaningful refusals from the generated harness.
+
+## Why this matters
+
+A system that only succeeds on valid inputs may still accept the mistakes it claims to prevent.
+
+## Before you start
+
+Complete [06.03: Inspect what the builder decided](../step_03_inspect_generated/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/06-04</code> and reports its absolute path. It checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** The reviewed harness and a fresh test workspace.
+
+**Budget:** One valid fit; leakage and over-budget requests must not start extra fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+A negative test supplies a specific forbidden request and checks the resulting behavior. The requested action, candidate, run, and contract must match the evidence used to decide it. An unrelated old approval or successful report must not authorize this request.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 06.04, Test the generated harness’s boundaries, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Could an old successful result from another run accidentally satisfy a weak check?
+
+### 1. Run a valid case
+
+Establish the intended path.
+
+```text
+Execute one valid baseline and retain its exact run and candidate identity. Save the completed checks.
+```
+
+**Observe:** The success evidence belongs to this run.
+
+### 2. Attempt two violations
+
+Check request-specific enforcement.
+
+```text
+Submit a leaked-feature request and an over-budget request. Also place an unrelated successful report in a separate fixture folder. Confirm it cannot authorize either request. Keep refusals and fit counts.
+```
+
+**Observe:** Rejection depends on the current request and contract.
+
+## Check your result
+
+Invalid requests do not fit models. An unrelated result cannot satisfy the current candidate’s check. All attempts and refusal costs remain visible.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Remove candidate identity from a check fixture and verify that the system treats it as incomplete evidence.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Checks must bind to the action they authorize.
+- Old success evidence is not a general permission token.
+- Refusal behavior needs execution tests.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Why test an unrelated old report?
+2. Should a missing candidate ID be accepted?
+3. Does a local refusal prove an adversarial sandbox?
+4. What is a useful failure result?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. It catches a broad search that treats any success file as sufficient evidence.
+
+2. No. The checker cannot establish which object the result describes.
+
+3. No. A host agent with write access can bypass local logic. State that boundary.
+
+4. A clear refusal tied to the actual request, with no unauthorized fit and a retained record.
+
+</details>
+
+## What's next
+
+Generate a harness for a different task to test whether the builder adapts. Continue to [06.05: Generate a classification harness](../step_05_second_task/README.md).

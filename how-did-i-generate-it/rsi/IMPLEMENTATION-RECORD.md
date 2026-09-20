@@ -30,3 +30,15 @@ An asynchronous question asks whether the user accepts the available image gener
 ### Research refresh
 
 Discovery now covers 20 August–20 September 2026. Two additional leads need method review: [MetaRSI](https://arxiv.org/abs/2609.06396), first submitted 6 September, revised 9 September; and [HarnessEvolve](https://arxiv.org/abs/2609.00829), submitted 1 September. Their abstracts and dates have been checked. They are not yet validated course methods or reproduced results.
+
+## Themed lesson checkpoint
+
+The authored sequence now contains 101 labs in 12 main themes. The research studio has 38 labs in 13 subdirectories. MetaRSI and HarnessEvolve add two dedicated mechanisms beyond the initial blueprint. The publisher and complete authored prose modules are retained under `scripts`; student READMEs contain plain-language prompts.
+
+Replaced the large RSI README with a walkthrough, start page, glossary, and instructor guide. Retired the flat legacy packs through Git; the migration guide links their historical commit. Updated root test and snippet discovery. Other course series are unchanged apart from the RSI entry in the repository map.
+
+The shared runner passes 11 tests, including 21 executed synthetic mechanism checks for graph order, joins, bounded repair, dependency invalidation, replay coverage, grouped rewards, and typed write boundaries. Navigation passes for all 101 lessons and 1,248 local targets. Seven learner skills pass validation. These checks do not establish completion of all learner prompts or independent-context RSI experiments.
+
+Relevant MetaRSI mechanism and comparison sections and HarnessEvolve reference, diagnosis, gate, and selected experiment sections were inspected. Full appendices and code reproduction remain incomplete. Research notes preserve these limits.
+
+Next: execute controlled ML walkthroughs and a representative inherited-improver exercise, retaining artifacts and failures. Review prerequisite and budget consistency. Resolve the requested image generator, inspect illustrations, and validate agent entry paths. Do not call the course finished from written coverage and component tests alone.

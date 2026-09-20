@@ -1,0 +1,122 @@
+# 10.28 · Refine a procedure graph
+
+[Course](../../../README.md) · [Theme](../../README.md)
+
+## What you will build
+
+A small procedure graph with one tested transition edit and retained rejected proposals.
+
+## Why this matters
+
+A long instruction document can obscure the next relevant action. A graph can make local decisions explicit.
+
+## Before you start
+
+Complete [10.27: Keep traces, knowledge, and active skills separate](../step_27_wiki/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/10-28</code> and reports its absolute path. It checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** The ML workflow graph, success and failure traces, and domain ontology.
+
+**Budget:** One graph edit and two checks; at most two fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+A procedural graph represents actions and transitions. Our exercise gives the executor the current node and relevant local guidance, then proposes one transition repair from traces. The domain ontology still describes entities and meaning. These are different graphs. Freeze the selected procedure before a fresh evaluation.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.28, Refine a procedure graph, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Can changing a transition fix a workflow without changing any domain definition?
+
+### 1. Localize the procedure
+
+Show only guidance needed for the next action.
+
+```text
+Generate a small procedure runner from the existing workflow. At each node expose its inputs, action, stop condition, and neighboring transitions. Keep the domain facts separate.
+```
+
+**Observe:** The runner follows an execution structure, not an ontology.
+
+### 2. Refine one transition
+
+Test the change before promotion.
+
+```text
+Use one success and one failure to propose a transition edit. Run selection checks, preserve rejected edits, freeze the chosen graph, and test a fresh fixture.
+```
+
+**Observe:** Selection performance and fresh-test performance remain distinct.
+
+## Check your result
+
+The edited graph actually runs. Its test result is not replaced by the best intermediate selection score. Ontology and procedure remain separate.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Introduce a validly typed but semantically wrong feature. Explain why the procedure graph still needs domain checks.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Procedural graphs organize actions.
+- Ontologies describe domain meaning.
+- Graph edits need selection and fresh evaluation.
+
+## Research connection
+
+[Procedural Graphs](https://arxiv.org/abs/2609.09153), 8 September 2026.
+
+This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Is a procedure graph an ontology?
+2. What does local guidance change?
+3. Why keep rejected graph edits?
+4. Which graph version should be evaluated finally?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. No. They can share objects but encode different relationships and purposes.
+
+2. The information presented for the current execution decision.
+
+3. They record search costs and prevent repeating known failures.
+
+4. The frozen retained version, not whichever intermediate version later looks best.
+
+</details>
+
+## What's next
+
+Apply reflection and skill revision to a small visual interface task. Continue to [10.29: Repair a skill for an experiment-results page](../step_29_gui/README.md).

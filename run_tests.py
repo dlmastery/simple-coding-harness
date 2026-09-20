@@ -21,7 +21,7 @@ for step in sorted(ROOT.glob("step_*/")):
     if numbers and int(step.name.split("_")[1]) not in numbers:
         continue
     steps.append(step)
-for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/step_*/"))):
+for step in sorted(ROOT.glob("genui/*/step_*/")):
     rel = step.relative_to(ROOT).as_posix()
     if numbers and not prefixes:
         continue
@@ -29,10 +29,16 @@ for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/step
         continue
     steps.append(step)
 
+# RSI now uses themed lessons and shared behavior tests, not copied per-step tests.
+include_rsi = (not numbers and not prefixes) or any(p == "rsi" or p.startswith("rsi/") for p in prefixes)
+if include_rsi:
+    steps.append(ROOT / "rsi" / "maintenance")
+
 failed = []
 for step in steps:
     result = subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "test_step.py"],
+        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+         "." if step == ROOT / "rsi" / "maintenance" else "test_step.py"],
         cwd=step, capture_output=True, text=True,
     )
     verdict = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else result.stderr.strip()[-200:]
@@ -42,5 +48,10 @@ for step in steps:
         failed.append(label)
         tail = "\n".join((result.stdout + result.stderr).strip().splitlines()[-40:])
         print("\n".join("    " + line for line in tail.splitlines()))
+
+if include_rsi:
+    publication = subprocess.run([sys.executable, str(ROOT / "rsi/maintenance/check_course.py")])
+    if publication.returncode:
+        failed.append("rsi/publication")
 
 sys.exit(1 if failed else 0)

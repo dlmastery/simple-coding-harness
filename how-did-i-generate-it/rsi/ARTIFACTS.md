@@ -1,12 +1,12 @@
 # Artifact index
 
-This index covers the current planning and skill-building phase. Git history preserves changes after the first checkpoint. The existing RSI course remains unchanged.
+This index covers planning, reusable skills, and implementation. The old RSI course remains in Git history. The replacement is authored and undergoing validation.
 
 ## Checked-in project artifacts
 
 | Artifact | Purpose | Status |
 |---|---|---|
-| [Master plan](RSI-MASTERCLASS-PLAN.md) | Course design and implementation plan | Proposed; awaiting plan approval |
+| [Master plan](RSI-MASTERCLASS-PLAN.md) | Course design and implementation plan | Implementation authorized 20 September |
 | [Steering and restart](RSI-STEERING-AND-RESTART.md) | Current user requirements and state | Maintained with steering |
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Primary sources and reading status | Broad sweep complete; deeper reviews remain |
@@ -27,6 +27,14 @@ Raw external website dumps are not republished. Source links, dates, reading sta
 
 Earlier planning drafts were overwritten before the first Git checkpoint and are not recoverable as original files here. Their consequential changes are described in the work log. Do not mistake a reconstructed narrative for an archived draft. All subsequent meaningful revisions and intermediate artifacts must be checkpointed as they are produced.
 
-## Future artifacts
+## Implementation artifacts
 
-When implementation is approved, add lesson drafts, generated tools, failed runs, accepted runs, plots, image prompts and revisions, visual reviews, compatibility checks, compute records, and migration evidence. Use versioned files or Git history. For large artifacts, use an authorized store and a checked-in manifest with version, hash, and retrieval instructions.
+The [course map](../../rsi/COURSE-MAP.md) indexes 101 authored lessons. Their complete source prose is retained in the lesson modules beside [build-lessons.mjs](scripts/build-lessons.mjs). The publisher produces the themed READMEs, briefs, and navigation. Intermediate builds contained 15, 26, 58, and then 101 lessons. These temporary navigation outputs were regenerated before this checkpoint; the authored source modules are retained, but each transient navigation draft was not separately committed.
+
+The [tool directory](../../rsi/tools/README.md) contains agent-written implementation. Original licensed dataset archives and attribution are in `rsi/examples`. Actual model predictions, reports, charts, and synthetic mechanism-check outputs are in [the dated evidence directory](../../rsi/evidence/2026-09-20/README.md). Validation command outputs and installed versions are retained here under `validation`.
+
+The first publisher invocation failed because three inline Markdown backticks were not escaped inside a JavaScript template. They were changed to HTML code tags; subsequent publication succeeded. The original error was observed in tool output; this note records the correction rather than claiming an archived broken source version.
+
+An optional cleanup of ignored legacy Python cache directories was blocked by automatic command policy. The cache directories were left in place. Navigation discovery now ignores directories without a README. Tracked legacy course files were removed through Git after their paths were verified; their history and migration mapping remain available.
+
+Illustration prompts, generated assets, visual review, complete clean-session lab walkthroughs, and target-backend compatibility evidence remain to be added. No missing artifact is represented as already produced.

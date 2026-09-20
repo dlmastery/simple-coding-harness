@@ -1,0 +1,122 @@
+# 10.26 · Read the ScienceBuddy results precisely
+
+[Course](../../../README.md) · [Theme](../../README.md)
+
+## What you will build
+
+A result audit that separates single-attempt accuracy, multi-attempt coverage, and feedback provenance.
+
+## Why this matters
+
+Similar-looking percentages can describe different experiments and support different claims.
+
+## Before you start
+
+Complete [10.25: Track model–harness pairs across cycles](../step_25_coevolution/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/10-26</code> and reports its absolute path. It checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** The primary paper’s method, evaluation, and results sections; your numerical and harness exercises.
+
+**Budget:** No training or fits. One source-linked audit and arithmetic check. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+The paper reports held-out single-attempt accuracy rising from 42.2% to 73.3% across three coupled cycles: a 31.1 percentage-point gain. That is not a 31.1% relative increase. Keep this result separate from validation-only harness changes and multi-attempt coverage. Distinguish real researcher interactions, simulated procedural feedback, and rubric-derived training rewards.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.26, Read the ScienceBuddy results precisely, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Would pass-at-four coverage be directly comparable with single-attempt accuracy?
+
+### 1. Reconstruct the comparison
+
+Read definitions beside numbers.
+
+```text
+Create RESULTS-AUDIT.md with each selected metric, split, number of attempts, baseline, final value, feedback source, and paper section. Recompute percentage-point and relative changes with a small tool.
+```
+
+**Observe:** The same number can mean different things under different denominators.
+
+### 2. Audit the mechanism claim
+
+Separate changed and fixed components.
+
+```text
+Map the reported harness and weight changes, coupled cycles, and fixed reflector. Contrast the full study with your laptop exercises. State what you did not reproduce and what would require GPU training.
+```
+
+**Observe:** The classroom record and paper record remain distinct.
+
+## Check your result
+
+The audit reports 31.1 percentage points correctly. It does not mix coverage, validation, and held-out single-attempt metrics. Feedback sources are not all called human.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Rewrite an overbroad headline as a source-scoped statement including task family, metric, and reported-evidence status.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Metric definitions belong beside results.
+- Human-grounded systems can also use synthetic and model-derived feedback.
+- Co-evolution does not imply that every component changes.
+
+## Research connection
+
+[ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
+
+This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. What is the percentage-point change?
+2. Why is pass-at-four different?
+3. Did the laptop lab reproduce the training result?
+4. Why identify the fixed reflector?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. 73.3 minus 42.2 equals 31.1 percentage points.
+
+2. It allows multiple attempts and measures coverage under that opportunity, not one-attempt accuracy.
+
+3. No. It ran harness checks and numerical or synthetic illustrations.
+
+4. It prevents claiming that every improvement component recursively changed.
+
+</details>
+
+## What's next
+
+Compare ways of storing experience and refining reusable procedures. Continue to [10.27: Keep traces, knowledge, and active skills separate](../../08_skills_and_procedures/step_27_wiki/README.md).

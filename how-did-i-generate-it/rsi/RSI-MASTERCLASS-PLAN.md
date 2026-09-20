@@ -50,7 +50,7 @@ The transcript is a source of questions and proposed ideas. Its claims will ente
 
 ## 3. The course architecture
 
-Working blueprint: **99 small labs across 12 themes**, including **36 advanced labs in 12 themed subdirectories**. The wider research sweep adds eight distinct experiments. The count is provisional: beginner walkthroughs may split or combine labs. Learning dependencies and clarity determine the final count.
+Initial blueprint: **99 small labs across 12 themes**, including **36 advanced labs in 12 themed subdirectories**. The 20 September implementation adds MetaRSI and HarnessEvolve, giving **101 authored labs and 38 advanced labs in 13 subdirectories**. The detailed tables below preserve the planning baseline; the [current course map](../../rsi/COURSE-MAP.md) is authoritative for implemented IDs and navigation. Learning dependencies and clarity determine the count.
 
 ```text
 rsi/

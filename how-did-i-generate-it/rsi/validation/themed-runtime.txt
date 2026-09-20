@@ -1,0 +1,3 @@
+Checked 101 lessons and 1248 local links.
+0 publication problems.
+rsi/maintenance                              11 passed in 2.59s

@@ -77,3 +77,11 @@ Created a small shared experiment tool and seven canonical course skills. Downlo
 Eight new behavioral tests passed. The previous course's offline suites passed; 19 live checks were skipped. Five actual CPU fits and two data inspections produced retained reports, predictions, timings, and charts in `rsi/evidence/2026-09-20/`. The linear bike candidate outperformed the tested tree candidate; no guaranteed improvement is implied. Total agent cost and peak memory were not measured.
 
 The student lesson layer and complete theme expansion remain in progress. Requested illustration model access is unresolved; a user question is pending. Measured data charts are separate from that illustration requirement. A research refresh found MetaRSI and HarnessEvolve; methods still need review.
+
+## 20 September: complete authored sequence
+
+Published 101 labs with individual briefs, prompts, checks, counterexamples, takeaways, and four-question explained quizzes. All 12 themes have entry pages; 38 research labs have 13 subdirectory indexes. Added MetaRSI and HarnessEvolve after inspecting relevant primary methods and comparisons. Reading-depth limits remain recorded.
+
+Rebuilt the walkthrough and added start, glossary, instructor, research, adapter, and migration pages. Replaced flat packs while preserving Git history. Updated test discovery. Eleven shared tests passed, including 21 mechanism checks. All 1,248 local links resolved. Seven learner skills passed validation. These are publication and component checks, not 101 completed learner runs.
+
+Foundation commit `3dc2e5dbcaee0686fee766e19dc169638ee056dc` was pushed and its remote hash verified. The next checkpoint preserves the complete authored sequence before deeper walkthrough and illustration work.

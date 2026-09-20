@@ -1,0 +1,116 @@
+# 07.01 · Correct one result
+
+[Course](../../README.md) · [Theme](../README.md)
+
+## What you will build
+
+A corrected experiment summary with the original mistake preserved.
+
+## Why this matters
+
+A system can repair an answer during a task without retaining any new method.
+
+## Before you start
+
+Complete [06.06: Recreate and compare generated harnesses](../../06_meta_harness_engineering/step_06_recreate/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/07-01</code> and reports its absolute path. It checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** A labelled copy of a baseline report containing an incorrect MAE.
+
+**Budget:** No fits; one recomputation and one report correction. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+Self-correction revises a current output using feedback. Here the checker exposes a wrong summary number and the agent replaces it with the value computed from predictions. When the session ends, no procedure has changed unless you explicitly retain one.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.01, Correct one result, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Will correcting this report prevent the same mistake in a new session?
+
+### 1. Expose the mismatch
+
+Make correction depend on evidence.
+
+```text
+Recompute MAE from the copied report’s predictions. Show the mismatch and preserve the original report.
+```
+
+**Observe:** The correction has a concrete reason.
+
+### 2. Correct the output
+
+Change only the current artifact.
+
+```text
+Write a corrected report and a short correction note. Do not edit or save a reusable skill. Explain what changed and what did not.
+```
+
+**Observe:** The current report improves while the future procedure stays fixed.
+
+## Check your result
+
+The corrected number matches the predictions. The original and correction note remain. No retained skill change is claimed.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Start a fresh session with the same fixed procedure and another wrong summary. Explain why the first correction did not guarantee prevention.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Correction can be local to one task.
+- A better output does not imply retained learning.
+- Feedback should be connected to the corrected fact.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. What changed?
+2. What survived automatically?
+3. Is self-correction necessarily successful?
+4. What would add persistence?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. The current report, not the model weights or reusable procedure.
+
+2. Only saved artifacts; future use still needs an explicit mechanism.
+
+3. No. A revision can introduce a new mistake; check it.
+
+4. A retained, versioned rule that a later session reads and applies.
+
+</details>
+
+## What's next
+
+A reflection can propose that rule, but it needs its own test. Continue to [07.02: Test a reflection before trusting it](../step_02_reflection/README.md).

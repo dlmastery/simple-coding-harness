@@ -1,5 +1,13 @@
 # Research for the RSI course
 
+## 20 September refresh
+
+The discovery window now extends through 20 September 2026. Two additions bring the current-month inventory from 23 to 25 papers, alongside five reports. [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396) first appeared 6 September, with v2 on 9 September. [HarnessEvolve](https://arxiv.org/abs/2609.00829) appeared 1 September. Relevant mechanism and selected experiment sections were inspected; full appendices and code were not reproduced.
+
+MetaRSI adds composition across data, harness, and model surfaces and a revised scheduling policy. Its reported per-term gains decline despite increasing cumulative gains. HarnessEvolve adds checked answer-conditioned reference paths and quality/performance gates. Neither is independently reproduced here. Both now have dedicated classroom exercises.
+
+The remainder preserves the original 19 September sweep and its reading-depth limits.
+
 Research window: **20 August–19 September 2026**. Priority window: **6–19 September 2026**. This inventory contains 23 papers and five lab or benchmark reports from that month. Earlier foundations are listed separately.
 
 The first reading list was too narrow. The broader sweep adds work on procedure graphs, skill libraries, feedback design, model–harness compatibility, efficiency, and failed improvement. These additions change the proposed experiments, not just the bibliography.

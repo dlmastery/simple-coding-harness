@@ -1,0 +1,116 @@
+# 07.05 · Let work reorganize under local rules
+
+[Course](../../README.md) · [Theme](../README.md)
+
+## What you will build
+
+A small simulation in which queued checks redistribute between two workers.
+
+## Why this matters
+
+A system can change its organization without changing any worker’s skill or improving its final quality.
+
+## Before you start
+
+Complete [07.04: Improve a task skill with a fixed procedure](../step_04_self_improvement/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/07-05</code> and reports its absolute path. It checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** A generated local simulation with two workers and six labelled check jobs. No agent subworkers are required.
+
+**Budget:** Two short simulations, no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+Give each simulated worker the same fixed rule: take an available job when idle. A shared queue and different job durations produce a changing assignment. Organization emerges from local scheduling rules. Measure completion time and correctness separately; redistribution can help one and harm another.
+
+
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.05, Let work reorganize under local rules, one step at a time.
+Read its README and BRIEF. Prepare its separate workspace.
+You write and run the implementation. Keep the reports and failures.
+Ask me to predict the result before the experiment.
+```
+
+**Make a prediction:** Will dynamic assignment always beat a fixed assignment?
+
+### 1. Run fixed assignment
+
+Create a baseline organization.
+
+```text
+Generate a deterministic queue simulation with job durations and expected results. Run a fixed assignment and save the event trace. Label durations as synthetic.
+```
+
+**Observe:** The baseline organization is visible.
+
+### 2. Allow local reassignment
+
+Observe organization without changing skills.
+
+```text
+Run the same jobs with idle workers taking the next available job. Compare assignment, completion time, and lost or duplicate jobs. Keep worker rules fixed.
+```
+
+**Observe:** The organization changes through local interaction, not a rewritten ML solver.
+
+## Check your result
+
+Both runs use the same synthetic jobs and worker capabilities. The trace shows reassignment. Any speed claim is confined to this simulation.
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Add a shared-resource bottleneck or communication delay. Predict when dynamic reassignment loses its advantage.
+
+## If something goes wrong
+
+If the expected artifact is missing, inspect the last command and its exit status before running again. If a check fails, preserve the failing result and diagnose that check; do not weaken it to obtain a pass.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Self-organization concerns changing arrangement or coordination.
+- Organization and capability improvement are different properties.
+- Local rules can have global costs.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Did the worker skill improve?
+2. Why label synthetic durations?
+3. Does a new arrangement guarantee improvement?
+4. Is this evidence of RSI?
+
+<details>
+<summary>Hint</summary>
+
+Trace what changed, what stayed fixed, and which observation supports the conclusion. A filename or a confident explanation is not enough evidence.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. No. The scheduling arrangement changed while worker rules remained fixed.
+
+2. They are constructed teaching inputs, not measured production performance.
+
+3. No. Bottlenecks, communication, or contention can make it worse.
+
+4. No. No improvement procedure was revised and inherited.
+
+</details>
+
+## What's next
+
+Study a collective pattern and distinguish emergence from improved intelligence. Continue to [07.06: Observe a collective pattern](../step_06_emergence/README.md).

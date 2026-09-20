@@ -82,7 +82,7 @@ step_NN_<name>/      one step of the harness codelab
   test_step.py       the offline test: a fake model, no key, seconds to run
   .agents/           skills, agent definitions, hooks, MCP config the step reads
 genui/README.md      series 2: generative UI, 23 steps under genui/0N_<theme>/step_NN_<name>/
-rsi/README.md        series 3: recursive self-improvement, 18 lessons under rsi/step_NN_<name>/
+rsi/README.md        series 3: ML workflows to recursive self-improvement, themed codelabs
 run_tests.py         every step's test, or a subset: python run_tests.py 14 15 / genui/02 / rsi
 check_snippets.py    every README snippet exists verbatim in the code it names
 ```
