@@ -26,6 +26,12 @@ The coordinator tracks task state, chooses the next allowed action, and handles 
 
 
 
+![Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.](../../assets/diagrams/lab-05-04.png)
+
+*Read the diagram:* Planning, execution, and checking have different responsibilities. Separate boxes alone do not enforce separate access.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

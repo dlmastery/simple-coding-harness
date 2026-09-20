@@ -76,13 +76,13 @@ For ScienceBuddy and other training methods, the laptop activity may use a small
 
 ## Research
 
-All current discovery queries target **20 August–19 September 2026**, with priority given to 6–19 September. Refresh the one-month window before implementation and delivery. Verify source publication and revision dates. Search snippets and recent crawl dates are not evidence of a new release.
+Current discovery queries target **20 August–20 September 2026**, with priority given to 7–20 September. Refresh the one-month window before delivery. Verify source publication and revision dates. Search snippets and recent crawl dates are not evidence of a new release.
 
 Search primary sources from frontier labs, arXiv, author repositories and projects, and original X/Twitter threads. Include Meta/FAIR researchers who announce work through social posts. Record failed access and unverified claims instead of inventing missing content. Reputation is not a substitute for checking methods.
 
 Explicit user requirements include arXiv 2609.11873, AIDE², Dream-RSI, ScientistTwo, ScienceBuddy, and RSIAgent. ModularRSI and related mechanisms are included. Give the named systems substantial advanced treatment, with prerequisites and practical exercises. Separate papers, lab self-reports, forecasts, social announcements, and independently reproduced evidence.
 
-The broader inventory currently has 23 papers and five reports within the month. It records reading depth. Some entries have only abstract and metadata checks; complete their method review before writing authoritative lessons. Do not claim that every paper has been read in full or reproduced.
+The broader inventory currently has 26 papers and five reports within the month. It records reading depth. Some entries have only abstract and metadata checks; complete their method review before writing authoritative lessons. Do not claim that every paper has been read in full or reproduced.
 
 Older foundations such as AIDE² are explicit exceptions. Keep them visibly dated. The course's small historical datasets are teaching fixtures, not recent research claims.
 
@@ -92,7 +92,7 @@ Use ASD-STE100 as the writing reference. Write short, direct sentences with fami
 
 The user requests **Imagen 2.5** illustrations with white backgrounds, professional composition, rich but readable detail, and immediate explanatory value. Keep visual symbols and colors consistent. Embed images beside the relevant explanation. Include captions and alt text.
 
-Current tool discovery exposes image generation but no Imagen 2.5 model selector. Access to the requested generator remains unresolved. Do not silently substitute a model or claim it was used. No course illustrations have been generated yet.
+Current tool discovery exposes image generation but no Imagen 2.5 model selector. Access to the requested generator remains unresolved. Do not silently substitute a model or claim it was used. All 101 labs now have original technical schematics rendered with Mermaid; both source and revision galleries are retained. These accompany, rather than fulfil, the requested Imagen raster work. Ten detailed illustration prompts are ready.
 
 Check every diagram's arrows, boundaries, labels, and meaning. Use actual run data for measured plots. A generated illustration cannot serve as experimental evidence.
 
@@ -121,4 +121,4 @@ Skill creation and local installation are complete. All seven installed files ma
 5. Keep the user's execution, writing, illustration, scale, and teaching requirements intact.
 6. Record new decisions and evidence. Checkpoint meaningful progress in GitHub.
 
-Current implementation: 101 authored labs in 12 main themes, including 38 advanced labs in 13 subdirectories. MetaRSI and HarnessEvolve account for the additions. Shared runtime and publication checks pass. Individual clean-session walkthroughs, deeper source audits, illustrations, learner validation, and further agent/backend tests remain incomplete. Continue from IMPLEMENTATION-RECORD.md; do not rebuild the written sequence.
+Current implementation: 101 authored labs in 12 main themes, including 38 advanced labs in 13 subdirectories, with technical diagrams and explained quizzes. Shared tests pass, including in an exported source tree with a fresh dependency installation. Controlled ML, domain, generated-harness, and author-guided inheritance walkthroughs are retained. The compute path has a readable brief, adapter contract, and acceptance checks; no GPU or cluster was run. Full lab-by-lab clean-session execution, independent improver comparisons, remaining deep source audits, requested raster illustrations, learner validation, and further agent/backend tests remain incomplete. Continue from IMPLEMENTATION-RECORD.md; do not rebuild the written sequence.

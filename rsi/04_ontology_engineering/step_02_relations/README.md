@@ -26,6 +26,12 @@ A relation connects two objects with a named meaning: scaler “fit on” train;
 
 
 
+![These arrows describe meaning and provenance. They are not a schedule of commands.](../../assets/diagrams/lab-04-02.png)
+
+*Read the diagram:* These arrows describe meaning and provenance. They are not a schedule of commands.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

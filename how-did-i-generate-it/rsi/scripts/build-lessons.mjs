@@ -1,9 +1,11 @@
 // Agent-authored publishing tool. Lesson prose lives in the adjacent modules.
 // Students never run or edit this file.
-import {mkdirSync, writeFileSync} from 'node:fs';
+import {mkdirSync, writeFileSync, existsSync} from 'node:fs';
 import {resolve, dirname, relative, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {themes, lessons} from './lesson-content.mjs';
+import {renderDiagram, diagrams} from './lesson-diagrams.mjs';
+import {examples} from './lesson-examples.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const rsi = resolve(repo, 'rsi');
@@ -15,6 +17,10 @@ for (let index=0; index<lessons.length; index++) {
   const l=lessons[index], folder=lessonPath(l), theme=themes[l.theme];
   const prev=lessons[index-1], next=lessons[index+1];
   const to=p=>link(folder,resolve(rsi,p));
+  const figurePath=`assets/diagrams/lab-${l.id.replace('.','-')}.png`;
+  const schematic=existsSync(resolve(rsi,figurePath))
+    ? `![${diagrams[l.id].caption}](${to(figurePath)})\n\n*Read the diagram:* ${diagrams[l.id].caption}`
+    : renderDiagram(l.id);
   const nav=`[Course](${to('README.md')}) · [Theme](${to(theme.directory+'/README.md')})`;
   const previous=prev ? `[${prev.id}: ${prev.title}](${link(folder,lessonPath(prev))}/README.md)` : `[Start here](${to('START-HERE.md')})`;
   const after=next ? `[${next.id}: ${next.title}](${link(folder,lessonPath(next))}/README.md)` : `[Teaching portfolio](${to('instructor/README.md')})`;
@@ -47,6 +53,10 @@ Open the coding agent at the repository root. Read [the tutor skill](${to('skill
 ## How it works
 
 ${l.how}
+
+${examples[l.id] ? `**A concrete example.** ${examples[l.id]}\n` : ''}
+
+${schematic}
 
 ${l.figure || ''}
 

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Existing experiment results. The agent generates a static local page with a candidate table and one filter.
 
-**Budget:** Two short UI attempts; no new ML fits. Requires a browser-capable agent for live execution. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two short UI attempts; no new ML fits. Requires a browser-capable agent for live execution. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 EvoSkill-GUI motivates separating reusable skills from task traces and critique. Our local page avoids accounts and external side effects. The critic receives the visible instruction and action evidence. It should not be given private executor reasoning or an answer key and then called blind.
+
+
+
+![Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.](../../../assets/diagrams/lab-10-29.png)
+
+*Read the diagram:* Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Reflect, Revise, Reuse / EvoSkill-GUI](https://arxiv.org/abs/2609.17653), 15 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

@@ -26,6 +26,12 @@ The task brief identifies the target type and evaluation rule. Regression estima
 
 
 
+![Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.](../../assets/diagrams/lab-05-02.png)
+
+*Read the diagram:* Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

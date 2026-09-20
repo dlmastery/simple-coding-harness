@@ -15,7 +15,27 @@ const sources={
  scaffold:'[Environments as Scaffold](https://arxiv.org/abs/2609.08404), 8 September 2026.',
  fit:'[Co-Evolving Harnesses and Models with On-Policy Correction](https://arxiv.org/abs/2609.09134), Salesforce research, 8 September 2026.',
 };
-export const R=(number,group,slug,title,source,body)=>({id:`10.${String(number).padStart(2,'0')}`,theme:'10',group,slug,title,source:sources[source]||source,...body});
+const activityModes={
+  1:'source audit', 2:'source audit', 8:'replay', 12:'source audit',
+  24:'numerical illustration', 25:'simulation', 26:'source audit',
+  31:'source audit and mechanism exercise', 34:'source audit and mechanism exercise',
+  35:'simulation', 37:'source audit', 38:'numerical simulation',
+};
+const modeLimits={
+  'source audit':'You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.',
+  replay:'You reuse outcomes from recorded executions. Replay cannot establish outcomes for unvisited branches or reproduce the source benchmark.',
+  'numerical illustration':'You calculate a small worked example. This is not LLM training or a reproduction of the paper’s reported result.',
+  simulation:'You execute rules over labelled synthetic states. Those values are not trained-model measurements or the paper’s results.',
+  'numerical simulation':'You explore explicit resource assumptions with synthetic numbers. The calculation is not an empirical forecast of RSI.',
+  'source audit and mechanism exercise':'You inspect the source and execute a small local analogue. The task, models, resources, and evaluation differ from the paper.',
+  'mechanism exercise':'You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.',
+};
+export const R=(number,group,slug,title,source,body)=>{
+  const mode=activityModes[number] || 'mechanism exercise';
+  return {id:`10.${String(number).padStart(2,'0')}`,theme:'10',group,slug,title,
+    source:sources[source]||source,time:'40–60',
+    adaptation:`**Activity type: ${mode}.** ${modeLimits[mode]}`,...body};
+};
 export const research = [
 R(1,'00_reading_frontier_research','framework','Use a framework without turning it into a ladder','framework',{
  build:'A source-linked classification of three mechanisms from your own experiments.', why:'Different authors use different levels and definitions. A label is useful only with its stated criteria.', start:'Your claim audit from 09.07 and the primary paper.', budget:'No fits. Read the framework and audit three cases.',

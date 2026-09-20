@@ -26,6 +26,12 @@ A recipe fingerprint identifies task, model, features, seed, and tool version. I
 
 
 
+![A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.](../../assets/diagrams/lab-02-04.png)
+
+*Read the diagram:* A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

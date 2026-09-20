@@ -26,6 +26,12 @@ An improvement hypothesis connects an observed error to a proposed change. Here 
 
 
 
+![The weak result motivates a specific new candidate. The evaluator stays fixed.](../../assets/diagrams/lab-02-01.png)
+
+*Read the diagram:* The weak result motivates a specific new candidate. The evaluator stays fixed.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

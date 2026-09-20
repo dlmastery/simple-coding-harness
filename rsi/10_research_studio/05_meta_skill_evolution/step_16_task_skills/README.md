@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A parent research skill, development traces, and a fixed updater.
 
-**Budget:** One task-skill edit and two checks or fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One task-skill edit and two checks or fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A meta-skill is a procedure for working on skills. Keep the meta-skill fixed while it proposes a task-skill revision. Record the resulting task behavior and the updater’s version. The exercise first establishes the nonrecursive baseline.
+
+
+
+![The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.](../../../assets/diagrams/lab-10-16.png)
+
+*Read the diagram:* The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297), 6 July 2026. This older foundation is dated separately from the current-month sweep.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

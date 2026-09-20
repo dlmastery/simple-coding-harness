@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Bike regression with no retained task-specific memory. Use selection data only.
 
-**Budget:** Three small fits maximum. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three small fits maximum. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The classroom exercise first probes two distinct limitations, then spends the last attempt on one uncertainty. Broad coverage and targeted investigation have different purposes. Keep the choice rule visible; exploration is not permission to change the task metric.
+
+
+
+![Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.](../../../assets/diagrams/lab-10-03.png)
+
+*Read the diagram:* Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [RSIAgent](https://arxiv.org/abs/2609.15364), Sibo Zhu and colleagues, Aether AI, UC San Diego, and UIUC; 14 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

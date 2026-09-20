@@ -26,6 +26,12 @@ Suppose a model uses a feature called total_users. Another fact says total_users
 
 
 
+![A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.](../../assets/diagrams/lab-04-04.png)
+
+*Read the diagram:* A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -26,6 +26,12 @@ Transfer asks whether a retained change helps in a different setting. Keep the s
 
 
 
+![Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.](../../assets/diagrams/lab-08-05.png)
+
+*Read the diagram:* Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

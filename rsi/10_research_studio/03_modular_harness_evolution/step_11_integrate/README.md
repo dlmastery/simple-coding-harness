@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Two versioned component edits, their individual tests, and a fresh transfer fixture.
 
-**Budget:** Three fixture runs; at most three fits if needed. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three fixture runs; at most three fits if needed. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Check each edit alone and then the combination under the same interface contract. A context change may remove information that a completion check expects. Integration therefore needs its own evidence, followed by a case that did not select either edit.
+
+
+
+![Two useful edits can conflict when combined. Test the integrated system and its transfer separately.](../../../assets/diagrams/lab-10-11.png)
+
+*Read the diagram:* Two useful edits can conflict when combined. Test the integrated system and its transfer separately.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ModularRSI](https://arxiv.org/abs/2609.14857), 14 September 2026; [author repository](https://github.com/IQuestLab/ModularRSI).
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

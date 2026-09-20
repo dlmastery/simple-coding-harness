@@ -26,6 +26,12 @@ Procedure A repeats a declared baseline recipe. Procedure B uses the first resul
 
 
 
+![Both search rules start from the same conditions and receive the same total attempt allowance.](../../assets/diagrams/lab-02-06.png)
+
+*Read the diagram:* Both search rules start from the same conditions and receive the same total attempt allowance.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

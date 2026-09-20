@@ -26,6 +26,12 @@ Resources are not interchangeable. Record agent tokens or provider charges when 
 
 
 
+![Research cost includes proposing, running, checking, and failed work. Fit time is only one component.](../../assets/diagrams/lab-08-03.png)
+
+*Read the diagram:* Research cost includes proposing, running, checking, and failed work. Fit time is only one component.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

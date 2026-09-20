@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Bike regression, fixed evaluation, and a four-fit inner budget.
 
-**Budget:** Four fits maximum in the inner search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four fits maximum in the inner search. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The inner researcher proposes ML candidates, evaluates them, and chooses what to pursue. In our exercise, operators are readable actions such as change model family or add a permitted feature group. Their order and allocation define a research procedure that an outer process can later revise.
+
+
+
+![The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.](../../../assets/diagrams/lab-10-13.png)
+
+*Read the diagram:* The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Weco’s AIDE² report](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement), 14 July 2026. This is an explicitly requested older lab report, not a new September paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

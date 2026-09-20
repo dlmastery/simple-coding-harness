@@ -26,6 +26,12 @@ Generation labels track ancestry. The improver reads a solver’s failures, prop
 
 
 
+![Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.](../../assets/diagrams/lab-09-02.png)
+
+*Read the diagram:* Many solver revisions can come from one unchanged improver. Iteration count does not establish recursion in the improver.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

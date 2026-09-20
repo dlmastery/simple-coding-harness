@@ -26,6 +26,12 @@ A majority classifier can be accurate on imbalanced data while detecting no posi
 
 
 
+![A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.](../../assets/diagrams/lab-08-06.png)
+
+*Read the diagram:* A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

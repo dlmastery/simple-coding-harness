@@ -22,8 +22,9 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [EvoSkill-GUI](https://arxiv.org/abs/2609.17653) | 15 Sep | Visual task traces, reflection, skill revision |
 | [SoL-Pi](https://arxiv.org/abs/2609.20519) | 17 Sep | Quality-constrained research-cost comparison |
 | [HarnessDev](https://arxiv.org/abs/2609.01437) | 1 Sep | Method audit before harness-builder comparison |
-| [Harness-of-Harness](https://arxiv.org/abs/2609.01481) | 1 Sep | Generator versus generated infrastructure |
+| [Harness-of-Harness](https://arxiv.org/abs/2609.01481) | 1 Sep | Fixed agent configuration; changing software and evidence |
 | [S3Gym](https://arxiv.org/abs/2608.31100) | 31 Aug | Memory-interface exercise; training protocol audit |
+| [VideoHarness-RSI](https://arxiv.org/abs/2608.24302) | 25 Aug; revised 3 Sep | Optional context-construction comparison; abstract checked, full methods pending |
 | [Environments as Scaffold](https://arxiv.org/abs/2609.08404) | 8 Sep | Assistance types and removal |
 | [Co-Evolving Harnesses and Models](https://arxiv.org/abs/2609.09134) | 8 Sep | Model–harness compatibility and on-policy correction |
 | [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396) | 6 Sep; v2 9 Sep | Composition and scheduler inheritance |

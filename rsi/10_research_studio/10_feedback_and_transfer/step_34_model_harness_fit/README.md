@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A small harness expecting a fixed tool-result format and two labelled response fixtures.
 
-**Budget:** Three interface checks, no LLM training. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three interface checks, no LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The source contrasts training from full expert trajectories with correction on the agent’s own trajectories in evolved harnesses. Our toy version changes an output convention while keeping the harness parser fixed. It illustrates compatibility, not the paper’s trained-model results.
+
+
+
+![An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.](../../../assets/diagrams/lab-10-34.png)
+
+*Read the diagram:* An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Co-Evolving Harnesses and Models with On-Policy Correction](https://arxiv.org/abs/2609.09134), Salesforce research, 8 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit and mechanism exercise.** You inspect the source and execute a small local analogue. The task, models, resources, and evaluation differ from the paper.
 
 ## Check your understanding
 

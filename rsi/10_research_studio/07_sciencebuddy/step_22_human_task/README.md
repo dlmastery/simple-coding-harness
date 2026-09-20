@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A supplied classroom fixture: “Compare these wine models; do not hide failure on rare high-quality wines.” Use your existing predictions.
 
-**Budget:** No fits. One rubric and two report checks. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. One rubric and two report checks. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 ScienceBuddy connects scientific interactions and artifacts to improvement work. Our fixture uses familiar classification evidence. A rubric turns the correction into checks: state the label threshold, report both class recalls, preserve predictions, and avoid claiming accuracy alone establishes quality. It is a teaching fixture, not a real scientist interaction.
+
+
+
+![A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.](../../../assets/diagrams/lab-10-22.png)
+
+*Read the diagram:* A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

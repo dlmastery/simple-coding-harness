@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your generated classification harness and both primary papers.
 
-**Budget:** Read methods first; one harness edit and two checks or fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Read methods first; one harness edit and two checks or fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
-Use the papers to identify the actual mutable objects before borrowing a mechanism. For the classroom activity, keep the builder fixed, revise one generated harness component, and measure behavior. Then state what extra experiment would compare the builders themselves. Do not attribute unverified implementation details to either paper.
+HarnessDev evaluates created and revised harnesses, with creator and executor roles separated. Harness-of-Harness instead keeps its model, base harness, roles, and runtime policy fixed while software and execution evidence change. Its planner, developer, and tester have separate invocations and permissions. For the classroom activity, keep the builder fixed, revise one generated ML harness component, and measure behavior. This local choice is not the changed object in every source.
+
+
+
+![Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.](../../../assets/diagrams/lab-10-31.png)
+
+*Read the diagram:* Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.
 
 
 
@@ -42,10 +48,10 @@ Ask me to predict the result before the experiment.
 
 ### 1. Read and map the methods
 
-Resolve the abstract-only reading gap.
+Identify the changed object in each source.
 
 ```text
-Read each paper’s methods, experiments, and limitations. Create a two-column map of generator, generated harness, changed artifact, evaluation, and resources, with section links. Mark unavailable details.
+Read each paper’s methods, experiments, and limitations. Create a two-column map of fixed components, changed artifact, evaluation, and resources, with section links. For Harness-of-Harness, distinguish the developed software from the fixed agent harness. For HarnessDev, distinguish feedback-set adaptation from held-out evaluation.
 ```
 
 **Observe:** The mapping is based on primary methods rather than titles.
@@ -84,9 +90,9 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 ## Research connection
 
-[HarnessDev](https://arxiv.org/abs/2609.01437) and [Harness-of-Harness](https://arxiv.org/abs/2609.01481), both submitted 1 September 2026. Begin with a method audit; initial course screening checked abstracts and metadata only.
+[HarnessDev](https://arxiv.org/abs/2609.01437) and [Harness-of-Harness](https://arxiv.org/abs/2609.01481), both submitted 1 September 2026. Relevant method and evaluation sections were inspected; neither system was reproduced here.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit and mechanism exercise.** You inspect the source and execute a small local analogue. The task, models, resources, and evaluation differ from the paper.
 
 ## Check your understanding
 

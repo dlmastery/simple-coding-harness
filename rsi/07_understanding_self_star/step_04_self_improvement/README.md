@@ -26,6 +26,12 @@ The task skill chooses ML experiments. The improver reads failures, proposes one
 
 
 
+![The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.](../../assets/diagrams/lab-07-04.png)
+
+*Read the diagram:* The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

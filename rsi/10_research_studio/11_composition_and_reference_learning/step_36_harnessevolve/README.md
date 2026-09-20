@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A failed local workflow trace, a successful reference trace, and a labelled shortcut trace.
 
-**Budget:** Three trace checks and one candidate-skill evaluation on two fixtures. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three trace checks and one candidate-skill evaluation on two fixtures. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 HarnessEvolve uses answer-conditioned reference trajectories, checks that they contain genuine execution, and compares failures against them. Candidate changes face quality and performance gates. Our exercise uses small workflow traces and prevents a copied answer from becoming the active skill.
+
+
+
+![Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.](../../../assets/diagrams/lab-10-36.png)
+
+*Read the diagram:* Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [HarnessEvolve](https://arxiv.org/abs/2609.00829), Wen Jiang and colleagues; submitted 1 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

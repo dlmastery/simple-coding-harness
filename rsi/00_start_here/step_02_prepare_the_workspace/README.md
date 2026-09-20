@@ -24,6 +24,12 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The agent reads instructions, writes generated files, and runs tools. These are separate capabilities. The workspace holds your outputs; the course directory holds the shared instructions and source data. Keeping them separate makes restart and comparison easier.
 
+
+
+![Keep course sources separate from your own work. A command must produce an inspectable artifact.](../../assets/diagrams/lab-00-02.png)
+
+*Read the diagram:* Keep course sources separate from your own work. A command must produce an inspectable artifact.
+
 ![Mean recorded rental demand by hour](../../evidence/2026-09-20/author-bike/data-overview.png)
 
 This author-run chart uses all public teaching rows. It describes the data; it is not model evaluation.

@@ -26,6 +26,12 @@ Loop state is the information needed for the next step: attempts used, candidate
 
 
 
+![Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.](../../assets/diagrams/lab-02-02.png)
+
+*Read the diagram:* Each admitted attempt spends budget, even when it fails. State determines whether another attempt may start.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

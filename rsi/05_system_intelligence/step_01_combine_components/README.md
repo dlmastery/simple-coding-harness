@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Keep the language model and procedures fixed. The skill chooses actions; the tool fits a model; the domain rules reject invalid inputs; the output checker verifies evidence. Their coordination can improve reliability without changing model weights or any component’s instructions.
 
+**A concrete example.** A capable language model might still accept the tempting input casual + registered. A domain checker can reject it before any fit. The whole system avoids a mistake even though the language-model weights and the rule itself stayed fixed. The improvement comes from how the components are arranged.
+
+
+![Fixed components coordinate one valid experiment. A domain check can stop an invalid request before fitting.](../../assets/diagrams/lab-05-01.png)
+
+*Read the diagram:* Fixed components coordinate one valid experiment. A domain check can stop an invalid request before fitting.
+
 
 
 ## Run the lab

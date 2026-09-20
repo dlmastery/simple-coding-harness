@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A scalar score says how well a candidate performed. Error slices help locate the weakness. A hypothesis then connects that weakness to an intervention. Adding weather inputs tests whether information beyond the calendar helps this fixed model; it does not prove weather causes demand.
 
+**A concrete example.** In the saved author walkthrough, the linear model with calendar fields has selection MAE 109.81. Adding weather to that same model reduces it to 99.18. Changing the model to a tree while keeping calendar fields instead gives 125.05. One proposal helps and another hurts. Keeping the interventions separate tells you which change produced each result. Your own run must supply its own measurements.
+
+
+![Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.](../../assets/diagrams/lab-02-03.png)
+
+*Read the diagram:* Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.
+
 
 
 ## Run the lab

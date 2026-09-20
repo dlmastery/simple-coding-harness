@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An invariant is a condition that must hold for every accepted record in this task. A transform fits on training data only. Search uses selection data, not final data. A prediction input must not be derived from the target. These are meaning rules; a syntactically valid table can violate them.
 
+**A concrete example.** Consider the sentence “the scaler was fit on all rows.” Its format is perfectly clear. Its meaning violates the experiment: selection and final rows helped determine the transformation. A schema can accept the sentence while a domain rule rejects the relationship. That is the extra job performed by the ontology check.
+
+
+![A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.](../../assets/diagrams/lab-04-03.png)
+
+*Read the diagram:* A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.
+
 
 
 ## Run the lab

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A local three-step data-check task with an exact success condition.
 
-**Budget:** Three short attempts, no required model fit. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three short attempts, no required model fit. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 An action hint suggests the next operation. An enriched observation exposes useful state, such as which field is missing. The classroom comparison keeps these distinct, then removes assistance. The source studies training settings; this inference-only exercise does not reproduce its reinforcement-learning results.
+
+
+
+![Action hints and richer observations supply different assistance. Remove help in a separate fresh check.](../../../assets/diagrams/lab-10-33.png)
+
+*Read the diagram:* Action hints and richer observations supply different assistance. Remove help in a separate fresh check.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Environments as Scaffold](https://arxiv.org/abs/2609.08404), 8 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The inner researcher, one failure trace, and an unchanged external evaluator.
 
-**Budget:** Two inner researchers with three fits each; include outer proposal and checking costs. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two inner researchers with three fits each; include outer proposal and checking costs. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The outer task changes the inner researcher’s procedure. It might revise which operator to try or when to stop exploring a branch. Evaluate parent and child inner researchers from the same starting state. Our small comparison does not reproduce Weco’s much larger run.
+
+
+
+![The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.](../../../assets/diagrams/lab-10-14.png)
+
+*Read the diagram:* The outer experiment changes the inner researcher. Count the cost of discovering that change as well as its later use.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Weco’s AIDE² report](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement), 14 July 2026. This is an explicitly requested older lab report, not a new September paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

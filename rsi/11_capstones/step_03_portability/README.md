@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Your frozen harness, a second task or agent environment, and optional available larger-compute backend.
 
-**Budget:** Two small smoke runs; larger jobs require a concrete resource plan. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two small smoke runs; larger jobs require a concrete resource plan. Plan about 60–120 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Task transfer changes the scientific problem. Agent portability changes the host interpreting skills and operating tools. Compute portability changes execution resources. Test these dimensions separately so one successful run is not mistaken for universal support.
+
+
+
+![Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.](../../assets/diagrams/lab-11-03.png)
+
+*Read the diagram:* Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.
 
 
 

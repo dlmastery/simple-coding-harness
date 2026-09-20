@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Two completed hypothesis studies and their researcher instructions.
 
-**Budget:** No fits required; optional one fresh test only if predeclared. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits required; optional one fresh test only if predeclared. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A previous result can become the baseline for a new investigation. Track the result lineage separately from the researcher version. If the procedure stays fixed while solutions improve, the evidence concerns accumulated research outputs. Testing a better researcher needs a comparison of research processes.
+
+
+
+![Better research outputs and a better research procedure are distinct objects of evaluation.](../../../assets/diagrams/lab-10-21.png)
+
+*Read the diagram:* Better research outputs and a better research procedure are distinct objects of evaluation.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScientistTwo](https://arxiv.org/abs/2609.19644), Jaehyun Nam, Jinsung Yoon, Yanzhou Pan, Yubo Wang, Rui Meng, Parthasarathy Ranganathan, and Tomas Pfister; Google Cloud AI Research and University of Waterloo; 17 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

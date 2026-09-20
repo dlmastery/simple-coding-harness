@@ -26,6 +26,12 @@ Selection chooses a recipe using development feedback. Final evaluation measures
 
 
 
+![Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.](../../assets/diagrams/lab-08-02.png)
+
+*Read the diagram:* Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

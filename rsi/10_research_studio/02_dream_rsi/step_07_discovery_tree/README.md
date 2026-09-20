@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A fresh bike workspace and a three-attempt search plan.
 
-**Budget:** Three fits maximum; preserve proposal and fit costs separately. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three fits maximum; preserve proposal and fit costs separately. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Represent each attempted recipe as a node with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
+
+
+
+![The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.](../../../assets/diagrams/lab-10-07.png)
+
+*Read the diagram:* The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Dream-RSI](https://arxiv.org/abs/2609.14858), 14 September 2026; [official project](https://www.dream-rsi.com/).
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

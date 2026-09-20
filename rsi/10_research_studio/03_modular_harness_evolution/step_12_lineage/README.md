@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your local lineage and the primary historical method descriptions. Verify the DGM primary source before making detailed claims.
 
-**Budget:** No fits. Audit two source diagrams and one local lineage. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Audit two source diagrams and one local lineage. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 For every edge, ask which artifact changed and who produced the change. Then ask whether an altered improvement operator is inherited and used. Do not infer improver evolution merely from a system’s name or from multiple generations of agent code.
+
+
+
+![A lineage must identify what each child changes. Agent changes and changes to the agent’s updater support different claims.](../../../assets/diagrams/lab-10-12.png)
+
+*Read the diagram:* A lineage must identify what each child changes. Agent changes and changes to the agent’s updater support different claims.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [HyperAgents](https://ai.meta.com/research/publications/hyperagents/), Meta research, March 2026, and [Darwin Gödel Machine](https://arxiv.org/abs/2505.22954), Jenny Zhang and colleagues, first submitted 29 May 2025 and revised 12 March 2026. These are older foundations.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit.** You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.
 
 ## Check your understanding
 

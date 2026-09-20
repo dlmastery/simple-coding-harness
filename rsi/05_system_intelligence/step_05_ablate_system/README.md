@@ -26,6 +26,12 @@ An ablation removes one component while holding the rest as steady as possible. 
 
 
 
+![An ablation removes one component under matched conditions. Its effect may depend on the other components.](../../assets/diagrams/lab-05-05.png)
+
+*Read the diagram:* An ablation removes one component under matched conditions. Its effect may depend on the other components.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -36,6 +36,15 @@ You do not need to type Python, JSON, YAML, or scheduler syntax. The implementat
 
 ## Follow one learning path
 
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef5fb","primaryTextColor":"#172b3a","primaryBorderColor":"#45667d","lineColor":"#45667d","fontFamily":"Arial"}}}%%
+flowchart TD
+A["00–04: Make one experiment trustworthy<br/>Process, loops, routes, meaning"] --> B["05–08: Build and evaluate the research system<br/>Components, generators, self-* mechanisms, evidence"]
+B --> C["09–11: Test inherited improvement<br/>Bounded RSI, recent research, independent capstones"]
+```
+
+*The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-* systems follow one universal ladder.*
+
 | Theme | The question you will answer |
 |---|---|
 | [00 · Start here](00_start_here/README.md) | What does one valid prediction and its evidence look like? |
@@ -73,7 +82,7 @@ Current research discovery covers the preceding month, with priority given to th
 
 ## Continue beyond the laptop
 
-The scientific contract stays separate from compute. A larger experiment still needs a task brief, data version, candidate, evaluator, improvement procedure, and run record. The [scale skill](skills/scale-experiment/SKILL.md) lets an agent generate GPU or cluster setup while preserving those interfaces.
+The scientific contract stays separate from compute. A larger experiment still needs a task brief, data version, candidate, evaluator, improvement procedure, and run record. Follow [the larger-compute guide](compute/README.md). The [scale skill](skills/scale-experiment/SKILL.md) uses a readable job brief, an adapter contract, and small backend checks to generate GPU or cluster setup.
 
 Larger jobs add checkpoints, cancellation, resumption, job identities, bounded concurrency, and resource accounting. A generated cluster configuration is not a tested backend. Optional larger-compute paths need validation on the actual hardware.
 
@@ -83,4 +92,4 @@ Work through the first themes in order. Keep one short lab note: prediction, obs
 
 Use the [instructor guide](instructor/README.md) to choose checkpoints and assess explanations. The complete [course-authoring skill](../skills/build-research-codelabs/SKILL.md) preserves the method for diffusion models, flow methods, or another complex topic.
 
-This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. Requested illustration-generator access remains unresolved; measured data charts are included. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.
+This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. Technical schematics and measured data charts are included. Requested Imagen illustration access remains unresolved; no asset is represented as Imagen-generated. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.

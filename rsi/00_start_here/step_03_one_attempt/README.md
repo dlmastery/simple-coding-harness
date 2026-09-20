@@ -22,7 +22,14 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-The baseline predicts the training median for every selection row. The median is a sensible constant for absolute error: moving away from it increases total absolute distance on the training values. MAE is the average distance between predictions and actual counts. It stays in rentals per hour.
+The baseline predicts the training median for every selection row. A median minimizes total absolute distance on the training values. Other constants can tie when the median is not unique. MAE is the average distance between predictions and actual counts. It stays in rentals per hour.
+
+**A concrete example.** For a tiny invented training set of 10, 20, and 90 rentals, the median is 20. Predicting 20 gives absolute errors 10, 0, and 70: a total of 80. Predicting the mean, 40, gives 30, 20, and 50: a total of 100. The median wins for absolute error. This explains the baseline choice; it does not guarantee a good error on later hours.
+
+
+![Learn the median from training rows once. Use it to predict every selection row.](../../assets/diagrams/lab-00-03.png)
+
+*Read the diagram:* Learn the median from training rows once. Use it to predict every selection row.
 
 
 

@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Learning can be implemented through changed weights, memory, skills, or other retained state. This lab uses external memory. State the mechanism precisely: the host model reads a saved rule. A larger memory file is not evidence of better decisions.
 
+**A concrete example.** An agent can save “always use a tree” after one lucky result and follow that note tomorrow. Persistence and later use are visible, but the lesson may be wrong. This is retained adaptation without demonstrated improvement. The next experiment must test its scope instead of treating memory as success.
+
+
+![Persistent learning requires a retained change that is used later. Use and benefit are separate checks.](../../assets/diagrams/lab-07-03.png)
+
+*Read the diagram:* Persistent learning requires a retained change that is used later. Use and benefit are separate checks.
+
 
 
 ## Run the lab

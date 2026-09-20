@@ -48,4 +48,6 @@ This is an editorial coverage review. It does not prove that a future course mee
 | Preserve every instruction and the final goal in the skill | [Final outcome and required references](../../skills/build-research-codelabs/SKILL.md), reviewed against this table |
 | Check the full skill bundle into GitHub | The canonical [skill directory](../../skills/build-research-codelabs/) is part of this repository; package provenance follows the [checkpoint rules](../../skills/build-research-codelabs/references/provenance.md) |
 
-The Imagen 2.5 preference is preserved but not fulfilled during planning: the available generator tool has no such model selector. The course remains unimplemented. The complete skill package has separate structural validation and installation checks.
+The Imagen 2.5 preference is preserved but remains unresolved: the available generator tool has no such model selector. Implementation is approved and in progress, with 101 authored labs and separately recorded execution checks. Technical schematics supplement the requested raster illustrations. The complete skill package has separate structural validation and installation checks.
+
+Implementation lessons also add concrete backend brief/contract/check requirements, explicit simulation/source-audit labels, and technical-diagram rendering guidance to the reusable references. These additions preserve the original outcome rather than reducing it to the current course's implementation.

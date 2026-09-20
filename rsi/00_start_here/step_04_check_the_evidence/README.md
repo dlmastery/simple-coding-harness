@@ -26,6 +26,12 @@ A claim needs a chain of support. The report names a candidate; that candidate h
 
 
 
+![A report is a claim. Prediction rows and a separate calculation let you check that claim.](../../assets/diagrams/lab-00-04.png)
+
+*Read the diagram:* A report is a claim. Prediction rows and a separate calculation let you check that claim.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

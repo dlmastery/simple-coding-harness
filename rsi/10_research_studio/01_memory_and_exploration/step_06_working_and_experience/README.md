@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A completed ML trace and a partially completed new run.
 
-**Budget:** No fits. Two retrieval checks. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Two retrieval checks. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Working state records the current run: active candidate, pending check, remaining budget. Reusable experience records a scoped procedure learned from prior work. The exercise separates them and checks that a new run does not inherit old spent-state values as if they were current.
+
+
+
+![Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.](../../../assets/diagrams/lab-10-06.png)
+
+*Read the diagram:* Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Recuris](https://arxiv.org/abs/2608.24876), 25 August 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

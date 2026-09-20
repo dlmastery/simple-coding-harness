@@ -26,6 +26,12 @@ Changing “observed weather” to “weather forecast available one day earlier
 
 
 
+![A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.](../../assets/diagrams/lab-04-05.png)
+
+*Read the diagram:* A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Your task brief, harness, skills, lineage, results, failure, cost ledger, and claim audit.
 
-**Budget:** One peer reproduction of a small run; no new search to improve the presentation. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One peer reproduction of a small run; no new search to improve the presentation. Plan about 60–120 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Tell the story from a row of data to a model result, then from a failure to a skill change, then from an improver change to later work. At each step name the evidence. Keep the main walkthrough short and link to detail. An impressive architecture is not a substitute for a clear causal explanation.
+
+
+
+![Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.](../../assets/diagrams/lab-11-05.png)
+
+*Read the diagram:* Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.
 
 
 

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The primary paper’s method, evaluation, and results sections; your numerical and harness exercises.
 
-**Budget:** No training or fits. One source-linked audit and arithmetic check. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No training or fits. One source-linked audit and arithmetic check. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The paper reports held-out single-attempt accuracy rising from 42.2% to 73.3% across three coupled cycles: a 31.1 percentage-point gain. That is not a 31.1% relative increase. Keep this result separate from validation-only harness changes and multi-attempt coverage. Distinguish real researcher interactions, simulated procedural feedback, and rubric-derived training rewards.
+
+
+
+![Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.](../../../assets/diagrams/lab-10-26.png)
+
+*Read the diagram:* Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit.** You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.
 
 ## Check your understanding
 

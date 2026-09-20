@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The parent and child inner researchers and their outer-comparison evidence.
 
-**Budget:** Two small outer proposals and matched fixture evaluations; optional fits require a separate declared budget. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two small outer proposals and matched fixture evaluations; optional fits require a separate declared budget. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Swap the role being tested. Give each researcher the same task of improving a researcher, with the same starting artifact and resources. Weco’s report distinguishes its demonstrated improvement claim from an ignition comparison that was not statistically significant. Keep that uncertainty in the audit.
+
+
+
+![An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.](../../../assets/diagrams/lab-10-15.png)
+
+*Read the diagram:* An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Weco’s AIDE² report](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement), 14 July 2026. This is an explicitly requested older lab report, not a new September paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

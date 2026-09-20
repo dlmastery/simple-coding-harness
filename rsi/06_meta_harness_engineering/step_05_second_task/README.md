@@ -26,6 +26,12 @@ Preserve the high-level data science workflow. Change the target to quality at l
 
 
 
+![A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.](../../assets/diagrams/lab-06-05.png)
+
+*Read the diagram:* A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

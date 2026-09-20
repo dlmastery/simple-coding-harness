@@ -26,6 +26,12 @@ Give each simulated worker the same fixed rule: take an available job when idle.
 
 
 
+![Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.](../../assets/diagrams/lab-07-05.png)
+
+*Read the diagram:* Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** One failed task-skill proposal, raw trace, and current accepted skill.
 
-**Budget:** Two fixture checks; no new fit required. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two fixture checks; no new fit required. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 WikiSkill separates raw experience, a persistent knowledge layer, and active skills. The classroom exercise keeps a factual notebook update even when a proposed active-skill edit fails. During the controlled task run, the actor reads only its allowed active skill; the improver can consult the notebook.
+
+
+
+![Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.](../../../assets/diagrams/lab-10-27.png)
+
+*Read the diagram:* Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [WikiSkill](https://arxiv.org/abs/2608.27454), 27 August 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

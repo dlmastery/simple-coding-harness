@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The solver runs ML research. The improver proposes and tests changes to the solver’s procedure. The evaluator measures outcomes under fixed rules. Recursion concerns changes to an improvement procedure that later participates in improvement. An extra loop around a solver does not establish that relationship by itself.
 
+**A concrete example.** Changing a tree depth changes the ML candidate. Adding “inspect error by hour” changes the research skill that proposes candidates. Adding “recompute every reported score before promoting a research-skill edit” changes the improver. The edit text can look small at all three levels. What matters is which later decisions it governs.
+
+
+![The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.](../../assets/diagrams/lab-09-01.png)
+
+*Read the diagram:* The solver proposes task experiments. The improver changes that solver procedure. The evaluator measures outcomes.
+
 
 
 ## Run the lab

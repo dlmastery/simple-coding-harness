@@ -26,6 +26,12 @@ A skill describes when to act, what to read, which tools to use, what outputs to
 
 
 
+![The skill tells the agent how to carry out the process. Tools perform the concrete operations.](../../assets/diagrams/lab-01-03.png)
+
+*Read the diagram:* The skill tells the agent how to carry out the process. Tools perform the concrete operations.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

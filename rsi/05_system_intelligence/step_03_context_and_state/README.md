@@ -26,6 +26,12 @@ Task rules define the current problem. Reference knowledge explains how to act. 
 
 
 
+![Retrieve relevant reusable knowledge, but initialize current state from the active task.](../../assets/diagrams/lab-05-03.png)
+
+*Read the diagram:* Retrieve relevant reusable knowledge, but initialize current state from the active task.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

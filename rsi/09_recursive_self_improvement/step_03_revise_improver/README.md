@@ -26,6 +26,12 @@ Suppose the fixed improver promotes a skill after one favorable case and misses 
 
 
 
+![An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.](../../assets/diagrams/lab-09-03.png)
+
+*Read the diagram:* An improver revision is a proposal about how to improve later work. It still needs inheritance and evaluation.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

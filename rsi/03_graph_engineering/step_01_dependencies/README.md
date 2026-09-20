@@ -26,6 +26,12 @@ Draw each action as a node. An arrow from inspect data to validate split means t
 
 
 
+![An arrow is a prerequisite: the destination needs the source to finish first.](../../assets/diagrams/lab-03-01.png)
+
+*Read the diagram:* An arrow is a prerequisite: the destination needs the source to finish first.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

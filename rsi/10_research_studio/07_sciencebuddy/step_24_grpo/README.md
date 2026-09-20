@@ -18,11 +18,18 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Four synthetic rollout rewards: 0, 0, 1, 1. A small generated calculation; no pretrained model.
 
-**Budget:** One CPU numerical calculation and two edge cases; no LLM training. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One CPU numerical calculation and two edge cases; no LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A rollout is one sampled attempt. A reward scores it. In a grouped-relative illustration, subtract the group mean and divide by its standard deviation plus a small stabilizer. Above-average attempts receive positive advantages; below-average attempts receive negative ones. Real GRPO adds token probabilities, policy ratios, clipping, a reference/KL treatment as specified by the implementation, sampling, and optimization. This calculation is not that training system.
+
+**A concrete example.** For the invented reward group 0, 1, 1, 0, the mean is 0.5 and the population standard deviation is 0.5. Centering and dividing by that spread gives advantages -1, 1, 1, -1. If every reward is 1, the spread is zero: the group provides no relative ranking. The toy must handle that case explicitly. A real GRPO implementation also needs its actual objective, rollout policy, reference treatment, and training machinery.
+
+
+![The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.](../../../assets/diagrams/lab-10-24.png)
+
+*Read the diagram:* The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.
 
 
 
@@ -86,7 +93,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: numerical illustration.** You calculate a small worked example. This is not LLM training or a reproduction of the paper’s reported result.
 
 ## Check your understanding
 

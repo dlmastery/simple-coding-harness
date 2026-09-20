@@ -26,6 +26,12 @@ The control graph says which action may follow. Data flow says which artifact ea
 
 
 
+![Three views answer different questions. A drawn branch does not prove that branch ran.](../../assets/diagrams/lab-03-06.png)
+
+*Read the diagram:* Three views answer different questions. A drawn branch does not prove that branch ran.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

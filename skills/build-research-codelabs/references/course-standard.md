@@ -67,6 +67,8 @@ Preserve a path to larger experiments. Separate the scientific task and evaluati
 
 Scaling must preserve the scientific question or explicitly declare a new one. More trials, larger data, a different model, or more compute can change the comparison. Give competing methods comparable resources when claiming a method improvement.
 
+Make this path concrete with a readable job brief, an adapter contract, and small backend acceptance checks. Distinguish a candidate from its submission attempts. Reconcile uncertain submission before retrying. A model without resumable training should record a failed attempt and a fresh retry; do not call it checkpoint resumption. Keep student instructions in natural language while the agent generates backend files.
+
 ## Data science and experiment design
 
 For ML subjects, show the full process rather than beginning at an optimizer call:
@@ -104,6 +106,8 @@ Every image has a teaching purpose. It should show the main idea at a glance and
 Show data flow, control flow, mutable and fixed components, feedback, and boundaries where those distinctions matter. Avoid decorative imagery that hides the mechanism. Use panels for a complex overview and focused figures for individual steps.
 
 Review spelling, labels, arrows, missing stages, duplicated elements, scale, and scientific claims. Keep generation prompts, source assets, revisions, and review notes in provenance. Embed locally stored assets in Markdown with captions and alt text. Verify GitHub rendering and normal-size legibility. Preserve white backgrounds even when the viewer uses dark mode.
+
+Precise technical schematics may use Mermaid or SVG as a companion. Preserve their source and render static alternatives for readers without diagram support. Keep captions sufficient to explain the diagram. Render every diagram to catch syntax failures, then inspect layout and meaning; parser success alone is not visual review. Companion schematics do not silently satisfy a specifically requested raster generator that remains unavailable.
 
 Draw measured charts from real data with plotting tools. Mark schematic curves as schematic. Do not use image generation to manufacture empirical evidence. Check source licensing before reusing a paper figure; prefer original explanatory illustrations with citations.
 

@@ -6,7 +6,11 @@ The discovery window now extends through 20 September 2026. Two additions bring 
 
 MetaRSI adds composition across data, harness, and model surfaces and a revised scheduling policy. Its reported per-term gains decline despite increasing cumulative gains. HarnessEvolve adds checked answer-conditioned reference paths and quality/performance gates. Neither is independently reproduced here. Both now have dedicated classroom exercises.
 
-The remainder preserves the original 19 September sweep and its reading-depth limits.
+A further date-filtered sweep added [VideoHarness-RSI](https://arxiv.org/abs/2608.24302), first submitted 25 August and revised 3 September. Its abstract and version history were checked; full methods remain unread. The current count is 26 papers and five reports. This addition is an optional context-construction lead, not another claimed reproduction or a reason to expand the required lab count.
+
+HarnessDev methods, selected evaluation details, and limitations were inspected. Harness-of-Harness fixed/mutable components, role boundaries, and cross-loop state were inspected. S3Gym exploration, judging, memory, training, evaluation separation, and selected results were inspected. The [dated notes](research/2026-09-20-METHOD-NOTES.md) record the limits and teaching consequences.
+
+The remainder preserves the original 19 September sweep. Reading-depth cells for those three sources have been updated; its original counts describe that earlier sweep.
 
 Research window: **20 August–19 September 2026**. Priority window: **6–19 September 2026**. This inventory contains 23 papers and five lab or benchmark reports from that month. Earlier foundations are listed separately.
 
@@ -57,9 +61,9 @@ Dates are first submissions unless a revision is also shown. All dates are in 20
 | Date | Primary source | Why it belongs | Reading status |
 |---|---|---|---|
 | 2 Sep | [SafeEvolve: Harness-Policy Co-Evolution from Agent Experience for Safety Alignment](https://arxiv.org/abs/2609.02786) | A comparison case for bounded harness edits and model adaptation | Abstract and metadata checked |
-| 1 Sep | [HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness?](https://arxiv.org/abs/2609.01437) | Tests harness creation, subsequent evolution, cost, and transfer | Abstract and metadata checked |
-| 1 Sep | [Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement](https://arxiv.org/abs/2609.01481) | An outer workflow around existing coding agents | Abstract and metadata checked |
-| 31 Aug | [S3Gym: Can LLMs Turn Self-Testing and Self-Judging into Self-Improvement?](https://arxiv.org/abs/2608.31100) | Compares history, memory, and training; reports uneven gains and negative transfer | Abstract and metadata checked |
+| 1 Sep | [HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness?](https://arxiv.org/abs/2609.01437) | Tests harness creation, subsequent evolution, cost, and transfer | Methods, selected evaluation, and limitations inspected 20 Sep |
+| 1 Sep | [Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement](https://arxiv.org/abs/2609.01481) | Fixed agent configuration develops software through separated roles | Methods and state/permission boundaries inspected 20 Sep |
+| 31 Aug | [S3Gym: Can LLMs Turn Self-Testing and Self-Judging into Self-Improvement?](https://arxiv.org/abs/2608.31100) | Compares history, memory, and training; reports uneven gains and negative transfer | Methods, evaluation separation, and selected results inspected 20 Sep |
 | 31 Aug | [Recursive Criticality of AI Self-Improvement](https://arxiv.org/abs/2609.00137) | A theoretical account of amplification and increasing research difficulty | Abstract and metadata checked |
 | 27 Aug | [WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution](https://arxiv.org/abs/2608.27454) | Separates raw experience, accumulated knowledge, and executable skills | Architecture, update rules, and selected ablations inspected |
 | 25 Aug | [SkillForge: Evolving Verifiable Skills for Reinforcement Learning Agents](https://arxiv.org/abs/2608.24747) | Skills require continued verification rather than endless accumulation | Abstract and metadata checked |

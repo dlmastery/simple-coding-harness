@@ -18,11 +18,18 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your ontology and three labelled operator stubs: data, harness, model. No actual LLM training.
 
-**Budget:** Five small schedule checks and one inherited scheduler revision in a simulation. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Five small schedule checks and one inherited scheduler revision in a simulation. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 MetaRSI composes operators over data, harness, and model state, with a policy that chooses their order and can itself be revised. The classroom simulation makes write boundaries and input versions explicit. A changed system can make old diagnostic evidence stale. Keep the external evaluator fixed.
+
+**A concrete example.** Suppose a diagnosis says the current harness omits a needed tool call. A harness edit repairs that omission. Reusing the old diagnosis to choose the next operator can now be wrong: it describes the old state. Versioned evidence tells the scheduler when it must inspect the changed system again.
+
+
+![The simulation composes typed changes and can revise their schedule. Its synthetic values are not model-training results.](../../../assets/diagrams/lab-10-35.png)
+
+*Read the diagram:* The simulation composes typed changes and can revise their schedule. Its synthetic values are not model-training results.
 
 
 
@@ -86,7 +93,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396), Zihan Tan and colleagues; first submitted 6 September 2026, revised 9 September.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: simulation.** You execute rules over labelled synthetic states. Those values are not trained-model measurements or the paper’s results.
 
 ## Check your understanding
 

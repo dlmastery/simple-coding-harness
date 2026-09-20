@@ -26,6 +26,12 @@ A cycle returns to an earlier action. Its state must include attempts used and t
 
 
 
+![The retry cycle has a limit. Its failure path is part of the graph.](../../assets/diagrams/lab-03-04.png)
+
+*Read the diagram:* The retry cycle has a limit. Its failure path is part of the graph.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

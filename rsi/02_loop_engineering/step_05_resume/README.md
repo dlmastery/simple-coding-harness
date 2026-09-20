@@ -26,6 +26,12 @@ A checkpoint records durable state: contract, completed and interrupted attempts
 
 
 
+![Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.](../../assets/diagrams/lab-02-05.png)
+
+*Read the diagram:* Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

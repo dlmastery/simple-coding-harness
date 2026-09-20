@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The exploration traces and a valid output checker.
 
-**Budget:** No fits. Verify one result and test one memory statement. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Verify one result and test one memory statement. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 RSIAgent separates outcome verification from actor-owned memory updates. The verifier does not author or approve the memory wording. Our exercise preserves that responsibility split while using a small ML trace.
+
+
+
+![The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.](../../../assets/diagrams/lab-10-04.png)
+
+*Read the diagram:* The verifier checks the outcome. The actor writes memory; the verdict does not approve the wording of that memory.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [RSIAgent](https://arxiv.org/abs/2609.15364), Sibo Zhu and colleagues, Aether AI, UC San Diego, and UIUC; 14 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

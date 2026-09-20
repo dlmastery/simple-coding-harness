@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Two task-skill update traces and the frozen meta-skill.
 
-**Budget:** One meta-skill proposal, one later task-skill round, at most four fits total. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One meta-skill proposal, one later task-skill round, at most four fits total. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Use several task-level outcomes to motivate a less frequent updater change. Freeze the revised updater during the next task-skill round. The schedule helps separate observations used to design the updater from outcomes used to evaluate its later behavior.
+
+
+
+![Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.](../../../assets/diagrams/lab-10-17.png)
+
+*Read the diagram:* Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297), 6 July 2026. This older foundation is dated separately from the current-month sweep.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

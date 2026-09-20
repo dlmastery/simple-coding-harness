@@ -12,6 +12,8 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
 | [Implementation record](IMPLEMENTATION-RECORD.md) | Execution design, migration, research additions, and unresolved decisions |
 | [Lesson publishing source](scripts/lesson-content.mjs) | Index of the authored lesson modules and reproducible Markdown publisher |
+| [Visual explanations and review](visuals/REVIEW.md) | Technical diagrams, retained revisions, raster prompts, and review limits |
+| [Compute extension](../../rsi/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
 | [Course evidence](../../rsi/evidence/2026-09-20/README.md) | Actual model fits, mechanism checks, and limits |
 | [Artifact index](ARTIFACTS.md) | Intermediate artifacts, source hashes, validation, and explicit retention gaps |
 | [Reusable course-building skill](../../skills/build-research-codelabs/SKILL.md) | The complete reusable method, with references and an RSI preset |

@@ -48,3 +48,9 @@ Next: execute controlled ML walkthroughs and a representative inherited-improver
 The controlled ML and author-guided inherited-procedure walkthroughs above are now executed. Their drivers are retained in `scripts/run-foundation-walkthrough.py` and `scripts/run-inheritance-walkthrough.py`. Results are linked from the dated evidence index. The result checker has four meaningful failure/acceptance tests; the full shared suite passes 15 tests.
 
 Remaining work includes research adaptation labels and reading status, compute extensions, illustrations, clean-start activity coverage, editorial review, and agent/backend validation. The inherited-procedure trace is deliberately limited to a selected procedure in one authoring context. It is not a matched autonomous improver experiment.
+
+## Research and visual checkpoint
+
+Completed the adaptation-label correction, selected method-depth updates, concrete compute extension documents, and clean-source/fresh-environment checks. Added and executed a generated-harness walkthrough. All 101 labs now have original technical schematics with retained source and rendered galleries. Added numerical and concrete examples where a difficult distinction needed one.
+
+The requested Imagen raster illustrations remain pending the provider decision. Technical schematics are supplementary. Full lab-by-lab clean-session execution, independent improver comparison, native other-agent paths, GPU/cluster tests, learner testing, and remaining detailed source audits are not complete. Continue validation from these specific gaps; do not recreate the authored sequence.

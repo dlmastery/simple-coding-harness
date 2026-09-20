@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The ML workflow graph, success and failure traces, and domain ontology.
 
-**Budget:** One graph edit and two checks; at most two fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One graph edit and two checks; at most two fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A procedural graph represents actions and transitions. Our exercise gives the executor the current node and relevant local guidance, then proposes one transition repair from traces. The domain ontology still describes entities and meaning. These are different graphs. Freeze the selected procedure before a fresh evaluation.
+
+
+
+![A procedure graph specifies actions and transitions. Freeze the selected graph before testing it on fresh cases.](../../../assets/diagrams/lab-10-28.png)
+
+*Read the diagram:* A procedure graph specifies actions and transitions. Freeze the selected graph before testing it on fresh cases.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Procedural Graphs](https://arxiv.org/abs/2609.09153), 8 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

@@ -26,6 +26,12 @@ A branch is a decision with explicit conditions. If required fields are absent, 
 
 
 
+![Different failures require different routes. A data problem should not trigger an expensive model search.](../../assets/diagrams/lab-03-02.png)
+
+*Read the diagram:* Different failures require different routes. A data problem should not trigger an expensive model search.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -26,6 +26,12 @@ A process says what actions turn an input into an output. For this task: frame t
 
 
 
+![Follow one fixed process. No outer search chooses a new recipe after the result.](../../assets/diagrams/lab-01-01.png)
+
+*Read the diagram:* Follow one fixed process. No outer search chooses a new recipe after the result.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -31,3 +31,9 @@ The [controlled walkthrough](walkthrough/README.md) adds nine actual fits and on
 The [inheritance walkthrough](inherited-improver/README.md) retains two improver versions and an [executed trace](inherited-improver/EXECUTION-TRACE.md). The selected revised procedure requires a prediction-based check before promotion. It rejects a deliberately false report and retains a valid lower-error result. This demonstrates execution of an inherited instruction in an author-guided round. It does not establish autonomous revision, independent contexts, a general performance advantage, or recursive acceleration.
 
 The shared suite now passes 15 tests. These checks and the synthetic mechanism fixtures cover specific paths; they do not mean all 101 learner activities or all coding-agent adapters have been executed.
+
+## Generated harness and clean setup
+
+The [generated harness](generated-harness/package/README.md) follows a [readable brief](generated-harness/HARNESS-BRIEF.md). Its [execution record](generated-harness/EXECUTION.md) shows one checked baseline, a leaked-feature refusal, and refusal after two charged attempts. The builder and the generated package are separate objects. This checks generation and execution, not improvement of the builder.
+
+An exported Git checkpoint passed all 15 tests, both with the existing environment and after a fresh dependency installation. A separate [clean-source baseline](clean-source-baseline/CHECK.md) also recomputed correctly. See the [setup record](../../../how-did-i-generate-it/rsi/validation/CLEAN-SOURCE-CHECK.md) for commands and limits.

@@ -26,6 +26,12 @@ Emergence describes a pattern at the collective level that arises from component
 
 
 
+![A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.](../../assets/diagrams/lab-07-06.png)
+
+*Read the diagram:* A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

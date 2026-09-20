@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Paper audits for Dream-RSI, RSIAgent, AIDE², ScientistTwo, ScienceBuddy, MetaRSI, and your local lineage.
 
-**Budget:** No fits. One source-linked matrix and one claim challenge. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. One source-linked matrix and one claim challenge. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Compare the same questions across systems: what changes, what remains fixed, who supplies feedback, what persists, what later work inherits it, what is evaluated, and at what cost. Keep paper-reported evidence separate from your measurements. Missing information is a result of the audit, not a blank to fill by inference.
+
+
+
+![Compare systems on common questions before comparing scores. Missing evidence stays visible.](../../../assets/diagrams/lab-10-37.png)
+
+*Read the diagram:* Compare systems on common questions before comparing scores. Missing evidence stays visible.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Research inventory](../../../research/README.md), including the primary sources used throughout this studio.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit.** You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.
 
 ## Check your understanding
 

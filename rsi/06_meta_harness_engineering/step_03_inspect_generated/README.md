@@ -26,6 +26,12 @@ Trace requirements forward to implementation and evidence backward to requiremen
 
 
 
+![Trace each important requirement to implementation and then to observed behavior.](../../assets/diagrams/lab-06-03.png)
+
+*Read the diagram:* Trace each important requirement to implementation and then to observed behavior.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your claim audit from 09.07 and the primary paper.
 
-**Budget:** No fits. Read the framework and audit three cases. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Read the framework and audit three cases. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Begin with your artifacts, then apply the paper’s definitions. Keep execution changes, strategy changes, retained experience, deployment changes, and inherited improver changes distinct. Do not equate this framework’s level numbers with another lab’s terminology.
+
+
+
+![Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.](../../../assets/diagrams/lab-10-01.png)
+
+*Read the diagram:* Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873), first submitted 10 September 2026; consult the dated source record for revisions.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit.** You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.
 
 ## Check your understanding
 

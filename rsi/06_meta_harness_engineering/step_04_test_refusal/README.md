@@ -26,6 +26,12 @@ A negative test supplies a specific forbidden request and checks the resulting b
 
 
 
+![A boundary is demonstrated by a meaningful refusal tied to the current request.](../../assets/diagrams/lab-06-04.png)
+
+*Read the diagram:* A boundary is demonstrated by a meaningful refusal tied to the current request.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

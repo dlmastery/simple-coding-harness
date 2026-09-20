@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An entity is an object you need to distinguish. A type states what kind of object it is. The bike table is a dataset; cnt is a column playing the target role; MAE is a metric; 159.948 is a measured value for a particular candidate and partition. Keeping these separate prevents category mistakes.
 
+**A concrete example.** A candidate is a recipe, such as “linear model with calendar fields.” A run is an execution of that recipe on particular data with a particular seed. Two runs can use the same candidate and still have different timings or outcomes. Keeping these objects separate lets you repeat a recipe without rewriting its history.
+
+
+![Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.](../../assets/diagrams/lab-04-01.png)
+
+*Read the diagram:* Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.
+
 
 
 ## Run the lab

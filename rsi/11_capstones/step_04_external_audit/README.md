@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Choose a new primary source discovered within the preceding month, or a clearly dated required foundation.
 
-**Budget:** No large reproduction. One small mechanism check if appropriate. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No large reproduction. One small mechanism check if appropriate. Plan about 60–120 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Start with what changes and how it is evaluated. Then inspect inheritance, resources, retained artifacts, failures, transfer, and access boundaries. Use the authors’ definitions accurately while stating your own evaluation criteria. A critical audit should be precise and fair, not reflexively skeptical.
+
+
+
+![Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.](../../assets/diagrams/lab-11-04.png)
+
+*Read the diagram:* Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.
 
 
 

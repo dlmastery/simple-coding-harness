@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The new harness, a fixed improver baseline, and prespecified development and evaluation cases.
 
-**Budget:** Two generations maximum, eight CPU fits total, and a declared agent-inference limit if available. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two generations maximum, eight CPU fits total, and a declared agent-inference limit if available. Plan about 60–120 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 First establish the fixed-improver baseline. Propose one improver revision from development evidence. Make a later round inherit it. Compare old and new improvers from matching starting artifacts. Keep evaluation and promotion rules outside the ordinary candidate’s writable surface, or state the weaker local boundary.
+
+
+
+![The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.](../../assets/diagrams/lab-11-02.png)
+
+*Read the diagram:* The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.
 
 
 

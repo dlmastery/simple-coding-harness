@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Two checks can inspect different properties of the same candidate. Their results must carry its identity and contract version. A join waits for both, verifies identity, then applies a declared rule. Running these checks sequentially can test the logic; actual parallel execution adds timing and coordination concerns.
 
+**A concrete example.** Imagine the data check passes for candidate A, while the prediction check passes for candidate B. You have two passes, but no candidate has passed both checks. The join must ask “two passes for which candidate?” This is why identity belongs in the evidence, not just in a filename chosen by the agent.
+
+
+![A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.](../../assets/diagrams/lab-03-03.png)
+
+*Read the diagram:* A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.
+
 
 
 ## Run the lab

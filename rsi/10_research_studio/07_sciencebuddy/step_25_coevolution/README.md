@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Two synthetic model versions and two synthetic harness versions, plus a declared outcome table.
 
-**Budget:** Four table evaluations in a simulation; no LLM training. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four table evaluations in a simulation; no LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 ScienceBuddy couples harness adaptation with weight learning across repeated cycles. Our simulation represents the pair explicitly. It is constructed to show interaction: a harness may suit one model better than another. Synthetic scores illustrate the accounting and comparison, not the paper’s measured gains.
+
+
+
+![Track model and harness versions as a pair. Changing either can alter compatibility with the other.](../../../assets/diagrams/lab-10-25.png)
+
+*Read the diagram:* Track model and harness versions as a pair. Changing either can alter compatibility with the other.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: simulation.** You execute rules over labelled synthetic states. Those values are not trained-model measurements or the paper’s results.
 
 ## Check your understanding
 

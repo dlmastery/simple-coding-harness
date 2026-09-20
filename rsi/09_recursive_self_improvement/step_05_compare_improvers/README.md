@@ -26,6 +26,12 @@ The outcome is the improvement each procedure produces from the same starting so
 
 
 
+![Compare the improvements produced by the two improvers from matched starts. Do not compare only their instruction text.](../../assets/diagrams/lab-09-05.png)
+
+*Read the diagram:* Compare the improvements produced by the two improvers from matched starts. Do not compare only their instruction text.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

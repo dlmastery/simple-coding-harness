@@ -95,3 +95,15 @@ Ran nine additional model fits, a final refit, domain checks, and post-final ref
 Read the retained improver v1 and generated a driver that executes its required check in a new author-guided round. A labelled report copy claiming MAE 9.0 was rejected; a genuine MAE 99.175924 result was retained against the fixed 109.807668 incumbent. The trace records the selected procedure hash and actual command outcomes. No independent v0 agent was run, and no autonomous RSI advantage is claimed.
 
 Next: tighten research adaptation labels and reading-depth records, extend compute guidance, and continue clean-start and editorial validation. Illustration provider choice remains unresolved.
+
+## 20 September: research, portability, and visual explanations
+
+The controlled-walkthrough checkpoint `93d3760a14a9940df23e26bc67bdf7cb22e30933` was pushed and the remote hash matched. Subsequent work added explicit activity labels for source audits, numerical examples, replay, simulations, and mechanism exercises. Corrected Harness-of-Harness: its agent configuration stays fixed while software and evidence evolve. Updated three papers' reading depth and added VideoHarness-RSI as an abstract-checked optional lead. The month inventory now has 26 papers and five reports; no new Meta/FAIR post-only result was verified.
+
+Added a larger-compute guide, readable job brief, adapter contract, and backend acceptance checks. GPU and cluster execution remain untested. Generated and executed a concrete two-attempt bike harness from a prose brief: one valid baseline, one leakage refusal, and an exhausted-budget refusal. Preserved its package, source brief, driver, ledger, and outputs.
+
+Exported the pushed source and ran its 15 tests. Then created a fresh Python environment from the documented requirements and passed the same tests. Recorded a clean-source baseline and checked its predictions. This is Windows setup evidence, not universal agent portability.
+
+Authored 101 technical diagrams, rendered all, inspected representative images, and revised wide layouts. Retained both galleries and their rendered outputs. Added worked examples at important conceptual transitions and corrected the general median explanation. Prepared ten detailed raster illustration prompts; the named Imagen generator remains unavailable through the exposed selector. Technical schematics are an explicit companion, not a claimed provider substitution.
+
+Updated the reusable authoring skill with lessons on concrete compute handoffs, accurate activity types, and diagram validation. The canonical package remains in the repository; its local installed copy is synchronized only after checking for divergence.

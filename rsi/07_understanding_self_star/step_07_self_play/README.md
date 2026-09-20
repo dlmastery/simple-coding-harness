@@ -26,6 +26,12 @@ Self-play uses interaction among system roles or copies to generate experience. 
 
 
 
+![Self-play supplies interactions or challenges. Transfer still needs an evaluation outside those interactions.](../../assets/diagrams/lab-07-07.png)
+
+*Read the diagram:* Self-play supplies interactions or challenges. Transfer still needs an evaluation outside those interactions.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

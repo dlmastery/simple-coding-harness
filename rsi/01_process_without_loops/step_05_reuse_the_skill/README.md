@@ -26,6 +26,12 @@ A fresh session has a new working context. It reads the stored skill and task to
 
 
 
+![A new session receives saved files. It should not need an unrecorded explanation from the previous chat.](../../assets/diagrams/lab-01-05.png)
+
+*Read the diagram:* A new session receives saved files. It should not need an unrecorded explanation from the previous chat.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

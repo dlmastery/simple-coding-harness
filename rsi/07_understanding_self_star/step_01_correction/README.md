@@ -26,6 +26,12 @@ Self-correction revises a current output using feedback. Here the checker expose
 
 
 
+![Correction repairs the current output. It need not create a lasting instruction for future tasks.](../../assets/diagrams/lab-07-01.png)
+
+*Read the diagram:* Correction repairs the current output. It need not create a lasting instruction for future tasks.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

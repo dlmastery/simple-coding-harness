@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Structural recursion requires a path from a procedure revision into later improvement work. Record the inherited version and show a decision caused by its changed rule. A hash proves identity, not obedience. The trace must connect the rule to an executed proposal or check.
 
+**A concrete example.** In the saved author-guided example, improver v1 requires recomputing the candidate score. A later round reads that version and rejects a report that claims MAE 9.0 while its predictions imply 159.95. The trace shows that the new instruction ran. It does not show that the system invented the instruction autonomously or that v1 is generally better across tasks.
+
+
+![A later round must read the revised improver and execute an action it requires. A saved file alone is insufficient.](../../assets/diagrams/lab-09-04.png)
+
+*Read the diagram:* A later round must read the revised improver and execute an action it requires. A saved file alone is insufficient.
+
 
 
 ## Run the lab

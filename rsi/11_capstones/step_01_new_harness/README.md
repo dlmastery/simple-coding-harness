@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Choose a small permitted tabular dataset, or a new prespecified question on the supplied data. Explain what makes the task new.
 
-**Budget:** At most four small CPU fits. No paid cluster launch in the required path. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** At most four small CPU fits. No paid cluster launch in the required path. Plan about 60–120 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Begin with the scientific contract, not a preferred optimizer. State target, prediction time, available inputs, split, metric, baseline, and limitations. Use the builder skill to create a harness, then test a valid run and an intended refusal. Keep any departure from the earlier task explicit.
+
+
+
+![A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.](../../assets/diagrams/lab-11-01.png)
+
+*Read the diagram:* A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.
 
 
 

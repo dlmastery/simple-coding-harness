@@ -26,6 +26,12 @@ Each generation records the active solver, active improver, proposal, evaluation
 
 
 
+![Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.](../../assets/diagrams/lab-09-06.png)
+
+*Read the diagram:* Each generation retains lineage and passes the declared checks. A failed revision can end the chain or keep the parent.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

@@ -22,7 +22,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-One row describes one recorded hour. The target, cnt, is the number of rentals. Calendar and observed weather fields describe the situation. A prediction is an estimate of cnt before looking at its value. The information setting matters: using observed weather makes this a retrospective exercise, not proof of a day-ahead forecast.
+One row describes one recorded hour. The target, cnt, is the number of rentals. Calendar and observed weather fields describe the situation. A prediction is an estimate of cnt before looking at its value. We score it with mean absolute error (MAE): the average size of the prediction errors, ignoring their signs. The information setting matters: using observed weather makes this a retrospective exercise, not proof of a day-ahead forecast.
+
+
+
+![Predict the hourly total from allowed inputs. The two component counts already contain the answer.](../../assets/diagrams/lab-00-01.png)
+
+*Read the diagram:* Predict the hourly total from allowed inputs. The two component counts already contain the answer.
 
 
 

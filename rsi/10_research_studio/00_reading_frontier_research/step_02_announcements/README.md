@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The current research inventory and one official lab post or original author thread.
 
-**Budget:** No fits. Search only the preceding month; inspect one complete claim trail. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits. Search only the preceding month; inspect one complete claim trail. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Record who made the claim, when it first appeared, what was measured, and what the linked evidence contains. Original X posts can be valid announcement sources. A blocked thread stays unverified; a repost is not a substitute for its missing content.
+
+
+
+![Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.](../../../assets/diagrams/lab-10-02.png)
+
+*Read the diagram:* Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [Dated research inventory](../../../research/README.md) and the original primary sources it links.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: source audit.** You inspect and compare evidence from primary sources. This activity does not execute or reproduce the paper’s system.
 
 ## Check your understanding
 

@@ -26,6 +26,12 @@ Reflection interprets an attempt. It may identify a failure, suggest a cause, an
 
 
 
+![A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.](../../assets/diagrams/lab-07-02.png)
+
+*Read the diagram:* A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

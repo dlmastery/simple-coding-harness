@@ -5,6 +5,11 @@
 | Term | Meaning here | Example or counterexample |
 |---|---|---|
 | Task model | A fitted regressor or classifier | The bike-demand linear model |
+| Baseline | A simple, declared starting method used for comparison | Predict the training median every hour |
+| Mean absolute error (MAE) | Average absolute difference between predictions and outcomes | An error of 10 means ten rentals per hour in this task |
+| Balanced accuracy | Mean recall across classes | A majority-only binary classifier scores 0.5 when both classes occur |
+| Leakage | Evaluation or outcome information enters a place where the prediction contract forbids it | Using the two counts that sum to the target |
+| Hill climbing | Propose a change, evaluate it, and retain eligible improvements | Change a feature group while preserving the evaluator; it can stall or overfit |
 | Coding agent | A language model operating with instructions, tools, and state | The agent that generates an experiment |
 | Skill | A reusable written procedure read by an agent | Inspect error slices before proposing a change |
 | Tool | An executable operation | Fit one recipe and save predictions |
@@ -35,5 +40,6 @@
 | Final evaluation | Evaluation of a frozen retained choice | Public partitions are not secret from this host agent |
 | Ablation | A controlled removal or disabling of a component | Compare with and without memory |
 | Transfer | Applying a retained method beyond the setting that selected it | Test a bike-research skill on wine classification |
+| GRPO | Group Relative Policy Optimization; a model-training approach using relative rewards within rollout groups | A grouped-reward calculation alone is not a full training implementation |
 
 The self-* terms overlap. They are not one universal ladder. A system can organize itself without learning, learn without improving, or modify itself without recursion. Name what changed and the evidence for its effect.

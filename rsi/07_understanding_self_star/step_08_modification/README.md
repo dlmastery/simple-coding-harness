@@ -26,6 +26,12 @@ Self-modification means the system changes part of its own implementation or ins
 
 
 
+![Self-modification changes a component. Keep its parent and evaluate the change before retaining it.](../../assets/diagrams/lab-07-08.png)
+
+*Read the diagram:* Self-modification changes a component. Keep its parent and evaluate the change before retaining it.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

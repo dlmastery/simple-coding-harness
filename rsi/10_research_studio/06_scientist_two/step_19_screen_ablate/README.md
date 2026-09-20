@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Two candidate hypotheses and a fixed development protocol.
 
-**Budget:** Four fits maximum: two screening runs and two confirmation runs. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four fits maximum: two screening runs and two confirmation runs. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Screening uses a cheaper test to choose which idea deserves more work. Confirmation then tests the chosen idea under the declared fuller conditions. An ablation removes the proposed component. Keep screening and confirmation results distinct; a cheap proxy is not automatically the final objective.
+
+
+
+![Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.](../../../assets/diagrams/lab-10-19.png)
+
+*Read the diagram:* Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScientistTwo](https://arxiv.org/abs/2609.19644), Jaehyun Nam, Jinsung Yoon, Yanzhou Pan, Yubo Wang, Rui Meng, Parthasarathy Ranganathan, and Tomas Pfister; Google Cloud AI Research and University of Waterloo; 17 September 2026.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

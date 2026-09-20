@@ -26,6 +26,12 @@ Reproducibility begins with a fixed recipe and known inputs. Record versions and
 
 
 
+![The process becomes evidence only when its actions run and their outputs are retained.](../../assets/diagrams/lab-01-02.png)
+
+*Read the diagram:* The process becomes evidence only when its actions run and their outputs are retained.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

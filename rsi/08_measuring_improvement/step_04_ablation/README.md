@@ -24,6 +24,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Compare parent without memory, parent with memory, child without memory, and child with memory. The combined effect can differ from the sum of separate effects. Keep starting state and resources matched. This tests the selected components on selected tasks, not all possible memories or skills.
 
+**A concrete example.** Suppose the original procedure gains nothing from memory, but a revised procedure knows how to retrieve the right note. Memory may help only when combined with that revision. Comparing just “old system” with “everything changed” hides this interaction. The four conditions separate the two changes and their combination.
+
+
+![The four conditions separate memory and procedure changes. They also reveal whether the changes interact.](../../assets/diagrams/lab-08-04.png)
+
+*Read the diagram:* The four conditions separate memory and procedure changes. They also reveal whether the changes interact.
+
 
 
 ## Run the lab

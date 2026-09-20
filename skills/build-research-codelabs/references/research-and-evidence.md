@@ -37,8 +37,10 @@ Label the activity accurately:
 
 - **Mechanism exercise:** runs a small version of the idea on a teaching task.
 - **Numerical illustration:** exposes a calculation or update without reproducing the original trained system.
+- **Simulation:** executes explicit synthetic rules or state changes; its values are not measured behavior of the original system.
 - **Replay:** examines recorded outcomes without producing new environment evidence.
 - **Result audit:** checks a published claim against its methods and reported results.
+- **Source audit:** inspects definitions, mechanisms, dates, or evidence without executing the source system.
 - **Reproduction:** executes a sufficiently faithful protocol and reports remaining differences.
 
 Every required lab has a laptop-sized activity. Add GPU or cluster extensions where appropriate. Do not claim model-weight learning from edited prompts or skills. Do not call automated review scores real human acceptance decisions. Distinguish reported results from classroom measurements.

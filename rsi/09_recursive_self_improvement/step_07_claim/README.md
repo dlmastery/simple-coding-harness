@@ -26,6 +26,12 @@ Structural recursion means a changed improvement procedure enters later improvem
 
 
 
+![Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.](../../assets/diagrams/lab-09-07.png)
+
+*Read the diagram:* Each claim needs its own evidence. Structural inheritance does not by itself establish benefit or acceleration.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

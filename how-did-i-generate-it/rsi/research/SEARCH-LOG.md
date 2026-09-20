@@ -56,3 +56,21 @@ The [research inventory](../RSI-RESEARCH-SWEEP.md) gives stable links and readin
 The direct X request for `https://x.com/ValsAI/status/2098170083466191086` returned HTTP 403. The official Vals benchmark page was accessible. No contents or date from the blocked post were accepted as verified.
 
 No raw website dump is checked in. These original notes, source URLs, source dates, and the inventory preserve the useful research record without republishing entire copyrighted pages.
+
+## 20 September follow-up
+
+All following discovery queries used the available 31-day recency filter. The explicit range was 20 August through 20 September. Exact query bodies:
+
+```text
+("recursive self-improvement" OR "harness evolution") after:2026-08-20 before:2026-09-21 site:arxiv.org
+("self-improving" OR "recursive self improvement") after:2026-08-20 before:2026-09-21 (site:ai.meta.com OR site:research.google OR site:deepmind.google OR site:anthropic.com OR site:openai.com)
+("HarnessOpt-Bench" OR "Evo-Bench" OR "SEAGym" OR "Harness-R1") after:2026-08-20 before:2026-09-21
+("recursive self-improvement" OR "harness" OR "self-improving") ("FAIR" OR "Meta") site:x.com after:2026-08-20 before:2026-09-21
+("recursive self-improvement" OR "self-improving agents") site:x.com ("Meta" OR "FAIR") after:2026-08-20 before:2026-09-21
+"SEAGym" site:arxiv.org after:2026-08-20 before:2026-09-21
+"Harness-R1" site:arxiv.org after:2026-08-20 before:2026-09-21
+```
+
+VideoHarness-RSI was new to the inventory; its primary abstract and version history confirmed eligibility. Other results included already recorded papers, an older May webinar, and undated or older leads. They were not counted as new releases. The final three-query batch returned no search results. That is not evidence of absence.
+
+Direct primary-page follow-up inspected HarnessDev, Harness-of-Harness, and S3Gym as recorded in [method notes](2026-09-20-METHOD-NOTES.md). Direct opens are source checks, not unfiltered discovery queries.

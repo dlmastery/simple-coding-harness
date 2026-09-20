@@ -26,6 +26,12 @@ Recreation uses the saved brief, builder version, generated files, dependencies,
 
 
 
+![Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.](../../assets/diagrams/lab-06-06.png)
+
+*Read the diagram:* Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

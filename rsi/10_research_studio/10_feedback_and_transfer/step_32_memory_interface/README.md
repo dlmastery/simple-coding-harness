@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A synthetic sequence of inventory changes, such as add 3, remove 1, add 2, with a known final count.
 
-**Budget:** Two short task attempts and one counterexample; no model-weight training. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two short task attempts and one counterexample; no model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 The task asks the agent to recover the final state from a sequence. One condition receives raw events; another receives a checked summary plus subsequent events. The checker computes the answer from the original sequence. This tests an external memory interface, not parameter learning.
+
+
+
+![Both memory representations refer to the same event history. The checker computes truth from the original events.](../../../assets/diagrams/lab-10-32.png)
+
+*Read the diagram:* Both memory representations refer to the same event history. The checker computes truth from the original events.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [S3Gym](https://arxiv.org/abs/2608.31100), submitted 31 August 2026. This is an adjacent memory-interface exercise; read the full training protocol before making paper-specific training claims.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 

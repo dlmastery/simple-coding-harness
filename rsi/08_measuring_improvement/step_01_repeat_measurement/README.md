@@ -26,6 +26,12 @@ Use the same prespecified seeds for both recipes. Compare paired differences, re
 
 
 
+![A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.](../../assets/diagrams/lab-08-01.png)
+
+*Read the diagram:* A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

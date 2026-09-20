@@ -26,6 +26,12 @@ A harness organizes an agent’s instructions, tools, state, evaluation, and lim
 
 
 
+![The brief fixes scientific choices and required behavior. The builder supplies implementation details.](../../assets/diagrams/lab-06-01.png)
+
+*Read the diagram:* The brief fixes scientific choices and required behavior. The builder supplies implementation details.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

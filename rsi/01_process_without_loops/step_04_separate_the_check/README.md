@@ -26,6 +26,12 @@ A separate calculation can recompute a metric without trusting the report writer
 
 
 
+![The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.](../../assets/diagrams/lab-01-04.png)
+
+*Read the diagram:* The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

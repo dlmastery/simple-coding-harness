@@ -1,4 +1,4 @@
-const L=(id,slug,title,body)=>({id,theme:'11',slug,title,...body});
+const L=(id,slug,title,body)=>({id,theme:'11',slug,title,time:'60–120',...body});
 export const capstones = [
 L('11.01','new_harness','Build a harness for a new prediction brief',{
  build:'A runnable harness that another student can inspect and execute.', why:'A new task reveals whether you understand the method or only remember the earlier examples.', start:'Choose a small permitted tabular dataset, or a new prespecified question on the supplied data. Explain what makes the task new.', budget:'At most four small CPU fits. No paid cluster launch in the required path.',

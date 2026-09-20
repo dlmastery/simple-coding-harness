@@ -26,6 +26,12 @@ If report formatting fails, valid predictions need not be recomputed. If the dat
 
 
 
+![Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.](../../assets/diagrams/lab-03-05.png)
+
+*Read the diagram:* Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.
+
+
+
 ## Run the lab
 
 Start with this prompt. The tutor pauses for your prediction before it runs the next step.

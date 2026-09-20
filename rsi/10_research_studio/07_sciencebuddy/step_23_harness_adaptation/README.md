@@ -18,11 +18,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The task, rubric, and failed report fixture from 10.22.
 
-**Budget:** One skill edit and two checker runs; no model-weight training. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One skill edit and two checker runs; no model-weight training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Keep the agent’s language-model weights fixed. Edit a learner-owned reporting skill to require class-wise evidence and a claim check. Then test the revised procedure. This isolates harness adaptation; it does not implement the paper’s weight-learning component.
+
+
+
+![Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.](../../../assets/diagrams/lab-10-23.png)
+
+*Read the diagram:* Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.
 
 
 
@@ -86,7 +92,7 @@ Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRE
 
 [ScienceBuddy](https://arxiv.org/abs/2609.17523), Shuhan Xue, Jianyuan Zhong, Ziyuan Nan, and colleagues; 15 September 2026. The full author list and affiliations are on the primary paper.
 
-This is a classroom mechanism exercise. Its task, models, and budget differ from the original study. Your measured result belongs to this exercise; it does not reproduce the paper’s headline result.
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
 
 ## Check your understanding
 
