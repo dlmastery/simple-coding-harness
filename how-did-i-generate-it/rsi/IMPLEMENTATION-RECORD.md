@@ -42,3 +42,9 @@ The shared runner passes 11 tests, including 21 executed synthetic mechanism che
 Relevant MetaRSI mechanism and comparison sections and HarnessEvolve reference, diagnosis, gate, and selected experiment sections were inspected. Full appendices and code reproduction remain incomplete. Research notes preserve these limits.
 
 Next: execute controlled ML walkthroughs and a representative inherited-improver exercise, retaining artifacts and failures. Review prerequisite and budget consistency. Resolve the requested image generator, inspect illustrations, and validate agent entry paths. Do not call the course finished from written coverage and component tests alone.
+
+## Controlled execution checkpoint
+
+The controlled ML and author-guided inherited-procedure walkthroughs above are now executed. Their drivers are retained in `scripts/run-foundation-walkthrough.py` and `scripts/run-inheritance-walkthrough.py`. Results are linked from the dated evidence index. The result checker has four meaningful failure/acceptance tests; the full shared suite passes 15 tests.
+
+Remaining work includes research adaptation labels and reading status, compute extensions, illustrations, clean-start activity coverage, editorial review, and agent/backend validation. The inherited-procedure trace is deliberately limited to a selected procedure in one authoring context. It is not a matched autonomous improver experiment.

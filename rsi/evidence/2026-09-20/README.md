@@ -1,4 +1,4 @@
-# Foundation author walkthrough
+# Author execution evidence
 
 Date: 20 September 2026. Host: Windows AMD64; Python 3.12.12. Package versions are in the [environment record](../../../how-did-i-generate-it/rsi/validation/foundation-environment.txt).
 
@@ -23,3 +23,11 @@ Inspect the complete [bike report](author-bike/DATA-REPORT.md), [bike comparison
 Eight behavioral runtime tests passed. The legacy suite passed its offline checks and skipped 19 live checks. Those legacy tests do not establish that the rebuilt lessons work in another agent.
 
 These measurements are public teaching evidence, not independent RSI results. No final partition was used for model selection during these fits. The public inspection report includes partition summaries and is not a secret holdout.
+
+## Controlled walkthroughs
+
+The [controlled walkthrough](walkthrough/README.md) adds nine actual fits and one final refit. It isolates a model change from a feature change, executes a bounded search, checks classification, rejects three domain contradictions, and verifies the final-evaluation lock. Adding weather to the same linear model changes selection MAE from 109.807668 to 99.175924. Replacing the calendar linear model with a calendar tree changes it to 125.049488: that proposal loses.
+
+The [inheritance walkthrough](inherited-improver/README.md) retains two improver versions and an [executed trace](inherited-improver/EXECUTION-TRACE.md). The selected revised procedure requires a prediction-based check before promotion. It rejects a deliberately false report and retains a valid lower-error result. This demonstrates execution of an inherited instruction in an author-guided round. It does not establish autonomous revision, independent contexts, a general performance advantage, or recursive acceleration.
+
+The shared suite now passes 15 tests. These checks and the synthetic mechanism fixtures cover specific paths; they do not mean all 101 learner activities or all coding-agent adapters have been executed.

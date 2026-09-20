@@ -14,6 +14,8 @@ Use Python 3.12 in a project-local environment. Install [requirements.txt](requi
 
 Task names: `bike` and `wine`. Model names: `constant`, `linear`, `tree`, `forest`. Bike feature groups: `calendar`, `weather`, `all`. Wine uses `all`. Seeds are explicit; default 17. An optional `--policy PATH` retains the policy used by the agent. It records provenance, not proof of compliance.
 
+For an existing successful selection candidate, run `rsi/tools/check_result.py CANDIDATE_PATH --report CHECK_PATH` through the same environment. It recomputes the metric from saved predictions and pinned source targets, checks row identities, and compares the ledger and report. Exit 0 means agreement; exit 1 reports a failed check. This is a separate calculation within the same local trust boundary. It cannot prove that predictions came from a claimed model or that the evaluator is secret.
+
 ## Scope and limits
 
 The small model menu keeps early comparisons understandable. The tool does not propose improvements. The coding agent follows a skill to choose a hypothesis and invoke a tool. Later labs ask the agent to generate a new harness where the research mechanism needs different operations.

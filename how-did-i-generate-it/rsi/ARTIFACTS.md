@@ -38,3 +38,5 @@ The first publisher invocation failed because three inline Markdown backticks we
 An optional cleanup of ignored legacy Python cache directories was blocked by automatic command policy. The cache directories were left in place. Navigation discovery now ignores directories without a README. Tracked legacy course files were removed through Git after their paths were verified; their history and migration mapping remain available.
 
 Illustration prompts, generated assets, visual review, complete clean-session lab walkthroughs, and target-backend compatibility evidence remain to be added. No missing artifact is represented as already produced.
+
+The [controlled walkthrough](../../rsi/evidence/2026-09-20/walkthrough/README.md) retains nine fits, final evaluation, and domain failures. The [inherited-procedure exercise](../../rsi/evidence/2026-09-20/inherited-improver/README.md) retains the proposed revision, both versions, a deliberately false fixture, a valid control, and actual check outputs. Both generation drivers are retained in `scripts`. The [checkpoint validation](validation/CONTROLLED-WALKTHROUGH-CHECKS.md) records the commands and limits.

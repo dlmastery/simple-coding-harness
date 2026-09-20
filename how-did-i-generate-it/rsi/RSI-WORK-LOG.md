@@ -85,3 +85,13 @@ Published 101 labs with individual briefs, prompts, checks, counterexamples, tak
 Rebuilt the walkthrough and added start, glossary, instructor, research, adapter, and migration pages. Replaced flat packs while preserving Git history. Updated test discovery. Eleven shared tests passed, including 21 mechanism checks. All 1,248 local links resolved. Seven learner skills passed validation. These are publication and component checks, not 101 completed learner runs.
 
 Foundation commit `3dc2e5dbcaee0686fee766e19dc169638ee056dc` was pushed and its remote hash verified. The next checkpoint preserves the complete authored sequence before deeper walkthrough and illustration work.
+
+## 20 September: controlled execution and inherited procedure
+
+Verified that the complete authored-sequence checkpoint `eae0bf49ba7a3519e8e9a50cb87fa1402c77a4d1` is on the remote branch. The user asked whether periodic check-ins were occurring; confirmed the remote and prepared the next coherent checkpoint.
+
+Ran nine additional model fits, a final refit, domain checks, and post-final refusal. Saved predictions, error slices, timings, source procedures, and failures. Added a result checker with four tests for valid evidence, a false summary, incorrect row identity, and altered target values. The full shared suite passed 15 tests; publication checks passed for 101 lessons.
+
+Read the retained improver v1 and generated a driver that executes its required check in a new author-guided round. A labelled report copy claiming MAE 9.0 was rejected; a genuine MAE 99.175924 result was retained against the fixed 109.807668 incumbent. The trace records the selected procedure hash and actual command outcomes. No independent v0 agent was run, and no autonomous RSI advantage is claimed.
+
+Next: tighten research adaptation labels and reading-depth records, extend compute guidance, and continue clean-start and editorial validation. Illustration provider choice remains unresolved.
