@@ -51,7 +51,13 @@ const outputs=[
   ['research-studio-map-v3','exec-b5416c36-834a-4011-b336-8590f19cb522.png',true],
   ['capstone-map-v1','exec-8c042091-c3e1-4f56-a72a-e64acba5af40.png',false],
   ['capstone-map-v2','exec-e5b15904-dfb3-488f-a2d0-994861e7c058.png',false],
-  ['capstone-map-v3','exec-36f36ff9-3324-40fa-9c37-c92476b5a37f.png',true]
+  ['capstone-map-v3','exec-36f36ff9-3324-40fa-9c37-c92476b5a37f.png',true],
+  ['capstone-new-brief-v1','exec-7fc08f86-d807-49f5-9310-aeb8818ec099.png',true],
+  ['capstone-recursion-v1','exec-8ef6ddd3-fbb3-45c7-8f4d-56c1268c4a5c.png',true],
+  ['capstone-portability-v1','exec-ef8c8b4f-9fb2-4302-a518-b77858a86c29.png',true],
+  ['capstone-audit-v1','exec-dbd11d93-b66b-4198-bf1e-5d0f0c6321cd.png',true],
+  ['capstone-teach-back-v2','exec-b17c9a38-91f3-4ff7-8721-a5823a6e1198.png',true],
+  ['capstone-teach-back-v1','exec-52c53998-eeda-4a38-b62f-1fdcf0d59f4f.png',false]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

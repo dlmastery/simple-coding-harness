@@ -28,9 +28,20 @@ First establish the fixed-improver baseline. Propose one improver revision from 
 
 **A concrete example.** The child improver adds a contrasting-case check to its internal selection rule. A later round uses that rule and rejects a harmful skill edit. The external task metric and budget remain unchanged. This can demonstrate inheritance; whether the changed improver is better still depends on its matched outcomes and added cost.
 
+![Four evidence areas surround a bounded experiment: protocol, proposal and decision lineage, inherited changed-rule use, and a matched comparison with complete costs.](../../assets/illustrations/capstone-recursion-v1.png)
+
+*These are the evidence needed to inspect the experiment. Distinguish a candidate trial from retained use; promote only through the declared decision and trace whichever version actually governs the next round. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol, with agent-inference limits declared separately.*
+
+[Open the illustration at full size](../../assets/illustrations/capstone-recursion-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.](../../assets/diagrams/lab-11-02.png)
 
 *Read the diagram:* The capstone joins revision, inheritance, and matched evaluation in a bounded experiment.
+
+</details>
 
 ## Run the lab
 

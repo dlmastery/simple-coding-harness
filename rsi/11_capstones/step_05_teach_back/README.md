@@ -28,9 +28,20 @@ Tell the story from a row of data to a model result, then from a failure to a sk
 
 **A concrete example.** A peer follows one row of data into a prediction, one failed check into a task-skill revision, and one improver revision into a later decision. At each transition they can open the supporting artifact. If they can also explain a case where the revision fails, the portfolio teaches a mechanism rather than only displaying a success.
 
+![A peer follows three stories: prediction and checked error, failure and skill revision, and a changed improver rule used in a later round. Portfolio tabs link the brief, versions, runs, costs, and claim.](../../assets/illustrations/capstone-teach-back-v2.png)
+
+*Keep the target out of model inputs; it belongs in the error check. Trace the added contrasting-case rule into an executed later action. The small strip can represent a candidate trial; it does not itself prove retention or benefit. Show the real comparison and decisions in the portfolio. The peer scene is illustrative: record a session only after it occurs and mark pending review honestly.*
+
+[Open the illustration at full size](../../assets/illustrations/capstone-teach-back-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.](../../assets/diagrams/lab-11-05.png)
 
 *Read the diagram:* Teach-back connects the mechanism to an observation and then to a new case. Repeating vocabulary is not enough.
+
+</details>
 
 ## Run the lab
 

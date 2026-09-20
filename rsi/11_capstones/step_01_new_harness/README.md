@@ -28,9 +28,20 @@ Begin with the scientific contract, not a preferred optimizer. State target, pre
 
 **A concrete example.** You change from describing recorded hourly demand to predicting tomorrow’s demand. That is a new scientific question even on the same public dataset. Tomorrow’s observed weather is no longer an available input. The new brief must resolve input availability and evaluation time before the builder chooses a model.
 
+![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](../../assets/illustrations/capstone-new-brief-v1.png)
+
+*Choose the scientific task before generating its harness. The two stations are tests to perform, not passed results. Record actual execution and a meaningful refusal. The tool-case checklist denotes components; it does not certify their behavior. Keep the required path within four CPU fits.*
+
+[Open the illustration at full size](../../assets/illustrations/capstone-new-brief-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.](../../assets/diagrams/lab-11-01.png)
 
 *Read the diagram:* A new scientific brief should produce a runnable system and a meaningful refusal. Files alone are insufficient.
+
+</details>
 
 ## Run the lab
 

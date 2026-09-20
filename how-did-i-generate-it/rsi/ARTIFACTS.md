@@ -13,6 +13,7 @@ This index covers planning, reusable skills, and implementation. The old RSI cou
 | [Lab source-artifact index](../../rsi/SOURCE-ARTIFACTS.md) | Direct links to all 101 lab procedures, briefs, and authoring modules, plus shared skills and course intent | Rebuilt by the lesson publisher; no per-lab native skill-package claim |
 | [Guided course map](../../rsi/COURSE-MAP.md) | Illustrated route, objectives, prerequisites, duration, twelve readiness checks, and all 101 labs | Reading-location cues are distinct from completed experiments |
 | [Navigation illustration review](validation/COURSE-NAVIGATION-ILLUSTRATIONS.md) | Overall, research-studio, and capstone maps; eight outputs, three selected figures, and generation-efficiency correction | Full-size review; complete visual and execution coverage remain open |
+| [Individual RSI and capstone figures](validation/RSI-AND-CAPSTONE-ILLUSTRATIONS.md) | Ten source-checked visual briefs and per-image review | Five individual capstones published from six outputs; remaining theme-09 figures queued |
 | [Steering and restart](RSI-STEERING-AND-RESTART.md) | Current user requirements and state | Maintained with steering |
 | [Work log](RSI-WORK-LOG.md) | Steps, decisions, checks, and next work | Maintained per milestone |
 | [Completion ledger](COURSE-COMPLETION-LEDGER.md) | Full active goal, requirement evidence, and next work | Partial completion remains explicit |

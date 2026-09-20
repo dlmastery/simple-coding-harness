@@ -28,9 +28,20 @@ Start with what changes and how it is evaluated. Then inspect inheritance, resou
 
 **A concrete example.** A new source reports a better retained agent after several harness edits. You can accept that reported result while asking whether the edit-generating procedure itself changed. The follow-up should inspect or test that missing link, rather than dismissing the result because it does not establish every stronger RSI claim.
 
+![Primary source records lead to a claim and evidence audit, then to a small follow-up designed to distinguish an alternative explanation.](../../assets/illustrations/capstone-audit-v1.png)
+
+*A source announcement, supported result, and independent reproduction are different evidence. Record the source date, version, and what you actually read. State the strongest support and the main limitation, then propose an observation that could change your conclusion. No pictured source or experiment is a reported result.*
+
+[Open the illustration at full size](../../assets/illustrations/capstone-audit-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.](../../assets/diagrams/lab-11-04.png)
 
 *Read the diagram:* Audit an unfamiliar claim through its source, artifacts, and strongest alternative explanation.
+
+</details>
 
 ## Run the lab
 

@@ -10,6 +10,7 @@ The current navigation milestone adds the overall mindmap, research-studio and c
 
 | Commit | Milestone |
 |---|---|
+| [0271a2b](https://github.com/dlmastery/simple-coding-harness/commit/0271a2b7698db53ffbd31f90a1e8225786131d8e) | Overall, research-studio, and capstone maps; full source index, guided course map, location cues, and generation-efficiency rule. Remote hash verified before individual-lab illustration work |
 | [bb81723](https://github.com/dlmastery/simple-coding-harness/commit/bb81723af39a55f3f8ec26584be9723cb9a73f9c) | Publish modular, meta-skill, and coordination figures; clarify updater self-application and preserve all eight generated versions |
 | [48d0eb6](https://github.com/dlmastery/simple-coding-harness/commit/48d0eb6ea503f0308c211a23fc2631f52a0e6948) | Correct repository navigation and show the twelve-theme, 101-lab folder structure |
 | [5e8daae](https://github.com/dlmastery/simple-coding-harness/commit/5e8daae83e767f5a3078e79c3860e45307dd9619) | Add AIDE², ScientistTwo, and fixed data-science illustrations, plus research-group introductions and visual teaching guidance |

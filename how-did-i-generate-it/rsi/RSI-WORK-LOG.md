@@ -4,6 +4,8 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 ## Visual navigation and generation-efficiency correction
 
+Follow-up: the user explicitly prioritized missing individual RSI and capstone infographics. All five capstone figures are now integrated, with six retained outputs. The first teach-back draft leaked the target into inputs and hid the actual improver-rule change; one combined edit repaired both. The other four needed no regeneration. Saved ten source-checked prompt briefs covering five capstones and five remaining theme-09 labs. Current checks: 25 selected copies, 51 output records, 101 lessons, 3,147 links, zero publication problems. Full runtime verification remains deferred.
+
 The user asked for completed visuals first for early feedback, a clearer course map, an overall mindmap and location cues, expanded research-studio and capstone figures, and objectives/duration/prerequisites in the introduction. Added three selected maps with eight retained outputs. The capstone needed three attempts: a combined correction to the recursive comparison and audit, then deletion of one ambiguous input connector. The main overview remains the actual style reference.
 
 The user objected to wasted image-generation calls. The reusable course standard now requires a technical preflight, exact labels and relations, one combined substantive correction, no cosmetic alternatives, and at most three outputs per figure. The skill-creator workflow is used for this narrow reference update; guidance remains in the canonical package and installed copy.

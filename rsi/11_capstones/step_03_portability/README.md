@@ -28,9 +28,20 @@ Task transfer changes the scientific problem. Agent portability changes the host
 
 **A concrete example.** The same skill works on bike and wine in one coding agent. That is evidence about task transfer under that host. It does not test another agent’s skill loader or a cluster scheduler. A compatibility matrix keeps those unexecuted combinations visible instead of assigning one global “portable” label.
 
+![Three panels vary the task, agent, or compute backend while holding the other two dimensions fixed. An empty ledger distinguishes planned, generated, inspected, and executed evidence.](../../assets/illustrations/capstone-portability-v1.png)
+
+*Test these dimensions separately. Describe what changed in Task B; a different label does not establish task transfer. Choose two small tests you can actually run and leave other combinations explicitly untested. The pictured notebooks and machines are examples, not certified environments.*
+
+[Open the illustration at full size](../../assets/illustrations/capstone-portability-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.](../../assets/diagrams/lab-11-03.png)
 
 *Read the diagram:* Task transfer, agent portability, and compute portability require different checks. One passing check does not certify the others.
+
+</details>
 
 ## Run the lab
 

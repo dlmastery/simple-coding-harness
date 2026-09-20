@@ -26,6 +26,11 @@ const topics=[
   ['10.17','Improve the skill—and the way you revise it'],
   ['10.18','Turn a limitation into a tested claim'],
   ['10.25','Two ways to improve a scientific agent'],
+  ['11.01','From a new brief to a working harness'],
+  ['11.02','Make a recursive experiment inspectable'],
+  ['11.03','Change one dimension. Test its consequences.'],
+  ['11.04','Turn a bold claim into a testable question'],
+  ['11.05','Let another person follow the evidence'],
   ['compute','Move the compute, preserve the evidence']
 ];
 const sections=topics.map(([id,title])=>{

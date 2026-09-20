@@ -1,0 +1,13 @@
+Use case: scientific-educational.
+Create one original landscape 3:2 infographic for this individual codelab, not a course overview. Input image 1 is the visual-style reference: main-overview-v2. Match its professional textbook craft, pure white background, navy serif headings, crisp ink, restrained watercolor, concrete scientific objects, rich useful detail, blue fixed elements, amber changes, teal evidence, restrained red rejection. Keep generous white space and readable hierarchy. Vary the composition to suit the mechanism; avoid a generic grid of cards or decorative robots.
+Technical content is locked below. Use only the supplied technical text. Do not invent extra rules, filenames, scores, checklist items, badges, slogans, or claims. Unlabelled document lines may imply detail without becoming fake measurements. Do not draw performance curves. This is a conceptual teaching illustration, not an executed result. Use numbered reading order where specified; add no control-flow arrows except those explicitly requested.
+
+Title: "Two generations can use the same improver"
+Draw a prominent blue procedure binder across the top, labelled "Fixed improver I0" with short exact lines "Read failures", "Propose a task-skill edit", "Apply the same acceptance rule". Beside it, a neutral identity tag "Same version and hash".
+Below, draw two richly illustrated numbered rows, "Generation 1" and "Generation 2". Each row has three stages from left to right, joined only by forward arrows: "Active task skill" → "Proposed child" → "Check and retain".
+Give each row an unselected small decision strip beneath its third stage: "Keep child OR keep parent". Do not tick an outcome or imply every proposal is accepted. The first two stages should be skill notebooks, not model-weight objects. In the first row, the child's changed page is amber; in the second row, the proposed page is a different amber page.
+A single vertical arrow connects the two rows' retained-state handoff and is labelled "Only the retained skill becomes the next parent". Keep this connector away from the unselected proposed-child notebooks.
+Two thin blue association lines from the fixed I0 binder reach the generation headings. They have no arrowheads and mean the SAME procedure governs both rounds.
+A small archive below holds "Proposals", "Decisions", "Costs", including a red rejected-proposal sheet.
+Footer: "2 generations · At most 2 fits per generation · The improver stays unchanged".
+This is repeated task-skill improvement under a fixed method, not evidence that the improver improved. No scores, model equations, newly versioned improver, or accelerating curve.

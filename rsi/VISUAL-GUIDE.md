@@ -196,6 +196,56 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.25: Track model–harness pairs across cycles](10_research_studio/07_sciencebuddy/step_25_coevolution/README.md).
 
+## From a new brief to a working harness
+
+![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](assets/illustrations/capstone-new-brief-v1.png)
+
+*Choose the scientific task before generating its harness. The two stations are tests to perform, not passed results. Record actual execution and a meaningful refusal. The tool-case checklist denotes components; it does not certify their behavior. Keep the required path within four CPU fits.*
+
+[Open the illustration at full size](assets/illustrations/capstone-new-brief-v1.png).
+
+[Lab 11.01: Build a harness for a new prediction brief](11_capstones/step_01_new_harness/README.md).
+
+## Make a recursive experiment inspectable
+
+![Four evidence areas surround a bounded experiment: protocol, proposal and decision lineage, inherited changed-rule use, and a matched comparison with complete costs.](assets/illustrations/capstone-recursion-v1.png)
+
+*These are the evidence needed to inspect the experiment. Distinguish a candidate trial from retained use; promote only through the declared decision and trace whichever version actually governs the next round. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol, with agent-inference limits declared separately.*
+
+[Open the illustration at full size](assets/illustrations/capstone-recursion-v1.png).
+
+[Lab 11.02: Run and audit a bounded recursive experiment](11_capstones/step_02_recursive_experiment/README.md).
+
+## Change one dimension. Test its consequences.
+
+![Three panels vary the task, agent, or compute backend while holding the other two dimensions fixed. An empty ledger distinguishes planned, generated, inspected, and executed evidence.](assets/illustrations/capstone-portability-v1.png)
+
+*Test these dimensions separately. Describe what changed in Task B; a different label does not establish task transfer. Choose two small tests you can actually run and leave other combinations explicitly untested. The pictured notebooks and machines are examples, not certified environments.*
+
+[Open the illustration at full size](assets/illustrations/capstone-portability-v1.png).
+
+[Lab 11.03: Test transfer and portability separately](11_capstones/step_03_portability/README.md).
+
+## Turn a bold claim into a testable question
+
+![Primary source records lead to a claim and evidence audit, then to a small follow-up designed to distinguish an alternative explanation.](assets/illustrations/capstone-audit-v1.png)
+
+*A source announcement, supported result, and independent reproduction are different evidence. Record the source date, version, and what you actually read. State the strongest support and the main limitation, then propose an observation that could change your conclusion. No pictured source or experiment is a reported result.*
+
+[Open the illustration at full size](assets/illustrations/capstone-audit-v1.png).
+
+[Lab 11.04: Audit an unfamiliar RSI claim](11_capstones/step_04_external_audit/README.md).
+
+## Let another person follow the evidence
+
+![A peer follows three stories: prediction and checked error, failure and skill revision, and a changed improver rule used in a later round. Portfolio tabs link the brief, versions, runs, costs, and claim.](assets/illustrations/capstone-teach-back-v2.png)
+
+*Keep the target out of model inputs; it belongs in the error check. Trace the added contrasting-case rule into an executed later action. The small strip can represent a candidate trial; it does not itself prove retention or benefit. Show the real comparison and decisions in the portfolio. The peer scene is illustrative: record a session only after it occurs and mark pending review honestly.*
+
+[Open the illustration at full size](assets/illustrations/capstone-teach-back-v2.png).
+
+[Lab 11.05: Teach the mechanism and defend the evidence](11_capstones/step_05_teach_back/README.md).
+
 ## Move the compute, preserve the evidence
 
 ![A research skill passes a versioned experiment contract to an adapter that can select local CPU, accelerator, or cluster execution. Every backend returns an identified attempt record with status and total cost.](assets/illustrations/compute-contract-v2.png)
