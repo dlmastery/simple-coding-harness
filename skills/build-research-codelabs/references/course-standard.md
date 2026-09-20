@@ -111,6 +111,8 @@ Show data flow, control flow, mutable and fixed components, feedback, and bounda
 
 Review spelling, labels, arrows, missing stages, duplicated elements, scale, and scientific claims. Keep generation prompts, source assets, revisions, and review notes in provenance. Embed locally stored assets in Markdown with captions and alt text. Verify GitHub rendering and normal-size legibility. Preserve white backgrounds even when the viewer uses dark mode.
 
+Treat generated wording as proposed technical content. A tool can add an incorrect explanation that was absent from the prompt. Check training and evaluation routes, version handoffs, state versus sample-output representations, and every advertised backend connection. Remove unrequested fine print that makes an image harder to read. Preserve the rejected image and the corrective prompt. For dense figures, keep the mechanism understandable in the adjacent caption and provide a full-size link; do not claim all labels are legible in a phone-sized thumbnail.
+
 Precise technical schematics may use Mermaid or SVG as a companion. Preserve their source and render static alternatives for readers without diagram support. Keep captions sufficient to explain the diagram. Render every diagram to catch syntax failures, then inspect layout and meaning; parser success alone is not visual review. Companion schematics do not silently satisfy a specifically requested raster generator that remains unavailable.
 
 Draw measured charts from real data with plotting tools. Mark schematic curves as schematic. Do not use image generation to manufacture empirical evidence. Check source licensing before reusing a paper figure; prefer original explanatory illustrations with citations.

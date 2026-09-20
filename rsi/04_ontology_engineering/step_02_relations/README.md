@@ -26,9 +26,20 @@ A relation connects two objects with a named meaning: scaler “fit on” train;
 
 **A concrete example.** “Scaler fit on train” is a statement about the meaning of a transformation. “Fit scaler before transform selection rows” is a dependency between actions. They cooperate: one says which data is permitted, the other says what must happen first. Neither statement alone supplies the other.
 
+![A workflow graph routes valid data toward fitting and invalid data toward repair. Separate domain relations say the scaler is fit on training data, search selects on selection data, and the model is measured by MAE.](../../assets/illustrations/graph-ontology-v1.png)
+
+*Read the left arrows as dependencies between actions. Read the right arrows as sentences about domain meaning. These are selected facts and one rule, not a complete ontology. Correct execution order cannot rescue a leaked feature or the wrong metric. A declared fact also needs evidence that the implementation follows it.*
+
+[Open the illustration at full size](../../assets/illustrations/graph-ontology-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![These arrows describe meaning and provenance. They are not a schedule of commands.](../../assets/diagrams/lab-04-02.png)
 
 *Read the diagram:* These arrows describe meaning and provenance. They are not a schedule of commands.
+
+</details>
 
 ## Run the lab
 

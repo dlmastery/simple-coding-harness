@@ -150,10 +150,11 @@ for (const [key,t] of Object.entries(themes)) {
   const selected=lessons.filter(l=>l.theme===key);
   if (!selected.length) continue;
   const folder=resolve(rsi,t.directory);
+  const themeFigure=renderIllustration(`theme-${key}`,p=>link(folder,resolve(rsi,p)));
   const contents=key==='10'
     ? `The 38 studio labs form 13 connected groups. Follow them in this order; each group explains its starting evidence and what you will carry forward.\n\n| Group | Question | Labs |\n|---|---|---|\n${Object.entries(researchGroups).map(([group,g])=>{const items=selected.filter(l=>l.group===group);return `| [${g.title}](${group}/README.md) | ${g.question} | ${items[0].id}–${items.at(-1).id} |`;}).join('\n')}\n\nThe [complete course map](../COURSE-MAP.md) also lists every individual lab.`
     : `| Lab | What you will build |\n|---|---|\n${selected.map(l=>`| [${l.id} · ${l.title}](${link(folder,lessonPath(l))}/README.md) | ${l.build} |`).join('\n')}`;
-  save(resolve(folder,'README.md'), `# ${t.title}\n\n[Course](../README.md)\n\n${t.intro}\n\n${t.bridge}\n\n${contents}\n\nStart with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).\n\n${t.exit}`);
+  save(resolve(folder,'README.md'), `# ${t.title}\n\n[Course](../README.md)\n\n${t.intro}\n\n${t.bridge}\n\n${themeFigure}\n\n${contents}\n\nStart with the first lab and follow its next link. Each lab keeps its notes in a separate workspace and links any earlier experiment it reuses. The agent writes code; you predict, inspect, and explain. [Skill entry point](../skills/rsi-tutor/SKILL.md).\n\n${t.exit}`);
 }
 
 for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {

@@ -26,9 +26,20 @@ Self-modification means the system changes part of its own implementation or ins
 
 **A concrete example.** The agent changed a learner-owned instruction from trusting the supplied summary to recomputing its MAE. In the [two-case check](../../evidence/2026-09-20/self-star-and-measurement/07-08/TWO-CASE-CHECKS.csv), both versions handle the correct report, but only the child repairs the wrong summary. The external evaluator is unchanged. The edit is inspectable and useful on these cases; neither the edit alone nor two known fixtures establish broad improvement.
 
+![Eight parallel examples show current-output correction, tested reflection, retained learning, task-skill improvement under a fixed improver, local reorganization, emergence, self-play under a fixed update rule, and active instruction modification.](../../assets/illustrations/self-star-v2.png)
+
+*These are examples of mechanisms, not mutually exclusive categories or a maturity ladder. A system can combine them. The self-play panel changes policy values under a fixed update rule; the modification panel changes active instructions without proving a benefit. The emergence drawing is a conceptual group-pattern analogy, not a measurement from the queue exercise. Ask what changed, what persisted, and how its effect was checked.*
+
+[Open the illustration at full size](../../assets/illustrations/self-star-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Self-modification changes a component. Keep its parent and evaluate the change before retaining it.](../../assets/diagrams/lab-07-08.png)
 
 *Read the diagram:* Self-modification changes a component. Keep its parent and evaluate the change before retaining it.
+
+</details>
 
 ## Run the lab
 

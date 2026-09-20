@@ -26,9 +26,20 @@ Dream-RSI uses replay over realized discovery structure. Our replay tool walks r
 
 **A concrete example.** A history contains measured nodes A, B, and C. Policy 1 spends its replay budget on A then B; policy 2 reaches C. Their ranking depends on these recorded outcomes and costs. A request for an unseen forest branch returns unknown. Assigning it C’s score would turn replay into invented evidence.
 
+![Replay follows a recorded baseline and tried change, while a failed attempt remains archived. It stops before an untried branch whose outcome is unknown. A separate new execution would produce a new report.](../../../assets/illustrations/replay-boundary-v2.png)
+
+*The left panel is the record before another run. Replay can reuse its supported outcomes and failure status; it cannot supply D’s missing result. The right panel shows the additional execution needed to extend that record. This is a classroom mechanism inspired by Dream-RSI, not a reproduction of its benchmark or a claim that all counterfactual policies are covered.*
+
+[Open the illustration at full size](../../../assets/illustrations/replay-boundary-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Replay can answer only questions covered by recorded work. It does not create new environment outcomes.](../../../assets/diagrams/lab-10-08.png)
 
 *Read the diagram:* Replay can answer only questions covered by recorded work. It does not create new environment outcomes.
+
+</details>
 
 ## Run the lab
 

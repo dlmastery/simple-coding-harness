@@ -26,9 +26,20 @@ Structural recursion requires a path from a procedure revision into later improv
 
 **A concrete example.** In the saved author-guided example, improver v1 requires recomputing the candidate score. A later round reads that version and rejects a report that claims MAE 9.0 while its predictions imply 159.95. The trace shows that the new instruction ran. It does not show that the system invented the instruction autonomously or that v1 is generally better across tasks.
 
+![A proposed improver adds a contrasting-case check. Acceptance activates that same version in a later round, where the new check is executed. Rejection keeps I0 active. A later task-skill proposal can also be rejected.](../../assets/illustrations/inherited-improver-v1.png)
+
+*The highlighted instruction appears in proposed I1, active I1, and the later executed check. That connection matters more than a new filename. The image shows a possible accepted path; the course’s two-generation comparison rejected both improver proposals. An inherited change can also perform worse. Keep version identity, observed use, and measured benefit as separate claims.*
+
+[Open the illustration at full size](../../assets/illustrations/inherited-improver-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A later round must read the revised improver and execute an action it requires. A saved file alone is insufficient.](../../assets/diagrams/lab-09-04.png)
 
 *Read the diagram:* A later round must read the revised improver and execute an action it requires. A saved file alone is insufficient.
+
+</details>
 
 ## Run the lab
 

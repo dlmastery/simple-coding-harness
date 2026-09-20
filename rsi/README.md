@@ -76,6 +76,8 @@ A meta-harness answers another question: can a procedure generate a usable harne
 
 *The path adds a reason for each new mechanism. It is a teaching sequence, not a claim that all self-\* systems follow one universal ladder.*
 
+The [visual guide](VISUAL-GUIDE.md) lets you preview ten central mechanisms and return to their explanations. Follow the theme order below for the experiments and quizzes.
+
 | Theme | The question you will answer |
 |---|---|
 | [00 · Start here](00_start_here/README.md) | What does one valid prediction and its evidence look like? |
@@ -127,4 +129,4 @@ Work through the first themes in order. Keep one short lab note: prediction, obs
 
 Use the [instructor guide](instructor/README.md) to choose checkpoints and assess explanations. The complete [course-authoring skill](../skills/build-research-codelabs/SKILL.md) preserves the method for diffusion models, flow methods, or another complex topic.
 
-This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. The first four professional illustrations accompany the technical schematics and measured data charts. The author approved the available image generator in place of the original Imagen preference; the [visual record](../how-did-i-generate-it/rsi/visuals/generated/README.md) preserves prompts, revisions, and review. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.
+This branch is a work in progress. Written lessons, executed checks, learner validation, research review, and illustration review have separate status. Ten professional illustrations accompany the technical schematics and measured data charts. Their [visual record](../how-did-i-generate-it/rsi/visuals/generated/README.md) preserves prompts, revisions, review, and the author's approval of the available generator. The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints.

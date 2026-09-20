@@ -13,7 +13,17 @@ const outputs=[
   ['target-leakage-v2','exec-6e99a51f-61a1-4b2e-85cd-33728bc3c6f8.png',true],
   ['bounded-loop-v1','exec-362f1817-ee12-4f7b-b15d-204687892372.png',true],
   ['meta-harness-v1','exec-614d8741-99e9-4126-b79b-a50dba8eb455.png',false],
-  ['meta-harness-v2','exec-c8fe1146-1b80-41ba-9834-45c5550eeb6d.png',true]
+  ['meta-harness-v2','exec-c8fe1146-1b80-41ba-9834-45c5550eeb6d.png',true],
+  ['graph-ontology-v1','exec-154a7383-143f-49de-8b39-45f30ac6991d.png',true],
+  ['self-star-v1','exec-786ba075-a5ab-46ae-8058-f97a888049ab.png',false],
+  ['self-star-v2','exec-3b9379c2-0515-473f-8035-017e6bedac22.png',true],
+  ['inherited-improver-v1','exec-4450e321-9dbb-4db6-8d12-a82e01ee2c89.png',true],
+  ['replay-boundary-v1','exec-a9f26ca9-51b3-43c0-9534-96711a0e0b3e.png',false],
+  ['replay-boundary-v2','exec-e21a62ff-2908-4165-9775-e24bef03a33c.png',true],
+  ['model-harness-v1','exec-d711210f-c637-48b6-96b0-a17c54576d1e.png',false],
+  ['model-harness-v2','exec-e8221bb5-62a1-49ce-ac41-fb7c15980a17.png',true],
+  ['compute-contract-v1','exec-23bff6ac-66bf-4930-b243-d8b335fba9f7.png',false],
+  ['compute-contract-v2','exec-76e9a404-6644-46d2-9fe7-4cc858c44441.png',true]
 ];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const rows=['artifact,prompt,tool,model,original_output,width,height,bytes,sha256,published_copy,status'];

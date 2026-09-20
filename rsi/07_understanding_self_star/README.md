@@ -6,6 +6,12 @@ Correction, reflection, learning, improvement, organization, emergence, self-pla
 
 Most labs use the small ML workflow. Queue simulations expose organization and emergence; a tiny game exposes actual self-play learning. Ask what persists and what observation would establish a benefit.
 
+![Eight parallel examples show current-output correction, tested reflection, retained learning, task-skill improvement under a fixed improver, local reorganization, emergence, self-play under a fixed update rule, and active instruction modification.](../assets/illustrations/self-star-v2.png)
+
+*These are examples of mechanisms, not mutually exclusive categories or a maturity ladder. A system can combine them. The self-play panel changes policy values under a fixed update rule; the modification panel changes active instructions without proving a benefit. The emergence drawing is a conceptual group-pattern analogy, not a measurement from the queue exercise. Ask what changed, what persisted, and how its effect was checked.*
+
+[Open the illustration at full size](../assets/illustrations/self-star-v2.png).
+
 | Lab | What you will build |
 |---|---|
 | [07.01 · Correct one result](step_01_correction/README.md) | A corrected experiment summary with the original mistake preserved. |

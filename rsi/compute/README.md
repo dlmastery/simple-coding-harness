@@ -8,6 +8,12 @@ Suppose your research skill proposes a candidate and the evaluator scores its pr
 
 This guide defines that handoff. The supplied CPU runner is tested. GPU, scheduler, and cloud adapters must be generated and tested against your actual environment. No remote backend is bundled as proven support.
 
+![A research skill passes an experiment contract to an adapter with separate CPU, accelerator, and cluster routes. All routes return identified attempt records with status and total cost.](../assets/illustrations/compute-contract-v2.png)
+
+*The backends are alternatives. Preserve the scientific contract when moving the same experiment; declare a new one when changing the task, data, or comparison. Record candidate and attempt identities, including failures. Checkpoint resumption applies only when the job supports it. The local CPU path is tested; accelerator and cluster adapters still need tests on the actual systems.*
+
+[Open the illustration at full size](../assets/illustrations/compute-contract-v2.png).
+
 ## Choose what you are scaling
 
 | Your aim | What changes | What must be explicit |
