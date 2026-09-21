@@ -4,6 +4,9 @@ Updated: 20 September 2026. This file records the user's directions and the curr
 
 ## Latest priority and visual correction
 
+**Frontier-reading/exploration continuation:** 10.01–10.03 now have individual figures: mechanism classification, announcement evidence trails, and three-fit exploration. Three selected images used five outputs. Corrections restored a fictional-announcement label and matched the exploration figure to hourly bike data and the weather-category field. Inventory: 52 selected figures, 86 versions, 48 mapped labs, 53 gaps (9 research, 44 foundations). Next research IDs: 10.05–10.07, 10.09, 10.11–10.13, 10.15–10.16. Inspect actual dataset granularity and feature names before every future ML illustration prompt. ScientistTwo parent 6122513fe3a373c7977cd3ee79f5248c07dbd8ee is pushed and remote-verified. No image operation remains live; commit and verify this batch. Full execution verification remains deferred. Older counts below are historical.
+
+
 **ScientistTwo continuation:** all four group labs 10.18–10.21 now have individual figures. Three new selections used five outputs: screening needed connector/data-label correction; lineage needed an original/revised procedure-label correction. Inventory: 49 selected figures, 81 retained versions, 45 mapped labs, 56 gaps (12 research, 44 foundations). Corrected 10.19's unsupported full-ranking instruction within its four-fit budget. Next: 10.01–10.03, 10.05–10.07, 10.09, 10.11–10.13, 10.15–10.16, then foundations. No image operation remains live. ScienceBuddy parent ab1bcfe0c9add98af5ef1ca0b32a4b90fb823730 is remote-verified. Commit and verify this batch before claiming it backed up. Full execution verification remains deferred. Earlier milestone counts below are historical.
 
 

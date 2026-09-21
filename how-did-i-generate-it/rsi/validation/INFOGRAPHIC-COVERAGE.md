@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**45 of 101 labs** currently have a mapped generated infographic; **56 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**48 of 101 labs** currently have a mapped generated infographic; **53 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 26 | 12 |
+| 10 · Read and rebuild recent research | 38 | 29 | 9 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -133,9 +133,9 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [10.01 · Use a framework without turning it into a ladder](../../../rsi/10_research_studio/00_reading_frontier_research/step_01_framework/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-01.png) |
-| [10.02 · Audit a frontier announcement](../../../rsi/10_research_studio/00_reading_frontier_research/step_02_announcements/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-02.png) |
-| [10.03 · Choose experiments that reduce uncertainty](../../../rsi/10_research_studio/01_memory_and_exploration/step_03_exploration/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-03.png) |
+| [10.01 · Use a framework without turning it into a ladder](../../../rsi/10_research_studio/00_reading_frontier_research/step_01_framework/README.md) | [Selected figure](../../../rsi/assets/illustrations/classify-the-mechanism-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-01.png) |
+| [10.02 · Audit a frontier announcement](../../../rsi/10_research_studio/00_reading_frontier_research/step_02_announcements/README.md) | [Selected figure](../../../rsi/assets/illustrations/announcement-evidence-trail-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-02.png) |
+| [10.03 · Choose experiments that reduce uncertainty](../../../rsi/10_research_studio/01_memory_and_exploration/step_03_exploration/README.md) | [Selected figure](../../../rsi/assets/illustrations/broad-probes-focused-test-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-03.png) |
 | [10.04 · Verify the outcome, then let the actor write memory](../../../rsi/10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md) | [Selected figure](../../../rsi/assets/illustrations/actor-memory-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-04.png) |
 | [10.05 · Evaluate with memory frozen](../../../rsi/10_research_studio/01_memory_and_exploration/step_05_frozen_memory/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-05.png) |
 | [10.06 · Separate working state from reusable experience](../../../rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-06.png) |

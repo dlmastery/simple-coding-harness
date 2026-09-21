@@ -28,9 +28,20 @@ Begin with your artifacts, then apply the paper’s definitions. Keep execution 
 
 **A concrete example.** Your fixed search loop tries a tree after a linear model. Your memory experiment saves a rule for later tasks. Your inheritance experiment changes the rule that generates future skill edits. These are three different artifacts and feedback paths. Apply a source’s criteria to each; do not infer that similarly numbered levels in two publications mean the same thing.
 
+![Three parallel cases show fixed retries, saved memory, and a proposed improver used in a later round. A blank framework ledger asks for source criteria, observed artifacts, and missing evidence.](../../../assets/illustrations/classify-the-mechanism-v1.png)
+
+*The three numbered panels are cases to inspect, not universal levels or a required ladder. The pictured task sheets and improver edits are examples; substitute your saved artifacts. The two question markers are reminders to ask for evidence, not passing verdicts. Reading a memory or testing candidate I1 does not establish a benefit. Map the actual retained state and later behavior to the chosen source definition, then assess effectiveness separately.*
+
+[Open the illustration at full size](../../../assets/illustrations/classify-the-mechanism-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.](../../../assets/diagrams/lab-10-01.png)
 
 *Read the diagram:* Apply each source’s definitions to actual artifacts. Equal level numbers from different frameworks need not mean the same thing.
+
+</details>
 
 ## Run the lab
 

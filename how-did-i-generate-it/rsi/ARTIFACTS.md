@@ -1,5 +1,8 @@
 # Artifact index
 
+- [Frontier reading and exploration illustration review](validation/FRONTIER-READING-EXPLORATION-ILLUSTRATIONS.md): source criteria, announcement evidence trails, and three-fit exploration. Three selected images, five retained versions, and dataset-label corrections.
+
+
 - [ScientistTwo individual illustration review](validation/SCIENTISTTWO-INDIVIDUAL-ILLUSTRATIONS.md): four-fit screening limits, evidence-based rebuttal, and discovery versus researcher lineages. Three selections and five retained versions.
 
 

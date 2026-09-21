@@ -28,9 +28,20 @@ The classroom exercise first probes two distinct limitations, then spends the la
 
 **A concrete example.** The constant baseline asks how far a model can get without input variation. The calendar model asks whether hour and date structure explain useful variation. The third recipe should address a remaining uncertainty exposed by their errors. Repeating the same deterministic calendar fit does not answer a new feature question, though a separately declared repeat can check reproducibility.
 
+![A training-mean baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.](../../../assets/illustrations/broad-probes-focused-test-v2.png)
+
+*The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its mean from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed.*
+
+[Open the illustration at full size](../../../assets/illustrations/broad-probes-focused-test-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.](../../../assets/diagrams/lab-10-03.png)
 
 *Read the diagram:* Choose an experiment for the uncertainty it can resolve. A likely high score is not always the most informative next observation.
+
+</details>
 
 ## Run the lab
 

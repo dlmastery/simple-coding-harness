@@ -28,9 +28,20 @@ Record who made the claim, when it first appeared, what was measured, and what t
 
 **A concrete example.** An author reposts a July report in September. The post is recent, but the experiment is still July work unless a substantive new result is linked. Conversely, a September methods revision may matter even when the title stays the same. Your claim card records both events and identifies what actually changed.
 
+![A fictional author announcement leads to methods, evaluation, and available artifacts, which populate a blank claim card. Side notes distinguish original dates, inaccessible posts, and independent reproduction.](../../../assets/illustrations/announcement-evidence-trail-v2.png)
+
+*The quotation is invented for teaching and is not attributed to a real author or lab. The 20 August–20 September 2026 window is the authoring example; roll it forward to the preceding month when you run the lab. Inspect available links and record missing ones. A blocked thread does not invalidate a separately accessible paper, but its contents remain unread. A reproduction has its own methods and limitations. Document the original release and any substantive revision separately from repost and crawl dates.*
+
+[Open the illustration at full size](../../../assets/illustrations/announcement-evidence-trail-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.](../../../assets/diagrams/lab-10-02.png)
 
 *Read the diagram:* Follow a claim back to its original evidence. A social announcement and a reproduced experiment are different endpoints.
+
+</details>
 
 ## Run the lab
 

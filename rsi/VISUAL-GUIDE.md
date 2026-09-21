@@ -176,6 +176,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 09.07: State the result without overstating it](09_recursive_self_improvement/step_07_claim/README.md).
 
+## Classify the mechanism, then test the benefit
+
+![Three parallel cases show fixed retries, saved memory, and a proposed improver used in a later round. A blank framework ledger asks for source criteria, observed artifacts, and missing evidence.](assets/illustrations/classify-the-mechanism-v1.png)
+
+*The three numbered panels are cases to inspect, not universal levels or a required ladder. The pictured task sheets and improver edits are examples; substitute your saved artifacts. The two question markers are reminders to ask for evidence, not passing verdicts. Reading a memory or testing candidate I1 does not establish a benefit. Map the actual retained state and later behavior to the chosen source definition, then assess effectiveness separately.*
+
+[Open the illustration at full size](assets/illustrations/classify-the-mechanism-v1.png).
+
+[Lab 10.01: Use a framework without turning it into a ladder](10_research_studio/00_reading_frontier_research/step_01_framework/README.md).
+
+## Follow an announcement to its evidence
+
+![A fictional author announcement leads to methods, evaluation, and available artifacts, which populate a blank claim card. Side notes distinguish original dates, inaccessible posts, and independent reproduction.](assets/illustrations/announcement-evidence-trail-v2.png)
+
+*The quotation is invented for teaching and is not attributed to a real author or lab. The 20 August–20 September 2026 window is the authoring example; roll it forward to the preceding month when you run the lab. Inspect available links and record missing ones. A blocked thread does not invalidate a separately accessible paper, but its contents remain unread. A reproduction has its own methods and limitations. Document the original release and any substantive revision separately from repost and crawl dates.*
+
+[Open the illustration at full size](assets/illustrations/announcement-evidence-trail-v2.png).
+
+[Lab 10.02: Audit a frontier announcement](10_research_studio/00_reading_frontier_research/step_02_announcements/README.md).
+
+## Spend the next fit on an unanswered question
+
+![A training-mean baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.](assets/illustrations/broad-probes-focused-test-v2.png)
+
+*The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its mean from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed.*
+
+[Open the illustration at full size](assets/illustrations/broad-probes-focused-test-v2.png).
+
+[Lab 10.03: Choose experiments that reduce uncertainty](10_research_studio/01_memory_and_exploration/step_03_exploration/README.md).
+
 ## Check the result, then write the lesson
 
 ![A curriculum selects practice. The actor executes an experiment, the verifier checks observed evidence, and the actor writes a bounded memory. After exploration, the memory is frozen and read on a later task.](assets/illustrations/actor-memory-v2.png)

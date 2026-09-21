@@ -7,6 +7,11 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["classify-the-mechanism-v1","exec-c2e4234c-8ec8-4c72-8c07-fb74cff34b80.png",true],
+  ["announcement-evidence-trail-v1","exec-7d0ca7b6-19fc-4320-88fa-2548b081fa6b.png",false],
+  ["announcement-evidence-trail-v2","exec-62610f13-068b-4b8b-a677-591fb6244dd0.png",true],
+  ["broad-probes-focused-test-v1","exec-8f16915b-9f35-4005-a66b-74e3024ec724.png",false],
+  ["broad-probes-focused-test-v2","exec-14115b96-df46-4191-bbfd-245e47078666.png",true],
   ["screen-and-ablate-v1","exec-b8a61dc9-66b6-446a-a099-ce6bede37698.png",false],
   ["screen-and-ablate-v2","exec-9fa8c971-b5a9-47fc-8487-fec3ac7711f4.png",true],
   ["review-to-evidence-v1","exec-05430a30-8399-41be-861d-9cc1eb017863.png",true],

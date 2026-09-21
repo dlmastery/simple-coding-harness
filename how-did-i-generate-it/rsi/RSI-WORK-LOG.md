@@ -4,6 +4,9 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 ## Visual navigation and generation-efficiency correction
 
+Frontier-reading and exploration pass: read the framework definitions/evidence scope and RSIAgent exploration method. Added three individual figures for 10.01–10.03, preserving blank learner records and separate mechanism/effectiveness claims. Three selected images used five outputs. The announcement required one combined provenance/date/evidence correction. The exploration draft added daily prediction and precipitation; checking the actual tool established hourly data and a weather category, corrected in version two. This exposed a preflight gap: inspect the actual schema before prompting, not only lesson prose. Inventory: 52 selected figures, 86 versions, 48 mapped labs, 53 gaps. No new research sweep, experimental measurement, or learner run is claimed.
+
+
 ScientistTwo individual pass: inspected primary method and evaluation sections, then added screening/ablation, review-to-evidence, and separate discovery/researcher lineages. Corrected lab 10.19: confirming only the selected idea cannot establish both ideas' full-scale ranking. Three selected figures used five outputs; two substantive corrections are documented and all versions retained. Inventory: 49 selected, 81 versions, 45 mapped labs, 56 gaps. No new learner activities executed. The ScienceBuddy checkpoint ab1bcfe is pushed and remote-verified.
 
 
