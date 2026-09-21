@@ -28,9 +28,20 @@ An action hint suggests the next operation. An enriched observation exposes usef
 
 **A concrete example.** “Open column B next” is an action hint. “Column B is missing its unit” is richer observation. If the missing unit moves to column C, the old action hint can become misleading while an accurate observation still describes the new problem. Success with either help does not establish unassisted learning.
 
+![Two conditions share a missing-Split task: one provides an action hint and the other a richer state observation. A fresh case removes help. A fourth case tests whether the actor can recover when an outdated Split hint conflicts with the current missing-Metric state.](../../../assets/illustrations/feedback-scaffolds-v1.png)
+
+*The dataset names and field values are illustrative form fixtures, not real dataset results. The task cards specify required values; they are distinct from the added hints. Use a genuinely fresh fixture for the unassisted attempt and record any shared-context exposure. The stale-hint case asks what the actor actually does; no recovery is assumed. Compare all four traces with executable checks. This inference exercise illustrates assistance types discussed in Environments as Scaffold; it does not reproduce reinforcement learning or demonstrate a parameter update.*
+
+[Open the illustration at full size](../../../assets/illustrations/feedback-scaffolds-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Action hints and richer observations supply different assistance. Remove help in a separate fresh check.](../../../assets/diagrams/lab-10-33.png)
 
 *Read the diagram:* Action hints and richer observations supply different assistance. Remove help in a separate fresh check.
+
+</details>
 
 ## Run the lab
 

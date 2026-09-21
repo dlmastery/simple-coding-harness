@@ -28,9 +28,20 @@ The task asks the agent to recover the final state from a sequence. One conditio
 
 **A concrete example.** Starting from zero, add 3, remove 1, then add 2. The final count is 4. A summary after the first two events should say 2; a summary that forgets the removal says 3 and leads to 5. Compression can be shorter and systematically wrong at the same time.
 
+![The same inventory events are supplied as raw history, a checked summary plus later events, or a deliberately faulty summary. An independent checker computes the true final count from original events; a blank ledger compares five actor attempts.](../../../assets/illustrations/memory-interface-v2.png)
+
+*These counts are a synthetic teaching example. After adding three and removing one, the checkpoint is two; adding two more gives four. The faulty summary omits the removal. Do not pre-fill the actor’s answer or supply the checker’s result in its input. The two extra-description conditions change wording, not state transitions. The drawn counters and tally frame are props; the explicit event tape defines the arithmetic. This external-memory exercise does not reproduce S3Gym’s game or training protocols, and a shorter representation is not presumed better.*
+
+[Open the illustration at full size](../../../assets/illustrations/memory-interface-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Both memory representations refer to the same event history. The checker computes truth from the original events.](../../../assets/diagrams/lab-10-32.png)
 
 *Read the diagram:* Both memory representations refer to the same event history. The checker computes truth from the original events.
+
+</details>
 
 ## Run the lab
 

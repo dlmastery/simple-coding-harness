@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**31 of 101 labs** currently have a mapped generated infographic; **70 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**34 of 101 labs** currently have a mapped generated infographic; **67 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 12 | 26 |
+| 10 · Read and rebuild recent research | 38 | 15 | 23 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -164,9 +164,9 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | [10.29 · Repair a skill for an experiment-results page](../../../rsi/10_research_studio/08_skills_and_procedures/step_29_gui/README.md) | [Selected figure](../../../rsi/assets/illustrations/gui-skill-repair-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-29.png) |
 | [10.30 · Reduce cost without hiding quality loss](../../../rsi/10_research_studio/09_efficient_harnesses/step_30_cost_quality/README.md) | [Selected figure](../../../rsi/assets/illustrations/quality-cost-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-30.png) |
 | [10.31 · Compare harness generation and harness improvement](../../../rsi/10_research_studio/09_efficient_harnesses/step_31_harness_builders/README.md) | [Selected figure](../../../rsi/assets/illustrations/builder-and-artifact-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-31.png) |
-| [10.32 · Compare raw history and summarized memory](../../../rsi/10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-32.png) |
-| [10.33 · Compare action hints and richer observations](../../../rsi/10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-33.png) |
-| [10.34 · Keep model training aligned with its harness](../../../rsi/10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-34.png) |
+| [10.32 · Compare raw history and summarized memory](../../../rsi/10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md) | [Selected figure](../../../rsi/assets/illustrations/memory-interface-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-32.png) |
+| [10.33 · Compare action hints and richer observations](../../../rsi/10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md) | [Selected figure](../../../rsi/assets/illustrations/feedback-scaffolds-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-33.png) |
+| [10.34 · Keep model training aligned with its harness](../../../rsi/10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md) | [Selected figure](../../../rsi/assets/illustrations/harness-compatibility-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-34.png) |
 | [10.35 · Compose changes to data, harness, and model](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_35_metarsi/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-35.png) |
 | [10.36 · Diagnose failures with checked reference trajectories](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_36_harnessevolve/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-36.png) |
 | [10.37 · Compare systems without flattening their differences](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_37_compare_systems/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-37.png) |

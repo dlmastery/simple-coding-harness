@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [39caeef](https://github.com/dlmastery/simple-coding-harness/commit/39caeefb0586114dc7b7d12e87ff7e0406e91651): cost/quality and builder/artifact illustrations, three outputs, 35 selected gallery figures, and 3,502 valid local links. Push and remote hash verified before memory/feedback work.
+
 - [7552165](https://github.com/dlmastery/simple-coding-harness/commit/75521657bcb26f256c3c3a49016de4a26b8e910d): knowledge stores, procedure graphs, and GUI skill repair; three first-attempt figures, 101 lessons and 3,480 checked links. Push and remote hash verified before the efficient-harness batch.
 
 Latest verified parent for the skills/procedures illustration batch: [84fb4d5](https://github.com/dlmastery/simple-coding-harness/commit/84fb4d525bc18c56a34c3266138be72c3b8b2bdb). It completes theme-09 individual infographics and introduces the complete per-lab coverage inventory. Older pre-change statements below are historical. The next batch adds 10.27–10.29; verify its remote hash after pushing before calling that batch backed up.

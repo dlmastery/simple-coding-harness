@@ -6,6 +6,14 @@
 
 Compare raw events with compact memory, distinguish action hints from richer observations, and test a local interface mismatch. These small checks make it easier to read training papers without mistaking a prompt intervention for a parameter update.
 
+![The same inventory events are supplied as raw history, a checked summary plus later events, or a deliberately faulty summary. An independent checker computes the true final count from original events; a blank ledger compares five actor attempts.](../../assets/illustrations/memory-interface-v2.png)
+
+*These counts are a synthetic teaching example. After adding three and removing one, the checkpoint is two; adding two more gives four. The faulty summary omits the removal. Do not pre-fill the actor’s answer or supply the checker’s result in its input. The two extra-description conditions change wording, not state transitions. The drawn counters and tally frame are props; the explicit event tape defines the arithmetic. This external-memory exercise does not reproduce S3Gym’s game or training protocols, and a shorter representation is not presumed better.*
+
+[Open the illustration at full size](../../assets/illustrations/memory-interface-v2.png).
+
+Recompute the checkpoint and final state from the event tape. Identify what the faulty summary lost without assuming an actor answer. The next two figures change supplied feedback and response format; neither local exercise updates model weights.
+
 **Start with:** The tutor creates exact-checker fixtures with explicit budgets. Bring the earlier information-boundary and model/harness distinctions.
 
 - [10.32 · Compare raw history and summarized memory](step_32_memory_interface/README.md): A tiny state-tracking task with an exact checker and two memory representations.

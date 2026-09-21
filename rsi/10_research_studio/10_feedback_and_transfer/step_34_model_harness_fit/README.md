@@ -28,9 +28,20 @@ The source contrasts training from full expert trajectories with correction on t
 
 **A concrete example.** The harness expects a candidate identifier and a numeric balanced-accuracy field. A fluent paragraph contains the right value but omits the identifier, so the parser cannot associate it with a run. A minimal field correction restores the contract. That is an interface repair, not a trained-model improvement.
 
+![Four plain-text reports meet or violate the same Candidate and Status field contract. A local field-name repair restores the expected format; a whole incompatible template still fails. A separate inset identifies the actual training stage in the source concept.](../../../assets/illustrations/harness-compatibility-v1.png)
+
+*The displayed verdicts are expected outcomes of these constructed format fixtures, not archived test results. Run all four checks. Accepting the field labels does not establish that candidate A is valid or that a task succeeded. The parser remains unchanged. The source study concerns broader planning compatibility and actual model training; the local field repair is only an analogy. Its separate training inset does not turn this four-check activity into an LLM-training experiment.*
+
+[Open the illustration at full size](../../../assets/illustrations/harness-compatibility-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.](../../../assets/diagrams/lab-10-34.png)
 
 *Read the diagram:* An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.
+
+</details>
 
 ## Run the lab
 

@@ -296,6 +296,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.31: Compare harness generation and harness improvement](10_research_studio/09_efficient_harnesses/step_31_harness_builders/README.md).
 
+## A shorter memory can lose the state
+
+![The same inventory events are supplied as raw history, a checked summary plus later events, or a deliberately faulty summary. An independent checker computes the true final count from original events; a blank ledger compares five actor attempts.](assets/illustrations/memory-interface-v2.png)
+
+*These counts are a synthetic teaching example. After adding three and removing one, the checkpoint is two; adding two more gives four. The faulty summary omits the removal. Do not pre-fill the actor’s answer or supply the checker’s result in its input. The two extra-description conditions change wording, not state transitions. The drawn counters and tally frame are props; the explicit event tape defines the arithmetic. This external-memory exercise does not reproduce S3Gym’s game or training protocols, and a shorter representation is not presumed better.*
+
+[Open the illustration at full size](assets/illustrations/memory-interface-v2.png).
+
+[Lab 10.32: Compare raw history and summarized memory](10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md).
+
+## Help can change behavior without changing weights
+
+![Two conditions share a missing-Split task: one provides an action hint and the other a richer state observation. A fresh case removes help. A fourth case tests whether the actor can recover when an outdated Split hint conflicts with the current missing-Metric state.](assets/illustrations/feedback-scaffolds-v1.png)
+
+*The dataset names and field values are illustrative form fixtures, not real dataset results. The task cards specify required values; they are distinct from the added hints. Use a genuinely fresh fixture for the unassisted attempt and record any shared-context exposure. The stale-hint case asks what the actor actually does; no recovery is assumed. Compare all four traces with executable checks. This inference exercise illustrates assistance types discussed in Environments as Scaffold; it does not reproduce reinforcement learning or demonstrate a parameter update.*
+
+[Open the illustration at full size](assets/illustrations/feedback-scaffolds-v1.png).
+
+[Lab 10.33: Compare action hints and richer observations](10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md).
+
+## A polished answer can break the interface
+
+![Four plain-text reports meet or violate the same Candidate and Status field contract. A local field-name repair restores the expected format; a whole incompatible template still fails. A separate inset identifies the actual training stage in the source concept.](assets/illustrations/harness-compatibility-v1.png)
+
+*The displayed verdicts are expected outcomes of these constructed format fixtures, not archived test results. Run all four checks. Accepting the field labels does not establish that candidate A is valid or that a task succeeded. The parser remains unchanged. The source study concerns broader planning compatibility and actual model training; the local field repair is only an analogy. Its separate training inset does not turn this four-check activity into an LLM-training experiment.*
+
+[Open the illustration at full size](assets/illustrations/harness-compatibility-v1.png).
+
+[Lab 10.34: Keep model training aligned with its harness](10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md).
+
 ## From a new brief to a working harness
 
 ![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](assets/illustrations/capstone-new-brief-v1.png)

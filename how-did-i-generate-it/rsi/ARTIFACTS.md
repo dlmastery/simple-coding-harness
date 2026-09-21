@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Feedback and compatibility illustration review](validation/FEEDBACK-COMPATIBILITY-ILLUSTRATIONS.md): three individual figures, four output versions, exact source preflights, and documented distinction between toy interfaces and model training.
+
 - [Efficient-harness illustration review](validation/EFFICIENT-HARNESSES-ILLUSTRATIONS.md): source preflight, two selected figures, one retained rejected draft, and all three exact prompts.
 
 Latest visual additions: [knowledge, procedure, and GUI illustration review](validation/SKILLS-PROCEDURES-ILLUSTRATIONS.md), three saved prompts and three first-attempt outputs in the [generation gallery](visuals/generated/README.md). These are authored teaching figures; execution evidence below remains separate.

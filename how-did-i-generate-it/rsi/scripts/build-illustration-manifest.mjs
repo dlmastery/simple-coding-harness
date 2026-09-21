@@ -7,6 +7,10 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["memory-interface-v1","exec-1cd4945f-3a19-45fd-85f5-f47b0b689f19.png",false],
+  ["memory-interface-v2","exec-6b3b7404-32f0-4688-8f81-18b47f89541e.png",true],
+  ["feedback-scaffolds-v1","exec-b046bc07-ab48-43d3-88fb-e9351bdcc1f5.png",true],
+  ["harness-compatibility-v1","exec-3aa23b7d-7a7b-4443-8ef5-47f2606dc943.png",true],
   ["quality-cost-v1","exec-99ba9760-095c-4c6e-980c-7fb23b7ffa2b.png",true],
   ["builder-and-artifact-v1","exec-16074b43-b10d-429a-8212-87bc4faf88fa.png",false],
   ["builder-and-artifact-v2","exec-eb285d78-825f-417b-95f2-4511c1527a7e.png",true],

@@ -79,6 +79,8 @@ export const researchGroups = {
     exit:'Keep a quality/cost comparison and a source-linked builder/harness map. A shorter trace or a better generated artifact does not establish a better builder.'
   },
   '10_feedback_and_transfer': {
+    figure:'10.32',
+    reading:'Recompute the checkpoint and final state from the event tape. Identify what the faulty summary lost without assuming an actor answer. The next two figures change supplied feedback and response format; neither local exercise updates model weights.',
     title:'Feedback, memory, and compatibility', question:'Which information changes behavior, and will it still fit the surrounding system?',
     intro:'Compare raw events with compact memory, distinguish action hints from richer observations, and test a local interface mismatch. These small checks make it easier to read training papers without mistaking a prompt intervention for a parameter update.',
     entry:'The tutor creates exact-checker fixtures with explicit budgets. Bring the earlier information-boundary and model/harness distinctions.',
