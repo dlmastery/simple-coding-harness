@@ -1,5 +1,8 @@
 # Artifact index
 
+- [ScientistTwo individual illustration review](validation/SCIENTISTTWO-INDIVIDUAL-ILLUSTRATIONS.md): four-fit screening limits, evidence-based rebuttal, and discovery versus researcher lineages. Three selections and five retained versions.
+
+
 - [ScienceBuddy individual illustration review](validation/SCIENCEBUDDY-INDIVIDUAL-ILLUSTRATIONS.md): request-to-rubric, reporting-skill comparison, grouped-reward calculation, and source-metric audit. Four selected figures, five retained versions.
 
 - [Composition/reference review](validation/COMPOSITION-REFERENCE-ILLUSTRATIONS.md) and [evidence/economics review](validation/EVIDENCE-ECONOMICS-ILLUSTRATIONS.md): four first-attempt figures, primary-method scope, exact arithmetic, and unexecuted classroom boundaries.

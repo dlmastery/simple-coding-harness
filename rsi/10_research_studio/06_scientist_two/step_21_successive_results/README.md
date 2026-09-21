@@ -28,9 +28,20 @@ A previous result can become the baseline for a new investigation. Track the res
 
 **A concrete example.** The first study produces a better feature recipe. The second uses that recipe as its baseline and finds another gain. If both studies followed the same research instructions, the results improved while the recorded researcher stayed fixed. Accumulated outputs and improved research ability need separate lineages.
 
+![Two studies retain artifact records while the stored researcher stays R0. A separate unexecuted comparison puts old R0 and revised R1 on identical fresh baselines and compares outcomes and costs.](../../../assets/illustrations/discovery-and-researcher-v2.png)
+
+*A1 and A2 name retained-state records, not guaranteed new or better solutions. Rejection can preserve the previous artifact. An unchanged procedure hash says nothing by itself about changing memory, context, tools, or model versions, so record those too. The lower scene is the proposed comparison from the transfer exercise; this lab requires no new fits. Compare research outcomes under matched conditions before making a claim about a better research procedure.*
+
+[Open the illustration at full size](../../../assets/illustrations/discovery-and-researcher-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Better research outputs and a better research procedure are distinct objects of evaluation.](../../../assets/diagrams/lab-10-21.png)
 
 *Read the diagram:* Better research outputs and a better research procedure are distinct objects of evaluation.
+
+</details>
 
 ## Run the lab
 

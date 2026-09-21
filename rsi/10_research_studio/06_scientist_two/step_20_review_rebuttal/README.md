@@ -28,9 +28,20 @@ A reviewer can identify a missing baseline, confound, or unsupported generalizat
 
 **A concrete example.** The report says weather helps, but the reviewer notices that the weather arm also used a different estimator. A useful response compares the feature groups with one fixed estimator. If the gain disappears, the revised claim should say so. A longer defense of the first result would leave the confound unresolved.
 
+![An agent review asks whether a weather-feature finding depends on model family. Two matched tree-model fits use calendar inputs with and without weather, then evidence informs a revised response.](../../../assets/illustrations/review-to-evidence-v1.png)
+
+*This is an illustrative follow-up to the earlier linear-model study, not an already observed criticism or result. Predeclare the tree recipe and comparison, then retain both sets of predictions and errors. A one-pair follow-up can narrow the tested scope; it cannot establish universality across models or quantify all sources of variation. The outcome cards are alternatives. The main horizontal arrows show the reading order; write the response only after inspecting the evidence. Automated review is not human conference acceptance.*
+
+[Open the illustration at full size](../../../assets/illustrations/review-to-evidence-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.](../../../assets/diagrams/lab-10-20.png)
 
 *Read the diagram:* A criticism leads to a targeted check. The response should cite its result, including a result that weakens the claim.
+
+</details>
 
 ## Run the lab
 

@@ -236,6 +236,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.18: Turn a limitation into a scientific hypothesis](10_research_studio/06_scientist_two/step_18_hypothesis/README.md).
 
+## Screen ideas, then test a contribution
+
+![Two small-data screening fits select one idea. Two matched fuller fits compare that idea with its component removed. Results remain blank and final evaluation stays untouched.](assets/illustrations/screen-and-ablate-v2.png)
+
+*The four numbered fits exhaust the budget. The upper data cards describe shared training and evaluation roles; the bike-rental target is the value to predict, never a feature. Fit preprocessing only on the declared training subset. The selected component advances to Fit 3 and is removed in Fit 4. This tests its contribution under fuller conditions; it does not reveal the full-scale ranking of both screened ideas. Read labels rather than decorative calendar cells as the split specification.*
+
+[Open the illustration at full size](assets/illustrations/screen-and-ablate-v2.png).
+
+[Lab 10.19: Screen ideas and test their contributions](10_research_studio/06_scientist_two/step_19_screen_ablate/README.md).
+
+## Answer a criticism with evidence
+
+![An agent review asks whether a weather-feature finding depends on model family. Two matched tree-model fits use calendar inputs with and without weather, then evidence informs a revised response.](assets/illustrations/review-to-evidence-v1.png)
+
+*This is an illustrative follow-up to the earlier linear-model study, not an already observed criticism or result. Predeclare the tree recipe and comparison, then retain both sets of predictions and errors. A one-pair follow-up can narrow the tested scope; it cannot establish universality across models or quantify all sources of variation. The outcome cards are alternatives. The main horizontal arrows show the reading order; write the response only after inspecting the evidence. Automated review is not human conference acceptance.*
+
+[Open the illustration at full size](assets/illustrations/review-to-evidence-v1.png).
+
+[Lab 10.20: Answer a criticism with evidence](10_research_studio/06_scientist_two/step_20_review_rebuttal/README.md).
+
+## Track the discovery and its researcher
+
+![Two studies retain artifact records while the stored researcher stays R0. A separate unexecuted comparison puts old R0 and revised R1 on identical fresh baselines and compares outcomes and costs.](assets/illustrations/discovery-and-researcher-v2.png)
+
+*A1 and A2 name retained-state records, not guaranteed new or better solutions. Rejection can preserve the previous artifact. An unchanged procedure hash says nothing by itself about changing memory, context, tools, or model versions, so record those too. The lower scene is the proposed comparison from the transfer exercise; this lab requires no new fits. Compare research outcomes under matched conditions before making a claim about a better research procedure.*
+
+[Open the illustration at full size](assets/illustrations/discovery-and-researcher-v2.png).
+
+[Lab 10.21: Distinguish better discoveries from a better scientist](10_research_studio/06_scientist_two/step_21_successive_results/README.md).
+
 ## Turn a correction into something you can check
 
 ![A labelled synthetic request about wine-model reports becomes a task and rubric. A complete report fixture and one omitting minority recall face the same checks. A separate panel distinguishes evidence presence from scientific validity.](assets/illustrations/correction-to-rubric-v1.png)

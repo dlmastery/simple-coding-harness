@@ -28,9 +28,20 @@ Screening uses a cheaper test to choose which idea deserves more work. Confirmat
 
 **A concrete example.** A cheap screen on a small, earlier training subset may favor a simple model. The fuller development comparison can favor another idea because more data supports it. That disagreement is a result about the screen’s usefulness, not a reason to hide the cheaper run.
 
+![Two small-data screening fits select one idea. Two matched fuller fits compare that idea with its component removed. Results remain blank and final evaluation stays untouched.](../../../assets/illustrations/screen-and-ablate-v2.png)
+
+*The four numbered fits exhaust the budget. The upper data cards describe shared training and evaluation roles; the bike-rental target is the value to predict, never a feature. Fit preprocessing only on the declared training subset. The selected component advances to Fit 3 and is removed in Fit 4. This tests its contribution under fuller conditions; it does not reveal the full-scale ranking of both screened ideas. Read labels rather than decorative calendar cells as the split specification.*
+
+[Open the illustration at full size](../../../assets/illustrations/screen-and-ablate-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.](../../../assets/diagrams/lab-10-19.png)
 
 *Read the diagram:* Screening selects promising ideas. Ablation then asks which part contributes under a controlled comparison.
+
+</details>
 
 ## Run the lab
 
@@ -77,11 +88,14 @@ Test the selected contribution.
 ```text
 Run the selected idea and its ablation under
 matching fuller conditions within the total
-fit budget. Compare with the screen and
-record ranking changes.
+fit budget. Record whether the selected
+contribution holds under the fuller
+conditions. Do not claim a full-scale
+ranking of both screened ideas; only the
+selected idea received confirmation.
 ```
 
-**Observe:** The full comparison can overturn screening.
+**Observe:** The selected contribution can fail confirmation.
 
 ## Check your result
 
