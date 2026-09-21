@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+Latest verified parent for the skills/procedures illustration batch: [84fb4d5](https://github.com/dlmastery/simple-coding-harness/commit/84fb4d525bc18c56a34c3266138be72c3b8b2bdb). It completes theme-09 individual infographics and introduces the complete per-lab coverage inventory. Older pre-change statements below are historical. The next batch adds 10.27–10.29; verify its remote hash after pushing before calling that batch backed up.
+
 Latest verified checkpoint before this source-navigation change: `bb81723af39a55f3f8ec26584be9723cb9a73f9c`, confirmed against the remote branch on 20 September. It adds ModularRSI, meta-skill evolution, and saved-state coordination figures, plus an explicit self-application step in lab 10.17. This change exposes every lab's brief, procedure, and maintained authoring source, alongside the shared skills and whole-course intent. All 101 labs have individual teaching guidance; the original backups remain in ancestor `85ceecc`. These checkpoints are not full-course acceptance results.
 
 The working branch is [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). Each listed milestone is in its verified history. The branch history and work log retain intermediate checkpoints.

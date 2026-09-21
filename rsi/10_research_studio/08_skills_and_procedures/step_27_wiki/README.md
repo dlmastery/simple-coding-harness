@@ -28,9 +28,20 @@ WikiSkill separates raw experience, a persistent knowledge layer, and active ski
 
 **A concrete example.** A proposed rule says to skip a data check that appeared redundant. A later fixture exposes a failure, so the active skill keeps the check. The notebook can still retain “this removal failed under condition C,” with a link to the trace. Rejecting the edit need not erase the evidence.
 
+![An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.](../../../assets/illustrations/knowledge-stores-v1.png)
+
+*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
+
+[Open the illustration at full size](../../../assets/illustrations/knowledge-stores-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.](../../../assets/diagrams/lab-10-27.png)
 
 *Read the diagram:* Raw traces, a knowledge store, and active instructions have different roles. Rejected instruction edits need not erase the trace.
+
+</details>
 
 ## Run the lab
 

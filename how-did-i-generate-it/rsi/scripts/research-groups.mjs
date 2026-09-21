@@ -63,6 +63,8 @@ export const researchGroups = {
     exit:'Keep rubric verdicts, skill versions, the numerical update, pair records, and a source-scoped result audit. Do not combine synthetic values, local measurements, and paper results into one score.'
   },
   '08_skills_and_procedures': {
+    figure:'10.27',
+    reading:'Find what survives a failed edit: the accepted procedure and the scoped failure note. Then open each of the three labs for its own figure. Trace a graph repair through its checks, and separate a GUI critic’s opinion from the executable selection result.',
     title:'Experience, executable procedures, and interface skills', question:'How should a useful lesson become an active procedure?',
     intro:'Separate original traces, retained knowledge, and accepted skills. Refine a procedure graph without confusing it with a domain ontology. Then apply the same evidence discipline to a local experiment-results page and a visible UI mistake.',
     entry:'Bring a failed skill proposal, the workflow graph, and saved candidate metrics. Live UI execution requires a browser-capable agent; missing capability stays explicit.',

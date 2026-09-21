@@ -246,6 +246,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.25: Track model–harness pairs across cycles](10_research_studio/07_sciencebuddy/step_25_coevolution/README.md).
 
+## A failed edit can still teach us
+
+![An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.](assets/illustrations/knowledge-stores-v1.png)
+
+*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
+
+[Open the illustration at full size](assets/illustrations/knowledge-stores-v1.png).
+
+[Lab 10.27: Keep traces, knowledge, and active skills separate](10_research_studio/08_skills_and_procedures/step_27_wiki/README.md).
+
+## Repair the route. Check the meaning.
+
+![A procedure map exposes the current input-check node and possible next actions. A proposed edge repair replaces unconditional fitting with a validity branch. Selection fixtures precede freezing and a fresh fixture; a separate semantic test checks target leakage.](assets/illustrations/procedure-graph-v1.png)
+
+*The left map explains conditional routing; the notebook isolates an example bug and its proposed repair. Test the target failure and a regression case before retaining a graph, then freeze that version for the fresh case. A rejected edit leaves the prior graph in place. The fourth fixture checks meaning: a target component can have the expected numeric type and still be forbidden as an input. The graph and domain rule have distinct jobs. All four fixtures use a fit stub; the figure records no successful test or model training.*
+
+[Open the illustration at full size](assets/illustrations/procedure-graph-v1.png).
+
+[Lab 10.28: Refine a procedure graph](10_research_studio/08_skills_and_procedures/step_28_procedural_graph/README.md).
+
+## A plausible click is not a checked result
+
+![A first attempt selects candidate A without opening its details. A restricted visible-trace packet supports a critique, one skill instruction changes, and a second attempt is checked with the fixed executable selection rule.](assets/illustrations/gui-skill-repair-v1.png)
+
+*The enlarged warning is a reader callout to information already present on the page. It was not observed in the pictured failed attempt and must not be added to that attempt’s critic packet. Supply only the declared visible trace, not the skill package or answer key. Use a separate critic context where available; otherwise label the shared context. The rule-check ticks name operations, not recorded passes. Compare the critic’s verdict with the executable result. This EvoSkill-inspired classroom task allows two actual UI attempts and no new model fits; the illustration is not an execution record.*
+
+[Open the illustration at full size](assets/illustrations/gui-skill-repair-v1.png).
+
+[Lab 10.29: Repair a skill for an experiment-results page](10_research_studio/08_skills_and_procedures/step_29_gui/README.md).
+
 ## From a new brief to a working harness
 
 ![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](assets/illustrations/capstone-new-brief-v1.png)

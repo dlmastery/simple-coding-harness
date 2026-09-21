@@ -28,9 +28,20 @@ A procedural graph represents actions and transitions. Our exercise gives the ex
 
 **A concrete example.** The workflow currently routes every returned tool result straight to reporting. A proposed edge sends failed validation to diagnosis instead. This changes what happens next; it does not redefine what the target or metric means. A semantically invalid feature still needs the separate domain rule.
 
+![A procedure map exposes the current input-check node and possible next actions. A proposed edge repair replaces unconditional fitting with a validity branch. Selection fixtures precede freezing and a fresh fixture; a separate semantic test checks target leakage.](../../../assets/illustrations/procedure-graph-v1.png)
+
+*The left map explains conditional routing; the notebook isolates an example bug and its proposed repair. Test the target failure and a regression case before retaining a graph, then freeze that version for the fresh case. A rejected edit leaves the prior graph in place. The fourth fixture checks meaning: a target component can have the expected numeric type and still be forbidden as an input. The graph and domain rule have distinct jobs. All four fixtures use a fit stub; the figure records no successful test or model training.*
+
+[Open the illustration at full size](../../../assets/illustrations/procedure-graph-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A procedure graph specifies actions and transitions. Freeze the selected graph before testing it on fresh cases.](../../../assets/diagrams/lab-10-28.png)
 
 *Read the diagram:* A procedure graph specifies actions and transitions. Freeze the selected graph before testing it on fresh cases.
+
+</details>
 
 ## Run the lab
 

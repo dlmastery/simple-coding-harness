@@ -7,6 +7,9 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["knowledge-stores-v1","exec-f6816411-8aab-468a-8a0d-6c7d879c304a.png",true],
+  ["procedure-graph-v1","exec-12322936-9647-465c-9b2d-0e9b1039b5fe.png",true],
+  ["gui-skill-repair-v1","exec-c0c67977-2661-478f-a9d1-3fa94f2cca44.png",true],
   ['main-overview-v1','exec-5bc0cf68-f09e-414a-bfaf-a34a2ff8d422.png',false],
   ['main-overview-v2','exec-a03901fb-38b7-448d-a3ef-65549e170b46.png',true],
   ['target-leakage-v1','exec-8bea4f88-87c8-4950-a229-c1339ebf05ac.png',false],

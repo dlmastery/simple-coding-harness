@@ -1,5 +1,7 @@
 # Artifact index
 
+Latest visual additions: [knowledge, procedure, and GUI illustration review](validation/SKILLS-PROCEDURES-ILLUSTRATIONS.md), three saved prompts and three first-attempt outputs in the [generation gallery](visuals/generated/README.md). These are authored teaching figures; execution evidence below remains separate.
+
 Latest additions: [self-* and measurement review](validation/SELF-STAR-AND-MEASUREMENT-RESULTS.md), [eight-fit evidence and replays](../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md), and [preserved pre-fit failure](../../rsi/evidence/2026-09-20/self-star-first-attempt/FAILURE.md). Earlier [loop and system results](validation/LOOPS-AND-SYSTEMS-RESULTS.md), [live coordinator](../../rsi/evidence/2026-09-20/live-coordinator/README.md), and [README support coverage](validation/README-GUIDANCE-COVERAGE.md) remain intact. Original runtime snapshots preserve exact execution bytes; post-run supplements are separately identified.
 
 This index covers planning, reusable skills, and implementation. The old RSI course remains in Git history. The replacement is authored and undergoing validation.

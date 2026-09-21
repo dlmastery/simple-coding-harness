@@ -28,9 +28,20 @@ EvoSkill-GUI motivates separating reusable skills from task traces and critique.
 
 **A concrete example.** The top row has the lowest displayed error, but its detail view says it used a forbidden target-derived input. Selecting it without opening the warning is a task failure. A revised inspection skill should verify validity before optimizing the score. Both attempts use the same page and hidden warning.
 
+![A first attempt selects candidate A without opening its details. A restricted visible-trace packet supports a critique, one skill instruction changes, and a second attempt is checked with the fixed executable selection rule.](../../../assets/illustrations/gui-skill-repair-v1.png)
+
+*The enlarged warning is a reader callout to information already present on the page. It was not observed in the pictured failed attempt and must not be added to that attempt’s critic packet. Supply only the declared visible trace, not the skill package or answer key. Use a separate critic context where available; otherwise label the shared context. The rule-check ticks name operations, not recorded passes. Compare the critic’s verdict with the executable result. This EvoSkill-inspired classroom task allows two actual UI attempts and no new model fits; the illustration is not an execution record.*
+
+[Open the illustration at full size](../../../assets/illustrations/gui-skill-repair-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.](../../../assets/diagrams/lab-10-29.png)
 
 *Read the diagram:* Observe an actual page action and its result. A revised GUI skill needs another execution to establish that the repair works.
+
+</details>
 
 ## Run the lab
 
