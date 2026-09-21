@@ -34,6 +34,8 @@ const topics=[
   ['10.27','A failed edit can still teach us'],
   ['10.28','Repair the route. Check the meaning.'],
   ['10.29','A plausible click is not a checked result'],
+  ['10.30','Save work without losing the evidence'],
+  ['10.31','Name the object that changes'],
   ['11.01','From a new brief to a working harness'],
   ['11.02','Make a recursive experiment inspectable'],
   ['11.03','Change one dimension. Test its consequences.'],

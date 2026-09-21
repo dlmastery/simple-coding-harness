@@ -4,6 +4,8 @@ Updated: 20 September 2026. This file records the user's directions and the curr
 
 ## Latest priority and visual correction
 
+**Efficient-harness continuation:** 10.30 and 10.31 now have individual figures. The cost diagram was selected on its first attempt; the builder diagram used one combined connector correction. Inventory: 35 selected images, 63 retained outputs, 31 mapped labs, 70 gaps (26 research, 44 foundations). Next illustrate 10.32–10.34 memory, assistance, and compatibility, then 10.35–10.38 composition and evidence. The skills/procedures batch was pushed and remote-verified at 75521657bcb26f256c3c3a49016de4a26b8e910d. No execution-verification phase has resumed.
+
 **Resume checkpoint, 20 September:** completed separate figures for 10.27–10.29: knowledge stores, procedure graphs, and GUI skill repair. Three source-checked prompts, three outputs, all selected on their first attempts. Counts: 33 selected images, 60 archived versions, 29 of 101 labs mapped, 72 remaining (28 research and 44 foundations). See validation/SKILLS-PROCEDURES-ILLUSTRATIONS.md. The preceding theme-09 checkpoint is remote-verified at 84fb4d525bc18c56a34c3266138be72c3b8b2bdb.
 
 Next begin efficient harnesses (10.30–10.31), then feedback/compatibility, composition, and evidence groups before the remaining named-method and foundation gaps. Do not regenerate completed figures. Full execution verification remains deferred. Earlier handoff snapshots below are historical.

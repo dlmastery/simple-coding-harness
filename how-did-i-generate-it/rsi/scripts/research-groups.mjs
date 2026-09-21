@@ -71,6 +71,8 @@ export const researchGroups = {
     exit:'Keep the rejected-edit knowledge, tested graph transition, and actual UI traces. A stored lesson or critic approval is not a substitute for observed behavior.'
   },
   '09_efficient_harnesses': {
+    figure:'10.30',
+    reading:'Locate the checker that stays in the candidate, then the checker removed in the counterexample. Explain why only the first change can enter a fair efficiency comparison. In the next lab, identify the changed object in each source before making a claim about its builder.',
     title:'Efficient harnesses and their builders', question:'What can become cheaper without weakening the task?',
     intro:'Define the quality floor before removing redundant work. Count the cost of finding and checking the change. Then separate the quality of a generated harness from the quality of the procedure that generates harnesses.',
     entry:'Bring the generated wine harness and cost ledger. Use existing fixtures where possible and retain unknown inference costs as unknown.',

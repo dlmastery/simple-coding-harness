@@ -6,6 +6,14 @@
 
 Define the quality floor before removing redundant work. Count the cost of finding and checking the change. Then separate the quality of a generated harness from the quality of the procedure that generates harnesses.
 
+![A fixed quality requirement governs a matched comparison of H0 and H1. H1 removes duplicate reporting while retaining its checker. Cost accounting includes search overhead and failed attempts; a separate missing-checker shortcut is rejected.](../../assets/illustrations/quality-cost-v1.png)
+
+*This classroom change removes redundant report work; it is not an implementation of SoL-Pi’s four mechanisms. Both variants must meet the declared quality requirement before an efficiency conclusion is allowed. Fill the ledger with actual observations, include proposal and checking overhead, and keep unknown usage unknown. The failure tray represents recorded attempts whose costs remain in the ledger. The separate fit-stub example fails because required evidence is absent. The figure contains no measured saving or recursive compounding result.*
+
+[Open the illustration at full size](../../assets/illustrations/quality-cost-v1.png).
+
+Locate the checker that stays in the candidate, then the checker removed in the counterexample. Explain why only the first change can enter a fair efficiency comparison. In the next lab, identify the changed object in each source before making a claim about its builder.
+
 **Start with:** Bring the generated wine harness and cost ledger. Use existing fixtures where possible and retain unknown inference costs as unknown.
 
 - [10.30 · Reduce cost without hiding quality loss](step_30_cost_quality/README.md): A quality-and-cost comparison of two small harness variants.

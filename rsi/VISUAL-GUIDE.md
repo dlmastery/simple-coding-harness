@@ -276,6 +276,26 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.29: Repair a skill for an experiment-results page](10_research_studio/08_skills_and_procedures/step_29_gui/README.md).
 
+## Save work without losing the evidence
+
+![A fixed quality requirement governs a matched comparison of H0 and H1. H1 removes duplicate reporting while retaining its checker. Cost accounting includes search overhead and failed attempts; a separate missing-checker shortcut is rejected.](assets/illustrations/quality-cost-v1.png)
+
+*This classroom change removes redundant report work; it is not an implementation of SoL-Pi’s four mechanisms. Both variants must meet the declared quality requirement before an efficiency conclusion is allowed. Fill the ledger with actual observations, include proposal and checking overhead, and keep unknown usage unknown. The failure tray represents recorded attempts whose costs remain in the ledger. The separate fit-stub example fails because required evidence is absent. The figure contains no measured saving or recursive compounding result.*
+
+[Open the illustration at full size](assets/illustrations/quality-cost-v1.png).
+
+[Lab 10.30: Reduce cost without hiding quality loss](10_research_studio/09_efficient_harnesses/step_30_cost_quality/README.md).
+
+## Name the object that changes
+
+![HarnessDev changes a harness and evaluates it after freezing. Harness-of-Harness keeps its agent setup fixed while software changes. A local H0–H1 comparison holds builder B0 fixed; a separate proposed test supplies identical fresh briefs to B0 and B1.](assets/illustrations/builder-and-artifact-v2.png)
+
+*Read the two source panels separately. A source system’s name does not identify its changed object. The lower experiment evaluates a generated ML harness under an unchanged builder. Both H0 and H1 feed the matched check before a decision; checklist marks name operations, not successful measurements. The final strip proposes a different experiment for a builder claim: the same fresh briefs are inputs to both builders, and their generated systems must be evaluated. It is not a completed extension to this lab’s two-check-or-fit budget. No model-weight update or general builder improvement is established.*
+
+[Open the illustration at full size](assets/illustrations/builder-and-artifact-v2.png).
+
+[Lab 10.31: Compare harness generation and harness improvement](10_research_studio/09_efficient_harnesses/step_31_harness_builders/README.md).
+
 ## From a new brief to a working harness
 
 ![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](assets/illustrations/capstone-new-brief-v1.png)

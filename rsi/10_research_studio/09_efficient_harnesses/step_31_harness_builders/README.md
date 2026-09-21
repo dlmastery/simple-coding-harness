@@ -28,9 +28,20 @@ HarnessDev evaluates created and revised harnesses, with creator and executor ro
 
 **A concrete example.** The fixed builder produces a harness whose report omits class recall. You revise the generated report component and its behavior improves. This is evidence about the revised harness. To evaluate the builder, you would need to compare what builder versions produce on prespecified briefs, including unsuccessful generations.
 
+![HarnessDev changes a harness and evaluates it after freezing. Harness-of-Harness keeps its agent setup fixed while software changes. A local H0–H1 comparison holds builder B0 fixed; a separate proposed test supplies identical fresh briefs to B0 and B1.](../../../assets/illustrations/builder-and-artifact-v2.png)
+
+*Read the two source panels separately. A source system’s name does not identify its changed object. The lower experiment evaluates a generated ML harness under an unchanged builder. Both H0 and H1 feed the matched check before a decision; checklist marks name operations, not successful measurements. The final strip proposes a different experiment for a builder claim: the same fresh briefs are inputs to both builders, and their generated systems must be evaluated. It is not a completed extension to this lab’s two-check-or-fit budget. No model-weight update or general builder improvement is established.*
+
+[Open the illustration at full size](../../../assets/illustrations/builder-and-artifact-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.](../../../assets/diagrams/lab-10-31.png)
 
 *Read the diagram:* Name the object that changes. In Harness-of-Harness, the developed software changes while the agent configuration remains fixed.
+
+</details>
 
 ## Run the lab
 

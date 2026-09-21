@@ -28,9 +28,20 @@ SoL-Pi motivates harness search for efficiency subject to quality requirements. 
 
 **A concrete example.** A harness writes the same metrics into three near-identical reports. Consolidating them may save work while retaining one verifiable record. Removing the result checker also saves work, but can violate the quality floor. The two removals need different acceptance decisions even if both shorten the trace.
 
+![A fixed quality requirement governs a matched comparison of H0 and H1. H1 removes duplicate reporting while retaining its checker. Cost accounting includes search overhead and failed attempts; a separate missing-checker shortcut is rejected.](../../../assets/illustrations/quality-cost-v1.png)
+
+*This classroom change removes redundant report work; it is not an implementation of SoL-Pi’s four mechanisms. Both variants must meet the declared quality requirement before an efficiency conclusion is allowed. Fill the ledger with actual observations, include proposal and checking overhead, and keep unknown usage unknown. The failure tray represents recorded attempts whose costs remain in the ledger. The separate fit-stub example fails because required evidence is absent. The figure contains no measured saving or recursive compounding result.*
+
+[Open the illustration at full size](../../../assets/illustrations/quality-cost-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A cheaper harness is eligible only if it still meets the declared quality requirement.](../../../assets/diagrams/lab-10-30.png)
 
 *Read the diagram:* A cheaper harness is eligible only if it still meets the declared quality requirement.
+
+</details>
 
 ## Run the lab
 
