@@ -28,9 +28,20 @@ HarnessEvolve uses answer-conditioned reference trajectories, checks that they c
 
 **A concrete example.** A shortcut reference prints “the units are missing” because it was given the answer. A useful reference opens the schema, checks the required field, and records the failure. Both may end with the same sentence, but only the latter provides an executable path that can help diagnose the failed workflow.
 
+![A failed missing-field audit is compared with a reference containing tool actions and observations. A known-answer shortcut is rejected. A general skill edit must pass quality and current/prior-case checks; two legitimate alternative paths show that divergence alone is not error.](../../../assets/illustrations/checked-reference-v1.png)
+
+*These are constructed trace fixtures. The usable-reference marks represent the example’s required execution evidence, not a completed source reproduction. Check the actual traces before diagnosis. The candidate must pass its quality check before proceeding to the two fixture evaluations; reject a failed quality check immediately. “Independent fixtures” means distinct current and prior cases, not proof of isolated agent contexts. The alternative orders are valid for this particular audit. The general instruction contains no case answer, and the final keep-or-reject result is unresolved.*
+
+[Open the illustration at full size](../../../assets/illustrations/checked-reference-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.](../../../assets/diagrams/lab-10-36.png)
 
 *Read the diagram:* Check a reference before using it to diagnose failure. A proposed edit must also pass leakage and regression checks.
+
+</details>
 
 ## Run the lab
 

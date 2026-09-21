@@ -28,9 +28,20 @@ Compare the same questions across systems: what changes, what remains fixed, who
 
 **A concrete example.** One system updates memory; another updates weights and harness instructions; a third revises the search policy. Their headline scores come from different tasks. A useful matrix compares changed objects, feedback, inheritance, and evaluation before asking whether any numbers are comparable.
 
+![Six named research systems and the local course run are examined through common mechanism and evidence questions. A source-linked matrix template leads to a challenge of the claim that a better task score implies a better improver.](../../../assets/illustrations/compare-research-systems-v1.png)
+
+*The ledger is a template to fill, not a completed comparison. Link paper claims to their primary method and result sections; use raw execution records where available and mark missing evidence unresolved. Link local claims to the course’s actual records. The named folders carry no rank or inferred method assignment. The lower challenge needs two distinct checks: whether an improver changed and governed later work, and whether its downstream outcomes improved under a fair total-resource comparison. A task-score gain alone answers neither.*
+
+[Open the illustration at full size](../../../assets/illustrations/compare-research-systems-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Compare systems on common questions before comparing scores. Missing evidence stays visible.](../../../assets/diagrams/lab-10-37.png)
 
 *Read the diagram:* Compare systems on common questions before comparing scores. Missing evidence stays visible.
+
+</details>
 
 ## Run the lab
 

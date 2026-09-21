@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [dcb9e9a](https://github.com/dlmastery/simple-coding-harness/commit/dcb9e9a6b91a62bdc913700c64839f74bb252039): memory, assistance, and compatibility figures; four output versions, 38 gallery figures, and 3,533 valid local links. Push and remote hash verified before the composition/evidence batch.
+
 - [39caeef](https://github.com/dlmastery/simple-coding-harness/commit/39caeefb0586114dc7b7d12e87ff7e0406e91651): cost/quality and builder/artifact illustrations, three outputs, 35 selected gallery figures, and 3,502 valid local links. Push and remote hash verified before memory/feedback work.
 
 - [7552165](https://github.com/dlmastery/simple-coding-harness/commit/75521657bcb26f256c3c3a49016de4a26b8e910d): knowledge stores, procedure graphs, and GUI skill repair; three first-attempt figures, 101 lessons and 3,480 checked links. Push and remote hash verified before the efficient-harness batch.

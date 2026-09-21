@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Composition/reference review](validation/COMPOSITION-REFERENCE-ILLUSTRATIONS.md) and [evidence/economics review](validation/EVIDENCE-ECONOMICS-ILLUSTRATIONS.md): four first-attempt figures, primary-method scope, exact arithmetic, and unexecuted classroom boundaries.
+
 - [Feedback and compatibility illustration review](validation/FEEDBACK-COMPATIBILITY-ILLUSTRATIONS.md): three individual figures, four output versions, exact source preflights, and documented distinction between toy interfaces and model training.
 
 - [Efficient-harness illustration review](validation/EFFICIENT-HARNESSES-ILLUSTRATIONS.md): source preflight, two selected figures, one retained rejected draft, and all three exact prompts.

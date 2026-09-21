@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**34 of 101 labs** currently have a mapped generated infographic; **67 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**38 of 101 labs** currently have a mapped generated infographic; **63 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 15 | 23 |
+| 10 · Read and rebuild recent research | 38 | 19 | 19 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -167,10 +167,10 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | [10.32 · Compare raw history and summarized memory](../../../rsi/10_research_studio/10_feedback_and_transfer/step_32_memory_interface/README.md) | [Selected figure](../../../rsi/assets/illustrations/memory-interface-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-32.png) |
 | [10.33 · Compare action hints and richer observations](../../../rsi/10_research_studio/10_feedback_and_transfer/step_33_scaffolding/README.md) | [Selected figure](../../../rsi/assets/illustrations/feedback-scaffolds-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-33.png) |
 | [10.34 · Keep model training aligned with its harness](../../../rsi/10_research_studio/10_feedback_and_transfer/step_34_model_harness_fit/README.md) | [Selected figure](../../../rsi/assets/illustrations/harness-compatibility-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-34.png) |
-| [10.35 · Compose changes to data, harness, and model](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_35_metarsi/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-35.png) |
-| [10.36 · Diagnose failures with checked reference trajectories](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_36_harnessevolve/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-36.png) |
-| [10.37 · Compare systems without flattening their differences](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_37_compare_systems/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-37.png) |
-| [10.38 · Reason about bottlenecks and acceleration](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_38_economics/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-38.png) |
+| [10.35 · Compose changes to data, harness, and model](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_35_metarsi/README.md) | [Selected figure](../../../rsi/assets/illustrations/operator-composition-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-35.png) |
+| [10.36 · Diagnose failures with checked reference trajectories](../../../rsi/10_research_studio/11_composition_and_reference_learning/step_36_harnessevolve/README.md) | [Selected figure](../../../rsi/assets/illustrations/checked-reference-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-36.png) |
+| [10.37 · Compare systems without flattening their differences](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_37_compare_systems/README.md) | [Selected figure](../../../rsi/assets/illustrations/compare-research-systems-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-37.png) |
+| [10.38 · Reason about bottlenecks and acceleration](../../../rsi/10_research_studio/12_evidence_and_open_questions/step_38_economics/README.md) | [Selected figure](../../../rsi/assets/illustrations/research-bottlenecks-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-38.png) |
 
 ## 11 · Build, transfer, and explain
 

@@ -87,12 +87,16 @@ export const researchGroups = {
     exit:'Keep all memory conditions, assistance traces, and parser failures. Identify which claims require actual weight training beyond these classroom exercises.'
   },
   '11_composition_and_reference_learning': {
+    figure:'10.35',
+    reading:'Identify the three writable objects, then match the candidate scheduler rule to its later use. Separate this simulated inheritance from measured benefit. In the next figure, ask whether a reference contains execution evidence before using it to diagnose a failure.',
     title:'Compose changes and learn from references', question:'How can several improvement operations share evidence without corrupting it?',
     intro:'Use a typed simulation to track data, harness, model, and scheduler versions. Then inspect reference trajectories: a known answer can guide diagnosis, but copied answers and invalid shortcuts must not become active skills.',
     entry:'Bring the ontology, lineage, and valid/failed workflow traces. Keep the scheduler exercise synthetic and the reference checks executable.',
     exit:'Keep the inherited scheduling trace, stale-evidence refusals, checked references, and regression decisions. These prepare the final comparison of systems and their evidence.'
   },
   '12_evidence_and_open_questions': {
+    figure:'10.37',
+    reading:'Choose one source folder and answer both sets of questions before comparing scores. Leave unsupported entries unresolved. The final lab adds a synthetic timing example: calculate the whole process before interpreting faster proposals or rising cumulative gains.',
     title:'Compare evidence and examine bottlenecks', question:'Which stronger claims still need another experiment?',
     intro:'Compare six source systems and your own experiment with the same questions about changes, feedback, inheritance, evaluation, and cost. Then use a small calculator to separate faster components from faster total research and cumulative gains from acceleration.',
     entry:'Bring the studio audits and your actual cost ledger. Keep unknown source details unresolved and synthetic timing separate from measurements.',

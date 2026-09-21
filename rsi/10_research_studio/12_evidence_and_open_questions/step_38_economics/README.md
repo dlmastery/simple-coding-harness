@@ -28,9 +28,20 @@ Total progress depends on the whole research process. If evaluation takes most o
 
 **A concrete example.** Proposal work takes 1 minute and the remaining execution/evaluation takes 9. Doubling proposal speed changes total time from 10 to 9.5 minutes: a 5% reduction. Even eliminating proposal time saves only 10%. A claimed proposal speedup needs the full process denominator before it becomes a research speedup.
 
+![Five independent synthetic timing scenarios compare faster proposals, faster evaluation, extra checking, and a costlier verifier against a ten-minute baseline. A separate arithmetic example shows cumulative gains increasing while each round’s gain decreases.](../../../assets/illustrations/research-bottlenecks-v1.png)
+
+*Use the explicit numbers, not the decorative clock faces, to read the example. The five scenarios are alternatives; they are not successive generations. Execution time is set to zero only for this teaching calculation. Restore measured execution, failures, retries, and other costs in a real ledger. The instant-proposal limit follows from the baseline and is not a sixth run. The gain units below are a separate illustration; an acceleration claim must also account for resources and difficulty. This is neither a forecast nor the economics paper’s calibrated model.*
+
+[Open the illustration at full size](../../../assets/illustrations/research-bottlenecks-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The slow stage limits total speedup. The calculator uses declared synthetic costs, not a forecast.](../../../assets/diagrams/lab-10-38.png)
 
 *Read the diagram:* The slow stage limits total speedup. The calculator uses declared synthetic costs, not a forecast.
+
+</details>
 
 ## Run the lab
 
