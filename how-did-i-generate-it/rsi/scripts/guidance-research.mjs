@@ -37,7 +37,7 @@ export const researchGuidance = {
     hint:'Ask whether a statement should still be true after the run ID changes. Its lifetime helps determine where it belongs.'
   },
   '10.07': {
-    example:'Node A is a measured baseline. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.',
+    example:'Root R represents the initial workspace and has no score. Node A is a measured baseline only after its execution. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D of B has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.',
     outputs:[['Discovery table and rendered tree','Identify nodes, parent links, recipes, execution status, and result paths.'],['Three actual trial records','Supply measured outcomes and costs for the visited nodes.'],['Coverage statement','Separates proposed branches, failed attempts, and successfully measured outcomes.']],
     recovery:'If a node has a score but no matching predictions or report, classify it as unsupported until its source is found. If a failed fit is silently absent, restore the attempted node and its cost. Do not copy a nearby node’s score into an unvisited branch merely because its recipe looks similar.',
     hint:'For each plotted number, follow its link back to one executed trial. An attractive tree is still only a drawing without those links.'

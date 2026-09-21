@@ -167,9 +167,10 @@ D --> E`),
 '10.06':D('Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.',`A["Reusable experience"] --> C["Current decision"]
 B["New run state"] --> C
 D["Old run state"] --> E["Archive with old run"]`),
-'10.07':D('The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.',`A["Measured baseline"] --> B["Measured child 1"]
-A --> C["Measured child 2"]
-A -.-> D["Unexecuted branch: unknown"]`),
+'10.07':D('R is an unscored workspace. A, B, and C record attempted fits; D remains an unexecuted proposal. Fill outcomes only from actual trial records.',`R["Initial workspace: no score"] --> A["Baseline attempt A"]
+A --> B["Child attempt B"]
+A --> C["Child attempt C"]
+B -.-> D["Proposed D: unknown"]`),
 '10.08':D('Replay can answer only questions covered by recorded work. It does not create new environment outcomes.',`A["Frozen discovery tree"] --> C["Replay under budget"]
 B["Node-order policy"] --> C
 C --> D["Known recorded outcome"]

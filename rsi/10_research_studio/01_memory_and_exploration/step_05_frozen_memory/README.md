@@ -28,9 +28,20 @@ Freeze the memory artifact before the comparison. Both arms use the same task an
 
 **A concrete example.** A frozen memory says to check prediction-time availability before choosing features. One arm may read it and one may not. Both get the same task and two fits. If the supposed no-memory arm already saw the note in the same context, unchanged file hashes cannot make that a clean information comparison.
 
+![Two planned evaluation arms share fresh cases, tools, and budgets. Only one can read frozen memory. Both record outcomes and costs, while a shared-context example warns that file identity does not prove no prior exposure.](../../../assets/illustrations/frozen-memory-comparison-v1.png)
+
+*This depicts the intended comparison, not established isolation or a measured memory benefit. Confirm what each arm can actually read, including prior conversation, files, and other retrieval sources. The hash equality is a condition to check after the run. If the agent cannot start separate controlled contexts, label the activity a shared-context demonstration and limit the claim. The crossed arrow below rejects a clean-ablation inference; it does not suggest that disabling writes erases earlier exposure.*
+
+[Open the illustration at full size](../../../assets/illustrations/frozen-memory-comparison-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Freeze memory before comparing access conditions. Evaluation does not update that memory.](../../../assets/diagrams/lab-10-05.png)
 
 *Read the diagram:* Freeze memory before comparing access conditions. Evaluation does not update that memory.
+
+</details>
 
 ## Run the lab
 

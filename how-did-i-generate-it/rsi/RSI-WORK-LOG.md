@@ -4,6 +4,9 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 ## Visual navigation and generation-efficiency correction
 
+Memory/discovery pass: rechecked RSIAgent's frozen-memory boundary, read Recuris working-state coupling and Dream-RSI discovery-tree definitions, and inspected actual bike-tool schema and metric. All three first-attempt figures were selected. The captions preserve context-contamination, fixture provenance, and unobserved-branch limits. Revised 10.07 text and its deterministic schematic to distinguish the initial workspace from a measured baseline; existing diagram versions remain archived. Counts: 55 selected, 89 versions, 51 mapped labs, 50 gaps. No new model fits or parameter training ran.
+
+
 Frontier-reading and exploration pass: read the framework definitions/evidence scope and RSIAgent exploration method. Added three individual figures for 10.01–10.03, preserving blank learner records and separate mechanism/effectiveness claims. Three selected images used five outputs. The announcement required one combined provenance/date/evidence correction. The exploration draft added daily prediction and precipitation; checking the actual tool established hourly data and a weather category, corrected in version two. This exposed a preflight gap: inspect the actual schema before prompting, not only lesson prose. Inventory: 52 selected figures, 86 versions, 48 mapped labs, 53 gaps. No new research sweep, experimental measurement, or learner run is claimed.
 
 

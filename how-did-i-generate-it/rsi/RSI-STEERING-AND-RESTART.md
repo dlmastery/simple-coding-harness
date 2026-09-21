@@ -4,6 +4,9 @@ Updated: 20 September 2026. This file records the user's directions and the curr
 
 ## Latest priority and visual correction
 
+**Memory/discovery continuation:** 10.05–10.07 now have individual figures, each accepted on its first output. Counts: 55 gallery selections, 89 versions, 51 mapped labs, 50 gaps (6 research and 44 foundations). Updated 10.07's source, guidance, quiz, and precise schematic to distinguish unscored workspace R from three attempted fits; D remains proposed. Mermaid revision v6 preserves previous renderings. Next research IDs: 10.09, 10.11–10.13, 10.15–10.16. The source/readings checkpoint a7e69e0de70e109e8bde020301b63a944b60de63 is remote-verified. No image operation is live. Commit and verify the current batch; full execution verification stays deferred. The earlier mention of training from traces was a mistaken progress description: these labs cover memory evaluation, memory lifetimes, and discovery history, with no weight training.
+
+
 **Frontier-reading/exploration continuation:** 10.01–10.03 now have individual figures: mechanism classification, announcement evidence trails, and three-fit exploration. Three selected images used five outputs. Corrections restored a fictional-announcement label and matched the exploration figure to hourly bike data and the weather-category field. Inventory: 52 selected figures, 86 versions, 48 mapped labs, 53 gaps (9 research, 44 foundations). Next research IDs: 10.05–10.07, 10.09, 10.11–10.13, 10.15–10.16. Inspect actual dataset granularity and feature names before every future ML illustration prompt. ScientistTwo parent 6122513fe3a373c7977cd3ee79f5248c07dbd8ee is pushed and remote-verified. No image operation remains live; commit and verify this batch. Full execution verification remains deferred. Older counts below are historical.
 
 

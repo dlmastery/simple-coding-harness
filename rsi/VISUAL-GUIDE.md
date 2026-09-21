@@ -216,6 +216,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.04: Verify the outcome, then let the actor write memory](10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md).
 
+## Freeze the memory, control who can read it
+
+![Two planned evaluation arms share fresh cases, tools, and budgets. Only one can read frozen memory. Both record outcomes and costs, while a shared-context example warns that file identity does not prove no prior exposure.](assets/illustrations/frozen-memory-comparison-v1.png)
+
+*This depicts the intended comparison, not established isolation or a measured memory benefit. Confirm what each arm can actually read, including prior conversation, files, and other retrieval sources. The hash equality is a condition to check after the run. If the agent cannot start separate controlled contexts, label the activity a shared-context demonstration and limit the claim. The crossed arrow below rejects a clean-ablation inference; it does not suggest that disabling writes erases earlier exposure.*
+
+[Open the illustration at full size](assets/illustrations/frozen-memory-comparison-v1.png).
+
+[Lab 10.05: Evaluate with memory frozen](10_research_studio/01_memory_and_exploration/step_05_frozen_memory/README.md).
+
+## Carry the lesson, reset the run state
+
+![An old run's working notebook contains candidate and budget state. A reusable experience notebook contains a scoped row-identity rule. A new run initializes its own state, retrieves the lesson, and rejects the old candidate identity.](assets/illustrations/working-state-and-experience-v1.png)
+
+*Run A, run B, and the remaining-attempt values are constructed fixtures. They do not authorize fits in this no-fit lab. The green and red markers show expected retrieval decisions that the learner must verify. Replace generic evidence labels with actual source-run IDs and artifact links. An old candidate can remain in its historical record without becoming the new run's active candidate. Useful retrieval still needs correct application; keeping a lesson alone establishes no performance gain.*
+
+[Open the illustration at full size](assets/illustrations/working-state-and-experience-v1.png).
+
+[Lab 10.06: Separate working state from reusable experience](10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md).
+
+## A discovery tree records work that happened
+
+![Unscored workspace root R leads to baseline attempt A, which has recipe descendants B and C. Dashed branch D is a proposal under B with no fit or measured outcome. A table records the same parent relations.](assets/illustrations/discovery-tree-evidence-v1.png)
+
+*This is a record layout to fill from actual execution. A, B, and C consume at most three attempted fits, including failures. D's generic attachment icon is only a placeholder for a proposal record; its explicit no-fit label means no execution evidence exists. Record proposal costs even for ideas never fitted. The unscored R matches the source distinction between an initial workspace and trial outcomes. This simplified recipe-ancestry tree does not implement Dream-RSI's full online node-eligibility, concurrency, or replay transition rules.*
+
+[Open the illustration at full size](assets/illustrations/discovery-tree-evidence-v1.png).
+
+[Lab 10.07: Build a tree of attempted solutions](10_research_studio/02_dream_rsi/step_07_discovery_tree/README.md).
+
 ## Replay stops at the edge of the record
 
 ![Replay follows a recorded baseline and tried change, while a failed attempt remains archived. It stops before an untried branch whose outcome is unknown. A separate new execution would produce a new report.](assets/illustrations/replay-boundary-v2.png)

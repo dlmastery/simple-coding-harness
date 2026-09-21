@@ -1,5 +1,8 @@
 # Artifact index
 
+- [Memory and discovery illustration review](validation/MEMORY-AND-DISCOVERY-ILLUSTRATIONS.md): three first-attempt figures, context and run-state boundaries, and the unscored discovery root. Includes [revised technical schematic](visuals/rendered-gallery-v6.md).
+
+
 - [Frontier reading and exploration illustration review](validation/FRONTIER-READING-EXPLORATION-ILLUSTRATIONS.md): source criteria, announcement evidence trails, and three-fit exploration. Three selected images, five retained versions, and dataset-label corrections.
 
 

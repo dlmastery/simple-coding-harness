@@ -24,13 +24,24 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ## How it works
 
-Represent each attempted recipe as a node with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
+Start with an unscored initial-workspace node R. Represent each attempted recipe as a descendant with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
 
-**A concrete example.** Node A is a measured baseline. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.
+**A concrete example.** Root R represents the initial workspace and has no score. Node A is a measured baseline only after its execution. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D of B has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.
 
-![The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.](../../../assets/diagrams/lab-10-07.png)
+![Unscored workspace root R leads to baseline attempt A, which has recipe descendants B and C. Dashed branch D is a proposal under B with no fit or measured outcome. A table records the same parent relations.](../../../assets/illustrations/discovery-tree-evidence-v1.png)
 
-*Read the diagram:* The tree stores attempted descendants and actual outcomes. An unexecuted branch remains unknown.
+*This is a record layout to fill from actual execution. A, B, and C consume at most three attempted fits, including failures. D's generic attachment icon is only a placeholder for a proposal record; its explicit no-fit label means no execution evidence exists. Record proposal costs even for ideas never fitted. The unscored R matches the source distinction between an initial workspace and trial outcomes. This simplified recipe-ancestry tree does not implement Dream-RSI's full online node-eligibility, concurrency, or replay transition rules.*
+
+[Open the illustration at full size](../../../assets/illustrations/discovery-tree-evidence-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![R is an unscored workspace. A, B, and C record attempted fits; D remains an unexecuted proposal. Fill outcomes only from actual trial records.](../../../assets/diagrams/lab-10-07.png)
+
+*Read the diagram:* R is an unscored workspace. A, B, and C record attempted fits; D remains an unexecuted proposal. Fill outcomes only from actual trial records.
+
+</details>
 
 ## Run the lab
 
@@ -56,10 +67,12 @@ experiment.
 Make lineage explicit.
 
 ```text
-Plan a baseline root and two child recipe
-changes. Create a discovery table with node
-ID, parent, recipe, result path, and cost.
-Leave outcomes blank until execution.
+Plan unscored workspace root R, baseline
+attempt A beneath R, and two recipe changes
+B and C derived from A. Create a discovery
+table with node ID, parent, recipe, result
+path, and cost. Leave outcomes blank until
+execution.
 ```
 
 **Observe:** Unexecuted nodes remain unmeasured.
@@ -134,7 +147,7 @@ For each plotted number, follow its link back to one executed trial. An attracti
 <details>
 <summary>Explained answers</summary>
 
-1. An attempted solution recipe and its recorded outcome, if executed.
+1. The root denotes the initial workspace. Other nodes record attempted recipes or explicitly unexecuted proposals; measured outcomes require actual execution.
 
 2. They show which prior work informed or generated a proposal.
 

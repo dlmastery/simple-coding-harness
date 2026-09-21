@@ -10,7 +10,7 @@ const destination=resolve(repo, 'rsi/assets/diagrams');
 mkdirSync(destination,{recursive:true});
 const records=[];
 for(const [i,l] of lessons.entries()) {
-  const overrides={'00.01':['v3',1], '07.07':['v5',1]};
+  const overrides={'00.01':['v3',1], '07.07':['v5',1], '10.07':['v6',1]};
   const [revision,index]=overrides[l.id] || ['v2',i+1];
   const input=resolve(provenance,`rendered-${revision}/rendered-gallery-${revision}-${index}.png`);
   if(!existsSync(input)) throw new Error(`Rendering is incomplete: ${input}`);

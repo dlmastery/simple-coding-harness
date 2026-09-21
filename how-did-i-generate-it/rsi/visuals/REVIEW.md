@@ -1,5 +1,8 @@
 # Technical diagram review
 
+Latest targeted revision: [v6, lab 10.07](rendered-gallery-v6.md) adds unscored initial workspace R, records A/B/C as attempts rather than assuming success, and places proposed D under B. Rendered with the existing Mermaid CLI on white at width 1,200 and scale 1.5. Inspected the complete output: all labels and edges are readable and agree with the selected generated infographic. Earlier galleries remain intact.
+
+
 Created 101 original schematics from the lesson mechanisms. Mermaid CLI 11.17.0 rendered every diagram successfully in both retained galleries. Render settings: white background, page width 1,200, scale 1.5, two parallel render jobs.
 
 The [first gallery](rendered-gallery.md) used horizontal flow throughout. Visual inspection of diagrams 1, 11, 58, 82, and 94 found readable labels and correct visible arrows, but some chains were too wide for a normal lesson column. The [second gallery](rendered-gallery-v2.md) uses vertical flow for longer sequences and keeps horizontal layouts for useful comparisons. Revised diagrams 11, 33, 55, and 82 were visually inspected for the loop exit, builder/system distinction, inherited action, and grouped-reward explanation. Their labels and paths were legible at displayed size.

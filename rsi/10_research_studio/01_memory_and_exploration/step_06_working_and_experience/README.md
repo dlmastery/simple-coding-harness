@@ -28,9 +28,20 @@ Working state records the current run: active candidate, pending check, remainin
 
 **A concrete example.** “Candidate trial-003 awaits verification” belongs to one run. “Join predictions to targets by row identity” can be a reusable rule when supported by evidence. The next run can inherit the second statement, but its candidate ID and remaining attempts must come from its own ledger.
 
+![An old run's working notebook contains candidate and budget state. A reusable experience notebook contains a scoped row-identity rule. A new run initializes its own state, retrieves the lesson, and rejects the old candidate identity.](../../../assets/illustrations/working-state-and-experience-v1.png)
+
+*Run A, run B, and the remaining-attempt values are constructed fixtures. They do not authorize fits in this no-fit lab. The green and red markers show expected retrieval decisions that the learner must verify. Replace generic evidence labels with actual source-run IDs and artifact links. An old candidate can remain in its historical record without becoming the new run's active candidate. Useful retrieval still needs correct application; keeping a lesson alone establishes no performance gain.*
+
+[Open the illustration at full size](../../../assets/illustrations/working-state-and-experience-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.](../../../assets/diagrams/lab-10-06.png)
 
 *Read the diagram:* Working state belongs to this run. Scoped experience can inform another run without carrying over stale candidate IDs or budgets.
+
+</details>
 
 ## Run the lab
 

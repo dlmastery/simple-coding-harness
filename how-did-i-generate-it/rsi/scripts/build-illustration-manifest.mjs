@@ -7,6 +7,9 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["frozen-memory-comparison-v1","exec-facd8dc6-b1a0-4912-b9c7-6581280f0215.png",true],
+  ["working-state-and-experience-v1","exec-270a22d5-14fd-4e37-b5d2-4dad6f23b282.png",true],
+  ["discovery-tree-evidence-v1","exec-861806ee-930d-4967-b520-7260ad9acc82.png",true],
   ["classify-the-mechanism-v1","exec-c2e4234c-8ec8-4c72-8c07-fb74cff34b80.png",true],
   ["announcement-evidence-trail-v1","exec-7d0ca7b6-19fc-4320-88fa-2548b081fa6b.png",false],
   ["announcement-evidence-trail-v2","exec-62610f13-068b-4b8b-a677-591fb6244dd0.png",true],
