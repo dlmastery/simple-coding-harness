@@ -1,5 +1,8 @@
 # Artifact index
 
+- [Confirmation, integration, and lineage review](validation/CONFIRMATION-INTEGRATION-LINEAGE-ILLUSTRATIONS.md): three selected figures, four outputs, fixture accounting, and source-specific lineage limits.
+
+
 - [Memory and discovery illustration review](validation/MEMORY-AND-DISCOVERY-ILLUSTRATIONS.md): three first-attempt figures, context and run-state boundaries, and the unscored discovery root. Includes [revised technical schematic](visuals/rendered-gallery-v6.md).
 
 

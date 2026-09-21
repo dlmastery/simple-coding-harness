@@ -1,14 +1,32 @@
 # Illustrations for the RSI course
 
-Fifty-five selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Fifty-eight selected illustrations were produced on 20 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All eighty-nine generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All ninety-three generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 10.09
+
+![A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.](replay-to-online-v2.png)
+
+Selected: [replay-to-online-v2.png](replay-to-online-v2.png). Exact [prompt](replay-to-online-v2.prompt.md). The repeated P1 label links the earlier selection to the right-hand candidate; P0 remains the baseline. No online result is assumed. Frozen code can choose actions from new observations under its declared rule without rewriting itself. Record what makes the new work distinct, what the author or agent already knew, and any exposure that weakens the confirmation claim. Keep historical replay costs and new execution costs separate in the ledger, then report the full cost without double-counting shared work. This is a classroom plan, not a Dream-RSI reproduction.
+
+## Lab 10.11
+
+![A units-field interface conflict motivates four original-case checks, two fresh-case checks, and one missing-field check, totaling seven executions with training disabled.](integration-seven-checks-v1.png)
+
+Selected: [integration-seven-checks-v1.png](integration-seven-checks-v1.png). Exact [prompt](integration-seven-checks-v1.prompt.md). The units conflict is an illustrative fixture design, not a recorded diagnosis of the paper. Fill all observed-outcome cells from execution. The missing-field refusal is expected behavior to test; record whether the fit stub was actually avoided. The storage tray is illustrative: retain all four harness versions, including the baseline and combined A+B, along with all three fixtures and their hashes. A passing local check does not automatically establish transfer, and a single fresh fixture provides only narrow evidence.
+
+## Lab 10.12
+
+![One generic lineage changes task-agent versions under the same operator O0. Another shows O0 producing proposed O1, which governs a later A1-to-A2 change. A blank ledger asks for separate DGM, HyperAgents, and local evidence.](agent-and-improver-lineages-v1.png)
+
+Selected: [agent-and-improver-lineages-v1.png](agent-and-improver-lineages-v1.png). Exact [prompt](agent-and-improver-lineages-v1.prompt.md). A0, A1, and A2 identify agent versions, not scores or task conditions. The two strips illustrate possibilities; neither is assigned to DGM or HyperAgents. DGM reuses evolving coding agents for self-modification, so labelling it a fixed-operator system from this cartoon would be misleading. In the lower example, later use of O1 needs an actual trace; improved effectiveness needs an additional fair comparison. Read each original source and record which procedure, code, model, and evaluation components remain fixed.
 
 ## Lab 10.05
 

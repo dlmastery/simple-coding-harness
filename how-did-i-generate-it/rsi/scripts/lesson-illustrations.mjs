@@ -1,6 +1,21 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  '10.09': {
+    "file": "replay-to-online-v2.png",
+    "alt": "A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.",
+    "caption": "The repeated P1 label links the earlier selection to the right-hand candidate; P0 remains the baseline. No online result is assumed. Frozen code can choose actions from new observations under its declared rule without rewriting itself. Record what makes the new work distinct, what the author or agent already knew, and any exposure that weakens the confirmation claim. Keep historical replay costs and new execution costs separate in the ledger, then report the full cost without double-counting shared work. This is a classroom plan, not a Dream-RSI reproduction."
+},
+  '10.11': {
+    "file": "integration-seven-checks-v1.png",
+    "alt": "A units-field interface conflict motivates four original-case checks, two fresh-case checks, and one missing-field check, totaling seven executions with training disabled.",
+    "caption": "The units conflict is an illustrative fixture design, not a recorded diagnosis of the paper. Fill all observed-outcome cells from execution. The missing-field refusal is expected behavior to test; record whether the fit stub was actually avoided. The storage tray is illustrative: retain all four harness versions, including the baseline and combined A+B, along with all three fixtures and their hashes. A passing local check does not automatically establish transfer, and a single fresh fixture provides only narrow evidence."
+},
+  '10.12': {
+    "file": "agent-and-improver-lineages-v1.png",
+    "alt": "One generic lineage changes task-agent versions under the same operator O0. Another shows O0 producing proposed O1, which governs a later A1-to-A2 change. A blank ledger asks for separate DGM, HyperAgents, and local evidence.",
+    "caption": "A0, A1, and A2 identify agent versions, not scores or task conditions. The two strips illustrate possibilities; neither is assigned to DGM or HyperAgents. DGM reuses evolving coding agents for self-modification, so labelling it a fixed-operator system from this cartoon would be misleading. In the lower example, later use of O1 needs an actual trace; improved effectiveness needs an additional fair comparison. Read each original source and record which procedure, code, model, and evaluation components remain fixed."
+},
   '10.05': {
     "file": "frozen-memory-comparison-v1.png",
     "alt": "Two planned evaluation arms share fresh cases, tools, and budgets. Only one can read frozen memory. Both record outcomes and costs, while a shared-context example warns that file identity does not prove no prior exposure.",

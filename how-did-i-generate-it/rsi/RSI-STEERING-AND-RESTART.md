@@ -4,6 +4,9 @@ Updated: 20 September 2026. This file records the user's directions and the curr
 
 ## Latest priority and visual correction
 
+**Confirmation/integration/lineage continuation:** added 10.09, 10.11, and 10.12. Three selected figures used four outputs; removed one wrong policy connector. Counts: 58 selections, 93 versions, 54 mapped labs, 47 gaps (3 research, 44 foundations). Next: 10.13, 10.15, 10.16. The DGM v1 check and official HyperAgents abstract support the new warning against assigning DGM to a generic fixed-operator cartoon. Full HyperAgents method reading remains pending. Parent 7886d403470cdd02b5183f4a3d5bd3cac48ecca2 is remote-verified. No image operation is live. Commit and verify this batch. Full execution remains deferred.
+
+
 **Memory/discovery continuation:** 10.05–10.07 now have individual figures, each accepted on its first output. Counts: 55 gallery selections, 89 versions, 51 mapped labs, 50 gaps (6 research and 44 foundations). Updated 10.07's source, guidance, quiz, and precise schematic to distinguish unscored workspace R from three attempted fits; D remains proposed. Mermaid revision v6 preserves previous renderings. Next research IDs: 10.09, 10.11–10.13, 10.15–10.16. The source/readings checkpoint a7e69e0de70e109e8bde020301b63a944b60de63 is remote-verified. No image operation is live. Commit and verify the current batch; full execution verification stays deferred. The earlier mention of training from traces was a mistaken progress description: these labs cover memory evaluation, memory lifetimes, and discovery history, with no weight training.
 
 

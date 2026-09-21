@@ -28,9 +28,20 @@ Freeze the selected policy, then give it and the baseline comparable new work. T
 
 **A concrete example.** A policy selected from a history dominated by calendar models may prioritize them on new work. A newly declared regression condition can reward different structure. The online run tests those actual choices. If the policy loses, the earlier replay result can remain correct within its recorded coverage.
 
+![A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.](../../../assets/illustrations/replay-to-online-v2.png)
+
+*The repeated P1 label links the earlier selection to the right-hand candidate; P0 remains the baseline. No online result is assumed. Frozen code can choose actions from new observations under its declared rule without rewriting itself. Record what makes the new work distinct, what the author or agent already knew, and any exposure that weakens the confirmation claim. Keep historical replay costs and new execution costs separate in the ledger, then report the full cost without double-counting shared work. This is a classroom plan, not a Dream-RSI reproduction.*
+
+[Open the illustration at full size](../../../assets/illustrations/replay-to-online-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.](../../../assets/diagrams/lab-10-09.png)
 
 *Read the diagram:* A policy selected by replay still needs a fresh online check. Discovery and fresh evaluation answer different questions.
+
+</details>
 
 ## Run the lab
 

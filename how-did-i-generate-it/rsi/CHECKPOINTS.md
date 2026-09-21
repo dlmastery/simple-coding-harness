@@ -1,5 +1,8 @@
 # GitHub checkpoints
 
+- [7886d40](https://github.com/dlmastery/simple-coding-harness/commit/7886d403470cdd02b5183f4a3d5bd3cac48ecca2): memory boundaries and discovery history; 55 selections, 89 versions, 51 mapped labs, and 3,716 checked links. Includes the unscored workspace root and v6 technical schematic. Push and remote hash verified.
+
+
 - [a7e69e0](https://github.com/dlmastery/simple-coding-harness/commit/a7e69e0de70e109e8bde020301b63a944b60de63): classification, announcement trails, and exploration; 52 selected gallery figures, 86 retained outputs, 48 mapped labs, and 3,681 valid local links. Push and remote hash verified before the memory/discovery batch.
 
 

@@ -4,6 +4,9 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 ## Visual navigation and generation-efficiency correction
 
+Confirmation/integration/lineage pass: added 10.09, 10.11, and 10.12 from four outputs. Corrected the replay draft's P1-to-P0 connector. Preserved the seven-fixture/no-fit integration budget and separated generic lineages from historical paper classifications. Read DGM v1 and Meta's HyperAgents abstract; full HyperAgents methods remain open. Inventory: 58 selected, 93 versions, 54 mapped labs, 47 gaps. A guarded text replacement initially stopped at a mismatched anchor before changing files; inspected the actual source and corrected the anchor. No learner experiments ran.
+
+
 Memory/discovery pass: rechecked RSIAgent's frozen-memory boundary, read Recuris working-state coupling and Dream-RSI discovery-tree definitions, and inspected actual bike-tool schema and metric. All three first-attempt figures were selected. The captions preserve context-contamination, fixture provenance, and unobserved-branch limits. Revised 10.07 text and its deterministic schematic to distinguish the initial workspace from a measured baseline; existing diagram versions remain archived. Counts: 55 selected, 89 versions, 51 mapped labs, 50 gaps. No new model fits or parameter training ran.
 
 

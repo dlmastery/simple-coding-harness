@@ -256,6 +256,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.08: Replay only what the history can answer](10_research_studio/02_dream_rsi/step_08_replay/README.md).
 
+## A replay winner still needs fresh evidence
+
+![A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.](assets/illustrations/replay-to-online-v2.png)
+
+*The repeated P1 label links the earlier selection to the right-hand candidate; P0 remains the baseline. No online result is assumed. Frozen code can choose actions from new observations under its declared rule without rewriting itself. Record what makes the new work distinct, what the author or agent already knew, and any exposure that weakens the confirmation claim. Keep historical replay costs and new execution costs separate in the ledger, then report the full cost without double-counting shared work. This is a classroom plan, not a Dream-RSI reproduction.*
+
+[Open the illustration at full size](assets/illustrations/replay-to-online-v2.png).
+
+[Lab 10.09: Test the replay winner on fresh work](10_research_studio/02_dream_rsi/step_09_online/README.md).
+
 ## Repair a component. Check the system.
 
 ![Passing and failing traces differ at a context handoff. Only the Context module changes to preserve candidate identity; the other four modules stay fixed. Original and passing cases, integration, and later transfer need separate checks.](assets/illustrations/modular-harness-v2.png)
@@ -265,6 +275,26 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/modular-harness-v2.png).
 
 [Lab 10.10: Localize a harness problem](10_research_studio/03_modular_harness_evolution/step_10_localize/README.md).
+
+## Test the combination, not just its parts
+
+![A units-field interface conflict motivates four original-case checks, two fresh-case checks, and one missing-field check, totaling seven executions with training disabled.](assets/illustrations/integration-seven-checks-v1.png)
+
+*The units conflict is an illustrative fixture design, not a recorded diagnosis of the paper. Fill all observed-outcome cells from execution. The missing-field refusal is expected behavior to test; record whether the fit stub was actually avoided. The storage tray is illustrative: retain all four harness versions, including the baseline and combined A+B, along with all three fixtures and their hashes. A passing local check does not automatically establish transfer, and a single fresh fixture provides only narrow evidence.*
+
+[Open the illustration at full size](assets/illustrations/integration-seven-checks-v1.png).
+
+[Lab 10.11: Integrate edits and test transfer](10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md).
+
+## Label the procedure on every lineage edge
+
+![One generic lineage changes task-agent versions under the same operator O0. Another shows O0 producing proposed O1, which governs a later A1-to-A2 change. A blank ledger asks for separate DGM, HyperAgents, and local evidence.](assets/illustrations/agent-and-improver-lineages-v1.png)
+
+*A0, A1, and A2 identify agent versions, not scores or task conditions. The two strips illustrate possibilities; neither is assigned to DGM or HyperAgents. DGM reuses evolving coding agents for self-modification, so labelling it a fixed-operator system from this cartoon would be misleading. In the lower example, later use of O1 needs an actual trace; improved effectiveness needs an additional fair comparison. Read each original source and record which procedure, code, model, and evaluation components remain fixed.*
+
+[Open the illustration at full size](assets/illustrations/agent-and-improver-lineages-v1.png).
+
+[Lab 10.12: Compare agent evolution and improver evolution](10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md).
 
 ## Improve the researcher, then test the improver
 

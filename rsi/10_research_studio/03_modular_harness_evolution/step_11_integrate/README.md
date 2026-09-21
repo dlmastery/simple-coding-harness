@@ -28,9 +28,20 @@ Check each edit alone and then the combination under the same interface contract
 
 **A concrete example.** Edit A shortens a context record by removing a units field. Edit B adds a completion check that requires units. Each can pass under its own prior fixtures, yet their combination fails. A shared interface table reveals the conflict before a model fit is needed.
 
+![A units-field interface conflict motivates four original-case checks, two fresh-case checks, and one missing-field check, totaling seven executions with training disabled.](../../../assets/illustrations/integration-seven-checks-v1.png)
+
+*The units conflict is an illustrative fixture design, not a recorded diagnosis of the paper. Fill all observed-outcome cells from execution. The missing-field refusal is expected behavior to test; record whether the fit stub was actually avoided. The storage tray is illustrative: retain all four harness versions, including the baseline and combined A+B, along with all three fixtures and their hashes. A passing local check does not automatically establish transfer, and a single fresh fixture provides only narrow evidence.*
+
+[Open the illustration at full size](../../../assets/illustrations/integration-seven-checks-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Two useful edits can conflict when combined. Test the integrated system and its transfer separately.](../../../assets/diagrams/lab-10-11.png)
 
 *Read the diagram:* Two useful edits can conflict when combined. Test the integrated system and its transfer separately.
+
+</details>
 
 ## Run the lab
 

@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**51 of 101 labs** currently have a mapped generated infographic; **50 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**54 of 101 labs** currently have a mapped generated infographic; **47 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 32 | 6 |
+| 10 · Read and rebuild recent research | 38 | 35 | 3 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -141,10 +141,10 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | [10.06 · Separate working state from reusable experience](../../../rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md) | [Selected figure](../../../rsi/assets/illustrations/working-state-and-experience-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-06.png) |
 | [10.07 · Build a tree of attempted solutions](../../../rsi/10_research_studio/02_dream_rsi/step_07_discovery_tree/README.md) | [Selected figure](../../../rsi/assets/illustrations/discovery-tree-evidence-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-07.png) |
 | [10.08 · Replay only what the history can answer](../../../rsi/10_research_studio/02_dream_rsi/step_08_replay/README.md) | [Selected figure](../../../rsi/assets/illustrations/replay-boundary-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-08.png) |
-| [10.09 · Test the replay winner on fresh work](../../../rsi/10_research_studio/02_dream_rsi/step_09_online/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-09.png) |
+| [10.09 · Test the replay winner on fresh work](../../../rsi/10_research_studio/02_dream_rsi/step_09_online/README.md) | [Selected figure](../../../rsi/assets/illustrations/replay-to-online-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-09.png) |
 | [10.10 · Localize a harness problem](../../../rsi/10_research_studio/03_modular_harness_evolution/step_10_localize/README.md) | [Selected figure](../../../rsi/assets/illustrations/modular-harness-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-10.png) |
-| [10.11 · Integrate edits and test transfer](../../../rsi/10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-11.png) |
-| [10.12 · Compare agent evolution and improver evolution](../../../rsi/10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-12.png) |
+| [10.11 · Integrate edits and test transfer](../../../rsi/10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md) | [Selected figure](../../../rsi/assets/illustrations/integration-seven-checks-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-11.png) |
+| [10.12 · Compare agent evolution and improver evolution](../../../rsi/10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md) | [Selected figure](../../../rsi/assets/illustrations/agent-and-improver-lineages-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-12.png) |
 | [10.13 · Inspect an inner ML researcher](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-13.png) |
 | [10.14 · Improve the inner researcher under a total budget](../../../rsi/10_research_studio/04_aide2/step_14_outer_research/README.md) | [Selected figure](../../../rsi/assets/illustrations/nested-research-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-14.png) |
 | [10.15 · Test the ignition claim separately](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-15.png) |
