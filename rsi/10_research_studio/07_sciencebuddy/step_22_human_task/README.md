@@ -28,9 +28,20 @@ ScienceBuddy connects scientific interactions and artifacts to improvement work.
 
 **A concrete example.** In the [executed reporting exercise](../../../evidence/2026-09-20/sciencebuddy-laptop/README.md), the majority model has 87.15% ordinary accuracy but zero recall on high-quality wines. The logistic model has lower ordinary accuracy, 73.67%, but minority recall of 75.61%. A rubric that checks class-wise evidence exposes what the larger accuracy number hides. Removing minority recall from an otherwise complete report makes the check fail.
 
+![A labelled synthetic request about wine-model reports becomes a task and rubric. A complete report fixture and one omitting minority recall face the same checks. A separate panel distinguishes evidence presence from scientific validity.](../../../assets/illustrations/correction-to-rubric-v1.png)
+
+*The miniature rows are illustrative placeholders, not saved course predictions. Their zero/one values represent derived class labels; the original wine-quality rating is not binary. Use your actual predictions and declared threshold in the activity. The pictured verdicts are expected fixture outcomes to verify. This request is a classroom construction, not a real researcher interview. The presence check detects an omission; validating metric computation and scientific meaning requires further evidence.*
+
+[Open the illustration at full size](../../../assets/illustrations/correction-to-rubric-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.](../../../assets/diagrams/lab-10-22.png)
 
 *Read the diagram:* A human correction becomes a learning opportunity only after its task, evidence, and acceptance rubric are explicit.
+
+</details>
 
 ## Run the lab
 

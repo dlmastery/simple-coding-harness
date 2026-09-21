@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**38 of 101 labs** currently have a mapped generated infographic; **63 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**42 of 101 labs** currently have a mapped generated infographic; **59 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 19 | 19 |
+| 10 · Read and rebuild recent research | 38 | 23 | 15 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -154,11 +154,11 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | [10.19 · Screen ideas and test their contributions](../../../rsi/10_research_studio/06_scientist_two/step_19_screen_ablate/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-19.png) |
 | [10.20 · Answer a criticism with evidence](../../../rsi/10_research_studio/06_scientist_two/step_20_review_rebuttal/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-20.png) |
 | [10.21 · Distinguish better discoveries from a better scientist](../../../rsi/10_research_studio/06_scientist_two/step_21_successive_results/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-21.png) |
-| [10.22 · Turn a researcher correction into a task](../../../rsi/10_research_studio/07_sciencebuddy/step_22_human_task/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-22.png) |
-| [10.23 · Adapt the harness to the rubric](../../../rsi/10_research_studio/07_sciencebuddy/step_23_harness_adaptation/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-23.png) |
-| [10.24 · See what grouped rewards contribute](../../../rsi/10_research_studio/07_sciencebuddy/step_24_grpo/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-24.png) |
+| [10.22 · Turn a researcher correction into a task](../../../rsi/10_research_studio/07_sciencebuddy/step_22_human_task/README.md) | [Selected figure](../../../rsi/assets/illustrations/correction-to-rubric-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-22.png) |
+| [10.23 · Adapt the harness to the rubric](../../../rsi/10_research_studio/07_sciencebuddy/step_23_harness_adaptation/README.md) | [Selected figure](../../../rsi/assets/illustrations/reporting-skill-adaptation-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-23.png) |
+| [10.24 · See what grouped rewards contribute](../../../rsi/10_research_studio/07_sciencebuddy/step_24_grpo/README.md) | [Selected figure](../../../rsi/assets/illustrations/grouped-rewards-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-24.png) |
 | [10.25 · Track model–harness pairs across cycles](../../../rsi/10_research_studio/07_sciencebuddy/step_25_coevolution/README.md) | [Selected figure](../../../rsi/assets/illustrations/model-harness-v4.png) | [Present](../../../rsi/assets/diagrams/lab-10-25.png) |
-| [10.26 · Read the ScienceBuddy results precisely](../../../rsi/10_research_studio/07_sciencebuddy/step_26_audit_results/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-26.png) |
+| [10.26 · Read the ScienceBuddy results precisely](../../../rsi/10_research_studio/07_sciencebuddy/step_26_audit_results/README.md) | [Selected figure](../../../rsi/assets/illustrations/sciencebuddy-result-audit-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-26.png) |
 | [10.27 · Keep traces, knowledge, and active skills separate](../../../rsi/10_research_studio/08_skills_and_procedures/step_27_wiki/README.md) | [Selected figure](../../../rsi/assets/illustrations/knowledge-stores-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-27.png) |
 | [10.28 · Refine a procedure graph](../../../rsi/10_research_studio/08_skills_and_procedures/step_28_procedural_graph/README.md) | [Selected figure](../../../rsi/assets/illustrations/procedure-graph-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-28.png) |
 | [10.29 · Repair a skill for an experiment-results page](../../../rsi/10_research_studio/08_skills_and_procedures/step_29_gui/README.md) | [Selected figure](../../../rsi/assets/illustrations/gui-skill-repair-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-29.png) |

@@ -236,6 +236,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.18: Turn a limitation into a scientific hypothesis](10_research_studio/06_scientist_two/step_18_hypothesis/README.md).
 
+## Turn a correction into something you can check
+
+![A labelled synthetic request about wine-model reports becomes a task and rubric. A complete report fixture and one omitting minority recall face the same checks. A separate panel distinguishes evidence presence from scientific validity.](assets/illustrations/correction-to-rubric-v1.png)
+
+*The miniature rows are illustrative placeholders, not saved course predictions. Their zero/one values represent derived class labels; the original wine-quality rating is not binary. Use your actual predictions and declared threshold in the activity. The pictured verdicts are expected fixture outcomes to verify. This request is a classroom construction, not a real researcher interview. The presence check detects an omission; validating metric computation and scientific meaning requires further evidence.*
+
+[Open the illustration at full size](assets/illustrations/correction-to-rubric-v1.png).
+
+[Lab 10.22: Turn a researcher correction into a task](10_research_studio/07_sciencebuddy/step_22_human_task/README.md).
+
+## Change the reporting skill, then test its behavior
+
+![A parent reporting skill and one proposed revision share fixed language-model weights and rubric R0. Both run on complete and incomplete evidence, producing four report/check pairs with unresolved verdicts.](assets/illustrations/reporting-skill-adaptation-v2.png)
+
+*Changing instructions can change outputs while model weights stay fixed. The parent text is an intentionally weak teaching example. Supply the same evidence packet to both versions within each column, and record actual outputs and context limits. An honest missing-evidence statement can satisfy a declared limitation criterion, but it does not supply the missing recall or earn a full evidence pass. The matrix remains unexecuted in this illustration; no candidate improvement is assumed.*
+
+[Open the illustration at full size](assets/illustrations/reporting-skill-adaptation-v2.png).
+
+[Lab 10.23: Adapt the harness to the rubric](10_research_studio/07_sciencebuddy/step_23_harness_adaptation/README.md).
+
+## A reward becomes a relative learning signal
+
+![Four constructed rewards give mean and population standard deviation 0.5, with approximately negative-one or positive-one advantages. A toy categorical update changes probabilities, while equal and incorrectly scored rewards reveal limitations.](assets/illustrations/grouped-rewards-v1.png)
+
+*The stabilizer makes the advantage magnitude 0.999998000004, shown approximately as one. For the pictured toy, start four softmax logits at zero and take gradient ascent on the displayed weighted log-probability objective with step size 0.1. “Weight” here means probability assigned to a toy action, not an LLM checkpoint. The wrong-reward card belongs to the separate edge case; rerun a four-item group with one corrupted score. The illustration specifies arithmetic to execute and is not full GRPO or evidence of scientific correctness.*
+
+[Open the illustration at full size](assets/illustrations/grouped-rewards-v1.png).
+
+[Lab 10.24: See what grouped rewards contribute](10_research_studio/07_sciencebuddy/step_24_grpo/README.md).
+
 ## Two ways to improve a scientific agent
 
 ![Versioned pairs progress from H0 with M0 to H1 with M0, then H1 with M1. The first change edits harness instructions; the second updates model parameters. Training evidence goes to the update, while held-out cases remain in external evaluation.](assets/illustrations/model-harness-v4.png)
@@ -245,6 +275,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/model-harness-v4.png).
 
 [Lab 10.25: Track model–harness pairs across cycles](10_research_studio/07_sciencebuddy/step_25_coevolution/README.md).
+
+## Read the metric beside the percentage
+
+![Three ScienceBuddy result cards keep coupled-cycle test accuracy, fixed-model validation accuracy, and fixed-harness four-attempt coverage separate. Arithmetic distinguishes percentage points from relative increase, and feedback sources have separate roles.](assets/illustrations/sciencebuddy-result-audit-v1.png)
+
+*Read these as paper-reported comparisons, not our reproductions. The primary result sections are 4.2, 4.3, and 4.4. Section 4.2’s heading says “Two-Cycle,” but its setup and Figure 8 describe three cycles; the course follows that explicit protocol. Preserve the distinctions among scientific task families, splits, attempt budgets, and feedback sources in your audit. The fixed reflector limits what can be claimed about improvement of the improvement procedure itself.*
+
+[Open the illustration at full size](assets/illustrations/sciencebuddy-result-audit-v1.png).
+
+[Lab 10.26: Read the ScienceBuddy results precisely](10_research_studio/07_sciencebuddy/step_26_audit_results/README.md).
 
 ## A failed edit can still teach us
 

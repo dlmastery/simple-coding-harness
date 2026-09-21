@@ -206,6 +206,26 @@ export const illustrations = {
       "alt": "Five independent synthetic timing scenarios compare faster proposals, faster evaluation, extra checking, and a costlier verifier against a ten-minute baseline. A separate arithmetic example shows cumulative gains increasing while each round’s gain decreases.",
       "caption": "Use the explicit numbers, not the decorative clock faces, to read the example. The five scenarios are alternatives; they are not successive generations. Execution time is set to zero only for this teaching calculation. Restore measured execution, failures, retries, and other costs in a real ledger. The instant-proposal limit follows from the baseline and is not a sixth run. The gain units below are a separate illustration; an acceleration claim must also account for resources and difficulty. This is neither a forecast nor the economics paper’s calibrated model."
   },
+  '10.22': {
+      "file": "correction-to-rubric-v1.png",
+      "alt": "A labelled synthetic request about wine-model reports becomes a task and rubric. A complete report fixture and one omitting minority recall face the same checks. A separate panel distinguishes evidence presence from scientific validity.",
+      "caption": "The miniature rows are illustrative placeholders, not saved course predictions. Their zero/one values represent derived class labels; the original wine-quality rating is not binary. Use your actual predictions and declared threshold in the activity. The pictured verdicts are expected fixture outcomes to verify. This request is a classroom construction, not a real researcher interview. The presence check detects an omission; validating metric computation and scientific meaning requires further evidence."
+  },
+  '10.23': {
+      "file": "reporting-skill-adaptation-v2.png",
+      "alt": "A parent reporting skill and one proposed revision share fixed language-model weights and rubric R0. Both run on complete and incomplete evidence, producing four report/check pairs with unresolved verdicts.",
+      "caption": "Changing instructions can change outputs while model weights stay fixed. The parent text is an intentionally weak teaching example. Supply the same evidence packet to both versions within each column, and record actual outputs and context limits. An honest missing-evidence statement can satisfy a declared limitation criterion, but it does not supply the missing recall or earn a full evidence pass. The matrix remains unexecuted in this illustration; no candidate improvement is assumed."
+  },
+  '10.24': {
+      "file": "grouped-rewards-v1.png",
+      "alt": "Four constructed rewards give mean and population standard deviation 0.5, with approximately negative-one or positive-one advantages. A toy categorical update changes probabilities, while equal and incorrectly scored rewards reveal limitations.",
+      "caption": "The stabilizer makes the advantage magnitude 0.999998000004, shown approximately as one. For the pictured toy, start four softmax logits at zero and take gradient ascent on the displayed weighted log-probability objective with step size 0.1. “Weight” here means probability assigned to a toy action, not an LLM checkpoint. The wrong-reward card belongs to the separate edge case; rerun a four-item group with one corrupted score. The illustration specifies arithmetic to execute and is not full GRPO or evidence of scientific correctness."
+  },
+  '10.26': {
+      "file": "sciencebuddy-result-audit-v1.png",
+      "alt": "Three ScienceBuddy result cards keep coupled-cycle test accuracy, fixed-model validation accuracy, and fixed-harness four-attempt coverage separate. Arithmetic distinguishes percentage points from relative increase, and feedback sources have separate roles.",
+      "caption": "Read these as paper-reported comparisons, not our reproductions. The primary result sections are 4.2, 4.3, and 4.4. Section 4.2’s heading says “Two-Cycle,” but its setup and Figure 8 describe three cycles; the course follows that explicit protocol. Preserve the distinctions among scientific task families, splits, attempt budgets, and feedback sources in your audit. The fixed reflector limits what can be claimed about improvement of the improvement procedure itself."
+  },
   'compute': {
     file: 'compute-contract-v2.png',
     alt: 'A research skill passes a versioned experiment contract to an adapter that can select local CPU, accelerator, or cluster execution. Every backend returns an identified attempt record with status and total cost.',

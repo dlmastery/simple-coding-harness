@@ -28,9 +28,20 @@ A rollout is one sampled attempt. A reward scores it. In a grouped-relative illu
 
 **A concrete example.** For rewards 0, 0, 1, 1, the mean and population spread are both 0.5, giving advantages close to -1, -1, 1, 1 with the small stabilizer. In the [executed toy update](../../../evidence/2026-09-20/sciencebuddy-laptop/10-24/INTERPRETATION.md), correct rewards increase expected true reward from 0.5 to 0.549834. One incorrect reward increases the probability of a wrong action, yet total expected true reward still rises to 0.527178. Inspect local and aggregate effects separately. Equal rewards produce no update.
 
+![Four constructed rewards give mean and population standard deviation 0.5, with approximately negative-one or positive-one advantages. A toy categorical update changes probabilities, while equal and incorrectly scored rewards reveal limitations.](../../../assets/illustrations/grouped-rewards-v1.png)
+
+*The stabilizer makes the advantage magnitude 0.999998000004, shown approximately as one. For the pictured toy, start four softmax logits at zero and take gradient ascent on the displayed weighted log-probability objective with step size 0.1. “Weight” here means probability assigned to a toy action, not an LLM checkpoint. The wrong-reward card belongs to the separate edge case; rerun a four-item group with one corrupted score. The illustration specifies arithmetic to execute and is not full GRPO or evidence of scientific correctness.*
+
+[Open the illustration at full size](../../../assets/illustrations/grouped-rewards-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.](../../../assets/diagrams/lab-10-24.png)
 
 *Read the diagram:* The numerical exercise turns a group of rewards into relative advantages. This is not an LLM training run or full GRPO.
+
+</details>
 
 ## Run the lab
 

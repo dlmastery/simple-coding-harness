@@ -28,9 +28,20 @@ Keep the agent’s language-model weights fixed. Edit a learner-owned reporting 
 
 **A concrete example.** The [recorded child procedure](../../../evidence/2026-09-20/sciencebuddy-laptop/10-23/CHANGE-PROPOSAL.md) passes the complete-evidence case and reports missing evidence in the incomplete case. That refusal is correct behavior even though the requested model comparison remains unfinished. A deterministic reporter executed these instructions; this does not measure how an independent language-model session would respond to the edit.
 
+![A parent reporting skill and one proposed revision share fixed language-model weights and rubric R0. Both run on complete and incomplete evidence, producing four report/check pairs with unresolved verdicts.](../../../assets/illustrations/reporting-skill-adaptation-v2.png)
+
+*Changing instructions can change outputs while model weights stay fixed. The parent text is an intentionally weak teaching example. Supply the same evidence packet to both versions within each column, and record actual outputs and context limits. An honest missing-evidence statement can satisfy a declared limitation criterion, but it does not supply the missing recall or earn a full evidence pass. The matrix remains unexecuted in this illustration; no candidate improvement is assumed.*
+
+[Open the illustration at full size](../../../assets/illustrations/reporting-skill-adaptation-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.](../../../assets/diagrams/lab-10-23.png)
 
 *Read the diagram:* Hold the model fixed while testing a harness edit. Keep the rubric fixed during this comparison.
+
+</details>
 
 ## Run the lab
 

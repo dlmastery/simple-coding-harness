@@ -28,9 +28,20 @@ The paper reports held-out single-attempt accuracy rising from 42.2% to 73.3% ac
 
 **A concrete example.** Moving from 42.2% to 73.3% is a gain of 31.1 percentage points. Relative to the starting value, it is about 73.7%. Neither arithmetic result makes a four-attempt coverage score comparable with single-attempt accuracy. The number of opportunities and the data split belong beside the percentage.
 
+![Three ScienceBuddy result cards keep coupled-cycle test accuracy, fixed-model validation accuracy, and fixed-harness four-attempt coverage separate. Arithmetic distinguishes percentage points from relative increase, and feedback sources have separate roles.](../../../assets/illustrations/sciencebuddy-result-audit-v1.png)
+
+*Read these as paper-reported comparisons, not our reproductions. The primary result sections are 4.2, 4.3, and 4.4. Section 4.2’s heading says “Two-Cycle,” but its setup and Figure 8 describe three cycles; the course follows that explicit protocol. Preserve the distinctions among scientific task families, splits, attempt budgets, and feedback sources in your audit. The fixed reflector limits what can be claimed about improvement of the improvement procedure itself.*
+
+[Open the illustration at full size](../../../assets/illustrations/sciencebuddy-result-audit-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.](../../../assets/diagrams/lab-10-26.png)
 
 *Read the diagram:* Read each result with its protocol. Single-attempt accuracy and multi-attempt coverage cannot be exchanged.
+
+</details>
 
 ## Run the lab
 
