@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**83 of 101 labs** currently have a mapped generated infographic; **18 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**88 of 101 labs** currently have a mapped generated infographic; **13 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -14,7 +14,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 03 · Give different cases different routes | 6 | 6 | 0 |
 | 04 · Agree on what the experiment means | 5 | 5 | 0 |
 | 05 · Build capability around the model | 5 | 5 | 0 |
-| 06 · Generate a harness from a brief | 6 | 1 | 5 |
+| 06 · Generate a harness from a brief | 6 | 6 | 0 |
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
@@ -86,12 +86,12 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [06.01 · Describe the harness you need](../../../rsi/06_meta_harness_engineering/step_01_write_a_brief/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-06-01.png) |
+| [06.01 · Describe the harness you need](../../../rsi/06_meta_harness_engineering/step_01_write_a_brief/README.md) | [Selected figure](../../../rsi/assets/illustrations/readable-harness-brief-v1.png) | [Present](../../../rsi/assets/diagrams/lab-06-01.png) |
 | [06.02 · Generate a first harness](../../../rsi/06_meta_harness_engineering/step_02_generate/README.md) | [Selected figure](../../../rsi/assets/illustrations/meta-harness-v2.png) | [Present](../../../rsi/assets/diagrams/lab-06-02.png) |
-| [06.03 · Inspect what the builder decided](../../../rsi/06_meta_harness_engineering/step_03_inspect_generated/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-06-03.png) |
-| [06.04 · Test the generated harness’s boundaries](../../../rsi/06_meta_harness_engineering/step_04_test_refusal/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-06-04.png) |
-| [06.05 · Generate a classification harness](../../../rsi/06_meta_harness_engineering/step_05_second_task/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-06-05.png) |
-| [06.06 · Recreate and compare generated harnesses](../../../rsi/06_meta_harness_engineering/step_06_recreate/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-06-06.png) |
+| [06.03 · Inspect what the builder decided](../../../rsi/06_meta_harness_engineering/step_03_inspect_generated/README.md) | [Selected figure](../../../rsi/assets/illustrations/requirements-implementation-evidence-v1.png) | [Present](../../../rsi/assets/diagrams/lab-06-03.png) |
+| [06.04 · Test the generated harness’s boundaries](../../../rsi/06_meta_harness_engineering/step_04_test_refusal/README.md) | [Selected figure](../../../rsi/assets/illustrations/request-bound-refusal-v1.png) | [Present](../../../rsi/assets/diagrams/lab-06-04.png) |
+| [06.05 · Generate a classification harness](../../../rsi/06_meta_harness_engineering/step_05_second_task/README.md) | [Selected figure](../../../rsi/assets/illustrations/fixed-builder-new-task-v1.png) | [Present](../../../rsi/assets/diagrams/lab-06-05.png) |
+| [06.06 · Recreate and compare generated harnesses](../../../rsi/06_meta_harness_engineering/step_06_recreate/README.md) | [Selected figure](../../../rsi/assets/illustrations/repeat-saved-harnesses-v1.png) | [Present](../../../rsi/assets/diagrams/lab-06-06.png) |
 
 ## 07 · Separate the self-* ideas
 

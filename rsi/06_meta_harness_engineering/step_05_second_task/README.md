@@ -28,9 +28,20 @@ Preserve the high-level data science workflow. Change the target to quality at l
 
 **A concrete example.** The bike brief asks for a rental count; the wine brief asks whether a recorded quality score is at least 7. Reusing the workflow is sensible, but reusing the regression evaluator is not. The generated wine harness must also keep repeated input vectors in the same partition, so copying the same measurement into another split cannot make evaluation appear easier.
 
+![An unchanged builder reads a new wine brief and generates a classification harness. It runs a training-majority baseline and a balanced logistic candidate, then records balanced accuracy and both class recalls. The earlier bike harness is background, not another new run.](../../assets/illustrations/fixed-builder-new-task-v1.png)
+
+*Keep the builder version fixed across this comparison. Class 1 means quality at least 7; class 0 is below that threshold. The pinned wine-v1 split keeps identical input vectors together; it does not establish independence of every near-duplicate. Fit preprocessing on training rows only and compare both candidates on the same selection partition. Fill the blank evidence table from checked predictions, including an unfavorable logistic result if it occurs. Changing the generated package to suit a new brief does not demonstrate improvement of the builder.*
+
+[Open the illustration at full size](../../assets/illustrations/fixed-builder-new-task-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.](../../assets/diagrams/lab-06-05.png)
 
 *Read the diagram:* A fixed builder can generate different task-specific systems. Different output does not mean the builder learned.
+
+</details>
 
 ## Run the lab
 

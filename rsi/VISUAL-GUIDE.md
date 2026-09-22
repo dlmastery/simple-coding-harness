@@ -356,6 +356,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 05.05: Find which component makes the difference](05_system_intelligence/step_05_ablate_system/README.md).
 
+## Define the experiment before you generate the harness
+
+![A readable bike-harness brief names the hourly target, pinned data, permitted calendar inputs, chronological split, MAE, training-median baseline, two admitted attempts, and retained evidence. Two review trays separate scientific choices from routine implementation choices.](assets/illustrations/readable-harness-brief-v1.png)
+
+*This example brief permits calendar inputs and describes retrospective estimation. H1 and H2 mean the first and second halves of the year; the small split arrows mark chronological order, not permission to move final data into training. The final partition is reserved, not evaluated in this lab. Include resource and stop rules in the actual brief as well as the illustrated fields. Blank boxes invite a real ambiguity review. Ask the builder to review only; implementation and execution begin in the next lab.*
+
+[Open the illustration at full size](assets/illustrations/readable-harness-brief-v1.png).
+
+[Lab 06.01: Describe the harness you need](06_meta_harness_engineering/step_01_write_a_brief/README.md).
+
 ## The builder and the system it builds
 
 ![A task brief enters an unchanged meta-harness builder. It produces a separate package of skills, tools, state, checks, and limits. The package then runs a model and produces predictions and a checked report.](assets/illustrations/meta-harness-v2.png)
@@ -365,6 +375,46 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/meta-harness-v2.png).
 
 [Lab 06.02: Generate a first harness](06_meta_harness_engineering/step_02_generate/README.md).
+
+## A requirement needs more than a sentence
+
+![An illustrative brief requires two attempts while an implementation permits ten and a trace records only one baseline. The missing budget-refusal evidence is marked unverified. A review ledger links requirements to implementation and observed behavior.](assets/illustrations/requirements-implementation-evidence-v1.png)
+
+*The two-versus-ten mismatch is a diagnostic example, not a report that your generated code has that defect. One successful baseline cannot establish an attempt limit. Trace the actual requirement into code and its relevant records; leave unexecuted behavior unverified for the later refusal lab. A failing case and an absent case need different explanations, even though neither establishes acceptance. The documentation-only change leaves code untouched and should expose disagreement. Inspect real preprocessing inputs and selection partitions without another fit.*
+
+[Open the illustration at full size](assets/illustrations/requirements-implementation-evidence-v1.png).
+
+[Lab 06.03: Inspect what the builder decided](06_meta_harness_engineering/step_03_inspect_generated/README.md).
+
+## A pass belongs to a specific request
+
+![Three expected requests charge two attempt slots but execute only one fit. A valid baseline fits, an admitted leaked request fails before fitting, and a distinct third request is refused on budget. Current request and check identities must match; an unrelated pass and a missing candidate ID cannot authorize acceptance.](assets/illustrations/request-bound-refusal-v1.png)
+
+*The fit-column icons denote one fit for the first request and zero for the other two; record actual counts and exit statuses. These are expected outcomes for this declared admitted-attempt policy. An invalid request can consume a slot even though no model fit starts. The old pass may remain valid for its original run; the red mark rejects its use for this request. Keep the unrelated-report and missing-ID fixtures separate from real model execution. These local checks do not establish isolation from a host agent that can edit the workspace.*
+
+[Open the illustration at full size](assets/illustrations/request-bound-refusal-v1.png).
+
+[Lab 06.04: Test the generated harness’s boundaries](06_meta_harness_engineering/step_04_test_refusal/README.md).
+
+## Change the task brief while the builder stays fixed
+
+![An unchanged builder reads a new wine brief and generates a classification harness. It runs a training-majority baseline and a balanced logistic candidate, then records balanced accuracy and both class recalls. The earlier bike harness is background, not another new run.](assets/illustrations/fixed-builder-new-task-v1.png)
+
+*Keep the builder version fixed across this comparison. Class 1 means quality at least 7; class 0 is below that threshold. The pinned wine-v1 split keeps identical input vectors together; it does not establish independence of every near-duplicate. Fit preprocessing on training rows only and compare both candidates on the same selection partition. Fill the blank evidence table from checked predictions, including an unfavorable logistic result if it occurs. Changing the generated package to suit a new brief does not demonstrate improvement of the builder.*
+
+[Open the illustration at full size](assets/illustrations/fixed-builder-new-task-v1.png).
+
+[Lab 06.05: Generate a classification harness](06_meta_harness_engineering/step_05_second_task/README.md).
+
+## Repeat execution before you claim reproducibility
+
+![Saved bike and wine packages each run their baseline into a new output folder. Each new record is compared with the earlier record for the same task. Separate cards distinguish repeated saved execution, regeneration from a brief, and evaluation of a changed builder.](assets/illustrations/repeat-saved-harnesses-v1.png)
+
+*Create new output folders; the broom is a clean-state symbol, not an instruction to erase prior evidence. Package tabs identify required provenance and dependencies, which may include the course repository rather than a self-contained archive. Run one baseline and one wrong-task refusal per package; the refusal adds no model fit. Compare actual predictions, metrics, contracts, and environments without replacing the original result. The other two cards describe separate experiments: a fair builder comparison needs prespecified tasks, matched budgets, and candidate-specific evidence. A fresh output folder alone does not create an independent agent context.*
+
+[Open the illustration at full size](assets/illustrations/repeat-saved-harnesses-v1.png).
+
+[Lab 06.06: Recreate and compare generated harnesses](06_meta_harness_engineering/step_06_recreate/README.md).
 
 ## Similar words, different changes
 

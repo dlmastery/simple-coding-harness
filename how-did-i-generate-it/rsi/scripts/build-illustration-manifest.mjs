@@ -7,6 +7,11 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["readable-harness-brief-v1","exec-4f171074-ea37-4c33-9432-ac2fcd57334a.png",true],
+  ["requirements-implementation-evidence-v1","exec-a8ef17f6-1615-4224-a096-bea25bc2ad9f.png",true],
+  ["request-bound-refusal-v1","exec-06c28ca8-c3b8-4c0a-b1a3-fdfc335bed80.png",true],
+  ["fixed-builder-new-task-v1","exec-1e00d388-3dd6-415e-a918-401728aae420.png",true],
+  ["repeat-saved-harnesses-v1","exec-d014e19e-21ae-46bc-9e5d-65f42cb8e66c.png",true],
   ["fixed-components-system-v1","exec-0c7cea3e-8d05-4789-b7d2-129fe49461ae.png",false],
   ["fixed-components-system-v2","exec-a709fce6-2da9-4704-97cc-c9bda08abc49.png",true],
   ["fixed-task-routing-v1","exec-4614e008-46b8-42be-9f3f-7850228ade0b.png",true],

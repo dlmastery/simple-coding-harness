@@ -28,9 +28,20 @@ A negative test supplies a specific forbidden request and checks the resulting b
 
 **A concrete example.** The brief permits two admitted attempts. A valid baseline consumes one. A leaked-feature request is admitted for validation, rejected before fitting, and consumes the second. A third distinct recipe must then fail on the budget. An unrelated old success report changes none of those identities or counts.
 
+![Three expected requests charge two attempt slots but execute only one fit. A valid baseline fits, an admitted leaked request fails before fitting, and a distinct third request is refused on budget. Current request and check identities must match; an unrelated pass and a missing candidate ID cannot authorize acceptance.](../../assets/illustrations/request-bound-refusal-v1.png)
+
+*The fit-column icons denote one fit for the first request and zero for the other two; record actual counts and exit statuses. These are expected outcomes for this declared admitted-attempt policy. An invalid request can consume a slot even though no model fit starts. The old pass may remain valid for its original run; the red mark rejects its use for this request. Keep the unrelated-report and missing-ID fixtures separate from real model execution. These local checks do not establish isolation from a host agent that can edit the workspace.*
+
+[Open the illustration at full size](../../assets/illustrations/request-bound-refusal-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A boundary is demonstrated by a meaningful refusal tied to the current request.](../../assets/diagrams/lab-06-04.png)
 
 *Read the diagram:* A boundary is demonstrated by a meaningful refusal tied to the current request.
+
+</details>
 
 ## Run the lab
 

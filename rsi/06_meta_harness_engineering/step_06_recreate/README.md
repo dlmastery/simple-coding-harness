@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** Both briefs, generated harnesses, dependency records, and prior results.
 
-**Budget:** Two baseline fits, one per task. No new search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two baseline fits and two wrong-task refusal checks, one of each per task. Refusals add no model fits. No new search. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ Recreation uses the saved brief, builder version, generated files, dependencies,
 
 **A concrete example.** Running a saved generated package in a new output folder tests whether its recorded files and dependencies are sufficient. Asking the builder to generate another package from prose is a different test. This lab performs the first. Equal baseline predictions support repeatability of that package; they do not prove independent regeneration or a better builder.
 
+![Saved bike and wine packages each run their baseline into a new output folder. Each new record is compared with the earlier record for the same task. Separate cards distinguish repeated saved execution, regeneration from a brief, and evaluation of a changed builder.](../../assets/illustrations/repeat-saved-harnesses-v1.png)
+
+*Create new output folders; the broom is a clean-state symbol, not an instruction to erase prior evidence. Package tabs identify required provenance and dependencies, which may include the course repository rather than a self-contained archive. Run one baseline and one wrong-task refusal per package; the refusal adds no model fit. Compare actual predictions, metrics, contracts, and environments without replacing the original result. The other two cards describe separate experiments: a fair builder comparison needs prespecified tasks, matched budgets, and candidate-specific evidence. A fresh output folder alone does not create an independent agent context.*
+
+[Open the illustration at full size](../../assets/illustrations/repeat-saved-harnesses-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.](../../assets/diagrams/lab-06-06.png)
 
 *Read the diagram:* Recreate behavior from saved inputs and dependencies. Generated source need not be byte-identical to satisfy the same contract.
+
+</details>
 
 ## Run the lab
 
@@ -71,7 +82,10 @@ Compare behavior under the same task contract.
 
 ```text
 Run each baseline from the saved generated
-system. Compare predictions, metric, refusal
+system in a new output folder. Submit one
+wrong-task request to each package and
+retain its refusal without another fit.
+Compare predictions, metric, refusal
 behavior, and versions with the earlier run.
 Record any difference without selecting the
 most favorable rerun.

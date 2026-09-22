@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Meta-harness illustration review](validation/META-HARNESS-ILLUSTRATIONS.md): five first-attempt figures, review-only builder scope, request-bound refusals, classification transfer, and saved-package reproduction.
+
 - [System-intelligence illustration review](validation/SYSTEM-ILLUSTRATIONS.md): four selections from five outputs, fixed component roles, task routing, context authority, and overlapping protections in an ablation.
 
 - [Ontology illustration review](validation/ONTOLOGY-ILLUSTRATIONS.md): four selections from five outputs, ten experiment objects, paired rule tests, semantic repairs, and forecast-time availability.

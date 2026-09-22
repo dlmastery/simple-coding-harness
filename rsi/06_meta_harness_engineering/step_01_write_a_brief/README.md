@@ -28,9 +28,20 @@ A harness organizes an agent’s instructions, tools, state, evaluation, and lim
 
 **A concrete example.** “Build a bike agent” leaves success undefined. “Estimate hourly cnt from calendar fields, compare by MAE on the fixed selection period, admit at most two attempts, and refuse target-derived inputs” gives the builder decisions it can implement and test. File layout can remain its choice. The target and evaluator cannot quietly become its choice after it sees results.
 
+![A readable bike-harness brief names the hourly target, pinned data, permitted calendar inputs, chronological split, MAE, training-median baseline, two admitted attempts, and retained evidence. Two review trays separate scientific choices from routine implementation choices.](../../assets/illustrations/readable-harness-brief-v1.png)
+
+*This example brief permits calendar inputs and describes retrospective estimation. H1 and H2 mean the first and second halves of the year; the small split arrows mark chronological order, not permission to move final data into training. The final partition is reserved, not evaluated in this lab. Include resource and stop rules in the actual brief as well as the illustrated fields. Blank boxes invite a real ambiguity review. Ask the builder to review only; implementation and execution begin in the next lab.*
+
+[Open the illustration at full size](../../assets/illustrations/readable-harness-brief-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The brief fixes scientific choices and required behavior. The builder supplies implementation details.](../../assets/diagrams/lab-06-01.png)
 
 *Read the diagram:* The brief fixes scientific choices and required behavior. The builder supplies implementation details.
+
+</details>
 
 ## Run the lab
 

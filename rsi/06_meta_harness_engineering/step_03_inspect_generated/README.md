@@ -28,9 +28,20 @@ Trace requirements forward to implementation and evidence backward to requiremen
 
 **A concrete example.** The README says “two attempts,” but a loop in the generated code permits ten. The requirement is stated, implementation disagrees, and no two-attempt refusal has yet run. Keep those three evidence states distinct in the review. A row saying “budget: checked” would conceal the exact gap.
 
+![An illustrative brief requires two attempts while an implementation permits ten and a trace records only one baseline. The missing budget-refusal evidence is marked unverified. A review ledger links requirements to implementation and observed behavior.](../../assets/illustrations/requirements-implementation-evidence-v1.png)
+
+*The two-versus-ten mismatch is a diagnostic example, not a report that your generated code has that defect. One successful baseline cannot establish an attempt limit. Trace the actual requirement into code and its relevant records; leave unexecuted behavior unverified for the later refusal lab. A failing case and an absent case need different explanations, even though neither establishes acceptance. The documentation-only change leaves code untouched and should expose disagreement. Inspect real preprocessing inputs and selection partitions without another fit.*
+
+[Open the illustration at full size](../../assets/illustrations/requirements-implementation-evidence-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Trace each important requirement to implementation and then to observed behavior.](../../assets/diagrams/lab-06-03.png)
 
 *Read the diagram:* Trace each important requirement to implementation and then to observed behavior.
+
+</details>
 
 ## Run the lab
 
