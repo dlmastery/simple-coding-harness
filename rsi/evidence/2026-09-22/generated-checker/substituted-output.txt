@@ -1,0 +1,6 @@
+REFUSED: Rows outside selection: [0]
+
+Exit: 2
+Signal: null
+Error: none
+Seconds: 0.14281780000000002

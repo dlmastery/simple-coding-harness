@@ -8,6 +8,8 @@ This is an example teaching portfolio built from actual author walkthroughs. It 
 
 *The picture supplies the story structure. Its bike equation and contrasting-case rule are examples, not measurements below. Here we trace white-wine predictions, a separate unit-conversion repair, and a changed selection rule. The peer scene is illustrative; review is pending.*
 
+[Open the illustration at full size](assets/illustrations/capstone-teach-back-v2.png).
+
 ## One row becomes a prediction
 
 The [task brief](evidence/2026-09-21/capstone-harness/package/TASK.md) asks for a white-wine quality estimate from eleven laboratory inputs. The [data card](evidence/2026-09-21/capstone-harness/package/DATA-CARD.md) explains provenance and limits. Equal input rows stay in one partition, and preprocessing uses training rows only.

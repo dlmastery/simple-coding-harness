@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A separate calculation can recompute a metric without trusting the report writer. That is useful separation of responsibilities. It is not necessarily independent context or access control: the same host agent may still see every file.
 
-**A concrete example.** Suppose a prediction row has a plausible error but refers to source row 12, which belongs to training. The arithmetic can be correct and the selection claim still invalid. A checker with expected row identities rejects that substitution. A checker given only “MAE 159.95” cannot detect it.
+**A concrete example.** The [generated-checker walkthrough](../../evidence/2026-09-22/generated-checker/README.md) verifies 4,358 saved predictions and recomputes MAE 159.947912. In a copy, only the first source ID changes: selection row 8645 becomes training row 0. The same checker refuses that copy with exit status 2. Prediction values stay unchanged, so a calculation that trusts the copied targets can still return the old score. Correct arithmetic does not establish correct row membership. A checker given only “MAE 159.95” cannot detect the substitution.
 
 ![Two runs of the same checker use common expected selection IDs, source targets, and candidate identity. The original symbolic rows S1, S2, S3 are compared with a teaching copy containing training row T1 instead of S2.](../../assets/illustrations/row-identity-check-v1.png)
 

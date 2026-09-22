@@ -1,0 +1,23 @@
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5649287Z step_48_trueforge_sandbox_skills             3 failed, 13 passed in 1.15s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5660782Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5666869Z     turn error: model unavailable
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5668201Z     FAILED test_step.py::test_list_events_follows_the_pagination_cursor - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5669145Z     FAILED test_step.py::test_demo_runs_downloads_and_deletes_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5670124Z     FAILED test_step.py::test_demo_exits_1_on_an_errored_turn_and_keeps_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5671112Z     3 failed, 13 passed in 1.15s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:28:33.5672086Z step_50_trueforge_subagents_eval             5 failed, 13 passed, 3 warnings in 9.60s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7176583Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7187550Z     FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7189425Z     FAILED test_step.py::test_reconnect_subscribes_while_running_and_replays_when_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7191602Z     FAILED test_step.py::test_reconnect_replays_when_the_live_stream_ends_before_turn_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7193680Z     FAILED test_step.py::test_demo_threads_mode_prints_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7195500Z     FAILED test_step.py::test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7196756Z     5 failed, 13 passed, 3 warnings in 9.60s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7204217Z genui/02_ag_ui/step_02_ag_ui_tools_and_state 2 failed, 13 passed, 1 warning in 1.17s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7213057Z     FAILED test_step.py::test_tool_calls_become_events_and_state_deltas - AssertionError: assert [AddOperation...lta': '+8%'})] == [{'op': 'add'...lta': '+8%'}}]
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7225663Z     FAILED test_step.py::test_next_run_continues_from_the_client_tool_result - AssertionError: assert [AddOperation... 'cost': 40})] == [{'op': 'add'... 'cost': 40}}]
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7236557Z     2 failed, 13 passed, 1 warning in 1.17s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7237479Z genui/02_ag_ui/step_03_ag_ui_from_the_harness 1 failed, 10 passed, 1 warning in 5.81s
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7247158Z     E       TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7259922Z     FAILED test_step.py::test_write_todos_becomes_state_delta - TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.10)	Run python run_tests.py	2026-09-22T07:29:38.7261478Z     1 failed, 10 passed, 1 warning in 5.81s

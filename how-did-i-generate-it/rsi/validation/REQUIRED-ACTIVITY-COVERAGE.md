@@ -112,9 +112,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Give the checker only a metric number without predictions. Explain which checks become impossible.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/01-04).
+**Evidence:** [Generated separate checker with actual pass and row-substitution refusal](../../../rsi/evidence/2026-09-22/generated-checker/README.md).
 
-**Closure gap:** Reuses the supplied checker; independent checker generation is untested. Reconcile the additional change separately.
+**Closure gap:** The generated standard-library implementation checks the archived baseline, then refuses one changed source-row ID in exactly two invocations and zero fits. One-cell differences and five source identities are retained; the metric-only limitation is explained. This closes the prior supplied-checker reuse gap. Same author context, trusted references, untested other tampering branches and unattempted learner responses limit the result.
 
 **Acceptance to verify:** The valid file passes and the substituted-row file fails. CHECK-REPORT.md describes exactly what the checker reads and cannot protect.
 

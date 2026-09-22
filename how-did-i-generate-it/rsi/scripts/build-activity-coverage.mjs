@@ -107,6 +107,7 @@ const limitations = {
   '09.05': 'Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.'
 };
 for (const [id,gap] of Object.entries(limitations)) related.get(id).gap = gap;
+related.set('01.04', {path: 'rsi/evidence/2026-09-22/generated-checker/README.md', label: 'Generated separate checker with actual pass and row-substitution refusal', gap: 'The generated standard-library implementation checks the archived baseline, then refuses one changed source-row ID in exactly two invocations and zero fits. One-cell differences and five source identities are retained; the metric-only limitation is explained. This closes the prior supplied-checker reuse gap. Same author context, trusted references, untested other tampering branches and unattempted learner responses limit the result.'});
 related.set('03.06', {
   path: 'rsi/evidence/2026-09-21/three-views/README.md',
   label: 'Rendered views and audit of existing run records',
