@@ -1,0 +1,9 @@
+# Frozen before actions
+
+CONTRACT.md: 734a2d2a109c3a683b1548a3f4c799d51e492c9066083b6058231c2001455690
+current.md: 106b40cc8aee6dc5ebde27092bf0a220dc51c748f0d07fd0170b9be43cdfb030
+prior.md: 37f3f184ce6cc79a5e36cdce7d1702a08c0dca43cf6179d1531ddd7cae9d86ef
+ORACLES.md: 7809c2a3ace63bb8e627af9db562dc06ad847192e50bdaeecd5c29a34a83316e
+parent-skill.md: a264c27538f33010f47219029fa1b4389981b30c54af6c4b0fb87e82639f3701
+Driver (includes fixed checker): 7226af6a00633705db9b5504ff92cebe5c6985086abe880ec24942feac6cbc2b
+Node: v22.16.0; win32 x64

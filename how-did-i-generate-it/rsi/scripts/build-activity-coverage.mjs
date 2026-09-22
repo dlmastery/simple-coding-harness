@@ -9,6 +9,16 @@ const destination = resolve(repo, 'how-did-i-generate-it/rsi/validation');
 const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
+related.set('10.34', {
+  path: 'rsi/evidence/2026-09-21/model-harness-fit/README.md',
+  label: 'Executed interface comparison and source audit',
+  gap: 'Four parser subprocesses and unchanged hashes demonstrate format repair only. Selected primary-method reading is recorded; no weight training, source reproduction, native-agent portability, or learner assessment was tested.'
+});
+related.set('10.36', {
+  path: 'rsi/evidence/2026-09-21/checked-reference/README.md',
+  label: 'Executed reference gates and candidate fixtures',
+  gap: 'Four instrumented traces, one quality gate, and two candidate evaluations executed. Author-known deterministic fixtures, a tiny declarative skill, and trusted instrumentation do not establish independent agent learning, general leakage detection, or learner understanding.'
+});
 related.set('10.28', {
   path: 'rsi/evidence/2026-09-21/procedure-graph/README.md',
   label: 'Executed procedure-graph fixtures',

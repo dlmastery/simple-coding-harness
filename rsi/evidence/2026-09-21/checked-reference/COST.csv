@@ -1,0 +1,12 @@
+case,operation,wall_ms
+failed-parent,action execution,2.535
+failed-parent,trace validation,12.685
+valid-reference,action execution,10.956
+valid-reference,trace validation,9.507
+shortcut,action execution,1.848
+shortcut,trace validation,11.868
+alternative,action execution,2.110
+alternative,trace validation,15.252
+candidate,quality gate,1.911
+candidate-current,action execution,2.122
+candidate-prior,action execution,3.262

@@ -6,7 +6,7 @@ Starting state: A failed local workflow trace, a successful reference trace, and
 
 Prediction to ask: Is a reference that immediately prints the known answer a useful execution path?
 
-Execution limit: Four trace checks, including the alternative-path counterexample, and one candidate-skill evaluation on two fixtures. No model fits.
+Execution limit: Generate and check four traces, including the alternative-path counterexample. Propose one candidate skill, run one quality gate, then evaluate it on two fixtures. No model fits.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

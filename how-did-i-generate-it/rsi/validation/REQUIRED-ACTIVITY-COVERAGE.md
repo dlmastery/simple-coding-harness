@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-64 labs have mapped related author-execution evidence; 37 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+66 labs have mapped related author-execution evidence; 35 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1224,9 +1224,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Replace the whole correct response with another expert’s incompatible template. Explain why globally imitating a good trajectory can break a local contract.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed interface comparison and source audit](../../../rsi/evidence/2026-09-21/model-harness-fit/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four parser subprocesses and unchanged hashes demonstrate format repair only. Selected primary-method reading is recorded; no weight training, source reproduction, native-agent portability, or learner assessment was tested.
 
 **Acceptance to verify:** The parser failure and repair are executed. The source audit distinguishes parameter training from an interface demonstration.
 
@@ -1250,9 +1250,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Supply a legitimate alternative successful path. Explain why the first divergence is a diagnostic lead, not automatic proof that the failed path’s differing action was wrong.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed reference gates and candidate fixtures](../../../rsi/evidence/2026-09-21/checked-reference/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four instrumented traces, one quality gate, and two candidate evaluations executed. Author-known deterministic fixtures, a tiny declarative skill, and trusted instrumentation do not establish independent agent learning, general leakage detection, or learner understanding.
 
 **Acceptance to verify:** The reference is validated independently of its final answer text. The active skill does not copy case-specific answers. Both current and prior cases are evaluated.
 

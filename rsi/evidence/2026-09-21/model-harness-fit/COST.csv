@@ -1,0 +1,5 @@
+check,exit,wall_ms
+valid,0,45.260
+mismatched,1,42.281
+repaired,0,42.763
+incompatible,1,44.643

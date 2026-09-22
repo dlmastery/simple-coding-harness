@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The source contrasts training from full expert trajectories with correction on the agent’s own trajectories in evolved harnesses. Our toy version changes an output convention while keeping the harness parser fixed. It illustrates compatibility, not the paper’s trained-model results.
 
-**A concrete example.** The harness expects a candidate identifier and a numeric balanced-accuracy field. A fluent paragraph contains the right value but omits the identifier, so the parser cannot associate it with a run. A minimal field correction restores the contract. That is an interface repair, not a trained-model improvement.
+**A concrete example.** The harness expects Candidate and Status. A report uses Result instead of Status, so the parser rejects it. Changing that one field name restores compatibility; replacing the whole report with Run and Verdict still fails. The [author walkthrough](../../../evidence/2026-09-21/model-harness-fit/README.md) executed all four cases against the unchanged parser. This establishes a format repair, not a truthful status or trained-model improvement. Its [source audit](../../../evidence/2026-09-21/model-harness-fit/SOURCE-AUDIT.md) explains the larger training comparison.
 
 ![Four plain-text reports meet or violate the same Candidate and Status field contract. A local field-name repair restores the expected format; a whole incompatible template still fails. A separate inset identifies the actual training stage in the source concept.](../../../assets/illustrations/harness-compatibility-v1.png)
 
@@ -68,13 +68,14 @@ experiment.
 Make compatibility executable.
 
 ```text
-Generate a parser for a simple candidate
-report format. Test a correct response and a
-polished response using a different field
-convention. Keep both fixtures.
+Generate a fixed parser expecting Candidate
+and Status fields. Test a correct response
+and a response using Result instead of
+Status. Keep both fixtures and the parser
+hash.
 ```
 
-**Observe:** Surface quality and interface validity differ.
+**Observe:** A plausible response can violate an interface.
 
 ### 2. Repair locally and audit the source
 

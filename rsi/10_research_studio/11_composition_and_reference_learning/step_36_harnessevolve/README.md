@@ -20,13 +20,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** A failed local workflow trace, a successful reference trace, and a labelled shortcut trace.
 
-**Budget:** Four trace checks, including the alternative-path counterexample, and one candidate-skill evaluation on two fixtures. No model fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Generate and check four traces, including the alternative-path counterexample. Propose one candidate skill, run one quality gate, then evaluate it on two fixtures. No model fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 HarnessEvolve uses answer-conditioned reference trajectories, checks that they contain genuine execution, and compares failures against them. Candidate changes face quality and performance gates. Our exercise uses small workflow traces and prevents a copied answer from becoming the active skill.
 
-**A concrete example.** A shortcut reference prints “the units are missing” because it was given the answer. A useful reference opens the schema, checks the required field, and records the failure. Both may end with the same sentence, but only the latter provides an executable path that can help diagnose the failed workflow.
+**A concrete example.** A shortcut prints “missing Split” without opening either input. A useful reference reads the report and its contract, checks every required field, and reaches the same answer. The [author walkthrough](../../../evidence/2026-09-21/checked-reference/README.md) rejected the shortcut and accepted both valid read orders. One general instruction then passed the current and prior fixture checks. These constructed cases show the mechanism; they do not establish independent agent learning or broad retained competence.
 
 ![A failed missing-field audit is compared with a reference containing tool actions and observations. A known-answer shortcut is rejected. A general skill edit must pass quality and current/prior-case checks; two legitimate alternative paths show that divergence alone is not error.](../../../assets/illustrations/checked-reference-v1.png)
 

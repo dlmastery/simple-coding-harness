@@ -1,0 +1,7 @@
+action	subject	observation
+read	CONTRACT.md	734a2d2a109c3a683b1548a3f4c799d51e492c9066083b6058231c2001455690
+read	current.md	106b40cc8aee6dc5ebde27092bf0a220dc51c748f0d07fd0170b9be43cdfb030
+read	parent-skill.md	a264c27538f33010f47219029fa1b4389981b30c54af6c4b0fb87e82639f3701
+check	Target	present
+check	Metric	present
+emit	verdict	complete

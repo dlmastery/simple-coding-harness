@@ -1,0 +1,8 @@
+action	subject	observation
+read	CONTRACT.md	734a2d2a109c3a683b1548a3f4c799d51e492c9066083b6058231c2001455690
+read	prior.md	37f3f184ce6cc79a5e36cdce7d1702a08c0dca43cf6179d1531ddd7cae9d86ef
+read	candidate-skill.md	83662e4b87f58f2b28f917205fcc9ea4393a72019c743cb517ab569e77e827c4
+check	Target	present
+check	Metric	present
+check	Split	present
+emit	verdict	complete
