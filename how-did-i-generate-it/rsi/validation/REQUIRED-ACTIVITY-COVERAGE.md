@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-66 labs have mapped related author-execution evidence; 35 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+67 labs have mapped related author-execution evidence; 34 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1237,9 +1237,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Read the paper’s same-start improver comparison and per-term gains. Explain why rising cumulative gains can coexist with declining gains per term.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed typed-operator and scheduler simulation](../../../rsi/evidence/2026-09-21/operator-composition/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Five checks, twelve operator attempts, one policy gate, and three synthetic scores executed; a saved rule governed later work. Selected source comparison is read. No actual model training, later-task original/revised comparison, autonomous adaptation, or learner assessment was tested.
 
 **Acceptance to verify:** The simulator enforces declared surfaces and evidence versions. Synthetic outcomes are not presented as the paper’s results. The audit distinguishes schedule composition from real model training.
 

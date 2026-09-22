@@ -20,17 +20,17 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** Your ontology and three labelled operator stubs: data, harness, model. No actual LLM training.
 
-**Budget:** Five small schedule checks and one inherited scheduler revision in a simulation. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Five schedule checks: two orderings from the same start, stale evidence, a forbidden write, and inherited scheduler use. Allow twelve operator attempts including failures, one static scheduler-rule gate, and three synthetic evaluations. No model fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 MetaRSI composes operators over data, harness, and model state, with a policy that chooses their order and can itself be revised. The classroom simulation makes write boundaries and input versions explicit. A changed system can make old diagnostic evidence stale. Keep the external evaluator fixed.
 
-**A concrete example.** Suppose a diagnosis says the current harness omits a needed tool call. A harness edit repairs that omission. Reusing the old diagnosis to choose the next operator can now be wrong: it describes the old state. Versioned evidence tells the scheduler when it must inspect the changed system again.
+**A concrete example.** A model stub copies the harness format. Running the harness update first gives it the new format; running the model first leaves it with the old one. In the [author walkthrough](../../../evidence/2026-09-21/operator-composition/README.md), the two orders scored 100 and 50 under a fixed synthetic rule. Stale evidence and forbidden writes were rejected. A saved scheduler revision then moved the harness update before the model in a later term. That trace shows inherited use, not an empirical RSI gain. The [source comparison](../../../evidence/2026-09-21/operator-composition/SOURCE-AUDIT.md) asks the stronger question: which improver does better from the same start?
 
 ![Three stub operators write separate data, harness, and model version objects. Evidence for an older harness is marked stale. A proposed scheduler Q1 passes through a check before conditional activation and later use of its interface-check rule.](../../../assets/illustrations/operator-composition-v1.png)
 
-*The write-surface rows are separate examples, not one sequential run. The evidence panel compares two exact version sets and requires a fresh diagnosis after the harness changes. Q1’s interface rule is an original classroom example. Its accepted path shows structural inheritance; the checks and outcome still need execution and do not establish benefit. Preserve Q0 if the revision fails. This five-check simulation omits much of MetaRSI’s full architecture and does not train an LLM. The external evaluator and allowed write boundaries remain fixed.*
+*The write-surface rows are separate examples, not one sequential run. The evidence panel compares two exact version sets and requires a fresh diagnosis after the harness changes. Q1’s interface rule is an original classroom example. Follow the author walkthrough linked above for one executed case; the illustration itself is conceptual. Its accepted path shows structural inheritance, not a demonstrated empirical benefit. Preserve Q0 if the revision fails. This five-check simulation omits much of MetaRSI’s full architecture and does not train an LLM. The external evaluator and allowed write boundaries remain fixed.*
 
 [Open the illustration at full size](../../../assets/illustrations/operator-composition-v1.png).
 

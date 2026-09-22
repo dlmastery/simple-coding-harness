@@ -6,7 +6,7 @@ Starting state: Your ontology and three labelled operator stubs: data, harness, 
 
 Prediction to ask: Could the same two operators give different results when applied in the opposite order?
 
-Execution limit: Five small schedule checks and one inherited scheduler revision in a simulation.
+Execution limit: Five schedule checks: two orderings from the same start, stale evidence, a forbidden write, and inherited scheduler use. Allow twelve operator attempts including failures, one static scheduler-rule gate, and three synthetic evaluations. No model fits.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

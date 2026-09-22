@@ -9,6 +9,11 @@ const destination = resolve(repo, 'how-did-i-generate-it/rsi/validation');
 const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
+related.set('10.35', {
+  path: 'rsi/evidence/2026-09-21/operator-composition/README.md',
+  label: 'Executed typed-operator and scheduler simulation',
+  gap: 'Five checks, twelve operator attempts, one policy gate, and three synthetic scores executed; a saved rule governed later work. Selected source comparison is read. No actual model training, later-task original/revised comparison, autonomous adaptation, or learner assessment was tested.'
+});
 related.set('10.34', {
   path: 'rsi/evidence/2026-09-21/model-harness-fit/README.md',
   label: 'Executed interface comparison and source audit',
