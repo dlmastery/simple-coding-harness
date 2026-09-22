@@ -1,5 +1,7 @@
 # Research for the RSI course
 
+**22 September tabular-repair addition:** retained inventory: **38 papers and five reports**. Added the 14 September preprint *Agentic Search Spaces for Tabular Machine Learning* after method, result, limitation and selected-appendix reading. The [source audit](research/2026-09-22-TABULAR-SEARCH-SPACES.md) connects it to module-generation and benchmark design without claiming a local reproduction or recursive-updater result. No required lab was added. Earlier counts below are historical.
+
 **22 September broad update:** retained inventory: **37 papers and five reports**. Added harness tampering, Metaⁿ, SIFT and AutoSaddler after primary version and selected-method checks. The [reading record](research/2026-09-22-WIDE-REFRESH.md) and [exact query log](research/2026-09-22-SEARCH-RECORD.md) distinguish inspected sections, artifact limits and excluded older results. The Anthropic measurement report received a closer methodological check without increasing the report count. These comparisons strengthen existing labs; the course remains 101 labs. Counts below describe earlier checkpoints.
 
 **22 September focused update:** retained inventory: **33 papers and five reports**. Added EvoUndo v2 as a selected-source capstone audit and NeoHorse-1 as an abstract-only lead. Discovery refreshed to 23 August–22 September; earlier queries and sources remain dated. See [reading depth and consequences](research/2026-09-22-CAPSTONE-SOURCE-AUDIT.md). No new required lab or source-system reproduction was added.

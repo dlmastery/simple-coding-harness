@@ -1,0 +1,3 @@
+Diagnostic source SHA256: 314b3d6dd4a69dd3f019f04b70343d76170e13c1cc4e0f13f872efb0effe07ff
+Input RESULTS.csv SHA256: 5801a53a5aacd3c85c0eb0cb9842471c903de8e7cedb78ff38b6d5f7121b8bb5
+All six reconstructed selection targets match their saved arrays exactly.

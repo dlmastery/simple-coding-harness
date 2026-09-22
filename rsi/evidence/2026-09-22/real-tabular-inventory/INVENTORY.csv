@@ -1,0 +1,108 @@
+suite,task,dataset,name,version,kind,target,rows,columns,symbolic_columns,missing_values,license,eligible,reason,data_url
+99,3,3,kr-vs-kp,1,Supervised Classification,class,3196,37,37.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/3/kr-vs-kp.arff
+99,6,6,letter,1,Supervised Classification,class,20000,17,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/6/letter.arff
+99,11,11,balance-scale,1,Supervised Classification,class,625,5,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/11/balance-scale.arff
+99,12,12,mfeat-factors,1,Supervised Classification,class,2000,217,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/12/mfeat-factors.arff
+99,14,14,mfeat-fourier,1,Supervised Classification,class,2000,77,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/14/mfeat-fourier.arff
+99,15,15,breast-w,1,Supervised Classification,Class,699,10,1.0,16.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/52350/breast-w.arff
+99,16,16,mfeat-karhunen,1,Supervised Classification,class,2000,65,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/16/mfeat-karhunen.arff
+99,18,18,mfeat-morphological,1,Supervised Classification,class,2000,7,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/18/mfeat-morphological.arff
+99,22,22,mfeat-zernike,1,Supervised Classification,class,2000,48,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22/mfeat-zernike.arff
+99,23,23,cmc,1,Supervised Classification,Contraceptive_method_used,1473,10,8.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/23/cmc.arff
+99,28,28,optdigits,1,Supervised Classification,class,5620,65,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/28/optdigits.arff
+99,29,29,credit-approval,1,Supervised Classification,class,690,16,10.0,67.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/29/credit-approval.arff
+99,31,31,credit-g,1,Supervised Classification,class,1000,21,14.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/31/credit-g.arff
+99,32,32,pendigits,1,Supervised Classification,class,10992,17,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/32/pendigits.arff
+99,37,37,diabetes,1,Supervised Classification,class,768,9,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/37/diabetes.arff
+99,43,44,spambase,1,Supervised Classification,class,4601,58,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/44/spambase.arff
+99,45,46,splice,1,Supervised Classification,Class,3190,61,61.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/46/splice.arff
+99,49,50,tic-tac-toe,1,Supervised Classification,Class,958,10,10.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/50/tic-tac-toe.arff
+99,53,54,vehicle,1,Supervised Classification,Class,846,19,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/54/vehicle.arff
+99,219,151,electricity,1,Supervised Classification,class,45312,9,2.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/2419/electricity.arff
+99,2074,182,satimage,1,Supervised Classification,class,6430,37,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/3619/satimage.arff
+99,2079,188,eucalyptus,1,Supervised Classification,Utility,736,20,6.0,448.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/3625/eucalyptus.arff
+99,3021,38,sick,1,Supervised Classification,Class,3772,30,23.0,6064.0,Public,False,license needs review,https://openml.org/data/v1/download/38/sick.arff
+99,3022,307,vowel,2,Supervised Classification,Class,990,13,3.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/52210/vowel.arff
+99,3481,300,isolet,1,Supervised Classification,class,7797,618,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/52405/isolet.arff
+99,3549,458,analcatdata_authorship,1,Supervised Classification,Author,841,71,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/52570/analcatdata_authorship.arff
+99,3560,469,analcatdata_dmft,1,Supervised Classification,Prevention,797,5,5.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/52581/analcatdata_dmft.arff
+99,3573,554,mnist_784,1,Supervised Classification,class,70000,785,1.0,0.0,Public,False,row count outside laptop range; column count outside laptop range; license needs review,https://openml.org/data/v1/download/52667/mnist_784.arff
+99,3902,1049,pc4,1,Supervised Classification,c,1458,38,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/53932/pc4.arff
+99,3903,1050,pc3,1,Supervised Classification,c,1563,38,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/53933/pc3.arff
+99,3904,1053,jm1,1,Supervised Classification,defects,10885,22,1.0,25.0,Public,False,license needs review,https://openml.org/data/v1/download/53936/jm1.arff
+99,3913,1063,kc2,1,Supervised Classification,problems,522,22,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/53946/kc2.arff
+99,3917,1067,kc1,1,Supervised Classification,defects,2109,22,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/53950/kc1.arff
+99,3918,1068,pc1,1,Supervised Classification,defects,1109,22,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/53951/pc1.arff
+99,7592,1590,adult,2,Supervised Classification,class,48842,15,9.0,6465.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1595261/adult.arff
+99,9910,4134,Bioresponse,1,Supervised Classification,target,3751,1777,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1681097/Bioresponse.arff
+99,9946,1510,wdbc,1,Supervised Classification,Class,569,31,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1592318/wdbc.arff
+99,9952,1489,phoneme,1,Supervised Classification,Class,5404,6,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1592281/phoneme.arff
+99,9957,1494,qsar-biodeg,1,Supervised Classification,Class,1055,42,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1592286/qsar-biodeg.arff
+99,9960,1497,wall-robot-navigation,1,Supervised Classification,Class,5456,25,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1592289/wall-robot-navigation.arff
+99,9964,1501,semeion,1,Supervised Classification,Class,1593,257,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1592293/semeion.arff
+99,9971,1480,ilpd,1,Supervised Classification,Class,583,11,2.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1590565/ilpd.arff
+99,9976,1485,madelon,1,Supervised Classification,Class,2600,501,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1590986/madelon.arff
+99,9977,1486,nomao,1,Supervised Classification,Class,34465,119,30.0,0.0,Public,False,row count outside laptop range; column count outside laptop range; license needs review,https://openml.org/data/v1/download/1592278/nomao.arff
+99,9978,1487,ozone-level-8hr,1,Supervised Classification,Class,2534,73,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1592279/ozone-level-8hr.arff
+99,9981,1468,cnae-9,1,Supervised Classification,Class,1080,857,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1586233/cnae-9.arff
+99,9985,1475,first-order-theorem-proving,1,Supervised Classification,Class,6118,52,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1587932/first-order-theorem-proving.arff
+99,10093,1462,banknote-authentication,1,Supervised Classification,Class,1372,5,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1586223/banknote-authentication.arff
+99,10101,1464,blood-transfusion-service-center,1,Supervised Classification,Class,748,5,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1586225/blood-transfusion-service-center.arff
+99,14952,4534,PhishingWebsites,1,Supervised Classification,Result,11055,31,31.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1798106/PhishingWebsites.arff
+99,14954,6332,cylinder-bands,2,Supervised Classification,band_type,540,40,22.0,999.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1854224/cylinder-bands.arff
+99,14965,1461,bank-marketing,1,Supervised Classification,Class,45211,17,10.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1586218/bank-marketing.arff
+99,14969,4538,GesturePhaseSegmentationProcessed,1,Supervised Classification,Phase,9873,33,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/1798765/GesturePhaseSegmentationProcessed.arff
+99,14970,1478,har,1,Supervised Classification,Class,10299,562,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/1589271/har.arff
+99,125920,23381,dresses-sales,2,Supervised Classification,Class,500,13,12.0,835.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/1910507/dresses-sales.arff
+99,125922,40499,texture,1,Supervised Classification,Class,5500,41,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/4535764/texture.arff
+99,146195,40668,connect-4,2,Supervised Classification,class,67557,43,43.0,0.0,public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/4965243/connect-4.arff
+99,146800,40966,MiceProtein,4,Supervised Classification,class,1080,82,5.0,1396.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/17928620/MiceProtein.arff
+99,146817,40982,steel-plates-fault,3,Supervised Classification,target,1941,28,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/18151921/steel-plates-fault.arff
+99,146819,40994,climate-model-simulation-crashes,4,Supervised Classification,outcome,540,21,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/18237248/climate-model-simulation-crashes.arff
+99,146820,40983,wilt,2,Supervised Classification,class,4839,6,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/18151926/wilt.arff
+99,146821,40975,car,3,Supervised Classification,class,1728,7,7.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/18116966/car.arff
+99,146822,40984,segment,3,Supervised Classification,class,2310,20,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/18151937/segment.arff
+99,146824,40979,mfeat-pixel,3,Supervised Classification,class,2000,241,1.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/18142224/mfeat-pixel.arff
+99,146825,40996,Fashion-MNIST,1,Supervised Classification,class,70000,785,1.0,0.0,Public,False,row count outside laptop range; column count outside laptop range; license needs review,https://openml.org/data/v1/download/18238735/Fashion-MNIST.arff
+99,167119,41027,jungle_chess_2pcs_raw_endgame_complete,1,Supervised Classification,class,44819,7,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/18631418/jungle_chess_2pcs_raw_endgame_complete.arff
+99,167120,23517,numerai28.6,2,Supervised Classification,attribute_21,96320,22,1.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/2160285/numerai28.6.arff
+99,167121,40923,Devnagari-Script,1,Supervised Classification,character,92000,1025,1.0,0.0,Public,False,row count outside laptop range; column count outside laptop range; license needs review,https://openml.org/data/v1/download/16789311/Devnagari-Script.arff
+99,167124,40927,CIFAR_10,1,Supervised Classification,class,60000,3073,1.0,0.0,Public,False,row count outside laptop range; column count outside laptop range; license needs review,https://openml.org/data/v1/download/16797613/CIFAR_10.arff
+99,167125,40978,Internet-Advertisements,2,Supervised Classification,class,3279,1559,1556.0,0.0,Public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/18140371/Internet-Advertisements.arff
+99,167140,40670,dna,1,Supervised Classification,class,3186,181,181.0,0.0,public,False,column count outside laptop range; license needs review,https://openml.org/data/v1/download/4965245/dna.arff
+99,167141,40701,churn,1,Supervised Classification,class,5000,21,5.0,0.0,public,False,license needs review,https://openml.org/data/v1/download/4965302/churn.arff
+353,361234,44956,abalone,15,Supervised Regression,rings,4177,9,1.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111820/abalone.arff
+353,361235,44957,airfoil_self_noise,8,Supervised Regression,sound_pressure,1503,6,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111821/airfoil_self_noise.arff
+353,361236,44958,auction_verification,7,Supervised Regression,verification.time,2043,8,2.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111822/auction_verification.arff
+353,361237,44959,concrete_compressive_strength,7,Supervised Regression,strength,1030,9,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111823/concrete_compressive_strength.arff
+353,361241,44963,physiochemical_protein,7,Supervised Regression,RMSD,45730,10,0.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111827/physiochemical_protein.arff
+353,361242,44964,superconductivity,7,Supervised Regression,critical_temp,21263,82,0.0,0.0,CC BY 4.0,False,column count outside laptop range,https://openml.org/data/v1/download/22111828/superconductivity.arff
+353,361243,44965,geographical_origin_of_music,7,Supervised Regression,latitude,1059,117,0.0,0.0,CC BY 4.0,False,column count outside laptop range,https://openml.org/data/v1/download/22111829/geographical_origin_of_music.arff
+353,361244,44966,solar_flare,7,Supervised Regression,c_class_flares,1066,11,8.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111830/solar_flare.arff
+353,361247,44969,naval_propulsion_plant,7,Supervised Regression,gt_compressor_decay_state_coefficient,11934,15,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111833/naval_propulsion_plant.arff
+353,361249,44971,white_wine,7,Supervised Regression,quality,4898,12,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111835/white_wine.arff
+353,361250,44972,red_wine,11,Supervised Regression,quality,1599,12,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111836/red_wine.arff
+353,361251,44973,grid_stability,7,Supervised Regression,stab,10000,13,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111837/grid_stability.arff
+353,361252,44974,video_transcoding,6,Supervised Regression,utime,68784,19,2.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111838/video_transcoding.arff
+353,361253,44975,wave_energy,6,Supervised Regression,energy_total,72000,49,0.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111839/wave_energy.arff
+353,361254,44976,sarcos,9,Supervised Regression,V22,48933,22,0.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/22111840/sarcos.arff
+353,361255,44977,california_housing,7,Supervised Regression,medianHouseValue,20640,9,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111841/california_housing.arff
+353,361256,44978,cpu_activity,6,Supervised Regression,usr,8192,22,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111842/cpu_activity.arff
+353,361257,44979,diamonds,8,Supervised Regression,price,53940,10,3.0,0.0,Public,False,row count outside laptop range; license needs review,https://openml.org/data/v1/download/22111843/diamonds.arff
+353,361258,44980,kin8nm,4,Supervised Regression,y,8192,9,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111844/kin8nm.arff
+353,361259,44981,pumadyn32nh,2,Supervised Regression,thetadd6,8192,33,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111845/pumadyn32nh.arff
+353,361260,44983,miami_housing,2,Supervised Regression,SALE_PRC,13932,16,0.0,0.0,CC0: Public Domain,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111847/miami_housing.arff
+353,361261,44984,cps88wages,2,Supervised Regression,wage,28155,7,4.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111848/cps88wages.arff
+353,361264,44987,socmob,4,Supervised Regression,counts_for_sons_current_occupation,1156,6,4.0,0.0,Non-commercial scholarly and teaching purposes.,False,license needs review,https://openml.org/data/v1/download/22111851/socmob.arff
+353,361266,44989,kings_county,2,Supervised Regression,price,21613,22,4.0,0.0,CC 0: Public Domain,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111853/kings_county.arff
+353,361267,44990,brazilian_houses,16,Supervised Regression,total,10692,10,4.0,0.0,CC 0: Public Domain,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111854/brazilian_houses.arff
+353,361268,44992,fps_benchmark,2,Supervised Regression,FPS,24624,44,13.0,69696.0,CC BY,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111856/fps_benchmark.arff
+353,361269,44993,health_insurance,3,Supervised Regression,whrswk,22272,12,7.0,0.0,GPL (>= 2),False,license needs review,https://openml.org/data/v1/download/22111857/health_insurance.arff
+353,361272,45012,fifa,19,Supervised Regression,wage_eur,19178,29,1.0,0.0,CC0: Public Domain,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111894/fifa.arff
+353,361616,41021,Moneyball,2,Supervised Regression,RS,1232,15,6.0,3600.0,Public,False,license needs review,https://openml.org/data/v1/download/18626236/Moneyball.arff
+353,361617,44960,energy_efficiency,9,Supervised Regression,heating_load,768,9,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111824/energy_efficiency.arff
+353,361618,44962,forest_fires,9,Supervised Regression,area,517,13,0.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111826/forest_fires.arff
+353,361619,44967,student_performance_por,8,Supervised Regression,G3,649,31,17.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111831/student_performance_por.arff
+353,361621,44970,QSAR_fish_toxicity,7,Supervised Regression,LC50,908,7,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111834/QSAR_fish_toxicity.arff
+353,361622,44994,cars,4,Supervised Regression,Price,804,18,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22111858/cars.arff
+353,361623,45402,space_ga,5,Supervised Regression,ln_votes_pop,3107,7,0.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/22116370/space_ga.arff

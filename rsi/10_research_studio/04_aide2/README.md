@@ -20,6 +20,6 @@ Read the three scenes as three measured objects: a task solution, a research pro
 - [10.14 · Improve the inner researcher under a total budget](step_14_outer_research/README.md): An outer comparison of two inner-researcher procedures.
 - [10.15 · Test the ignition claim separately](step_15_ignition/README.md): A comparison plan for using old and new researchers as outer improvers.
 
-**Carry forward:** Keep inner-search traces, the outer comparison, and the separate ignition audit. A task-search gain cannot answer the role-transfer question by itself.
+**Carry forward:** Keep inner-search traces, the outer comparison, and the separate ignition audit. A task-search gain cannot answer the role-transfer question by itself. The [code-level harness extension](../../experiments/harness-revision/README.md) shows an agent-authored builder and proposer revision, source inheritance and separately budgeted development and final protocols; it does not enlarge this lesson’s allowance.
 
 Read the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.

@@ -36,7 +36,7 @@ export const researchGroups = {
     title:'AIDE²: researchers as the object of an experiment', question:'Does a better researcher also become better at improving researchers?',
     intro:'First expose the proposal and selection rules of an inner ML researcher. Then compare a change to that researcher under a total outer budget. Finally, test the distinct question of using the resulting researcher as an improver.',
     entry:'Bring the fixed bike evaluator and bounded-loop skills. The source is an explicitly dated July foundation requested for the course, not a new September release.',
-    exit:'Keep inner-search traces, the outer comparison, and the separate ignition audit. A task-search gain cannot answer the role-transfer question by itself.'
+    exit:'Keep inner-search traces, the outer comparison, and the separate ignition audit. A task-search gain cannot answer the role-transfer question by itself. The [code-level harness extension](../../experiments/harness-revision/README.md) shows an agent-authored builder and proposer revision, source inheritance and separately budgeted development and final protocols; it does not enlarge this lesson’s allowance.'
   },
   '05_meta_skill_evolution': {
     figure:'10.17',

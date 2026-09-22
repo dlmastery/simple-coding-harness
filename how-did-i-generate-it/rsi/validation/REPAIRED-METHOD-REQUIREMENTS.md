@@ -37,7 +37,7 @@ The repaired discovery cycle executed 43 online development fits. Six agent-writ
 |---|---|
 | Proof and meta gate | Separate final rows, five matched arms, checked predictions, costs, uncertainty, recorded promotion and actual later use now exist. This is one shared comparison, not two independent studies. |
 | Dream-inspired mechanism | Real parent workspaces, growing history pool, replay revisions and prospective online comparison completed. Fixed inner proposer and same-context coding agent remain explicit simplifications. |
-| AIDE-inspired harness revision | Builder and proposer revision frozen; six-task development study prepared. Conditional final protocol declared before its result. No new-harness fit or predictive benefit yet. |
+| AIDE-inspired harness revision | Changed builder/proposer ran 144 fits on six paired development tasks; 417 checks pass. Two local gains and four ties did not meet the prespecified mean-gain threshold. Parent retained; conditional final study not run. This is a rejected code-level revision, not successful harness transfer or ignition. |
 | Recuris and RSIAgent | Earlier small mechanism exercises remain available. Expanded memory/curriculum comparison in the repaired benchmark remains open. |
 | MetaSkill and recursive capstone | Earlier instruction-use fixtures remain available. A measured inherited-updater comparison on the repaired ML task remains open. |
 
