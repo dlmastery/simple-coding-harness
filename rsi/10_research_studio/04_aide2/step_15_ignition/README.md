@@ -28,9 +28,20 @@ Swap the role being tested. Give each researcher the same task of improving a re
 
 **A concrete example.** A researcher becomes good at finding strong ML candidates but proposes brittle changes when asked to improve another researcher. Its earlier task-search win remains real. The new role-transfer test can still fail because producing good solutions and producing better solution-finding procedures are different capabilities.
 
+![Frozen researchers R0 and R1 each revise an identical target procedure T0. Their separate proposals TA and TB execute on matched fixtures and produce blank behavior-and-cost reports.](../../../assets/illustrations/ignition-role-transfer-v1.png)
+
+*R0 and R1 are the producers; T0 is the object they revise. The pictured edits are examples subject to your declared allowed edits, not permission to change the evaluator. Fixtures execute the affected decisions without model fitting by default. Record both proposal and checking costs. Do not carry an earlier task-search score into this new comparison. Weco reported insufficient ignition evidence; this tiny role-transfer exercise cannot establish sustained recursive gains.*
+
+[Open the illustration at full size](../../../assets/illustrations/ignition-role-transfer-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.](../../../assets/diagrams/lab-10-15.png)
 
 *Read the diagram:* An ignition claim concerns whether improvement can sustain further improvement. It needs a different comparison from one useful outer edit.
+
+</details>
 
 ## Run the lab
 

@@ -4,6 +4,8 @@ Updated: 20 September 2026. This file records the user's directions and the curr
 
 ## Latest priority and visual correction
 
+**Research illustration milestone, 21 September:** all 38 research-studio labs now have individual generated figures. Added 10.13, 10.15, and 10.16 from five outputs. Current counts: 61 selected gallery images, 98 archived versions, 57/101 mapped labs, 44 remaining foundation gaps. All seven core RSI labs and five capstones remain mapped. Next begin foundation gaps in themes 00–08; preserve completed figures. Intermediate checkpoint bb5cb0bb203fc58d1283441264fa1b8872617c6d is remote-verified. No generation handle is live. Full execution, learner acceptance, published rendering, and remaining research audits are still open. Earlier snapshots below are historical.
+
 **Confirmation/integration/lineage continuation:** added 10.09, 10.11, and 10.12. Three selected figures used four outputs; removed one wrong policy connector. Counts: 58 selections, 93 versions, 54 mapped labs, 47 gaps (3 research, 44 foundations). Next: 10.13, 10.15, 10.16. The DGM v1 check and official HyperAgents abstract support the new warning against assigning DGM to a generic fixed-operator cartoon. Full HyperAgents method reading remains pending. Parent 7886d403470cdd02b5183f4a3d5bd3cac48ecca2 is remote-verified. No image operation is live. Commit and verify this batch. Full execution remains deferred.
 
 

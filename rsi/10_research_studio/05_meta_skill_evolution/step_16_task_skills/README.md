@@ -28,9 +28,20 @@ A meta-skill is a procedure for working on skills. Keep the meta-skill fixed whi
 
 **A concrete example.** META-SKILL-v0 asks for one failure diagnosis, one task-skill edit, and a target/regression check. It produces TASK-SKILL-v1 but stays byte-identical itself. The word meta names what it operates on; it does not show that its own improvement method changed.
 
+![A development trace and parent task skill enter a proposal step governed by unchanged META-SKILL v0. The proposed task skill receives a target check and a regression check before a keep-or-reject decision.](../../../assets/illustrations/fixed-meta-skill-v2.png)
+
+*The lock means the updater bytes must remain unchanged, which the agent checks before and after. The four responsibilities simplify the paper’s full pipeline. Regression case means a case that detects lost behavior, not necessarily an ML regression task. The two blank reports are child checks; saved parent evidence must be comparable before it can support a gain. A missing comparable parent result requires a revised claim or a separately declared budget, not hidden extra executions. Neither outcome is assumed.*
+
+[Open the illustration at full size](../../../assets/illustrations/fixed-meta-skill-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.](../../../assets/diagrams/lab-10-16.png)
 
 *Read the diagram:* The fixed pipeline changes a task skill, tests it, and retains only an eligible revision.
+
+</details>
 
 ## Run the lab
 

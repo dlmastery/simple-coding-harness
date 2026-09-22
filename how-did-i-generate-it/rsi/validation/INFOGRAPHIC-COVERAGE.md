@@ -2,9 +2,9 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**54 of 101 labs** currently have a mapped generated infographic; **47 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**57 of 101 labs** currently have a mapped generated infographic; **44 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
-All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
+All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
 | Theme | Labs | Mapped lab infographics | Remaining |
 |---|---|---|---|
@@ -18,7 +18,7 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
-| 10 · Read and rebuild recent research | 38 | 35 | 3 |
+| 10 · Read and rebuild recent research | 38 | 38 | 0 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
 
 ## 00 · Start with a prediction
@@ -145,10 +145,10 @@ All seven theme-09 RSI labs and all five capstones have mapped images. Continue 
 | [10.10 · Localize a harness problem](../../../rsi/10_research_studio/03_modular_harness_evolution/step_10_localize/README.md) | [Selected figure](../../../rsi/assets/illustrations/modular-harness-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-10.png) |
 | [10.11 · Integrate edits and test transfer](../../../rsi/10_research_studio/03_modular_harness_evolution/step_11_integrate/README.md) | [Selected figure](../../../rsi/assets/illustrations/integration-seven-checks-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-11.png) |
 | [10.12 · Compare agent evolution and improver evolution](../../../rsi/10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md) | [Selected figure](../../../rsi/assets/illustrations/agent-and-improver-lineages-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-12.png) |
-| [10.13 · Inspect an inner ML researcher](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-13.png) |
+| [10.13 · Inspect an inner ML researcher](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md) | [Selected figure](../../../rsi/assets/illustrations/inner-ml-researcher-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-13.png) |
 | [10.14 · Improve the inner researcher under a total budget](../../../rsi/10_research_studio/04_aide2/step_14_outer_research/README.md) | [Selected figure](../../../rsi/assets/illustrations/nested-research-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-14.png) |
-| [10.15 · Test the ignition claim separately](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-15.png) |
-| [10.16 · Improve task skills with a fixed pipeline](../../../rsi/10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-10-16.png) |
+| [10.15 · Test the ignition claim separately](../../../rsi/10_research_studio/04_aide2/step_15_ignition/README.md) | [Selected figure](../../../rsi/assets/illustrations/ignition-role-transfer-v1.png) | [Present](../../../rsi/assets/diagrams/lab-10-15.png) |
+| [10.16 · Improve task skills with a fixed pipeline](../../../rsi/10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md) | [Selected figure](../../../rsi/assets/illustrations/fixed-meta-skill-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-16.png) |
 | [10.17 · Update the skill updater on a slower schedule](../../../rsi/10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md) | [Selected figure](../../../rsi/assets/illustrations/meta-skill-schedules-v3.png) | [Present](../../../rsi/assets/diagrams/lab-10-17.png) |
 | [10.18 · Turn a limitation into a scientific hypothesis](../../../rsi/10_research_studio/06_scientist_two/step_18_hypothesis/README.md) | [Selected figure](../../../rsi/assets/illustrations/scientific-claim-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-18.png) |
 | [10.19 · Screen ideas and test their contributions](../../../rsi/10_research_studio/06_scientist_two/step_19_screen_ablate/README.md) | [Selected figure](../../../rsi/assets/illustrations/screen-and-ablate-v2.png) | [Present](../../../rsi/assets/diagrams/lab-10-19.png) |

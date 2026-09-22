@@ -296,6 +296,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 10.12: Compare agent evolution and improver evolution](10_research_studio/03_modular_harness_evolution/step_12_lineage/README.md).
 
+## The researcher decides which experiment comes next
+
+![A fixed inner researcher chooses a valid parent and an allowed operator, fits one candidate, checks predictions and cost, and retains or rejects it within four total attempts.](assets/illustrations/inner-ml-researcher-v2.png)
+
+*The four tickets include failed attempts. Fill the ledger from actual execution and keep the retained recipe distinct from the best intermediate number. Calendar and permitted weather inputs follow the classroom hourly-bike contract; the figure adds no new features or dates. A fixed procedure can select different actions without rewriting itself. This local four-fit exercise does not reproduce the full AIDE² run.*
+
+[Open the illustration at full size](assets/illustrations/inner-ml-researcher-v2.png).
+
+[Lab 10.13: Inspect an inner ML researcher](10_research_studio/04_aide2/step_13_inner_research/README.md).
+
 ## Improve the researcher, then test the improver
 
 ![A researcher directs task search. Parent and candidate researchers are compared under the same task and total budget. A separate test uses each as an improver of an identical starting researcher, then executes their proposals.](assets/illustrations/nested-research-v2.png)
@@ -305,6 +315,26 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/nested-research-v2.png).
 
 [Lab 10.14: Improve the inner researcher under a total budget](10_research_studio/04_aide2/step_14_outer_research/README.md).
+
+## A better researcher may not be a better improver
+
+![Frozen researchers R0 and R1 each revise an identical target procedure T0. Their separate proposals TA and TB execute on matched fixtures and produce blank behavior-and-cost reports.](assets/illustrations/ignition-role-transfer-v1.png)
+
+*R0 and R1 are the producers; T0 is the object they revise. The pictured edits are examples subject to your declared allowed edits, not permission to change the evaluator. Fixtures execute the affected decisions without model fitting by default. Record both proposal and checking costs. Do not carry an earlier task-search score into this new comparison. Weco reported insufficient ignition evidence; this tiny role-transfer exercise cannot establish sustained recursive gains.*
+
+[Open the illustration at full size](assets/illustrations/ignition-role-transfer-v1.png).
+
+[Lab 10.15: Test the ignition claim separately](10_research_studio/04_aide2/step_15_ignition/README.md).
+
+## Change the task skill while its updater stays fixed
+
+![A development trace and parent task skill enter a proposal step governed by unchanged META-SKILL v0. The proposed task skill receives a target check and a regression check before a keep-or-reject decision.](assets/illustrations/fixed-meta-skill-v2.png)
+
+*The lock means the updater bytes must remain unchanged, which the agent checks before and after. The four responsibilities simplify the paper’s full pipeline. Regression case means a case that detects lost behavior, not necessarily an ML regression task. The two blank reports are child checks; saved parent evidence must be comparable before it can support a gain. A missing comparable parent result requires a revised claim or a separately declared budget, not hidden extra executions. Neither outcome is assumed.*
+
+[Open the illustration at full size](assets/illustrations/fixed-meta-skill-v2.png).
+
+[Lab 10.16: Improve task skills with a fixed pipeline](10_research_studio/05_meta_skill_evolution/step_16_task_skills/README.md).
 
 ## Improve the skill—and the way you revise it
 

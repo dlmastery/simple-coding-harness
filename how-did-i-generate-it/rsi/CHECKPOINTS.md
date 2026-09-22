@@ -1,5 +1,8 @@
 # GitHub checkpoints
 
+- [bb5cb0b](https://github.com/dlmastery/simple-coding-harness/commit/bb5cb0bb203fc58d1283441264fa1b8872617c6d): intermediate backup of inner-researcher drafts and all final research prompts. Remote hash verified before further generation.
+- [1c1dedd](https://github.com/dlmastery/simple-coding-harness/commit/1c1dedd052df276bdf2df9e8daab8da1d310f946): confirmation, integration, and typed lineages; 58 selections and 54 mapped labs. Remote hash verified.
+
 - [7886d40](https://github.com/dlmastery/simple-coding-harness/commit/7886d403470cdd02b5183f4a3d5bd3cac48ecca2): memory boundaries and discovery history; 55 selections, 89 versions, 51 mapped labs, and 3,716 checked links. Includes the unscored workspace root and v6 technical schematic. Push and remote hash verified.
 
 

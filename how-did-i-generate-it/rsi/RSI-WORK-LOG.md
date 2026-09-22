@@ -4,6 +4,8 @@ This log records completed actions, findings, decisions, and next steps. It is a
 
 ## Visual navigation and generation-efficiency correction
 
+21 September research completion pass: published 10.13 inner ML research, 10.15 role transfer, and 10.16 fixed-updater task-skill change. Three selections used five outputs. Corrected unsupported dataset details and loose retention wording in the first, and ambiguous input/outcome connectors in the third. Exact prompts, rejected drafts, review, and selected bytes are retained. All 38 research labs now have mapped figures; total 57/101, leaving 44 foundations. Gallery 61 selections and 98 versions. Full execution remains deferred.
+
 Confirmation/integration/lineage pass: added 10.09, 10.11, and 10.12 from four outputs. Corrected the replay draft's P1-to-P0 connector. Preserved the seven-fixture/no-fit integration budget and separated generic lineages from historical paper classifications. Read DGM v1 and Meta's HyperAgents abstract; full HyperAgents methods remain open. Inventory: 58 selected, 93 versions, 54 mapped labs, 47 gaps. A guarded text replacement initially stopped at a mismatched anchor before changing files; inspected the actual source and corrected the anchor. No learner experiments ran.
 
 

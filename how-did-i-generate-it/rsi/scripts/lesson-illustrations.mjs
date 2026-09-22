@@ -1,6 +1,21 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  "10.13": {
+    "file": "inner-ml-researcher-v2.png",
+    "alt": "A fixed inner researcher chooses a valid parent and an allowed operator, fits one candidate, checks predictions and cost, and retains or rejects it within four total attempts.",
+    "caption": "The four tickets include failed attempts. Fill the ledger from actual execution and keep the retained recipe distinct from the best intermediate number. Calendar and permitted weather inputs follow the classroom hourly-bike contract; the figure adds no new features or dates. A fixed procedure can select different actions without rewriting itself. This local four-fit exercise does not reproduce the full AIDE² run."
+},
+  "10.15": {
+    "file": "ignition-role-transfer-v1.png",
+    "alt": "Frozen researchers R0 and R1 each revise an identical target procedure T0. Their separate proposals TA and TB execute on matched fixtures and produce blank behavior-and-cost reports.",
+    "caption": "R0 and R1 are the producers; T0 is the object they revise. The pictured edits are examples subject to your declared allowed edits, not permission to change the evaluator. Fixtures execute the affected decisions without model fitting by default. Record both proposal and checking costs. Do not carry an earlier task-search score into this new comparison. Weco reported insufficient ignition evidence; this tiny role-transfer exercise cannot establish sustained recursive gains."
+},
+  "10.16": {
+    "file": "fixed-meta-skill-v2.png",
+    "alt": "A development trace and parent task skill enter a proposal step governed by unchanged META-SKILL v0. The proposed task skill receives a target check and a regression check before a keep-or-reject decision.",
+    "caption": "The lock means the updater bytes must remain unchanged, which the agent checks before and after. The four responsibilities simplify the paper’s full pipeline. Regression case means a case that detects lost behavior, not necessarily an ML regression task. The two blank reports are child checks; saved parent evidence must be comparable before it can support a gain. A missing comparable parent result requires a revised claim or a separately declared budget, not hidden extra executions. Neither outcome is assumed."
+},
   '10.09': {
     "file": "replay-to-online-v2.png",
     "alt": "A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.",

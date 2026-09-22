@@ -14,7 +14,7 @@ const rows=[
  '',
  '**'+mapped.length+' of '+lessons.length+' labs** currently have a mapped generated infographic; **'+(lessons.length-mapped.length)+' remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.',
  '',
- 'All seven theme-09 RSI labs and all five capstones have mapped images. Continue with the research-studio gaps, then the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.',
+ 'All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.',
  '',
  '| Theme | Labs | Mapped lab infographics | Remaining |',
  '|---|---|---|---|'

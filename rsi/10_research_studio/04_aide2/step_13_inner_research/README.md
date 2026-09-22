@@ -28,9 +28,20 @@ The inner researcher proposes ML candidates, evaluates them, and chooses what to
 
 **A concrete example.** An inner researcher can spend four attempts on one model family or reserve attempts for a different permitted family. Even with identical fitting tools, those operator choices can expose different candidates before the budget ends. The researcher’s procedure is therefore an object that an outer process can inspect and revise.
 
+![A fixed inner researcher chooses a valid parent and an allowed operator, fits one candidate, checks predictions and cost, and retains or rejects it within four total attempts.](../../../assets/illustrations/inner-ml-researcher-v2.png)
+
+*The four tickets include failed attempts. Fill the ledger from actual execution and keep the retained recipe distinct from the best intermediate number. Calendar and permitted weather inputs follow the classroom hourly-bike contract; the figure adds no new features or dates. A fixed procedure can select different actions without rewriting itself. This local four-fit exercise does not reproduce the full AIDE² run.*
+
+[Open the illustration at full size](../../../assets/illustrations/inner-ml-researcher-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.](../../../assets/diagrams/lab-10-13.png)
 
 *Read the diagram:* The inner researcher uses a fixed procedure to search ML candidates. Keep its search record and budget visible.
+
+</details>
 
 ## Run the lab
 

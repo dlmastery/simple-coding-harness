@@ -4,21 +4,21 @@ User direction, 20 September 2026: prioritize diagrams, every README, and skills
 
 ## Current material
 
-All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. Fifty-eight selected generated illustrations include the overview maps and individual figures for every theme-09 lab and capstone. Ninety-three versions and their prompts are preserved. The [per-lab inventory](validation/INFOGRAPHIC-COVERAGE.md) maps generated figures to 54 labs and lists 47 remaining gaps. These counts do not establish uniform visual quality or tested activities.
+All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. Sixty-one selected generated illustrations include the overview maps and individual figures for every theme-09 lab and capstone. Ninety-eight versions and their prompts are preserved. The [per-lab inventory](validation/INFOGRAPHIC-COVERAGE.md) maps generated figures to 57 labs and lists 44 remaining gaps. These counts do not establish uniform visual quality or tested activities.
 
 The user prefers the initial main README overview. Use that actual image as the craft reference. The ScienceBuddy redesign and RSIAgent figure establish the revised direction: concrete scenes, meaningful detail, clear causal paths, readable labels, and white backgrounds. Preserve earlier versions. Do not multiply a generic folder-and-chip template or copy the same workbench composition into every method.
 
 ## Authoring order
 
-Current priority: complete individual infographics for early feedback. The maps, source index, guided course map, location cues, and introduction are published. All theme-09 and capstone figures are now embedded. Continue the 3 missing research-studio figures, then 44 foundation figures, including the focused graph and measurement themes. Do not mistake a shared overview or technical schematic for a completed generated illustration for each of 101 labs.
+Current priority: complete individual infographics for early feedback. The maps, source index, guided course map, location cues, and introduction are published. All theme-09 and capstone figures are now embedded. All 38 research-studio labs now have individual figures. Continue the 44 foundation figures, including the focused graph and measurement themes. Do not mistake a shared overview or technical schematic for a completed generated illustration for each of 101 labs.
 
 The user's generation-efficiency correction applies now: verify exact technical labels, arrows, order, object/version identity, and claims before generation. Aim for one strong draft, combine substantive fixes, and cap each figure at three outputs. Avoid cosmetic alternatives; preserve and clearly mark an unresolved third attempt instead of silently spending more calls. This is saved in the reusable authoring skill.
 
 | Work | Next material |
 |---|---|
-| Named research methods | AIDE², ScientistTwo, modular repairs, and task/meta-skill evolution are illustrated; continue the remaining mechanism groups and their lab explanations |
+| Named research methods | All 38 research labs have individual figures; keep their captions aligned with the source-method and classroom limits |
 | Existing research art | Revisit Dream-RSI replay and ScienceBuddy/RSIAgent captions against the initial visual standard; preserve precise scope |
-| Other research groups | Complete mechanism-specific figures for modular harness changes, task/meta-skills, procedural graphs, memory and feedback, compatibility, and economics where a visual explains a new distinction |
+| Other research groups | Individual figures are mapped for every group; review published rendering and source-method accuracy during the later verification pass |
 | Data science foundations | Connect question, data provenance, splits, baseline, error analysis, selection, and final evaluation through the bike/wine task |
 | Core architecture | Complete visually coherent graph, ontology, system coordination, and generated-harness explanations; avoid treating distinct relations as the same arrow |
 | Self-* and measurement | Give dense comparison panels focused companions where needed; show actual changed objects, fair comparisons, costs, and failure |
