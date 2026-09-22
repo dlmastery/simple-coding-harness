@@ -6,7 +6,8 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
-| Does the changed policy save actual fits on new tasks? | [Five-arm prospective comparison with separate final rows](2026-09-22/discovery-shakedown/README.md) |
+| Does the changed policy save actual fits on new tasks? | [Completed sixteen-task comparison: 55 versus 192 fits, quality and uncertainty separate](2026-09-22/discovery-final/README.md) |
+| What happened in the smaller prospective shakedown? | [Four new instances with separate final rows](2026-09-22/discovery-shakedown/README.md) |
 | Did a replay-selected policy control later real fits? | [Six discovery trees, six revisions, promotion and retention](2026-09-22/online-discovery/README.md) |
 | Why are so many predictive gains zero? | [288-fit development pilot with measured search curves](2026-09-22/headroom-pilot/README.md) |
 | Do pipeline changes help, and what do they cost? | [72 additional operator attempts, one timeout and two fixed controls](2026-09-22/pipeline-operator-pilot/README.md) |

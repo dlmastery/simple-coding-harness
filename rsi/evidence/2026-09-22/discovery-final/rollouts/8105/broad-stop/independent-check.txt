@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\check_online_discovery.py", line 89, in <module>
+    check(parser.parse_args().workspace.resolve())
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\check_online_discovery.py", line 37, in check
+    require("worker_budget", table.seconds.sum() <= float(limits["worker_seconds"]) + .5)
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\check_online_discovery.py", line 27, in require
+    raise AssertionError(name)
+AssertionError: worker_budget

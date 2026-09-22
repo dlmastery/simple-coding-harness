@@ -1,6 +1,6 @@
 # What each repaired method must actually do
 
-This is an implementation checklist, not a results claim. The user's original lesson numbers refer to the older course. The table maps those concerns to the maintained course.
+This is an implementation checklist. The user's original lesson numbers refer to the older course. The table maps those concerns to the maintained course. The progress record below separates completed measurements from remaining work.
 
 | Original comparison | Current teaching location | Required execution evidence |
 |---|---|---|
@@ -27,4 +27,18 @@ Read [RSIAgent v1, sections 3 and 8](https://arxiv.org/html/2609.15364v1). The a
 
 Recuris and MetaSkill already have source audits in the research folder; reconcile those audits with the expanded experiments before claiming implementation. AIDE2 requires code-level harness revision and later execution. A rearranged fixed list is not enough if every candidate still runs. Keep predictive selection, procedure promotion and evaluation of the improver as distinct decisions.
 
-The development-only headroom pilot completed all 288 fits. Its sound eight-attempt fixed control already matches the 48-fit reference on three tasks. See [the full evidence](../../../rsi/evidence/2026-09-22/headroom-pilot/README.md). Grid expansion alone is insufficient; the next development phase must assess richer pipeline operators. All seven effectiveness comparisons above remain unexecuted in the repaired benchmark at this checkpoint.
+## Measured progress, 22 September
+
+The development-only headroom pilot completed 288 fits. Its sound eight-attempt fixed control already matches the 48-fit reference on three tasks. See [the full evidence](../../../rsi/evidence/2026-09-22/headroom-pilot/README.md). The subsequent operator pilot added 72 attempts, including one timeout. These are headroom studies, not RSI claims.
+
+The repaired discovery cycle executed 43 online development fits. Six agent-written policy revisions were assessed against recorded trees; one was promoted, then retained in a later cycle. Actual later workers used its frozen source. The completed sixteen-task comparison then executed 715 search fits and 80 scoring refits, plus two admitted attempts in a disclosed host-interrupted task. All 1,628 independent final checks pass. Evolved search used 55 fits against broad search's 192. Final quality improved on three tasks, tied on twelve and worsened on one; the paired loss interval includes zero. This supports lower measured search cost in this setting, not an established predictive benefit or net total research-cost saving.
+
+| Required repair | Current evidence and remaining work |
+|---|---|
+| Proof and meta gate | Separate final rows, five matched arms, checked predictions, costs, uncertainty, recorded promotion and actual later use now exist. This is one shared comparison, not two independent studies. |
+| Dream-inspired mechanism | Real parent workspaces, growing history pool, replay revisions and prospective online comparison completed. Fixed inner proposer and same-context coding agent remain explicit simplifications. |
+| AIDE-inspired harness revision | Builder and proposer revision frozen; six-task development study prepared. Conditional final protocol declared before its result. No new-harness fit or predictive benefit yet. |
+| Recuris and RSIAgent | Earlier small mechanism exercises remain available. Expanded memory/curriculum comparison in the repaired benchmark remains open. |
+| MetaSkill and recursive capstone | Earlier instruction-use fixtures remain available. A measured inherited-updater comparison on the repaired ML task remains open. |
+
+Course integration, the remaining method comparisons and the presentation with speaker notes are still required. Do not turn completion of the discovery-policy study into completion of the overall repair.

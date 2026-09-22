@@ -1,0 +1,7 @@
+# Latest attempt
+
+Node: node-004
+Parent: node-001
+Status: ok
+Selection loss: 0.5939028782690017
+Worker seconds: 1.857801699981792
