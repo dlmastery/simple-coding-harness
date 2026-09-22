@@ -26,11 +26,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 WikiSkill separates raw experience, a persistent knowledge layer, and active skills. The classroom exercise keeps a factual notebook update even when a proposed active-skill edit fails. During the controlled task run, the actor reads only its allowed active skill; the improver can consult the notebook.
 
-**A concrete example.** A proposed rule says to skip a data check that appeared redundant. A later fixture exposes a failure, so the active skill keeps the check. The notebook can still retain “this removal failed under condition C,” with a link to the trace. Rejecting the edit need not erase the evidence.
+**A concrete example.** The [recorded knowledge-store exercise](../../../evidence/2026-09-21/memory-interfaces/README.md) rejects a proposal that guesses the meaning of an unknown runtime unit. The accepted refusal rule stays active, while a source-linked notebook retains the failed proposal’s lesson. A separate condition reads the notebook as well as the skill, changing the information interface without adding a third task check.
 
 ![An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.](../../../assets/illustrations/knowledge-stores-v1.png)
 
-*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
+*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the supplied skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. S0 and S1 are conceptual identities; the linked walkthrough retains its actual accepted and rejected files. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
 
 [Open the illustration at full size](../../../assets/illustrations/knowledge-stores-v1.png).
 

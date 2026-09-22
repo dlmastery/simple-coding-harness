@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The task asks the agent to recover the final state from a sequence. One condition receives raw events; another receives a checked summary plus subsequent events. The checker computes the answer from the original sequence. This tests an external memory interface, not parameter learning.
 
-**A concrete example.** Starting from zero, add 3, remove 1, then add 2. The final count is 4. A summary after the first two events should say 2; a summary that forgets the removal says 3 and leads to 5. Compression can be shorter and systematically wrong at the same time.
+**A concrete example.** In the [recorded eight-event exercise](../../../evidence/2026-09-21/memory-interfaces/README.md), a correct checkpoint says six crates; a faulty one says nine. With the same tail, the supplied representations imply eight and eleven. The original-event checker rejects eleven. Longer irrelevant descriptions change neither correct answer here. These are five shared-context author answers, not a blinded memory-performance study.
 
 ![The same inventory events are supplied as raw history, a checked summary plus later events, or a deliberately faulty summary. An independent checker computes the true final count from original events; a blank ledger compares five actor attempts.](../../../assets/illustrations/memory-interface-v2.png)
 

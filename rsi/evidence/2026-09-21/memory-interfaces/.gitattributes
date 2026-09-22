@@ -1,0 +1,2 @@
+# Preserve the sealed report's trailing space before its separate hash line.
+10-32/PACKET-OPERATION-AUDIT.md whitespace=-blank-at-eol,cr-at-eol

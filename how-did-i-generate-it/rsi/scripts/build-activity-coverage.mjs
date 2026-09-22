@@ -10,6 +10,10 @@ const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
 for (const [id,gap] of Object.entries({
+  '10.27': 'A real prior failed proposal, immutable-by-procedure trace, persistent notebook versions, and unchanged active skill are retained. Two candidate checks reject the fallback; a separate exposure-only condition reads the notebook without a third task check. Scripted input identities do not establish isolated coding-agent access or general skill-evolution benefit.',
+  '10.32': 'Five packets, five actual author answers, exact original-event checks, and an expanded-description operation audit are retained. The faulty summary implies the wrong state. All conditions share a knowledgeable author; provider costs, clean context isolation, broad memory effects, learner assessment, and parameter training are untested.'
+})) related.set(id, {path: 'rsi/evidence/2026-09-21/memory-interfaces/README.md', label: 'Executed knowledge retention and memory-representation checks', gap});
+for (const [id,gap] of Object.entries({
   '10.18': 'A saved hypothesis, two matched fits, prediction checks, hourly errors, and a conditional conclusion are retained. The author had prior development-result exposure; this is not blind hypothesis discovery, causal evidence, or learner assessment.',
   '10.19': 'Two separately implemented subset screens and two matched fuller confirmation/ablation fits executed. The fastest-screen alternative uses measured times without extra fits. No fuller-condition ranking of the unselected idea, protected evaluation, independent-agent screening, or learner assessment is established.',
   '10.20': 'A current-context agent review, frozen two-fit seed follow-up, evidence-linked response, and restatement counterexample are retained. Two seeds do not establish broad robustness; independent peer review, conference acceptance, and learner assessment remain absent.',

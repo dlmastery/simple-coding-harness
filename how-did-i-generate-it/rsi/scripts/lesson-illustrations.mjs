@@ -414,7 +414,7 @@ export const illustrations = {
   '10.27': {
       "file": "knowledge-stores-v1.png",
       "alt": "An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.",
-      "caption": "The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit."
+      "caption": "The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the supplied skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. S0 and S1 are conceptual identities; the linked walkthrough retains its actual accepted and rejected files. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit."
   },
   '10.28': {
       "file": "procedure-graph-v1.png",

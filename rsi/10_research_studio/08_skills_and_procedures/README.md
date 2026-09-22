@@ -8,7 +8,7 @@ Separate original traces, retained knowledge, and accepted skills. Refine a proc
 
 ![An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.](../../assets/illustrations/knowledge-stores-v1.png)
 
-*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
+*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the supplied skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. S0 and S1 are conceptual identities; the linked walkthrough retains its actual accepted and rejected files. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
 
 [Open the illustration at full size](../../assets/illustrations/knowledge-stores-v1.png).
 

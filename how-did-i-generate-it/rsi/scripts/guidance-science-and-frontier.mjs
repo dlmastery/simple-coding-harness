@@ -54,7 +54,7 @@ export const scienceFrontierGuidance = {
     hint:'Read a percentage as a complete sentence: percentage of what, on which cases, under how many attempts, and reported by whom?'
   },
   '10.27': {
-    example:'A proposed rule says to skip a data check that appeared redundant. A later fixture exposes a failure, so the active skill keeps the check. The notebook can still retain “this removal failed under condition C,” with a link to the trace. Rejecting the edit need not erase the evidence.',
+    example:'The [recorded knowledge-store exercise](../../../evidence/2026-09-21/memory-interfaces/README.md) rejects a proposal that guesses the meaning of an unknown runtime unit. The accepted refusal rule stays active, while a source-linked notebook retains the failed proposal’s lesson. A separate condition reads the notebook as well as the skill, changing the information interface without adding a third task check.',
     outputs:[['TRACE.md, NOTEBOOK.md, and ACTIVE-SKILL.md','Separate original events, scoped interpretation, and accepted instructions.'],['Two candidate checks','Retain the evidence behind promotion or rejection.'],['Read/access record','States what the actor and improver actually saw and whether restrictions were technically enforced.']],
     recovery:'If the rejected instruction remains in the active skill, restore the accepted version without deleting the failed child. If the actor already saw the notebook, label that exposure. An instruction that says not to read a file cannot establish an isolated information boundary by itself.',
     hint:'Ask which store records what happened, which records what was learned, and which controls the next action. Their acceptance rules can differ.'
@@ -84,7 +84,7 @@ export const scienceFrontierGuidance = {
     hint:'Ask what the evaluation input is: one task for a harness, or a new brief for a builder. Different inputs test different objects.'
   },
   '10.32': {
-    example:'Starting from zero, add 3, remove 1, then add 2. The final count is 4. A summary after the first two events should say 2; a summary that forgets the removal says 3 and leads to 5. Compression can be shorter and systematically wrong at the same time.',
+    example:'In the [recorded eight-event exercise](../../../evidence/2026-09-21/memory-interfaces/README.md), a correct checkpoint says six crates; a faulty one says nine. With the same tail, the supplied representations imply eight and eleven. The original-event checker rejects eleven. Longer irrelevant descriptions change neither correct answer here. These are five shared-context author answers, not a blinded memory-performance study.',
     outputs:[['Original events, checkpoint summary, and exact checker','Keep ground truth tied to the original operations.'],['Five condition records','Include raw, correct summary, faulty summary, and both expanded-description attempts.'],['Memory-interface report','States actual information exposure and separates external representation from weight learning.']],
     recovery:'If the summary includes the final answer, inspect whether it was computed before the declared checkpoint and exposed later events. If both conditions share a context, do not claim a clean memory ablation. When adding irrelevant descriptions, preserve every state-changing operation so the scientific comparison remains the same.',
     hint:'Trace the state numerically through the original events. That independent calculation reveals whether the memory preserved the information needed for the task.'

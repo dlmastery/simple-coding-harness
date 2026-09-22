@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-86 labs have mapped related author-execution evidence; 15 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+88 labs have mapped related author-execution evidence; 13 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1133,9 +1133,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Let the task actor read the notebook in a separate condition and explain why it changes the evaluated inference interface.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed knowledge retention and memory-representation checks](../../../rsi/evidence/2026-09-21/memory-interfaces/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A real prior failed proposal, immutable-by-procedure trace, persistent notebook versions, and unchanged active skill are retained. Two candidate checks reject the fallback; a separate exposure-only condition reads the notebook without a third task check. Scripted input identities do not establish isolated coding-agent access or general skill-evolution benefit.
 
 **Acceptance to verify:** The rejected skill is not active. The notebook retains evidence-linked learning. Role access is labelled as an instruction unless technically enforced.
 
@@ -1198,9 +1198,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Increase irrelevant event descriptions while keeping state changes fixed. Measure whether the representation effect changes.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed knowledge retention and memory-representation checks](../../../rsi/evidence/2026-09-21/memory-interfaces/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Five packets, five actual author answers, exact original-event checks, and an expanded-description operation audit are retained. The faulty summary implies the wrong state. All conditions share a knowledgeable author; provider costs, clean context isolation, broad memory effects, learner assessment, and parameter training are untested.
 
 **Acceptance to verify:** The checker uses original events. Correct and faulty summaries are distinguished. The report does not claim model training or a full S3Gym reproduction.
 

@@ -1,0 +1,3 @@
+case,actual,expected,pass
+seconds,A,A,true
+unknown,A,refused,false
