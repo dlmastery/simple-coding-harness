@@ -1,0 +1,4 @@
+# Compiler frozen before replay
+
+compile_tabular_memory.py: 4ab2b6b5cb4363ff5dd76595d741f6f3205101a5d33a7ab16d1bd2a424a2536c
+TABULAR-MEMORY-REPLAY-PROTOCOL.md: 882db27156d0b7dc4594d5fd63bd675965d24ae360d3f8fd833ddea49b5491e5

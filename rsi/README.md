@@ -49,6 +49,12 @@ The repair began with [360 pilot attempts](evidence/2026-09-22/pipeline-operator
 
 Use the [teaching roadmap](TEACHING-ROADMAP.md) to plan a short orientation, the core course, or the full masterclass. It includes session plans, readiness checks, and capstone milestones. Keep the [glossary](GLOSSARY.md) nearby for plain-language definitions, examples, and distinctions that are easy to confuse.
 
+The [public-tabular development study](evidence/2026-09-22/real-tabular-revision-2/README.md)
+now adds 96 checked fits and two source-level builder revisions. The digit
+selection scores improve, while the stronger earlier regression models remain
+retained. These extra development fits are not a matched task-transfer result;
+the six reserved tasks remain unused for training or final scoring.
+
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 
 Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete. The [author handoff](../how-did-i-generate-it/rsi/validation/AUTHOR-HANDOFF-2026-09-22.md) separates completed maintainer checks from learner and environment validation.
