@@ -28,9 +28,20 @@ The agent reads instructions, writes generated files, and runs tools. These are 
 
 **A concrete example.** A text-only agent can explain MAE and draft TASK.md. It cannot produce evidence that a local model ran. An agent with file access may save that brief but still lack a working Python environment. Ask each capability to produce its own small observable result: a read file, an executed command, an imported package, or an opened plot.
 
+![Separate course and learner folders sit under one parent. A capability report records observed checks, and data inspection compares hashes and produces a report, sample, and actual plot.](../../assets/illustrations/inspectable-workspace-v2.png)
+
+*The two folders are siblings. The slash in rsi-work / 00-02 shows the lab subfolder inside the learner workspace. Blank cells are evidence to collect, not passed checks. A skill list can be read from files; native skill discovery is not required. The blank frame stands for your generated plot; the measured author example appears below. A matching hash establishes file identity, not data quality or secrecy. Preserve the shared course files by following the workspace rule; this drawing does not establish access-control isolation.*
+
+[Open the illustration at full size](../../assets/illustrations/inspectable-workspace-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Keep course sources separate from your own work. A command must produce an inspectable artifact.](../../assets/diagrams/lab-00-02.png)
 
 *Read the diagram:* Keep course sources separate from your own work. A command must produce an inspectable artifact.
+
+</details>
 
 ![Mean recorded rental demand by hour](../../evidence/2026-09-20/author-bike/data-overview.png)
 

@@ -46,6 +46,8 @@ Keep my work in a sibling rsi-work folder.
 
 Your first session starts with a few rows of data and a question about what can be predicted. Setup and the first measured model result follow in the next labs. You build the larger system only after those basics are clear.
 
+The next three illustrated checkpoints show how to [prepare a workspace](00_start_here/step_02_prepare_the_workspace/README.md), [fit one fixed baseline](00_start_here/step_03_one_attempt/README.md), and [check the evidence behind its score](00_start_here/step_04_check_the_evidence/README.md). Follow the arrows, predict what each saved file should contain, and then ask the agent to show the actual output.
+
 ## The project you will build
 
 The main task is small enough for local CPU experiments: estimate bike rentals from calendar fields and observed weather. Later, transfer the research procedure to wine-quality classification.

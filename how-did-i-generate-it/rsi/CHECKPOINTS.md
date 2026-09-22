@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [3fd9970](https://github.com/dlmastery/simple-coding-harness/commit/3fd9970a4438715a9a21e80faf28c529a7810e1c): all 38 research-studio labs individually illustrated, with 61 gallery selections and 57 mapped labs overall. Push and remote hash verified before foundation work.
+
 - [bb5cb0b](https://github.com/dlmastery/simple-coding-harness/commit/bb5cb0bb203fc58d1283441264fa1b8872617c6d): intermediate backup of inner-researcher drafts and all final research prompts. Remote hash verified before further generation.
 - [1c1dedd](https://github.com/dlmastery/simple-coding-harness/commit/1c1dedd052df276bdf2df9e8daab8da1d310f946): confirmation, integration, and typed lineages; 58 selections and 54 mapped labs. Remote hash verified.
 

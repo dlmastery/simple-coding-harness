@@ -28,9 +28,20 @@ A claim needs a chain of support. The report names a candidate; that candidate h
 
 **A concrete example.** For illustrative true counts 10, 20, and 30, predicting 20 each time gives absolute errors 10, 0, and 10. Their mean is 6.67. A report claiming MAE 1 is contradicted by those rows. Yet a report claiming 6.67 still needs a second question: were these the correct selection rows? Arithmetic and the meaning of the measurement are separate checks.
 
+![An invented three-row prediction table yields MAE about 6.67. Comparing that same value with two reports gives an expected match for 6.67 and mismatch for an altered claim of 10. A separate audit checks candidate, partition, rows, and unit.](../../assets/illustrations/evidence-beyond-score-v1.png)
+
+*The branches mean compare the recomputed value with each report; they do not rewrite either report. Expected match and mismatch apply to the invented example, not an unexecuted student run. For the actual baseline, preserve the original artifacts, alter only a labelled report copy, and save both checker outcomes. Use the report’s declared numerical precision when comparing rounded values. Verify the target unit as rentals per hour and establish the complete row set; a correct average alone cannot establish the right partition.*
+
+[Open the illustration at full size](../../assets/illustrations/evidence-beyond-score-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A report is a claim. Prediction rows and a separate calculation let you check that claim.](../../assets/diagrams/lab-00-04.png)
 
 *Read the diagram:* A report is a claim. Prediction rows and a separate calculation let you check that claim.
+
+</details>
 
 ## Run the lab
 

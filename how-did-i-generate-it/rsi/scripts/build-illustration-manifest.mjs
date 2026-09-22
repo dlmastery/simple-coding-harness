@@ -7,6 +7,10 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["inspectable-workspace-v1","exec-7fd89324-bb12-4ae2-94c9-260e72291724.png",false],
+  ["inspectable-workspace-v2","exec-9b206893-f23b-4273-9ca9-2d356772077d.png",true],
+  ["training-median-baseline-v1","exec-3a0cc723-8f75-4725-9564-152d472c8e55.png",true],
+  ["evidence-beyond-score-v1","exec-a76b586b-c9eb-4f67-a9ed-bed2c751001c.png",true],
   ["inner-ml-researcher-v1","exec-24eb8023-cc1c-4cce-b1ad-f14f56d1bfb1.png",false],
   ["inner-ml-researcher-v2","exec-4d034bd3-ec60-478d-be13-69778819e17d.png",true],
   ["ignition-role-transfer-v1","exec-f30862f8-3edd-41e8-8400-29b99a664398.png",true],

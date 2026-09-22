@@ -28,9 +28,20 @@ The baseline predicts the training median for every selection row. A median mini
 
 **A concrete example.** For a tiny invented training set of 10, 20, and 90 rentals, the median is 20. Predicting 20 gives absolute errors 10, 0, and 70: a total of 80. Predicting the mean, 40, gives 30, 20, and 50: a total of 100. The median wins for absolute error. This explains the baseline choice; it does not guarantee a good error on later hours.
 
+![Invented training counts 10, 20, and 90 yield median 20. This fixed predictor gives selection errors 15, 15, and 30 on separate actual counts 5, 35, and 50, for MAE 20.](../../assets/illustrations/training-median-baseline-v1.png)
+
+*All values in the notebooks are invented to explain the calculation. Rows A, B, and C are different selection cases, not three more training points. The predictor learns the median from training only and does not use input features. Save the actual recipe, predictions, result, and trial ledger in your run; your measured full-partition MAE will differ from this toy value. One fit gives a baseline, not evidence of an improvement loop.*
+
+[Open the illustration at full size](../../assets/illustrations/training-median-baseline-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Learn the median from training rows once. Use it to predict every selection row.](../../assets/diagrams/lab-00-03.png)
 
 *Read the diagram:* Learn the median from training rows once. Use it to predict every selection row.
+
+</details>
 
 ## Run the lab
 

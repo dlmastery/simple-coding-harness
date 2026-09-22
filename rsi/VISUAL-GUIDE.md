@@ -56,6 +56,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 00.01: Meet the prediction task](00_start_here/step_01_meet_the_task/README.md).
 
+## Keep the course separate from your experiment
+
+![Separate course and learner folders sit under one parent. A capability report records observed checks, and data inspection compares hashes and produces a report, sample, and actual plot.](assets/illustrations/inspectable-workspace-v2.png)
+
+*The two folders are siblings. The slash in rsi-work / 00-02 shows the lab subfolder inside the learner workspace. Blank cells are evidence to collect, not passed checks. A skill list can be read from files; native skill discovery is not required. The blank frame stands for your generated plot; the measured author example appears below. A matching hash establishes file identity, not data quality or secrecy. Preserve the shared course files by following the workspace rule; this drawing does not establish access-control isolation.*
+
+[Open the illustration at full size](assets/illustrations/inspectable-workspace-v2.png).
+
+[Lab 00.02: Prepare a workspace you can inspect](00_start_here/step_02_prepare_the_workspace/README.md).
+
+## Learn one number, then keep it fixed
+
+![Invented training counts 10, 20, and 90 yield median 20. This fixed predictor gives selection errors 15, 15, and 30 on separate actual counts 5, 35, and 50, for MAE 20.](assets/illustrations/training-median-baseline-v1.png)
+
+*All values in the notebooks are invented to explain the calculation. Rows A, B, and C are different selection cases, not three more training points. The predictor learns the median from training only and does not use input features. Save the actual recipe, predictions, result, and trial ledger in your run; your measured full-partition MAE will differ from this toy value. One fit gives a baseline, not evidence of an improvement loop.*
+
+[Open the illustration at full size](assets/illustrations/training-median-baseline-v1.png).
+
+[Lab 00.03: Run one baseline](00_start_here/step_03_one_attempt/README.md).
+
+## Check the number and the rows behind it
+
+![An invented three-row prediction table yields MAE about 6.67. Comparing that same value with two reports gives an expected match for 6.67 and mismatch for an altered claim of 10. A separate audit checks candidate, partition, rows, and unit.](assets/illustrations/evidence-beyond-score-v1.png)
+
+*The branches mean compare the recomputed value with each report; they do not rewrite either report. Expected match and mismatch apply to the invented example, not an unexecuted student run. For the actual baseline, preserve the original artifacts, alter only a labelled report copy, and save both checker outcomes. Use the report’s declared numerical precision when comparing rounded values. Verify the target unit as rentals per hour and establish the complete row set; a correct average alone cannot establish the right partition.*
+
+[Open the illustration at full size](assets/illustrations/evidence-beyond-score-v1.png).
+
+[Lab 00.04: Check the evidence behind the answer](00_start_here/step_04_check_the_evidence/README.md).
+
 ## Before the first improvement loop
 
 ![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](assets/illustrations/data-science-process-v4.png)

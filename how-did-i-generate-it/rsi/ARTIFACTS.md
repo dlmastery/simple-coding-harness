@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Workspace, baseline, and evidence illustration review](validation/START-HERE-ILLUSTRATIONS.md): three selected figures from four outputs; all theme-00 labs now have individual figures.
+
 - [Inner research, ignition, and fixed meta-skill review](validation/INNER-IGNITION-META-ILLUSTRATIONS.md): three selected figures, five retained outputs, and completion of the 38 research-lab infographic mappings.
 
 - [Confirmation, integration, and lineage review](validation/CONFIRMATION-INTEGRATION-LINEAGE-ILLUSTRATIONS.md): three selected figures, four outputs, fixture accounting, and source-specific lineage limits.

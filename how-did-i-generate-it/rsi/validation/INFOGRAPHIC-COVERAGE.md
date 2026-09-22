@@ -2,13 +2,13 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**57 of 101 labs** currently have a mapped generated infographic; **44 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**60 of 101 labs** currently have a mapped generated infographic; **41 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
 | Theme | Labs | Mapped lab infographics | Remaining |
 |---|---|---|---|
-| 00 · Start with a prediction | 4 | 1 | 3 |
+| 00 · Start with a prediction | 4 | 4 | 0 |
 | 01 · Make one process dependable | 5 | 1 | 4 |
 | 02 · Repeat for a reason | 6 | 1 | 5 |
 | 03 · Give different cases different routes | 6 | 0 | 6 |
@@ -26,9 +26,9 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
 | [00.01 · Meet the prediction task](../../../rsi/00_start_here/step_01_meet_the_task/README.md) | [Selected figure](../../../rsi/assets/illustrations/target-leakage-v2.png) | [Present](../../../rsi/assets/diagrams/lab-00-01.png) |
-| [00.02 · Prepare a workspace you can inspect](../../../rsi/00_start_here/step_02_prepare_the_workspace/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-00-02.png) |
-| [00.03 · Run one baseline](../../../rsi/00_start_here/step_03_one_attempt/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-00-03.png) |
-| [00.04 · Check the evidence behind the answer](../../../rsi/00_start_here/step_04_check_the_evidence/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-00-04.png) |
+| [00.02 · Prepare a workspace you can inspect](../../../rsi/00_start_here/step_02_prepare_the_workspace/README.md) | [Selected figure](../../../rsi/assets/illustrations/inspectable-workspace-v2.png) | [Present](../../../rsi/assets/diagrams/lab-00-02.png) |
+| [00.03 · Run one baseline](../../../rsi/00_start_here/step_03_one_attempt/README.md) | [Selected figure](../../../rsi/assets/illustrations/training-median-baseline-v1.png) | [Present](../../../rsi/assets/diagrams/lab-00-03.png) |
+| [00.04 · Check the evidence behind the answer](../../../rsi/00_start_here/step_04_check_the_evidence/README.md) | [Selected figure](../../../rsi/assets/illustrations/evidence-beyond-score-v1.png) | [Present](../../../rsi/assets/diagrams/lab-00-04.png) |
 
 ## 01 · Make one process dependable
 
