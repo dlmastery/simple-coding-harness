@@ -4,7 +4,7 @@ Requested on 22 September 2026.
 
 The user asks for a presentation in PowerPoint (.pptx) after the benchmark issue is fixed and the lesson runs show good results. Include professional infographics and the remaining explanatory slides, with speaker notes.
 
-Status: requested; production deferred until the repaired runs and evidence review are complete. The active benchmark repair remains the immediate priority. No deck or new results have been generated for this request.
+Status: a [37-slide teaching sequence and speaker-note draft](../presentation/STORYBOARD.md) is prepared. PPTX production remains pending the repaired method comparisons and evidence review. The four-task policy shakedown is checked; its preliminary results do not replace the larger comparison or the other method tests. No PPTX has been exported.
 
 ## Presentation requirements
 
