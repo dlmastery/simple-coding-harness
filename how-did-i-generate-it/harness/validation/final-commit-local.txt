@@ -1,0 +1,12 @@
+[codex/rsi-masterclass-rebuild 17d45a7] Finish harness lesson quizzes and record validated teaching handoff
+ 74 files changed, 1680 insertions(+), 34 deletions(-)
+ create mode 100644 harness/VISUAL-GUIDE.md
+ create mode 100644 how-did-i-generate-it/harness/scripts/build-lesson-checks.mjs
+ create mode 100644 how-did-i-generate-it/harness/scripts/lesson-checks.mjs
+ create mode 100644 how-did-i-generate-it/harness/validation/all-snippets.txt
+ create mode 100644 how-did-i-generate-it/harness/validation/comparison-after-quiz.txt
+ create mode 100644 how-did-i-generate-it/harness/validation/empty-selector.txt
+ create mode 100644 how-did-i-generate-it/harness/validation/numeric-selector.txt
+ create mode 100644 how-did-i-generate-it/harness/validation/provenance-links.txt
+ create mode 100644 how-did-i-generate-it/harness/validation/rsi-integration.txt
+ create mode 100644 how-did-i-generate-it/harness/visuals/ASSET-IDENTITIES.md
