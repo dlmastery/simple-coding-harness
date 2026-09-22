@@ -34,3 +34,38 @@ using the same quality stop. The extra candidate is a pipeline comparison,
 not an independent statistical confirmation; it may expose a missed feature
 benefit but costs another attempt. Test it under the unchanged replay objective
 before selecting any revision for online deployment.
+
+## Deployment of revision 2
+
+The declared selector chose and froze revision 2 before either new task was
+generated. Its exact source was then copied into both generation-1 rollouts
+before fitting.
+It actually stopped after four classification fits (0.908784 balanced accuracy)
+and two regression fits (MAE 0.242510). These are new development instances,
+not final transfer results. The new trees are added to the replay pool.
+
+## Revisions 4–6 after generation 1
+
+Revision 4 tightens the stop threshold to 0.15, testing whether the earlier rule
+stops too soon. Revision 5 broadens after two candidates in the first lineage,
+testing whether continuing a weak initial branch wastes resources. Revision 6
+uses an intermediate threshold of 0.18. All use the same external replay rule
+and four frozen worlds. Unknown continuations cannot count as negative or
+positive discoveries; lack of coverage makes a revision ineligible here.
+The incumbent participates and wins exact ties. None of these revisions has
+seen procedure-selection or final task data.
+
+## Retention and generation 2
+
+Revision 4 was worse under the declared replay objective. Revision 5 requested
+unrecorded continuations and was ineligible; this says nothing about the value
+of those unexplored branches. Revision 6 tied the incumbent exactly. The
+selector therefore retained revision 2, with the same source hash, before
+generating tasks 1105 and 1106.
+
+On classification 1105 it stopped after one actual fit with balanced accuracy
+0.937299. On regression 1106 it used all twelve attempts and retained node 4,
+with MAE 0.336272. The threshold did not fire on that task. The complete three
+generations executed 43 fits, all successful, within the 72-attempt allocation.
+One policy revision was promoted; the later round retained it. This is neither
+repeated acceleration nor a final effectiveness result.

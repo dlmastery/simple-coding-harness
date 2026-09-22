@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Did a replay-selected policy control later real fits? | [Six discovery trees, six revisions, promotion and retention](2026-09-22/online-discovery/README.md) |
 | Why are so many predictive gains zero? | [288-fit development pilot with measured search curves](2026-09-22/headroom-pilot/README.md) |
 | Do pipeline changes help, and what do they cost? | [72 additional operator attempts, one timeout and two fixed controls](2026-09-22/pipeline-operator-pilot/README.md) |
 | Did the builder produce a usable harness, and what still needs checking? | [Generation identities, fresh refusals, request-bound evidence and wine transfer](2026-09-22/builder-reconciliation/README.md) |
