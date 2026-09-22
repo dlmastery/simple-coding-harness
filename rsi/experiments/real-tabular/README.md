@@ -15,6 +15,12 @@ explains exclusions, duplicate groups, exposure and row roles. The
 [48-fit baseline](../../evidence/2026-09-22/real-tabular-baseline/README.md)
 provides actual predictions and independently checked scores.
 
+The [first agent-authored revision](../../evidence/2026-09-22/real-tabular-revision-1/README.md)
+adds 24 checked development attempts. It finds small classification selection
+gains and an omitted median control for solar flare; the original abalone and
+auction models remain better. Read the proposal and failures of the hypothesis
+alongside its gains. No reserved-task comparison has run yet.
+
 ## Run the baseline through your coding agent
 
 Ask the agent:

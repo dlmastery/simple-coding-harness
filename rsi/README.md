@@ -33,6 +33,10 @@ open its illustrated walkthrough; use the full-size links to read every label.
 
 **[Browse all 101 codelab illustrations](VISUAL-GUIDE.md)** · [Teaching roadmap](TEACHING-ROADMAP.md) · [Skills and intent briefs](SOURCE-ARTIFACTS.md).
 
+**Presentation:** [37-slide outline and draft speaker notes](PRESENTATION.md).
+The PPTX is pending the remaining experimental comparisons; the linked page
+tracks its status and will contain the download when it is ready.
+
 These maps explain the mechanisms and learning route. They do not report
 experimental wins. Each lab connects its illustration to instructions, checks,
 takeaways and an explained quiz.

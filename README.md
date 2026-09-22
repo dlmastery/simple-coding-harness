@@ -17,6 +17,8 @@ reported separately in the course.
 
 **Explore:** [Full visual outline](rsi/COURSE-MAP.md) · [Research studio and its 38 labs](rsi/10_research_studio/README.md) · [Five capstones](rsi/11_capstones/README.md) · [All 101 illustrated labs](rsi/VISUAL-GUIDE.md).
 
+**RSI presentation:** [Outline, draft speaker notes and PPTX status](rsi/PRESENTATION.md). The PowerPoint is not yet built; the experimental comparisons are still in progress.
+
 ## The coding-harness course
 
 Ask a model to explain a file and it can produce a plausible answer. Give it a file-reading tool and it can inspect the actual contents. Feed that observation into its next request and you have the beginning of an agent loop.

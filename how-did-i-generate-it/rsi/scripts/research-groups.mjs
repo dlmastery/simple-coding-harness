@@ -1,6 +1,8 @@
 // Human-authored introductions and names; do not derive scientific names from slugs.
 export const researchGroups = {
   '00_reading_frontier_research': {
+    figure:'10.02',
+    reading:'Follow the announcement back to the method and its actual evidence. A diagram can clarify the claim; only a checked source or experiment can support it. Keep the date, reported outcome and unanswered questions on separate lines of your claim card.',
     title:'Read a frontier claim', question:'Which claim does the available evidence support?',
     intro:'Begin with the claim audit you already know how to make. Apply it to a framework, then follow a current announcement to its primary evidence. Keep publication date, mechanism, reported result, and independent verification separate.',
     entry:'Bring the local evidence audit from 09.07. You need a browser or research tool for primary sources; these first two studio labs require no model fits.',

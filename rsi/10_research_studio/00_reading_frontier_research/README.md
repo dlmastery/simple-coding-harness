@@ -6,6 +6,14 @@
 
 Begin with the claim audit you already know how to make. Apply it to a framework, then follow a current announcement to its primary evidence. Keep publication date, mechanism, reported result, and independent verification separate.
 
+![A fictional author announcement leads to methods, evaluation, and available artifacts, which populate a blank claim card. Side notes distinguish original dates, inaccessible posts, and independent reproduction.](../../assets/illustrations/announcement-evidence-trail-v2.png)
+
+*The quotation is invented for teaching and is not attributed to a real author or lab. The 20 August–20 September 2026 window is the authoring example; roll it forward to the preceding month when you run the lab. Inspect available links and record missing ones. A blocked thread does not invalidate a separately accessible paper, but its contents remain unread. A reproduction has its own methods and limitations. Document the original release and any substantive revision separately from repost and crawl dates.*
+
+[Open the illustration at full size](../../assets/illustrations/announcement-evidence-trail-v2.png).
+
+Follow the announcement back to the method and its actual evidence. A diagram can clarify the claim; only a checked source or experiment can support it. Keep the date, reported outcome and unanswered questions on separate lines of your claim card.
+
 **Start with:** Bring the local evidence audit from 09.07. You need a browser or research tool for primary sources; these first two studio labs require no model fits.
 
 - [10.01 · Use a framework without turning it into a ladder](step_01_framework/README.md): A source-linked classification of three mechanisms from your own experiments.
