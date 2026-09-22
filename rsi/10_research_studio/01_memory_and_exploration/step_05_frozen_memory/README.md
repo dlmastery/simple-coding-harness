@@ -20,13 +20,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** One retained memory version and prespecified fresh task fixtures.
 
-**Budget:** Two matched evaluation runs, at most two fits each. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two matched evaluation runs, at most two fits each. The additional adaptation-copy activity allows one memory update and zero extra fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
-Freeze the memory artifact before the comparison. Both arms use the same task and budget; one can read the frozen memory and one cannot. The evaluation does not add new lessons. This separates the retained memory’s effect from adaptation during the test.
+Freeze the memory artifact before the comparison. Both arms use the same task and budget; one may read the frozen memory and the other must have no exposure to it for a clean comparison. The evaluation adds no new lessons. Separately initialized contexts and controlled information access are needed to isolate a memory effect. A shared-context demonstration can check file freezing but cannot establish that stronger claim.
 
-**A concrete example.** A frozen memory says to check prediction-time availability before choosing features. One arm may read it and one may not. Both get the same task and two fits. If the supposed no-memory arm already saw the note in the same context, unchanged file hashes cannot make that a clean information comparison.
+**A concrete example.** In the [four-fit author demonstration](../../../evidence/2026-09-21/memory-labs/README.md#frozen-comparison), both arms followed the same residual rule and added weather inputs. Both obtained evaluation MAE 7.027189070. The memory file stayed unchanged, but the author had already seen it when designing both paths. That is evidence of file freezing and equal fit budgets, not a clean measurement of memory benefit. A later copy update used no additional fits and did not measure adaptation performance.
 
 ![Two planned evaluation arms share fresh cases, tools, and budgets. Only one can read frozen memory. Both record outcomes and costs, while a shared-context example warns that file identity does not prove no prior exposure.](../../../assets/illustrations/frozen-memory-comparison-v1.png)
 
@@ -107,7 +107,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Allow memory updates in a separate declared adaptation experiment and explain why its result answers a different question.
+After evaluation, declare one update to a separate memory copy with zero extra fits. Compare its before/after hashes and confirm the frozen original is unchanged. Explain why measuring adaptation performance would require a separate experiment, a new budget, and declared update timing; this copy activity does not measure a performance benefit.
 
 ## If something goes wrong
 

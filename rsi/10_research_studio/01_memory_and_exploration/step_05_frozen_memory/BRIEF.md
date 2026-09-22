@@ -6,7 +6,7 @@ Starting state: One retained memory version and prespecified fresh task fixtures
 
 Prediction to ask: What would be confounded if only the memory arm could learn from test feedback?
 
-Execution limit: Two matched evaluation runs, at most two fits each.
+Execution limit: Two matched evaluation runs, at most two fits each. The additional adaptation-copy activity allows one memory update and zero extra fits.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

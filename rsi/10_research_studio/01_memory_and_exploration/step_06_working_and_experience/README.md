@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Working state records the current run: active candidate, pending check, remaining budget. Reusable experience records a scoped procedure learned from prior work. The exercise separates them and checks that a new run does not inherit old spent-state values as if they were current.
 
-**A concrete example.** “Candidate trial-003 awaits verification” belongs to one run. “Join predictions to targets by row identity” can be a reusable rule when supported by evidence. The next run can inherit the second statement, but its candidate ID and remaining attempts must come from its own ledger.
+**A concrete example.** The [two executed retrieval checks](../../../evidence/2026-09-21/memory-labs/README.md#working-state-and-experience) accepted a scoped row-identity audit lesson and rejected old working state. The old and new fixtures both named trial-001; their run IDs differed. The new working state stayed unchanged. A merged copy exposed conflicting pending actions and budgets. These are typed record checks on constructed state, not a demonstration of general semantic retrieval.
 
 ![An old run's working notebook contains candidate and budget state. A reusable experience notebook contains a scoped row-identity rule. A new run initializes its own state, retrieves the lesson, and rejects the old candidate identity.](../../../assets/illustrations/working-state-and-experience-v1.png)
 

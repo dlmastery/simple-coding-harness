@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 RSIAgent separates outcome verification from actor-owned memory updates. The verifier does not author or approve the memory wording. Our exercise preserves that responsibility split while using a small ML trace.
 
-**A concrete example.** The checker confirms that the calendar model’s MAE matches its saved predictions. The actor then writes “calendar fields always beat weather.” The verified number does not support that broad lesson: the compared models and conditions matter. The result can be valid while its inferred memory is wrong.
+**A concrete example.** The [executed outcome-and-memory activity](../../../evidence/2026-09-21/memory-labs/README.md#outcome-and-lesson) checked exploration MAE 99.175924. The actor then wrote a bounded residual-inspection lesson. A separate overbroad draft said always to use the winning linear model; an existing classification case preferred its tree child, 0.88 versus 0.86 balanced accuracy. The checked regression score was valid, but it could not establish a universal model preference.
 
 ![A curriculum selects practice. The actor executes an experiment, the verifier checks observed evidence, and the actor writes a bounded memory. After exploration, the memory is frozen and read on a later task.](../../../assets/illustrations/actor-memory-v2.png)
 

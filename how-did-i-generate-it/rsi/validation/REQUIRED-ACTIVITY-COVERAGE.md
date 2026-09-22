@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-68 labs have mapped related author-execution evidence; 33 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+71 labs have mapped related author-execution evidence; 30 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -834,9 +834,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Write an overbroad “always use the winning model” note and identify a case outside its evidence.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed memory boundaries and retained counterexamples](../../../rsi/evidence/2026-09-21/memory-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** One outcome check, actor-authored bounded memory, and an inspected historical counterexample are retained; zero fits. The verifier did not approve the lesson. Independent actors and learner interpretation were not tested.
 
 **Acceptance to verify:** The verifier checks the result; the actor writes memory. Memory quality is inspected separately. No invented approval is recorded.
 
@@ -845,11 +845,11 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Freeze the artifact.** Identify exactly what is evaluated.
 2. **Compare without updating.** Measure the retained state.
 
-**Additional change:** Allow memory updates in a separate declared adaptation experiment and explain why its result answers a different question.
+**Additional change:** After evaluation, declare one update to a separate memory copy with zero extra fits. Compare its before/after hashes and confirm the frozen original is unchanged. Explain why measuring adaptation performance would require a separate experiment, a new budget, and declared update timing; this copy activity does not measure a performance benefit.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed memory boundaries and retained counterexamples](../../../rsi/evidence/2026-09-21/memory-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four fits, pre-fit decisions, frozen choices, prediction checks, and one separate adaptation-copy update executed. Both arms share author context and the same decision rule; equal scores do not isolate a memory effect. Adaptation performance, clean agent contexts, inference costs, and learner understanding remain untested.
 
 **Acceptance to verify:** The memory stays unchanged. Resource equality and context exposure are reported. The result does not claim a full RSIAgent reproduction.
 
@@ -860,9 +860,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Merge both stores in a labelled copy and identify one ambiguous instruction that results.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed memory boundaries and retained counterexamples](../../../rsi/evidence/2026-09-21/memory-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two typed retrieval checks and a conflicting merged copy are retained; zero fits. The new and stale working states are constructed fixtures. General semantic retrieval, autonomous memory formation, and learner interpretation were not tested.
 
 **Acceptance to verify:** The new state reflects the new task. Experience retains its evidence and scope. Stale identities are rejected.
 
