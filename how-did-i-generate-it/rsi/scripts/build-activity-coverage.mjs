@@ -55,6 +55,14 @@ const limitations = {
   '09.05': 'Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.'
 };
 for (const [id,gap] of Object.entries(limitations)) related.get(id).gap = gap;
+for (const [id,gap] of Object.entries({
+  '03.03': 'Four joins now execute, including wrong contract and the late-result simulation within the missing case. Resource inputs are declared fixtures; actual concurrent workers, machine capacity, and learner responses were not tested.',
+  '04.03': 'Six base cases and two separate units-extension cases now execute with individual inputs and verdicts. Units checks require a label only. Unknown-relation rejection was source-inspected but not separately executed in this allocation; omitted facts and learner understanding remain untested.',
+  '04.04': 'Original, corrected, and consistently renamed tables now execute with failure counts three, zero, and three. Record repair does not validate a real leaked experiment; no learner responses were collected.'
+})) related.set(id, {
+  path: 'rsi/evidence/2026-09-21/foundation-gaps/README.md',
+  label: 'Executed foundation cases and additional changes', gap
+});
 for (const id of ['09.01','09.03','09.04','09.07']) related.set(id, {
   path: evidenceRoot+'clean-journey/09-05/README.md',
   label: 'Related comparison evidence',

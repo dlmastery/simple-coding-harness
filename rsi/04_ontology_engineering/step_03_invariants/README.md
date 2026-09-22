@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An invariant is a condition that must hold for every accepted record in this task. A transform fits on training data only. Search uses selection data, not final data. A prediction input must not be derived from the target. These are meaning rules; a syntactically valid table can violate them.
 
-**A concrete example.** Consider the sentence “the scaler was fit on all rows.” Its format is perfectly clear. Its meaning violates the experiment: selection and final rows helped determine the transformation. A schema can accept the sentence while a domain rule rejects the relationship. That is the extra job performed by the ontology check.
+**A concrete example.** “The scaler was fit on final” is a clear, well-formed statement of an invalid experiment. In the [author walkthrough](../../evidence/2026-09-21/foundation-gaps/README.md#invariant-checks-0403), train-only fitting passed and final-data fitting failed. The other two rules also separated their passing and failing cases. A separate extension then required a unit label on MAE. Each observed verdict has its own preserved input; a passing fact table still cannot prove that the real experiment followed it.
 
 ![Three rules each have an expected passing and failing fact table: target-derived inputs, transform fitting partitions, and final-data selection. A blank six-case ledger separates observed checks from expectations; two units-extension cases are additional.](../../assets/illustrations/three-domain-invariants-v1.png)
 

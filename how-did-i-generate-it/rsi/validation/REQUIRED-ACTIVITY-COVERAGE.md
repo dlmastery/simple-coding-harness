@@ -246,9 +246,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Delay one check result in a local simulation. Explain why the other result alone cannot authorize the next action.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-03).
+**Evidence:** [Executed foundation cases and additional changes](../../../rsi/evidence/2026-09-21/foundation-gaps/README.md).
 
-**Closure gap:** The join executed sequentially with declared resource fixtures. The newly explicit wrong-contract case still needs execution evidence; measured parallel resource checks are also absent.
+**Closure gap:** Four joins now execute, including wrong contract and the late-result simulation within the missing case. Resource inputs are declared fixtures; actual concurrent workers, machine capacity, and learner responses were not tested.
 
 **Acceptance to verify:** The join rejects mismatched candidate identities, mismatched contract versions, and incomplete evidence. The report states whether checks ran sequentially or concurrently.
 
@@ -326,9 +326,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a new rule that MAE measurements must include units. Ask the agent to implement it in a workspace extension and run one case with units and one without. Keep this two-case extension separate from the six base cases; the original tool does not check units.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-03).
+**Evidence:** [Executed foundation cases and additional changes](../../../rsi/evidence/2026-09-21/foundation-gaps/README.md).
 
-**Closure gap:** The mapped folder contains an invariants note, not six separately retained case inputs and verdicts. The six base cases and two units-extension cases remain to be demonstrated individually.
+**Closure gap:** Six base cases and two separate units-extension cases now execute with individual inputs and verdicts. Units checks require a label only. Unknown-relation rejection was source-inspected but not separately executed in this allocation; omitted facts and learner understanding remain untested.
 
 **Acceptance to verify:** Every invariant has a demonstrated negative case. Unknown relations are not silently accepted.
 
@@ -339,9 +339,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** In a separate copy of the failed table, rename total_users to harmless_feature in both related facts. Run the third check and confirm that the derivation relation still triggers rejection.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-04).
+**Evidence:** [Executed foundation cases and additional changes](../../../rsi/evidence/2026-09-21/foundation-gaps/README.md).
 
-**Closure gap:** Original and corrected tables and checks are retained. A separate consistently renamed copy and its third check remain unverified in this mapped folder.
+**Closure gap:** Original, corrected, and consistently renamed tables now execute with failure counts three, zero, and three. Record repair does not validate a real leaked experiment; no learner responses were collected.
 
 **Acceptance to verify:** The original table fails with three concrete reasons. The corrected copy passes the supplied rules. The report distinguishes correcting documentation from rerunning invalid computation.
 

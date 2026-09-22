@@ -1,0 +1,16 @@
+lab,case,wall_ms
+03.03,matching,2.140
+03.03,missing,0.924
+03.03,wrong-candidate,1.021
+03.03,wrong-contract,0.986
+04.03,feature-pass,1560.331
+04.03,feature-fail,1463.415
+04.03,transform-pass,1461.650
+04.03,transform-fail,1448.814
+04.03,selection-pass,1473.438
+04.03,selection-fail,1453.523
+04.03,units-present,44.793
+04.03,units-missing,41.186
+04.04,original,1474.634
+04.04,corrected,1463.730
+04.04,renamed,1458.449

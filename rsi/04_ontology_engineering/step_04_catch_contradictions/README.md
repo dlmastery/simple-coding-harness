@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Suppose a model uses a feature called total_users. Another fact says total_users is derived from the target. Neither line alone states “invalid.” Together they violate the task’s input rule. A semantic check reasons over the relation between facts.
 
-**A concrete example.** “Model uses feature total_users” can look harmless until another fact says “total_users is derived from target.” The contradiction comes from their relationship. Rename the feature to f7 in both facts and the same violation remains. A name does not remove the information carried by a column.
+**A concrete example.** “Model uses feature total_users” looks harmless until another fact says “total_users is derived from target.” The [author walkthrough](../../evidence/2026-09-21/foundation-gaps/README.md#contradiction-and-renaming-0404) renamed it to harmless_feature in both facts and still caught the leakage. All three original violations remained; only the separately corrected table passed. Changing a name does not change a column’s information, and correcting a table does not repair an already executed experiment.
 
 ![Four facts produce three expected violations. A corrected table uses hr, fits its scaler on train, and selects on selection. A separate rename test preserves the leaked feature’s derivation, while failed records stay archived.](../../assets/illustrations/semantic-contradiction-repair-v1.png)
 
