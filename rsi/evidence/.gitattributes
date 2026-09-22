@@ -4,6 +4,7 @@
 2026-09-22/real-tabular-data-v1/tasks/*/original.arff whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
 2026-09-22/real-tabular-data-v2/tasks/*/original.arff whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
 2026-09-22/real-tabular-data-v2/original-chess/kr-vs-kp.names whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+2026-09-22/real-tabular-data-v2/original-chess/kr-vs-kp.data whitespace=-blank-at-eof,cr-at-eol
 # Matplotlib emits trailing spaces inside SVG path data; retain the raw output.
 *.svg whitespace=-blank-at-eol,cr-at-eol
 # Original UCI descriptions contain trailing spaces; retain their hashed bytes.
