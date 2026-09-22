@@ -114,7 +114,7 @@ export const scienceFrontierGuidance = {
     hint:'A reference is evidence of a possible successful route, not proof that every different route is wrong.'
   },
   '10.37': {
-    example:'One system updates memory; another updates weights and harness instructions; a third revises the search policy. Their headline scores come from different tasks. A useful matrix compares changed objects, feedback, inheritance, and evaluation before asking whether any numbers are comparable.',
+    example:'The saved [seven-row comparison](../../../evidence/2026-09-21/system-comparison/README.md) separates mutable objects from measured outcomes. Its local row has a useful surprise: retained selection MAE falls from 109.81 to 99.18, but both improver proposals were rejected and all four active rows name the same improver hash. The task model improved; this run did not activate an improved improver. Open the mechanism-only view first, then restore each result with its own evaluation protocol.',
     outputs:[['SYSTEM-COMPARISON.md','Covers the six named systems and the local experiment with primary links and reading depth.'],['Mechanism-only view','Separates structure from scores and marks unknown fields.'],['One challenged classification','States a plausible weaker explanation and the evidence that would distinguish it.']],
     recovery:'If a row lacks a resource measurement, mark it unknown rather than ranking cost by intuition. If a paper-reported number appears beside a local score, label their different protocols. New optional sources can enrich a comparison, but an unread abstract must not become a detailed method claim.',
     hint:'Use the same questions across rows. Preserve different answers instead of forcing every system into the same supposed stage.'

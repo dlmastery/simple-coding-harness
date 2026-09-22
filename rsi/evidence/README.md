@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Do six RSI systems change the same thing? | [Mechanism-only matrix, result boundaries, and a challenged local claim](2026-09-21/system-comparison/README.md) |
 | Does the basic ML workflow run? | [Initial execution record and environment](2026-09-20/README.md) |
 | What did the three exploration attempts establish? | [Measured probes and a decision before the final fit](2026-09-21/exploration/README.md) |
 | Do the plan, files, and trace tell the same story? | [Three views of one execution](2026-09-21/three-views/README.md) |

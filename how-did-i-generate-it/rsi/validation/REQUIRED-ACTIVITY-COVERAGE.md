@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-93 labs have mapped related author-execution evidence; 8 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+94 labs have mapped related author-execution evidence; 7 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1263,9 +1263,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove performance columns and compare mechanisms alone, then restore results with their protocols. Explain why both views are useful.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Six-system source comparison and checked local claim challenge](../../../rsi/evidence/2026-09-21/system-comparison/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Mechanism-only and result views retain source versions, boundaries, resources, and reading depth. Four active local identities were checked; both improver proposals remain rejected. No source reproduction, raw paper-log audit, complete cost reconciliation, independent context, or learner assessment occurred.
 
 **Acceptance to verify:** All technical entries have sources or an unresolved label. The matrix does not treat local demonstrations as reproductions of frontier results.
 
@@ -1278,7 +1278,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Evidence:** [Five numerical scenarios and a recorded-lineage acceleration audit](../../../rsi/evidence/2026-09-21/bottlenecks/README.md).
 
-**Closure gap:** Calculator inputs, outputs, costlier-verifier extension, separate shrinking-increment arithmetic, copied local lineage/cost rows, and selected source assumptions are retained. No new fits or empirical acceleration follow. Total-resource cost, source-model calibration, learner assessment, and the separate lab-10.37 matrix remain unestablished.
+**Closure gap:** Calculator inputs, outputs, costlier-verifier extension, separate shrinking-increment arithmetic, copied local lineage/cost rows, and selected source assumptions are retained. No new fits or empirical acceleration follow. Total-resource cost, source-model calibration, and learner assessment remain unestablished; the separate lab-10.37 matrix now has its own evidence mapping.
 
 **Acceptance to verify:** Synthetic values are labelled. The calculation uses total time. The final claim separates theory, reported research, and local measurements.
 
