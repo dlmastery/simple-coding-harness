@@ -18,6 +18,8 @@ To inspect the authored materials, open [all 101 codelabs and their source instr
 
 Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete, while full course verification remains in progress.
 
+To see what has actually run, open the [measured-example guide](evidence/README.md). It connects questions about ML results, memory, replay, and harness changes to retained predictions and checks. These author examples include unchanged winners and failed claims; the point is to learn what the evidence can support.
+
 ## What you will learn
 
 By the end of the full course, you should be able to:

@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Start with an unscored initial-workspace node R. Represent each attempted recipe as a descendant with a parent, action, outcome, and cost. The tree records realized work. A possible branch that was never executed has no measured outcome. This classroom structure prepares the replay exercise without pretending to recreate the original benchmark.
 
-**A concrete example.** Root R represents the initial workspace and has no score. Node A is a measured baseline only after its execution. B adds calendar structure after inspecting A. C tests a different permitted recipe, also motivated by A. An imagined child D of B has no execution report. The discovery tree may include D as a proposal, but its score must remain unknown.
+**A concrete example.** The [three-fit author tree](../../../evidence/2026-09-21/dream-labs/README.md#three-measured-nodes) records bike selection MAE 159.95 for median node A, 99.18 for linear node B, and 115.28 for tree node C. Root R is unscored. Proposed forest node D has no measured result. The rendered chart links each number to a real trial; its recipe ancestry is simpler than the source paper’s saved-workspace transition system.
 
 ![Unscored workspace root R leads to baseline attempt A, which has recipe descendants B and C. Dashed branch D is a proposal under B with no fit or measured outcome. A table records the same parent relations.](../../../assets/illustrations/discovery-tree-evidence-v1.png)
 

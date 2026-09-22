@@ -20,13 +20,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The frozen discovery tree from 10.07.
 
-**Budget:** No new model fits. Two replay policies and one unsupported query. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No new model fits. Two primary policy replays, one unsupported query, and two replays on a reduced-coverage copy for the additional change. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 Dream-RSI uses replay over realized discovery structure. Our replay tool walks recorded nodes under a budget and returns known outcomes. A request outside that structure returns unknown. Proposal generation and policy evaluation can still cost resources even when no environment fit is repeated.
 
-**A concrete example.** A history contains measured nodes A, B, and C. Policy 1 spends its replay budget on A then B; policy 2 reaches C. Their ranking depends on these recorded outcomes and costs. A request for an unseen forest branch returns unknown. Assigning it C’s score would turn replay into invented evidence.
+**A concrete example.** The [executed replay comparison](../../../evidence/2026-09-21/dream-labs/README.md#replay-and-its-missing-coverage) retained P0, which visits A then B. An absent E query returned unknown. Removing B from a separate history copy reversed the ranking in favor of P1, even though no new fit occurred. The result changed because the available evidence changed, not because a new model improved.
 
 ![Replay follows a recorded baseline and tried change, while a failed attempt remains archived. It stops before an untried branch whose outcome is unknown. A separate new execution would produce a new report.](../../../assets/illustrations/replay-boundary-v2.png)
 

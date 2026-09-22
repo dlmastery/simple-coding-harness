@@ -6,7 +6,7 @@ Starting state: The frozen discovery tree from 10.07.
 
 Prediction to ask: Can replay alone decide whether a brand-new model family would win?
 
-Execution limit: No new model fits. Two replay policies and one unsupported query.
+Execution limit: No new model fits. Two primary policy replays, one unsupported query, and two replays on a reduced-coverage copy for the additional change.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

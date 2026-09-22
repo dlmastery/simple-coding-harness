@@ -10,6 +10,11 @@ const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
 for (const [id,gap] of Object.entries({
+  '10.07': 'Three bike fits and outcome checks, a pre-fit branch decision, a measured tree, and an unexecuted proposal are retained. Recipe ancestry is a classroom simplification; no source-paper workspace inheritance, independent discovery agent, blind task, or learner assessment was tested.',
+  '10.08': 'Two primary replays, one unsupported query, and two reduced-coverage replays ran with zero fits. Removing a measured node reversed the ranking. The fixed-order interface omits the paper’s root/leaf batches and objective; no general cost-saving or learner claim follows.',
+  '10.09': 'Four fits on new synthetic rows, frozen policies and choices, checked evaluation predictions, costs, and an unexecuted revision proposal are retained. Replay selected the existing baseline, so no accepted policy update was redeployed. Author-known task generation, agent isolation, inference cost, and learner assessment remain limitations.'
+})) related.set(id, {path: 'rsi/evidence/2026-09-21/dream-labs/README.md', label: 'Executed discovery, replay, and online comparison', gap});
+for (const [id,gap] of Object.entries({
   '10.04': 'One outcome check, actor-authored bounded memory, and an inspected historical counterexample are retained; zero fits. The verifier did not approve the lesson. Independent actors and learner interpretation were not tested.',
   '10.05': 'Four fits, pre-fit decisions, frozen choices, prediction checks, and one separate adaptation-copy update executed. Both arms share author context and the same decision rule; equal scores do not isolate a memory effect. Adaptation performance, clean agent contexts, inference costs, and learner understanding remain untested.',
   '10.06': 'Two typed retrieval checks and a conflicting merged copy are retained; zero fits. The new and stale working states are constructed fixtures. General semantic retrieval, autonomous memory formation, and learner interpretation were not tested.'

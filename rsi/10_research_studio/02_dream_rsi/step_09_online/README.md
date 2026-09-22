@@ -24,9 +24,9 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ## How it works
 
-Freeze the selected policy, then give it and the baseline comparable new work. The online outcome is new evidence. Keep replay-selection cost and online cost distinct but include both when discussing overall efficiency.
+Freeze the selected policy, then give it and the baseline comparable new work. If replay retains the baseline itself, keep that identity and compare it with the rejected challenger; do not invent an accepted update. The online outcome is new evidence. Keep replay-selection cost and online cost distinct but include both when discussing overall efficiency.
 
-**A concrete example.** A policy selected from a history dominated by calendar models may prioritize them on new work. A newly declared regression condition can reward different structure. The online run tests those actual choices. If the policy loses, the earlier replay result can remain correct within its recorded coverage.
+**A concrete example.** In the [four-fit online comparison](../../../evidence/2026-09-21/dream-labs/README.md#frozen-policies-on-new-data), the replay winner was already the baseline P0. It remained fixed and obtained evaluation MAE 2.09 on new synthetic data; challenger P1 obtained 12.32. No revised policy was promoted. The rows were newly generated, but the author knew the formula. This demonstrates new execution after replay, not blind transfer or successful recursive policy improvement.
 
 ![A policy selected from recorded replay outcomes is frozen as P1 and compared with baseline P0 on declared new development work, with two fits per policy and a blank evidence ledger.](../../../assets/illustrations/replay-to-online-v2.png)
 

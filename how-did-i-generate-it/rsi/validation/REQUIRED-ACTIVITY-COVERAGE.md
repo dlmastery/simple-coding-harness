@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-71 labs have mapped related author-execution evidence; 30 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+74 labs have mapped related author-execution evidence; 27 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -873,9 +873,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add an unexecuted branch to the diagram and show it as unknown rather than assigning a schematic score.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed discovery, replay, and online comparison](../../../rsi/evidence/2026-09-21/dream-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Three bike fits and outcome checks, a pre-fit branch decision, a measured tree, and an unexecuted proposal are retained. Recipe ancestry is a classroom simplification; no source-paper workspace inheritance, independent discovery agent, blind task, or learner assessment was tested.
 
 **Acceptance to verify:** Parent links and trial identities agree. Failed attempts remain in the tree. No unexplored outcome is fabricated.
 
@@ -886,9 +886,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Change the historical tree’s coverage by removing a node. Explain how the policy ranking can change without any new real-world evidence.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed discovery, replay, and online comparison](../../../rsi/evidence/2026-09-21/dream-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two primary replays, one unsupported query, and two reduced-coverage replays ran with zero fits. Removing a measured node reversed the ranking. The fixed-order interface omits the paper’s root/leaf batches and objective; no general cost-saving or learner claim follows.
 
 **Acceptance to verify:** No new fit occurs. Unsupported paths are unknown. Cost reporting does not equate zero repeated fits with zero total cost.
 
@@ -899,9 +899,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Use online failures to propose a new policy version, then explain why it needs another fresh confirmation set.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed discovery, replay, and online comparison](../../../rsi/evidence/2026-09-21/dream-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four fits on new synthetic rows, frozen policies and choices, checked evaluation predictions, costs, and an unexecuted revision proposal are retained. Replay selected the existing baseline, so no accepted policy update was redeployed. Author-known task generation, agent isolation, inference cost, and learner assessment remain limitations.
 
 **Acceptance to verify:** New outcomes are produced by actual fits. Policies remain frozen during confirmation. The conclusion reports both phases and their costs.
 

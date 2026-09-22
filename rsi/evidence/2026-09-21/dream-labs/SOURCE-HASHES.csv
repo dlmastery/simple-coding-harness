@@ -1,0 +1,6 @@
+path,sha256
+rsi/tools/lab.py,d69d3fbd8a4ace3e0332f4dfbc9a2648f87f858867229db63bc854f7810120a0
+rsi/tools/check_result.py,7fefc839f2b9ed85b0dc56a9076c63ed8759f999e3721e2a16c1e03e52d2ff61
+rsi/examples/bike-demand/source/hour.csv,e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f
+how-did-i-generate-it/rsi/scripts/run-dream-labs.py,6e93ce5ed6e313905f81e927179e4d575ebe2010cb911fb751acffea6c2e2168
+how-did-i-generate-it/rsi/scripts/replay-discovery.py,34f142407bacf0246cd1ad6331b5dfa9f0bd0ac9b182fecea558bfd7863db4e4

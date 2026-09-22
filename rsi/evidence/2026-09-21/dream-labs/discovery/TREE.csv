@@ -1,0 +1,6 @@
+node,parent,status,model,features,mae,result,fit_seconds
+R,,workspace,,,,,0
+A,R,ok,constant,all,159.94791188618632,experiment/trial-001/RESULT.md,0.072169
+B,A,ok,linear,all,99.17592378687597,experiment/trial-002/RESULT.md,0.076807
+C,A,ok,tree,all,115.28425728289812,experiment/trial-003/RESULT.md,0.09421
+D,B,proposed,forest,all,,,0
