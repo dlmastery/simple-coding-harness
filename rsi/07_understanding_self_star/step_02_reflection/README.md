@@ -28,9 +28,20 @@ Reflection interprets an attempt. It may identify a failure, suggest a cause, an
 
 **A concrete example.** The [replayed regression case](../../evidence/2026-09-20/self-star-and-measurement/07-02/TWO-CHECKS.csv) has tree training MAE 0, yet selection MAE is 71.88 versus 24.20 for the linear model. “Never use trees” still goes too far: the classification case favors the tree, with balanced accuracy 0.88 versus 0.86. These known cases support a narrower rule: compare valid candidates using the declared selection metric. They do not prove that a plausible explanation of the failure is its sole cause.
 
+![A reflection separates observed failure, proposed cause, alternative explanation, and a bounded future rule. Two predeclared checks probe expected help and possible harm before a rule is retained, narrowed, or rejected with its evidence preserved.](../../assets/illustrations/reflection-hypothesis-checks-v2.png)
+
+*Trees are a visual mnemonic for model families, not a claim about either pictured landscape. Use the actual trace for observations and label causal explanations as hypotheses. A helpful-case label predicts an outcome; it does not establish one. Compare the broad and narrow rules on the same two checked cases without extra undeclared fits. Reusing the cases that inspired the reflection is a replay, not fresh validation. Retaining a note does not guarantee future use or prevent repeated errors; both require their own evidence.*
+
+[Open the illustration at full size](../../assets/illustrations/reflection-hypothesis-checks-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.](../../assets/diagrams/lab-07-02.png)
 
 *Read the diagram:* A reflection is a hypothesis about the failure. Test it before treating it as a reliable lesson.
+
+</details>
 
 ## Run the lab
 

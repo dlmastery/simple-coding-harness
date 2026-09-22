@@ -1,0 +1,5 @@
+Edit the supplied reflection infographic, preserving the existing art, layout, all four notebook blocks, two predeclared checks, empty results ledger, and main teaching line. Make these precise content corrections together:
+1. The rejected-reflections archive caption currently says "Useful, even when wrong. They prevent repeated mistakes." Replace it with "Keep evidence for future review." Do NOT guarantee that archiving prevents future errors.
+2. The decision diamond currently has TWO connectors terminating at the rejected archive. Keep only its straight rightward connector into "Keep rejected reflections", labelled "Reject". Redirect its upper curved connector into a NEW small teal card above the archive labelled "Retain or narrow" and "Save a versioned rule". The upper connector must terminate in the NEW CARD, not point down to the red archive. Nothing from the new card returns to the tests.
+3. Replace the small sentence under the overbroad tree rule "An inspirational reaction. But it may be wrong." with "An untested generalization."
+Use readable exact text, no new scores or claims, and no other changes.

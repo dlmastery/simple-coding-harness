@@ -7,6 +7,16 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["local-output-correction-v1","exec-7bc827d4-576a-46f5-9d42-19def4894b99.png",true],
+  ["reflection-hypothesis-checks-v1","exec-2722866c-6b8f-42c0-876d-45e8e5b5bcd4.png",false],
+  ["reflection-hypothesis-checks-v2","exec-8acb5da0-f831-4629-8d34-38a6369cc536.png",true],
+  ["memory-save-use-benefit-v1","exec-4a446056-b0a6-4621-820e-635cf6063e48.png",true],
+  ["task-skill-fixed-improver-v1","exec-bfe2540a-49c5-4a9a-8619-0a2f2777fef3.png",true],
+  ["organization-shared-queue-v1","exec-79d7d429-3aa7-486d-af60-fc3287d1d041.png",true],
+  ["emergence-pattern-and-cost-v1","exec-003e752d-f3bf-4eed-b374-1254521c0876.png",false],
+  ["emergence-pattern-and-cost-v2","exec-398620df-4a6c-4418-83fd-0bf096f71756.png",true],
+  ["self-play-policy-and-trainer-v1","exec-b2b44a54-f63e-4e57-8541-2e5f027a28b4.png",false],
+  ["self-play-policy-and-trainer-v2","exec-76336686-79ca-4f27-8d7f-72f4e0415701.png",true],
   ["readable-harness-brief-v1","exec-4f171074-ea37-4c33-9432-ac2fcd57334a.png",true],
   ["requirements-implementation-evidence-v1","exec-a8ef17f6-1615-4224-a096-bea25bc2ad9f.png",true],
   ["request-bound-refusal-v1","exec-06c28ca8-c3b8-4c0a-b1a3-fdfc335bed80.png",true],

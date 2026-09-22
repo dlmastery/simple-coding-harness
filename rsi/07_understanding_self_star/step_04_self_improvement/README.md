@@ -28,9 +28,20 @@ The task skill chooses ML experiments. The improver reads failures, proposes one
 
 **A concrete example.** The [four-fit bike comparison](../../evidence/2026-09-20/self-star-and-measurement/07-04/DECISION.md) starts both skills with the same constant model. The parent then chooses a tree and retains MAE 125.05. The child reads hourly residuals, chooses linear, and retains 109.81. The task-skill files differ; the improver hash stays the same. This author-designed, known-task result illustrates improvement under a fixed improver. It does not show a better improver or guarantee the diagnosis will help elsewhere.
 
+![The same improver proposes one task-skill edit. Parent and child each spend two fits on the same task; the child adds error-slice diagnosis before its second choice. A fixed comparison rule can accept or reject the child. An improver edit remains an unexecuted follow-up.](../../assets/illustrations/task-skill-fixed-improver-v1.png)
+
+*The constant baselines are separate charged fits under the two skill versions, not one shared free result. Predeclare the parent’s second choice and the child’s diagnosis-to-choice rule. Record the second choice before fitting it. Blank outcome and cost fields must come from execution; comparison checkmarks depict required checking, not a new observed win. Preserve failed proposals and state shared-context or unmeasured inference-cost limits. The dashed follow-up changes the target of a future experiment and is not an executed new improver here.*
+
+[Open the illustration at full size](../../assets/illustrations/task-skill-fixed-improver-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.](../../assets/diagrams/lab-07-04.png)
 
 *Read the diagram:* The task skill changes while its updater stays fixed. This is not yet an inherited change to the updater.
+
+</details>
 
 ## Run the lab
 

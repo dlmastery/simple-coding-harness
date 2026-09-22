@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Self-* mechanism illustration review](validation/SELF-MECHANISMS-ILLUSTRATIONS.md): seven selections from ten outputs; correction, reflection, memory, fixed-improver skill changes, organization, emergence, and tabular self-play.
+
 - [Meta-harness illustration review](validation/META-HARNESS-ILLUSTRATIONS.md): five first-attempt figures, review-only builder scope, request-bound refusals, classification transfer, and saved-package reproduction.
 
 - [System-intelligence illustration review](validation/SYSTEM-ILLUSTRATIONS.md): four selections from five outputs, fixed component roles, task routing, context authority, and overlapping protections in an ablation.

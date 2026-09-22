@@ -28,9 +28,20 @@ Emergence describes a pattern at the collective level that arises from component
 
 **A concrete example.** In the saved synthetic trace, preference for the previous job type gives a same-type adjacency fraction of 0.80, compared with 0.00 for FIFO. But randomized history still gives 0.70: this small test does not establish that accurate memory uniquely causes grouping. In a separate deadline test, the local preference finishes all work at tick 8 instead of 12, while the most overdue job is 3 ticks late instead of 1. A stronger pattern and faster batch can still mean a worse urgent-job outcome.
 
+![The same typed jobs run under local type preference, FIFO, and randomized-history policies. Worker identities 1 and 2 are distinct from job types A and B. A predefined adjacent-pair statistic measures grouping separately from completion time and lateness, with an optional urgent-job comparison.](../../assets/illustrations/emergence-pattern-and-cost-v2.png)
+
+*Either worker can process either type. Count neighboring jobs within each worker’s ordered trace, then divide the pooled same-type-pair count by the pooled adjacent-pair count; do not join the end of one worker’s trace to another’s start. FIFO means first in, first out. Use the same inputs and tie rules across the three main simulations and a fixed seed for randomized history. The urgent-job pair is a separate two-run fixture. Empty report fields are not results. A pattern produced by fixed local rules is not proof that a learning procedure improved.*
+
+[Open the illustration at full size](../../assets/illustrations/emergence-pattern-and-cost-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.](../../assets/diagrams/lab-07-06.png)
 
 *Read the diagram:* A collective pattern can arise from local interactions. Observing the pattern is different from measuring useful improvement.
+
+</details>
 
 ## Run the lab
 
@@ -96,7 +107,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Construct a job list where clustering increases lateness. Explain how a visible pattern can be undesirable.
+For the optional counterexample, declare one urgent-job fixture and run it twice: once with FIFO and once with local preference. Keep both traces and compare grouping with lateness. Explain how a visible pattern can be undesirable without replacing the three main cases.
 
 ## If something goes wrong
 

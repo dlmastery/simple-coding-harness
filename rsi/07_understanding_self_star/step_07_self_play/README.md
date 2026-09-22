@@ -28,9 +28,20 @@ A policy is a rule for choosing an action. Here its parameters are numbers in a 
 
 **A concrete example.** In the saved author run, training game 0 ends in an O win. X’s first center move changes from value 0 to −0.2; O’s first move changes from 0 to +0.2. Each value moves 20% toward its player’s return. This does not prove the center is bad: the return includes everything that happened afterward. Later experience can revise the value.
 
+![A shared board-player-move value table governs X and O during self-play. After each game, player-relative terminal returns update visited values under a fixed Monte Carlo rule. Untrained and trained tables are then frozen for 500 random-opponent evaluation games each.](../../assets/illustrations/self-play-policy-and-trainer-v2.png)
+
+*The X/O arrows denote table lookup, not separate player-specific tables. Each visited move is updated after the completed game from its mover’s return. The 0-to-0.2 example is arithmetic for a return of +1, not a new measured improvement; a loss gives a negative update from zero. Training explores with probability 0.2; otherwise it chooses a highest-valued legal move with random tie-breaking. Evaluation uses greedy selection with random ties and no exploration or updates. Equal seed schedules do not guarantee identical board trajectories. Fill counts from the actual run and verify unchanged policy hashes. The learned object is a tabular policy, not an LLM or its fixed trainer.*
+
+[Open the illustration at full size](../../assets/illustrations/self-play-policy-and-trainer-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Self-play produces games. Terminal returns update the policy table under a fixed learning rule. Freeze the table before comparing it with the untrained policy.](../../assets/diagrams/lab-07-07.png)
 
 *Read the diagram:* Self-play produces games. Terminal returns update the policy table under a fixed learning rule. Freeze the table before comparing it with the untrained policy.
+
+</details>
 
 ## Run the lab
 

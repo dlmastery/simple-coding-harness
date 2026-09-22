@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A labelled copy of a baseline report containing an incorrect MAE.
 
-**Budget:** No fits; one recomputation and one report correction. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No fits; one main recomputation and report correction, followed by one fresh-session report check for the additional exercise. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ Self-correction revises a current output using feedback. Here the checker expose
 
 **A concrete example.** In the [author correction exercise](../../evidence/2026-09-20/self-star-and-measurement/07-01/CORRECTION.md), a labelled report claims MAE 1. Its saved bike predictions give 159.947912. Replacing the claim corrects that output. A later process uses the unchanged weak reporting rule and repeats another wrong supplied score. The lesson is about the lifetime of a change: a corrected answer does not automatically become a rule for writing future answers. This replay did not test a fresh LLM session.
 
+![Predictions and reference targets support a recomputed MAE and corrected report while the original report remains archived. The reporting procedure stays unchanged, so a later report can repeat the error unless a prevention mechanism is retained and used.](../../assets/illustrations/local-output-correction-v1.png)
+
+*The later-session panel depicts a conditional example in which only the unchanged procedure is reused. Inspect the host’s actual context, saved memory, and available files; a new process or chat is not proof that the correction was forgotten. The table headings name conceptual row identities and values, not the complete prediction-file schema. Recompute from the actual matched rows and reference targets, then correct conclusions that depended on the wrong number. The blank value is not an experimental result, and the illustration’s checkmarks show the intended corrected state.*
+
+[Open the illustration at full size](../../assets/illustrations/local-output-correction-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Correction repairs the current output. It need not create a lasting instruction for future tasks.](../../assets/diagrams/lab-07-01.png)
 
 *Read the diagram:* Correction repairs the current output. It need not create a lasting instruction for future tasks.
+
+</details>
 
 ## Run the lab
 
@@ -94,7 +105,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Start a fresh session with the same fixed procedure and another wrong summary. Explain why the first correction did not guarantee prevention.
+Start a fresh session, where available, with the same fixed procedure and another labelled wrong summary. Inspect and record whether the host also exposes the earlier correction or saved memory. Check the later report without a new model fit and explain why the first correction alone did not guarantee prevention. Label a same-context exercise if a fresh session is unavailable.
 
 ## If something goes wrong
 

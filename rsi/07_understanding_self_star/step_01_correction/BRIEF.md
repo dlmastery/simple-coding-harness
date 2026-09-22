@@ -6,7 +6,7 @@ Starting state: A labelled copy of a baseline report containing an incorrect MAE
 
 Prediction to ask: Will correcting this report prevent the same mistake in a new session?
 
-Execution limit: No fits; one recomputation and one report correction.
+Execution limit: No fits; one main recomputation and report correction, followed by one fresh-session report check for the additional exercise.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**88 of 101 labs** currently have a mapped generated infographic; **13 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**95 of 101 labs** currently have a mapped generated infographic; **6 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -15,7 +15,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 04 · Agree on what the experiment means | 5 | 5 | 0 |
 | 05 · Build capability around the model | 5 | 5 | 0 |
 | 06 · Generate a harness from a brief | 6 | 6 | 0 |
-| 07 · Separate the self-* ideas | 8 | 1 | 7 |
+| 07 · Separate the self-* ideas | 8 | 8 | 0 |
 | 08 · Measure what improved | 6 | 0 | 6 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
 | 10 · Read and rebuild recent research | 38 | 38 | 0 |
@@ -97,13 +97,13 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [07.01 · Correct one result](../../../rsi/07_understanding_self_star/step_01_correction/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-01.png) |
-| [07.02 · Test a reflection before trusting it](../../../rsi/07_understanding_self_star/step_02_reflection/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-02.png) |
-| [07.03 · Retain and use a lesson](../../../rsi/07_understanding_self_star/step_03_persistent_learning/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-03.png) |
-| [07.04 · Improve a task skill with a fixed procedure](../../../rsi/07_understanding_self_star/step_04_self_improvement/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-04.png) |
-| [07.05 · Let work reorganize under local rules](../../../rsi/07_understanding_self_star/step_05_organization/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-05.png) |
-| [07.06 · Observe a collective pattern](../../../rsi/07_understanding_self_star/step_06_emergence/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-06.png) |
-| [07.07 · Learn what self-play does and does not provide](../../../rsi/07_understanding_self_star/step_07_self_play/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-07-07.png) |
+| [07.01 · Correct one result](../../../rsi/07_understanding_self_star/step_01_correction/README.md) | [Selected figure](../../../rsi/assets/illustrations/local-output-correction-v1.png) | [Present](../../../rsi/assets/diagrams/lab-07-01.png) |
+| [07.02 · Test a reflection before trusting it](../../../rsi/07_understanding_self_star/step_02_reflection/README.md) | [Selected figure](../../../rsi/assets/illustrations/reflection-hypothesis-checks-v2.png) | [Present](../../../rsi/assets/diagrams/lab-07-02.png) |
+| [07.03 · Retain and use a lesson](../../../rsi/07_understanding_self_star/step_03_persistent_learning/README.md) | [Selected figure](../../../rsi/assets/illustrations/memory-save-use-benefit-v1.png) | [Present](../../../rsi/assets/diagrams/lab-07-03.png) |
+| [07.04 · Improve a task skill with a fixed procedure](../../../rsi/07_understanding_self_star/step_04_self_improvement/README.md) | [Selected figure](../../../rsi/assets/illustrations/task-skill-fixed-improver-v1.png) | [Present](../../../rsi/assets/diagrams/lab-07-04.png) |
+| [07.05 · Let work reorganize under local rules](../../../rsi/07_understanding_self_star/step_05_organization/README.md) | [Selected figure](../../../rsi/assets/illustrations/organization-shared-queue-v1.png) | [Present](../../../rsi/assets/diagrams/lab-07-05.png) |
+| [07.06 · Observe a collective pattern](../../../rsi/07_understanding_self_star/step_06_emergence/README.md) | [Selected figure](../../../rsi/assets/illustrations/emergence-pattern-and-cost-v2.png) | [Present](../../../rsi/assets/diagrams/lab-07-06.png) |
+| [07.07 · Learn what self-play does and does not provide](../../../rsi/07_understanding_self_star/step_07_self_play/README.md) | [Selected figure](../../../rsi/assets/illustrations/self-play-policy-and-trainer-v2.png) | [Present](../../../rsi/assets/diagrams/lab-07-07.png) |
 | [07.08 · Make a self-modification inspectable](../../../rsi/07_understanding_self_star/step_08_modification/README.md) | [Selected figure](../../../rsi/assets/illustrations/self-star-v2.png) | [Present](../../../rsi/assets/diagrams/lab-07-08.png) |
 
 ## 08 · Measure what improved

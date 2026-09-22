@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [dd079f2](https://github.com/dlmastery/simple-coding-harness/commit/dd079f2abf88c798babf8ecbd21d9da1c790fc61): all six meta-harness labs illustrated; 92 selected figures, 137 versions, 88 mapped labs, and 4,071 checked links. Builder skill respects staged scope. Remote hash and clean worktree verified before the self-* figures.
+
 - [2813857](https://github.com/dlmastery/simple-coding-harness/commit/2813857d6aac9508765d52eb923c99b8bf8fef28): all five system-intelligence labs illustrated; 87 selected figures, 132 archived versions, 83 mapped labs, and 4,025 checked links. Main README visual status refreshed. Remote hash and clean worktree verified before meta-harness work.
 
 - [df70a42](https://github.com/dlmastery/simple-coding-harness/commit/df70a426325612b3d24bd4d9562c22f051329e1e): all five ontology labs illustrated; 83 selected figures, 127 archived versions, 79 mapped labs, and 3,986 checked links. Remote hash and clean worktree verified before the systems batch.

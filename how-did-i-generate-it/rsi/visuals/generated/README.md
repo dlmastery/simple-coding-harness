@@ -1,14 +1,56 @@
 # Illustrations for the RSI course
 
-Ninety-two selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Ninety-nine selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 137 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 147 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 07.01
+
+![Predictions and reference targets support a recomputed MAE and corrected report while the original report remains archived. The reporting procedure stays unchanged, so a later report can repeat the error unless a prevention mechanism is retained and used.](local-output-correction-v1.png)
+
+Selected: [local-output-correction-v1.png](local-output-correction-v1.png). Exact [prompt](local-output-correction-v1.prompt.md). The later-session panel depicts a conditional example in which only the unchanged procedure is reused. Inspect the host’s actual context, saved memory, and available files; a new process or chat is not proof that the correction was forgotten. The table headings name conceptual row identities and values, not the complete prediction-file schema. Recompute from the actual matched rows and reference targets, then correct conclusions that depended on the wrong number. The blank value is not an experimental result, and the illustration’s checkmarks show the intended corrected state.
+
+## Lab 07.02
+
+![A reflection separates observed failure, proposed cause, alternative explanation, and a bounded future rule. Two predeclared checks probe expected help and possible harm before a rule is retained, narrowed, or rejected with its evidence preserved.](reflection-hypothesis-checks-v2.png)
+
+Selected: [reflection-hypothesis-checks-v2.png](reflection-hypothesis-checks-v2.png). Exact [prompt](reflection-hypothesis-checks-v2.prompt.md). Trees are a visual mnemonic for model families, not a claim about either pictured landscape. Use the actual trace for observations and label causal explanations as hypotheses. A helpful-case label predicts an outcome; it does not establish one. Compare the broad and narrow rules on the same two checked cases without extra undeclared fits. Reusing the cases that inspired the reflection is a replay, not fresh validation. Retaining a note does not guarantee future use or prevent repeated errors; both require their own evidence.
+
+## Lab 07.03
+
+![A versioned memory note records a rule and its scope. A later decision names that memory before acting. A separate comparison asks whether its use helped, and an outside-scope fixture stops for clarification without fitting.](memory-save-use-benefit-v1.png)
+
+Selected: [memory-save-use-benefit-v1.png](memory-save-use-benefit-v1.png). Exact [prompt](memory-save-use-benefit-v1.prompt.md). A new-session label describes the intended exercise, not proof of an independent context. Record what the host actually exposes. The with-memory and no-memory trays are evidence slots; an empty tray is not a measured control. Within this lab’s budget, compare with a suitable existing no-memory result or state the unrun alternative as a prediction. The separate scope fixture tests refusal when comparison requirements are missing or incompatible. This memory-based adaptation changes an external artifact; it does not update language-model weights or the procedure that creates memories.
+
+## Lab 07.04
+
+![The same improver proposes one task-skill edit. Parent and child each spend two fits on the same task; the child adds error-slice diagnosis before its second choice. A fixed comparison rule can accept or reject the child. An improver edit remains an unexecuted follow-up.](task-skill-fixed-improver-v1.png)
+
+Selected: [task-skill-fixed-improver-v1.png](task-skill-fixed-improver-v1.png). Exact [prompt](task-skill-fixed-improver-v1.prompt.md). The constant baselines are separate charged fits under the two skill versions, not one shared free result. Predeclare the parent’s second choice and the child’s diagnosis-to-choice rule. Record the second choice before fitting it. Blank outcome and cost fields must come from execution; comparison checkmarks depict required checking, not a new observed win. Preserve failed proposals and state shared-context or unmeasured inference-cost limits. The dashed follow-up changes the target of a future experiment and is not an executed new improver here.
+
+## Lab 07.05
+
+![Six jobs have synthetic input durations. Fixed round-robin assignment gives alternating jobs to two unchanged workers, while a shared queue lets an idle worker take the next job. Blank event ledgers support separate checks of time, missing work, duplication, and output correctness.](organization-shared-queue-v1.png)
+
+Selected: [organization-shared-queue-v1.png](organization-shared-queue-v1.png). Exact [prompt](organization-shared-queue-v1.prompt.md). The duration cards define this teaching fixture; ticks are simulation units, not wall-clock seconds. FCFS means first come, first served; with all jobs arriving together, the listed input order breaks the tie. Both workers can do the same jobs. The machines represent simulated workers, not launched coding agents. Define simultaneous-event tie handling before execution and preserve every job ID. A speed difference matters only after completion and correctness checks. An optional coordination-delay run changes a declared cost assumption and may reverse the result; it does not make the workers learn.
+
+## Lab 07.06
+
+![The same typed jobs run under local type preference, FIFO, and randomized-history policies. Worker identities 1 and 2 are distinct from job types A and B. A predefined adjacent-pair statistic measures grouping separately from completion time and lateness, with an optional urgent-job comparison.](emergence-pattern-and-cost-v2.png)
+
+Selected: [emergence-pattern-and-cost-v2.png](emergence-pattern-and-cost-v2.png). Exact [prompt](emergence-pattern-and-cost-v2.prompt.md). Either worker can process either type. Count neighboring jobs within each worker’s ordered trace, then divide the pooled same-type-pair count by the pooled adjacent-pair count; do not join the end of one worker’s trace to another’s start. FIFO means first in, first out. Use the same inputs and tie rules across the three main simulations and a fixed seed for randomized history. The urgent-job pair is a separate two-run fixture. Empty report fields are not results. A pattern produced by fixed local rules is not proof that a learning procedure improved.
+
+## Lab 07.07
+
+![A shared board-player-move value table governs X and O during self-play. After each game, player-relative terminal returns update visited values under a fixed Monte Carlo rule. Untrained and trained tables are then frozen for 500 random-opponent evaluation games each.](self-play-policy-and-trainer-v2.png)
+
+Selected: [self-play-policy-and-trainer-v2.png](self-play-policy-and-trainer-v2.png). Exact [prompt](self-play-policy-and-trainer-v2.prompt.md). The X/O arrows denote table lookup, not separate player-specific tables. Each visited move is updated after the completed game from its mover’s return. The 0-to-0.2 example is arithmetic for a return of +1, not a new measured improvement; a loss gives a negative update from zero. Training explores with probability 0.2; otherwise it chooses a highest-valued legal move with random tie-breaking. Evaluation uses greedy selection with random ties and no exploration or updates. Equal seed schedules do not guarantee identical board trajectories. Fill counts from the actual run and verify unchanged policy hashes. The learned object is a tabular policy, not an LLM or its fixed trainer.
 
 ## Lab 06.01
 

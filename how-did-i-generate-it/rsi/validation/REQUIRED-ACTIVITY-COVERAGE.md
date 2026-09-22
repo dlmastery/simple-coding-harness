@@ -512,7 +512,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Expose the mismatch.** Make correction depend on evidence.
 2. **Correct the output.** Change only the current artifact.
 
-**Additional change:** Start a fresh session with the same fixed procedure and another wrong summary. Explain why the first correction did not guarantee prevention.
+**Additional change:** Start a fresh session, where available, with the same fixed procedure and another labelled wrong summary. Inspect and record whether the host also exposes the earlier correction or saved memory. Check the later report without a new model fit and explain why the first correction alone did not guarantee prevention. Label a same-context exercise if a fresh session is unavailable.
 
 **Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
@@ -577,7 +577,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Specify the pattern.** Choose an observable collective property.
 2. **Remove the interaction.** Test dependence on local rules.
 
-**Additional change:** Construct a job list where clustering increases lateness. Explain how a visible pattern can be undesirable.
+**Additional change:** For the optional counterexample, declare one urgent-job fixture and run it twice: once with FIFO and once with local preference. Keep both traces and compare grouping with lateness. Explain how a visible pattern can be undesirable without replacing the three main cases.
 
 **Evidence:** [Executed synthetic cases](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md).
 

@@ -28,9 +28,20 @@ Give each simulated worker the same fixed rule: take an available job when idle.
 
 **A concrete example.** The saved simulation gives six jobs invented durations of 8, 1, 7, 1, 6, and 1 ticks. Alternating fixed assignments leaves one worker with 21 ticks of work and the other with 3. Letting idle workers pull from a shared queue finishes at tick 14. Add three coordination ticks per dynamic assignment and completion moves to tick 23. No worker learned a new skill. The arrangement helped under one cost assumption and hurt under another.
 
+![Six jobs have synthetic input durations. Fixed round-robin assignment gives alternating jobs to two unchanged workers, while a shared queue lets an idle worker take the next job. Blank event ledgers support separate checks of time, missing work, duplication, and output correctness.](../../assets/illustrations/organization-shared-queue-v1.png)
+
+*The duration cards define this teaching fixture; ticks are simulation units, not wall-clock seconds. FCFS means first come, first served; with all jobs arriving together, the listed input order breaks the tie. Both workers can do the same jobs. The machines represent simulated workers, not launched coding agents. Define simultaneous-event tie handling before execution and preserve every job ID. A speed difference matters only after completion and correctness checks. An optional coordination-delay run changes a declared cost assumption and may reverse the result; it does not make the workers learn.*
+
+[Open the illustration at full size](../../assets/illustrations/organization-shared-queue-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.](../../assets/diagrams/lab-07-05.png)
 
 *Read the diagram:* Local assignment rules can change who does which work. Reorganization alone does not establish a performance gain.
+
+</details>
 
 ## Run the lab
 

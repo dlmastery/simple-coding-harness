@@ -28,9 +28,20 @@ Learning can be implemented through changed weights, memory, skills, or other re
 
 **A concrete example.** A saved rule says to use the declared metric direction and compare only compatible candidates. In the [later decision replay](../../evidence/2026-09-20/self-star-and-measurement/07-03/USE-AND-BENEFIT.md), a separate process reads that file and selects wine balanced accuracy 0.745 rather than 0.5. The deliberately weak no-memory control chose the smaller number. This demonstrates reading and using this explicit rule on known candidates; it does not measure an LLM learning new weights or generalizing to an unseen task.
 
+![A versioned memory note records a rule and its scope. A later decision names that memory before acting. A separate comparison asks whether its use helped, and an outside-scope fixture stops for clarification without fitting.](../../assets/illustrations/memory-save-use-benefit-v1.png)
+
+*A new-session label describes the intended exercise, not proof of an independent context. Record what the host actually exposes. The with-memory and no-memory trays are evidence slots; an empty tray is not a measured control. Within this lab’s budget, compare with a suitable existing no-memory result or state the unrun alternative as a prediction. The separate scope fixture tests refusal when comparison requirements are missing or incompatible. This memory-based adaptation changes an external artifact; it does not update language-model weights or the procedure that creates memories.*
+
+[Open the illustration at full size](../../assets/illustrations/memory-save-use-benefit-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Persistent learning requires a retained change that is used later. Use and benefit are separate checks.](../../assets/diagrams/lab-07-03.png)
 
 *Read the diagram:* Persistent learning requires a retained change that is used later. Use and benefit are separate checks.
+
+</details>
 
 ## Run the lab
 

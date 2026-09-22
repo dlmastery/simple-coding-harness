@@ -416,6 +416,76 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 06.06: Recreate and compare generated harnesses](06_meta_harness_engineering/step_06_recreate/README.md).
 
+## Correcting an answer does not rewrite the procedure
+
+![Predictions and reference targets support a recomputed MAE and corrected report while the original report remains archived. The reporting procedure stays unchanged, so a later report can repeat the error unless a prevention mechanism is retained and used.](assets/illustrations/local-output-correction-v1.png)
+
+*The later-session panel depicts a conditional example in which only the unchanged procedure is reused. Inspect the host’s actual context, saved memory, and available files; a new process or chat is not proof that the correction was forgotten. The table headings name conceptual row identities and values, not the complete prediction-file schema. Recompute from the actual matched rows and reference targets, then correct conclusions that depended on the wrong number. The blank value is not an experimental result, and the illustration’s checkmarks show the intended corrected state.*
+
+[Open the illustration at full size](assets/illustrations/local-output-correction-v1.png).
+
+[Lab 07.01: Correct one result](07_understanding_self_star/step_01_correction/README.md).
+
+## A convincing explanation still needs a test
+
+![A reflection separates observed failure, proposed cause, alternative explanation, and a bounded future rule. Two predeclared checks probe expected help and possible harm before a rule is retained, narrowed, or rejected with its evidence preserved.](assets/illustrations/reflection-hypothesis-checks-v2.png)
+
+*Trees are a visual mnemonic for model families, not a claim about either pictured landscape. Use the actual trace for observations and label causal explanations as hypotheses. A helpful-case label predicts an outcome; it does not establish one. Compare the broad and narrow rules on the same two checked cases without extra undeclared fits. Reusing the cases that inspired the reflection is a replay, not fresh validation. Retaining a note does not guarantee future use or prevent repeated errors; both require their own evidence.*
+
+[Open the illustration at full size](assets/illustrations/reflection-hypothesis-checks-v2.png).
+
+[Lab 07.02: Test a reflection before trusting it](07_understanding_self_star/step_02_reflection/README.md).
+
+## Saved, used, and useful need different evidence
+
+![A versioned memory note records a rule and its scope. A later decision names that memory before acting. A separate comparison asks whether its use helped, and an outside-scope fixture stops for clarification without fitting.](assets/illustrations/memory-save-use-benefit-v1.png)
+
+*A new-session label describes the intended exercise, not proof of an independent context. Record what the host actually exposes. The with-memory and no-memory trays are evidence slots; an empty tray is not a measured control. Within this lab’s budget, compare with a suitable existing no-memory result or state the unrun alternative as a prediction. The separate scope fixture tests refusal when comparison requirements are missing or incompatible. This memory-based adaptation changes an external artifact; it does not update language-model weights or the procedure that creates memories.*
+
+[Open the illustration at full size](assets/illustrations/memory-save-use-benefit-v1.png).
+
+[Lab 07.03: Retain and use a lesson](07_understanding_self_star/step_03_persistent_learning/README.md).
+
+## Improve the task skill while its improver stays fixed
+
+![The same improver proposes one task-skill edit. Parent and child each spend two fits on the same task; the child adds error-slice diagnosis before its second choice. A fixed comparison rule can accept or reject the child. An improver edit remains an unexecuted follow-up.](assets/illustrations/task-skill-fixed-improver-v1.png)
+
+*The constant baselines are separate charged fits under the two skill versions, not one shared free result. Predeclare the parent’s second choice and the child’s diagnosis-to-choice rule. Record the second choice before fitting it. Blank outcome and cost fields must come from execution; comparison checkmarks depict required checking, not a new observed win. Preserve failed proposals and state shared-context or unmeasured inference-cost limits. The dashed follow-up changes the target of a future experiment and is not an executed new improver here.*
+
+[Open the illustration at full size](assets/illustrations/task-skill-fixed-improver-v1.png).
+
+[Lab 07.04: Improve a task skill with a fixed procedure](07_understanding_self_star/step_04_self_improvement/README.md).
+
+## Work can move without workers getting better
+
+![Six jobs have synthetic input durations. Fixed round-robin assignment gives alternating jobs to two unchanged workers, while a shared queue lets an idle worker take the next job. Blank event ledgers support separate checks of time, missing work, duplication, and output correctness.](assets/illustrations/organization-shared-queue-v1.png)
+
+*The duration cards define this teaching fixture; ticks are simulation units, not wall-clock seconds. FCFS means first come, first served; with all jobs arriving together, the listed input order breaks the tie. Both workers can do the same jobs. The machines represent simulated workers, not launched coding agents. Define simultaneous-event tie handling before execution and preserve every job ID. A speed difference matters only after completion and correctness checks. An optional coordination-delay run changes a declared cost assumption and may reverse the result; it does not make the workers learn.*
+
+[Open the illustration at full size](assets/illustrations/organization-shared-queue-v1.png).
+
+[Lab 07.05: Let work reorganize under local rules](07_understanding_self_star/step_05_organization/README.md).
+
+## A collective pattern is not automatically a benefit
+
+![The same typed jobs run under local type preference, FIFO, and randomized-history policies. Worker identities 1 and 2 are distinct from job types A and B. A predefined adjacent-pair statistic measures grouping separately from completion time and lateness, with an optional urgent-job comparison.](assets/illustrations/emergence-pattern-and-cost-v2.png)
+
+*Either worker can process either type. Count neighboring jobs within each worker’s ordered trace, then divide the pooled same-type-pair count by the pooled adjacent-pair count; do not join the end of one worker’s trace to another’s start. FIFO means first in, first out. Use the same inputs and tie rules across the three main simulations and a fixed seed for randomized history. The urgent-job pair is a separate two-run fixture. Empty report fields are not results. A pattern produced by fixed local rules is not proof that a learning procedure improved.*
+
+[Open the illustration at full size](assets/illustrations/emergence-pattern-and-cost-v2.png).
+
+[Lab 07.06: Observe a collective pattern](07_understanding_self_star/step_06_emergence/README.md).
+
+## Self-play changes the policy, not necessarily the trainer
+
+![A shared board-player-move value table governs X and O during self-play. After each game, player-relative terminal returns update visited values under a fixed Monte Carlo rule. Untrained and trained tables are then frozen for 500 random-opponent evaluation games each.](assets/illustrations/self-play-policy-and-trainer-v2.png)
+
+*The X/O arrows denote table lookup, not separate player-specific tables. Each visited move is updated after the completed game from its mover’s return. The 0-to-0.2 example is arithmetic for a return of +1, not a new measured improvement; a loss gives a negative update from zero. Training explores with probability 0.2; otherwise it chooses a highest-valued legal move with random tie-breaking. Evaluation uses greedy selection with random ties and no exploration or updates. Equal seed schedules do not guarantee identical board trajectories. Fill counts from the actual run and verify unchanged policy hashes. The learned object is a tabular policy, not an LLM or its fixed trainer.*
+
+[Open the illustration at full size](assets/illustrations/self-play-policy-and-trainer-v2.png).
+
+[Lab 07.07: Learn what self-play does and does not provide](07_understanding_self_star/step_07_self_play/README.md).
+
 ## Similar words, different changes
 
 ![Eight parallel examples show current-output correction, tested reflection, retained learning, task-skill improvement under a fixed improver, local reorganization, emergence, self-play under a fixed update rule, and active instruction modification.](assets/illustrations/self-star-v2.png)
