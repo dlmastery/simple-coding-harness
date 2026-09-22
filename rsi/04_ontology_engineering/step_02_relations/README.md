@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A relation connects two objects with a named meaning: scaler “fit on” train; search “selects on” selection; model “measured by” MAE. These facts describe the domain. An execution edge, by contrast, says which action depends on another. Both may be graphs, but they answer different questions.
 
-**A concrete example.** “Scaler fit on train” says which data is permitted. “Fit scaler before transforming selection rows” says what must happen first. The [side-by-side explanation](../../evidence/2026-09-22/ontology-system/04-02/EXPLANATIONS.md) separates those roles. The five-fact table passes the supplied checker, but so does an incomplete table that hides a feature’s target derivation. A pass means that the declared rules found no violation in the supplied facts; it cannot supply missing facts.
+**A concrete example.** “Scaler fit on train” says which data is permitted. “Fit scaler before transforming selection rows” says what must happen first. The [illustrated comparison](../../evidence/2026-09-22/ontology-system/GRAPH-VIEWS.md) separates those roles. The five-fact table passes the supplied checker, but so does an incomplete table that hides a feature’s target derivation. A pass means that the declared rules found no violation in the supplied facts; it cannot supply missing facts.
 
 ![A workflow graph routes valid data toward fitting and invalid data toward repair. Separate domain relations say the scaler is fit on training data, search selects on selection data, and the model is measured by MAE.](../../assets/illustrations/graph-ontology-v1.png)
 

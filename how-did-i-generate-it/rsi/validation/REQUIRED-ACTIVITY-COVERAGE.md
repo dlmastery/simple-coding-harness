@@ -315,7 +315,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** All five requested relations have sentence explanations and an actual domain-check pass. Unknown and omitted-fact cases expose coverage boundaries. An editable side-by-side Mermaid plan is authored but its rendered appearance remains uninspected; the existing conceptual figure was visually reviewed. No claim of actual execution from a fact table or learner assessment follows.
+**Closure gap:** All five requested relations have sentence explanations and an actual domain-check pass. Unknown and omitted-fact cases expose coverage boundaries. The original Mermaid plan rendered as stacked panels in the narrow GitHub view; a corrected illustrated guide refers to named views. The draft and publication finding are preserved. No claim of actual execution from a fact table or learner assessment follows.
 
 **Acceptance to verify:** Each relation is understandable as a sentence. The checker runs and the report states its limited coverage.
 
