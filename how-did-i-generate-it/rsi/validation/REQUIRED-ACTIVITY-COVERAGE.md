@@ -745,6 +745,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** A later two-fit arm records the revised rule before action and uses it to reject the regressing child. Matching predictions across arms isolate the implemented decision difference. A new zero-fit pointer replay reads both saved rules. This is candidate-trial use in shared author context, not an autonomous post-acceptance generation.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
+
 **Acceptance to verify:** The trace includes version identity and an observed decision difference. Merely copying the new file is not accepted as proof of use.
 
 ### [09.05 · Measure whether the revised improver helps](../../../rsi/09_recursive_self_improvement/step_05_compare_improvers/README.md)
@@ -757,6 +759,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 **Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/09-05).
 
 **Closure gap:** Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.
+
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
 
 **Acceptance to verify:** Both arms start from the same solver. Their resource limits and known costs are reported. The conclusion concerns the tested improvers and tasks only.
 
@@ -838,6 +842,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** One outcome check, actor-authored bounded memory, and an inspected historical counterexample are retained; zero fits. The verifier did not approve the lesson. Independent actors and learner interpretation were not tested.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
+
 **Acceptance to verify:** The verifier checks the result; the actor writes memory. Memory quality is inspected separately. No invented approval is recorded.
 
 ### [10.05 · Evaluate with memory frozen](../../../rsi/10_research_studio/01_memory_and_exploration/step_05_frozen_memory/README.md)
@@ -851,6 +857,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** Four fits, pre-fit decisions, frozen choices, prediction checks, and one separate adaptation-copy update executed. Both arms share author context and the same decision rule; equal scores do not isolate a memory effect. Adaptation performance, clean agent contexts, inference costs, and learner understanding remain untested.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
+
 **Acceptance to verify:** The memory stays unchanged. Resource equality and context exposure are reported. The result does not claim a full RSIAgent reproduction.
 
 ### [10.06 · Separate working state from reusable experience](../../../rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md)
@@ -863,6 +871,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 **Evidence:** [Executed memory boundaries and retained counterexamples](../../../rsi/evidence/2026-09-21/memory-labs/README.md).
 
 **Closure gap:** Two typed retrieval checks and a conflicting merged copy are retained; zero fits. The new and stale working states are constructed fixtures. General semantic retrieval, autonomous memory formation, and learner interpretation were not tested.
+
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
 
 **Acceptance to verify:** The new state reflects the new task. Experience retains its evidence and scope. Stale identities are rejected.
 
@@ -903,6 +913,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** Four fits on new synthetic rows, frozen policies and choices, checked evaluation predictions, costs, and an unexecuted revision proposal are retained. Replay selected the existing baseline, so no accepted policy update was redeployed. Author-known task generation, agent isolation, inference cost, and learner assessment remain limitations.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/discovery-final/README.md). The later sixteen-task study deploys the replay-selected policy and measures 55 versus 192 executed fits, with uncertain predictive change. Its known synthetic families, author context, host interruption and extra costs are disclosed. It does not replace this original four-fit activity or establish general transfer.
+
 **Acceptance to verify:** New outcomes are produced by actual fits. Policies remain frozen during confirmation. The conclusion reports both phases and their costs.
 
 ### [10.10 · Localize a harness problem](../../../rsi/10_research_studio/03_modular_harness_evolution/step_10_localize/README.md)
@@ -942,6 +954,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** Selected primary methods and both source figures were inspected. Eight local proposal edges and 28 source files were identity-checked; both improver proposals remain rejected. No new model execution, independent source reproduction, accepted recursive revision in this run, or learner assessment is established.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
+
 **Acceptance to verify:** Every historical technical assertion has a primary citation. The local classification is based on actual versions and traces.
 
 ### [10.13 · Inspect an inner ML researcher](../../../rsi/10_research_studio/04_aide2/step_13_inner_research/README.md)
@@ -967,6 +981,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 **Evidence:** [Executed inner search, matched procedure comparison, and role fixtures](../../../rsi/evidence/2026-09-21/aide-labs/README.md).
 
 **Closure gap:** One actor proposal and two frozen three-fit searches executed from empty matched state. An unequal-budget illustration stayed unexecuted. The child improved selection MAE on exposed development data; inference cost, independent tasks, statistical reliability, and learner understanding remain untested.
+
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
 
 **Acceptance to verify:** Starting artifacts and declared budgets match. All nested attempts remain in the ledger. The claim is limited to this comparison.
 
@@ -1006,6 +1022,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 **Evidence:** [Executed fixed task repairs and an inherited updater revision](../../../rsi/evidence/2026-09-21/meta-skills/README.md).
 
 **Closure gap:** A separately prepared second update trace, one self-directed updater proposal, and two later task-skill arms executed. The revised policy selected a different internal check; both arms faced the same three external cases. A schedule simulation is labelled hypothetical. Shared author context and known fixtures do not establish general autonomous discovery, protected evaluation, statistical benefit, or learner understanding.
+
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
 
 **Acceptance to verify:** The update schedule and inheritance are explicit. Structural recursion and measured effectiveness are reported separately.
 
@@ -1308,6 +1326,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Closure gap:** Two initial fits expose the weak training-ranking rule; two matched three-fit arms execute original and revised Markdown instructions. Candidate-trial inheritance, frozen external acceptance, terminal evaluation, 43 checks and three refusals are retained. No post-acceptance third generation, autonomous proposal, fresh-task effectiveness, complete research cost, independent context, peer or learner assessment occurred.
 
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
+
 **Acceptance to verify:** The improved object is identified. The revised improver actually governs later work. Fairness limits and missing costs remain in the conclusion.
 
 ### [11.03 · Test transfer and portability separately](../../../rsi/11_capstones/step_03_portability/README.md)
@@ -1346,5 +1366,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 **Evidence:** [Evidence-linked portfolio and prepared peer handoff](../../../rsi/evidence/2026-09-22/portfolio/README.md).
 
 **Closure gap:** A no-fit assembly audit verifies thirty original identities, one concrete prediction row, matching start bytes and later instruction use. Public portfolio, existing illustration, failure story, separate costs and a one-fit peer guide are complete as author artifacts. Peer reproduction, actual learner answers, feedback and transfer proposal remain explicitly pending; this mapping does not represent a completed peer session.
+
+**Later extension:** [Checked comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md). A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.
 
 **Acceptance to verify:** The portfolio has runnable evidence and a failed case. The teach-back explains the solver/improver distinction and names remaining uncertainty. Pending peer review is honestly marked.

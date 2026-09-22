@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+one:rbf-unscaled,0.16840088,0,seeded conventional random search
+two:unscaled-c100,0.50272448,0,seeded conventional random search
+one:boost-regularized,0.44100938,0,seeded conventional random search
+one:rbf-wide,8.56837067,0,seeded conventional random search

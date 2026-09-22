@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+two:quadratic-splines,0.13144368,0,seeded conventional random search
+base:neighbors-5,1.82180264,0,seeded conventional random search
+two:log-svr,0.95425647,0,seeded conventional random search
+one:svr-tight,0.21993384,0,seeded conventional random search

@@ -30,3 +30,6 @@ export const capstoneGuidance = {
     hint:'Tell the story through one concrete evidence chain, then transfer it to a new prediction question. Vocabulary alone cannot complete that explanation.'
   },
 };
+
+capstoneGuidance['11.02'].example += ' The later [six-procedure comparison](../../evidence/2026-09-22/tabular-comparison/README.md) replaces that weak-parent question with sound local search and conventional fixed/random controls on six reserved public tasks. It verifies two later skill rounds, 324 attempts and all final predictions. Updater gains remain uncertain, and the fixed portfolio is strongest overall. Use this extension to distinguish an executed recursive mechanism from demonstrated effectiveness.';
+capstoneGuidance['11.05'].example += ' Add the [public-tabular comparison](../../evidence/2026-09-22/tabular-comparison/README.md) to the portfolio: its full measured chart, two later task-23 skills, the German-credit regression, and the source-composition diagnosis form an evidence story that includes failures. Keep it separate from the earlier Dream-inspired study, whose measured contribution is fewer executed fits with uncertain quality change.';

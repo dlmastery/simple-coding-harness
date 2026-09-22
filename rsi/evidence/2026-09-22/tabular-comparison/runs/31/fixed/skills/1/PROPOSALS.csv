@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+base:random-forest,1.0,0,fixed conventional portfolio
+base:rbf-10,1.0,0,fixed conventional portfolio
+base:neighbors-5,1.0,0,fixed conventional portfolio
+base:neighbors-25,1.0,0,fixed conventional portfolio

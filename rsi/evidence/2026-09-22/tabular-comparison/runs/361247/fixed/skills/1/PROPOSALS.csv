@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+base:extra-trees,1.0,0,fixed conventional portfolio
+base:hist-boost,1.0,0,fixed conventional portfolio
+base:rbf-10,1.0,0,fixed conventional portfolio
+base:neighbors-5,1.0,0,fixed conventional portfolio

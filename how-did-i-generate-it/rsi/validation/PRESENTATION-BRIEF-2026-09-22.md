@@ -8,6 +8,13 @@ Status: a [37-slide teaching sequence and speaker-note draft](../presentation/ST
 
 ## Presentation requirements
 
+Update after public-tabular scoring: the 324-attempt comparison and later
+updater use are now checked. Memory beats random but loses to fixed overall;
+the revised updater's mean interval includes zero. Read the
+[full report](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md).
+The execution gap is closed for this study, but the requested effective-RSI
+result remains unestablished. No PPTX is claimed complete from these findings.
+
 - Teach the progression from a single ML experiment through loops, graphs, ontology, system intelligence, meta-harnesses and recursive improvement.
 - Explain what changes in each named method and distinguish model optimization, harness improvement and improvement of the improver.
 - Reuse suitable existing white-background professional infographics. Make any additional illustrations accurate and consistent with the approved visual direction.

@@ -17,7 +17,7 @@ reported separately in the course.
 
 **Explore:** [Full visual outline](rsi/COURSE-MAP.md) · [Research studio and its 38 labs](rsi/10_research_studio/README.md) · [Five capstones](rsi/11_capstones/README.md) · [All 101 illustrated labs](rsi/VISUAL-GUIDE.md).
 
-**RSI presentation:** [Outline, draft speaker notes and PPTX status](rsi/PRESENTATION.md). The PowerPoint is not yet built; the experimental comparisons are still in progress.
+**RSI presentation:** [Outline, draft speaker notes and PPTX status](rsi/PRESENTATION.md). The PowerPoint is not yet built; the completed comparisons have not established reliable RSI gains, and the experimental repair remains in progress.
 
 ## The coding-harness course
 

@@ -224,6 +224,12 @@ for (const [id,gap] of Object.entries({
   '06.05':'The original two-fit wine generation is linked to matching builder identities, current prediction checks, both class recalls and an exact-input group audit with zero crossing groups. An ordinal brief remains a zero-fit plan. The task-specific wrappers were author-generated from a template; this does not demonstrate general autonomous compilation, better-builder quality or learner understanding.'
 })) related.set(id,{path:'rsi/evidence/2026-09-22/builder-reconciliation/README.md',label:'Checked generation lineage, fresh request refusals and task transfer',gap});
 
+const laterComparison = new Map(['09.04','09.05','10.04','10.05','10.06','10.12','10.14','10.17','11.02','11.05'].map(id => [id, {
+  path: 'rsi/evidence/2026-09-22/tabular-comparison/README.md',
+  text: 'A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.'
+}]));
+laterComparison.set('10.09', {path:'rsi/evidence/2026-09-22/discovery-final/README.md', text:'The later sixteen-task study deploys the replay-selected policy and measures 55 versus 192 executed fits, with uncertain predictive change. Its known synthetic families, author context, host interruption and extra costs are disclosed. It does not replace this original four-fit activity or establish general transfer.'});
+
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);
 }
@@ -240,6 +246,11 @@ for (const [key,t] of Object.entries(themes).sort(([a],[b])=>Number(a)-Number(b)
     body += r
       ? `**Evidence:** [${r.label}](${link(r.path)}).\n\n**Closure gap:** ${r.gap}\n`
       : '**Evidence:** No lab-specific execution mapping yet.\n\n**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.\n';
+    const supplement = laterComparison.get(l.id);
+    if (supplement) {
+      if (!existsSync(resolve(repo,supplement.path))) throw new Error('Missing comparison evidence: '+l.id);
+      body += `\n**Later extension:** [Checked comparison](${link(supplement.path)}). ${supplement.text}\n`;
+    }
     body += `\n**Acceptance to verify:** ${l.check}\n`;
   }
 }

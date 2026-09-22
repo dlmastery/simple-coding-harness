@@ -7,8 +7,9 @@ the frozen procedures on reserved tasks before claiming transfer.
 
 ![A discovery tree separates proposed experiments, observed evidence and later choices.](../../assets/illustrations/discovery-tree-evidence-v1.png)
 
-This is a conceptual illustration. The current completed stage is the
-eight-model baseline, not a completed recursive method comparison.
+This is a conceptual illustration. Development and the subsequent
+[six-procedure comparison](comparison/README.md) are complete. The comparison
+verifies later skill use, but does not establish reliable recursive gains.
 
 The [data guide](../../evidence/2026-09-22/real-tabular-data-v2/README.md)
 explains exclusions, duplicate groups, exposure and row roles. The
@@ -22,7 +23,9 @@ auction models remain better. The [second revision](../../evidence/2026-09-22/re
 closes development at 96 attempts and improves the two digit selection scores.
 The [memory replay](../../evidence/2026-09-22/tabular-memory/README.md) retains
 the simpler rule after tied outcomes. Read the failures alongside the gains.
-No reserved-task comparison has run yet.
+The [reserved-task evidence](../../evidence/2026-09-22/tabular-comparison/README.md)
+now contains 288 search attempts and 36 final refits. Memory beats random
+search in this sample but loses to the stronger fixed portfolio overall.
 
 ## Run the baseline through your coding agent
 
@@ -58,6 +61,6 @@ same selection rows guide the choice. A reserved comparison tests whether the
 procedure's advantage survives new evidence. Saving a new instruction alone
 does not show that later work used it.
 
-Next: declare an agent-authored revision from this development feedback,
-preserve its ancestry, and test its effect. The older synthetic harness
+Next: inspect the [matched comparison](comparison/README.md), its two later
+skill rounds, and its gains and regressions. The older synthetic harness
 revision remains rejected; this extension does not change that decision.

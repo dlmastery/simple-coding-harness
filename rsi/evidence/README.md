@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Does memory or a changed updater help on reserved public tasks? | [324-attempt matched comparison: memory beats random but loses to fixed; updater gains remain uncertain](2026-09-22/tabular-comparison/README.md) |
 | What did two source-level revisions change on public data? | [96 total development fits: digit selection gains, retained regression incumbents and an added median control](2026-09-22/real-tabular-revision-2/README.md) |
 | Did more complex memory retrieval help in replay? | [144 recorded-candidate lookups tie; the simpler rule is retained](2026-09-22/tabular-memory/README.md) |
 | What is the starting point on public tabular tasks? | [48 baseline fits, six development tasks, 801 checks; final scores withheld](2026-09-22/real-tabular-baseline/README.md) |

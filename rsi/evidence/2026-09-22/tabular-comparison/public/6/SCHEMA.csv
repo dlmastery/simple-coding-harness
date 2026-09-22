@@ -1,0 +1,18 @@
+column,role,kind,categories
+x-box,feature,numeric,
+y-box,feature,numeric,
+width,feature,numeric,
+high,feature,numeric,
+onpix,feature,numeric,
+x-bar,feature,numeric,
+y-bar,feature,numeric,
+x2bar,feature,numeric,
+y2bar,feature,numeric,
+xybar,feature,numeric,
+x2ybr,feature,numeric,
+xy2br,feature,numeric,
+x-ege,feature,numeric,
+xegvy,feature,numeric,
+y-ege,feature,numeric,
+yegvx,feature,numeric,
+class,target,categorical,A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z

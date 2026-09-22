@@ -52,8 +52,19 @@ Use the [teaching roadmap](TEACHING-ROADMAP.md) to plan a short orientation, the
 The [public-tabular development study](evidence/2026-09-22/real-tabular-revision-2/README.md)
 now adds 96 checked fits and two source-level builder revisions. The digit
 selection scores improve, while the stronger earlier regression models remain
-retained. These extra development fits are not a matched task-transfer result;
-the six reserved tasks remain unused for training or final scoring.
+retained. The subsequent [six-procedure comparison](evidence/2026-09-22/tabular-comparison/README.md)
+has now completed **288 search fits and 36 final-scoring refits** on the six
+reserved tasks. Memory beats random search in this sample but loses to the
+stronger fixed portfolio overall. The revised updater improves two tasks,
+ties three and worsens one against the revised harness with the original
+updater; its uncertainty interval includes zero. Later skill use is verified,
+but a reliable recursive improvement has not been established.
+
+![Measured final scores for all six procedures on six public classification and regression tasks.](evidence/2026-09-22/tabular-comparison/native-score-comparison.png)
+
+*These bars are measured results, separate from the conceptual course maps.
+All procedures spend eight search fits per task. Read the full comparison
+before interpreting one favorable task as a general gain.*
 
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 

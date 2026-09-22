@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+two:native-category-boost,4.58297616,0,seeded conventional random search
+two:unscaled-c100,3.3980193,0,seeded conventional random search
+two:forest-all-features,1.20531999,0,seeded conventional random search
+base:neighbors-5,0.70923492,0,seeded conventional random search

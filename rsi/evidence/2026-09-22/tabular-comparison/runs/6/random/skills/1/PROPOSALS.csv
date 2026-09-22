@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+one:extra-leaf2,0.33142519,0,seeded conventional random search
+one:rbf-unscaled,0.43662054,0,seeded conventional random search
+one:rbf-unscaled,3.66697255,0,seeded conventional random search
+base:rbf-1,1.71910508,0,seeded conventional random search

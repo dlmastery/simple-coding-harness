@@ -15,6 +15,7 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Recent primary sources, reading status, gaps, and proposed lesson use |
 | [Tabular search-space source audit](research/2026-09-22-TABULAR-SEARCH-SPACES.md) | September research directly relevant to agent-written pipeline modules and strong optimization controls |
 | [Completed discovery comparison](../../rsi/evidence/2026-09-22/discovery-final/README.md) | Sixteen paired tasks, actual fit savings, quality uncertainty and the disclosed host interruption |
+| [Completed public-tabular comparison](../../rsi/evidence/2026-09-22/tabular-comparison/README.md) | Six procedures, 324 attempts, checked skill inheritance, strong controls and uncertain updater gains |
 | [Rejected harness revision](../../rsi/evidence/2026-09-22/harness-revision-development/README.md) | Actual source inheritance, six paired tasks, fixed gate and retrospective noise diagnostic |
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
 | [GitHub checkpoints](CHECKPOINTS.md) | Published milestones and the working branch |

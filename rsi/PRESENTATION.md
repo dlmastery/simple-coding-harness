@@ -13,10 +13,13 @@ The planned lecture takes 75–90 minutes, separate from the codelabs.
 - [Inspect the measured experiments](evidence/README.md).
 
 The user requested the PPTX after the experimental repair and verified results.
-The remaining method comparisons and inherited-updater evaluation are still
-in progress. The outline does not yet contain a finished results story, and
-no downloadable RSI `.pptx` exists. A presentation for a different topic in
-this repository is not this deliverable.
+The [six-procedure comparison](evidence/2026-09-22/tabular-comparison/README.md)
+has now completed, including later updater use. Memory beats random search
+but loses to the stronger fixed portfolio overall; updater benefit remains
+uncertain. The original request conditions the deck on a successful repair,
+so these outcomes cannot be presented as established RSI gains. The outline
+does not yet contain a finished results story, and no downloadable RSI `.pptx`
+exists. A presentation for a different topic is not this deliverable.
 
 When those results are ready, this page will link the PPTX, its complete
 speaker notes, authoring sources and rendered review. The deck must distinguish

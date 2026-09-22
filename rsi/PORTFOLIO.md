@@ -52,6 +52,23 @@ The [external gate](evidence/2026-09-21/capstone-recursion/PROMOTION.csv) accept
 
 These concepts are not interchangeable names for “an agent ran a loop.” Use the [teach-back guide](instructor/PEER-REVIEW.md) to explain a new case without memorizing the table.
 
+## Compare with sound conventional procedures
+
+The later [public-tabular study](evidence/2026-09-22/tabular-comparison/README.md)
+tests six procedures on six reserved tasks with equal eight-fit allowances.
+It preserves both favorable and unfavorable examples: the revised updater
+helps contraceptive-method classification and concrete-strength regression,
+but hurts German-credit classification and leaves three outcomes unchanged.
+Its mean uncertainty interval includes zero. Frozen memory beats random
+search in this sample but loses to the fixed portfolio overall.
+
+Trace the two later task-23 skills, then inspect the credit regression and
+source-composition diagnosis. This gives the portfolio a stronger comparison
+than the earlier deliberately weak training-ranking rule. It does not establish
+autonomous discovery, successful post-promotion generations or general RSI.
+Keep the [separate discovery-policy study](evidence/2026-09-22/discovery-final/README.md),
+which measures fewer executed fits, distinct from this equal-fit comparison.
+
 ## Let a peer start without this chat
 
 Open the repository in a coding agent and give it this prompt:

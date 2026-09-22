@@ -1,0 +1,10 @@
+column,role,kind,categories
+cement,feature,numeric,
+blast_furnace_slag,feature,numeric,
+fly_ash,feature,numeric,
+water,feature,numeric,
+superplasticizer,feature,numeric,
+coarse_aggregate,feature,numeric,
+fine_aggregate,feature,numeric,
+age,feature,numeric,
+strength,target,numeric,

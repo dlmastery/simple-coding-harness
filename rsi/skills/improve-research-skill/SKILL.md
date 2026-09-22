@@ -21,4 +21,8 @@ To demonstrate inheritance, start a later improvement round with the selected im
 
 To assess effectiveness, compare improvements produced by the two improvers on fresh tasks under matched resources. A better solver score does not alone show a better improver. Do not claim acceleration without repeated generational evidence and total cost accounting.
 
+Check the effective behavior of composed changes. A new recipe name or different source hash can still construct the same model: a later parameter assignment may overwrite an earlier edit. Inspect the complete model and preprocessing settings before allocating a future comparison. Keep construction checks separate from measured model fits. If this problem is discovered after an experiment is frozen, report it and preserve every charged attempt; do not replace outcomes or silently extend the budget.
+
+Include a credible conventional search control as well as the parent procedure. Beating the parent does not imply beating that control. Report predictive differences, actual executed work and uncertainty separately. For a worked six-procedure comparison, read `rsi/experiments/real-tabular/comparison/README.md` and inspect its evidence before proposing another run.
+
 Stop at the lesson's generation limit. Return a lineage table, results, costs, rejected changes, and a claim audit. Never replace a failed experiment with invented success.

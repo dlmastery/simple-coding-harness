@@ -38,7 +38,16 @@ The repaired discovery cycle executed 43 online development fits. Six agent-writ
 | Proof and meta gate | Separate final rows, five matched arms, checked predictions, costs, uncertainty, recorded promotion and actual later use now exist. This is one shared comparison, not two independent studies. |
 | Dream-inspired mechanism | Real parent workspaces, growing history pool, replay revisions and prospective online comparison completed. Fixed inner proposer and same-context coding agent remain explicit simplifications. |
 | AIDE-inspired harness revision | Changed builder/proposer ran 144 fits on six paired development tasks; 417 checks pass. Two local gains and four ties did not meet the prespecified mean-gain threshold. Parent retained; conditional final study not run. This is a rejected code-level revision, not successful harness transfer or ignition. |
-| Recuris and RSIAgent | Earlier small mechanism exercises remain available. Expanded memory/curriculum comparison in the repaired benchmark remains open. |
-| MetaSkill and recursive capstone | Earlier instruction-use fixtures remain available. A measured inherited-updater comparison on the repaired ML task remains open. |
+| Recuris and RSIAgent | The expanded public-task study now compares frozen experience with fixed and random controls. Memory improves three tasks and ties three against random, but loses to fixed overall. Checked experience and current state stay separate. The source-specific earlier curriculum exercises remain distinct; this is not a full reproduction. |
+| MetaSkill and recursive capstone | Five versioned role inputs govern two later skill rounds per adaptive search. Revised updater versus original updater with the revised harness improves two final tasks, ties three and worsens one; the mean interval includes zero. Candidate-trial inheritance is verified, but post-promotion deployment, repeated meta-generations and reliable RSI benefit remain unestablished. |
 
-Course integration, the remaining method comparisons and the presentation with speaker notes are still required. Do not turn completion of the discovery-policy study into completion of the overall repair.
+The [public-tabular comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md)
+adds 288 search fits and 36 final refits, with 10,353 final checks. Its revised
+harness also faces the original harness under the same updater: one gain,
+four ties and one regression. Two different candidate sources construct the
+same estimator after composed assignments; no frozen outcome was replaced.
+Eleven lesson examples and the improvement skill now link this evidence or
+the completed discovery-policy study. The PPTX remains required and pending
+the requested successful repair. Fixing observable implementation weaknesses
+and testing future revisions requires a new declared study, not retuning on
+these final scores. Do not turn checked execution into established efficacy.

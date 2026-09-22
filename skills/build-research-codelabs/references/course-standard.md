@@ -75,6 +75,8 @@ Preserve a path to larger experiments. Separate the scientific task and evaluati
 
 Scaling must preserve the scientific question or explicitly declare a new one. More trials, larger data, a different model, or more compute can change the comparison. Give competing methods comparable resources when claiming a method improvement.
 
+Inspect the effective behavior of composed changes before measuring them. Different source hashes or recipe names can still construct the same model or workflow when a later operation overwrites an earlier edit. Use construction or behavioral checks to identify this case. If it is discovered after an experiment is frozen, preserve the charged attempts and report the limitation; do not replace outcomes or tune against final data. Keep strong conventional controls visible even when the proposed method beats another weaker control.
+
 Make this path concrete with a readable job brief, an adapter contract, and small backend acceptance checks. Distinguish a candidate from its submission attempts. Reconcile uncertain submission before retrying. A model without resumable training should record a failed attempt and a fresh retry; do not call it checkpoint resumption. Keep student instructions in natural language while the agent generates backend files.
 
 ## Data science and experiment design

@@ -1,0 +1,3 @@
+template,factor,parent_step,reason
+two:unscaled-c100,1.0,3,checked experience supplies a different template
+base:rbf-1,3.3,3,representation or local-capacity question

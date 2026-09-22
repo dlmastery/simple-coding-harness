@@ -2,8 +2,11 @@
 
 This study compares ordinary ML search, retained experience, a revised
 harness and a revised updater. The source is frozen before fitting six
-reserved classification/regression tasks. Execution is in progress; this
-page does not yet report a final result.
+reserved classification/regression tasks. All 288 search attempts and 36
+final refits have completed. The [checked report](../../../evidence/2026-09-22/tabular-comparison/README.md)
+shows a memory advantage over random search, an overall disadvantage against
+the fixed portfolio, and uncertain updater gains. The 10,353 final checks
+verify the recorded execution; they do not establish RSI effectiveness.
 
 ![A fair comparison gives two procedures matched starting information and resources.](../../../assets/illustrations/matched-search-budgets-v1.png)
 
@@ -66,5 +69,7 @@ eight search attempts, so fewer fitted candidates is not an outcome of this
 study. Earlier discovery-tree evidence tests that separate question.
 
 The comparison preserves mechanisms from the research studio. It is not a
-reproduction of every named paper. The resulting evidence will feed back
-into those labs and the capstone presentation after checking is complete.
+reproduction of every named paper. Inspect the [actual later skills](../../../evidence/2026-09-22/tabular-comparison/runs/23/updater/skills/2/RESEARCH-SKILL.md)
+and [composition diagnosis](../../../evidence/2026-09-22/tabular-comparison/composition/README.md).
+Two changed recipes construct identical estimators after a later parameter
+assignment overwrites an earlier change. The full frozen result stays intact.
