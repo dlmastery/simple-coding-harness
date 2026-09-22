@@ -28,9 +28,20 @@ An improvement hypothesis connects an observed error to a proposed change. Here 
 
 **A concrete example.** A constant predictor gives the same answer at 3 a.m. and 5 p.m. A model with calendar categories can assign different contributions to those hours. In the saved author run, replacing the constant model with a calendar linear model changed selection MAE from 159.95 to 109.81. Both used the same calendar input group; the comparison isolates a model change rather than adding weather at the same time.
 
+![A hypothesis from earlier hourly errors motivates a two-fit comparison of a constant training-median predictor and a calendar-based linear model under the same task, split, features, seed, and MAE.](../../assets/illustrations/one-factor-model-change-v1.png)
+
+*Both recipes receive the same calendar feature group; the constant predictor ignores its inputs. Hour, weekday, and season illustrate some permitted calendar fields, not the entire schema. The shared strip names fixed conditions, and the lower arrows collect comparison evidence; it is not a fitting operation. Blank cells must come from your two new fits. Inspect hourly slices as well as the aggregate score, and keep both candidates if the proposed improvement fails.*
+
+[Open the illustration at full size](../../assets/illustrations/one-factor-model-change-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The weak result motivates a specific new candidate. The evaluator stays fixed.](../../assets/diagrams/lab-02-01.png)
 
 *Read the diagram:* The weak result motivates a specific new candidate. The evaluator stays fixed.
+
+</details>
 
 ## Run the lab
 

@@ -28,9 +28,20 @@ A scalar score says how well a candidate performed. Error slices help locate the
 
 **A concrete example.** In the saved author walkthrough, the linear model with calendar fields has selection MAE 109.81. Adding weather to that same model reduces it to 99.18. Changing the model to a tree while keeping calendar fields instead gives 125.05. One proposal helps and another hurts. Keeping the interventions separate tells you which change produced each result. Your own run must supply its own measurements.
 
+![Selection-error evidence informs a feedback note and a recorded decision before comparing linear/calendar with linear/calendar-and-weather under the same seed, split, and metric.](../../assets/illustrations/feedback-to-feature-choice-v1.png)
+
+*The top report is the prerequisite candidate’s saved selection evidence. The two new fits form the controlled comparison in this lab. Report icons do not establish a weather-related cause: write the actual observation, alternative explanation, and proposed test. The right-hand recipe corresponds to the tool’s all feature group, which adds permitted observed weather to calendar fields. Record the decision before that fit; an explanation written afterward does not show feedback governed the action. Fill costs and outcomes from execution.*
+
+[Open the illustration at full size](../../assets/illustrations/feedback-to-feature-choice-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.](../../assets/diagrams/lab-02-03.png)
 
 *Read the diagram:* Use an observed error to choose one intervention. Keep other factors fixed to make the comparison interpretable.
+
+</details>
 
 ## Run the lab
 

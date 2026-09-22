@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**64 of 101 labs** currently have a mapped generated infographic; **37 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**69 of 101 labs** currently have a mapped generated infographic; **32 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -10,7 +10,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 |---|---|---|---|
 | 00 · Start with a prediction | 4 | 4 | 0 |
 | 01 · Make one process dependable | 5 | 5 | 0 |
-| 02 · Repeat for a reason | 6 | 1 | 5 |
+| 02 · Repeat for a reason | 6 | 6 | 0 |
 | 03 · Give different cases different routes | 6 | 0 | 6 |
 | 04 · Agree on what the experiment means | 5 | 1 | 4 |
 | 05 · Build capability around the model | 5 | 1 | 4 |
@@ -44,12 +44,12 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [02.01 · Let a failure motivate a second attempt](../../../rsi/02_loop_engineering/step_01_why_repeat/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-02-01.png) |
+| [02.01 · Let a failure motivate a second attempt](../../../rsi/02_loop_engineering/step_01_why_repeat/README.md) | [Selected figure](../../../rsi/assets/illustrations/one-factor-model-change-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-01.png) |
 | [02.02 · Give the loop state and a budget](../../../rsi/02_loop_engineering/step_02_bounded_state/README.md) | [Selected figure](../../../rsi/assets/illustrations/bounded-loop-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-02.png) |
-| [02.03 · Turn an error into a different action](../../../rsi/02_loop_engineering/step_03_use_feedback/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-02-03.png) |
-| [02.04 · Stop repeated failure and oscillation](../../../rsi/02_loop_engineering/step_04_stop_the_loop/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-02-04.png) |
-| [02.05 · Resume without losing the experiment](../../../rsi/02_loop_engineering/step_05_resume/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-02-05.png) |
-| [02.06 · Compare two ways to spend the same attempts](../../../rsi/02_loop_engineering/step_06_compare_loops/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-02-06.png) |
+| [02.03 · Turn an error into a different action](../../../rsi/02_loop_engineering/step_03_use_feedback/README.md) | [Selected figure](../../../rsi/assets/illustrations/feedback-to-feature-choice-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-03.png) |
+| [02.04 · Stop repeated failure and oscillation](../../../rsi/02_loop_engineering/step_04_stop_the_loop/README.md) | [Selected figure](../../../rsi/assets/illustrations/duplicate-and-budget-stops-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-04.png) |
+| [02.05 · Resume without losing the experiment](../../../rsi/02_loop_engineering/step_05_resume/README.md) | [Selected figure](../../../rsi/assets/illustrations/resume-shared-budget-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-05.png) |
+| [02.06 · Compare two ways to spend the same attempts](../../../rsi/02_loop_engineering/step_06_compare_loops/README.md) | [Selected figure](../../../rsi/assets/illustrations/matched-search-budgets-v1.png) | [Present](../../../rsi/assets/diagrams/lab-02-06.png) |
 
 ## 03 · Give different cases different routes
 

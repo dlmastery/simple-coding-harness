@@ -28,9 +28,20 @@ A checkpoint records durable state: contract, completed and interrupted attempts
 
 **A concrete example.** A three-attempt experiment stops after candidate 1. Its checkpoint says one used and two remaining. Opening another session changes neither number. If candidate 2 later starts and is interrupted, that admitted attempt still belongs in the ledger. Candidate 3 must get a new identity; it cannot overwrite candidate 2 and conceal the failure.
 
+![After one completed trial in a three-attempt experiment, a checkpoint and ledger preserve the contract, identities, candidate, budget, and next action. Process reconciliation precedes the remaining two attempts.](../../assets/illustrations/resume-shared-budget-v1.png)
+
+*This depicts an orderly pause after trial-001, not interruption during its fit. The right-hand files represent the remaining possible attempt identities, not already successful results. Inspect live work and actual artifacts before resuming; a saved lock alone does not prove a process is active. An admitted attempt that is later interrupted still occupies its slot and keeps its known cost. Reconcile a stale progress note with the durable ledger rather than silently refilling the budget. A program restart does not itself establish a fresh agent context.*
+
+[Open the illustration at full size](../../assets/illustrations/resume-shared-budget-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.](../../assets/diagrams/lab-02-05.png)
 
 *Read the diagram:* Resume from recorded state only after reconciling unfinished work. Starting again must not erase spent attempts.
+
+</details>
 
 ## Run the lab
 

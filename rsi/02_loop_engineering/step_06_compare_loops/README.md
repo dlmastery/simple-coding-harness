@@ -28,9 +28,20 @@ Procedure A repeats a declared baseline recipe. Procedure B uses the first resul
 
 **A concrete example.** In the [author run](../../evidence/2026-09-20/loops-and-systems/02-06/COMPARISON.md), repeating the constant baseline twice retained MAE 159.95. The other arm inspected hourly errors, recorded a model choice, and fitted linear/calendar on its second attempt. It retained MAE 109.81. Both arms spent two fits; their total reasoning and review costs were not measured. This small, author-known task checks two fixed search procedures. It does not show either procedure revising its own improver.
 
+![Arm A intentionally fits the constant/calendar baseline twice. Arm B fits the same baseline, reads selection errors, records one permitted model choice, and fits it. Each arm has two fits and separate result and cost records.](../../assets/illustrations/matched-search-budgets-v1.png)
+
+*The four fit cards are four actual attempts to execute in separate workspaces; arm B cannot reuse arm A’s first fit as its own. A1 to A2 shows execution order, not an updated baseline recipe. Predeclare the replication allowance for arm A so a duplicate guard does not change its method. The arm-B decision precedes B2, and neither a plausible diagnosis nor this drawing establishes a win. Record context exposure and costs beyond fitting. This small comparison tests two fixed search procedures, not an improver revising itself.*
+
+[Open the illustration at full size](../../assets/illustrations/matched-search-budgets-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Both search rules start from the same conditions and receive the same total attempt allowance.](../../assets/diagrams/lab-02-06.png)
 
 *Read the diagram:* Both search rules start from the same conditions and receive the same total attempt allowance.
+
+</details>
 
 ## Run the lab
 

@@ -28,9 +28,20 @@ A recipe fingerprint identifies task, model, features, seed, and tool version. I
 
 **A concrete example.** The proposed sequence linear/calendar → tree/calendar → linear/calendar contains two distinct recipes. A useful controller detects the return to the first recipe before another fit starts. A fourth distinct proposal is a different refusal: it exceeds the two-fit budget. Keeping both reasons shows that duplicate detection and budgeting are separate checks.
 
+![An illustrative controller admits at most two distinct calendar-model fits, refuses a repeated linear recipe, and refuses a new forest recipe after the budget is spent. Four request rows retain decisions and reasons.](../../assets/illustrations/duplicate-and-budget-stops-v1.png)
+
+*This sequence assumes requests 1 and 2 have consumed the two allowed fit slots. Check duplicates before budget so request 3 records the duplicate reason; request 4 is distinct and demonstrates the budget refusal. The tree and forest drawings are mnemonics for model names. The request trace records admitted and refused work; the fit ledger records actual attempts. A refusal has no executed model score, but proposal and checking costs can still exist. The drawn gates state intended controller behavior, which you must test.*
+
+[Open the illustration at full size](../../assets/illustrations/duplicate-and-budget-stops-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.](../../assets/diagrams/lab-02-04.png)
 
 *Read the diagram:* A loop needs a path out. Repeated failure, oscillation, or exhausted budget can trigger the declared stop rule.
+
+</details>
 
 ## Run the lab
 
@@ -60,8 +71,13 @@ Generate a controller in my workspace that
 fingerprints proposed recipes and rejects
 unlabelled duplicates. Preserve the sequence
 linear/calendar, tree/calendar,
-linear/calendar as a teaching input. Write
-its stop rules in LOOP.md.
+linear/calendar as a teaching input. Check
+duplicate identity before remaining budget
+so the third request records the duplicate
+reason. Use a distinct forest/calendar
+request to test budget exhaustion. Write
+this check order and its stop rules in
+LOOP.md.
 ```
 
 **Observe:** The third proposal is recognized as a duplicate.

@@ -136,6 +136,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 01.05: Reuse the skill in a fresh session](01_process_without_loops/step_05_reuse_the_skill/README.md).
 
+## Change one factor to test your explanation
+
+![A hypothesis from earlier hourly errors motivates a two-fit comparison of a constant training-median predictor and a calendar-based linear model under the same task, split, features, seed, and MAE.](assets/illustrations/one-factor-model-change-v1.png)
+
+*Both recipes receive the same calendar feature group; the constant predictor ignores its inputs. Hour, weekday, and season illustrate some permitted calendar fields, not the entire schema. The shared strip names fixed conditions, and the lower arrows collect comparison evidence; it is not a fitting operation. Blank cells must come from your two new fits. Inspect hourly slices as well as the aggregate score, and keep both candidates if the proposed improvement fails.*
+
+[Open the illustration at full size](assets/illustrations/one-factor-model-change-v1.png).
+
+[Lab 02.01: Let a failure motivate a second attempt](02_loop_engineering/step_01_why_repeat/README.md).
+
 ## A loop needs memory and a way out
 
 ![Propose, run, check, and record surround persistent state. A limit gate leads to the next attempt or stop. A failed fit is recorded and still consumes an attempt. Resumption reads the same saved state.](assets/illustrations/bounded-loop-v1.png)
@@ -145,6 +155,46 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/bounded-loop-v1.png).
 
 [Lab 02.02: Give the loop state and a budget](02_loop_engineering/step_02_bounded_state/README.md).
+
+## Feedback matters when it changes the next action
+
+![Selection-error evidence informs a feedback note and a recorded decision before comparing linear/calendar with linear/calendar-and-weather under the same seed, split, and metric.](assets/illustrations/feedback-to-feature-choice-v1.png)
+
+*The top report is the prerequisite candidate’s saved selection evidence. The two new fits form the controlled comparison in this lab. Report icons do not establish a weather-related cause: write the actual observation, alternative explanation, and proposed test. The right-hand recipe corresponds to the tool’s all feature group, which adds permitted observed weather to calendar fields. Record the decision before that fit; an explanation written afterward does not show feedback governed the action. Fill costs and outcomes from execution.*
+
+[Open the illustration at full size](assets/illustrations/feedback-to-feature-choice-v1.png).
+
+[Lab 02.03: Turn an error into a different action](02_loop_engineering/step_03_use_feedback/README.md).
+
+## Stop a repeated idea before it becomes another fit
+
+![An illustrative controller admits at most two distinct calendar-model fits, refuses a repeated linear recipe, and refuses a new forest recipe after the budget is spent. Four request rows retain decisions and reasons.](assets/illustrations/duplicate-and-budget-stops-v1.png)
+
+*This sequence assumes requests 1 and 2 have consumed the two allowed fit slots. Check duplicates before budget so request 3 records the duplicate reason; request 4 is distinct and demonstrates the budget refusal. The tree and forest drawings are mnemonics for model names. The request trace records admitted and refused work; the fit ledger records actual attempts. A refusal has no executed model score, but proposal and checking costs can still exist. The drawn gates state intended controller behavior, which you must test.*
+
+[Open the illustration at full size](assets/illustrations/duplicate-and-budget-stops-v1.png).
+
+[Lab 02.04: Stop repeated failure and oscillation](02_loop_engineering/step_04_stop_the_loop/README.md).
+
+## A restart does not refill the experiment budget
+
+![After one completed trial in a three-attempt experiment, a checkpoint and ledger preserve the contract, identities, candidate, budget, and next action. Process reconciliation precedes the remaining two attempts.](assets/illustrations/resume-shared-budget-v1.png)
+
+*This depicts an orderly pause after trial-001, not interruption during its fit. The right-hand files represent the remaining possible attempt identities, not already successful results. Inspect live work and actual artifacts before resuming; a saved lock alone does not prove a process is active. An admitted attempt that is later interrupted still occupies its slot and keeps its known cost. Reconcile a stale progress note with the durable ledger rather than silently refilling the budget. A program restart does not itself establish a fresh agent context.*
+
+[Open the illustration at full size](assets/illustrations/resume-shared-budget-v1.png).
+
+[Lab 02.05: Resume without losing the experiment](02_loop_engineering/step_05_resume/README.md).
+
+## Compare how two procedures spend the same attempts
+
+![Arm A intentionally fits the constant/calendar baseline twice. Arm B fits the same baseline, reads selection errors, records one permitted model choice, and fits it. Each arm has two fits and separate result and cost records.](assets/illustrations/matched-search-budgets-v1.png)
+
+*The four fit cards are four actual attempts to execute in separate workspaces; arm B cannot reuse arm A’s first fit as its own. A1 to A2 shows execution order, not an updated baseline recipe. Predeclare the replication allowance for arm A so a duplicate guard does not change its method. The arm-B decision precedes B2, and neither a plausible diagnosis nor this drawing establishes a win. Record context exposure and costs beyond fitting. This small comparison tests two fixed search procedures, not an improver revising itself.*
+
+[Open the illustration at full size](assets/illustrations/matched-search-budgets-v1.png).
+
+[Lab 02.06: Compare two ways to spend the same attempts](02_loop_engineering/step_06_compare_loops/README.md).
 
 ## Workflow and domain meaning
 

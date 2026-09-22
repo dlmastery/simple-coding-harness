@@ -7,6 +7,11 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["one-factor-model-change-v1","exec-52b50b5a-9043-4b2b-b2ca-9283760a4e5e.png",true],
+  ["feedback-to-feature-choice-v1","exec-1f6cc5ef-fc0c-4e59-aef9-08e2b48660b5.png",true],
+  ["duplicate-and-budget-stops-v1","exec-4677aaac-1c0e-42dc-90c9-91288e3cea08.png",true],
+  ["resume-shared-budget-v1","exec-35c65447-de37-4b72-a043-22dc547419d6.png",true],
+  ["matched-search-budgets-v1","exec-699f43d7-a6bb-4b45-a05b-c15879b1455d.png",true],
   ["fixed-process-trace-v1","exec-590c4024-023a-4519-b504-df55e58012ff.png",false],
   ["fixed-process-trace-v2","exec-ea4d02a6-9d2f-4446-a197-5eba4a5bc9ba.png",true],
   ["skill-agent-tool-check-v1","exec-196e28b2-f7ff-4117-acfa-9bda3c91064b.png",false],
