@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Loop state is the information needed for the next step: attempts used, candidates tried, current result, and retained best result. The best candidate changes only when the new valid score is better under the fixed rule. Rejected candidates remain part of the experiment.
 
-**A concrete example.** Suppose three illustrative candidates have MAE 160, 110, and 125. After the third fit, the current candidate has error 125, but the retained best still has error 110. The loop stops because it spent three attempts. Stopping and choosing the retained output are different decisions.
+**A concrete example.** In the [three-fit state walkthrough](../../evidence/2026-09-22/loop-state-feedback/README.md), constant, linear and tree candidates have selection MAEs 159.947912, 109.807668 and 125.049488. After the third fit, the current candidate is the tree, but the retained best is still the linear model. Each new controller process reads saved state before acting. The loop then refuses a fourth request because all three attempts are spent. Stopping and choosing the retained output are different decisions.
 
 ![Propose, run, check, and record surround persistent state. A limit gate leads to the next attempt or stop. A failed fit is recorded and still consumes an attempt. Resumption reads the same saved state.](../../assets/illustrations/bounded-loop-v1.png)
 

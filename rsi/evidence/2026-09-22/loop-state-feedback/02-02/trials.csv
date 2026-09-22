@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.068203,not supplied,Execute the next declared model under the fixed three-attempt loop.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.080851,not supplied,Execute the next declared model under the fixed three-attempt loop.
+trial-003,ok,bike,tree,calendar,17,125.04948805895863,0.088057,not supplied,Execute the next declared model under the fixed three-attempt loop.

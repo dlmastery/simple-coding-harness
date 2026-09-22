@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\lab.py', 'run', '--task', 'bike', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-loop-state-feedback\\02-02', '--model', 'tree', '--features', 'calendar', '--seed', '17', '--attempt-limit', '3', '--hypothesis', 'Execute the next declared model under the fixed three-attempt loop.']
+Start UTC: 2026-09-22T08:04:41.097826+00:00
+End UTC: 2026-09-22T08:04:42.690505+00:00
+Exit: 0
+Expected: 0
+Process wall seconds: 1.585314299998572
+
+{"candidate": "trial-003", "status": "ok", "task": "bike", "model": "tree", "features": "calendar", "seed": 17, "score": 125.04948805895863, "seconds": 0.088057, "policy_sha256": "not supplied", "note": "Execute the next declared model under the fixed three-attempt loop."}

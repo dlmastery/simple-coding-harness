@@ -1,0 +1,7 @@
+check,passed
+two historical fits only,True
+four historical requests,True
+duplicate refused without admission,True
+new recipe refused at budget,True
+controller source matches contract,True
+duplicate check precedes fit admission,True

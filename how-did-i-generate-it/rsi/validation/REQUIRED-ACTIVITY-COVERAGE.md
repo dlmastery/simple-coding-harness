@@ -140,9 +140,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Inspect a slice where the new model is still weak. Explain why a better average does not imply every hour improved.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/02-01).
+**Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The original controlled two-fit comparison now has a checked 24-hour slice audit and actual-data figure. Its missing pre-fit diagnosis remains a specific historical gap: a retrospective explanation cannot govern an earlier fit. No new fit or learner answer is attributed to this audit.
 
 **Acceptance to verify:** The data, split, metric, seed, and feature set match. Only the model family changes. COMPARISON.md retains both results and costs.
 
@@ -153,9 +153,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Set the limit to one in a new workspace. Predict which artifact can be produced and which comparisons cannot.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/02-02).
+**Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Three newly allocated fits read and cross-check durable state in separate controller processes. All state versions, retained-best decisions, prediction checks and a fourth-request refusal are preserved. The one-limit extension is a separate zero-fit plan. The fixed author-written controller, prior public exposure and unattempted learner assessment limit the result.
 
 **Acceptance to verify:** Exactly three attempts are recorded. The retained candidate satisfies the declared rule. The last candidate is not automatically selected.
 
@@ -166,9 +166,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Replace the diagnosis with “try harder.” Explain why this is less useful than naming a testable change.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/02-03).
+**Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Two new fits use saved feedback and decision fields written before execution. Frozen identities, checked predictions, hourly improvements and regressions, and a weak-feedback counterexample are retained. The author knew related outcomes; this is not blind or autonomous diagnosis, causal attribution, independent-agent evidence or learner assessment.
 
 **Acceptance to verify:** The next action differs in the declared feature set. The report does not infer causation from prediction performance. Harmful feedback remains visible.
 
@@ -179,9 +179,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Label a repeated seed experiment as an intentional reproducibility check. Explain why its purpose and cost should remain explicit.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/02-04).
+**Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Six read-only checks verify the original two fits, duplicate and budget refusals, source hash and pre-fit duplicate guard. The rule explanation is a later reconstruction, not an original LOOP.md. Intentional replication is explained without extra fitting; adversarial isolation and learner assessment remain untested.
 
 **Acceptance to verify:** The controller produces a real refusal for both duplicate and over-budget requests. Rejections are recorded without fabricated model scores.
 

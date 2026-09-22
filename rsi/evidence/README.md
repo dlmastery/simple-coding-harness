@@ -6,6 +6,10 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Does saved state or feedback actually control the next fit? | [Five fits, retained state versions, pre-fit decisions and hourly regressions](2026-09-22/loop-state-feedback/README.md) |
+| Does a saved skill produce a repeatable process? | [Two five-action traces, identical predictions and a missing-report diagnosis](2026-09-22/fixed-process/README.md) |
+| Can a plausible score hide the wrong rows? | [Generated checker and a one-row substitution refusal](2026-09-22/generated-checker/README.md) |
+| Does interruption erase spent attempts? | [Stale-worker recovery, preserved failures and one continuation fit](2026-09-22/interrupted-attempt/README.md) |
 | Can someone follow the whole evidence story? | [Example portfolio, checked source identities and pending peer handoff](2026-09-22/portfolio/README.md) |
 | Can a small check clarify a paper without reproducing it? | [Versioned source audit and two acceptance rules](2026-09-22/external-audit/README.md) |
 | Does one successful task prove portability? | [Two local task paths, capability refusal and explicitly untested hosts](2026-09-21/capstone-portability/README.md) |

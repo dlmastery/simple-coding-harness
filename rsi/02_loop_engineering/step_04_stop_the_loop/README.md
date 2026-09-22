@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A recipe fingerprint identifies task, model, features, seed, and tool version. If those are unchanged, a proposal may repeat an earlier attempt. A duplicate check is a controller rule, distinct from the metric. Some repeated stochastic trials are intentional; record that purpose rather than disguising repetition as novelty.
 
-**A concrete example.** The proposed sequence linear/calendar → tree/calendar → linear/calendar contains two distinct recipes. A useful controller detects the return to the first recipe before another fit starts. A fourth distinct proposal is a different refusal: it exceeds the two-fit budget. Keeping both reasons shows that duplicate detection and budgeting are separate checks.
+**A concrete example.** The [audited request trace](../../evidence/2026-09-22/loop-state-feedback/STOP-RULES-REVIEW.md) records linear/calendar → tree/calendar → linear/calendar → forest/calendar. Only the first two fit. The repeated linear recipe is refused as a duplicate; the distinct forest recipe is refused because the two-fit budget is spent. Neither refusal gets an invented score. A source check confirms that duplication is tested before fitting; the controller and experiment contracts bind the recorded tool versions.
 
 ![An illustrative controller admits at most two distinct calendar-model fits, refuses a repeated linear recipe, and refuses a new forest recipe after the budget is spent. Four request rows retain decisions and reasons.](../../assets/illustrations/duplicate-and-budget-stops-v1.png)
 

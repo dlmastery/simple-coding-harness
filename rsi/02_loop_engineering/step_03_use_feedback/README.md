@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A scalar score says how well a candidate performed. Error slices help locate the weakness. A hypothesis then connects that weakness to an intervention. Adding weather inputs tests whether information beyond the calendar helps this fixed model; it does not prove weather causes demand.
 
-**A concrete example.** In the saved author walkthrough, the linear model with calendar fields has selection MAE 109.81. Adding weather to that same model reduces it to 99.18. Changing the model to a tree while keeping calendar fields instead gives 125.05. One proposal helps and another hurts. Keeping the interventions separate tells you which change produced each result. Your own run must supply its own measurements.
+**A concrete example.** The [saved feedback](../../evidence/2026-09-22/loop-state-feedback/FEEDBACK.md) names weak commuting-hour predictions, a weather-feature hypothesis and an alternative explanation. The decision files exist before either fit; their feature fields supply the actual run arguments. Selection MAE changes from 109.807668 to 99.175924, yet hours 2, 3 and 4 get worse. The [measured comparison](../../evidence/2026-09-22/loop-state-feedback/README.md) supports this bounded intervention, not a claim that weather caused every error or that the agent discovered the hypothesis independently.
 
 ![Selection-error evidence informs a feedback note and a recorded decision before comparing linear/calendar with linear/calendar-and-weather under the same seed, split, and metric.](../../assets/illustrations/feedback-to-feature-choice-v1.png)
 
