@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-74 labs have mapped related author-execution evidence; 27 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+77 labs have mapped related author-execution evidence; 24 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -912,9 +912,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Make the same change in two components in a labelled proposal and explain why attribution becomes harder.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed module checks and source-specific lineage audit](../../../rsi/evidence/2026-09-21/modular-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two prerequisite trace captures and two context-only patch checks executed; a two-component alternative remains a labelled proposal. Component and fixed-driver scope is explicit. Constructed records and a stub do not test real language-model compression, independent actors, or learner understanding.
 
 **Acceptance to verify:** The edit stays within its declared component. The retained outcome includes both target and regression checks.
 
@@ -925,9 +925,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** For the seventh execution, remove one field expected by the second component in the declared malformed fixture. Run the combined system and confirm a clear interface failure before the fit stub.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed module checks and source-specific lineage audit](../../../rsi/evidence/2026-09-21/modular-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** All seven declared fixture executions are retained, including independent-edit passes, combined failures on original/fresh cases, and a malformed-input refusal before the stub. Zero fits. The combination was rejected; broad transfer, real agents, and learner interpretation remain untested.
 
 **Acceptance to verify:** The combined version has its own tests and identity. Transfer cases are distinguished from selection cases. Failed integration is not hidden. Seven fixture records account for the complete budget.
 
@@ -938,9 +938,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Erase the improver-version column and explain which conclusions become ambiguous.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed module checks and source-specific lineage audit](../../../rsi/evidence/2026-09-21/modular-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Selected primary methods and both source figures were inspected. Eight local proposal edges and 28 source files were identity-checked; both improver proposals remain rejected. No new model execution, independent source reproduction, accepted recursive revision in this run, or learner assessment is established.
 
 **Acceptance to verify:** Every historical technical assertion has a primary citation. The local classification is based on actual versions and traces.
 

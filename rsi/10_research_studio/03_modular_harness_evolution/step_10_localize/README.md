@@ -18,15 +18,15 @@ Complete [10.09: Test the replay winner on fresh work](../../02_dream_rsi/step_0
 
 Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/10-10</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
 
-**Starting state:** One successful and one failed ML workflow trace under the same task contract.
+**Starting state:** One successful and one failed ML workflow trace under the same task contract. If no suitable pair exists, prepare two labelled handoff fixtures with a fit stub first.
 
-**Budget:** One component edit and two fixture checks; at most two fits. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One component edit and two patch checks; at most two fits if real fitting is needed. Preparing a missing trace pair permits two separate prerequisite fixture captures with zero fits; record them in the ledger. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 ModularRSI organizes changes across agent loop, tool use, observation, context, and task completion. In this exercise, contrasting traces identify one likely faulty component. Restrict the edit and keep neighboring components fixed so its consequences are easier to inspect.
 
-**A concrete example.** A tool correctly reports seconds, but the summary interprets the value as minutes. Changing the estimator will not repair that interface error. Restrict the candidate edit to the observation-to-report step, then test the original unit mismatch and a case whose units were already handled correctly.
+**A concrete example.** In the [executed context repair](../../../evidence/2026-09-21/modular-labs/README.md#find-the-first-missing-fact), both inputs contained trial-001. H0 preserved it in a short observation but removed it when compressing a long one. A context-only patch retained the identity, and both patch checks passed. The completion gate stayed strict. These are constructed handoff fixtures with a fit stub, not naturally observed language-model failures.
 
 ![Passing and failing traces differ at a context handoff. Only the Context module changes to preserve candidate identity; the other four modules stay fixed. Original and passing cases, integration, and later transfer need separate checks.](../../../assets/illustrations/modular-harness-v2.png)
 

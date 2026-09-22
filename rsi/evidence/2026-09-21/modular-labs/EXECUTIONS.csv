@@ -1,0 +1,12 @@
+case,harness_verdict,expected,expectation_matched,stub_calls,actual_fits,wall_seconds
+10-10/before-short,accepted,accepted,True,1,0,0.009337600000435486
+10-10/before-long,refused,refused,True,0,0,0.00303949999215547
+10-10/after-long,accepted,accepted,True,1,0,0.006186099999467842
+10-10/after-short,accepted,accepted,True,1,0,0.0031706000008853152
+10-11/check-01-original-base,accepted,accepted,True,1,0,0.006506300007458776
+10-11/check-02-original-A,accepted,accepted,True,1,0,0.00597449998895172
+10-11/check-03-original-B,accepted,accepted,True,1,0,0.005901700002141297
+10-11/check-04-original-AB,refused,refused,True,0,0,0.004690999994636513
+10-11/check-05-fresh-base,accepted,accepted,True,1,0,0.003259100005379878
+10-11/check-06-fresh-AB,refused,refused,True,0,0,0.003983900009188801
+10-11/check-07-malformed-AB,refused,refused,True,0,0,0.0029513000044971704

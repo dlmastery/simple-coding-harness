@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Check each edit alone and then the combination under the same interface contract. A context change may remove information that a completion check expects. Integration therefore needs its own evidence, followed by a case that did not select either edit.
 
-**A concrete example.** Edit A shortens a context record by removing a units field. Edit B adds a completion check that requires units. Each can pass under its own prior fixtures, yet their combination fails. A shared interface table reveals the conflict before a model fit is needed.
+**A concrete example.** The [seven executed integration checks](../../../evidence/2026-09-21/modular-labs/README.md#test-the-combined-interface) show base, A, and B accepting the original case. A+B refused it: A normalized the value into duration_seconds and removed duration_unit, which B still required. The same conflict appeared on a predeclared minutes fixture. A separate missing-candidate case was refused before the fit stub. No model trained; the failed combination was retained as rejected evidence.
 
 ![A units-field interface conflict motivates four original-case checks, two fresh-case checks, and one missing-field check, totaling seven executions with training disabled.](../../../assets/illustrations/integration-seven-checks-v1.png)
 

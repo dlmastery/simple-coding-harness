@@ -1,0 +1,5 @@
+# Original refused-run reports have an empty Seconds field. Preserve their bytes.
+10-10/before-long/RESULT.md whitespace=-blank-at-eol,cr-at-eol
+10-11/check-04-original-AB/RESULT.md whitespace=-blank-at-eol,cr-at-eol
+10-11/check-06-fresh-AB/RESULT.md whitespace=-blank-at-eol,cr-at-eol
+10-11/check-07-malformed-AB/RESULT.md whitespace=-blank-at-eol,cr-at-eol

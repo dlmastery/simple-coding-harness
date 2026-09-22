@@ -1,0 +1,6 @@
+component,event
+loop,enter
+tool,read constructed fixture; no model execution
+observation,candidate=MISSING
+context,candidate=MISSING; fields=duration_seconds
+completion,refused: missing candidate identity

@@ -46,6 +46,8 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 
 AIDE² ([Weco, 14 July 2026](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement)), [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297) (6 July), and [HyperAgents](https://ai.meta.com/research/publications/hyperagents/) (March) are explicit older foundations. They are not counted as current-month releases.
 
+The [modular-edit and lineage audit](../../how-did-i-generate-it/rsi/research/2026-09-21-MODULAR-LINEAGE-AUDIT.md) records selected-method reading and visual inspection of the original DGM and HyperAgents diagrams. It distinguishes paper submission dates from announcement and HTML dates, and links the mechanisms to a local run in which both improver proposals were rejected.
+
 ## What a classroom result means
 
 - A **mechanism exercise** runs a small idea on a teaching task.

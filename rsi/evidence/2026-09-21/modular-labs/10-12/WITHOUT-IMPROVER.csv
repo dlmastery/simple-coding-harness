@@ -1,0 +1,9 @@
+path,generation,changed_object,parent,proposed_child,producer,arm,promoted,retained_object,retained_selection_mae,decision_record
+baseline,1,task proposal,skills/TASK-initial.md,baseline/generation-1/TASK-proposal.md,fixed driver reads recorded schedule,active,False,skills/TASK-initial.md,109.80766775073437,baseline/generation-1/ARM-DECISIONS.csv
+baseline,2,task proposal,skills/TASK-initial.md,baseline/generation-2/TASK-proposal.md,fixed driver reads recorded schedule,active,True,baseline/generation-2/TASK-proposal.md,99.17592378687597,baseline/generation-2/ARM-DECISIONS.csv
+recursive,1,task proposal,skills/TASK-initial.md,recursive/generation-1/TASK-proposal.md,fixed driver reads recorded schedule,active,False,skills/TASK-initial.md,109.80766775073437,recursive/generation-1/ARM-DECISIONS.csv
+recursive,1,task proposal,skills/TASK-initial.md,recursive/generation-1/TASK-proposal.md,fixed driver reads recorded schedule,proposed,False,skills/TASK-initial.md,109.80766775073437,recursive/generation-1/ARM-DECISIONS.csv
+recursive,1,improver proposal,skills/IMPROVER-v0.md,recursive/generation-1/IMPROVER-proposal.md,fixed author-guided driver template,outer,False,skills/IMPROVER-v0.md,109.80766775073437,recursive/generation-1/DECISION.csv
+recursive,2,task proposal,skills/TASK-initial.md,recursive/generation-2/TASK-proposal.md,fixed driver reads recorded schedule,active,True,recursive/generation-2/TASK-proposal.md,99.17592378687597,recursive/generation-2/ARM-DECISIONS.csv
+recursive,2,task proposal,skills/TASK-initial.md,recursive/generation-2/TASK-proposal.md,fixed driver reads recorded schedule,proposed,False,skills/TASK-initial.md,109.80766775073437,recursive/generation-2/ARM-DECISIONS.csv
+recursive,2,improver proposal,skills/IMPROVER-v0.md,recursive/generation-2/IMPROVER-proposal.md,fixed author-guided driver template,outer,False,skills/IMPROVER-v0.md,99.17592378687597,recursive/generation-2/DECISION.csv

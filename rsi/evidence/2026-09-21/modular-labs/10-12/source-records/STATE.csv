@@ -1,0 +1,3 @@
+path,generation,phase,active_improver,active_task,pending_improver
+baseline,2,done,skills/IMPROVER-v0.md,baseline/generation-2/TASK-proposal.md,
+recursive,2,done,skills/IMPROVER-v0.md,recursive/generation-2/TASK-proposal.md,

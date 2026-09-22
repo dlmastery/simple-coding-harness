@@ -1,0 +1,7 @@
+component,event
+loop,enter
+tool,read constructed fixture; no model execution
+observation,candidate=trial-009
+context,"candidate=trial-009; fields=candidate,duration_unit,duration_value"
+completion,accepted
+fit_stub,reached; no model fitted
