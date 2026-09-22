@@ -2,6 +2,8 @@
 
 [Course](README.md) · [Every lab](COURSE-MAP.md) · [Start here](START-HERE.md)
 
+This path explains how the ideas build on each other. For session planning, use the [teaching roadmap](TEACHING-ROADMAP.md). For definitions and worked examples, use the [glossary](GLOSSARY.md).
+
 The full path contains 101 lessons. Treat it as a sequence of short investigations, not a single coding session. Each block ends with an explanation you should be able to give from your own artifacts. If that explanation is unclear, revisit the named experiment before adding another mechanism.
 
 ## 1. Make one experiment trustworthy

@@ -22,6 +22,7 @@ This is an editorial coverage review. It does not prove that a future course mee
 | Check technical content before generation and finish within two or three attempts | [Generation discipline](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
 | Finish individual RSI and capstone lab infographics; overviews are insufficient | [Per-lab visual coverage](../../skills/build-research-codelabs/references/course-standard.md#illustrations) |
 | Create a clear, beautiful walkthrough README with context | [Structure and navigation](../../skills/build-research-codelabs/references/course-standard.md) |
+| Add an example-rich glossary and a teaching roadmap with routes, session plans, readiness checks, and capstone milestones | [Structure and navigation](../../skills/build-research-codelabs/references/course-standard.md#structure-and-navigation) |
 | Students work through skills, tools, and meta-harnesses | [Execution interface](../../skills/build-research-codelabs/SKILL.md) and [RSI preset](../../skills/build-research-codelabs/references/rsi-preset.md) |
 | Students do not handwrite Python or JSON; agents can generate them | [Skills as the interface](../../skills/build-research-codelabs/references/course-standard.md) |
 | Work across coding agents with clear execution instructions | [Skills as the interface](../../skills/build-research-codelabs/references/course-standard.md) |

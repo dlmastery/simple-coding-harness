@@ -25,6 +25,10 @@ The main README explains the subject, why it matters, what the student will buil
 
 Each theme README explains what students can already do, the new problem, the sequence, and the reason to continue. Every lab links to its theme, prerequisites, previous lesson, and next lesson. A learner opening a lab directly must know how to get the right starting state.
 
+Provide a glossary grouped by the concepts students encounter. Use plain-language definitions, concrete task examples, expanded acronyms, common confusions, and links to the relevant lessons. Mark course-specific and source-specific meanings. Keep distinctions such as a mechanism, its measured benefit, and its evidence limits explicit.
+
+Provide a teaching roadmap with a full route and clearly labelled shorter routes. Include prerequisite bridges, session activities, student outputs, readiness checks, and early capstone milestones. Separate estimated reading and guided discussion from setup, execution, debugging, and independent work. Check that the full calendar covers every lesson exactly once. Choose the number and size of teaching blocks for the subject; do not copy another course's calendar unchanged. Link the roadmap and glossary from the main README and instructor guide, and revise pacing from actual learner evidence.
+
 Preserve repository integration. Update navigation and test discovery when moving lessons. Keep a migration map and useful history. Avoid unrelated changes to other course series.
 
 ## Each lab README

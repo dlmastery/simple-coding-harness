@@ -2,6 +2,8 @@
 
 [Course](../README.md)
 
+Use the [teaching roadmap](../TEACHING-ROADMAP.md) to choose a route and schedule the course. It maps all 101 labs into 18 teaching blocks with prerequisites, outputs, readiness checks, and capstone milestones. This guide explains how to assess the learning. The [glossary](../GLOSSARY.md) provides examples for unfamiliar terms and common confusions.
+
 Start with a concrete failure. Ask students what they expect, run the experiment, and examine the result. A correct prediction without an explanation is not the whole outcome. A wrong prediction followed by a sound revised explanation can be strong progress.
 
 ## Use the checkpoints

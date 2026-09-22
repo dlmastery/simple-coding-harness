@@ -496,4 +496,4 @@ The [example portfolio](PORTFOLIO.md) connects actual author evidence. Its peer 
 
 ## Find the instructions behind a lab
 
-The [source-artifact index](SOURCE-ARTIFACTS.md) links every lab README, intent brief, authoring module, and shared skill. Use it to inspect how the course is authored. Use the [learning path](LEARNING-PATH.md) for teaching-block checkpoints. Written coverage and completed execution are tracked separately in the [completion ledger](../how-did-i-generate-it/rsi/COURSE-COMPLETION-LEDGER.md).
+The [source-artifact index](SOURCE-ARTIFACTS.md) links every lab README, intent brief, authoring module, and shared skill. Use it to inspect how the course is authored. Follow the [learning path](LEARNING-PATH.md) for conceptual checkpoints, the [teaching roadmap](TEACHING-ROADMAP.md) for session plans and capstone milestones, and the [glossary](GLOSSARY.md) for definitions and examples. Written coverage and completed execution are tracked separately in the [completion ledger](../how-did-i-generate-it/rsi/COURSE-COMPLETION-LEDGER.md).
