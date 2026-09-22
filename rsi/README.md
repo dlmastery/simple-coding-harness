@@ -20,6 +20,8 @@ Every codelab now has its own conceptual illustration. Browse the [visual guide]
 
 To see what has actually run, open the [measured-example guide](evidence/README.md). It connects questions about ML results, memory, GUI mistakes, reporting cost, and harness changes to actual traces and checks. Some improvements preserve predictions while making the process clearer or cheaper; some proposed changes fail. Each example explains what its evidence supports and what remains untested.
 
+The first [capstone walkthrough](evidence/2026-09-21/capstone-harness/README.md) starts from a new white-wine regression brief. Its generated harness runs a checked baseline, refuses invalid requests, and reproduces the predictions in a fresh dependency environment. This is a concrete starting point for your own project; the later recursive experiment and peer review require their own evidence.
+
 ## What you will learn
 
 By the end of the full course, you should be able to:

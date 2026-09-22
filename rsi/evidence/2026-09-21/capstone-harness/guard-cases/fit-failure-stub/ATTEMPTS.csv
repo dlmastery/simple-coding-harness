@@ -1,0 +1,2 @@
+candidate,model,features,status,fit_seconds,process_seconds,error
+failed-stub,median,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,failed,,0.0028774999955203384,RuntimeError: deliberate no-training failure

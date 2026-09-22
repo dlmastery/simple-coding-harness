@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-96 labs have mapped related author-execution evidence; 5 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+97 labs have mapped related author-execution evidence; 4 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1291,9 +1291,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Use scale-experiment to prepare a larger-job plan with resources, cancellation, checkpoints, and cost limits. Label it generated-only until tested on that backend.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Generated white-wine regression harness and fresh-environment baseline](../../../rsi/evidence/2026-09-21/capstone-harness/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two allocated actual fits, independent prediction checks, three invalid requests, seven altered-output checks, and one charged no-training failure stub are retained. Fresh dependencies reproduce prediction bytes. Larger-job plan is generated-only; peer/learner, native-agent, remote-backend, and final-evaluation checks were not performed.
 
 **Acceptance to verify:** The handoff is sufficient, evidence is actual, and the refusal is meaningful. A different dataset alone does not establish transfer of every learned procedure.
 

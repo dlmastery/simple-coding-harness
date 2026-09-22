@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Begin with the scientific contract, not a preferred optimizer. State target, prediction time, available inputs, split, metric, baseline, and limitations. Use the builder skill to create a harness, then test a valid run and an intended refusal. Keep any departure from the earlier task explicit.
 
-**A concrete example.** You change from describing recorded hourly demand to predicting tomorrow’s demand. That is a new scientific question even on the same public dataset. Tomorrow’s observed weather is no longer an available input. The new brief must resolve input availability and evaluation time before the builder chooses a model.
+**A concrete example.** The saved [author capstone](../../evidence/2026-09-21/capstone-harness/README.md) predicts original white-wine quality instead of classifying red wine. Its generated median baseline has selection MAE 0.65531; a fresh exported environment produces identical predictions. Target-as-feature, changed-metric, and extra-fit requests are refused. This proves a small runnable package and its boundaries, not a better predictor or a better builder. A future-demand task would require a different brief again, because tomorrow’s observed weather is not an available input.
 
 ![From a prediction brief and fixed contract, an agent generates instructions, tools, and checks; a valid baseline and an invalid request are then tested separately.](../../assets/illustrations/capstone-new-brief-v1.png)
 

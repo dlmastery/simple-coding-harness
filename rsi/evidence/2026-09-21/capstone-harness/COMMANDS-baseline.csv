@@ -1,0 +1,8 @@
+name,exit_status,signal,wall_seconds,expected_exit
+01-prepare,0,,1.6469451999999998,0
+02-target-refusal,2,,1.4658582000000002,2
+03-metric-refusal,2,,1.4694834,2
+04-baseline,0,,1.6527411000000003,0
+05-independent-check,0,,0.5398833999999997,0
+06-budget-refusal,2,,1.5187783,2
+07-guard-cases,0,,2.3559827999999996,0
