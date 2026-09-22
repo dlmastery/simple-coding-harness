@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Use several task-level outcomes to motivate a less frequent updater change. Apply the existing update pipeline to its own META-SKILL-v0 instructions, keeping the original version intact. Freeze each updater during the later matched task-skill round. The schedule separates observations used to propose the updater from outcomes used to evaluate its later behavior.
 
-**A concrete example.** Several task-level outcomes expose a repeated omission: the updater tests only favorable cases. A slower meta-skill revision adds a contrasting check. Freeze that revised updater during the next task-skill round, then compare the decisions it produces with v0. Changing both layers after each result would obscure which change mattered.
+**A concrete example.** In the [recorded later round](../../../evidence/2026-09-21/meta-skills/README.md), two unit-conversion repairs motivate a revised updater that requires unknown-unit refusal. Its next task proposal contains that instruction, and its check-policy field causes the driver to run the contrasting case. Both arms start from the same task skill. A fixed external check exposes a remaining error in the v0-produced child. This known-fixture result shows a narrow procedural effect, not general autonomous RSI.
 
 ![Task skills S0, S1, and S2 change under the same updater U0. The pipeline then proposes a change to U0 itself. An accepted U1 uses its new contrasting-case rule on a later S3 proposal before keeping or rejecting it.](../../../assets/illustrations/meta-skill-schedules-v3.png)
 

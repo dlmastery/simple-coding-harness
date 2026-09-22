@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-80 labs have mapped related author-execution evidence; 21 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+82 labs have mapped related author-execution evidence; 19 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -990,9 +990,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Rename the updater without changing its behavior. Explain why a new name supplies no new mechanism.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed fixed task repairs and an inherited updater revision](../../../rsi/evidence/2026-09-21/meta-skills/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two separately allocated parent captures, one task-skill edit, two child checks, an unchanged updater, and a byte-identical renamed copy are retained. Constructed ML workflow decisions test a unit repair, not new model performance, independent agents, or learner understanding.
 
 **Acceptance to verify:** Task and meta-skill versions are separate. Acceptance is based on executed evidence. No recursive claim is inferred from the prefix meta.
 
@@ -1003,9 +1003,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Change the update frequency in a labelled simulation and explain the tradeoff between responsiveness, cost, and attribution.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed fixed task repairs and an inherited updater revision](../../../rsi/evidence/2026-09-21/meta-skills/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A separately prepared second update trace, one self-directed updater proposal, and two later task-skill arms executed. The revised policy selected a different internal check; both arms faced the same three external cases. A schedule simulation is labelled hypothetical. Shared author context and known fixtures do not establish general autonomous discovery, protected evaluation, statistical benefit, or learner understanding.
 
 **Acceptance to verify:** The update schedule and inheritance are explicit. Structural recursion and measured effectiveness are reported separately.
 

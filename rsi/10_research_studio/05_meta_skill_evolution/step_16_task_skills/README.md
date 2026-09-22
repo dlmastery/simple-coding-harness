@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A meta-skill is a procedure for working on skills. Keep the meta-skill fixed while it proposes a task-skill revision. Record the resulting task behavior and the updater’s version. The exercise first establishes the nonrecursive baseline.
 
-**A concrete example.** META-SKILL-v0 asks for one failure diagnosis, one task-skill edit, and a target/regression check. It produces TASK-SKILL-v1 but stays byte-identical itself. The word meta names what it operates on; it does not show that its own improvement method changed.
+**A concrete example.** The [recorded walkthrough](../../../evidence/2026-09-21/meta-skills/README.md) repairs a task skill that mistakes 800 milliseconds for 800 seconds when breaking a tie between ML candidates. The child adds the missing conversion and passes target and regression checks. Its updater stays byte-identical. The task skill changed; the method that produced the change did not. These are constructed decision cases, not new model fits.
 
 ![A development trace and parent task skill enter a proposal step governed by unchanged META-SKILL v0. The proposed task skill receives a target check and a regression check before a keep-or-reject decision.](../../../assets/illustrations/fixed-meta-skill-v2.png)
 

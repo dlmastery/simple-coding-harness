@@ -10,6 +10,10 @@ const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
 for (const [id,gap] of Object.entries({
+  '10.16': 'Two separately allocated parent captures, one task-skill edit, two child checks, an unchanged updater, and a byte-identical renamed copy are retained. Constructed ML workflow decisions test a unit repair, not new model performance, independent agents, or learner understanding.',
+  '10.17': 'A separately prepared second update trace, one self-directed updater proposal, and two later task-skill arms executed. The revised policy selected a different internal check; both arms faced the same three external cases. A schedule simulation is labelled hypothetical. Shared author context and known fixtures do not establish general autonomous discovery, protected evaluation, statistical benefit, or learner understanding.'
+})) related.set(id, {path: 'rsi/evidence/2026-09-21/meta-skills/README.md', label: 'Executed fixed task repairs and an inherited updater revision', gap});
+for (const [id,gap] of Object.entries({
   '10.13': 'Four regression fits, before-action decisions, retained and rejected recipes, prediction checks, and an unknown-stopping reordered replay executed. The fixed controller and author-exposed data do not establish autonomous discovery, protected evaluation, or learner understanding.',
   '10.14': 'One actor proposal and two frozen three-fit searches executed from empty matched state. An unequal-budget illustration stayed unexecuted. The child improved selection MAE on exposed development data; inference cost, independent tasks, statistical reliability, and learner understanding remain untested.',
   '10.15': 'Two frozen-producer preferences were projected through one shared adapter into target procedures; six behavioral fixtures and one separate overcomplication check executed with zero fits. General researcher-code generation, independent proposer contexts, repeated fresh-task improvement, and ignition are not established.'

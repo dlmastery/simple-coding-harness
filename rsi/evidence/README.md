@@ -15,6 +15,7 @@ Start with the scientific question you want to check:
 | Does a harness edit repair a model interface? | [Format compatibility comparison](2026-09-21/model-harness-fit/README.md) |
 | Can two individually passing edits fail together? | [Context repair, rejected integration, and typed lineage](2026-09-21/modular-labs/README.md) |
 | Does a better ML researcher become a better improver? | [Four-fit search, matched outer comparison, and separate role fixtures](2026-09-21/aide-labs/README.md) |
+| Did the revised updater govern a later task-skill change? | [Fixed repairs, inherited check policy, and matched external decisions](2026-09-21/meta-skills/README.md) |
 | Can a proposed schedule perform an invalid update? | [Typed operations and scheduler checks](2026-09-21/operator-composition/README.md) |
 | Can a candidate exploit information in a reference trace? | [Checked references and rejected shortcuts](2026-09-21/checked-reference/README.md) |
 
