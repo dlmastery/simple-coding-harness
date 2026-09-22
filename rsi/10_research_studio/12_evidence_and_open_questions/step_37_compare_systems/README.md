@@ -28,6 +28,8 @@ Compare the same questions across systems: what changes, what remains fixed, who
 
 Optional comparison: [SHAPER v2](https://arxiv.org/html/2608.11350v2) changes skills and context code in a fixed order. Ask whether its optimizer changes. Keep this reading note separate from the six required rows.
 
+Optional comparison: [Metaⁿ, sections 2 and 3.4](https://arxiv.org/html/2608.24735v1), 25 August. The operator remains fixed while its inputs and generated layers change. Describe those objects before comparing its depth terminology with this course’s changed-improver test. Added layers can regress.
+
 **A concrete example.** The saved [seven-row comparison](../../../evidence/2026-09-21/system-comparison/README.md) separates mutable objects from measured outcomes. Its local row has a useful surprise: retained selection MAE falls from 109.81 to 99.18, but both improver proposals were rejected and all four active rows name the same improver hash. The task model improved; this run did not activate an improved improver. Open the mechanism-only view first, then restore each result with its own evaluation protocol.
 
 ![Six named research systems and the local course run are examined through common mechanism and evidence questions. A source-linked matrix template leads to a challenge of the claim that a better task score implies a better improver.](../../../assets/illustrations/compare-research-systems-v1.png)

@@ -1,4 +1,10 @@
 import {R} from './lessons-research.mjs';
+const recentComparisons = {
+  '10.30': 'Optional comparison: [SIFT, sections 3–5](https://arxiv.org/html/2609.19526v1), 17 September. Its cheap patch ranking guides which expensive evaluations run next. Ask which signal allocates effort and which establishes quality. Our report-cost exercise does not reproduce that search.',
+  '10.31': 'Optional comparison: [AutoSaddler, section 4](https://arxiv.org/html/2608.23041v1), 24 August. Trace diagnosis, restricted patches and development selection revise a harness. Locate the optimizer before claiming it changed too. Its textual-training analogy does not imply model-weight learning.',
+  '10.36': 'Optional comparison: [Harness tampering, taxonomy and audit protocol](https://arxiv.org/html/2609.00069v1), 30 August. For an invalid edit, name both its location in the process and its broken obligation. A plausible final score does not establish correct provenance or complete checks.',
+  '10.37': 'Optional comparison: [Metaⁿ, sections 2 and 3.4](https://arxiv.org/html/2608.24735v1), 25 August. The operator remains fixed while its inputs and generated layers change. Describe those objects before comparing its depth terminology with this course’s changed-improver test. Added layers can regress.'
+};
 export const frontier = [
 R(27,'08_skills_and_procedures','wiki','Keep traces, knowledge, and active skills separate','wiki',{
  build:'Three stores with different retention rules, including a rejected skill edit whose lesson survives.', why:'Rejecting a procedure does not require forgetting what its experiment taught you.', start:'One failed task-skill proposal, raw trace, and current accepted skill.', budget:'Two fixture checks; no new fit required.',
@@ -73,3 +79,6 @@ R(38,'12_evidence_and_open_questions','economics','Reason about bottlenecks and 
  check:'Synthetic values are labelled. The calculation uses total time. The final claim separates theory, reported research, and local measurements.', change:'Add a saturation limit or a more expensive verifier. Explain how either can slow later gains even when the improver becomes more capable.', takeaways:['Bottlenecks can move as components improve.','Cumulative gain and accelerating gain differ.','Economic and empirical assumptions must be stated.'],
  quiz:[['What happens if the one-minute stage becomes instantaneous?','Total time falls from ten to nine minutes, only a 10% reduction.'],['Can an improving system have declining marginal gains?','Yes. It can approach a task ceiling or encounter harder remaining problems.'],['Does a synthetic model forecast actual RSI?','No. It illustrates consequences of its stated assumptions.'],['What would support acceleration empirically?','Repeated comparable generations showing an increasing progress rate after accounting for total resources and changing task difficulty.']], next:'Build a new harness and defend its result in a capstone.'}),
 ];
+for (const lesson of frontier) {
+  if (recentComparisons[lesson.id]) lesson.how += '\n\n' + recentComparisons[lesson.id];
+}

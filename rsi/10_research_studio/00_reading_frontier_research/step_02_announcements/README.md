@@ -26,6 +26,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Record who made the claim, when it first appeared, what was measured, and what the linked evidence contains. Original X posts can be valid announcement sources. A blocked thread stays unverified; a repost is not a substitute for its missing content.
 
+For a concrete reporting distinction, read Anthropic’s [automation measurement and appendix](https://www.anthropic.com/institute/measuring-pace-of-ai-development). Its August snapshot puts 26% of R&D at a supervised AI-led level, not full autonomy. Ask what was weighted and which human decisions remained before making a recursive-improvement claim.
+
 **A concrete example.** The saved [announcement audit](../../../evidence/2026-09-21/research-reading/CLAIM-CARD.md) follows an author-linked project page to its dated paper and evaluation. It distinguishes automated review from conference acceptance, and source-reported verification from an independent reproduction. The paper date is known while the first website date remains unresolved. A recent crawl cannot fill that gap.
 
 ![A fictional author announcement leads to methods, evaluation, and available artifacts, which populate a blank claim card. Side notes distinguish original dates, inaccessible posts, and independent reproduction.](../../../assets/illustrations/announcement-evidence-trail-v2.png)

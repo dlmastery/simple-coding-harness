@@ -1,5 +1,7 @@
 # Research for the RSI course
 
+**22 September broad update:** retained inventory: **37 papers and five reports**. Added harness tampering, Metaⁿ, SIFT and AutoSaddler after primary version and selected-method checks. The [reading record](research/2026-09-22-WIDE-REFRESH.md) and [exact query log](research/2026-09-22-SEARCH-RECORD.md) distinguish inspected sections, artifact limits and excluded older results. The Anthropic measurement report received a closer methodological check without increasing the report count. These comparisons strengthen existing labs; the course remains 101 labs. Counts below describe earlier checkpoints.
+
 **22 September focused update:** retained inventory: **33 papers and five reports**. Added EvoUndo v2 as a selected-source capstone audit and NeoHorse-1 as an abstract-only lead. Discovery refreshed to 23 August–22 September; earlier queries and sources remain dated. See [reading depth and consequences](research/2026-09-22-CAPSTONE-SOURCE-AUDIT.md). No new required lab or source-system reproduction was added.
 
 **21 September update:** retained inventory: **31 papers and five reports**. The new entry is SHAPER, first submitted 11 August and revised 10 September, tracked as an older work with a recent revision. Two existing abstract-only entries received selected method reading. See [dated notes and exclusions](research/2026-09-21-METHOD-NOTES.md). Discovery used 22 August–21 September; earlier dated sources remain in the corpus. No paper was reproduced and no required lab was added.

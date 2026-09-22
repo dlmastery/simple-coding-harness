@@ -2,7 +2,7 @@
 
 [Course](../README.md) · [Research studio](../10_research_studio/README.md)
 
-Latest focused discovery pass: **23 August–22 September 2026**, with earlier dated sweeps retained. The inventory now contains 33 papers and five reports, including one older paper with a recent revision. The new entries have different reading depth: EvoUndo received a selected-source audit; NeoHorse-1 is an abstract-screened lead. Prioritize work from the latest two weeks. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
+Latest broad discovery pass: **23 August–22 September 2026**, prioritizing **9–22 September**, with earlier dated sweeps retained. The inventory now contains 37 papers and five reports, including one older paper with a recent revision. The [latest reading notes](../../how-did-i-generate-it/rsi/research/2026-09-22-WIDE-REFRESH.md) add four selected-method comparisons. Reading depth varies: NeoHorse-1 remains an abstract-screened lead. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
 
 The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-SWEEP.md), [search log](../../how-did-i-generate-it/rsi/research/SEARCH-LOG.md), and [claim corrections](../../how-did-i-generate-it/rsi/research/CLAIM-CORRECTIONS.md) preserve the broader sweep and reading depth. Some sources are leads with abstract-level screening. Their studio activities explicitly begin with a method audit before borrowing technical details.
 
@@ -12,6 +12,10 @@ The [executed reading audits](../evidence/2026-09-21/research-reading/README.md)
 
 | Work | First date | Course use |
 |---|---|---|
+| [Harness tampering](https://arxiv.org/abs/2609.00069v1) | 30 Aug | Integrity comparison in 10.36 |
+| [Metaⁿ](https://arxiv.org/abs/2608.24735v1) | 25 Aug | Architecture comparison in 10.37 |
+| [SIFT](https://arxiv.org/abs/2609.19526v1) | 17 Sep | Search-cost comparison in 10.30 |
+| [AutoSaddler](https://arxiv.org/abs/2608.23041v1) | 24 Aug | Harness-optimization comparison in 10.31 |
 | [EvoUndo](https://arxiv.org/abs/2608.28363v2) | 28 Aug; v2 16 Sep | Capstone source audit, reporting corrections and a numerical acceptance-rule check |
 | [NeoHorse-1](https://arxiv.org/abs/2609.08183v1) | 8 Sep | Optional model–harness lead; abstract and dates checked, methods and artifacts not yet audited |
 | [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873) | 10 Sep 2026 | Definitions and evidence framework |

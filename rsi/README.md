@@ -163,3 +163,5 @@ Use the [instructor guide](instructor/README.md) to choose checkpoints and asses
 All lesson pages, individual illustrations, briefs, and shared skills are authored. Verification is in progress: the [activity inventory](../how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md) identifies execution evidence and remaining gaps. Learner assessment, research review, and backend checks have separate status.
 
 The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints. The [visual record](../how-did-i-generate-it/rsi/visuals/generated/README.md) preserves every generated version and prompt; [per-lab coverage](../how-did-i-generate-it/rsi/validation/INFOGRAPHIC-COVERAGE.md) maps the selected figures to all 101 labs.
+
+The [research guide](research/README.md) records the latest discovery window, reading depth and exclusions. Its 22 September refresh adds comparisons on search cost, harness integrity, generated layers and targeted repair. These readings deepen the existing route; they do not replace the small experiments with frontier-scale training.

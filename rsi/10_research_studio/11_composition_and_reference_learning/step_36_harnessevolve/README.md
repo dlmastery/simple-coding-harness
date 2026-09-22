@@ -26,6 +26,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 HarnessEvolve uses answer-conditioned reference trajectories, checks that they contain genuine execution, and compares failures against them. Candidate changes face quality and performance gates. Our exercise uses small workflow traces and prevents a copied answer from becoming the active skill.
 
+Optional comparison: [Harness tampering, taxonomy and audit protocol](https://arxiv.org/html/2609.00069v1), 30 August. For an invalid edit, name both its location in the process and its broken obligation. A plausible final score does not establish correct provenance or complete checks.
+
 **A concrete example.** A shortcut prints “missing Split” without opening either input. A useful reference reads the report and its contract, checks every required field, and reaches the same answer. The [author walkthrough](../../../evidence/2026-09-21/checked-reference/README.md) rejected the shortcut and accepted both valid read orders. One general instruction then passed the current and prior fixture checks. These constructed cases show the mechanism; they do not establish independent agent learning or broad retained competence.
 
 ![A failed missing-field audit is compared with a reference containing tool actions and observations. A known-answer shortcut is rejected. A general skill edit must pass quality and current/prior-case checks; two legitimate alternative paths show that divergence alone is not error.](../../../assets/illustrations/checked-reference-v1.png)

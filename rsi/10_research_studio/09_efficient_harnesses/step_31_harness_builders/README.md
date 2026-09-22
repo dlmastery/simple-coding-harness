@@ -26,6 +26,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 HarnessDev evaluates created and revised harnesses, with creator and executor roles separated. Harness-of-Harness instead keeps its model, base harness, roles, and runtime policy fixed while software and execution evidence change. Its planner, developer, and tester have separate invocations and permissions. For the classroom activity, keep the builder fixed, revise one generated ML harness component, and measure behavior. This local choice is not the changed object in every source.
 
+Optional comparison: [AutoSaddler, section 4](https://arxiv.org/html/2608.23041v1), 24 August. Trace diagnosis, restricted patches and development selection revise a harness. Locate the optimizer before claiming it changed too. Its textual-training analogy does not imply model-weight learning.
+
 **A concrete example.** In the [recorded parent/child comparison](../../../evidence/2026-09-21/harness-builder/README.md), the existing generated wine harness reports a confusion matrix but omits explicit class recalls. The parent fails that reporting requirement. A report-only revision adds both recalls and passes; predictions stay identical. The historical builder is recovered by hash and never runs or changes. This is evidence about the revised artifact, not a better generator.
 
 ![HarnessDev changes a harness and evaluates it after freezing. Harness-of-Harness keeps its agent setup fixed while software changes. A local H0–H1 comparison holds builder B0 fixed; a separate proposed test supplies identical fresh briefs to B0 and B1.](../../../assets/illustrations/builder-and-artifact-v2.png)
