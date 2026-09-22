@@ -26,13 +26,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The classroom exercise first probes two distinct limitations, then spends the last attempt on one uncertainty. Broad coverage and targeted investigation have different purposes. Keep the choice rule visible; exploration is not permission to change the task metric.
 
-**A concrete example.** The constant baseline asks how far a model can get without input variation. The calendar model asks whether hour and date structure explain useful variation. The third recipe should address a remaining uncertainty exposed by their errors. Repeating the same deterministic calendar fit does not answer a new feature question, though a separately declared repeat can check reproducibility.
+**A concrete example.** The [three-fit author walkthrough](../../../evidence/2026-09-21/exploration/README.md) measured selection MAE 159.95 for the training-median baseline and 109.81 for the calendar model. After inspecting residuals, the author recorded one feature question and added the permitted weather group; MAE became 99.18. The decision preceded that fit. The author knew the dataset, and the rule stayed fixed, so this demonstrates a bounded exploration procedure rather than blind discovery or RSI. An earlier duplicate run supplies the counterexample without a fourth fit.
 
-![A training-mean baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.](../../../assets/illustrations/broad-probes-focused-test-v2.png)
+![A training-median baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.](../../../assets/illustrations/broad-probes-focused-test-v3.png)
 
-*The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its mean from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed.*
+*The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its median from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed.*
 
-[Open the illustration at full size](../../../assets/illustrations/broad-probes-focused-test-v2.png).
+[Open the illustration at full size](../../../assets/illustrations/broad-probes-focused-test-v3.png).
 
 <details>
 <summary>See the step diagram</summary>
@@ -107,7 +107,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Spend the third attempt on a duplicate recipe in a labelled comparison. Explain what information it can and cannot add.
+Compare the focused third attempt with an existing, clearly labelled duplicate run. Inspect its recipe and prediction identity, then explain what a repeat can and cannot add. If you choose to run a duplicate instead, it must replace the third fit, not become a fourth.
 
 ## If something goes wrong
 

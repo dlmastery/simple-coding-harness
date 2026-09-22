@@ -247,9 +247,9 @@ export const illustrations = {
     "caption": "The quotation is invented for teaching and is not attributed to a real author or lab. The 20 August–20 September 2026 window is the authoring example; roll it forward to the preceding month when you run the lab. Inspect available links and record missing ones. A blocked thread does not invalidate a separately accessible paper, but its contents remain unread. A reproduction has its own methods and limitations. Document the original release and any substantive revision separately from repost and crawl dates."
 },
   '10.03': {
-    "file": "broad-probes-focused-test-v2.png",
-    "alt": "A training-mean baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.",
-    "caption": "The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its mean from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed."
+    "file": "broad-probes-focused-test-v3.png",
+    "alt": "A training-median baseline and calendar linear model feed selection-error inspection. One remaining fit tests a predeclared question, with a weather-feature recipe shown only as a possible choice.",
+    "caption": "The course predicts hourly bike rentals. Calendar and weather labels are examples from permitted groups, not the complete schema; weather category is not a precipitation measurement. The constant baseline learns its median from training data. Choose the third recipe from actual selection errors before fitting, and record its question and cost. Observed weather is allowed by this teaching contract; it does not establish that the same inputs would be available in a real forecast. The exploration rule itself can remain fixed."
 },
   '10.19': {
     "file": "screen-and-ablate-v2.png",

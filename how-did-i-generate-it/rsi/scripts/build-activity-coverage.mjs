@@ -9,6 +9,11 @@ const destination = resolve(repo, 'how-did-i-generate-it/rsi/validation');
 const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
+related.set('10.03', {
+  path: 'rsi/evidence/2026-09-21/exploration/README.md',
+  label: 'Executed three-fit exploration and historical duplicate comparison',
+  gap: 'Two probes, a pre-fit decision, the third feature probe, and three result checks executed. The duplicate example reuses inspected historical repeats. Author context knew prior results; no task-memory file was loaded, but cold-start exploration, causal attribution, and learner understanding were not tested.'
+});
 related.set('10.35', {
   path: 'rsi/evidence/2026-09-21/operator-composition/README.md',
   label: 'Executed typed-operator and scheduler simulation',
@@ -55,6 +60,11 @@ const limitations = {
   '09.05': 'Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.'
 };
 for (const [id,gap] of Object.entries(limitations)) related.get(id).gap = gap;
+related.set('03.06', {
+  path: 'rsi/evidence/2026-09-21/three-views/README.md',
+  label: 'Rendered views and audit of existing run records',
+  gap: 'Three separate diagrams, artifact table, failure audit, and unexecuted plan extension are retained. Recovery chronology is reconstructed from program order and retained outputs; exact event timestamps and a separate recovery journal are absent. Learner interpretation was not tested.'
+});
 for (const [id,gap] of Object.entries({
   '03.03': 'Four joins now execute, including wrong contract and the late-result simulation within the missing case. Resource inputs are declared fixtures; actual concurrent workers, machine capacity, and learner responses were not tested.',
   '04.03': 'Six base cases and two separate units-extension cases now execute with individual inputs and verdicts. Units checks require a label only. Unknown-relation rejection was source-inspected but not separately executed in this allocation; omitted facts and learner understanding remain untested.',

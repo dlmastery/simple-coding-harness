@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The control graph says which action may follow. Data flow says which artifact each action consumes or produces. The trace records what happened at a particular time. A branch can exist in the graph without being taken in a run. A missing trace event is not supplied by drawing the node.
 
-**A concrete example.** The plan permits fit → check → report. The data-flow table says the checker reads candidate A’s predictions. A failed trace ends just after fitting. You can claim a model ran, but cannot claim the check passed or that its report exists. Adding a “verified” box to the diagram does not add a missing execution event.
+**A concrete example.** A recovery folder contains CHECK.md, but that file was copied from the original run. Its presence alone does not prove that a new check ran during recovery. The [three-view author audit](../../evidence/2026-09-21/three-views/README.md) separates the original commands, copied artifacts, report failure, and subsequent recheck. It also adds a new node to the plan without granting that check to old results. Read the plan for permissions, the data flow for inputs, and the trace for recorded events.
 
 ![A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.](../../assets/illustrations/plan-flow-trace-views-v2.png)
 

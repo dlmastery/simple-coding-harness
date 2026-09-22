@@ -4,7 +4,7 @@ User direction, 20 September 2026: prioritize diagrams, every README, and skills
 
 ## Current material
 
-All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. One hundred five selected generated illustrations include the overview maps and individual figures for every theme-09 lab and capstone. All 154 versions and their prompts are preserved. The [per-lab inventory](validation/INFOGRAPHIC-COVERAGE.md) maps generated figures to all 101 labs with no remaining production gaps. These counts do not establish uniform visual quality or tested activities.
+All 101 labs have an editorial pass, worked examples, output guidance, recovery, quizzes, and transitions. All retain precise technical diagrams. One hundred five selected generated illustrations include the overview maps and individual figures for every theme-09 lab and capstone. All 155 versions and their prompts are preserved. The [per-lab inventory](validation/INFOGRAPHIC-COVERAGE.md) maps generated figures to all 101 labs with no remaining production gaps. These counts do not establish uniform visual quality or tested activities.
 
 The user prefers the initial main README overview. Use that actual image as the craft reference. The ScienceBuddy redesign and RSIAgent figure establish the revised direction: concrete scenes, meaningful detail, clear causal paths, readable labels, and white backgrounds. Preserve earlier versions. Do not multiply a generic folder-and-chip template or copy the same workbench composition into every method.
 
@@ -36,6 +36,6 @@ Check local links, selected-image identities, generated-page preservation, spell
 
 The 101 lesson pages, individual figures, shared skills, and source briefs are authored and checkpointed. Bounded activity verification has now begun; its findings can still require content corrections.
 
-The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 67 related evidence mappings and 34 unmapped labs; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
+The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 68 related evidence mappings and 33 unmapped labs; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
 
 Run expensive or broad checks when the material is ready for that pass. No new ML executions are required merely to publish an illustration revision. Report actual student, other-agent, GPU, and cluster testing only if it occurs.

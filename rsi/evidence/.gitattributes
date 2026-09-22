@@ -1,0 +1,4 @@
+# Preserve exact bytes of hashed experiment archives, including CRLF records.
+** -text whitespace=cr-at-eol
+# Matplotlib emits trailing spaces inside SVG path data; retain the raw output.
+*.svg whitespace=-blank-at-eol,cr-at-eol

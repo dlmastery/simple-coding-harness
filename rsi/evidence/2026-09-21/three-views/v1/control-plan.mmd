@@ -1,0 +1,8 @@
+flowchart LR
+  fit["Fit and predict: trial-001"] --> check["Check saved result"]
+  check -->|passes| accept["Use checked score"]
+  check -->|fails| stop["Stop; preserve failure"]
+  accept --> report["Write presentation report"]
+  report -->|fails| error["Retain exception"]
+  error --> recheck["Recheck unchanged predictions"]
+  recheck --> recovered["Write recovered report"]

@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-67 labs have mapped related author-execution evidence; 34 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+68 labs have mapped related author-execution evidence; 33 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -285,9 +285,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a new check node to the plan without rerunning the experiment. Explain why old results do not gain that check retroactively.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-06).
+**Evidence:** [Rendered views and audit of existing run records](../../../rsi/evidence/2026-09-21/three-views/README.md).
 
-**Closure gap:** The three views are described, but three separately rendered diagrams were not produced by this run.
+**Closure gap:** Three separate diagrams, artifact table, failure audit, and unexecuted plan extension are retained. Recovery chronology is reconstructed from program order and retained outputs; exact event timestamps and a separate recovery journal are absent. Learner interpretation was not tested.
 
 **Acceptance to verify:** VIEWS.md distinguishes permission to act, required data, and observed execution. Every claimed completed check has a trace event and output.
 
@@ -819,11 +819,11 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Choose broad probes.** State what each attempt teaches.
 2. **Focus the final attempt.** Use observed outcomes to allocate work.
 
-**Additional change:** Spend the third attempt on a duplicate recipe in a labelled comparison. Explain what information it can and cannot add.
+**Additional change:** Compare the focused third attempt with an existing, clearly labelled duplicate run. Inspect its recipe and prediction identity, then explain what a repeat can and cannot add. If you choose to run a duplicate instead, it must replace the third fit, not become a fourth.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed three-fit exploration and historical duplicate comparison](../../../rsi/evidence/2026-09-21/exploration/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two probes, a pre-fit decision, the third feature probe, and three result checks executed. The duplicate example reuses inspected historical repeats. Author context knew prior results; no task-memory file was loaded, but cold-start exploration, causal attribution, and learner understanding were not tested.
 
 **Acceptance to verify:** The plan distinguishes broad and focused work. All attempts and costs are retained. No final test information guides exploration.
 

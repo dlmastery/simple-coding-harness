@@ -1,0 +1,15 @@
+repository_path,sha256
+rsi/evidence/2026-09-20/clean-journey/COMMANDS.md,ccc19f68223f2caee72be2920ce091e2c2c9e2bb96e85a99ce484840bd14aea7
+rsi/evidence/2026-09-20/clean-journey/00-03/CONTRACT.md,d81353d91e887e70bacb803eb52d59342fe7a431a8a056fff74d18234d30584d
+rsi/evidence/2026-09-20/clean-journey/00-03/trials.csv,33e495e789137568412e57a5e636e36a7df71d06bdb0f7d50f2e3b2a4ee9bcf0
+rsi/evidence/2026-09-20/clean-journey/00-03/trial-001/predictions.csv,0004513ae666f36bcf4987e2b36944f1c4a8d79bf949ef09b788d0b95e6af93c
+rsi/evidence/2026-09-20/clean-journey/00-03/trial-001/RESULT.md,8a41b22ecffafe833fa485169189232cb33e250a8e0551b84d197fec63698162
+rsi/evidence/2026-09-20/clean-journey/00-03/trial-001/CHECK.md,f87f336ed5fc2c59e9f4a38b79e25258b5e5a729e4d2cf95696a6ea3f839ef16
+rsi/evidence/2026-09-20/clean-journey/STRUCTURE-CHECKS.md,36c12264dafd9733fd5cfc5160a4186dd0951d2bc330641136c52e5e340077bc
+rsi/evidence/2026-09-20/clean-journey/03-05/diagnostic/REPORT-FAILURE.md,135907738f01548b07bfb7ea2a3c7077399eb4c0986965650cb21333c4e31fe8
+rsi/evidence/2026-09-20/clean-journey/03-05/diagnostic/RECOVERED-REPORT.md,daee039d758d3097352f8af216012bec4b5e8fc25a9db712adc2993f1b2afca6
+rsi/evidence/2026-09-20/clean-journey/03-05/diagnostic/trial-001/predictions.csv,0004513ae666f36bcf4987e2b36944f1c4a8d79bf949ef09b788d0b95e6af93c
+rsi/evidence/2026-09-20/clean-journey/03-05/diagnostic/trial-001/CHECK.md,f87f336ed5fc2c59e9f4a38b79e25258b5e5a729e4d2cf95696a6ea3f839ef16
+rsi/evidence/2026-09-20/clean-journey/03-05/diagnostic/trials.csv,33e495e789137568412e57a5e636e36a7df71d06bdb0f7d50f2e3b2a4ee9bcf0
+how-did-i-generate-it/rsi/scripts/run-clean-journey-structure.py,0ee80e66f151a1363293bc21513b5ae5cf4e1d1d5e6c112c3ab8dffbde37700b
+rsi/tools/check_result.py,7fefc839f2b9ed85b0dc56a9076c63ed8759f999e3721e2a16c1e03e52d2ff61
