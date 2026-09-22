@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+digits,forest-2,ok,balanced_accuracy,0.9513965222078283,0.05400386421352407,0.4028718000045046,0.006690199981676415,2.161733999993885,exit=0

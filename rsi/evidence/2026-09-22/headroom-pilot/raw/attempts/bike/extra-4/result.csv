@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,extra-4,ok,MAE,129.27481141595035,0.8004467074938619,0.09606030001305044,0.006691299990052357,2.3653012000140734,exit=0

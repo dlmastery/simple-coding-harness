@@ -1,0 +1,7 @@
+task,reference_recipe,reference_score,metric,successful_fits,failed_fits
+bike,extra-0,87.1242578125,MAE,48,0
+wine,kernel-0,0.4862314202091988,MAE,48,0
+cancer,kernel-0,0.9659810777457836,balanced_accuracy,48,0
+digits,extra-7,0.981920526201348,balanced_accuracy,48,0
+friedman,boost-2,1.1101057759199988,MAE,48,0
+interactions,boost-6,0.919116698903933,balanced_accuracy,48,0

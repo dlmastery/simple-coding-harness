@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+friedman,linear-0,ok,MAE,2.0501493576196252,0.49248102331967525,0.005984899995382875,0.0017633999814279377,1.918932800006587,exit=0

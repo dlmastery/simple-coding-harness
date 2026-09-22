@@ -37,3 +37,7 @@ Regression uses MAE; classification uses balanced accuracy. For cross-task diagn
 Only development evidence may guide revisions to candidate operators, search policies and task sampling. Archive every pilot revision. Declare task pools, promotion rules, budgets and final evaluation before running the effectiveness comparisons. A public local holdout is a procedural boundary, not secure isolation.
 
 The agent is implementing the benchmark tools; students will use natural-language skills. Headroom is a prerequisite for the later loops, not the new definition of completion.
+
+## Deviation found during the first pilot
+
+After bike fits completed, a review against the existing data card found that the pilot's adapter omitted clipping count predictions at zero. Eighteen of its 48 bike candidates contain negative predictions (1,702 prediction values total). This is an adapter defect, not an additional search finding. The raw execution remains preserved. A separately labelled derived analysis applies the existing count rule to every bike candidate, retains the original fit costs, and recomputes all aggregates without new fitting. Both versions receive independent prediction checks. The correction was not declared before observing the development results and must not be described as such. Final tasks remain untouched.

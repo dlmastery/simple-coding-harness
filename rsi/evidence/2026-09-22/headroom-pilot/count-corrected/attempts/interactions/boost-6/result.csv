@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+interactions,boost-6,ok,balanced_accuracy,0.919116698903933,0.161766602192134,0.051846599992131814,0.00792970001930371,1.814252199983457,exit=0

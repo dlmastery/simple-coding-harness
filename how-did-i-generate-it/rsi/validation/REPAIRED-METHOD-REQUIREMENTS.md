@@ -27,4 +27,4 @@ Read [RSIAgent v1, sections 3 and 8](https://arxiv.org/html/2609.15364v1). The a
 
 Recuris and MetaSkill already have source audits in the research folder; reconcile those audits with the expanded experiments before claiming implementation. AIDE2 requires code-level harness revision and later execution. A rearranged fixed list is not enough if every candidate still runs. Keep predictive selection, procedure promotion and evaluation of the improver as distinct decisions.
 
-The development-only headroom pilot is running under its predeclared 288-fit allocation. It measures whether the task/search pairing is suitable. All seven effectiveness comparisons above remain unexecuted in the repaired benchmark at this checkpoint.
+The development-only headroom pilot completed all 288 fits. Its sound eight-attempt fixed control already matches the 48-fit reference on three tasks. See [the full evidence](../../../rsi/evidence/2026-09-22/headroom-pilot/README.md). Grid expansion alone is insufficient; the next development phase must assess richer pipeline operators. All seven effectiveness comparisons above remain unexecuted in the repaired benchmark at this checkpoint.
