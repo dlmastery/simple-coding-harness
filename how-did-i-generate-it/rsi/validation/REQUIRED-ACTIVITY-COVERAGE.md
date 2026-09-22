@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-92 labs have mapped related author-execution evidence; 9 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+93 labs have mapped related author-execution evidence; 8 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1276,9 +1276,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a saturation limit or a more expensive verifier. Explain how either can slow later gains even when the improver becomes more capable.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Five numerical scenarios and a recorded-lineage acceleration audit](../../../rsi/evidence/2026-09-21/bottlenecks/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Calculator inputs, outputs, costlier-verifier extension, separate shrinking-increment arithmetic, copied local lineage/cost rows, and selected source assumptions are retained. No new fits or empirical acceleration follow. Total-resource cost, source-model calibration, learner assessment, and the separate lab-10.37 matrix remain unestablished.
 
 **Acceptance to verify:** Synthetic values are labelled. The calculation uses total time. The final claim separates theory, reported research, and local measurements.
 

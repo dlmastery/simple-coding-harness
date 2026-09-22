@@ -1,0 +1,6 @@
+scenario,total_minutes,time_reduction_percent,throughput_multiplier_vs_baseline
+baseline,10,0,1
+faster_proposals,9.5,5,1.0526315789473684
+faster_evaluation,5.5,45,1.8181818181818181
+checking_overhead,10.5,-5,0.9523809523809523
+costlier_verifier,12.5,-25,0.8

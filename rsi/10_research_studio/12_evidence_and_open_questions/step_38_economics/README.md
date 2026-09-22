@@ -28,7 +28,7 @@ Total progress depends on the whole research process. If evaluation takes most o
 
 Optional reading: [Recursive Criticality, sections 2–3](https://arxiv.org/html/2609.00137v1). Distinguish faster research throughput from amplification of a local perturbation. Neither a threshold nor a synthetic timeline is an empirical forecast.
 
-**A concrete example.** Proposal work takes 1 minute and the remaining execution/evaluation takes 9. Doubling proposal speed changes total time from 10 to 9.5 minutes: a 5% reduction. Even eliminating proposal time saves only 10%. A claimed proposal speedup needs the full process denominator before it becomes a research speedup.
+**A concrete example.** The [executed five-scenario calculator](../../../evidence/2026-09-21/bottlenecks/README.md) starts with 1 minute of proposal work and 9 minutes of evaluation. Halving proposal time saves 5% overall; adding a one-minute check then makes the round slower than baseline. These are synthetic assumptions. The linked local-lineage audit separately shows task improvement with an unchanged improver and unknown total research cost, which cannot establish sustained acceleration.
 
 ![Five independent synthetic timing scenarios compare faster proposals, faster evaluation, extra checking, and a costlier verifier against a ten-minute baseline. A separate arithmetic example shows cumulative gains increasing while each round’s gain decreases.](../../../assets/illustrations/research-bottlenecks-v1.png)
 
