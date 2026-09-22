@@ -96,17 +96,21 @@ for (const id of cleanIds) related.set(id, {
 });
 const limitations = {
   '01.04': 'Reuses the supplied checker; independent checker generation is untested. Reconcile the additional change separately.',
-  '01.05': 'Same author context; the requested fresh-agent handoff is untested. A new process is not a new coding-agent context.',
+  '01.05': 'The original handoff declares a same-context demonstration, which the lesson permits. Exact skill and prediction identities are checked; the missing-task extension has a retained diagnostic copy and author analysis. A genuinely fresh agent and learner responses remain untested.',
   '02.05': 'A clean stop between commands was resumed. Forced process interruption and stale-lock recovery were not exercised.',
   '03.03': 'The join executed sequentially with declared resource fixtures. The newly explicit wrong-contract case still needs execution evidence; measured parallel resource checks are also absent.',
   '03.06': 'The three views are described, but three separately rendered diagrams were not produced by this run.',
   '04.03': 'The mapped folder contains an invariants note, not six separately retained case inputs and verdicts. The six base cases and two units-extension cases remain to be demonstrated individually.',
   '04.04': 'Original and corrected tables and checks are retained. A separate consistently renamed copy and its third check remain unverified in this mapped folder.',
-  '06.06': 'Saved generated packages ran in fresh output state. Independent regeneration from the brief in another agent is untested.',
+  '06.06': 'Both saved packages ran one baseline in fresh output state and refused the other task before fitting. Nineteen shared reuse checks confirm identities and records. The two handoff guides are retrospective additions, not original run inputs. The builder text variant and comparison plan remain unexecuted as declared. Independent regeneration is a separate experiment, not this lesson’s requested execution.',
   '08.02': 'Final lock and row/target recomputation executed. The author had seen the public final result before; this is a replay.',
   '09.05': 'Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.'
 };
 for (const [id,gap] of Object.entries(limitations)) related.get(id).gap = gap;
+for (const id of ['01.05','06.06']) {
+  related.get(id).path = 'how-did-i-generate-it/rsi/validation/saved-reuse-review/README.md';
+  related.get(id).label = 'Checked saved executions with explicit handoffs and text-only extensions';
+}
 for (const [id,gap] of Object.entries({
   '00.01':'The original retrospective brief and source inspection are supplemented by all eight required rows, field explanations and a separate tomorrow-noon brief. No forecast data or model is invented. Learner interpretation remains unattempted.',
   '00.02':'The actual original data-inspection command, source check, environment report and plot are retained. This pass visually inspects that plot and supplies the disabled-command analysis. Permissions were not actually removed; native other-agent and learner checks remain untested.',

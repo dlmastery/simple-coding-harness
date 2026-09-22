@@ -125,9 +125,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the task brief from a handoff copy. Have the new session identify the missing scientific choices instead of guessing a flattering metric.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/01-05).
+**Evidence:** [Checked saved executions with explicit handoffs and text-only extensions](saved-reuse-review/README.md).
 
-**Closure gap:** Same author context; the requested fresh-agent handoff is untested. A new process is not a new coding-agent context.
+**Closure gap:** The original handoff declares a same-context demonstration, which the lesson permits. Exact skill and prediction identities are checked; the missing-task extension has a retained diagnostic copy and author analysis. A genuinely fresh agent and learner responses remain untested.
 
 **Acceptance to verify:** The handoff identifies every required artifact. The new run is real. The report distinguishes fixed reuse from adaptive improvement.
 
@@ -499,9 +499,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Change the builder’s proposal instructions and label it a new builder version. State the comparison needed before calling it a better builder.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-06).
+**Evidence:** [Checked saved executions with explicit handoffs and text-only extensions](saved-reuse-review/README.md).
 
-**Closure gap:** Saved generated packages ran in fresh output state. Independent regeneration from the brief in another agent is untested.
+**Closure gap:** Both saved packages ran one baseline in fresh output state and refused the other task before fitting. Nineteen shared reuse checks confirm identities and records. The two handoff guides are retrospective additions, not original run inputs. The builder text variant and comparison plan remain unexecuted as declared. Independent regeneration is a separate experiment, not this lesson’s requested execution.
 
 **Acceptance to verify:** Both task contracts remain intact. Actual runs and negative checks are recorded. The report does not confuse generator output diversity with improvement.
 

@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Recreation uses the saved brief, builder version, generated files, dependencies, and data versions. Different source code can implement the same contract, so compare behavior and evidence as well as file hashes. If generation is stochastic, do not assume byte-identical output.
 
-**A concrete example.** Running a saved generated package in a new output folder tests whether its recorded files and dependencies are sufficient. Asking the builder to generate another package from prose is a different test. This lab performs the first. Equal baseline predictions support repeatability of that package; they do not prove independent regeneration or a better builder.
+**A concrete example.** The [saved-package comparison](../../../how-did-i-generate-it/rsi/validation/saved-reuse-review/README.md) checks two real reruns: each preserves its earlier baseline prediction bytes and refuses the other task name. New handoff guides make the shared tool and environment dependencies explicit; they were written after those runs. A separate builder text variant describes a possible change but has not generated a harness. Equal baseline predictions support repeatable saved execution. Testing a changed builder requires a different comparison.
 
 ![Saved bike and wine packages each run their baseline into a new output folder. Each new record is compared with the earlier record for the same task. Separate cards distinguish repeated saved execution, regeneration from a brief, and evaluation of a changed builder.](../../assets/illustrations/repeat-saved-harnesses-v1.png)
 
