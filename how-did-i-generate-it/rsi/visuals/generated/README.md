@@ -1,14 +1,52 @@
 # Illustrations for the RSI course
 
-Ninety-nine selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+One hundred five selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 147 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 154 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
-The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
+The new navigation maps appear first in the student guide. They support early visual feedback; all 101 labs now have individual illustrations. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 08.01
+
+![Three paired seeds compare frozen tree and forest recipes on one task and split. Six result slots lead to paired differences, while a separate crossed-out example rejects reporting only a favorable seed.](paired-seeds-comparison-v1.png)
+
+Selected: [paired-seeds-comparison-v1.png](paired-seeds-comparison-v1.png). Exact [prompt](paired-seeds-comparison-v1.prompt.md). The difference is forest MAE minus tree MAE, so a negative value favors the forest. Recipe families and complexity differ; seeds are paired within that comparison. The star on seed 29 is an arbitrary example of selective reporting, not the best seed in the archived run. Blank cells and checklist marks specify planned work, not new measurements. The measured plot below uses the actual recorded results. Three seeds do not establish transfer to other tasks or data splits.
+
+## Lab 08.02
+
+![A recorded candidate choice is locked before its frozen recipe is refitted on original training rows and scored on final rows. Another selection fit is refused. A separate panel distinguishes the local workflow lock from access isolation.](freeze-before-final-v2.png)
+
+Selected: [freeze-before-final-v2.png](freeze-before-final-v2.png). Exact [prompt](freeze-before-final-v2.prompt.md). Use the original experiment workspace, not a new experiment with a reset selection history. The final operation permits a refit of the frozen recipe on original training rows only; it does not permit another selection fit or adding selection rows to training. Preserve the lock even if final scoring fails. The pictured lock is a cooperative local control over public data. Actual access isolation requires separate permissions and an evaluator; this course does not claim those controls exist. The recipe, reason, and contract belong in the decision record, not extra fields invented for FINAL-LOCK.md.
+
+## Lab 08.03
+
+![Proposal, data, fit, checking, review, retry, and failure records feed a complete cost ledger. The retained candidate is only a subset. A separate invented example shows how proposal overhead can erase a fit-time advantage.](research-cost-ledger-v1.png)
+
+Selected: [research-cost-ledger-v1.png](research-cost-ledger-v1.png). Exact [prompt](research-cost-ledger-v1.prompt.md). Account for the full search effort, including work that failed or did not help. Wall time, tokens, fit time, and GPU-hours measure different resources; do not add overlapping durations or unlike units. The token counter is an instrument icon, not a zero-usage observation. Leave unavailable usage unknown. The 20+p versus 30+10 comparison is invented arithmetic with sequential stages and equal other costs. It is not a measured result from this course, and equal fit counts do not establish equal total cost.
+
+## Lab 08.04
+
+![Four fixed parent/child and memory-absent/present combinations form a factorial comparison. Memory effects are compared within each skill. A detached fifth condition removes one conflicting memory rule and keeps a separate record.](memory-skill-factorial-v1.png)
+
+Selected: [memory-skill-factorial-v1.png](memory-skill-factorial-v1.png). Exact [prompt](memory-skill-factorial-v1.prompt.md). Keep the same memory version in both memory-present arms and the same parent or child instructions across its row. The blank records do not assume the child wins or memory helps. Differences between the two memory effects describe an interaction in these observations; noisy results need uncertainty analysis before a broader claim. The four main checks or fits and the separate follow-up have distinct budgets. Fresh folders do not isolate agent knowledge. The archived worked example below replays deterministic decisions over cached predictions; it is not an LLM training experiment.
+
+## Lab 08.05
+
+![Two bike-developed task skills are frozen before wine feedback. A predeclared adapter maps the target, metric, and interfaces. Each skill gets two wine fits; result-informed edits require a new development version and fresh transfer cases.](frozen-skill-transfer-v1.png)
+
+Selected: [frozen-skill-transfer-v1.png](frozen-skill-transfer-v1.png). Exact [prompt](frozen-skill-transfer-v1.prompt.md). The frozen objects are the research instructions and their declared interfaces. The left-hand cards list task-specific material those instructions operate on; do not reuse a fitted bike model as a wine classifier or treat model code as the skill itself. Declare target, inputs, split, model interface, and maximizing balanced accuracy before wine outcomes. Keep both class recalls and all four attempts. The author already knew the public wine task, so the archived exercise is a transfer replay, not a fresh unseen-task test. No result is filled in here.
+
+## Lab 08.06
+
+![An apparent majority-class win based on ordinary accuracy is checked against the declared balanced-accuracy objective using existing predictions. A changed active version is restored; otherwise rejection alone is recorded, with failed evidence preserved.](metric-switch-and-rollback-v1.png)
+
+Selected: [metric-switch-and-rollback-v1.png](metric-switch-and-rollback-v1.png). Exact [prompt](metric-switch-and-rollback-v1.prompt.md). The constant predictor has recalls one and zero when both classes occur, giving balanced accuracy 0.5. The failure concerns this fixture's unsupported promotion and omitted evidence; a majority baseline is not invalid for every task and is not automatically worse than every candidate. Checklist marks describe required checks, not a new execution. Restore the prior valid version only if the fixture replaced it. A new accuracy objective requires an explicit new task and tradeoff; it cannot relabel the earlier comparison.
+
+The [first final-boundary draft](freeze-before-final-v1.png) and its [prompt](freeze-before-final-v1.prompt.md) are preserved. The selected revision corrects selection-fit versus final-refit language, lock fields, and access controls. See the [measurement review](../../validation/MEASUREMENT-ILLUSTRATIONS.md).
 
 ## Lab 07.01
 

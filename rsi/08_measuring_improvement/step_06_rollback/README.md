@@ -28,9 +28,20 @@ A majority classifier can be accurate on imbalanced data while detecting no posi
 
 **A concrete example.** The [rollback fixture](../../evidence/2026-09-20/self-star-and-measurement/08-06/PROMOTION.md) temporarily activates an instruction that promotes the majority model for its 87.1% ordinary accuracy. Recalculation shows positive recall 0 and balanced accuracy 0.5. The declared objective has not changed. Reject the promotion and restore the exact prior instruction, retaining the invalid version and its evidence. Choosing accuracy for a genuinely new task requires a separate objective and an explicit tradeoff.
 
+![An apparent majority-class win based on ordinary accuracy is checked against the declared balanced-accuracy objective using existing predictions. A changed active version is restored; otherwise rejection alone is recorded, with failed evidence preserved.](../../assets/illustrations/metric-switch-and-rollback-v1.png)
+
+*The constant predictor has recalls one and zero when both classes occur, giving balanced accuracy 0.5. The failure concerns this fixture's unsupported promotion and omitted evidence; a majority baseline is not invalid for every task and is not automatically worse than every candidate. Checklist marks describe required checks, not a new execution. Restore the prior valid version only if the fixture replaced it. A new accuracy objective requires an explicit new task and tradeoff; it cannot relabel the earlier comparison.*
+
+[Open the illustration at full size](../../assets/illustrations/metric-switch-and-rollback-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.](../../assets/diagrams/lab-08-06.png)
 
 *Read the diagram:* A lower reported error does not override invalid evidence. Rollback preserves both the parent and the rejected record.
+
+</details>
 
 ## Run the lab
 

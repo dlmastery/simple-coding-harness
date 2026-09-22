@@ -6,7 +6,7 @@ Starting state: A frozen memory note, parent skill, child skill, and prespecifie
 
 Prediction to ask: Could useful memory become harmful when paired with a changed skill?
 
-Execution limit: Four arms with one fit each, or four executable fixture checks if fitting is unnecessary.
+Execution limit: Four main arms, each with one fit or one executable check. The separately declared follow-up adds one check, or one fit if needed.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

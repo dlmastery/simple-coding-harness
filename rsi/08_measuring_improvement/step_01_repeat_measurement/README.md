@@ -32,9 +32,20 @@ Use the same prespecified seeds for both recipes. Compare paired differences, re
 
 *Measured selection results, not an uncertainty estimate across new datasets. The two recipes differ in family and complexity.*
 
+![Three paired seeds compare frozen tree and forest recipes on one task and split. Six result slots lead to paired differences, while a separate crossed-out example rejects reporting only a favorable seed.](../../assets/illustrations/paired-seeds-comparison-v1.png)
+
+*The difference is forest MAE minus tree MAE, so a negative value favors the forest. Recipe families and complexity differ; seeds are paired within that comparison. The star on seed 29 is an arbitrary example of selective reporting, not the best seed in the archived run. Blank cells and checklist marks specify planned work, not new measurements. The measured plot below uses the actual recorded results. Three seeds do not establish transfer to other tasks or data splits.*
+
+[Open the illustration at full size](../../assets/illustrations/paired-seeds-comparison-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.](../../assets/diagrams/lab-08-01.png)
 
 *Read the diagram:* A repeated comparison reveals variation. One favorable run cannot establish a reliable advantage.
+
+</details>
 
 ## Run the lab
 

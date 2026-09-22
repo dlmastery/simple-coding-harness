@@ -30,9 +30,20 @@ Selection chooses a recipe using development feedback. Final evaluation measures
 
 **A concrete example.** You choose candidate 2 because it has the smallest selection MAE and record that decision. Its final MAE is worse than expected. Trying candidate 3 on the same final rows to recover a pleasing score would turn those rows into selection feedback. The correct record keeps candidate 2’s result and closes this experiment.
 
+![A recorded candidate choice is locked before its frozen recipe is refitted on original training rows and scored on final rows. Another selection fit is refused. A separate panel distinguishes the local workflow lock from access isolation.](../../assets/illustrations/freeze-before-final-v2.png)
+
+*Use the original experiment workspace, not a new experiment with a reset selection history. The final operation permits a refit of the frozen recipe on original training rows only; it does not permit another selection fit or adding selection rows to training. Preserve the lock even if final scoring fails. The pictured lock is a cooperative local control over public data. Actual access isolation requires separate permissions and an evaluator; this course does not claim those controls exist. The recipe, reason, and contract belong in the decision record, not extra fields invented for FINAL-LOCK.md.*
+
+[Open the illustration at full size](../../assets/illustrations/freeze-before-final-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.](../../assets/diagrams/lab-08-02.png)
 
 *Read the diagram:* Freeze selection before final evaluation. Final feedback does not flow back into ordinary selection.
+
+</details>
 
 ## Run the lab
 

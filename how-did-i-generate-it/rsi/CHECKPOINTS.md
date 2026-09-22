@@ -1,5 +1,8 @@
 # GitHub checkpoints
 
+Verified parent: [fb001c4](https://github.com/dlmastery/simple-coding-harness/commit/fb001c4c93b2b95bb5de3c29f810fa699c8981ac), self-* figures and explicit evidence boundaries. The next measurement checkpoint completes individual infographic production; it does not claim full course verification.
+
+
 - [dd079f2](https://github.com/dlmastery/simple-coding-harness/commit/dd079f2abf88c798babf8ecbd21d9da1c790fc61): all six meta-harness labs illustrated; 92 selected figures, 137 versions, 88 mapped labs, and 4,071 checked links. Builder skill respects staged scope. Remote hash and clean worktree verified before the self-* figures.
 
 - [2813857](https://github.com/dlmastery/simple-coding-harness/commit/2813857d6aac9508765d52eb923c99b8bf8fef28): all five system-intelligence labs illustrated; 87 selected figures, 132 archived versions, 83 mapped labs, and 4,025 checked links. Main README visual status refreshed. Remote hash and clean worktree verified before meta-harness work.

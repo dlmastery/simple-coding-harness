@@ -7,6 +7,13 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["paired-seeds-comparison-v1","exec-6e4a52f3-24d4-481f-a2f9-1b7af5f16a7e.png",true],
+  ["freeze-before-final-v1","exec-65bc2319-b7db-4d21-995b-21099efd1814.png",false],
+  ["freeze-before-final-v2","exec-33768c35-a07b-43c9-9cb2-7805c24aa4a1.png",true],
+  ["research-cost-ledger-v1","exec-f058164e-65b6-4fe1-9ac8-3d8d8c27ff74.png",true],
+  ["memory-skill-factorial-v1","exec-bc1f58b5-89d5-4830-9e4a-f8a4508513db.png",true],
+  ["frozen-skill-transfer-v1","exec-5598ea3b-8dbb-4910-b498-a87ff72cd348.png",true],
+  ["metric-switch-and-rollback-v1","exec-5a172dc3-b984-462a-aa59-c0dd8c575a7c.png",true],
   ["local-output-correction-v1","exec-7bc827d4-576a-46f5-9d42-19def4894b99.png",true],
   ["reflection-hypothesis-checks-v1","exec-2722866c-6b8f-42c0-876d-45e8e5b5bcd4.png",false],
   ["reflection-hypothesis-checks-v2","exec-8acb5da0-f831-4629-8d34-38a6369cc536.png",true],

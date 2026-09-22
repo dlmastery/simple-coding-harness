@@ -496,6 +496,66 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 07.08: Make a self-modification inspectable](07_understanding_self_star/step_08_modification/README.md).
 
+## Keep every planned pair, not just the best run
+
+![Three paired seeds compare frozen tree and forest recipes on one task and split. Six result slots lead to paired differences, while a separate crossed-out example rejects reporting only a favorable seed.](assets/illustrations/paired-seeds-comparison-v1.png)
+
+*The difference is forest MAE minus tree MAE, so a negative value favors the forest. Recipe families and complexity differ; seeds are paired within that comparison. The star on seed 29 is an arbitrary example of selective reporting, not the best seed in the archived run. Blank cells and checklist marks specify planned work, not new measurements. The measured plot below uses the actual recorded results. Three seeds do not establish transfer to other tasks or data splits.*
+
+[Open the illustration at full size](assets/illustrations/paired-seeds-comparison-v1.png).
+
+[Lab 08.01: Distinguish a result from a reliable comparison](08_measuring_improvement/step_01_repeat_measurement/README.md).
+
+## Freeze the choice before you reveal the final score
+
+![A recorded candidate choice is locked before its frozen recipe is refitted on original training rows and scored on final rows. Another selection fit is refused. A separate panel distinguishes the local workflow lock from access isolation.](assets/illustrations/freeze-before-final-v2.png)
+
+*Use the original experiment workspace, not a new experiment with a reset selection history. The final operation permits a refit of the frozen recipe on original training rows only; it does not permit another selection fit or adding selection rows to training. Preserve the lock even if final scoring fails. The pictured lock is a cooperative local control over public data. Actual access isolation requires separate permissions and an evaluator; this course does not claim those controls exist. The recipe, reason, and contract belong in the decision record, not extra fields invented for FINAL-LOCK.md.*
+
+[Open the illustration at full size](assets/illustrations/freeze-before-final-v2.png).
+
+[Lab 08.02: Freeze selection before final evaluation](08_measuring_improvement/step_02_final_boundary/README.md).
+
+## Count the work that produced the retained result
+
+![Proposal, data, fit, checking, review, retry, and failure records feed a complete cost ledger. The retained candidate is only a subset. A separate invented example shows how proposal overhead can erase a fit-time advantage.](assets/illustrations/research-cost-ledger-v1.png)
+
+*Account for the full search effort, including work that failed or did not help. Wall time, tokens, fit time, and GPU-hours measure different resources; do not add overlapping durations or unlike units. The token counter is an instrument icon, not a zero-usage observation. Leave unavailable usage unknown. The 20+p versus 30+10 comparison is invented arithmetic with sequential stages and equal other costs. It is not a measured result from this course, and equal fit counts do not establish equal total cost.*
+
+[Open the illustration at full size](assets/illustrations/research-cost-ledger-v1.png).
+
+[Lab 08.03: Count the cost of research](08_measuring_improvement/step_03_cost/README.md).
+
+## Test the combination, not only its parts
+
+![Four fixed parent/child and memory-absent/present combinations form a factorial comparison. Memory effects are compared within each skill. A detached fifth condition removes one conflicting memory rule and keeps a separate record.](assets/illustrations/memory-skill-factorial-v1.png)
+
+*Keep the same memory version in both memory-present arms and the same parent or child instructions across its row. The blank records do not assume the child wins or memory helps. Differences between the two memory effects describe an interaction in these observations; noisy results need uncertainty analysis before a broader claim. The four main checks or fits and the separate follow-up have distinct budgets. Fresh folders do not isolate agent knowledge. The archived worked example below replays deterministic decisions over cached predictions; it is not an LLM training experiment.*
+
+[Open the illustration at full size](assets/illustrations/memory-skill-factorial-v1.png).
+
+[Lab 08.04: Separate the effects of memory and procedure changes](08_measuring_improvement/step_04_ablation/README.md).
+
+## Freeze the procedure before testing a new task
+
+![Two bike-developed task skills are frozen before wine feedback. A predeclared adapter maps the target, metric, and interfaces. Each skill gets two wine fits; result-informed edits require a new development version and fresh transfer cases.](assets/illustrations/frozen-skill-transfer-v1.png)
+
+*The frozen objects are the research instructions and their declared interfaces. The left-hand cards list task-specific material those instructions operate on; do not reuse a fitted bike model as a wine classifier or treat model code as the skill itself. Declare target, inputs, split, model interface, and maximizing balanced accuracy before wine outcomes. Keep both class recalls and all four attempts. The author already knew the public wine task, so the archived exercise is a transfer replay, not a fresh unseen-task test. No result is filled in here.*
+
+[Open the illustration at full size](assets/illustrations/frozen-skill-transfer-v1.png).
+
+[Lab 08.05: Test whether the lesson transfers](08_measuring_improvement/step_05_transfer/README.md).
+
+## Reject a win created by changing the metric
+
+![An apparent majority-class win based on ordinary accuracy is checked against the declared balanced-accuracy objective using existing predictions. A changed active version is restored; otherwise rejection alone is recorded, with failed evidence preserved.](assets/illustrations/metric-switch-and-rollback-v1.png)
+
+*The constant predictor has recalls one and zero when both classes occur, giving balanced accuracy 0.5. The failure concerns this fixture's unsupported promotion and omitted evidence; a majority baseline is not invalid for every task and is not automatically worse than every candidate. Checklist marks describe required checks, not a new execution. Restore the prior valid version only if the fixture replaced it. A new accuracy objective requires an explicit new task and tradeoff; it cannot relabel the earlier comparison.*
+
+[Open the illustration at full size](assets/illustrations/metric-switch-and-rollback-v1.png).
+
+[Lab 08.06: Reject a misleading win and roll back](08_measuring_improvement/step_06_rollback/README.md).
+
 ## Two generations can use the same improver
 
 ![Two task-skill generations use the same improver I0. Each checks a proposed child, retains either child or parent, and records proposals, decisions, and costs.](assets/illustrations/fixed-improver-v2.png)

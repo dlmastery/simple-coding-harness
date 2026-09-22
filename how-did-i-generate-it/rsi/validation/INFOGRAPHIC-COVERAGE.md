@@ -2,9 +2,9 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**95 of 101 labs** currently have a mapped generated infographic; **6 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**101 of 101 labs** currently have a mapped generated infographic; **0 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
-All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
+Every lab now has an individual generated figure. Continue the full content, source, and published-rendering review; image presence is not course acceptance.
 
 | Theme | Labs | Mapped lab infographics | Remaining |
 |---|---|---|---|
@@ -16,7 +16,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 05 · Build capability around the model | 5 | 5 | 0 |
 | 06 · Generate a harness from a brief | 6 | 6 | 0 |
 | 07 · Separate the self-* ideas | 8 | 8 | 0 |
-| 08 · Measure what improved | 6 | 0 | 6 |
+| 08 · Measure what improved | 6 | 6 | 0 |
 | 09 · Improve the improvement procedure | 7 | 7 | 0 |
 | 10 · Read and rebuild recent research | 38 | 38 | 0 |
 | 11 · Build, transfer, and explain | 5 | 5 | 0 |
@@ -110,12 +110,12 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [08.01 · Distinguish a result from a reliable comparison](../../../rsi/08_measuring_improvement/step_01_repeat_measurement/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-01.png) |
-| [08.02 · Freeze selection before final evaluation](../../../rsi/08_measuring_improvement/step_02_final_boundary/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-02.png) |
-| [08.03 · Count the cost of research](../../../rsi/08_measuring_improvement/step_03_cost/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-03.png) |
-| [08.04 · Separate the effects of memory and procedure changes](../../../rsi/08_measuring_improvement/step_04_ablation/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-04.png) |
-| [08.05 · Test whether the lesson transfers](../../../rsi/08_measuring_improvement/step_05_transfer/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-05.png) |
-| [08.06 · Reject a misleading win and roll back](../../../rsi/08_measuring_improvement/step_06_rollback/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-08-06.png) |
+| [08.01 · Distinguish a result from a reliable comparison](../../../rsi/08_measuring_improvement/step_01_repeat_measurement/README.md) | [Selected figure](../../../rsi/assets/illustrations/paired-seeds-comparison-v1.png) | [Present](../../../rsi/assets/diagrams/lab-08-01.png) |
+| [08.02 · Freeze selection before final evaluation](../../../rsi/08_measuring_improvement/step_02_final_boundary/README.md) | [Selected figure](../../../rsi/assets/illustrations/freeze-before-final-v2.png) | [Present](../../../rsi/assets/diagrams/lab-08-02.png) |
+| [08.03 · Count the cost of research](../../../rsi/08_measuring_improvement/step_03_cost/README.md) | [Selected figure](../../../rsi/assets/illustrations/research-cost-ledger-v1.png) | [Present](../../../rsi/assets/diagrams/lab-08-03.png) |
+| [08.04 · Separate the effects of memory and procedure changes](../../../rsi/08_measuring_improvement/step_04_ablation/README.md) | [Selected figure](../../../rsi/assets/illustrations/memory-skill-factorial-v1.png) | [Present](../../../rsi/assets/diagrams/lab-08-04.png) |
+| [08.05 · Test whether the lesson transfers](../../../rsi/08_measuring_improvement/step_05_transfer/README.md) | [Selected figure](../../../rsi/assets/illustrations/frozen-skill-transfer-v1.png) | [Present](../../../rsi/assets/diagrams/lab-08-05.png) |
+| [08.06 · Reject a misleading win and roll back](../../../rsi/08_measuring_improvement/step_06_rollback/README.md) | [Selected figure](../../../rsi/assets/illustrations/metric-switch-and-rollback-v1.png) | [Present](../../../rsi/assets/diagrams/lab-08-06.png) |
 
 ## 09 · Improve the improvement procedure
 

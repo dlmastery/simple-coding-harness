@@ -16,6 +16,8 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 
+Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete, while full course verification remains in progress.
+
 ## What you will learn
 
 By the end of the full course, you should be able to:

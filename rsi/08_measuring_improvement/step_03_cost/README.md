@@ -28,9 +28,20 @@ Resources are not interchangeable. Record agent tokens or provider charges when 
 
 **A concrete example.** The [measured bike procedures](../../evidence/2026-09-20/self-star-and-measurement/08-03/COST.md) each used two fits and two checks, even though each retained only one candidate. Counting only winners would halve the recorded attempts. Now consider a separate numerical illustration: A needs 20 fit-seconds plus p proposal-seconds; B needs 30 + 10 = 40 seconds. With sequential stages and otherwise equal costs, A loses its time advantage when p exceeds 20. These invented costs illustrate a threshold; they are not the run’s measurements.
 
+![Proposal, data, fit, checking, review, retry, and failure records feed a complete cost ledger. The retained candidate is only a subset. A separate invented example shows how proposal overhead can erase a fit-time advantage.](../../assets/illustrations/research-cost-ledger-v1.png)
+
+*Account for the full search effort, including work that failed or did not help. Wall time, tokens, fit time, and GPU-hours measure different resources; do not add overlapping durations or unlike units. The token counter is an instrument icon, not a zero-usage observation. Leave unavailable usage unknown. The 20+p versus 30+10 comparison is invented arithmetic with sequential stages and equal other costs. It is not a measured result from this course, and equal fit counts do not establish equal total cost.*
+
+[Open the illustration at full size](../../assets/illustrations/research-cost-ledger-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Research cost includes proposing, running, checking, and failed work. Fit time is only one component.](../../assets/diagrams/lab-08-03.png)
 
 *Read the diagram:* Research cost includes proposing, running, checking, and failed work. Fit time is only one component.
+
+</details>
 
 ## Run the lab
 

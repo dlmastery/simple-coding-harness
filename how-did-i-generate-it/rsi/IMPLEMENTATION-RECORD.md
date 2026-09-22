@@ -1,5 +1,8 @@
 # Implementation record
 
+**Measurement publication, 21 September:** all 101 labs now have individual generated figures. Six measurement selections used seven outputs; only the final-boundary figure needed a correction. The gallery contains 105 selected figures and preserves all 154 versions with exact prompts. Clarified the four-arm ablation plus separate fifth follow-up, and kept measured plots separate from conceptual images. Parent fb001c4c93b2b95bb5de3c29f810fa699c8981ac was pushed and remote-verified. No new model fits were run. Next: audit the complete written route, reusable skills, research claims, and published reading experience before the deferred full execution pass. Image coverage does not close the overall goal. See [measurement review](validation/MEASUREMENT-ILLUSTRATIONS.md).
+
+
 ## 20 September: self-play and the two selection levels
 
 Replaced the interaction-only 07.07 exercise with a real tabular Monte Carlo learner. Declared the protocol first, passed four small behavioral checks, then executed 3,000 training games and 500 frozen evaluation games per policy. The source snapshot, 22,287 updates, full game traces, outcomes, hashes, costs, and measured chart are retained. The runtime reports 6,648 stored state-action values; 5,871 are nonzero. The trained policy won 383 of 500 games against random play; the untrained policy won 227. No tuning followed evaluation. This is same-author execution, not a learner assessment, independent replication, paper reproduction, or RSI.

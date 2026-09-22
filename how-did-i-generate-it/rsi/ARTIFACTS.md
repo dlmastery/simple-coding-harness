@@ -1,5 +1,8 @@
 # Artifact index
 
+**Measurement publication, 21 September:** all 101 labs now have individual generated figures. Six measurement selections used seven outputs; only the final-boundary figure needed a correction. The gallery contains 105 selected figures and preserves all 154 versions with exact prompts. Clarified the four-arm ablation plus separate fifth follow-up, and kept measured plots separate from conceptual images. Parent fb001c4c93b2b95bb5de3c29f810fa699c8981ac was pushed and remote-verified. No new model fits were run. Next: audit the complete written route, reusable skills, research claims, and published reading experience before the deferred full execution pass. Image coverage does not close the overall goal. See [measurement review](validation/MEASUREMENT-ILLUSTRATIONS.md).
+
+
 - [Self-* mechanism illustration review](validation/SELF-MECHANISMS-ILLUSTRATIONS.md): seven selections from ten outputs; correction, reflection, memory, fixed-improver skill changes, organization, emergence, and tabular self-play.
 
 - [Meta-harness illustration review](validation/META-HARNESS-ILLUSTRATIONS.md): five first-attempt figures, review-only builder scope, request-bound refusals, classification transfer, and saved-package reproduction.

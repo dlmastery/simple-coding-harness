@@ -28,9 +28,20 @@ Transfer asks whether a retained change helps in a different setting. Keep the s
 
 **A concrete example.** The [author transfer replay](../../evidence/2026-09-20/self-star-and-measurement/08-05/DECISION.md) froze the bike skill files, then mapped the task to wine and maximized balanced accuracy. The parent retained 0.633 and the child 0.745 with two fits each. The author already knew earlier public wine results, so this is not an unseen transfer test. For your own test, freeze the procedure before target-task feedback. Rewriting it after seeing the result starts a new development round.
 
+![Two bike-developed task skills are frozen before wine feedback. A predeclared adapter maps the target, metric, and interfaces. Each skill gets two wine fits; result-informed edits require a new development version and fresh transfer cases.](../../assets/illustrations/frozen-skill-transfer-v1.png)
+
+*The frozen objects are the research instructions and their declared interfaces. The left-hand cards list task-specific material those instructions operate on; do not reuse a fitted bike model as a wine classifier or treat model code as the skill itself. Declare target, inputs, split, model interface, and maximizing balanced accuracy before wine outcomes. Keep both class recalls and all four attempts. The author already knew the public wine task, so the archived exercise is a transfer replay, not a fresh unseen-task test. No result is filled in here.*
+
+[Open the illustration at full size](../../assets/illustrations/frozen-skill-transfer-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.](../../assets/diagrams/lab-08-05.png)
 
 *Read the diagram:* Freeze the learned change before testing a new task. New-task feedback must not silently tune the candidate being evaluated.
+
+</details>
 
 ## Run the lab
 

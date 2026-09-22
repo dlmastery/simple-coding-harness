@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A frozen memory note, parent skill, child skill, and prespecified task fixtures.
 
-**Budget:** Four arms with one fit each, or four executable fixture checks if fitting is unnecessary. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Four main arms, each with one fit or one executable check. The separately declared follow-up adds one check, or one fit if needed. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -32,9 +32,20 @@ Compare parent without memory, parent with memory, child without memory, and chi
 
 *Four deterministic choices over checked predictions. The fifth rule-removal follow-up is kept separate.*
 
+![Four fixed parent/child and memory-absent/present combinations form a factorial comparison. Memory effects are compared within each skill. A detached fifth condition removes one conflicting memory rule and keeps a separate record.](../../assets/illustrations/memory-skill-factorial-v1.png)
+
+*Keep the same memory version in both memory-present arms and the same parent or child instructions across its row. The blank records do not assume the child wins or memory helps. Differences between the two memory effects describe an interaction in these observations; noisy results need uncertainty analysis before a broader claim. The four main checks or fits and the separate follow-up have distinct budgets. Fresh folders do not isolate agent knowledge. The archived worked example below replays deterministic decisions over cached predictions; it is not an LLM training experiment.*
+
+[Open the illustration at full size](../../assets/illustrations/memory-skill-factorial-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The four conditions separate memory and procedure changes. They also reveal whether the changes interact.](../../assets/diagrams/lab-08-04.png)
 
 *Read the diagram:* The four conditions separate memory and procedure changes. They also reveal whether the changes interact.
+
+</details>
 
 ## Run the lab
 
@@ -96,12 +107,13 @@ The agent keeps these in your lab workspace or records the original experiment p
 | ABLATION-PLAN.md | Freezes all four memory/skill combinations, inputs, metric, and per-arm budget. |
 | Four decision and outcome records | Include context boundaries, failures, and measured costs. |
 | Effect comparison | Compares memory within each skill version and skill change within each memory condition. |
+| Separate follow-up record | Preserves the removed rule, both memory versions, affected arm, outcome, and additional check or fit cost. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Remove a conflicting memory rule in a separately declared follow-up. Do not merge that new result into the original experiment.
+Remove one conflicting memory rule and check one affected arm in a separately declared follow-up. Keep all other conditions fixed. Preserve both memory versions and the extra check or fit cost. Do not merge this fifth result into the original four-arm experiment.
 
 ## If something goes wrong
 

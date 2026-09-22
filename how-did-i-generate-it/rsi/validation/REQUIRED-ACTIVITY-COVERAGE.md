@@ -659,7 +659,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Declare four arms.** Separate main effects and interaction.
 2. **Execute the comparison.** Retain interactions and failures.
 
-**Additional change:** Remove a conflicting memory rule in a separately declared follow-up. Do not merge that new result into the original experiment.
+**Additional change:** Remove one conflicting memory rule and check one affected arm in a separately declared follow-up. Keep all other conditions fixed. Preserve both memory versions and the extra check or fit cost. Do not merge this fifth result into the original four-arm experiment.
 
 **Evidence:** [Executed self-* and measurement activities with labelled replays](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md).
 
