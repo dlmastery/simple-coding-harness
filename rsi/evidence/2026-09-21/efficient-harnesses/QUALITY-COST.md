@@ -1,0 +1,15 @@
+# Efficient harnesses author protocol
+
+This protocol covers lab 10.30. Start a new sibling workspace. Run four sequential fits: H0 bike, H1 bike, H1 wine, H0 wine. Each task/variant has its own one-attempt contract; each variant receives two fits total. The ordering reverses between tasks but is not a randomized performance study. Stop on an unexpected failure; preserve it without an automatic retry. Each subprocess has a 60-second timeout. No final-partition evaluation.
+
+Both variants run linear/all, seed 17. Bike uses the course's retrospective hourly demand contract, 2011 training, January–June 2012 selection, and MAE. Wine uses the fixed duplicate-group split, quality-at-least-seven label, balanced logistic regression, and balanced accuracy. Data, tool, prediction checker, and recipes stay unchanged. Prior development scores are author-known.
+
+H0 creates three identical derived summary reports in three separate report-tool processes after a fit and prediction check. H1 creates one such report in one process. This deliberately redundant reporting layer is the only variant difference. Required runtime results and prediction files remain in both. The report tool reads saved predictions and includes the score, row count, and both wine class recalls. Report-process count and derived-report bytes are the primary efficiency measurements. They are not provider token counts or total storage.
+
+Before execution, the quality floor is fixed: successful fit and prediction check, a readable summary bound to the prediction SHA-256, finite recomputed score, bike MAE at most 110, wine balanced accuracy at least 0.70, and wine recall at least 0.65 for each class. Required fields must match the prediction file. H1 may differ from H0 in score or either recall by at most 1e-10. Prefer H1 only if both task floors pass, the paired tolerance passes, and it uses fewer report calls/bytes. Prediction identity is additionally reported, not inferred from equal scores.
+
+Record fit-related seconds, every subprocess duration and exit, derived-report bytes, and whole-driver wall time. Fit time is nested in subprocess time; do not add it again. Driver wall time is nested over all commands. Record proposal implementation time, author inference usage, source reading, and publication overhead as unknown unless measured. A one-shot timing difference cannot establish general runtime savings.
+
+One separate counterexample uses a fit stub and one report call, omitting the required prediction check. It must fail the same evidence-presence gate even if its supplied quality number is high. No additional fit is allowed. This is a constructed missing-evidence fixture, not an actual prediction-quality measurement.
+
+This is an author walkthrough. Learner prediction, quiz, and teach-back are unattempted. All roles share one author context. The local guard and hash checks are cooperative controls, not private evaluation. No paper mechanism implementation, statistical efficiency claim, autonomous search, recursive cost compounding, or model-weight improvement follows.

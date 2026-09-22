@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-90 labs have mapped related author-execution evidence; 11 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+91 labs have mapped related author-execution evidence; 10 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1172,9 +1172,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Run one labelled fixture with a necessary checker removed and a fit stub in place of training. Compare its missing evidence with the declared quality floor. Explain why the apparent saving is not a valid win.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Four matched fits with fixed quality and report-cost gates](../../../rsi/evidence/2026-09-21/efficient-harnesses/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Both task pairs pass fixed floors and have identical predictions; duplicate report calls/bytes fall. The checker-removal fit stub fails, and optional source cost boundaries are audited. One-shot timings, unknown design/inference costs, shared author context, and unattempted learner assessment limit the conclusion; no paper mechanism or recursive compounding was reproduced.
 
 **Acceptance to verify:** The acceptance rule is unchanged. All relevant costs are included or marked unknown. The conclusion is limited to measured efficiency.
 

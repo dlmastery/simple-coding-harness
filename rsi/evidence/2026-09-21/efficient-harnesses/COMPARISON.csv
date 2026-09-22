@@ -1,0 +1,3 @@
+task,retain_H1,identical_predictions,paired_tolerance,report_calls_removed,derived_bytes_removed
+bike,true,true,true,2,434
+wine,true,true,true,2,550

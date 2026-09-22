@@ -72,7 +72,7 @@ export const scienceFrontierGuidance = {
     hint:'Inspect what was visible and what was actually selected. A success message from either role is weaker than the page state and task check.'
   },
   '10.30': {
-    example:'A harness writes the same metrics into three near-identical reports. Consolidating them may save work while retaining one verifiable record. Removing the result checker also saves work, but can violate the quality floor. The two removals need different acceptance decisions even if both shorten the trace.',
+    example:'In the [four-fit reporting comparison](../../../evidence/2026-09-21/efficient-harnesses/README.md), H0 writes three identical summaries and H1 writes one. Both task pairs produce identical predictions and pass the fixed quality floor. H1 uses two fewer summary calls per task. A separate checker-removal stub fails. The saving concerns report work; inference cost is unknown, and one timing per variant does not establish general runtime savings.',
     outputs:[['QUALITY-COST.md','Freezes required evidence, tolerance, failure handling, and cost units.'],['Matched variant results','Retain known costs and missing measurements across both task fixtures.'],['Checker-removal counterexample','Uses a fit stub and exposes the lost acceptance evidence without another model fit.']],
     recovery:'If only fit time is available, report fit-time efficiency rather than total cost superiority. If a shorter run omits required evidence, treat that as a failed quality condition. Do not adjust tolerance after learning which candidate is cheaper. Include the work spent designing and checking the edit.',
     hint:'State the quality requirement first. Then ask which cost can fall while that requirement continues to hold.'

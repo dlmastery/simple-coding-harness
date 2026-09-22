@@ -28,7 +28,7 @@ SoL-Pi motivates harness search for efficiency subject to quality requirements. 
 
 For an optional source comparison, inspect [VideoHarness-RSI, section 4.5](https://arxiv.org/html/2608.24302v2). Its per-call context limit is distinct from cumulative consumption. Ask which cost your own ledger measures.
 
-**A concrete example.** A harness writes the same metrics into three near-identical reports. Consolidating them may save work while retaining one verifiable record. Removing the result checker also saves work, but can violate the quality floor. The two removals need different acceptance decisions even if both shorten the trace.
+**A concrete example.** In the [four-fit reporting comparison](../../../evidence/2026-09-21/efficient-harnesses/README.md), H0 writes three identical summaries and H1 writes one. Both task pairs produce identical predictions and pass the fixed quality floor. H1 uses two fewer summary calls per task. A separate checker-removal stub fails. The saving concerns report work; inference cost is unknown, and one timing per variant does not establish general runtime savings.
 
 ![A fixed quality requirement governs a matched comparison of H0 and H1. H1 removes duplicate reporting while retaining its checker. Cost accounting includes search overhead and failed attempts; a separate missing-checker shortcut is rejected.](../../../assets/illustrations/quality-cost-v1.png)
 
