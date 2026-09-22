@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\package\\run.py', 'run', '--repo', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\06-04-run', '--limit', '2', '--hypothesis', 'Exercise the generated bike package under a fresh two-slot refusal contract.', '--model', 'constant', '--features', 'casual']
+Start: 2026-09-22T08:55:29.843630+00:00
+End: 2026-09-22T08:55:31.407149+00:00
+Exit: 1
+Expected: 1
+Wall seconds: 1.566576500015799
+Output:
+REFUSED: Use calendar, weather, or all. Count components and the target are forbidden features.

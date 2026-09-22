@@ -1,0 +1,3 @@
+git_revision,git_path,sha256,saved_as
+3dc2e5dbcaee0686fee766e19dc169638ee056dc,rsi/skills/build-ml-harness/SKILL.md,5a1e076b9c58cfed745ee2e29823eb6a090cfa664d974893188996625506a649,historical-source/BUILDER-SKILL.md
+3dc2e5dbcaee0686fee766e19dc169638ee056dc,rsi/tools/lab.py,1febbe8eacac7873d9a09031cc133200e55224e2fea0205c88090eea4bd5b5a0,historical-source/lab.py

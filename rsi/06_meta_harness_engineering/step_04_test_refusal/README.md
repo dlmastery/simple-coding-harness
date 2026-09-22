@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A negative test supplies a specific forbidden request and checks the resulting behavior. The requested action, candidate, run, and contract must match the evidence used to decide it. An unrelated old approval or successful report must not authorize this request.
 
-**A concrete example.** The brief permits two admitted attempts. A valid baseline consumes one. A leaked-feature request is admitted for validation, rejected before fitting, and consumes the second. A third distinct recipe must then fail on the budget. An unrelated old success report changes none of those identities or counts.
+**A concrete example.** The [fresh refusal walkthrough](../../evidence/2026-09-22/builder-reconciliation/README.md) uses two admitted slots but fits only one model. The leaked request fails before training; the third request is refused on budget. Separate checks reject an actual success from another workspace and a missing candidate ID. A guard that reads the current ledger also rejects that old success for failed trial-002 and unadmitted trial-003. An old pass cannot change this request’s status or refill its budget.
 
 ![Three expected requests charge two attempt slots but execute only one fit. A valid baseline fits, an admitted leaked request fails before fitting, and a distinct third request is refused on budget. Current request and check identities must match; an unrelated pass and a missing candidate ID cannot authorize acceptance.](../../assets/illustrations/request-bound-refusal-v1.png)
 

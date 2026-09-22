@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\package\\check-evidence.py', '--expected', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\EXPECTED.md', '--claim', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\MISSING-CANDIDATE.md', '--output', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\BINDING-missing.md']
+Start: 2026-09-22T08:55:33.102256+00:00
+End: 2026-09-22T08:55:33.201159+00:00
+Exit: 2
+Expected: 2
+Wall seconds: 0.09523609999450855
+Output:
+Missing required identity: Candidate

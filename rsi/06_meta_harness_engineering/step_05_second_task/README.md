@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Preserve the high-level data science workflow. Change the target to quality at least 7, use grouped input duplicates, and measure balanced accuracy with class recalls. These changes arise from the task’s meaning. The builder’s own procedure can remain fixed.
 
-**A concrete example.** The bike brief asks for a rental count; the wine brief asks whether a recorded quality score is at least 7. Reusing the workflow is sensible, but reusing the regression evaluator is not. The generated wine harness must also keep repeated input vectors in the same partition, so copying the same measurement into another split cannot make evaluation appear easier.
+**A concrete example.** The [checked wine package](../../evidence/2026-09-22/builder-reconciliation/WINE-TRANSFER.md) changes target, partitioning and metric while keeping the recorded builder version fixed. Its majority baseline has recalls 1 and 0; logistic regression has recalls 0.733813 and 0.756098. Their balanced accuracies are 0.5 and 0.744955. The audit keeps all identical-input groups together. A later ordinal-rating brief would need a new evaluator; changing the generated task package does not itself improve the builder.
 
 ![An unchanged builder reads a new wine brief and generates a classification harness. It runs a training-majority baseline and a balanced logistic candidate, then records balanced accuracy and both class recalls. The earlier bike harness is background, not another new run.](../../assets/illustrations/fixed-builder-new-task-v1.png)
 

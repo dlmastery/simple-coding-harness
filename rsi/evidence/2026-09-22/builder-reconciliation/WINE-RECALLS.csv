@@ -1,0 +1,5 @@
+candidate,actual_class,rows,recall
+trial-001,0,278,1.0
+trial-001,1,41,0.0
+trial-002,0,278,0.7338129496402878
+trial-002,1,41,0.7560975609756098

@@ -206,6 +206,14 @@ for (const [id,gap] of Object.entries({
   '05.01':'A responsibility table, checked historical controller/request identity and current prediction recheck support the original one-fit system path. Three zero-fit diagnostic variants show guard removal and a separate teaching allowlist. Historical runtime is not rerun; universal enforcement, independent agents and learner understanding are not established.'
 })) related.set(id,{path:'rsi/evidence/2026-09-22/ontology-system/README.md',label:'Concrete ontology definitions, executed meaning rules and system diagnostic',gap});
 
+for (const [id,gap] of Object.entries({
+  '06.01':'The preserved prose brief now has a metric-omitted copy, MAE/RMSE ambiguity analysis and explicit scientific versus implementation decisions. The copy is unexecuted. Author review does not supply a learner prediction or independent builder interpretation.',
+  '06.02':'Both historical generation records match exact recovered builder, brief and entry identities. The recorded original baseline is linked; an unchanged copied bike entry executes in the separate refusal allocation without invoking the builder. Shared tools and data remain required. No standalone package, fresh dependency environment or independent regeneration is claimed.',
+  '06.03':'A requirement-to-source-to-observation table, exact historical tool snapshot and executed AST budget inspection are retained. A diagnostic README claims ten while unchanged code fixes two. Training-mask evidence is source inspection; hard command timeout belongs to the caller. Learner assessment remains unattempted.',
+  '06.04':'A fresh two-slot experiment produces one checked baseline, one charged pre-fit leakage failure and an unadmitted budget refusal. Three identity cases and three current-admission cases reject old or incomplete evidence while preserving the ledger. Added acceptance tools are explicit extensions, not falsely attributed to the original builder. Hostile-writer isolation and learner assessment remain untested.',
+  '06.05':'The original two-fit wine generation is linked to matching builder identities, current prediction checks, both class recalls and an exact-input group audit with zero crossing groups. An ordinal brief remains a zero-fit plan. The task-specific wrappers were author-generated from a template; this does not demonstrate general autonomous compilation, better-builder quality or learner understanding.'
+})) related.set(id,{path:'rsi/evidence/2026-09-22/builder-reconciliation/README.md',label:'Checked generation lineage, fresh request refusals and task transfer',gap});
+
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);
 }

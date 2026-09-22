@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\package\\check-request-state.py', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\06-04-run', '--candidate', 'trial-003', '--claim', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\UNRELATED-CLAIM.md', '--output', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\STATE-trial-003.md']
+Start: 2026-09-22T08:57:42.532052+00:00
+End: 2026-09-22T08:57:42.640892+00:00
+Exit: 2
+Expected: 2
+Wall seconds: 0.10173160000704229
+Output:
+No unique admitted candidate exists for this request.

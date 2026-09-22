@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Did the builder produce a usable harness, and what still needs checking? | [Generation identities, fresh refusals, request-bound evidence and wine transfer](2026-09-22/builder-reconciliation/README.md) |
 | What changed: the model, procedure, metric or prediction task? | [Ten objects, precise claims, domain-check limits and task-change impacts](2026-09-22/ontology-system/README.md) |
 | Can a graph pass while its specification is incomplete? | [Missing-edge and unknown-route counterexamples, repair limits and report recovery](2026-09-22/graph-reconciliation/README.md) |
 | Did the diagnosis precede the alternative model? | [Saved hypothesis, two controlled fits and hourly regressions](2026-09-22/model-hypothesis/README.md) |

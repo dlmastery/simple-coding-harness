@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A harness organizes an agent’s instructions, tools, state, evaluation, and limits. A harness brief states the task and required behavior while leaving implementation syntax to the coding agent. A good brief includes what must fail, not only what should succeed.
 
-**A concrete example.** “Build a bike agent” leaves success undefined. “Estimate hourly cnt from calendar fields, compare by MAE on the fixed selection period, admit at most two attempts, and refuse target-derived inputs” gives the builder decisions it can implement and test. File layout can remain its choice. The target and evaluator cannot quietly become its choice after it sees results.
+**A concrete example.** “Build a bike agent” leaves success undefined. The [saved brief](../../evidence/2026-09-22/builder-reconciliation/HARNESS-BRIEF.md) instead fixes the hourly target, inputs, MAE, partitions and admitted-attempt limit. The [metric-omitted copy](../../evidence/2026-09-22/builder-reconciliation/AMBIGUITY-REVIEW.md) exposes a real choice: MAE and RMSE penalize large errors differently. Choose from the scientific purpose before fitting, not from which metric flatters a result. File layout can remain the builder’s choice.
 
 ![A readable bike-harness brief names the hourly target, pinned data, permitted calendar inputs, chronological split, MAE, training-median baseline, two admitted attempts, and retained evidence. Two review trays separate scientific choices from routine implementation choices.](../../assets/illustrations/readable-harness-brief-v1.png)
 

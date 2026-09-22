@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Trace requirements forward to implementation and evidence backward to requirements. For example, “two attempts maximum” should appear in control logic and an over-budget refusal. A sentence in the README alone does not show the limit runs.
 
-**A concrete example.** The README says “two attempts,” but a loop in the generated code permits ten. The requirement is stated, implementation disagrees, and no two-attempt refusal has yet run. Keep those three evidence states distinct in the review. A row saying “budget: checked” would conceal the exact gap.
+**A concrete example.** The [diagnostic README](../../evidence/2026-09-22/builder-reconciliation/diagnostic/README.md) claims ten attempts, while its byte-identical entry code still fixes two. The [source/document check](../../evidence/2026-09-22/builder-reconciliation/BUDGET-REVIEW.md) exposes that mismatch without fitting. The [requirement review](../../evidence/2026-09-22/builder-reconciliation/REQUIREMENT-REVIEW.md) also traces training inputs, selection and time limits. A documentation claim, an implemented rule and an executed refusal are different kinds of evidence.
 
 ![An illustrative brief requires two attempts while an implementation permits ten and a trace records only one baseline. The missing budget-refusal evidence is marked unverified. A review ledger links requirements to implementation and observed behavior.](../../assets/illustrations/requirements-implementation-evidence-v1.png)
 

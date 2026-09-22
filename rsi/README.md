@@ -97,6 +97,8 @@ A model search changes the first object. Editing a research skill changes the se
 
 A meta-harness answers another question: can a procedure generate a usable harness from a brief? Its output can change while the builder stays exactly the same. Later labs make you inspect that difference before using the word “recursive.”
 
+The [worked builder example](evidence/2026-09-22/builder-reconciliation/README.md) makes this concrete: one recorded builder produces bike-regression and wine-classification packages. You can inspect their task differences, actual predictions and refusal checks. A package that runs is an important milestone; it is not yet evidence that its builder improved.
+
 ## Follow one learning path
 
 ![A bike-demand project connects all twelve themes across one experiment, dependable workflows, a system and builder, changes and evidence, research studio, and capstones.](assets/illustrations/course-mindmap-v2.png)

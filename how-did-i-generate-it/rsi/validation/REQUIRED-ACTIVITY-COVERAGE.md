@@ -434,9 +434,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the metric and ask two plausible alternatives. Explain why choosing one after seeing results would be invalid.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-01).
+**Evidence:** [Checked generation lineage, fresh request refusals and task transfer](../../../rsi/evidence/2026-09-22/builder-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The preserved prose brief now has a metric-omitted copy, MAE/RMSE ambiguity analysis and explicit scientific versus implementation decisions. The copy is unexecuted. Author review does not supply a learner prediction or independent builder interpretation.
 
 **Acceptance to verify:** The brief fixes target, inputs, metric, partitions, resources, and required rejection. It does not require the student to write code or schemas.
 
@@ -447,9 +447,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Ask what would happen if the builder were removed after generation. The generated harness should still have its required task instructions and dependencies.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-02).
+**Evidence:** [Checked generation lineage, fresh request refusals and task transfer](../../../rsi/evidence/2026-09-22/builder-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Both historical generation records match exact recovered builder, brief and entry identities. The recorded original baseline is linked; an unchanged copied bike entry executes in the separate refusal allocation without invoking the builder. Shared tools and data remain required. No standalone package, fresh dependency environment or independent regeneration is claimed.
 
 **Acceptance to verify:** The generated system executes its baseline. The result follows the original brief. Missing capabilities are reported, not replaced with simulated success.
 
@@ -460,9 +460,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** In a diagnostic copy, alter the README’s budget while leaving code unchanged. Explain why a documentation-only review misses the mismatch.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-03).
+**Evidence:** [Checked generation lineage, fresh request refusals and task transfer](../../../rsi/evidence/2026-09-22/builder-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A requirement-to-source-to-observation table, exact historical tool snapshot and executed AST budget inspection are retained. A diagnostic README claims ten while unchanged code fixes two. Training-mask evidence is source inspection; hard command timeout belongs to the caller. Learner assessment remains unattempted.
 
 **Acceptance to verify:** The review distinguishes stated, implemented, and executed requirements. Any generated assumption is explicit.
 
@@ -473,9 +473,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove candidate identity from a check fixture and verify that the system treats it as incomplete evidence.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-04).
+**Evidence:** [Checked generation lineage, fresh request refusals and task transfer](../../../rsi/evidence/2026-09-22/builder-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A fresh two-slot experiment produces one checked baseline, one charged pre-fit leakage failure and an unadmitted budget refusal. Three identity cases and three current-admission cases reject old or incomplete evidence while preserving the ledger. Added acceptance tools are explicit extensions, not falsely attributed to the original builder. Hostile-writer isolation and learner assessment remain untested.
 
 **Acceptance to verify:** Invalid requests do not fit models. An unrelated result cannot satisfy the current candidate’s check. All attempts and refusal costs remain visible.
 
@@ -486,9 +486,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Ask for an ordinal wine task in a new brief without running it. Identify why the binary evaluator cannot be reused unchanged.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/06-05).
+**Evidence:** [Checked generation lineage, fresh request refusals and task transfer](../../../rsi/evidence/2026-09-22/builder-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The original two-fit wine generation is linked to matching builder identities, current prediction checks, both class recalls and an exact-input group audit with zero crossing groups. An ordinal brief remains a zero-fit plan. The task-specific wrappers were author-generated from a template; this does not demonstrate general autonomous compilation, better-builder quality or learner understanding.
 
 **Acceptance to verify:** The builder uses the classification contract. Identical feature rows do not cross partitions. The comparison explains shared workflow and changed scientific components.
 

@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The builder is a meta-harness: it creates another harness. The generated harness performs the task. They have separate responsibilities and versions. The builder can stay fixed while producing different systems. Generation by itself does not imply self-improvement.
 
-**A concrete example.** Think of a builder that reads “binary classification” and produces a classifier, suitable splits, and a balanced-accuracy report. The same unchanged builder reads “hourly count regression” and produces a different harness. Its outputs differ because its inputs differ. To claim that the builder improved, you must change and evaluate the builder itself.
+**A concrete example.** The [generation audit](../../evidence/2026-09-22/builder-reconciliation/README.md) matches the recorded brief, builder and entry-file hashes. The saved bike entry executes without invoking the builder again. It still imports the course tools and needs their pinned data, so it is not standalone. A successful model run demonstrates that this package executes; it does not show that the builder revised or improved itself.
 
 ![A task brief enters an unchanged meta-harness builder. It produces a separate package of skills, tools, state, checks, and limits. The package then runs a model and produces predictions and a checked report.](../../assets/illustrations/meta-harness-v2.png)
 
