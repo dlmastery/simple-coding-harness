@@ -314,7 +314,7 @@ export const illustrations = {
   '11.05': {
     file: 'capstone-teach-back-v2.png',
     alt: 'A peer follows three stories: prediction and checked error, failure and skill revision, and a changed improver rule used in a later round. Portfolio tabs link the brief, versions, runs, costs, and claim.',
-    caption: 'Keep the target out of model inputs; it belongs in the error check. Trace the added contrasting-case rule into an executed later action. The small strip can represent a candidate trial; it does not itself prove retention or benefit. Show the real comparison and decisions in the portfolio. The peer scene is illustrative: record a session only after it occurs and mark pending review honestly.'
+    caption: 'Keep the target out of model inputs; it belongs in the error check. The bike equation and contrasting-case rule illustrate the story structure. The linked portfolio uses white-wine predictions, a separate unit repair and a changed ranking rule. Its later use occurs in a candidate trial; retention and benefit have separate records. The peer scene is illustrative: no session is claimed until it occurs.'
   },
   'course-map': {
     file: 'course-mindmap-v2.png',

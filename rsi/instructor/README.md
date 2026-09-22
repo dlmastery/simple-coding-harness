@@ -35,6 +35,8 @@ Record actual student completion times and confusing passages in a pilot. Curren
 
 ## Final portfolio
 
+The [example portfolio](../PORTFOLIO.md) follows actual predictions, a failed decision and later use of an improver revision. Use the [peer reproduction and teach-back guide](PEER-REVIEW.md) to prepare a session. Its current example has no completed peer session; keep that status separate from the author checks.
+
 Require a task brief, data card, runnable harness, versioned skills, actual evidence, a failed experiment, cost record, claim audit, and teach-back. A peer should reproduce a small run from the handoff. For larger compute, require job and checkpoint evidence from the target backend.
 
 Ask the student to explain why their experiment does or does not establish effective recursive improvement. Reserve acceleration claims for evidence across generations under comparable conditions.

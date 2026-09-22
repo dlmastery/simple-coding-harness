@@ -38,3 +38,5 @@ Start with the first lab and follow its next link. Each lab keeps its notes in a
 **Ready to continue when:** Give another student a runnable project and an evidence-backed explanation. They should be able to inspect the lineage, question the comparison, and understand a negative result.
 
 Keep the portfolio small enough to inspect and complete enough to reproduce. A well-explained failure can be a strong final project.
+
+The [example portfolio](../PORTFOLIO.md) connects actual author evidence; its peer reproduction is prepared and explicitly pending.

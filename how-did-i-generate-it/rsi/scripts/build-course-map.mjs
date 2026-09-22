@@ -60,6 +60,7 @@ for(let i=0;i<ordered.length;i++){
   }
   body.push('**Ready to continue when:** '+themeCheckpoints[key]);
   body.push(t.exit);
+  if(key==='11') body.push('The [example portfolio](PORTFOLIO.md) connects actual author evidence. Its peer reproduction is prepared and explicitly pending.');
   const navigation=[];
   if(previous) navigation.push('[Previous theme: '+previous[0]+'](#theme-'+previous[0]+')');
   if(next) navigation.push('[Next theme: '+next[0]+'](#theme-'+next[0]+')');

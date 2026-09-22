@@ -26,11 +26,11 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Tell the story from a row of data to a model result, then from a failure to a skill change, then from an improver change to later work. At each step name the evidence. Keep the main walkthrough short and link to detail. An impressive architecture is not a substitute for a clear causal explanation.
 
-**A concrete example.** A peer follows one row of data into a prediction, one failed check into a task-skill revision, and one improver revision into a later decision. At each transition they can open the supporting artifact. If they can also explain a case where the revision fails, the portfolio teaches a mechanism rather than only displaying a success.
+**A concrete example.** The [example portfolio](../../PORTFOLIO.md) traces one white-wine row into two saved predictions, a separate milliseconds failure into a task-skill repair, and the eight-fit capstone’s revised ranking instruction into a later selection trace. Its assembly check verified thirty original file identities without fitting again. The [peer guide](../../instructor/PEER-REVIEW.md) prepares one baseline reproduction and asks for a new-task explanation. No peer session has occurred; its status remains pending rather than filled with invented feedback.
 
 ![A peer follows three stories: prediction and checked error, failure and skill revision, and a changed improver rule used in a later round. Portfolio tabs link the brief, versions, runs, costs, and claim.](../../assets/illustrations/capstone-teach-back-v2.png)
 
-*Keep the target out of model inputs; it belongs in the error check. Trace the added contrasting-case rule into an executed later action. The small strip can represent a candidate trial; it does not itself prove retention or benefit. Show the real comparison and decisions in the portfolio. The peer scene is illustrative: record a session only after it occurs and mark pending review honestly.*
+*Keep the target out of model inputs; it belongs in the error check. The bike equation and contrasting-case rule illustrate the story structure. The linked portfolio uses white-wine predictions, a separate unit repair and a changed ranking rule. Its later use occurs in a candidate trial; retention and benefit have separate records. The peer scene is illustrative: no session is claimed until it occurs.*
 
 [Open the illustration at full size](../../assets/illustrations/capstone-teach-back-v2.png).
 

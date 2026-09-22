@@ -182,7 +182,7 @@ Start with the first lab and follow its next link. Each lab keeps its notes in a
 
 **Ready to continue when:** ${themeCheckpoints[key]}
 
-${t.exit}`);
+${t.exit}${key==='11' ? '\n\nThe [example portfolio](../PORTFOLIO.md) connects actual author evidence; its peer reproduction is prepared and explicitly pending.' : ''}`);
 }
 
 for (const group of [...new Set(lessons.filter(l=>l.group).map(l=>l.group))]) {

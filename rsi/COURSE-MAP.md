@@ -490,6 +490,8 @@ Use the tools and skills that your experiment needs. A larger architecture is no
 
 Keep the portfolio small enough to inspect and complete enough to reproduce. A well-explained failure can be a strong final project.
 
+The [example portfolio](PORTFOLIO.md) connects actual author evidence. Its peer reproduction is prepared and explicitly pending.
+
 [Previous theme: 10](#theme-10) · [Whole-course mindmap](#whole-course-mindmap)
 
 ## Find the instructions behind a lab

@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-100 labs have mapped related author-execution evidence; 1 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+101 labs have mapped related author-execution evidence; 0 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1343,8 +1343,8 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Ask the peer to propose a different prediction task. Explain what should transfer and what must be redesigned before running it.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Evidence-linked portfolio and prepared peer handoff](../../../rsi/evidence/2026-09-22/portfolio/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A no-fit assembly audit verifies thirty original identities, one concrete prediction row, matching start bytes and later instruction use. Public portfolio, existing illustration, failure story, separate costs and a one-fit peer guide are complete as author artifacts. Peer reproduction, actual learner answers, feedback and transfer proposal remain explicitly pending; this mapping does not represent a completed peer session.
 
 **Acceptance to verify:** The portfolio has runnable evidence and a failed case. The teach-back explains the solver/improver distinction and names remaining uncertainty. Pending peer review is honestly marked.

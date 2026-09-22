@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Can someone follow the whole evidence story? | [Example portfolio, checked source identities and pending peer handoff](2026-09-22/portfolio/README.md) |
 | Can a small check clarify a paper without reproducing it? | [Versioned source audit and two acceptance rules](2026-09-22/external-audit/README.md) |
 | Does one successful task prove portability? | [Two local task paths, capability refusal and explicitly untested hosts](2026-09-21/capstone-portability/README.md) |
 | Does a changed improver actually select a different model? | [Eight-fit capstone, later rule use, frozen choices and final evaluation](2026-09-21/capstone-recursion/README.md) |
