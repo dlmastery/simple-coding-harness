@@ -130,7 +130,7 @@ This course builds the machinery around that loop: tools, skills, state, permiss
 |---|---|---|
 ${themes.map((t,i)=>`| [${i+1}. ${t.title}](harness/${t.dir}/README.md) | ${t.range} | ${t.after} |`).join('\n')}
 
-The first two themes form the core. SDKs and the service are comparative routes; their live integrations are optional for understanding the local loop. Follow the listed prerequisites before entering the later recovery and production themes.
+The first two themes form the core. SDKs and the service are comparative routes; their live integrations are optional for understanding the local loop. Follow the listed prerequisites before entering the later recovery and production themes. Open the [visual guide](harness/VISUAL-GUIDE.md) to browse all eight selected infographics together.
 
 ## Your first instruction to the agent
 
@@ -184,3 +184,21 @@ RSI starts with basic ML knowledge and introduces its own harness concepts. You 
 The reorganization preserves the lesson snapshots and updates their discovery and navigation. Consult the [validation record](how-did-i-generate-it/harness/VALIDATION.md) for actual checks and remaining failures. Passing fake-model tests does not establish live-provider compatibility, production safety or student learning outcomes.
 `);
 console.log(`Wrote 7 theme guides, 54 navigation blocks, course map, migration map and root README.`);
+write('harness/VISUAL-GUIDE.md', `# See how the harness develops
+
+[Course](../README.md) · [Every lesson](COURSE-MAP.md) · [Teaching roadmap](TEACHING-ROADMAP.md)
+
+These eight figures explain mechanisms. Trace one arrow, predict a result, then open the relevant lesson and inspect its actual behavior. The figures are conceptual illustrations, not benchmark results or proof that every displayed control exists in the earliest snapshot.
+
+## The whole course
+
+![One request develops into a controlled loop and an inspectable harness.](assets/overview-v1.png)
+
+[Open the overview](assets/overview-v1.png). The seven stations below the mechanism match the themed folders.
+
+${themes.map((t,i)=>`## ${i+1}. ${t.title}\n\n${t.intro}\n\n![${t.title}](assets/${t.image}-v${t.image==='production'?2:t.image==='server'?3:1}.png)\n\n${t.limit}\n\n**Explain before running:** ${t.question}\n\n[Open the theme and its lessons](${t.dir}/README.md).`).join('\n\n')}
+
+The adapter figure shows illustrative ownership arrangements; not every SDK or endpoint follows them. The production figure uses conceptual event labels, not literal names to copy into code. The server figure shows one possible event sequence; a turn can emit different numbers and types of events. Read the actual protocol and trace in the lesson.
+
+[Figure prompts, retained drafts and review notes](../how-did-i-generate-it/harness/visuals/README.md) explain how the images were produced and corrected.
+`);

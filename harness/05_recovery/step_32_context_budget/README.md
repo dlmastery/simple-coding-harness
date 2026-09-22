@@ -590,3 +590,24 @@ unchanged from step 31.
 
 Step 33 copies every file before an edit tool changes it, so `/undo` and
 `/rewind` put the workspace back along with the transcript.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why reserve room for output and observations when budgeting input context?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+A request that consumes the available budget can leave insufficient space for subsequent content. Inspect the actual accounting and its limits.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

@@ -593,3 +593,24 @@ with 1 and the list, so a typo is not a stack trace.
 Nothing: this is the last step of the codelab. It closes the harness of
 steps 1 to 45, its server form in steps 46 to 50, and this reading that
 sets the two next to a vendor's.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A comparison table links a feature to documentation. Has this repository tested that feature live?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Not from the citation alone. Separate documented capability, local fake-server behavior and actual hosted execution.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

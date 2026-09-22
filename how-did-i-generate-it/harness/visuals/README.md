@@ -2,6 +2,8 @@
 
 All images were generated with the available built-in image tool under the user's existing approval. No particular underlying model is claimed. The requested style remains a professional white-background teaching infographic. Each prompt was prepared against its theme before generation.
 
+The [asset identities](ASSET-IDENTITIES.md) record the file sizes and SHA-256 hashes of all eleven retained versions.
+
 | Figure | Selected asset | Prompt and review |
 |---|---|---|
 | Overview | [v1](../../../harness/assets/overview-v1.png) | [Prompt](overview-prompt.md). Three stages and seven course stations are readable. Controls describe later lessons, not the early implementation. |

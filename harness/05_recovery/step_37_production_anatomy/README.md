@@ -421,3 +421,24 @@ The behaviour is step 36's, since the code is. In one place:
 Step 38 runs the capstone: a headless run of this harness on a small
 FastAPI task, graded by five checkers, with the recorded run and its
 scorecard in the README.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why does a production-oriented architecture still need concrete execution evidence?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+An architecture describes intended responsibilities. Actual tests, traces and operational checks establish behavior under stated conditions.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

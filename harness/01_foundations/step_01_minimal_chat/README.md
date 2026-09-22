@@ -210,3 +210,24 @@ that an empty stdin exits cleanly.
 
 Stage 2.1 passes one tool schema, `bash`, with the request, and runs the
 command the model asks for.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A reply names a local file. Has the model inspected that file?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Not from this request alone. Inspect the supplied messages. Without the file contents or a tool result, the name is only text.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

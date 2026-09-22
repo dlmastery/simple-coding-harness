@@ -551,3 +551,24 @@ agents, the evals and everything else are unchanged from step 38.
 Step 40 lets an agent definition hand the whole conversation to another
 one: `handoff_to`, `/handoff`, and a `{"handoff": name}` log entry next
 to this step's `{"mode": name}`.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+If an approval mode becomes more permissive, has the task become more correct?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+No. The permission policy changed. Correctness and containment still require their own observations and checks.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

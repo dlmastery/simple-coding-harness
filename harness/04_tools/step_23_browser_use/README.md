@@ -493,3 +493,24 @@ browser on exit), `pyproject.toml` (optional dependency group `browser`).
 Step 24 lets a tool result carry a picture: `computer_screenshot` and
 `browser_screenshot` return an `[[image:PATH]]` marker that the loop turns
 into an image message, and `computer_act` clicks where the model points.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A browser command returns without error. Has the intended page change occurred?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Inspect the resulting browser state or the specified check. Successful command dispatch alone does not establish the intended interaction.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

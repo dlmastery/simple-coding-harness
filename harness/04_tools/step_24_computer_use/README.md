@@ -582,3 +582,24 @@ computer tools in `TOOLS` and `TOOL_SCHEMAS`, and in `SERIAL`),
 Step 25 gives the agent a memory that outlives the session: `remember`,
 `recall` and `forget` over markdown files, an index in the late block,
 and a handoff note saved at every compaction.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why inspect the screen again after an action changes a window?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Coordinates and visible state may have changed. The next action needs current evidence rather than an old screenshot assumption.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

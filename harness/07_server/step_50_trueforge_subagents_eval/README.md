@@ -647,3 +647,24 @@ command.
 Step 51 is a written comparison, not code: the hand-built harness of
 steps 01 to 45 against TrueForge across every capability of steps 46 to
 50, with the token and cost numbers of both.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why reconcile live-stream state with stored events when reconnecting?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The turn can finish between observation and subscription. A reliable account needs the actual terminal outcome, not an assumption about connection timing.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

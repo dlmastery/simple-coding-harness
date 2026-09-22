@@ -670,3 +670,24 @@ after `<plan>`), `agent.py` (`jobs.kill_all()` at session end), `llm.py`
 (prompt text on jobs and parallel subagents), `commands.py` (`/jobs`),
 `ui.py` (`tool` and `subagent` take `tag`, `USAGE_LOCK`). Everything else
 is unchanged from step 28.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A background job returns an ID. Is its work complete?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The ID identifies work to follow. Inspect its later status, output and failure handling before recording completion.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

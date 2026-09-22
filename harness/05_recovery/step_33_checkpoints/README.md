@@ -606,3 +606,24 @@ and restores `checkpoint.TURN`). Everything else is unchanged from step
 Step 34 makes the loop survive a bad network, a stuck model and a crash:
 retries with backoff, a repeat detector, a per-turn call cap, and recovery
 of the tool calls a crash left unanswered.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+What must you know before restoring a workspace checkpoint?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Which files and state it captures, what later work it may replace, and what external effects it cannot undo.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

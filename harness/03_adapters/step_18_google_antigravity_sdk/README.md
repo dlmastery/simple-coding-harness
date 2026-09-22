@@ -410,3 +410,24 @@ Offline tests: `python -m pytest test_step.py`.
 
 Step 19 rebuilds the harness on DeepSeek Harness, where the runtime is a
 tree of plugins and our policy becomes one more plugin in that tree.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+If an SDK test skips because its package is absent, what has been verified?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+That run has not verified the SDK integration. Record the missing dependency and skip; reading the code is a separate activity.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

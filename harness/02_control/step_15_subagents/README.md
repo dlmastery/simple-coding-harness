@@ -329,3 +329,24 @@ diff -r ../step_14_compaction/harness harness
 New: `subagent.py`. Changed: `tools.py` (`task`, `execute` with
 `allowed`), `agent.py`, `llm.py`, `ui.py` (`subagent` panel, nested
 indent).
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A subagent has a separate conversation. Are shared files therefore isolated?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+No. Context separation and filesystem isolation are different properties. Inspect the allowed tools and actual workspace boundaries.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

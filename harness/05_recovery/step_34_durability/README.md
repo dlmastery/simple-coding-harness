@@ -639,3 +639,24 @@ Everything else is unchanged from step 33.
 
 Step 35 puts a human in the loop: session-wide permission rules the user
 sets at the prompt, and a way to steer the model between tool calls.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+An action may have finished just before a crash. Why avoid an automatic blind retry?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+It may duplicate a real effect. Reconcile saved intent, action identity and actual state before deciding whether retry is safe.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

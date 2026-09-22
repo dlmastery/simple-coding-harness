@@ -913,3 +913,24 @@ on TrueForge, an agent server, and the step is the client - a `chat()`
 that streams one turn back as events, a REPL with `--resume` and `-p`,
 and a setup script that registers the model provider. The five steps
 after it map each capability built here onto that server.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Two language implementations share a session format. Are they feature-equivalent?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Not necessarily. Compare supported operations and tests. A shared record format establishes only the compatibility actually checked.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

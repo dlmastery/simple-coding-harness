@@ -344,3 +344,24 @@ it on every call, so a long task does not lose its place.
 diff ../../01_foundations/step_08_sessions_rewind/agent.py harness/agent.py   # four spaces and a def main()
 cat harness/config.py
 ```
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Two snapshots install the same command name. Which one runs?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The active environment and installed command determine that. Inspect the executable and package source; the open editor folder does not choose it.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

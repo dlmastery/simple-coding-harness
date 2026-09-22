@@ -519,3 +519,24 @@ Step 49 puts four more codelab mechanisms into the agent spec's `config`
 (compaction, large tool output, an iteration limit, the question tool),
 answers the model's questions through `tool.response_required`, and draws
 the per-call token breakdown the server reports.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why must stored-event retrieval follow every pagination cursor?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+A later page can contain an important tool result or terminal event. Reading only the first page can produce an incomplete account of the run.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

@@ -663,3 +663,24 @@ included, is unchanged from step 40.
 Step 42 streams a command's output: the lines of a `bash` call, a
 background job and a subagent run reach a live panel as they arrive,
 and a timed-out command hands the model what it printed.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A budget stop and a successful completion both end a run. Why record different reasons?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Downstream callers need to distinguish a finished task from bounded unfinished work. Stopping safely is not the same as solving the task.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

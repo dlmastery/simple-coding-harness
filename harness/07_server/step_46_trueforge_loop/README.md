@@ -553,3 +553,24 @@ from steps 1 to 45 is imported. The files are `client/loop.py`,
 Step 47 gives the agent tools: the codelab's five coding tools served to
 TrueForge as an MCP server, with the permission rules carried as tool
 annotations and an approval loop that resumes a paused turn.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+The server stream ends without a terminal event. What status is justified?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Incomplete or unknown under the client contract. Do not turn a dropped connection into a successful completed turn.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

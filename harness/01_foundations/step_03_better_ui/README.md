@@ -255,3 +255,24 @@ cat ui.py
 
 Stage 4 gives the agent skills: `SKILL.md` files whose name and
 description go into the system prompt and whose body is read on demand.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+If the interface keeps earlier replies on screen, does the model necessarily see them?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+No. The next request must contain the intended history. Display state and model input are separate objects.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

@@ -450,3 +450,24 @@ diff -r ../step_13_readable_todos_input_line/harness harness
 New: `history.py`, `compact.py`. Changed: `agent.py`, `commands.py`
 (`/compact`), `config.py`, `llm.py` (`tools=` argument), `session.py`,
 `tools.py`, `ui.py`.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A summary omits a constraint. Can later work safely assume it still applies from memory?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The constraint must remain available or be restored before the affected action. Compaction can lose information; inspect its preserved content.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

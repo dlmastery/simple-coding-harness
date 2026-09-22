@@ -211,3 +211,24 @@ diff ../step_04_skills/llm.py llm.py
 
 Stage 6 attaches a fresh block of facts (date, git branch) to every
 request without storing it in the transcript.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A replacement pattern matches twice. Why can applying it blindly be wrong?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The intended edit may concern only one location. Inspect match rules, ambiguity handling and the resulting diff before accepting the change.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

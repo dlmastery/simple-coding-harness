@@ -554,3 +554,24 @@ Everything else is unchanged from step 24.
 Step 26 connects MCP servers: tools from other processes join the
 registry under a sanitised name, with the server's environment kept to
 what `mcp.json` names.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A memory file was saved. What distinguishes useful memory from an unused note?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+A later task must retrieve and use the relevant information; a controlled comparison is needed to claim that using it helped.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

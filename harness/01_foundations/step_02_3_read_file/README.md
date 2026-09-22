@@ -164,3 +164,24 @@ diff ../step_02_2_generic_tools/tools.py tools.py
 
 Stage 2.4 sends tool results back to the model and loops until the model
 answers in text: the agent loop.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+The file exists, but the requested path points elsewhere. Which observation should guide the answer?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The actual read outcome for the requested path. A failed read must not be replaced by imagined file contents.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

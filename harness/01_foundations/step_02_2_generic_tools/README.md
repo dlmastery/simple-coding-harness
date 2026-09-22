@@ -224,3 +224,24 @@ cat tools.py
 ## What the next step adds
 
 Stage 2.3 adds a second tool, `read_file`, and touches only `tools.py`.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A tool name exists, but its arguments are malformed. What should reach the next decision?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+A clear validation or execution error tied to that call. A tool schema helps describe valid arguments; it does not make every proposed call valid.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

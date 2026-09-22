@@ -1,0 +1,54 @@
+harness/01_foundations/step_01_minimal_chat  3 passed in 0.55s
+harness/01_foundations/step_02_1_bash_tool   3 passed in 2.05s
+harness/01_foundations/step_02_2_generic_tools 4 passed in 2.05s
+harness/01_foundations/step_02_3_read_file   4 passed in 0.54s
+harness/01_foundations/step_02_4_agent_loop  4 passed in 1.04s
+harness/01_foundations/step_03_better_ui     4 passed in 1.19s
+harness/01_foundations/step_04_skills        3 passed in 0.08s
+harness/01_foundations/step_05_file_editing  4 passed in 0.14s
+harness/01_foundations/step_06_late_injection 4 passed in 0.90s
+harness/01_foundations/step_07_file_freshness 3 passed in 0.11s
+harness/01_foundations/step_08_sessions_rewind 7 passed in 1.85s
+harness/02_control/step_09_installable_command 9 passed in 1.72s
+harness/02_control/step_10_todos             7 passed in 1.74s
+harness/02_control/step_11_permissions       6 passed in 1.60s
+harness/02_control/step_12_sandbox           7 passed, 1 skipped in 3.12s
+harness/02_control/step_13_readable_todos_input_line 7 passed in 1.40s
+harness/02_control/step_14_compaction        10 passed in 1.52s
+harness/02_control/step_15_subagents         9 passed in 1.54s
+harness/03_adapters/step_16_claude_agent_sdk 1 skipped in 0.01s
+harness/03_adapters/step_17_openai_agents_sdk 1 skipped in 0.01s
+harness/03_adapters/step_18_google_antigravity_sdk 1 skipped in 0.01s
+harness/03_adapters/step_19_deepseek_harness 1 skipped in 0.00s
+harness/03_adapters/step_20_openrouter       22 passed in 1.64s
+harness/04_tools/step_21_streaming_headless  29 passed in 4.21s
+harness/04_tools/step_22_parallel_tools      28 passed in 3.79s
+harness/04_tools/step_23_browser_use         18 passed, 1 skipped in 1.40s
+harness/04_tools/step_24_computer_use        21 passed in 2.03s
+harness/04_tools/step_25_memory              19 passed in 1.96s
+harness/04_tools/step_26_mcp_client          21 passed in 3.90s
+harness/04_tools/step_27_hooks               36 passed in 7.83s
+harness/04_tools/step_28_plan_mode           20 passed in 2.15s
+harness/04_tools/step_29_jobs_parallel_subagents 24 passed in 10.96s
+harness/04_tools/step_30_eval                26 passed in 11.09s
+harness/05_recovery/step_31_instruction_files 23 passed in 1.58s
+harness/05_recovery/step_32_context_budget   22 passed in 1.81s
+harness/05_recovery/step_33_checkpoints      22 passed in 2.31s
+harness/05_recovery/step_34_durability       28 passed in 2.20s
+harness/05_recovery/step_35_human_in_the_loop 23 passed in 2.24s
+harness/05_recovery/step_36_orchestration    21 passed in 2.36s
+harness/05_recovery/step_37_production_anatomy 14 passed in 0.97s
+harness/05_recovery/step_38_capstone         26 passed in 78.72s (0:01:18)
+harness/06_production/step_39_approval_modes 21 passed in 3.23s
+harness/06_production/step_40_handoffs       26 passed in 3.55s
+harness/06_production/step_41_stop_conditions 23 passed in 3.53s
+harness/06_production/step_42_streaming_tool_output 19 passed in 5.45s
+harness/06_production/step_43_extensions     31 passed in 6.36s
+harness/06_production/step_44_replay_trace   22 passed in 2.54s
+harness/06_production/step_45_typescript_core 4 passed, 1 skipped in 3.97s
+harness/07_server/step_46_trueforge_loop     14 passed in 1.53s
+harness/07_server/step_47_trueforge_tools_mcp 16 passed in 9.08s
+harness/07_server/step_48_trueforge_sandbox_skills 16 passed in 3.41s
+harness/07_server/step_49_trueforge_context  18 passed in 3.27s
+harness/07_server/step_50_trueforge_subagents_eval 18 passed, 3 warnings in 23.98s
+harness/07_server/step_51_trueforge_comparison 16 passed in 0.30s

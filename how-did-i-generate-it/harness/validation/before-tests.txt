@@ -590,7 +590,7 @@ step_37_production_anatomy                   1 failed, 13 passed in 0.36s
     harness\compact.py:23: in <module>
         from . import config, llm, memory, session
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    
+
         """Step 36 - the system prompt lists the agent definitions, one line each,
         under the guidance on when to delegate to one. agents_section() builds the
         list. The rest is step 35: the system prompt tells the model when to ask the user with
@@ -607,20 +607,20 @@ step_37_production_anatomy                   1 failed, 13 passed in 0.36s
         raising, so the loop can show it and go on. The rest is step 32:
         build_system_prompt lists the deferred tools; PLAN_PROMPT and with_mode()
         are step 28; call_llm streams.
-        
+
         The loop in agent.py appends `entry(message)` and reads `message.content` and
         `message.tool_calls`. The StreamedMessage dataclass below keeps that exact
         surface, so nothing downstream knows the reply was streamed.
         """
-        
+
         import json
         import os
         import time
         from dataclasses import dataclass, field
-        
+
     >   import openai
     E   ModuleNotFoundError: No module named 'openai'
-    
+
     harness\llm.py:28: ModuleNotFoundError
     =========================== short test summary info ===========================
     FAILED test_step.py::test_the_this_repo_column_quotes_the_constants_the_code_has
@@ -765,9 +765,9 @@ step_44_replay_trace                         1 error in 0.26s
 step_45_typescript_core                      3 failed, 1 passed, 1 skipped in 3.23s
         that has its own context window. The subagent reuses call_llm: it takes a
         list of messages and a tool set and returns one response.
-        
+
         Four rules, and the code below is really just these:
-        
+
           1. it starts from an empty history           - none of the chat context
              the user had with the main agent is shared with the subagent
           2. it holds every tool but a few             - task, browse, write_todos,
@@ -777,26 +777,26 @@ step_45_typescript_core                      3 failed, 1 passed, 1 skipped in 3.
              and a tool result that carries an image marker becomes an image message
           4. only its final message.content comes back - none of the subagent's
              tool calls ever return to the main agent
-        
+
         The loop itself is loop(): a system prompt, a request, a tool set and a turn
         cap. task() is one way to call it; browse.py is another.
-        
+
         New in this step: task(descriptions=[...]) runs one loop per description on
         a thread pool, MAX_PARALLEL at a time. Each loop owns its message list, so
         nothing is shared but the tool registry, which was already built for
         threads in step 22. The nested panels carry the subagent's number, and the
         reports come back joined, one header per subagent, in the order given.
         """
-        
+
         import json
         import os
         from concurrent.futures import ThreadPoolExecutor, wait
         from contextlib import nullcontext
         from functools import partial
-        
+
     >   import openai
     E   ModuleNotFoundError: No module named 'openai'
-    
+
     harness\subagent.py:54: ModuleNotFoundError
     =========================== short test summary info ===========================
     FAILED test_step.py::test_typescript_session_loads_in_python - ModuleNotFound...

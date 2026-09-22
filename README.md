@@ -36,7 +36,7 @@ This course builds the machinery around that loop: tools, skills, state, permiss
 | [6. Make a run inspectable](harness/06_production/README.md) | 39–45 | Explain why a run ended, which agent owned the next action, and how the trace supports the account. Compare the Python implementation with the smaller TypeScript core. |
 | [7. Move the loop behind a service](harness/07_server/README.md) | 46–51 | Map client/server responsibilities and explain incomplete, cancelled, failed and completed turns without treating them as interchangeable. |
 
-The first two themes form the core. SDKs and the service are comparative routes; their live integrations are optional for understanding the local loop. Follow the listed prerequisites before entering the later recovery and production themes.
+The first two themes form the core. SDKs and the service are comparative routes; their live integrations are optional for understanding the local loop. Follow the listed prerequisites before entering the later recovery and production themes. Open the [visual guide](harness/VISUAL-GUIDE.md) to browse all eight selected infographics together.
 
 ## Your first instruction to the agent
 

@@ -799,3 +799,24 @@ written and saves the usage, seconds and cost of every model call next
 to the reply it produced. Two subcommands read that back: `harness
 replay <id>` draws a session again at the recorded pace, and `harness
 trace <id> --html FILE` writes it as one page, one row per model call.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+An extension loads successfully. What has not yet been established?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+That it behaves correctly at its lifecycle boundaries or composes safely with other extensions. Loading is only the first check.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

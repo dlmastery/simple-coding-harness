@@ -261,3 +261,24 @@ diff -r ../step_10_todos/harness harness
 
 New: `permissions.py`. Changed: `tools.py` (`run_tool` consults `check`),
 `ui.py` (`approve`).
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Can a permitted command still be incorrect?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Yes. Permission determines whether an action may proceed. Correctness requires a separate check of its behavior and output.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

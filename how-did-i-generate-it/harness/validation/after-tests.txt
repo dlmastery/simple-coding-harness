@@ -53,8 +53,8 @@ harness/06_production/step_45_typescript_core 4 passed, 1 skipped in 4.07s
 harness/07_server/step_46_trueforge_loop     14 passed in 1.99s
 harness/07_server/step_47_trueforge_tools_mcp 16 passed in 9.14s
 harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
-    
-    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_48_trueforge_sandbox_skills\test_step.py:349: 
+
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_48_trueforge_sandbox_skills\test_step.py:349:
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\harness\07_server\step_48_trueforge_sandbox_skills\demo.py:31: in main
         return run(args)
@@ -63,10 +63,10 @@ harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
         events = list_events(client, session_id, result["turn_id"])
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    
+
     client = <trueforge_sdk.client.TrueForge object at 0x000001DA82A1E120>
     session_id = 'sess-1', turn_id = 'turn-1'
-    
+
         def list_events(client: TrueForge, session_id: str, turn_id: str) -> list:
             """Every stored event of a finished turn, deltas already merged, across all pages."""
             events, token = [], None
@@ -75,7 +75,7 @@ harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
     >           events.extend(page.data)
                               ^^^^^^^^^
     E           AttributeError: 'SyncPager' object has no attribute 'data'
-    
+
     C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\harness\07_server\step_48_trueforge_sandbox_skills\client\sandbox.py:189: AttributeError
     ---------------------------- Captured stdout call -----------------------------
     session sess-1
@@ -85,7 +85,7 @@ harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
     sandbox.created  v1:local:/tmp/sandboxes/sess-1/box-1
     tool.response    exit 0  hi
     turn.done        error  in=100 out=5  model unavailable
-    
+
     (no final message)
     turn error: model unavailable
     =========================== short test summary info ===========================
@@ -96,8 +96,8 @@ harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
 harness/07_server/step_49_trueforge_context  18 passed in 3.30s
 harness/07_server/step_50_trueforge_subagents_eval 5 failed, 13 passed, 3 warnings in 21.74s
     >   ???
-    
-    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_50_trueforge_subagents_eval\test_step.py:499: 
+
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_50_trueforge_subagents_eval\test_step.py:499:
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     demo.py:42: in main
         return run(cli)
@@ -106,10 +106,10 @@ harness/07_server/step_50_trueforge_subagents_eval 5 failed, 13 passed, 3 warnin
         turns = sessions.list_turns(client, session_id) if len(cli.replay) < 2 else None
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    
+
     client = <trueforge_sdk.client.TrueForge object at 0x000001998618BDD0>
     session_id = 'sess-1'
-    
+
         def list_turns(client, session_id: str) -> list:
             """Every turn of a session in creation order, following the pagination tokens."""
             turns, token = [], None
@@ -118,7 +118,7 @@ harness/07_server/step_50_trueforge_subagents_eval 5 failed, 13 passed, 3 warnin
     >           turns.extend(page.data)
                              ^^^^^^^^^
     E           AttributeError: 'SyncPager' object has no attribute 'data'
-    
+
     client\sessions.py:29: AttributeError
     ============================== warnings summary ===============================
     test_step.py::test_tools_server_annotations_and_project_root
@@ -126,7 +126,7 @@ harness/07_server/step_50_trueforge_subagents_eval 5 failed, 13 passed, 3 warnin
     test_step.py::test_eval_runner_uses_the_real_tools_server_through_the_fake_agent
       C:\Users\abhir\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:105: DeprecationWarning: Use `streamable_http_client` instead.
         self.gen = func(*args, **kwds)
-    
+
     -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
     =========================== short test summary info ===========================
     FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events
@@ -139,24 +139,24 @@ harness/07_server/step_51_trueforge_comparison 2 failed, 14 passed in 0.35s
     .........FF.....                                                         [100%]
     ================================== FAILURES ===================================
     _______________ test_every_cited_step_and_stage_is_a_directory ________________
-    
+
     >   ???
     E   AssertionError: step 13 has no directory
     E   assert []
     E    +  where [] = list(<generator object Path.glob at 0x0000011451B858B0>)
     E    +    where <generator object Path.glob at 0x0000011451B858B0> = glob('step_13_*')
     E    +      where glob = WindowsPath('C:/Users/abhir/Documents/Codex/2026-09-19/lo/work/simple-coding-harness/harness/07_server').glob
-    
+
     C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_51_trueforge_comparison\test_step.py:124: AssertionError
     ______ test_metrics_table_covers_the_capstone_and_every_part_seven_step _______
-    
+
     >   ???
     E   AssertionError: step 38 has no directory
     E   assert []
     E    +  where [] = list(<generator object Path.glob at 0x000001145384EBD0>)
     E    +    where <generator object Path.glob at 0x000001145384EBD0> = glob('step_38_*')
     E    +      where glob = WindowsPath('C:/Users/abhir/Documents/Codex/2026-09-19/lo/work/simple-coding-harness/harness/07_server').glob
-    
+
     C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_51_trueforge_comparison\test_step.py:137: AssertionError
     =========================== short test summary info ===========================
     FAILED test_step.py::test_every_cited_step_and_stage_is_a_directory - Asserti...

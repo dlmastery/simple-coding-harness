@@ -657,3 +657,24 @@ in plan mode), `subagent.py` (`handoff_to` in `WITHHELD`),
 Step 41 gives a turn four ways to end: a `finish(summary)` tool, a cap
 on model calls, a cost cap for the session and a clock for the turn,
 with Stop hooks that may send the agent back.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+What makes a handoff more than renaming the active agent?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Responsibility, the next action and required state must transfer under an explicit contract. Inspect what the receiving worker actually receives.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

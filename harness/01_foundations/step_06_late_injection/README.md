@@ -192,3 +192,24 @@ cat context.py
 
 Stage 7 uses the same block to warn the agent when a file it read has
 changed on disk.
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+Why add a fresh observation near its use instead of assuming the initial prompt remains current?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+Files and state can change after the first request. The relevant observation must reach the later decision; caching concerns do not justify stale facts.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->

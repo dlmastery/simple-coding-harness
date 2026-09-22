@@ -266,3 +266,24 @@ diff -r ../step_09_installable_command/harness harness
 
 New: `todos.py`. Changed: `context.py`, `llm.py`, `tools.py` (registry
 line), `agent.py` (spinner label).
+
+<!-- harness-learning-check -->
+## Check your understanding
+
+A todo item says done. What else establishes that the work is complete?
+
+<details>
+<summary>Hint and explanation</summary>
+
+Name the object you are making a claim about. Then identify the observation that would support that claim.
+
+The required output and its check. A todo is coordination state, not independent evidence of success.
+
+</details>
+
+**Connect it to your run.** Point to one relevant test, trace or source branch in this lesson. Explain what it checks and one thing it does not establish. If you have only read the source, label that as inspection rather than execution.
+
+**Try one change.** Ask the tutor to choose one small input or failure case related to this question. Predict its effect, make the change in your learner copy, and compare the actual outcome. Keep the original and changed results.
+
+Save your prediction, evidence and remaining uncertainty before following the next lesson link at the top of this page. Use the [theme guide](../README.md) to explain why the next mechanism is useful.
+<!-- /harness-learning-check -->
