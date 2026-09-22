@@ -150,15 +150,21 @@ for (const [id,gap] of Object.entries({
   path: 'rsi/evidence/2026-09-21/foundation-gaps/README.md',
   label: 'Executed foundation cases and additional changes', gap
 });
-for (const id of ['09.01','09.03','09.04','09.07']) related.set(id, {
-  path: evidenceRoot+'clean-journey/09-05/README.md',
-  label: 'Related comparison evidence',
-  gap: 'The matched run illustrates this mechanism. The complete lab actions and additional change have not been individually closed.'
+for (const [id, gap] of Object.entries({
+  '09.01': 'A retrospective component map names actual shared authority, versioned surfaces, three classified changes and the external-metric counterexample. Twenty-four read-only checks support the linked identities and comparisons; no new fits or technical isolation are claimed.',
+  '09.03': 'The original proposal and two diagnostic cases under both versions are linked to their unchanged driver. The review states the precise rule, expected effect, cost limit and falsifier. The author supplied the revision; diagnostic values are synthetic and learner responses remain unattempted.',
+  '09.04': 'A later two-fit arm records the revised rule before action and uses it to reject the regressing child. Matching predictions across arms isolate the implemented decision difference. A new zero-fit pointer replay reads both saved rules. This is candidate-trial use in shared author context, not an autonomous post-acceptance generation.',
+  '09.07': 'The source-linked claim audit separates structure, tested benefit, cost and acceleration. Three author teaching cases and an evidence-removal analysis are explicit; they do not represent learner answers or a new experiment. Learner teach-back remains unattempted.'
+})) related.set(id, {
+  path: 'how-did-i-generate-it/rsi/validation/rsi-reading-review/README.md',
+  label: 'Reconciled RSI evidence chain and no-fit pointer replay', gap
 });
-for (const id of ['07.05','07.06']) related.set(id, {
+for (const [id, gap] of Object.entries({
+  '07.05': 'The organization-fixed and organization-dynamic event traces implement the two six-job comparisons; organization-overhead supplies the separate counterexample. Completion ticks are 21, 14 and 23. Protocol, inputs, results and review are retained; the driver identity matches. These are synthetic scheduling ticks, not real agent workers or measured platform speed.',
+  '07.06': 'The emergence-fifo, emergence-local and emergence-random traces cover all three main rules. Same-type fractions are 0, 0.8 and 0.7; the random-history control limits the causal interpretation. The two urgent-job traces supply the optional lateness comparison, 1 versus 3 ticks. Inputs, declared statistic, results and review are retained; learner responses remain unattempted.'
+})) related.set(id, {
   path: evidenceRoot+'organization-and-emergence/README.md',
-  label: 'Executed synthetic cases',
-  gap: 'Eight cases include overhead, random-history, and urgent-job contrasts. Map the listed outputs to each action; no real agent workers or learner responses were tested.'
+  label: 'Executed synthetic cases with per-lesson trace mapping', gap
 });
 related.set('07.07', {
   path: evidenceRoot+'self-play/README.md',

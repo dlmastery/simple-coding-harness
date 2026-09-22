@@ -6,7 +6,7 @@ Starting state: The task brief from 00.01 and the repository’s pinned source f
 
 Prediction to ask: Which capability would fail first if the agent could read files but could not run commands?
 
-Execution limit: Two data inspections, no model fits. Initial package installation needs network access.
+Execution limit: Up to two data inspections, no model fits. Initial package installation needs network access.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

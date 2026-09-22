@@ -18,9 +18,9 @@ Complete [10.16: Improve task skills with a fixed pipeline](../step_16_task_skil
 
 Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/10-17</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
 
-**Starting state:** Two task-skill update traces and the frozen meta-skill.
+**Starting state:** Two task-skill update traces under the same frozen meta-skill. Lab 10.16 supplies one. Reuse a suitable second trace or prepare the missing prerequisite below.
 
-**Budget:** One meta-skill proposal, one later task-skill round, at most four fits total. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One meta-skill proposal and one later matched round, at most two fits per arm and four total. If the second prerequisite trace is missing, allow one separate task-skill edit and four no-fit fixture checks: parent and child on a target and a regression case. Record these before freezing the updater comparison. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 

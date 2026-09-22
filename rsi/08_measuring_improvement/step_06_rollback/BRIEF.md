@@ -6,7 +6,7 @@ Starting state: The wine baseline and a labelled report that emphasizes accuracy
 
 Prediction to ask: Should a candidate with high ordinary accuracy but zero positive recall be promoted under the declared rule?
 
-Execution limit: No new fits if predictions exist; one metric recomputation.
+Execution limit: No new fits; one metric recomputation using existing wine-baseline predictions. If those are missing, complete the prerequisite baseline before starting this lab.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

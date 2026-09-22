@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The task brief from 00.01 and the repository’s pinned source files.
 
-**Budget:** Two data inspections, no model fits. Initial package installation needs network access. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Up to two data inspections, no model fits. Initial package installation needs network access. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 

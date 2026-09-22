@@ -71,13 +71,13 @@ Generate a controller in my workspace that
 fingerprints proposed recipes and rejects
 unlabelled duplicates. Preserve the sequence
 linear/calendar, tree/calendar,
-linear/calendar as a teaching input. Check
-duplicate identity before remaining budget
-so the third request records the duplicate
-reason. Use a distinct forest/calendar
-request to test budget exhaustion. Write
-this check order and its stop rules in
-LOOP.md.
+linear/calendar, all with seed 17, as a
+teaching input. Check duplicate identity
+before remaining budget so the third request
+records the duplicate reason. Use a distinct
+forest/calendar request to test budget
+exhaustion. Write this check order and its
+stop rules in LOOP.md.
 ```
 
 **Observe:** The third proposal is recognized as a duplicate.

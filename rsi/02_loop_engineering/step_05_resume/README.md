@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** A fresh three-attempt loop workspace. Stop after its first completed candidate.
 
-**Budget:** Three total fits across both sessions, not three per session. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Three total fits across the main stop/resume exercise, not three per session. The separate interrupted-worker exercise below allows one simulated spent attempt and at most one real continuation fit in its own three-slot workspace. At most four real fits across the whole lab. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -108,7 +108,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Prepare a labelled teaching checkpoint with a running trial whose process has exited. Mark it interrupted and preserve its spent attempt before continuing.
+In a separate three-slot fixture workspace, prepare a labelled teaching checkpoint with one running trial whose worker process has exited without training. Confirm the recorded worker is no longer running before reconciling its lock. Mark its attempt interrupted and keep that spent slot. Run at most one continuation fit, then stop. Show two used slots: the interrupted fixture and the completed continuation. Preserve the main experiment unchanged.
 
 ## If something goes wrong
 

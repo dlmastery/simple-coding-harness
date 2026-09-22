@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The ML workflow graph, success and failure traces, and domain ontology.
 
-**Budget:** One graph edit and four fixture checks: two parent/child selection pairs, one frozen distinct case, and one semantic-error case. Six graph traversals total. Use a fit stub; no training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One graph edit and four fixture cases: target, regression, fresh evaluation, and semantic error. Run parent and child on each of the first two cases, then the retained graph on each remaining case: six traversals total. Use a fit stub; no training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 

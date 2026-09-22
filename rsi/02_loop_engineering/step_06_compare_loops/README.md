@@ -111,7 +111,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Give one arm ten attempts only as a clearly separate exercise. Explain why its better result would not establish a better method at equal resources.
+Draft a separate comparison plan giving one arm ten attempts. Do not execute it in this lab. Explain why even a better result under that unequal budget would not establish a better method at equal resources.
 
 ## If something goes wrong
 

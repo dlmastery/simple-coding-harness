@@ -101,7 +101,7 @@ export const improvementGuidance = {
   },
   '09.04': {
     outputs:[['Active improver and ancestry record','Identifies v1 and its parent before the new round.'],['New task-skill proposal and checks','Show an action required by the revised instruction.'],['Inheritance report','Connects identity to executed behavior and distinguishes a measured v0 comparison from an unexecuted counterfactual.']],
-    recovery:'If the record has a v1 hash but no contrasting-case check, investigate whether the file was actually followed. Copying an instruction is not evidence of compliance. If the v0 alternative was only described, label it as predicted behavior. Preserve context limits when the same author or chat supplies both rounds.',
+    recovery:'If the record has a v1 hash but no action required by its changed rule, investigate whether the file was actually followed. A contrasting-case rule needs that check; a selection-partition rule needs the recorded scores and applied retention decision. Copying an instruction is not evidence of compliance. If the v0 alternative was only described, label it as predicted behavior. Preserve context limits when the same author or chat supplies both rounds.',
     hint:'Find a chain with three links: changed rule, later action, and recorded outcome. A version label supplies only the first link.'
   },
   '09.05': {

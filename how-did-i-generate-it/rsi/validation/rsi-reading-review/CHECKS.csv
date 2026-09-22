@@ -1,0 +1,25 @@
+check,passed
+historical driver identity,true
+historical protocol identity,true
+frozen decision bytes,true
+two diagnostic cases under both versions,true
+diagnostic version binding,true
+diagnostic outcomes,true
+four task and version decisions,true
+eight historical fits,true
+regression data identity,true
+regression/v0 identities,true
+regression/v1 identities,true
+regression/parent/training matched predictions,true
+regression/parent/selection matched predictions,true
+regression/child/training matched predictions,true
+regression/child/selection matched predictions,true
+classification data identity,true
+classification/v0 identities,true
+classification/v1 identities,true
+classification/parent/training matched predictions,true
+classification/parent/selection matched predictions,true
+classification/child/training matched predictions,true
+classification/child/selection matched predictions,true
+observed regression decision difference,true
+no-fit pointer replay matches saved decisions,true

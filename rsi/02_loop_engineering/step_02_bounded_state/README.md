@@ -107,7 +107,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Set the limit to one in a new workspace. Predict which artifact can be produced and which comparisons cannot.
+Write a separate one-attempt plan without running it. Predict which artifact could be produced and which comparisons would be impossible. This planning exercise adds no fits.
 
 ## If something goes wrong
 

@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The wine baseline and a labelled report that emphasizes accuracy while omitting positive recall.
 
-**Budget:** No new fits if predictions exist; one metric recomputation. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No new fits; one metric recomputation using existing wine-baseline predictions. If those are missing, complete the prerequisite baseline before starting this lab. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 

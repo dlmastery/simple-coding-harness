@@ -81,8 +81,11 @@ supplied ML tools where appropriate.
 Prove that the generated system executes.
 
 ```text
-Run its one-attempt baseline from a clean
-subfolder. Save commands, exit status,
+Run exactly one baseline fit from a clean
+subfolder under the brief’s frozen
+two-attempt limit. One fit uses one slot; do
+not redefine the contract as a one-attempt
+experiment. Save commands, exit status,
 predictions, and the checked result. Do not
 mark generation complete until the run
 finishes or a specific failure is recorded.

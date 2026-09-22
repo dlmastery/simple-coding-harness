@@ -61,7 +61,7 @@ Ask me to predict the result before the
 experiment.
 ```
 
-**Make a prediction:** What would show that the new regression-check rule actually governed the next round?
+**Make a prediction:** What would show that the revised rule actually governed the next round?
 
 ### 1. Start from the inherited version
 
@@ -82,11 +82,15 @@ Trace instructions into later improvement.
 
 ```text
 Use v1 to propose and evaluate a new
-task-skill revision. Record the
-contrasting-case check it requires, its
-actual result, and the promotion decision.
-State whether v0 would have required the
-same action.
+task-skill revision. Record the check or
+selection action required by the changed
+rule, its actual result, and the promotion
+decision. If v1 requires a contrasting case,
+retain that check; if it changes which
+partition governs promotion, retain both
+partition scores and the applied rule. State
+whether v0 would have required the same
+action.
 ```
 
 **Observe:** The inherited rule affects an executed improvement step.
@@ -113,7 +117,7 @@ Replace the active pointer with v0 in a labelled dry run. Identify which action 
 
 ## If something goes wrong
 
-If the record has a v1 hash but no contrasting-case check, investigate whether the file was actually followed. Copying an instruction is not evidence of compliance. If the v0 alternative was only described, label it as predicted behavior. Preserve context limits when the same author or chat supplies both rounds.
+If the record has a v1 hash but no action required by its changed rule, investigate whether the file was actually followed. A contrasting-case rule needs that check; a selection-partition rule needs the recorded scores and applied retention decision. Copying an instruction is not evidence of compliance. If the v0 alternative was only described, label it as predicted behavior. Preserve context limits when the same author or chat supplies both rounds.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 

@@ -151,7 +151,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Declare the state.** Make the next action inspectable.
 2. **Execute three steps.** Follow the declared loop.
 
-**Additional change:** Set the limit to one in a new workspace. Predict which artifact can be produced and which comparisons cannot.
+**Additional change:** Write a separate one-attempt plan without running it. Predict which artifact could be produced and which comparisons would be impossible. This planning exercise adds no fits.
 
 **Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
 
@@ -190,7 +190,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Stop at a boundary.** Save a state you can inspect.
 2. **Resume from files.** Continue the same experiment.
 
-**Additional change:** Prepare a labelled teaching checkpoint with a running trial whose process has exited. Mark it interrupted and preserve its spent attempt before continuing.
+**Additional change:** In a separate three-slot fixture workspace, prepare a labelled teaching checkpoint with one running trial whose worker process has exited without training. Confirm the recorded worker is no longer running before reconciling its lock. Mark its attempt interrupted and keep that spent slot. Run at most one continuation fit, then stop. Show two used slots: the interrupted fixture and the completed continuation. Preserve the main experiment unchanged.
 
 **Evidence:** [Original orderly resume plus actual stale-worker recovery](../../../rsi/evidence/2026-09-22/interrupted-attempt/README.md).
 
@@ -203,7 +203,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Declare the comparison.** Prevent a favorable retrospective choice.
 2. **Run and interpret.** Measure retained outputs and costs.
 
-**Additional change:** Give one arm ten attempts only as a clearly separate exercise. Explain why its better result would not establish a better method at equal resources.
+**Additional change:** Draft a separate comparison plan giving one arm ten attempts. Do not execute it in this lab. Explain why even a better result under that unequal budget would not establish a better method at equal resources.
 
 **Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 
@@ -566,9 +566,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a shared-resource bottleneck or communication delay. Predict when dynamic reassignment loses its advantage.
 
-**Evidence:** [Executed synthetic cases](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md).
+**Evidence:** [Executed synthetic cases with per-lesson trace mapping](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md).
 
-**Closure gap:** Eight cases include overhead, random-history, and urgent-job contrasts. Map the listed outputs to each action; no real agent workers or learner responses were tested.
+**Closure gap:** The organization-fixed and organization-dynamic event traces implement the two six-job comparisons; organization-overhead supplies the separate counterexample. Completion ticks are 21, 14 and 23. Protocol, inputs, results and review are retained; the driver identity matches. These are synthetic scheduling ticks, not real agent workers or measured platform speed.
 
 **Acceptance to verify:** Both runs use the same synthetic jobs and worker capabilities. The trace shows reassignment. Any speed claim is confined to this simulation.
 
@@ -579,9 +579,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** For the optional counterexample, declare one urgent-job fixture and run it twice: once with FIFO and once with local preference. Keep both traces and compare grouping with lateness. Explain how a visible pattern can be undesirable without replacing the three main cases.
 
-**Evidence:** [Executed synthetic cases](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md).
+**Evidence:** [Executed synthetic cases with per-lesson trace mapping](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md).
 
-**Closure gap:** Eight cases include overhead, random-history, and urgent-job contrasts. Map the listed outputs to each action; no real agent workers or learner responses were tested.
+**Closure gap:** The emergence-fifo, emergence-local and emergence-random traces cover all three main rules. Same-type fractions are 0, 0.8 and 0.7; the random-history control limits the causal interpretation. The two urgent-job traces supply the optional lateness comparison, 1 versus 3 ticks. Inputs, declared statistic, results and review are retained; learner responses remain unattempted.
 
 **Acceptance to verify:** The pattern is defined before measurement. Local rules and global statistic are distinct. Claims remain limited to the simulation.
 
@@ -702,9 +702,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** In a labelled diagram, let a candidate change the external final metric after seeing its result. Explain why that invalidates the comparison. Contrast it with a candidate improver changing its internal proposal-selection rule while the external metric, final cases, and resource budget stay fixed.
 
-**Evidence:** [Related comparison evidence](../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md).
+**Evidence:** [Reconciled RSI evidence chain and no-fit pointer replay](rsi-reading-review/README.md).
 
-**Closure gap:** The matched run illustrates this mechanism. The complete lab actions and additional change have not been individually closed.
+**Closure gap:** A retrospective component map names actual shared authority, versioned surfaces, three classified changes and the external-metric counterexample. Twenty-four read-only checks support the linked identities and comparisons; no new fits or technical isolation are claimed.
 
 **Acceptance to verify:** The evaluator is outside the ordinary mutable surface. The map distinguishes host model, task model, task skill, and improver procedure.
 
@@ -728,9 +728,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Compare “write more thoughtful proposals” with “test a contrasting case before promotion.” Explain which is easier to inspect and falsify.
 
-**Evidence:** [Related comparison evidence](../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md).
+**Evidence:** [Reconciled RSI evidence chain and no-fit pointer replay](rsi-reading-review/README.md).
 
-**Closure gap:** The matched run illustrates this mechanism. The complete lab actions and additional change have not been individually closed.
+**Closure gap:** The original proposal and two diagnostic cases under both versions are linked to their unchanged driver. The review states the precise rule, expected effect, cost limit and falsifier. The author supplied the revision; diagnostic values are synthetic and learner responses remain unattempted.
 
 **Acceptance to verify:** The edit affects future skill improvement. Parent and child remain available. The report does not claim effectiveness from text quality alone.
 
@@ -741,9 +741,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Replace the active pointer with v0 in a labelled dry run. Identify which action should disappear and which evaluation rules remain fixed.
 
-**Evidence:** [Related comparison evidence](../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md).
+**Evidence:** [Reconciled RSI evidence chain and no-fit pointer replay](rsi-reading-review/README.md).
 
-**Closure gap:** The matched run illustrates this mechanism. The complete lab actions and additional change have not been individually closed.
+**Closure gap:** A later two-fit arm records the revised rule before action and uses it to reject the regressing child. Matching predictions across arms isolate the implemented decision difference. A new zero-fit pointer replay reads both saved rules. This is candidate-trial use in shared author context, not an autonomous post-acceptance generation.
 
 **Acceptance to verify:** The trace includes version identity and an observed decision difference. Merely copying the new file is not accepted as proof of use.
 
@@ -780,9 +780,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the inheritance trace from a copy of the evidence pack. Identify which claim becomes unsupported even if the final task score stays high.
 
-**Evidence:** [Related comparison evidence](../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md).
+**Evidence:** [Reconciled RSI evidence chain and no-fit pointer replay](rsi-reading-review/README.md).
 
-**Closure gap:** The matched run illustrates this mechanism. The complete lab actions and additional change have not been individually closed.
+**Closure gap:** The source-linked claim audit separates structure, tested benefit, cost and acceleration. Three author teaching cases and an evidence-removal analysis are explicit; they do not represent learner answers or a new experiment. Learner teach-back remains unattempted.
 
 **Acceptance to verify:** Every claimed level has a corresponding artifact and measurement. Acceleration is not inferred from two favorable points. The audit states public-data and context limits.
 

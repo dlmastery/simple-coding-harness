@@ -4,7 +4,7 @@ An inheritance trace from a changed improver to a later task-skill proposal and 
 
 Starting state: IMPROVER-v0, IMPROVER-v1, a fresh parent task skill, and new development cases.
 
-Prediction to ask: What would show that the new regression-check rule actually governed the next round?
+Prediction to ask: What would show that the revised rule actually governed the next round?
 
 Execution limit: One later improvement round, at most two fits or equivalent fixture evaluations.
 
