@@ -306,6 +306,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 04.05: Change a definition without losing its consequences](04_ontology_engineering/step_05_evolve_vocabulary/README.md).
 
+## Give each component a job you can check
+
+![Five stations assign framing to the task skill and agent, input validity to domain checks, fitting to an ML tool, evidence checking to a checker, and communication to a report. An invalid fixture stops before fitting; the valid path produces checked predictions.](assets/illustrations/fixed-components-system-v2.png)
+
+*These are expected paths to execute, not a recorded success. The small tables show selected fields and blank rows, not a full schema or invented predictions. The constant task model learns one training median; that ordinary fit is separate from updating an LLM or an agent procedure. Reference selection targets and row identities belong to the output check, not model fitting. Record each component’s actual versions, inputs, outputs, and checks. Test the removed-guard extension with a dry-run stub and inspect any remaining protection.*
+
+[Open the illustration at full size](assets/illustrations/fixed-components-system-v2.png).
+
+[Lab 05.01: Combine fixed components into a useful system](05_system_intelligence/step_01_combine_components/README.md).
+
+## Choose the procedure that matches the question
+
+![A fixed router branches from a task brief to bike regression with a training-median baseline and MAE, wine classification with a training-majority baseline and balanced accuracy, or clarification without fitting. Each recognized task has its own workspace.](assets/illustrations/fixed-task-routing-v1.png)
+
+*The wine exercise uses the pinned red-wine dataset; the bottle collection is a laboratory motif, not a claim that white or rosé samples enter this task. The rental sketch is also illustrative. The recall calculation describes a constant majority-class predictor when both classes occur in evaluation; obtain your actual class counts and results from the separate wine run. Group identical wine feature rows within partitions. Execute one fit per task and preserve the unknown-task and missing-target-type refusals. The route table stays fixed.*
+
+[Open the illustration at full size](assets/illustrations/fixed-task-routing-v1.png).
+
+[Lab 05.02: Choose a skill for the task](05_system_intelligence/step_02_route_tasks/README.md).
+
+## A useful summary keeps the right authority
+
+![Task rules, reference knowledge, and current run state supply a context packet with links back to evidence. A stale note claims three attempts remain, while a two-attempt contract with one charged attempt leaves only one. Two expected checks have blank observed results.](assets/illustrations/context-rules-knowledge-state-v1.png)
+
+*The budget example is specific to this two-attempt contract. Verify contract and run identity and reconcile active work before trusting the current ledger; a file called ledger is not automatically authoritative. Record the stale claim and its source without refunding past work. The context packet is a derived guide to those records. Keep wine metric instructions out of the bike task’s active instructions, and retain the input-availability rule needed for its scientific meaning. Execute both context checks without fitting another model.*
+
+[Open the illustration at full size](assets/illustrations/context-rules-knowledge-state-v1.png).
+
+[Lab 05.03: Retrieve what matters and retain task state](05_system_intelligence/step_03_context_and_state/README.md).
+
 ## Save the state. Check the handoff.
 
 ![Numbered steps read ready, save running, and fit candidate C1. Saved awaiting-check state survives a process exit. A new process checks C1; a C2 report, missing check, or unclear target cannot complete the task.](assets/illustrations/system-coordination-v3.png)
@@ -315,6 +345,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/system-coordination-v3.png).
 
 [Lab 05.04: Coordinate planning, execution, and checking](05_system_intelligence/step_04_coordinate/README.md).
+
+## One removed check can hide behind another
+
+![The full system and a copy without the domain check each receive the same valid and leaked input fixtures. A retained tool allowlist can still block the leaked fixture. A separate follow-up removes both checks; all paths end at a dry-run fitting stub.](assets/illustrations/ablation-overlapping-checks-v1.png)
+
+*The circuits show configured routes, not proof that an input traversed every module. Each fixture runs separately. The expected table applies to the depicted overlapping guards; preserve your actual outcomes even if they differ. Here casual is an outcome component excluded by the task contract. Four main executions isolate removal of the domain check. Two separate follow-up executions remove both protections and answer a different question. The red Yes means an invalid request reached the stub, not successful learning. No real fit or prediction-quality comparison occurs.*
+
+[Open the illustration at full size](assets/illustrations/ablation-overlapping-checks-v1.png).
+
+[Lab 05.05: Find which component makes the difference](05_system_intelligence/step_05_ablate_system/README.md).
 
 ## The builder and the system it builds
 

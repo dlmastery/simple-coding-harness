@@ -28,9 +28,20 @@ The task brief identifies the target type and evaluation rule. Regression estima
 
 **A concrete example.** The [measured wine baseline](../../evidence/2026-09-20/loops-and-systems/05-02/COMPARISON.md) predicts negative on all 319 selection rows. It gets 278 right: 87.1% accuracy. Yet it misses all 41 positive cases. Negative recall is 1 and positive recall is 0, so balanced accuracy is (1 + 0) / 2 = 0.5. The wine route must expose that failure. The bike route answers a different question: how many rentals away was each numerical prediction?
 
+![A fixed router branches from a task brief to bike regression with a training-median baseline and MAE, wine classification with a training-majority baseline and balanced accuracy, or clarification without fitting. Each recognized task has its own workspace.](../../assets/illustrations/fixed-task-routing-v1.png)
+
+*The wine exercise uses the pinned red-wine dataset; the bottle collection is a laboratory motif, not a claim that white or rosé samples enter this task. The rental sketch is also illustrative. The recall calculation describes a constant majority-class predictor when both classes occur in evaluation; obtain your actual class counts and results from the separate wine run. Group identical wine feature rows within partitions. Execute one fit per task and preserve the unknown-task and missing-target-type refusals. The route table stays fixed.*
+
+[Open the illustration at full size](../../assets/illustrations/fixed-task-routing-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.](../../assets/diagrams/lab-05-02.png)
 
 *Read the diagram:* Routing selects an existing procedure appropriate to the task. It does not learn a new procedure.
+
+</details>
 
 ## Run the lab
 

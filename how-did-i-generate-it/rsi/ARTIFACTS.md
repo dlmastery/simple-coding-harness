@@ -1,5 +1,7 @@
 # Artifact index
 
+- [System-intelligence illustration review](validation/SYSTEM-ILLUSTRATIONS.md): four selections from five outputs, fixed component roles, task routing, context authority, and overlapping protections in an ablation.
+
 - [Ontology illustration review](validation/ONTOLOGY-ILLUSTRATIONS.md): four selections from five outputs, ten experiment objects, paired rule tests, semantic repairs, and forecast-time availability.
 
 - [Graph-engineering illustration review](validation/GRAPH-ILLUSTRATIONS.md): six selections from eight outputs, fourth join scenario, per-fixture repair accounting, and a [corrected join schematic](visuals/rendered-gallery-v7.md).

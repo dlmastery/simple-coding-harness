@@ -1,14 +1,38 @@
 # Illustrations for the RSI course
 
-Eighty-three selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Eighty-seven selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 127 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 132 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 05.01
+
+![Five stations assign framing to the task skill and agent, input validity to domain checks, fitting to an ML tool, evidence checking to a checker, and communication to a report. An invalid fixture stops before fitting; the valid path produces checked predictions.](fixed-components-system-v2.png)
+
+Selected: [fixed-components-system-v2.png](fixed-components-system-v2.png). Exact [prompt](fixed-components-system-v2.prompt.md). These are expected paths to execute, not a recorded success. The small tables show selected fields and blank rows, not a full schema or invented predictions. The constant task model learns one training median; that ordinary fit is separate from updating an LLM or an agent procedure. Reference selection targets and row identities belong to the output check, not model fitting. Record each component’s actual versions, inputs, outputs, and checks. Test the removed-guard extension with a dry-run stub and inspect any remaining protection.
+
+## Lab 05.02
+
+![A fixed router branches from a task brief to bike regression with a training-median baseline and MAE, wine classification with a training-majority baseline and balanced accuracy, or clarification without fitting. Each recognized task has its own workspace.](fixed-task-routing-v1.png)
+
+Selected: [fixed-task-routing-v1.png](fixed-task-routing-v1.png). Exact [prompt](fixed-task-routing-v1.prompt.md). The wine exercise uses the pinned red-wine dataset; the bottle collection is a laboratory motif, not a claim that white or rosé samples enter this task. The rental sketch is also illustrative. The recall calculation describes a constant majority-class predictor when both classes occur in evaluation; obtain your actual class counts and results from the separate wine run. Group identical wine feature rows within partitions. Execute one fit per task and preserve the unknown-task and missing-target-type refusals. The route table stays fixed.
+
+## Lab 05.03
+
+![Task rules, reference knowledge, and current run state supply a context packet with links back to evidence. A stale note claims three attempts remain, while a two-attempt contract with one charged attempt leaves only one. Two expected checks have blank observed results.](context-rules-knowledge-state-v1.png)
+
+Selected: [context-rules-knowledge-state-v1.png](context-rules-knowledge-state-v1.png). Exact [prompt](context-rules-knowledge-state-v1.prompt.md). The budget example is specific to this two-attempt contract. Verify contract and run identity and reconcile active work before trusting the current ledger; a file called ledger is not automatically authoritative. Record the stale claim and its source without refunding past work. The context packet is a derived guide to those records. Keep wine metric instructions out of the bike task’s active instructions, and retain the input-availability rule needed for its scientific meaning. Execute both context checks without fitting another model.
+
+## Lab 05.05
+
+![The full system and a copy without the domain check each receive the same valid and leaked input fixtures. A retained tool allowlist can still block the leaked fixture. A separate follow-up removes both checks; all paths end at a dry-run fitting stub.](ablation-overlapping-checks-v1.png)
+
+Selected: [ablation-overlapping-checks-v1.png](ablation-overlapping-checks-v1.png). Exact [prompt](ablation-overlapping-checks-v1.prompt.md). The circuits show configured routes, not proof that an input traversed every module. Each fixture runs separately. The expected table applies to the depicted overlapping guards; preserve your actual outcomes even if they differ. Here casual is an outcome component excluded by the task contract. Four main executions isolate removal of the domain check. Two separate follow-up executions remove both protections and answer a different question. The red Yes means an invalid request reached the stub, not successful learning. No real fit or prediction-quality comparison occurs.
 
 ## Lab 04.01
 

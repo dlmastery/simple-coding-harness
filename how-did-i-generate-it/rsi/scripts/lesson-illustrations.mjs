@@ -1,6 +1,26 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  "05.01": {
+    "file": "fixed-components-system-v2.png",
+    "alt": "Five stations assign framing to the task skill and agent, input validity to domain checks, fitting to an ML tool, evidence checking to a checker, and communication to a report. An invalid fixture stops before fitting; the valid path produces checked predictions.",
+    "caption": "These are expected paths to execute, not a recorded success. The small tables show selected fields and blank rows, not a full schema or invented predictions. The constant task model learns one training median; that ordinary fit is separate from updating an LLM or an agent procedure. Reference selection targets and row identities belong to the output check, not model fitting. Record each component’s actual versions, inputs, outputs, and checks. Test the removed-guard extension with a dry-run stub and inspect any remaining protection."
+},
+  "05.02": {
+    "file": "fixed-task-routing-v1.png",
+    "alt": "A fixed router branches from a task brief to bike regression with a training-median baseline and MAE, wine classification with a training-majority baseline and balanced accuracy, or clarification without fitting. Each recognized task has its own workspace.",
+    "caption": "The wine exercise uses the pinned red-wine dataset; the bottle collection is a laboratory motif, not a claim that white or rosé samples enter this task. The rental sketch is also illustrative. The recall calculation describes a constant majority-class predictor when both classes occur in evaluation; obtain your actual class counts and results from the separate wine run. Group identical wine feature rows within partitions. Execute one fit per task and preserve the unknown-task and missing-target-type refusals. The route table stays fixed."
+},
+  "05.03": {
+    "file": "context-rules-knowledge-state-v1.png",
+    "alt": "Task rules, reference knowledge, and current run state supply a context packet with links back to evidence. A stale note claims three attempts remain, while a two-attempt contract with one charged attempt leaves only one. Two expected checks have blank observed results.",
+    "caption": "The budget example is specific to this two-attempt contract. Verify contract and run identity and reconcile active work before trusting the current ledger; a file called ledger is not automatically authoritative. Record the stale claim and its source without refunding past work. The context packet is a derived guide to those records. Keep wine metric instructions out of the bike task’s active instructions, and retain the input-availability rule needed for its scientific meaning. Execute both context checks without fitting another model."
+},
+  "05.05": {
+    "file": "ablation-overlapping-checks-v1.png",
+    "alt": "The full system and a copy without the domain check each receive the same valid and leaked input fixtures. A retained tool allowlist can still block the leaked fixture. A separate follow-up removes both checks; all paths end at a dry-run fitting stub.",
+    "caption": "The circuits show configured routes, not proof that an input traversed every module. Each fixture runs separately. The expected table applies to the depicted overlapping guards; preserve your actual outcomes even if they differ. Here casual is an outcome component excluded by the task contract. Four main executions isolate removal of the domain check. Two separate follow-up executions remove both protections and answer a different question. The red Yes means an invalid request reached the stub, not successful learning. No real fit or prediction-quality comparison occurs."
+},
   "04.01": {
     "file": "name-experiment-objects-v2.png",
     "alt": "Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.",

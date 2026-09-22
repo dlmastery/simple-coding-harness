@@ -7,6 +7,11 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["fixed-components-system-v1","exec-0c7cea3e-8d05-4789-b7d2-129fe49461ae.png",false],
+  ["fixed-components-system-v2","exec-a709fce6-2da9-4704-97cc-c9bda08abc49.png",true],
+  ["fixed-task-routing-v1","exec-4614e008-46b8-42be-9f3f-7850228ade0b.png",true],
+  ["context-rules-knowledge-state-v1","exec-847aad5b-4b23-4f72-9ce7-dc1f9c863cd0.png",true],
+  ["ablation-overlapping-checks-v1","exec-c5b85395-3bff-4535-9e9b-287b352bbda5.png",true],
   ["name-experiment-objects-v1","exec-489359ea-00e8-4e30-ae94-68ea7cc33532.png",false],
   ["name-experiment-objects-v2","exec-75626167-f9bd-4942-8609-aae174929051.png",true],
   ["three-domain-invariants-v1","exec-22a9be52-5673-47d4-8dec-547128dc6ba9.png",true],

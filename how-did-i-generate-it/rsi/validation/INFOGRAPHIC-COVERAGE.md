@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**79 of 101 labs** currently have a mapped generated infographic; **22 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**83 of 101 labs** currently have a mapped generated infographic; **18 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -13,7 +13,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 02 · Repeat for a reason | 6 | 6 | 0 |
 | 03 · Give different cases different routes | 6 | 6 | 0 |
 | 04 · Agree on what the experiment means | 5 | 5 | 0 |
-| 05 · Build capability around the model | 5 | 1 | 4 |
+| 05 · Build capability around the model | 5 | 5 | 0 |
 | 06 · Generate a harness from a brief | 6 | 1 | 5 |
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
 | 08 · Measure what improved | 6 | 0 | 6 |
@@ -76,11 +76,11 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [05.01 · Combine fixed components into a useful system](../../../rsi/05_system_intelligence/step_01_combine_components/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-05-01.png) |
-| [05.02 · Choose a skill for the task](../../../rsi/05_system_intelligence/step_02_route_tasks/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-05-02.png) |
-| [05.03 · Retrieve what matters and retain task state](../../../rsi/05_system_intelligence/step_03_context_and_state/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-05-03.png) |
+| [05.01 · Combine fixed components into a useful system](../../../rsi/05_system_intelligence/step_01_combine_components/README.md) | [Selected figure](../../../rsi/assets/illustrations/fixed-components-system-v2.png) | [Present](../../../rsi/assets/diagrams/lab-05-01.png) |
+| [05.02 · Choose a skill for the task](../../../rsi/05_system_intelligence/step_02_route_tasks/README.md) | [Selected figure](../../../rsi/assets/illustrations/fixed-task-routing-v1.png) | [Present](../../../rsi/assets/diagrams/lab-05-02.png) |
+| [05.03 · Retrieve what matters and retain task state](../../../rsi/05_system_intelligence/step_03_context_and_state/README.md) | [Selected figure](../../../rsi/assets/illustrations/context-rules-knowledge-state-v1.png) | [Present](../../../rsi/assets/diagrams/lab-05-03.png) |
 | [05.04 · Coordinate planning, execution, and checking](../../../rsi/05_system_intelligence/step_04_coordinate/README.md) | [Selected figure](../../../rsi/assets/illustrations/system-coordination-v3.png) | [Present](../../../rsi/assets/diagrams/lab-05-04.png) |
-| [05.05 · Find which component makes the difference](../../../rsi/05_system_intelligence/step_05_ablate_system/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-05-05.png) |
+| [05.05 · Find which component makes the difference](../../../rsi/05_system_intelligence/step_05_ablate_system/README.md) | [Selected figure](../../../rsi/assets/illustrations/ablation-overlapping-checks-v1.png) | [Present](../../../rsi/assets/diagrams/lab-05-05.png) |
 
 ## 06 · Generate a harness from a brief
 

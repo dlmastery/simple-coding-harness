@@ -28,9 +28,20 @@ Keep the language model and procedures fixed. The skill chooses actions; the too
 
 **A concrete example.** A capable language model might still accept the tempting input casual + registered. A domain checker can reject it before any fit. The whole system avoids a mistake even though the language-model weights and the rule itself stayed fixed. The improvement comes from how the components are arranged.
 
+![Five stations assign framing to the task skill and agent, input validity to domain checks, fitting to an ML tool, evidence checking to a checker, and communication to a report. An invalid fixture stops before fitting; the valid path produces checked predictions.](../../assets/illustrations/fixed-components-system-v2.png)
+
+*These are expected paths to execute, not a recorded success. The small tables show selected fields and blank rows, not a full schema or invented predictions. The constant task model learns one training median; that ordinary fit is separate from updating an LLM or an agent procedure. Reference selection targets and row identities belong to the output check, not model fitting. Record each component’s actual versions, inputs, outputs, and checks. Test the removed-guard extension with a dry-run stub and inspect any remaining protection.*
+
+[Open the illustration at full size](../../assets/illustrations/fixed-components-system-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Fixed components coordinate one valid experiment. A domain check can stop an invalid request before fitting.](../../assets/diagrams/lab-05-01.png)
 
 *Read the diagram:* Fixed components coordinate one valid experiment. A domain check can stop an invalid request before fitting.
+
+</details>
 
 ## Run the lab
 
@@ -97,7 +108,7 @@ Ask the agent to open the actual files and show the command exit status. A writt
 
 ## Try one change
 
-Remove the domain check in a labelled diagnostic copy and observe which protection is lost.
+Remove the domain check in a labelled diagnostic copy. Replace fitting with a dry-run stub and reuse the leaked fixture without another fit. Record which protection is lost and whether another guard still blocks it.
 
 ## If something goes wrong
 

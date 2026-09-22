@@ -365,7 +365,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Assign responsibilities.** Avoid giving every component an undefined job.
 2. **Run the fixed system.** Observe coordinated behavior.
 
-**Additional change:** Remove the domain check in a labelled diagnostic copy and observe which protection is lost.
+**Additional change:** Remove the domain check in a labelled diagnostic copy. Replace fitting with a dry-run stub and reuse the leaked fixture without another fit. Record which protection is lost and whether another guard still blocks it.
 
 **Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/05-01).
 
@@ -417,7 +417,7 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Predeclare the outcome.** Avoid choosing the metric after the result.
 2. **Run both versions.** Measure the component’s contribution.
 
-**Additional change:** Remove both overlapping checks in a separate declared ablation. Explain why this answers a different causal question.
+**Additional change:** Remove both overlapping checks in a separate declared ablation. Run the same valid and leaked fixtures through the fit stub, for two additional executions and no model fits. Explain why this answers a different causal question.
 
 **Evidence:** [Executed loop, routing, context, ablation, and repetition activities](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
 

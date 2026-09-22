@@ -28,9 +28,20 @@ Task rules define the current problem. Reference knowledge explains how to act. 
 
 **A concrete example.** In the [executed context check](../../evidence/2026-09-20/loops-and-systems/05-03/CONFLICT-AND-RECOVERY.md), a labelled stale note says “three attempts remain.” The real contract allows two and the ledger has charged one. One attempt remains. Copying the note into a new context cannot refund the spent attempt. The summary should help locate the contract and ledger, then defer to their verified current state.
 
+![Task rules, reference knowledge, and current run state supply a context packet with links back to evidence. A stale note claims three attempts remain, while a two-attempt contract with one charged attempt leaves only one. Two expected checks have blank observed results.](../../assets/illustrations/context-rules-knowledge-state-v1.png)
+
+*The budget example is specific to this two-attempt contract. Verify contract and run identity and reconcile active work before trusting the current ledger; a file called ledger is not automatically authoritative. Record the stale claim and its source without refunding past work. The context packet is a derived guide to those records. Keep wine metric instructions out of the bike task’s active instructions, and retain the input-availability rule needed for its scientific meaning. Execute both context checks without fitting another model.*
+
+[Open the illustration at full size](../../assets/illustrations/context-rules-knowledge-state-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Retrieve relevant reusable knowledge, but initialize current state from the active task.](../../assets/diagrams/lab-05-03.png)
 
 *Read the diagram:* Retrieve relevant reusable knowledge, but initialize current state from the active task.
+
+</details>
 
 ## Run the lab
 

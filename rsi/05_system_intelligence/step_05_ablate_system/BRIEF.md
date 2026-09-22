@@ -6,7 +6,7 @@ Starting state: The fixed coordinator and the leaked-feature fixture used earlie
 
 Prediction to ask: Will removing the domain check change the valid case, the invalid case, or both?
 
-Execution limit: No fits. Four fixture executions: two inputs under each of two system versions.
+Execution limit: No fits. Four main fixture executions: two inputs under each of two system versions. The separate change below adds two more fixture executions.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 
