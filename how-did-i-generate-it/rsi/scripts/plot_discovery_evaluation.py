@@ -50,7 +50,7 @@ def plot(work):
         axis.axhline(0, color="#7f8d9c", linewidth=.8)
         axis.set_title(title, loc="left", fontsize=12, weight="bold", pad=14)
         axis.set_ylabel(ylabel, fontsize=9)
-        axis.set_xlabel("Task seed · evolved minus broad search", fontsize=9)
+        axis.set_xlabel("Task seed · comparison with broad search", fontsize=9)
         axis.tick_params(axis="x", labelsize=9)
         axis.set_axisbelow(True)
         axis.grid(axis="y", alpha=.12)
@@ -75,6 +75,7 @@ def plot(work):
     sha = hashlib.sha256((work / "RESULTS.csv").read_bytes()).hexdigest()
     (work / "FIGURE-SOURCE.md").write_text(
         f"# Measured chart source\n\nRESULTS.csv SHA256: {sha}\n"
+        f"Plot source SHA256: {hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}\n"
         "Generated with plot_discovery_evaluation.py after independent checks.\n"
         "Top panels compare evolved and broad search on the same task; bottom panels sum actual search cost.\n"
         "No image generator supplied numeric results.\n", encoding="utf-8")
