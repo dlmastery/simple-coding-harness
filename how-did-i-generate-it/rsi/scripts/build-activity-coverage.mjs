@@ -9,6 +9,11 @@ const destination = resolve(repo, 'how-did-i-generate-it/rsi/validation');
 const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
+related.set('10.28', {
+  path: 'rsi/evidence/2026-09-21/procedure-graph/README.md',
+  label: 'Executed procedure-graph fixtures',
+  gap: 'One edge edit, two parent/child selection pairs, one frozen distinct fixture, and one semantic check executed in six traversals with zero fits. Author-constructed deterministic cases are not independent LLM adaptation, blinded transfer, or learner assessment.'
+});
 const cleanIds = [
   '00.01','00.02','00.03','00.04',
   '01.01','01.02','01.03','01.04','01.05',

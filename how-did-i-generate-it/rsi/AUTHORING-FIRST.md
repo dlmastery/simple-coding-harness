@@ -32,8 +32,10 @@ For each illustration, identify the student's question first. Choose a concrete 
 
 Check local links, selected-image identities, generated-page preservation, spelling, visible mechanism, and major-label readability. Check a primary method passage when needed to avoid drawing the wrong mechanism. These are basic authoring checks, not the postponed complete source or execution audit.
 
-## Later verification
+## Verification after the production checkpoint
 
-The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 63 related evidence mappings and 38 unmapped labs; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
+The 101 lesson pages, individual figures, shared skills, and source briefs are authored and checkpointed. Bounded activity verification has now begun; its findings can still require content corrections.
+
+The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 64 related evidence mappings and 37 unmapped labs; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
 
 Run expensive or broad checks when the material is ready for that pass. No new ML executions are required merely to publish an illustration revision. Report actual student, other-agent, GPU, and cluster testing only if it occurs.

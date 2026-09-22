@@ -98,3 +98,19 @@ All three queries used the 31-day recency filter as well as the explicit window:
 New primary checks confirmed EvoHarnessBench (3 September, v2 10 September), Ecdysis (10 September), and OpsHarness (26 August). Selected methods were inspected and added to the dated notes. The inventory is now 30 papers and five reports. SkillForge and ForeDreamer received deeper selected-method reading without changing that count.
 
 The lab-domain query also returned recently crawled Microsoft profile pages describing older work, including SkillOpt. Those pages were not counted as recent research releases. A skill-harness embodied-agent title remains a lead until its exact primary date and method are verified. The X query supplied no new verified original post in this batch; the Meta/FAIR social coverage gap remains explicit. This refresh is not an exhaustive survey.
+
+## 21 September refresh
+
+All discovery queries used a 31-day recency filter and explicit date bounds:
+
+```text
+("recursive self-improvement" OR "harness evolution" OR "self-evolving agents") site:arxiv.org after:2026-08-21 before:2026-09-22
+("recursive self-improvement" OR "self-evolving" OR "harness") (site:research.google OR site:deepmind.google OR site:ai.meta.com OR site:microsoft.com/en-us/research OR site:openai.com OR site:anthropic.com) after:2026-08-21 before:2026-09-22
+("recursive self-improvement" OR "self-improving agents" OR "harness evolution") (Meta OR FAIR OR Google) site:x.com after:2026-08-21 before:2026-09-22
+```
+
+Repeated results included ScienceBuddy, ModularRSI, EvoHarnessBench, and Ecdysis. Followed Microsoft's SHAPER and OEO publication links to arXiv version histories. SHAPER has a 10 September revision of an 11 August first submission; record that distinction. OEO is dated 10 August with no listed revision and is excluded from current-window additions. Sico remains undated. Older SkillOpt and PURER pages and recently crawled profile pages were not counted as new research.
+
+No new original Meta/FAIR social post was verified. The absence of a verified result does not establish that no such announcement exists.
+
+Direct full-text follow-up inspected selected sections of VideoHarness-RSI, Recursive Criticality, and SHAPER. [Reading notes](2026-09-21-METHOD-NOTES.md) record scope and teaching consequences. The corpus now retains 31 papers and five reports, with older-first/recent-revision work explicitly separated. No new mandatory lab or paper reproduction is claimed.

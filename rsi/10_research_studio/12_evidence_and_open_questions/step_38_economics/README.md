@@ -26,6 +26,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Total progress depends on the whole research process. If evaluation takes most of the time, making proposals twice as fast has a limited effect. Use explicit synthetic numbers to study the bottleneck, then return to measured evidence. Do not confuse a theoretical possibility with a demonstrated trajectory.
 
+Optional reading: [Recursive Criticality, sections 2–3](https://arxiv.org/html/2609.00137v1). Distinguish faster research throughput from amplification of a local perturbation. Neither a threshold nor a synthetic timeline is an empirical forecast.
+
 **A concrete example.** Proposal work takes 1 minute and the remaining execution/evaluation takes 9. Doubling proposal speed changes total time from 10 to 9.5 minutes: a 5% reduction. Even eliminating proposal time saves only 10%. A claimed proposal speedup needs the full process denominator before it becomes a research speedup.
 
 ![Five independent synthetic timing scenarios compare faster proposals, faster evaluation, extra checking, and a costlier verifier against a ten-minute baseline. A separate arithmetic example shows cumulative gains increasing while each round’s gain decreases.](../../../assets/illustrations/research-bottlenecks-v1.png)

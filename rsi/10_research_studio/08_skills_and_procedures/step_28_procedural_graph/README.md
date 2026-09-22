@@ -20,13 +20,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 **Starting state:** The ML workflow graph, success and failure traces, and domain ontology.
 
-**Budget:** One graph edit and four executable fixture checks: two selection cases, one fresh case, and one semantic-error case. Use a fit stub; no training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** One graph edit and four fixture checks: two parent/child selection pairs, one frozen distinct case, and one semantic-error case. Six graph traversals total. Use a fit stub; no training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A procedural graph represents actions and transitions. Our exercise gives the executor the current node and relevant local guidance, then proposes one transition repair from traces. The domain ontology still describes entities and meaning. These are different graphs. Freeze the selected procedure before a fresh evaluation.
 
-**A concrete example.** The workflow currently routes every returned tool result straight to reporting. A proposed edge sends failed validation to diagnosis instead. This changes what happens next; it does not redefine what the target or metric means. A semantically invalid feature still needs the separate domain rule.
+**A concrete example.** In the [recorded author exercise](../../../evidence/2026-09-21/procedure-graph/README.md), the parent graph sends a nonnumeric hour to the fit stub. One edge edit sends it to diagnosis instead. The valid calendar case still reaches reporting. After freezing the child, a distinct calendar case passes, while a numeric target component passes the type check but fails the unchanged domain rule. Four fixture comparisons use six graph traversals and no model fits. These are constructed deterministic checks in one author context, not blinded transfer or measured language-model adaptation.
 
 ![A procedure map exposes the current input-check node and possible next actions. A proposed edge repair replaces unconditional fitting with a validity branch. Selection fixtures precede freezing and a fresh fixture; a separate semantic test checks target leakage.](../../../assets/illustrations/procedure-graph-v1.png)
 

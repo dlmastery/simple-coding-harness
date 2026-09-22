@@ -2,7 +2,7 @@
 
 [Course](../README.md) · [Research studio](../10_research_studio/README.md)
 
-Discovery window: **20 August–20 September 2026**. Prioritize work from the latest two weeks. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
+Latest discovery pass: **22 August–21 September 2026**, with the prior dated corpus retained. The inventory now contains 31 papers and five reports, including one older paper with a recent revision. Prioritize work from the latest two weeks. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
 
 The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-SWEEP.md), [search log](../../how-did-i-generate-it/rsi/research/SEARCH-LOG.md), and [claim corrections](../../how-did-i-generate-it/rsi/research/CLAIM-CORRECTIONS.md) preserve the broader sweep and reading depth. Some sources are leads with abstract-level screening. Their studio activities explicitly begin with a method audit before borrowing technical details.
 
@@ -25,7 +25,7 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [HarnessDev](https://arxiv.org/abs/2609.01437) | 1 Sep | Method audit before harness-builder comparison |
 | [Harness-of-Harness](https://arxiv.org/abs/2609.01481) | 1 Sep | Fixed agent configuration; changing software and evidence |
 | [S3Gym](https://arxiv.org/abs/2608.31100) | 31 Aug | Memory-interface exercise; training protocol audit |
-| [VideoHarness-RSI](https://arxiv.org/abs/2608.24302) | 25 Aug; revised 3 Sep | Optional context-construction comparison; abstract checked, full methods pending |
+| [VideoHarness-RSI](https://arxiv.org/abs/2608.24302) | 25 Aug; revised 3 Sep | Optional cost comparison; selected methods and accounting inspected 21 Sep |
 | [Environments as Scaffold](https://arxiv.org/abs/2609.08404) | 8 Sep | Assistance types and removal |
 | [Co-Evolving Harnesses and Models](https://arxiv.org/abs/2609.09134) | 8 Sep | Model–harness compatibility and on-policy correction |
 | [MetaRSI / RSI2](https://arxiv.org/abs/2609.06396) | 6 Sep; v2 9 Sep | Composition and scheduler inheritance |
@@ -39,6 +39,10 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 | [EvoHarnessBench](https://arxiv.org/abs/2609.04280) | 3 Sep; v2 10 Sep | Optional contrast: retention and adaptation as available capabilities grow |
 | [Ecdysis](https://arxiv.org/abs/2609.11677) | 10 Sep | Optional contrast: cross-task failure diagnosis and aggregate acceptance |
 | [OpsHarness](https://arxiv.org/abs/2608.25661) | 26 Aug | Optional contrast: staged gates and the role of retry feedback |
+
+[Recursive Criticality](https://arxiv.org/abs/2609.00137) (31 August) supplies an optional theoretical comparison in 10.38. The [21 September reading notes](../../how-did-i-generate-it/rsi/research/2026-09-21-METHOD-NOTES.md) state the inspected sections and limits.
+
+**Recent revision of older work:** [SHAPER](https://arxiv.org/abs/2608.11350v2) first appeared 11 August and was revised 10 September. It is an optional comparison in 10.37, not a new required robotics lab.
 
 AIDE² ([Weco, 14 July 2026](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement)), [MetaSkill-Evolve](https://arxiv.org/abs/2607.05297) (6 July), and [HyperAgents](https://ai.meta.com/research/publications/hyperagents/) (March) are explicit older foundations. They are not counted as current-month releases.
 

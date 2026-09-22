@@ -1,0 +1,4 @@
+step,node,outcome,next
+1,inspect,invalid,fit
+2,fit,done,report
+3,report,done,stop

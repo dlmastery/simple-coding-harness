@@ -26,6 +26,8 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Compare the same questions across systems: what changes, what remains fixed, who supplies feedback, what persists, what later work inherits it, what is evaluated, and at what cost. Keep paper-reported evidence separate from your measurements. Missing information is a result of the audit, not a blank to fill by inference.
 
+Optional comparison: [SHAPER v2](https://arxiv.org/html/2608.11350v2) changes skills and context code in a fixed order. Ask whether its optimizer changes. Keep this reading note separate from the six required rows.
+
 **A concrete example.** One system updates memory; another updates weights and harness instructions; a third revises the search policy. Their headline scores come from different tasks. A useful matrix compares changed objects, feedback, inheritance, and evaluation before asking whether any numbers are comparable.
 
 ![Six named research systems and the local course run are examined through common mechanism and evidence questions. A source-linked matrix template leads to a challenge of the claim that a better task score implies a better improver.](../../../assets/illustrations/compare-research-systems-v1.png)

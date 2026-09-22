@@ -1,0 +1,5 @@
+step,node,outcome,next
+1,inspect,valid,domain
+2,domain,valid,fit
+3,fit,done,report
+4,report,done,stop
