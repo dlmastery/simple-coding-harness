@@ -9,6 +9,7 @@ const destination = resolve(repo, 'how-did-i-generate-it/rsi/validation');
 const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
+related.set('10.33', {path: 'rsi/evidence/2026-09-21/scaffolding/README.md', label: 'Four executed agent-operated form attempts', gap: 'Action-hint, richer-observation, changed unassisted, and stale-hint conditions passed exact checks. The stale detour was preplanned; all fixtures were author-known in one context. No weight training, causal scaffold comparison, independent-agent evaluation, or learner assessment occurred.'});
 for (const [id,gap] of Object.entries({
   '10.27': 'A real prior failed proposal, immutable-by-procedure trace, persistent notebook versions, and unchanged active skill are retained. Two candidate checks reject the fallback; a separate exposure-only condition reads the notebook without a third task check. Scripted input identities do not establish isolated coding-agent access or general skill-evolution benefit.',
   '10.32': 'Five packets, five actual author answers, exact original-event checks, and an expanded-description operation audit are retained. The faulty summary implies the wrong state. All conditions share a knowledgeable author; provider costs, clean context isolation, broad memory effects, learner assessment, and parameter training are untested.'

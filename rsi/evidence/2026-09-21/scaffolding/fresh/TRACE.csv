@@ -1,0 +1,4 @@
+sequence,time_utc,command,field,value,output
+1,2026-09-22T05:32:34.411Z,inspect,Dataset,-,<empty>
+2,2026-09-22T05:32:41.431Z,repair,Dataset,wine,saved
+3,2026-09-22T05:32:41.473Z,check,-,-,PASS

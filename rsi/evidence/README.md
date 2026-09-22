@@ -18,6 +18,7 @@ Start with the scientific question you want to check:
 | Did the revised updater govern a later task-skill change? | [Fixed repairs, inherited check policy, and matched external decisions](2026-09-21/meta-skills/README.md) |
 | What supports a scientific claim after screening and review? | [Hypothesis, measured ablation, second-seed response, and result lineage](2026-09-21/scientist-labs/README.md) |
 | What can survive a rejected skill, and what can a summary lose? | [Separate knowledge stores and exact memory-interface checks](2026-09-21/memory-interfaces/README.md) |
+| What happens when an action hint becomes outdated? | [Four form attempts with actual inspections and exact checks](2026-09-21/scaffolding/README.md) |
 | Can a proposed schedule perform an invalid update? | [Typed operations and scheduler checks](2026-09-21/operator-composition/README.md) |
 | Can a candidate exploit information in a reference trace? | [Checked references and rejected shortcuts](2026-09-21/checked-reference/README.md) |
 

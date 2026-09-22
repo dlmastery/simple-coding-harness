@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 An action hint suggests the next operation. An enriched observation exposes useful state, such as which field is missing. The classroom comparison keeps these distinct, then removes assistance. The source studies training settings; this inference-only exercise does not reproduce its reinforcement-learning results.
 
-**A concrete example.** “Open column B next” is an action hint. “Column B is missing its unit” is richer observation. If the missing unit moves to column C, the old action hint can become misleading while an accurate observation still describes the new problem. Success with either help does not establish unassisted learning.
+**A concrete example.** “Inspect Split next” recommends an action. “The Split field is empty” adds state information. In the [four recorded form attempts](../../../evidence/2026-09-21/scaffolding/README.md), both led to a correct repair. When Metric was missing instead, deliberately following the old Split hint added an inspection before recovery. All four forms passed, but the author knew their contents and shared one context. This demonstrates the distinction; it does not measure learned capability.
 
 ![Two conditions share a missing-Split task: one provides an action hint and the other a richer state observation. A fresh case removes help. A fourth case tests whether the actor can recover when an outdated Split hint conflicts with the current missing-Metric state.](../../../assets/illustrations/feedback-scaffolds-v1.png)
 

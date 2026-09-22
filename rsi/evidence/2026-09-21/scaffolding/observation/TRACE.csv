@@ -1,0 +1,4 @@
+sequence,time_utc,command,field,value,output
+1,2026-09-22T05:32:25.699Z,inspect,Split,-,<empty>
+2,2026-09-22T05:32:34.260Z,repair,Split,chronological,saved
+3,2026-09-22T05:32:34.311Z,check,-,-,PASS

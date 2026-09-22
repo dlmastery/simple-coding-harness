@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-88 labs have mapped related author-execution evidence; 13 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+89 labs have mapped related author-execution evidence; 12 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1211,9 +1211,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Give a stale action hint while preserving correct observations. Observe which condition can recover.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Four executed agent-operated form attempts](../../../rsi/evidence/2026-09-21/scaffolding/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Action-hint, richer-observation, changed unassisted, and stale-hint conditions passed exact checks. The stale detour was preplanned; all fixtures were author-known in one context. No weight training, causal scaffold comparison, independent-agent evaluation, or learner assessment occurred.
 
 **Acceptance to verify:** The assistance types are explicit. The unassisted task is fresh and its limits are stated. The paper’s training claim is not transferred to the toy run.
 
