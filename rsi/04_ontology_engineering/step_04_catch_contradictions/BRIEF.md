@@ -6,7 +6,7 @@ Starting state: The supplied domain skill, original correct facts, and a separat
 
 Prediction to ask: Will renaming a leaked feature make it a valid input?
 
-Execution limit: Two domain checks, no model fits.
+Execution limit: Two main domain checks and one check for the renamed-feature exercise; no model fits.
 
 Follow the README steps. Keep source data and the supplied evaluation contract unchanged. Use the canonical course skills. Generate any required code yourself. Save observations, failures, and the learner’s progress in the separate workspace. Do not invent student answers, measurements, or protected evaluator access.
 

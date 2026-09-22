@@ -28,6 +28,8 @@ const limitations = {
   '02.05': 'A clean stop between commands was resumed. Forced process interruption and stale-lock recovery were not exercised.',
   '03.03': 'The join executed sequentially with declared resource fixtures. The newly explicit wrong-contract case still needs execution evidence; measured parallel resource checks are also absent.',
   '03.06': 'The three views are described, but three separately rendered diagrams were not produced by this run.',
+  '04.03': 'The mapped folder contains an invariants note, not six separately retained case inputs and verdicts. The six base cases and two units-extension cases remain to be demonstrated individually.',
+  '04.04': 'Original and corrected tables and checks are retained. A separate consistently renamed copy and its third check remain unverified in this mapped folder.',
   '06.06': 'Saved generated packages ran in fresh output state. Independent regeneration from the brief in another agent is untested.',
   '08.02': 'Final lock and row/target recomputation executed. The author had seen the public final result before; this is a replay.',
   '09.05': 'Eight-fit matched comparison executed. Two constructed cases, one shared author context, and unmeasured inference cost limit the result.'

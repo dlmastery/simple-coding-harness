@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [357e7b0](https://github.com/dlmastery/simple-coding-harness/commit/357e7b0b465b5fe9ea73524cbb65cb55aa477196): intermediate ontology backup. All five output versions, prompts, pending lesson-source changes, and restart notes were pushed; remote hash and clean worktree verified before publication.
+
 - [9e4b593](https://github.com/dlmastery/simple-coding-harness/commit/9e4b5933f6d5a9b3ed2e4c0a4a59ceb2aff1150c): completed graph-engineering figures; 79 gallery selections, 122 archived outputs, 75 mapped labs, and 3,949 checked local links. Local HEAD and remote branch were verified equal before the ontology backup.
 
 - [09e84fa](https://github.com/dlmastery/simple-coding-harness/commit/09e84fa5d9431e4169484b2003249872510be5fc): all six loop labs illustrated; 73 selections, 114 outputs, 69 mapped labs, and 3,890 checked local links. Remote hash verified before graph work.

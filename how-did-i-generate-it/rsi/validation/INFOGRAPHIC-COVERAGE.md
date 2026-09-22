@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**75 of 101 labs** currently have a mapped generated infographic; **26 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**79 of 101 labs** currently have a mapped generated infographic; **22 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -12,7 +12,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 01 · Make one process dependable | 5 | 5 | 0 |
 | 02 · Repeat for a reason | 6 | 6 | 0 |
 | 03 · Give different cases different routes | 6 | 6 | 0 |
-| 04 · Agree on what the experiment means | 5 | 1 | 4 |
+| 04 · Agree on what the experiment means | 5 | 5 | 0 |
 | 05 · Build capability around the model | 5 | 1 | 4 |
 | 06 · Generate a harness from a brief | 6 | 1 | 5 |
 | 07 · Separate the self-* ideas | 8 | 1 | 7 |
@@ -66,11 +66,11 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [04.01 · Name the objects in an experiment](../../../rsi/04_ontology_engineering/step_01_entities/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-04-01.png) |
+| [04.01 · Name the objects in an experiment](../../../rsi/04_ontology_engineering/step_01_entities/README.md) | [Selected figure](../../../rsi/assets/illustrations/name-experiment-objects-v2.png) | [Present](../../../rsi/assets/diagrams/lab-04-01.png) |
 | [04.02 · Connect data, models, and evidence](../../../rsi/04_ontology_engineering/step_02_relations/README.md) | [Selected figure](../../../rsi/assets/illustrations/graph-ontology-v1.png) | [Present](../../../rsi/assets/diagrams/lab-04-02.png) |
-| [04.03 · State rules that must always hold](../../../rsi/04_ontology_engineering/step_03_invariants/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-04-03.png) |
-| [04.04 · Catch a plausible but invalid experiment](../../../rsi/04_ontology_engineering/step_04_catch_contradictions/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-04-04.png) |
-| [04.05 · Change a definition without losing its consequences](../../../rsi/04_ontology_engineering/step_05_evolve_vocabulary/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-04-05.png) |
+| [04.03 · State rules that must always hold](../../../rsi/04_ontology_engineering/step_03_invariants/README.md) | [Selected figure](../../../rsi/assets/illustrations/three-domain-invariants-v1.png) | [Present](../../../rsi/assets/diagrams/lab-04-03.png) |
+| [04.04 · Catch a plausible but invalid experiment](../../../rsi/04_ontology_engineering/step_04_catch_contradictions/README.md) | [Selected figure](../../../rsi/assets/illustrations/semantic-contradiction-repair-v1.png) | [Present](../../../rsi/assets/diagrams/lab-04-04.png) |
+| [04.05 · Change a definition without losing its consequences](../../../rsi/04_ontology_engineering/step_05_evolve_vocabulary/README.md) | [Selected figure](../../../rsi/assets/illustrations/task-definition-availability-v1.png) | [Present](../../../rsi/assets/diagrams/lab-04-05.png) |
 
 ## 05 · Build capability around the model
 

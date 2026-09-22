@@ -1,6 +1,26 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  "04.01": {
+    "file": "name-experiment-objects-v2.png",
+    "alt": "Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.",
+    "caption": "The fitted model shown here is the constant baseline: it learns the training median. Other model families learn different parameters. This runner keeps the fitted object in memory during execution and saves its recipe and predictions; the picture does not imply a saved weights file. A fitting event is the action, and its trace is evidence of that action. Fill the blank measurement fields from the actual report, with candidate, partition, unit, and metric definition. No new fit is needed."
+},
+  "04.03": {
+    "file": "three-domain-invariants-v1.png",
+    "alt": "Three rules each have an expected passing and failing fact table: target-derived inputs, transform fitting partitions, and final-data selection. A blank six-case ledger separates observed checks from expectations; two units-extension cases are additional.",
+    "caption": "The headings state expected behavior, not recorded verdicts. The leakage case needs both the feature-use fact and its direct derivation from the target. Absence of that fact does not prove an input is valid. The supplied checker does not infer missing facts, follow arbitrary chains of derivation, or verify the table against a real run. Execute all six base cases. Then test the separate units extension with one present-unit and one missing-unit case; the original tool does not enforce that rule."
+},
+  "04.04": {
+    "file": "semantic-contradiction-repair-v1.png",
+    "alt": "Four facts produce three expected violations. A corrected table uses hr, fits its scaler on train, and selects on selection. A separate rename test preserves the leaked feature’s derivation, while failed records stay archived.",
+    "caption": "The corrected-copy icon marks the intended repair; obtain an actual verdict by rechecking the table. Run the original failure, the corrected copy, and a separate renamed copy of the original: three checks, with no fits. Rename total_users in both related facts. The lower panel isolates those two facts; the full renamed table still contains the other two violations. Keep all reports. If the bad facts described an executed experiment, changing this document would not repair its model or validate its scores."
+},
+  "04.05": {
+    "file": "task-definition-availability-v1.png",
+    "alt": "A retrospective task becomes a day-ahead prediction task. At a synthetic Day 1 09:00 prediction origin, a forecast released at 08:30 is available but Day 2 observed weather is too late. Changed availability rules affect sources, features, recipes, splits, and evidence.",
+    "caption": "Compare availability time with prediction origin, not with event time. A forecast can describe tomorrow and still be available today. These timestamps are synthetic examples in one time zone; a real source also needs release history, version identity, and the other task checks. The pinned bike data do not supply the required forecast archive. The exercise tests an availability rule and traces the impact of a changed definition; it does not train or score a day-ahead model. Preserve earlier results with their original task version."
+},
   "03.01": {
     "file": "artifact-dependencies-v2.png",
     "alt": "Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.",

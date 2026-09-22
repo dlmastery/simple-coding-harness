@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The supplied domain skill, original correct facts, and a separate teaching copy.
 
-**Budget:** Two domain checks, no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two main domain checks and one check for the renamed-feature exercise; no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ Suppose a model uses a feature called total_users. Another fact says total_users
 
 **A concrete example.** “Model uses feature total_users” can look harmless until another fact says “total_users is derived from target.” The contradiction comes from their relationship. Rename the feature to f7 in both facts and the same violation remains. A name does not remove the information carried by a column.
 
+![Four facts produce three expected violations. A corrected table uses hr, fits its scaler on train, and selects on selection. A separate rename test preserves the leaked feature’s derivation, while failed records stay archived.](../../assets/illustrations/semantic-contradiction-repair-v1.png)
+
+*The corrected-copy icon marks the intended repair; obtain an actual verdict by rechecking the table. Run the original failure, the corrected copy, and a separate renamed copy of the original: three checks, with no fits. Rename total_users in both related facts. The lower panel isolates those two facts; the full renamed table still contains the other two violations. Keep all reports. If the bad facts described an executed experiment, changing this document would not repair its model or validate its scores.*
+
+[Open the illustration at full size](../../assets/illustrations/semantic-contradiction-repair-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.](../../assets/diagrams/lab-04-04.png)
 
 *Read the diagram:* A syntactically valid table can describe an invalid experiment. Meaning rules expose the contradiction.
+
+</details>
 
 ## Run the lab
 
@@ -94,12 +105,13 @@ The agent keeps these in your lab workspace or records the original experiment p
 | Original teaching DOMAIN.md | Contains the well-formed leaked-input, final-fitted-scaler, and final-selection violations. |
 | Failure report | Names all three semantic failures. |
 | Corrected facts and recheck | Pass the supplied rules while preserving the original failed case and explaining which computations would need rerunning. |
+| Renamed copy and third check | Rename the feature in both facts in a copy of the original failure. Keep its output showing that the derivation still triggers rejection. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Rename total_users to harmless_feature. Confirm that the derivation relation still triggers rejection.
+In a separate copy of the failed table, rename total_users to harmless_feature in both related facts. Run the third check and confirm that the derivation relation still triggers rejection.
 
 ## If something goes wrong
 

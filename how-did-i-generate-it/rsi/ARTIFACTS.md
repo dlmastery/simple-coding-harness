@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Ontology illustration review](validation/ONTOLOGY-ILLUSTRATIONS.md): four selections from five outputs, ten experiment objects, paired rule tests, semantic repairs, and forecast-time availability.
+
 - [Graph-engineering illustration review](validation/GRAPH-ILLUSTRATIONS.md): six selections from eight outputs, fourth join scenario, per-fixture repair accounting, and a [corrected join schematic](visuals/rendered-gallery-v7.md).
 
 - [Loop-engineering illustration review](validation/LOOP-ILLUSTRATIONS.md): five first-attempt selections; controlled factors, feedback timing, refusal order, resumption, and matched fit budgets.

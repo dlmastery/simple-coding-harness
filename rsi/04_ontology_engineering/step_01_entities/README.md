@@ -28,9 +28,20 @@ An entity is an object you need to distinguish. A type states what kind of objec
 
 **A concrete example.** A candidate is a recipe, such as “linear model with calendar fields.” A run is an execution of that recipe on particular data with a particular seed. Two runs can use the same candidate and still have different timings or outcomes. Keeping these objects separate lets you repeat a recipe without rewriting its history.
 
+![Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.](../../assets/illustrations/name-experiment-objects-v2.png)
+
+*The fitted model shown here is the constant baseline: it learns the training median. Other model families learn different parameters. This runner keeps the fitted object in memory during execution and saves its recipe and predictions; the picture does not imply a saved weights file. A fitting event is the action, and its trace is evidence of that action. Fill the blank measurement fields from the actual report, with candidate, partition, unit, and metric definition. No new fit is needed.*
+
+[Open the illustration at full size](../../assets/illustrations/name-experiment-objects-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.](../../assets/diagrams/lab-04-01.png)
 
 *Read the diagram:* Name distinct objects before relating them. A dataset, a candidate, and a run are not interchangeable.
+
+</details>
 
 ## Run the lab
 
@@ -58,9 +69,11 @@ Ground each term in an actual artifact.
 ```text
 Use review-domain. Create VOCABULARY.md with
 object, type, plain-language definition, and
-example from the baseline. Include dataset,
-column, target role, partition, fitted
-model, recipe, metric, and measurement.
+example from the baseline. Classify ten
+objects: dataset, column, target role,
+partition, fitted model, recipe, metric,
+measurement, prediction artifact, and
+fitting event.
 ```
 
 **Observe:** The vocabulary distinguishes a rule from its result.

@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** DOMAIN.md and the bike task contract.
 
-**Budget:** No fits; six small checker cases. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Six base checker cases and two additional cases for the units extension; no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ An invariant is a condition that must hold for every accepted record in this tas
 
 **A concrete example.** Consider the sentence “the scaler was fit on all rows.” Its format is perfectly clear. Its meaning violates the experiment: selection and final rows helped determine the transformation. A schema can accept the sentence while a domain rule rejects the relationship. That is the extra job performed by the ontology check.
 
+![Three rules each have an expected passing and failing fact table: target-derived inputs, transform fitting partitions, and final-data selection. A blank six-case ledger separates observed checks from expectations; two units-extension cases are additional.](../../assets/illustrations/three-domain-invariants-v1.png)
+
+*The headings state expected behavior, not recorded verdicts. The leakage case needs both the feature-use fact and its direct derivation from the target. Absence of that fact does not prove an input is valid. The supplied checker does not infer missing facts, follow arbitrary chains of derivation, or verify the table against a real run. Execute all six base cases. Then test the separate units extension with one present-unit and one missing-unit case; the original tool does not enforce that rule.*
+
+[Open the illustration at full size](../../assets/illustrations/three-domain-invariants-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.](../../assets/diagrams/lab-04-03.png)
 
 *Read the diagram:* A rule constrains a relation. Training a transform on final data violates the declared experiment meaning.
+
+</details>
 
 ## Run the lab
 
@@ -88,13 +99,14 @@ The agent keeps these in your lab workspace or records the original experiment p
 |---|---|
 | RULES.md | States the target-derived-input, train-only-transform, and selection-versus-final invariants. |
 | Six fact tables | Give one isolated valid case and one isolated violation for each rule. |
-| RULE-TESTS.md | Pairs expected and actual verdicts, preserving all inputs and outputs. |
+| RULE-TESTS.md | Pairs expected and actual verdicts for the six base cases, preserving all inputs and outputs. |
+| Units-extension cases | Keep the extra implementation, one measurement with units, one without, and both observed verdicts separate from the base cases. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 
 ## Try one change
 
-Add a new rule that MAE measurements must include units. Ask the agent to implement and test it in a workspace extension, without pretending the original tool already checked it.
+Add a new rule that MAE measurements must include units. Ask the agent to implement it in a workspace extension and run one case with units and one without. Keep this two-case extension separate from the six base cases; the original tool does not check units.
 
 ## If something goes wrong
 

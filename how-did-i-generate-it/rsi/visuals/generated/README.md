@@ -1,14 +1,38 @@
 # Illustrations for the RSI course
 
-Seventy-nine selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Eighty-three selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 122 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 127 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 04.01
+
+![Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.](name-experiment-objects-v2.png)
+
+Selected: [name-experiment-objects-v2.png](name-experiment-objects-v2.png). Exact [prompt](name-experiment-objects-v2.prompt.md). The fitted model shown here is the constant baseline: it learns the training median. Other model families learn different parameters. This runner keeps the fitted object in memory during execution and saves its recipe and predictions; the picture does not imply a saved weights file. A fitting event is the action, and its trace is evidence of that action. Fill the blank measurement fields from the actual report, with candidate, partition, unit, and metric definition. No new fit is needed.
+
+## Lab 04.03
+
+![Three rules each have an expected passing and failing fact table: target-derived inputs, transform fitting partitions, and final-data selection. A blank six-case ledger separates observed checks from expectations; two units-extension cases are additional.](three-domain-invariants-v1.png)
+
+Selected: [three-domain-invariants-v1.png](three-domain-invariants-v1.png). Exact [prompt](three-domain-invariants-v1.prompt.md). The headings state expected behavior, not recorded verdicts. The leakage case needs both the feature-use fact and its direct derivation from the target. Absence of that fact does not prove an input is valid. The supplied checker does not infer missing facts, follow arbitrary chains of derivation, or verify the table against a real run. Execute all six base cases. Then test the separate units extension with one present-unit and one missing-unit case; the original tool does not enforce that rule.
+
+## Lab 04.04
+
+![Four facts produce three expected violations. A corrected table uses hr, fits its scaler on train, and selects on selection. A separate rename test preserves the leaked feature’s derivation, while failed records stay archived.](semantic-contradiction-repair-v1.png)
+
+Selected: [semantic-contradiction-repair-v1.png](semantic-contradiction-repair-v1.png). Exact [prompt](semantic-contradiction-repair-v1.prompt.md). The corrected-copy icon marks the intended repair; obtain an actual verdict by rechecking the table. Run the original failure, the corrected copy, and a separate renamed copy of the original: three checks, with no fits. Rename total_users in both related facts. The lower panel isolates those two facts; the full renamed table still contains the other two violations. Keep all reports. If the bad facts described an executed experiment, changing this document would not repair its model or validate its scores.
+
+## Lab 04.05
+
+![A retrospective task becomes a day-ahead prediction task. At a synthetic Day 1 09:00 prediction origin, a forecast released at 08:30 is available but Day 2 observed weather is too late. Changed availability rules affect sources, features, recipes, splits, and evidence.](task-definition-availability-v1.png)
+
+Selected: [task-definition-availability-v1.png](task-definition-availability-v1.png). Exact [prompt](task-definition-availability-v1.prompt.md). Compare availability time with prediction origin, not with event time. A forecast can describe tomorrow and still be available today. These timestamps are synthetic examples in one time zone; a real source also needs release history, version identity, and the other task checks. The pinned bike data do not supply the required forecast archive. The exercise tests an availability rule and traces the impact of a changed definition; it does not train or score a day-ahead model. Preserve earlier results with their original task version.
 
 ## Lab 03.01
 

@@ -28,9 +28,20 @@ Changing “observed weather” to “weather forecast available one day earlier
 
 **A concrete example.** In an illustrative forecasting record, the prediction is issued at 09:00 for tomorrow at noon. Tomorrow’s observed noon temperature arrives after the issue time and is unavailable to that prediction. A weather forecast issued before 09:00 might be permitted, but the pinned bike table does not contain that archive. The availability test can use labelled synthetic timestamps; it cannot create the missing real forecast data.
 
+![A retrospective task becomes a day-ahead prediction task. At a synthetic Day 1 09:00 prediction origin, a forecast released at 08:30 is available but Day 2 observed weather is too late. Changed availability rules affect sources, features, recipes, splits, and evidence.](../../assets/illustrations/task-definition-availability-v1.png)
+
+*Compare availability time with prediction origin, not with event time. A forecast can describe tomorrow and still be available today. These timestamps are synthetic examples in one time zone; a real source also needs release history, version identity, and the other task checks. The pinned bike data do not supply the required forecast archive. The exercise tests an availability rule and traces the impact of a changed definition; it does not train or score a day-ahead model. Preserve earlier results with their original task version.*
+
+[Open the illustration at full size](../../assets/illustrations/task-definition-availability-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.](../../assets/diagrams/lab-04-05.png)
 
 *Read the diagram:* A changed definition propagates to the checks and reports that depend on it. Keep the earlier version interpretable.
+
+</details>
 
 ## Run the lab
 

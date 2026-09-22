@@ -324,11 +324,11 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Pair rules with examples.** Make each rule testable.
 2. **Execute the examples.** Verify the rules have consequences.
 
-**Additional change:** Add a new rule that MAE measurements must include units. Ask the agent to implement and test it in a workspace extension, without pretending the original tool already checked it.
+**Additional change:** Add a new rule that MAE measurements must include units. Ask the agent to implement it in a workspace extension and run one case with units and one without. Keep this two-case extension separate from the six base cases; the original tool does not check units.
 
 **Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-03).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The mapped folder contains an invariants note, not six separately retained case inputs and verdicts. The six base cases and two units-extension cases remain to be demonstrated individually.
 
 **Acceptance to verify:** Every invariant has a demonstrated negative case. Unknown relations are not silently accepted.
 
@@ -337,11 +337,11 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 1. **Create the contradiction.** Make the error about meaning, not syntax.
 2. **Repair the record.** Correct facts without erasing the failure.
 
-**Additional change:** Rename total_users to harmless_feature. Confirm that the derivation relation still triggers rejection.
+**Additional change:** In a separate copy of the failed table, rename total_users to harmless_feature in both related facts. Run the third check and confirm that the derivation relation still triggers rejection.
 
 **Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-04).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Original and corrected tables and checks are retained. A separate consistently renamed copy and its third check remain unverified in this mapped folder.
 
 **Acceptance to verify:** The original table fails with three concrete reasons. The corrected copy passes the supplied rules. The report distinguishes correcting documentation from rerunning invalid computation.
 

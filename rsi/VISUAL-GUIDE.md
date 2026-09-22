@@ -256,6 +256,16 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 03.06: Read the plan, data flow, and trace](03_graph_engineering/step_06_three_views/README.md).
 
+## Name the object before you claim it improved
+
+![Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.](assets/illustrations/name-experiment-objects-v2.png)
+
+*The fitted model shown here is the constant baseline: it learns the training median. Other model families learn different parameters. This runner keeps the fitted object in memory during execution and saves its recipe and predictions; the picture does not imply a saved weights file. A fitting event is the action, and its trace is evidence of that action. Fill the blank measurement fields from the actual report, with candidate, partition, unit, and metric definition. No new fit is needed.*
+
+[Open the illustration at full size](assets/illustrations/name-experiment-objects-v2.png).
+
+[Lab 04.01: Name the objects in an experiment](04_ontology_engineering/step_01_entities/README.md).
+
 ## Workflow and domain meaning
 
 ![A workflow graph routes valid data toward fitting and invalid data toward repair. Separate domain relations say the scaler is fit on training data, search selects on selection data, and the model is measured by MAE.](assets/illustrations/graph-ontology-v1.png)
@@ -265,6 +275,36 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 [Open the illustration at full size](assets/illustrations/graph-ontology-v1.png).
 
 [Lab 04.02: Connect data, models, and evidence](04_ontology_engineering/step_02_relations/README.md).
+
+## Pair each rule with a case that breaks it
+
+![Three rules each have an expected passing and failing fact table: target-derived inputs, transform fitting partitions, and final-data selection. A blank six-case ledger separates observed checks from expectations; two units-extension cases are additional.](assets/illustrations/three-domain-invariants-v1.png)
+
+*The headings state expected behavior, not recorded verdicts. The leakage case needs both the feature-use fact and its direct derivation from the target. Absence of that fact does not prove an input is valid. The supplied checker does not infer missing facts, follow arbitrary chains of derivation, or verify the table against a real run. Execute all six base cases. Then test the separate units extension with one present-unit and one missing-unit case; the original tool does not enforce that rule.*
+
+[Open the illustration at full size](assets/illustrations/three-domain-invariants-v1.png).
+
+[Lab 04.03: State rules that must always hold](04_ontology_engineering/step_03_invariants/README.md).
+
+## Changing the record does not repair an invalid run
+
+![Four facts produce three expected violations. A corrected table uses hr, fits its scaler on train, and selects on selection. A separate rename test preserves the leaked feature’s derivation, while failed records stay archived.](assets/illustrations/semantic-contradiction-repair-v1.png)
+
+*The corrected-copy icon marks the intended repair; obtain an actual verdict by rechecking the table. Run the original failure, the corrected copy, and a separate renamed copy of the original: three checks, with no fits. Rename total_users in both related facts. The lower panel isolates those two facts; the full renamed table still contains the other two violations. Keep all reports. If the bad facts described an executed experiment, changing this document would not repair its model or validate its scores.*
+
+[Open the illustration at full size](assets/illustrations/semantic-contradiction-repair-v1.png).
+
+[Lab 04.04: Catch a plausible but invalid experiment](04_ontology_engineering/step_04_catch_contradictions/README.md).
+
+## A new prediction time creates a new task contract
+
+![A retrospective task becomes a day-ahead prediction task. At a synthetic Day 1 09:00 prediction origin, a forecast released at 08:30 is available but Day 2 observed weather is too late. Changed availability rules affect sources, features, recipes, splits, and evidence.](assets/illustrations/task-definition-availability-v1.png)
+
+*Compare availability time with prediction origin, not with event time. A forecast can describe tomorrow and still be available today. These timestamps are synthetic examples in one time zone; a real source also needs release history, version identity, and the other task checks. The pinned bike data do not supply the required forecast archive. The exercise tests an availability rule and traces the impact of a changed definition; it does not train or score a day-ahead model. Preserve earlier results with their original task version.*
+
+[Open the illustration at full size](assets/illustrations/task-definition-availability-v1.png).
+
+[Lab 04.05: Change a definition without losing its consequences](04_ontology_engineering/step_05_evolve_vocabulary/README.md).
 
 ## Save the state. Check the handoff.
 

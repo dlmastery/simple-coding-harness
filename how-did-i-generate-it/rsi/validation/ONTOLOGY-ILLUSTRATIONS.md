@@ -25,3 +25,14 @@ The user requested confirmation that all work was uploaded. The preceding graph 
 | task-definition-availability-v1.png | exec-e9df32c2-92cf-4425-bea8-5df4a226846d.png | Yes |
 
 Remaining work: integrate images and explanatory captions into lessons and gallery; register all five versions in the manifest; rebuild README/BRIEF outputs from the modified lesson source; update coverage and activity inventories; run publication checks. Do not count these four figures as published lab coverage yet. The corrected-table icon indicates the intended repair, not evidence of an executed passing check. The weather timestamps are synthetic teaching examples, not an available forecast archive.
+
+
+## Selection and publication review
+
+All four intended selections were inspected again at full size before integration. The ten-object figure now shows the actual prediction headers: source_row, actual, predicted, and hour. It identifies the constant baseline model as an in-memory object rather than a retained weights file. Three paired invariants show expected cases, with an empty actual-results ledger. The contradiction figure preserves all four bad facts and three violations; its caption clarifies the intended-correction icon and the separate rename check. The availability example compares release time to origin in one zone and explicitly lacks a real forecast archive. No additional generation was needed.
+
+All four selected assets are embedded in their lesson READMEs, gallery, and visual guide, with alt text, teaching captions, and full-size links. The existing 04.02 figure is preserved. The generated briefs reflect the object-list and budget corrections. Added output guidance for the two units-extension cases and the renamed original table.
+
+Inspected the mapped 04.03 evidence directory: it contains an invariants note and progress file, not six individual fixtures and verdicts. Inspected 04.04 original and corrected checks: the expected three failures and corrected pass are present, but a separate renamed copy and third check are absent from that folder. The activity inventory now names these gaps instead of implying the old run covered the expanded instructions.
+
+Publication checks passed: 101 lessons, 3,986 local links, zero problems. The manifest records 127 generated versions and verifies all 83 published image copies by hash. Coverage is 79/101 mapped labs, with 22 remaining. The activity inventory remains 63 related mappings and 38 unmapped labs; these counts are not acceptance results. No new model fits, full activity runs, learner tests, or hosted-page rendering checks were performed.
