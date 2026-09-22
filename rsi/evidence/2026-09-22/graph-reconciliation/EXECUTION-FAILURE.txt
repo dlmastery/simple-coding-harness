@@ -1,0 +1,12 @@
+Observed initial parent exit: 1.
+Command: .venv/Scripts/python.exe -B how-did-i-generate-it/rsi/scripts/run-graph-reconciliation.py
+
+Traceback (most recent call last):
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\run-graph-reconciliation.py", line 207, in <module>
+    main()
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\run-graph-reconciliation.py", line 171, in main
+    old_value = altered[0]['prediction']
+                ~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'prediction'
+
+The inspected file header is source_row,actual,predicted,hour. This text preserves the tool-observed failure; it is not a subprocess-generated log file. Thirteen child command records exist. No guard command or altered file had been produced. Do not rerun the original main routine.

@@ -1,0 +1,5 @@
+# Prediction dependency
+
+Expected SHA256: 0004513ae666f36bcf4987e2b36944f1c4a8d79bf949ef09b788d0b95e6af93c
+Observed SHA256: 6fcf698ad8f46bb378b79f78a3c3368a8a85252b597ae6847b1d2551c50cf7f8
+Verdict: REFUSED: stale report for substituted prediction bytes

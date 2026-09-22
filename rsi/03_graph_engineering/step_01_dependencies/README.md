@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Draw each action as a node. An arrow from inspect data to validate split means the latter needs the former’s output. A directed acyclic graph, or DAG, has directed arrows and no cycle. A loop is a cycle, so a workflow containing a retry is not a DAG unless the retry is represented as a separate bounded operation.
 
-**A concrete example.** The fit action produces predictions.csv. The metric check consumes that file. Drawing fit → check records a dependency, not a preference about page layout. Moving the check earlier leaves it without its required input. Two actions with no shared dependency may be reordered, but only if they also avoid conflicting writes.
+**A concrete example.** The fit action produces predictions.csv; the metric check consumes it. The [four ordering cases](../../evidence/2026-09-22/graph-reconciliation/README.md) accept the normal order and refuse check-before-fit. Removing inspect → split makes splitting before inspection pass the weakened graph. That pass exposes an incomplete dependency specification: the checker cannot invent the missing data-quality or time-coverage information. This activity checks order without fitting another model.
 
 ![Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.](../../assets/illustrations/artifact-dependencies-v2.png)
 

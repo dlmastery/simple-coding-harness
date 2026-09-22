@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\scripts\\run-graph-reconciliation.py', 'guard', 'altered']
+Start: 2026-09-22T08:26:05.956548+00:00
+End: 2026-09-22T08:26:06.091850+00:00
+Exit: 2
+Expected: 2
+Wall seconds: 0.13061359999119304
+
+REFUSED: changed prediction dependency

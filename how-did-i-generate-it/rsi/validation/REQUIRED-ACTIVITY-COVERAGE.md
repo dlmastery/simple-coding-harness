@@ -220,9 +220,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the inspect-to-split edge in a copy. Explain what important information the split designer could now miss.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-01).
+**Evidence:** [Executed graph orders, routes, bounded repairs and selective recovery](../../../rsi/evidence/2026-09-22/graph-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Four generated ordering checks retain normal acceptance, premature-check refusal, and the missing-edge contrast, with artifact-labelled source and an inspected render. The checker covers declared complete permutations, not arbitrary graph validation or actual node scheduling. No model fit or learner response is implied.
 
 **Acceptance to verify:** The graph has explicit edges and a valid order. The checker rejects the invalid order. The diagram labels artifacts rather than implying unexplained communication.
 
@@ -233,9 +233,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Change “unknown means stop” to “unknown means pass” in a labelled copy. Show which faulty input is now accepted.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-02).
+**Evidence:** [Executed graph orders, routes, bounded repairs and selective recovery](../../../rsi/evidence/2026-09-22/graph-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Three safe fixture routes and one explicitly unsafe unknown-to-pass route execute with saved verdicts and exits. The absent path stays absent; routing readiness never invokes fitting. Target presence is a narrow fixture check, not comprehensive data validation; learner responses remain unattempted.
 
 **Acceptance to verify:** All three states are exercised. No invalid or unknown input reaches the fit action. Fixture mutations stay outside source data.
 
@@ -259,9 +259,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the failure feedback from the repair input. Predict how that could waste attempts even with a valid stop rule.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-04).
+**Evidence:** [Executed graph orders, routes, bounded repairs and selective recovery](../../../rsi/evidence/2026-09-22/graph-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The current candidate-ID example now has two executed fixtures, all report versions, five checks, three reserved repair slots and a fixed validator identity. The no-feedback extension is an unexecuted prediction, not a causal experiment. These fixed edits do not establish autonomous repair or student understanding.
 
 **Acceptance to verify:** Both traces end. Attempts are monotonic and bounded. The verifier rule is unchanged between checks.
 
@@ -272,9 +272,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Try reusing a metric report after substituting a prediction file. Require the version check to detect the stale dependency.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-05).
+**Evidence:** [Executed graph orders, routes, bounded repairs and selective recovery](../../../rsi/evidence/2026-09-22/graph-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** An actual failing report command, separate prediction check, successful report recovery, unchanged one-fit source ledger and two dependency guards are retained. A one-cell prediction change is refused; changed-split descendants are computed but not rerun. The parent field-name error and stateful continuation are preserved. No new fit, independent-agent or learner assessment occurred.
 
 **Acceptance to verify:** The successful recovery does not create an extra fit. The changed-split case invalidates all dependent evidence.
 

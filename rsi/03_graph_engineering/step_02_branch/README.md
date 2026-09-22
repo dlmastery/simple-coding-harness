@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A branch is a decision with explicit conditions. If required fields are absent, stop before fitting. If data checks pass, proceed. If the evidence is incomplete, report uncertainty. Do not route an unknown condition into the success branch by default.
 
-**A concrete example.** A sample containing cnt can pass the required-target check. A sample missing cnt is invalid. A missing check report is unknown: it supplies no verdict at all. Both invalid and unknown should stop this route, but for different reasons. Recording those reasons tells the next step whether to repair data or obtain missing evidence.
+**A concrete example.** A sample containing cnt passes the declared target-presence check. A copy missing cnt is invalid. An absent evidence file is unknown. The [executed routes](../../evidence/2026-09-22/graph-reconciliation/03-02/WORKFLOW.md) stop invalid and unknown inputs for different reasons. A labelled unsafe policy changes unknown to pass and marks the same absent input ready for modeling. It has added permission without evidence. No route in this exercise actually fits a model.
 
 ![Three expected routes send a passing fixture to modeling readiness, a copy missing cnt to input repair, and an absent check result to evidence collection. The route ledger is blank until execution.](../../assets/illustrations/valid-invalid-unknown-routes-v1.png)
 

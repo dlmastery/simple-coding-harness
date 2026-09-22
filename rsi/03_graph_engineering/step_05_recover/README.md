@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 If report formatting fails, valid predictions need not be recomputed. If the dataset changes, downstream transforms, model results, and reports may be stale. Recovery follows the dependency graph and artifact versions. A successful file is reusable only when its inputs still match.
 
-**A concrete example.** A report writer crashes after predictions are saved and checked. Rewriting the report needs those existing outputs, so another fit adds no necessary evidence. Change the split instead, and the fitted recipe’s training membership and evaluation membership change. The old downstream results cannot simply be relabelled as belonging to the new split.
+**A concrete example.** The [report-recovery walkthrough](../../evidence/2026-09-22/graph-reconciliation/README.md) deliberately fails a report writer, then rechecks and summarizes the saved predictions. Prediction and fit-ledger bytes stay unchanged; no new fit runs. Changing one prediction from 109 to 110 in a copy makes the old report fail its dependency check. Changing the split instead invalidates the fit and its downstream evidence. Preserve the old results under their original inputs.
 
 ![A report-format failure affects only the report when upstream versions remain valid. A changed split makes fitting, predictions, metric checks, and reports stale for the new version.](../../assets/illustrations/recover-affected-descendants-v1.png)
 

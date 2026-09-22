@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A cycle returns to an earlier action. Its state must include attempts used and the last failure. A repair can change the failing artifact, but it cannot redefine the required fields. The graph exits on success or when the original budget is exhausted.
 
-**A concrete example.** An illustrative report lacks a required candidate ID. Repair 1 adds that ID, so rechecking succeeds. In a second fixture, both repairs change only the title. The ID remains missing; the graph exits with failure after repair 2. Both runs terminate correctly, although only one repairs the artifact.
+**A concrete example.** In the [executed report fixtures](../../evidence/2026-09-22/graph-reconciliation/03-04/WORKFLOW.md), a report lacks the required candidate ID. Repair 1 adds it and rechecking succeeds. In the second fixture, two repairs change only the title. The ID remains missing, so the controller stops after repair 2. All report versions and reserved slots are saved. Both runs terminate correctly, although only one repairs the artifact.
 
 ![A fixed candidate-ID rule checks a report. Invalid reports are repaired only while fewer than two repairs have been used, then rechecked; valid and exhausted paths stop separately. Two fixture examples use one and two repairs.](../../assets/illustrations/bounded-repair-cycle-v1.png)
 

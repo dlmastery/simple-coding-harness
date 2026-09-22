@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\scripts\\run-graph-reconciliation.py', 'route', 'unsafe-unknown']
+Start: 2026-09-22T08:24:57.543623+00:00
+End: 2026-09-22T08:24:57.644204+00:00
+Exit: 0
+Expected: 0
+Wall seconds: 0.11037690000375733
+
+unknown: ready for modeling; no fit executed

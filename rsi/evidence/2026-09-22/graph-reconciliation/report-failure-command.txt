@@ -1,0 +1,14 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\scripts\\run-graph-reconciliation.py', 'report', 'fail']
+Start: 2026-09-22T08:24:57.961159+00:00
+End: 2026-09-22T08:24:58.077344+00:00
+Exit: 1
+Expected: 1
+Wall seconds: 0.11541960001341067
+
+Traceback (most recent call last):
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\run-graph-reconciliation.py", line 206, in <module>
+    raise SystemExit(handlers[sys.argv[1]](sys.argv[2]))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\run-graph-reconciliation.py", line 120, in report_case
+    raise OSError('Declared teaching failure: report renderer unavailable')
+OSError: Declared teaching failure: report renderer unavailable
