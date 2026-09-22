@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,neighbors-0-quantile,ok,MAE,124.84115820756158,0.7729943130640952,0.007502099993871525,0.01490199999534525,1.8000944000086747,exit=0

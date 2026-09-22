@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,forest-0-quantile,ok,MAE,92.8666015625,0.5750135284875441,0.3474826000165194,0.01135640000575222,1.9456530999741517,exit=0

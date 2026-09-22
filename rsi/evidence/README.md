@@ -6,6 +6,8 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Why are so many predictive gains zero? | [288-fit development pilot with measured search curves](2026-09-22/headroom-pilot/README.md) |
+| Do pipeline changes help, and what do they cost? | [72 additional operator attempts, one timeout and two fixed controls](2026-09-22/pipeline-operator-pilot/README.md) |
 | Did the builder produce a usable harness, and what still needs checking? | [Generation identities, fresh refusals, request-bound evidence and wine transfer](2026-09-22/builder-reconciliation/README.md) |
 | What changed: the model, procedure, metric or prediction task? | [Ten objects, precise claims, domain-check limits and task-change impacts](2026-09-22/ontology-system/README.md) |
 | Can a graph pass while its specification is incomplete? | [Missing-edge and unknown-route counterexamples, repair limits and report recovery](2026-09-22/graph-reconciliation/README.md) |

@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+wine,kernel-0-quantile,ok,MAE,0.49114204498009306,0.8333740018545197,0.03281330000027083,0.014554800000041723,1.8141367999778595,exit=0

@@ -1,0 +1,49 @@
+recipe,family,parameters
+linear-0,linear,{'alpha': 1}
+forest-0,forest,"{'max_depth': None, 'min_samples_leaf': 1, 'max_features': 1.0}"
+boost-0,boost,"{'max_leaf_nodes': 31, 'learning_rate': 0.1, 'l2_regularization': 0}"
+kernel-0,kernel,"{'C': 1, 'gamma': 'scale'}"
+neighbors-0,neighbors,"{'n_neighbors': 5, 'weights': 'distance'}"
+extra-0,extra,"{'max_depth': None, 'min_samples_leaf': 1, 'max_features': 1.0}"
+linear-1,linear,{'alpha': 0.01}
+forest-1,forest,"{'max_depth': None, 'min_samples_leaf': 3, 'max_features': 0.7}"
+boost-1,boost,"{'max_leaf_nodes': 15, 'learning_rate': 0.1, 'l2_regularization': 1}"
+kernel-1,kernel,"{'C': 10, 'gamma': 'scale'}"
+neighbors-1,neighbors,"{'n_neighbors': 3, 'weights': 'distance'}"
+extra-1,extra,"{'max_depth': None, 'min_samples_leaf': 3, 'max_features': 0.7}"
+linear-2,linear,{'alpha': 0.1}
+forest-2,forest,"{'max_depth': 8, 'min_samples_leaf': 1, 'max_features': 1.0}"
+boost-2,boost,"{'max_leaf_nodes': 7, 'learning_rate': 0.1, 'l2_regularization': 1}"
+kernel-2,kernel,"{'C': 100, 'gamma': 'scale'}"
+neighbors-2,neighbors,"{'n_neighbors': 11, 'weights': 'distance'}"
+extra-2,extra,"{'max_depth': 8, 'min_samples_leaf': 1, 'max_features': 1.0}"
+linear-3,linear,{'alpha': 10}
+forest-3,forest,"{'max_depth': 8, 'min_samples_leaf': 5, 'max_features': 0.7}"
+boost-3,boost,"{'max_leaf_nodes': 63, 'learning_rate': 0.1, 'l2_regularization': 1}"
+kernel-3,kernel,"{'C': 0.1, 'gamma': 'scale'}"
+neighbors-3,neighbors,"{'n_neighbors': 25, 'weights': 'distance'}"
+extra-3,extra,"{'max_depth': 8, 'min_samples_leaf': 5, 'max_features': 0.7}"
+linear-4,linear,{'alpha': 100}
+forest-4,forest,"{'max_depth': 4, 'min_samples_leaf': 1, 'max_features': 1.0}"
+boost-4,boost,"{'max_leaf_nodes': 15, 'learning_rate': 0.03, 'l2_regularization': 0}"
+kernel-4,kernel,"{'C': 1, 'gamma': 0.01}"
+neighbors-4,neighbors,"{'n_neighbors': 5, 'weights': 'uniform'}"
+extra-4,extra,"{'max_depth': 4, 'min_samples_leaf': 1, 'max_features': 1.0}"
+linear-5,linear,{'alpha': 1000}
+forest-5,forest,"{'max_depth': 4, 'min_samples_leaf': 5, 'max_features': 0.7}"
+boost-5,boost,"{'max_leaf_nodes': 31, 'learning_rate': 0.03, 'l2_regularization': 1}"
+kernel-5,kernel,"{'C': 10, 'gamma': 0.01}"
+neighbors-5,neighbors,"{'n_neighbors': 11, 'weights': 'uniform'}"
+extra-5,extra,"{'max_depth': 4, 'min_samples_leaf': 5, 'max_features': 0.7}"
+linear-6,linear,{'alpha': 0.001}
+forest-6,forest,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 1.0}"
+boost-6,boost,"{'max_leaf_nodes': 7, 'learning_rate': 0.3, 'l2_regularization': 1}"
+kernel-6,kernel,"{'C': 100, 'gamma': 0.01}"
+neighbors-6,neighbors,"{'n_neighbors': 25, 'weights': 'uniform'}"
+extra-6,extra,"{'max_depth': None, 'min_samples_leaf': 10, 'max_features': 1.0}"
+linear-7,linear,{'alpha': 10000}
+forest-7,forest,"{'max_depth': None, 'min_samples_leaf': 1, 'max_features': 0.3}"
+boost-7,boost,"{'max_leaf_nodes': 31, 'learning_rate': 0.1, 'l2_regularization': 10}"
+kernel-7,kernel,"{'C': 10, 'gamma': 1.0}"
+neighbors-7,neighbors,"{'n_neighbors': 51, 'weights': 'distance'}"
+extra-7,extra,"{'max_depth': None, 'min_samples_leaf': 1, 'max_features': 0.3}"

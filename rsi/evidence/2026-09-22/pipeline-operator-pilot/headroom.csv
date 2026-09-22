@@ -1,0 +1,13 @@
+task,control,budget,selected,score,reference,reference_score,normalized_headroom
+bike,original_diverse,8,extra-0,87.1242578125,extra-0,87.1242578125,0.0
+bike,expanded_diverse,8,extra-0,87.1242578125,extra-0,87.1242578125,0.0
+wine,original_diverse,8,kernel-0,0.4862314202091988,kernel-0,0.4862314202091988,0.0
+wine,expanded_diverse,8,kernel-0,0.4862314202091988,kernel-0,0.4862314202091988,0.0
+cancer,original_diverse,8,kernel-0,0.9659810777457836,kernel-0,0.9659810777457836,0.0
+cancer,expanded_diverse,8,kernel-0,0.9659810777457836,kernel-0,0.9659810777457836,0.0
+digits,original_diverse,8,kernel-0,0.977676684153628,extra-7,0.981920526201348,0.0047153800530223
+digits,expanded_diverse,8,kernel-0,0.977676684153628,extra-7,0.981920526201348,0.0047153800530223
+friedman,original_diverse,8,boost-0,1.1420921592547133,boost-2,1.1101057759199988,0.007683677649352183
+friedman,expanded_diverse,8,boost-0,1.1420921592547133,boost-2,1.1101057759199988,0.007683677649352183
+interactions,original_diverse,8,boost-0,0.9094132817537072,extra-0-pairwise,0.9291424887169568,0.0394584139264991
+interactions,expanded_diverse,8,boost-0,0.9094132817537072,extra-0-pairwise,0.9291424887169568,0.0394584139264991
