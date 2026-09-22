@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-98 labs have mapped related author-execution evidence; 3 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+99 labs have mapped related author-execution evidence; 2 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1317,9 +1317,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove one host capability, such as command execution, and identify which lesson outcomes can no longer be completed.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Two-task smoke runs and a declared-capability refusal](../../../rsi/evidence/2026-09-21/capstone-portability/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Bike regression and wine classification execute through one canonical skill and shared host; result checks, both recalls, new-process comparison, four invalid requests and two capability fixtures are retained. This tests existing task adapters, not transfer of the revised improver. Another real agent, native discovery, actual permission removal, cluster cancellation/resume, total inference costs and learner assessment remain untested. Public inspection exposes final-data summaries, not final performance.
 
 **Acceptance to verify:** Every support claim corresponds to a run. Task transfer, agent compatibility, and backend compatibility are not merged into one label.
 

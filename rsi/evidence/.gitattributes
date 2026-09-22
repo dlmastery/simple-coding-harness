@@ -2,3 +2,6 @@
 ** -text whitespace=cr-at-eol
 # Matplotlib emits trailing spaces inside SVG path data; retain the raw output.
 *.svg whitespace=-blank-at-eol,cr-at-eol
+# Original UCI descriptions contain trailing spaces; retain their hashed bytes.
+2026-09-21/capstone-portability/source/Readme.txt whitespace=-blank-at-eol,cr-at-eol
+2026-09-21/capstone-portability/source/winequality.names whitespace=-blank-at-eol,cr-at-eol

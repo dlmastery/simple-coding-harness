@@ -1,0 +1,11 @@
+source,destination,sha256
+"how-did-i-generate-it/rsi/validation/CAPSTONE-PORTABILITY-PROTOCOL.md","PROTOCOL.md","4f6dde5e081e46113750416e1ad9e4162dbaa3a62eb3f14b737a9361ecbf1b08"
+"rsi/skills/run-ml-experiment/SKILL.md","RUN-SKILL.md","6ad795d14356e7324b0caf04224b26267f4a82c1068687e79bd34a644dafda05"
+"rsi/skills/rsi-tutor/SKILL.md","TUTOR-SKILL.md","0636bd140659b2b35b6acf0cfc60df2c6a0272e81cf1bca44be7a9fe41d151d3"
+"rsi/examples/bike-demand/DATA-CARD.md","BIKE-DATA-CARD.md","47ecf2b007063bdb970ca6a65b6526059422f61b1b6e15fd2f2ab19bad6003c2"
+"rsi/examples/wine-quality/DATA-CARD.md","WINE-DATA-CARD.md","e13456b76bb45defdd5a94835ac17d651b18d23d5d5341417bedddb9c40b1177"
+"rsi/tools/lab.py","sources/lab.py","d69d3fbd8a4ace3e0332f4dfbc9a2648f87f858867229db63bc854f7810120a0"
+"rsi/tools/check_result.py","sources/check_result.py","7fefc839f2b9ed85b0dc56a9076c63ed8759f999e3721e2a16c1e03e52d2ff61"
+"rsi/tools/requirements.txt","sources/requirements.txt","49c305eedbf024ffb36e8641507bd443499f2d0afb7e3dd6729fd3645c6f145c"
+"rsi/examples/bike-demand/source/hour.csv","sources/hour.csv","e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"
+"rsi/examples/wine-quality/source/winequality-red.csv","sources/winequality-red.csv","4a402cf041b025d4566d954c3b9ba8635a3a8a01e039005d97d6a710278cf05e"

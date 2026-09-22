@@ -1,0 +1,15 @@
+check,status,detail
+how-did-i-generate-it/rsi/validation/CAPSTONE-PORTABILITY-PROTOCOL.md,PASS,Original source and saved snapshot still match the before-run identity
+rsi/skills/run-ml-experiment/SKILL.md,PASS,Original source and saved snapshot still match the before-run identity
+rsi/skills/rsi-tutor/SKILL.md,PASS,Original source and saved snapshot still match the before-run identity
+rsi/examples/bike-demand/DATA-CARD.md,PASS,Original source and saved snapshot still match the before-run identity
+rsi/examples/wine-quality/DATA-CARD.md,PASS,Original source and saved snapshot still match the before-run identity
+rsi/tools/lab.py,PASS,Original source and saved snapshot still match the before-run identity
+rsi/tools/check_result.py,PASS,Original source and saved snapshot still match the before-run identity
+rsi/tools/requirements.txt,PASS,Original source and saved snapshot still match the before-run identity
+rsi/examples/bike-demand/source/hour.csv,PASS,Original source and saved snapshot still match the before-run identity
+rsi/examples/wine-quality/source/winequality-red.csv,PASS,Original source and saved snapshot still match the before-run identity
+bike budget and policy,PASS,One successful charged fit; identical canonical policy snapshot; no active lock
+bike score,PASS,Independent arithmetic agrees with the existing result checker and ledger
+wine budget and policy,PASS,One successful charged fit; identical canonical policy snapshot; no active lock
+wine score,PASS,Independent arithmetic agrees with the existing result checker and ledger

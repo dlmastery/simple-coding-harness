@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Task transfer changes the scientific problem. Agent portability changes the host interpreting skills and operating tools. Compute portability changes execution resources. Test these dimensions separately so one successful run is not mistaken for universal support.
 
-**A concrete example.** The same skill works on bike and wine in one coding agent. That is evidence about task transfer under that host. It does not test another agent’s skill loader or a cluster scheduler. A compatibility matrix keeps those unexecuted combinations visible instead of assigning one global “portable” label.
+**A concrete example.** The saved [two-task author check](../../evidence/2026-09-21/capstone-portability/README.md) runs the same skill and shared tool on bike regression and red-wine classification in one Codex file-reading session. Both prediction checks pass. Wine recall is about 0.734 for class zero and 0.756 for class one. Extra fits and a changed budget are refused. This tests two existing task adapters on one host; it does not test another agent, a cluster, or transfer of the previous capstone’s revised improver. A separate commandless-profile fixture is refused without changing actual host permissions.
 
 ![Three panels vary the task, agent, or compute backend while holding the other two dimensions fixed. An empty ledger distinguishes planned, generated, inspected, and executed evidence.](../../assets/illustrations/capstone-portability-v1.png)
 

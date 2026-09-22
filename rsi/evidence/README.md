@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Does one successful task prove portability? | [Two local task paths, capability refusal and explicitly untested hosts](2026-09-21/capstone-portability/README.md) |
 | Does a changed improver actually select a different model? | [Eight-fit capstone, later rule use, frozen choices and final evaluation](2026-09-21/capstone-recursion/README.md) |
 | Does a new prediction brief produce a working package? | [White-wine regression baseline, clean export, and meaningful refusals](2026-09-21/capstone-harness/README.md) |
 | What evidence supports a research label or announcement? | [Two frameworks, three local cases, and one primary claim trail](2026-09-21/research-reading/README.md) |
