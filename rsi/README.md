@@ -14,6 +14,8 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 **Begin with [Start here](START-HERE.md).** You use ordinary language and Markdown. The coding agent writes the code, configuration, tests, and launch files.
 
+**What the results currently show:** this course has executed mechanism lessons and small author-guided comparisons. It has **not demonstrated general, autonomous recursive self-improvement**. The Dream-RSI exercise retained its baseline; the positive recursive capstone uses an author-written correction to a weak ranking rule. Read the [results diagnosis and benchmark repair plan](../how-did-i-generate-it/rsi/validation/RSI-RESULTS-DIAGNOSIS-2026-09-22.md) before interpreting the original near-zero result table or the newer examples as evidence of a successful RSI system.
+
 Use the [teaching roadmap](TEACHING-ROADMAP.md) to plan a short orientation, the core course, or the full masterclass. It includes session plans, readiness checks, and capstone milestones. Keep the [glossary](GLOSSARY.md) nearby for plain-language definitions, examples, and distinctions that are easy to confuse.
 
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
