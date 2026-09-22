@@ -19,9 +19,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Change the request to “predict tomorrow at noon.” Before training anything, list which inputs would now be unknown. Save the changed brief as a separate task.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/00-01).
+**Evidence:** [Original starting activities plus checked missing steps](../../../rsi/evidence/2026-09-22/start-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The original retrospective brief and source inspection are supplemented by all eight required rows, field explanations and a separate tomorrow-noon brief. No forecast data or model is invented. Learner interpretation remains unattempted.
 
 **Acceptance to verify:** TASK.md excludes casual and registered from prediction inputs. It states rentals per hour as the target unit and distinguishes observed weather from a forecast.
 
@@ -32,9 +32,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Ask the agent what it could still do if command execution were disabled. Separate explanation from completion of the experiment.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/00-02).
+**Evidence:** [Original starting activities plus checked missing steps](../../../rsi/evidence/2026-09-22/start-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The actual original data-inspection command, source check, environment report and plot are retained. This pass visually inspects that plot and supplies the disabled-command analysis. Permissions were not actually removed; native other-agent and learner checks remain untested.
 
 **Acceptance to verify:** CAPABILITIES.md identifies the runtime. DATA-REPORT.md and a readable chart exist. Source checksum verification passes. The report states that public partitions are not secret.
 
@@ -45,9 +45,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Without another fit, compare an error at a quiet hour with one at a busy hour. Explain why a single prediction can be wrong in different directions.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/00-03).
+**Evidence:** [Original starting activities plus checked missing steps](../../../rsi/evidence/2026-09-22/start-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** The original one-fit ledger and commands are linked to three explicit errors and a quiet/busy contrast from saved predictions. Zero new fits. Deliberately selected extreme rows illustrate directions, not typical error rates; learner responses remain unattempted.
 
 **Acceptance to verify:** There is exactly one successful trial. The prediction is constant. The reported full MAE matches a recomputation over saved predictions. No final evaluation has run.
 
@@ -58,9 +58,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Imagine the metric matches but the predictions came from training rows. Explain why an arithmetic check would pass while the scientific claim fails.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/00-04).
+**Evidence:** [Original starting activities plus checked missing steps](../../../rsi/evidence/2026-09-22/start-reconciliation/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A generated checker validates the original report and refuses the score-10 copy with nonzero exit. Complete row membership, source targets, candidate records and six-decimal tolerance are checked; prediction bytes stay unchanged. Wrong-partition arithmetic is explained. The evaluator shares author access, and learner assessment remains unattempted.
 
 **Acceptance to verify:** EVIDENCE.md links the actual files. The correct report passes and the altered summary fails. The report does not claim an independent evaluator or RSI.
 
@@ -192,9 +192,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Prepare a labelled teaching checkpoint with a running trial whose process has exited. Mark it interrupted and preserve its spent attempt before continuing.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/02-05).
+**Evidence:** [Original orderly resume plus actual stale-worker recovery](../../../rsi/evidence/2026-09-22/interrupted-attempt/README.md).
 
-**Closure gap:** A clean stop between commands was resumed. Forced process interruption and stale-lock recovery were not exercised.
+**Closure gap:** The earlier three-fit sequence retains its first result and budget. A separate admitted no-training fixture leaves a stale worker record; OS absence checks, two pre-fit refusals, manual reconciliation, one real trial-002 fit and nine invariants are retained. Initial launcher-PID and expected-exit errors are preserved, not rerun away. This tests stale-record recovery, not optimizer checkpoint resumption, an independently validated termination driver, a fresh agent or learner assessment.
 
 **Acceptance to verify:** Candidate IDs are unique. The first result survives. The restart does not replenish attempts. A stale lock is inspected before removal.
 

@@ -1,0 +1,8 @@
+Evidence: 4358 selection rows; MAE 159.94791188618632 rentals per hour
+Report: RESULT.md; claimed MAE 159.947912
+PASS: report matches the saved prediction evidence
+
+Exit: 0
+Expected: 0
+Seconds: 0.1596302
+Error: none

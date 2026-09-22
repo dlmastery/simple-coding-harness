@@ -44,7 +44,7 @@ L('00.04','check_the_evidence','Check the evidence behind the answer',{
  build:'A short evidence report that ties a claim to predictions, data roles, and a reproducible calculation.',
  why:'A polished report can describe a run that never happened or claim more than the run establishes.',
  start:'The one-attempt baseline from 00.03. Copy its artifacts as inputs; do not overwrite that run.',
- budget:'No new fits. Recompute one metric from existing predictions.',
+ budget:'No new fits. Check the same MAE against two reports: the original and one deliberately altered copy. Both checks use the existing predictions.',
  how:'A claim needs a chain of support. The report names a candidate; that candidate has settings and predictions; the predictions use a declared partition; the metric calculation turns those rows into a number. A break anywhere in that chain weakens the conclusion.',
  predict:'Could a report say “MAE 10” while its prediction file implies a much larger error?',
  steps:[['Trace the result','Follow evidence from claim to rows.','Audit the baseline result. Recompute MAE from its prediction file with generated code. Check row count, candidate identity, partition, and target unit. Save EVIDENCE.md with file paths and the observed result.','The score and underlying predictions agree.'],['Catch a false summary','Test the check with a deliberate mistake.','Make a clearly labelled teaching copy of the report with its MAE changed to 10. Keep the predictions unchanged. Run the same check and preserve the failure.','The checker rejects the copied claim. The original evidence remains intact.']],

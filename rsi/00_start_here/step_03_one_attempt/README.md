@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 The baseline predicts the training median for every selection row. A median minimizes total absolute distance on the training values. Other constants can tie when the median is not unique. MAE is the average distance between predictions and actual counts. It stays in rentals per hour.
 
-**A concrete example.** For a tiny invented training set of 10, 20, and 90 rentals, the median is 20. Predicting 20 gives absolute errors 10, 0, and 70: a total of 80. Predicting the mean, 40, gives 30, 20, and 50: a total of 100. The median wins for absolute error. This explains the baseline choice; it does not guarantee a good error on later hours.
+**A concrete example.** The saved baseline predicts 109 rentals for every selection row. In the [checked examples](../../evidence/2026-09-22/start-reconciliation/BASELINE-NOTE.md), a quiet hour has 1 rental, so the prediction is 108 too high. A busy hour has 957, so it is 848 too low. These selected extremes explain error direction; they do not replace the full MAE. The baseline learned one number, so it cannot follow the daily pattern.
 
 ![Invented training counts 10, 20, and 90 yield median 20. This fixed predictor gives selection errors 15, 15, and 30 on separate actual counts 5, 35, and 50, for MAE 20.](../../assets/illustrations/training-median-baseline-v1.png)
 

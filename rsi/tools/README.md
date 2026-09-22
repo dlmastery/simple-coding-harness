@@ -32,7 +32,11 @@ These checks prevent common mistakes by cooperative agents. An agent that can ed
 
 ## Recovery
 
-If `.running` exists, read its process ID and confirm whether that process is active. Never delete a live lock. If the process has stopped, preserve the interrupted trial, mark its state `interrupted` in the generated ledger, record the reason, and remove the stale lock. Do not reuse its candidate ID or refund its attempt.
+If `.running` exists, inspect the worker PID recorded inside it. A Python launcher or shell may have a different PID. Match the worker's available command and start-time information; a reused PID or failed lookup is not proof that the original job is live or stopped. If identity or status remains uncertain, stop and inspect further. Never remove a live worker's lock.
+
+Once the worker is confirmed stopped, preserve the lock and original ledger, mark the existing trial `interrupted`, record the reason and known cost, and remove only the stale lock. Do not reuse its candidate ID or refund its attempt. A failure before estimator training can consume an admitted slot without being a completed model fit. The [stale-record walkthrough](../evidence/2026-09-22/interrupted-attempt/README.md) demonstrates both the lock refusal and the separate running-record refusal.
+
+The experiment CLI returns exit 2 for these refusals. The separate prediction checker uses exit 1 for failed checks. Read the actual command's convention; a different nonzero status must be investigated rather than treated as successful execution or silently retried.
 
 If a final evaluation fails, preserve the locked workspace. Investigate in a separate diagnostic copy. Reopening the original would allow unnoticed test-driven selection. Record any revised evaluation protocol as a new experiment.
 

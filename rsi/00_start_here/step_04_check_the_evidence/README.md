@@ -20,13 +20,13 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The one-attempt baseline from 00.03. Copy its artifacts as inputs; do not overwrite that run.
 
-**Budget:** No new fits. Recompute one metric from existing predictions. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No new fits. Check the same MAE against two reports: the original and one deliberately altered copy. Both checks use the existing predictions. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
 A claim needs a chain of support. The report names a candidate; that candidate has settings and predictions; the predictions use a declared partition; the metric calculation turns those rows into a number. A break anywhere in that chain weakens the conclusion.
 
-**A concrete example.** For illustrative true counts 10, 20, and 30, predicting 20 each time gives absolute errors 10, 0, and 10. Their mean is 6.67. A report claiming MAE 1 is contradicted by those rows. Yet a report claiming 6.67 still needs a second question: were these the correct selection rows? Arithmetic and the meaning of the measurement are separate checks.
+**A concrete example.** For illustrative true counts 10, 20, and 30, predicting 20 gives absolute errors 10, 0, and 10: mean 6.67. The [actual author check](../../evidence/2026-09-22/start-reconciliation/README.md) uses all 4,358 saved bike selection rows instead. Their MAE is 159.947912 at six decimals. The unchanged report passes; a copy claiming 10 fails with exit status 2. Correct arithmetic still needs the correct candidate and partition. The checker therefore also verifies source targets and complete row membership.
 
 ![An invented three-row prediction table yields MAE about 6.67. Comparing that same value with two reports gives an expected match for 6.67 and mismatch for an altered claim of 10. A separate audit checks candidate, partition, rows, and unit.](../../assets/illustrations/evidence-beyond-score-v1.png)
 

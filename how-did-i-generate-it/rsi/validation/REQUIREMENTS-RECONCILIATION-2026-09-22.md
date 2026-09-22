@@ -25,8 +25,8 @@ This review compares the current course with the user's steering and the reusabl
 
 ## Work still available to the author
 
-1. Reconcile the older clean-journey entries, starting with themes 00–02. Record which named steps and additional changes actually occurred. Execute bounded missing activities only under a declared new allocation.
-2. Close concrete runtime gaps that this host can test. Lab 01.04's missing generated checker is now addressed by [two actual invocations](../../../rsi/evidence/2026-09-22/generated-checker/README.md). Forced interruption and stale-lock behavior in 02.05 remain to inspect; a clean stop between commands is different.
+1. Continue reconciling the older clean-journey entries through themes 01–02. The [four starting labs](../../../rsi/evidence/2026-09-22/start-reconciliation/README.md) now have an action-by-action evidence table, eight source rows, a future-noon brief, capability analysis, error examples and an actual false-summary refusal. Execute missing activities only under a declared new allocation.
+2. Close concrete runtime gaps this host can test. Lab 01.04's generated checker is addressed by [two actual invocations](../../../rsi/evidence/2026-09-22/generated-checker/README.md). Lab 02.05 now has [stale-worker recovery](../../../rsi/evidence/2026-09-22/interrupted-attempt/README.md), two refusals and one checked continuation fit. Preserve the failed initial process-identity test and status expectation. Actual optimizer-state recovery remains untested; it is not what this introductory stale-record exercise establishes.
 3. Review the remaining published transitions, dense figures, disclosures and prompts. Correct factual or navigational defects; preserve good existing images.
 4. Reconcile source-method coverage with the claims actually taught. Abstract-only discovery leads need no invented full reading. Required lessons need the primary passages that support their mechanisms.
 

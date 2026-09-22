@@ -1,0 +1,5 @@
+PASS: selection rows, targets, ledger, and report agree. Score: 109.807668.
+
+Exit: 0
+Expected: 0
+Seconds: 1.540030999982264

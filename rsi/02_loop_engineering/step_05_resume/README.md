@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A checkpoint records durable state: contract, completed and interrupted attempts, retained candidate, remaining budget, and next action. A process ID or live lock is different: it tells you whether work may still be running. Resuming must reconcile both.
 
-**A concrete example.** A three-attempt experiment stops after candidate 1. Its checkpoint says one used and two remaining. Opening another session changes neither number. If candidate 2 later starts and is interrupted, that admitted attempt still belongs in the ledger. Candidate 3 must get a new identity; it cannot overwrite candidate 2 and conceal the failure.
+**A concrete example.** A three-attempt experiment stops after candidate 1. Its checkpoint says one used and two remaining. Opening another session changes neither number. The [additional author walkthrough](../../evidence/2026-09-22/interrupted-attempt/README.md) starts a separate interrupted fixture: trial-001 remains charged even though no estimator trained. After two refusal checks and explicit reconciliation, one real fit becomes trial-002. It does not overwrite trial-001 or refill the three-slot budget. The walkthrough preserves its failed launcher-PID check and subsequent correction.
 
 ![After one completed trial in a three-attempt experiment, a checkpoint and ledger preserve the contract, identities, candidate, budget, and next action. Process reconciliation precedes the remaining two attempts.](../../assets/illustrations/resume-shared-budget-v1.png)
 
@@ -112,7 +112,7 @@ Prepare a labelled teaching checkpoint with a running trial whose process has ex
 
 ## If something goes wrong
 
-If a lock exists, inspect the recorded process and whether it is still active before touching it. Preserve an exited process’s interrupted trial and known cost. If the checkpoint disagrees with the durable ledger, reconcile the actual artifacts first. If source or contract changed, keep this experiment intact and use a separate reviewed experiment.
+If a lock exists, inspect the worker PID it records; a launcher can have a different PID. Match the available process identity and status before touching the lock. Preserve an exited worker’s interrupted trial and known cost. If the checkpoint disagrees with the durable ledger, reconcile the artifacts first. If source or contract changed, keep the experiment intact and use a separate reviewed experiment.
 
 Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
 

@@ -1,0 +1,1 @@
+Continue after observed exit-2 refusal; do not repeat that probe.
