@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An entity is an object you need to distinguish. A type states what kind of object it is. The bike table is a dataset; cnt is a column playing the target role; MAE is a metric; 159.948 is a measured value for a particular candidate and partition. Keeping these separate prevents category mistakes.
 
-**A concrete example.** A candidate is a recipe, such as “linear model with calendar fields.” A run is an execution of that recipe on particular data with a particular seed. Two runs can use the same candidate and still have different timings or outcomes. Keeping these objects separate lets you repeat a recipe without rewriting its history.
+**A concrete example.** The [ten-object vocabulary](../../evidence/2026-09-22/ontology-system/04-01/VOCABULARY.md) separates the constant/calendar recipe from its fitting event and learned value, 109. The runtime model was not saved as a weights file; its predictions were. MAE names the calculation, while 159.947912 rentals per hour describes a particular candidate on the selection rows. The [claim rewrites](../../evidence/2026-09-22/ontology-system/04-01/CLAIMS.md) show why lower task error, an edited skill and changed LLM weights need different names and evidence.
 
 ![Ten objects from a baseline run are grouped as data and roles, recipe and execution, and outputs and meaning. The vocabulary notebook distinguishes a column from its target role, a recipe from a fitted model, and MAE from a measured value.](../../assets/illustrations/name-experiment-objects-v2.png)
 

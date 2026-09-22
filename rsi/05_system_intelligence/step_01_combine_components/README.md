@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Keep the language model and procedures fixed. The skill chooses actions; the tool fits a model; the domain rules reject invalid inputs; the output checker verifies evidence. Their coordination can improve reliability without changing model weights or any component’s instructions.
 
-**A concrete example.** A capable language model might still accept the tempting input casual + registered. A domain checker can reject it before any fit. The whole system avoids a mistake even though the language-model weights and the rule itself stayed fixed. The improvement comes from how the components are arranged.
+**A concrete example.** The [fixed-system audit](../../evidence/2026-09-22/ontology-system/README.md) connects the historical one-fit baseline to its domain checks, controller, predictions and a fresh result check. A separate dry-run diagnostic removes the domain guard: the leaked fixture reaches the stub when no other guard remains. Adding a teaching column allowlist blocks it again, but does not explain its target derivation or final-data violations. No diagnostic fits a model. Each component protects a particular boundary; its presence must have an observable consequence.
 
 ![Five stations assign framing to the task skill and agent, input validity to domain checks, fitting to an ML tool, evidence checking to a checker, and communication to a report. An invalid fixture stops before fitting; the valid path produces checked predictions.](../../assets/illustrations/fixed-components-system-v2.png)
 

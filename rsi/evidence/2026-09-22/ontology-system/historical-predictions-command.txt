@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\check_result.py', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\evidence\\2026-09-20\\clean-journey\\05-01\\trial-001', '--report', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-ontology-system\\05-01\\PREDICTION-CHECK.md']
+Start: 2026-09-22T08:36:39.496476+00:00
+End: 2026-09-22T08:36:40.992935+00:00
+Exit: 0
+Expected: 0
+Wall seconds: 1.49752190001891
+
+PASS: selection rows, targets, ledger, and report agree. Score: 159.947912.

@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| What changed: the model, procedure, metric or prediction task? | [Ten objects, precise claims, domain-check limits and task-change impacts](2026-09-22/ontology-system/README.md) |
 | Can a graph pass while its specification is incomplete? | [Missing-edge and unknown-route counterexamples, repair limits and report recovery](2026-09-22/graph-reconciliation/README.md) |
 | Did the diagnosis precede the alternative model? | [Saved hypothesis, two controlled fits and hourly regressions](2026-09-22/model-hypothesis/README.md) |
 | Does saved state or feedback actually control the next fit? | [Five fits, retained state versions, pre-fit decisions and hourly regressions](2026-09-22/loop-state-feedback/README.md) |

@@ -198,6 +198,14 @@ related.get('07.02').gap = 'Two prediction-based checks recompute existing regre
 related.get('07.03').gap = 'A separate process reads the retained rule, changes a later cached-candidate decision, and refuses a metric-scope mismatch. The no-memory control is deliberately weak; benefit does not establish LLM learning or unseen generalization.';
 related.get('08.05').gap = 'Four new fits use frozen skill hashes and a predeclared wine interface. Prior public wine outcomes were author-known, so the run is a transfer replay, not an uncontaminated transfer test. A new development proposal stays unexecuted.';
 
+for (const [id,gap] of Object.entries({
+  '04.01':'Ten concrete objects, three rewritten claims and a fully qualified baseline measurement now reference actual artifacts. The fitted object was in memory; no saved weights file is invented. This is author classification, not a new fit, LLM update or learner response.',
+  '04.02':'All five requested relations have sentence explanations and an actual domain-check pass. Unknown and omitted-fact cases expose coverage boundaries. An editable side-by-side Mermaid plan is authored but its rendered appearance remains uninspected; the existing conceptual figure was visually reviewed. No claim of actual execution from a fact table or learner assessment follows.',
+  '04.03':'The earlier six base cases and two units-extension cases remain linked. A new unknown-relation input is now actually refused; an isolated omitted-derivation copy demonstrates a limited pass. The checker does not infer absent facts or arbitrary derivation chains, and learner assessment remains unattempted.',
+  '04.05':'Two task definitions, explicit change/impact analysis, three executed synthetic release cases and a wine binary-to-ordinal plan are retained. Actual forecast releases, an ordinal model and new-task scores are absent by design; no learner responses were supplied.',
+  '05.01':'A responsibility table, checked historical controller/request identity and current prediction recheck support the original one-fit system path. Three zero-fit diagnostic variants show guard removal and a separate teaching allowlist. Historical runtime is not rerun; universal enforcement, independent agents and learner understanding are not established.'
+})) related.set(id,{path:'rsi/evidence/2026-09-22/ontology-system/README.md',label:'Concrete ontology definitions, executed meaning rules and system diagnostic',gap});
+
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);
 }

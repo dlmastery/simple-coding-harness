@@ -1,0 +1,11 @@
+check,passed
+original identities unchanged,True
+historical controller hash agrees,True
+historical exactly one successful fit,True
+historical request records check,True
+controller checks after fitting,True
+unknown relation refused explicitly,True
+omitted fact exposes limited pass,True
+release cases match,True
+three diagnostic outcomes,True
+zero diagnostic fits,True

@@ -300,9 +300,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Replace every use of “score” with its precise metric, candidate, partition, and unit. Notice which missing context becomes visible.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-01).
+**Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Ten concrete objects, three rewritten claims and a fully qualified baseline measurement now reference actual artifacts. The fitted object was in memory; no saved weights file is invented. This is author classification, not a new fit, LLM update or learner response.
 
 **Acceptance to verify:** Definitions include concrete examples and do not equate a recipe with a fitted model or a metric with its measured value.
 
@@ -313,9 +313,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Draw the execution graph beside the relation table. Identify one node name that appears in both but has a different role.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-02).
+**Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** All five requested relations have sentence explanations and an actual domain-check pass. Unknown and omitted-fact cases expose coverage boundaries. An editable side-by-side Mermaid plan is authored but its rendered appearance remains uninspected; the existing conceptual figure was visually reviewed. No claim of actual execution from a fact table or learner assessment follows.
 
 **Acceptance to verify:** Each relation is understandable as a sentence. The checker runs and the report states its limited coverage.
 
@@ -326,9 +326,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add a new rule that MAE measurements must include units. Ask the agent to implement it in a workspace extension and run one case with units and one without. Keep this two-case extension separate from the six base cases; the original tool does not check units.
 
-**Evidence:** [Executed foundation cases and additional changes](../../../rsi/evidence/2026-09-21/foundation-gaps/README.md).
+**Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** Six base cases and two separate units-extension cases now execute with individual inputs and verdicts. Units checks require a label only. Unknown-relation rejection was source-inspected but not separately executed in this allocation; omitted facts and learner understanding remain untested.
+**Closure gap:** The earlier six base cases and two units-extension cases remain linked. A new unknown-relation input is now actually refused; an isolated omitted-derivation copy demonstrates a limited pass. The checker does not infer absent facts or arbitrary derivation chains, and learner assessment remains unattempted.
 
 **Acceptance to verify:** Every invariant has a demonstrated negative case. Unknown relations are not silently accepted.
 
@@ -352,9 +352,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Apply the same reasoning to wine quality: replace the binary threshold with ordinal prediction. Identify which metrics and model choices must be reconsidered.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/04-05).
+**Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Two task definitions, explicit change/impact analysis, three executed synthetic release cases and a wine binary-to-ordinal plan are retained. Actual forecast releases, an ordinal model and new-task scores are absent by design; no learner responses were supplied.
 
 **Acceptance to verify:** IMPACT.md identifies invalid evidence reuse and missing data. The availability rule has a demonstrated rejection. No unrun forecasting score is invented.
 
@@ -367,9 +367,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the domain check in a labelled diagnostic copy. Replace fitting with a dry-run stub and reuse the leaked fixture without another fit. Record which protection is lost and whether another guard still blocks it.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/05-01).
+**Evidence:** [Concrete ontology definitions, executed meaning rules and system diagnostic](../../../rsi/evidence/2026-09-22/ontology-system/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A responsibility table, checked historical controller/request identity and current prediction recheck support the original one-fit system path. Three zero-fit diagnostic variants show guard removal and a separate teaching allowlist. Historical runtime is not rerun; universal enforcement, independent agents and learner understanding are not established.
 
 **Acceptance to verify:** The valid run passes the intended checks. The invalid fixture does not reach fitting. No component is silently revised during the comparison.
 
