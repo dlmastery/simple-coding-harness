@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The router and join. A teaching report with one correctable missing field.
 
-**Budget:** Two repair attempts maximum; no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** Two repair attempts per fixture, at most four across both fixtures; no model fits. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ A cycle returns to an earlier action. Its state must include attempts used and t
 
 **A concrete example.** An illustrative report lacks a required candidate ID. Repair 1 adds that ID, so rechecking succeeds. In a second fixture, both repairs change only the title. The ID remains missing; the graph exits with failure after repair 2. Both runs terminate correctly, although only one repairs the artifact.
 
+![A fixed candidate-ID rule checks a report. Invalid reports are repaired only while fewer than two repairs have been used, then rechecked; valid and exhausted paths stop separately. Two fixture examples use one and two repairs.](../../assets/illustrations/bounded-repair-cycle-v1.png)
+
+*The blue notebook supplies the unchanged validation rule; the return edge carries the changed report and accumulated counter. Reserve each repair attempt before running it, and keep failed attempts in that fixture’s count. Two repair slots apply to each fixture, with at most four across the two runs; the expected examples use three. The smaller strips omit intermediate checks for space, but the executable controller must recheck after every repair. A third ineffective repair is not permitted. Success and failure are expected paths to test, not new execution claims.*
+
+[Open the illustration at full size](../../assets/illustrations/bounded-repair-cycle-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The retry cycle has a limit. Its failure path is part of the graph.](../../assets/diagrams/lab-03-04.png)
 
 *Read the diagram:* The retry cycle has a limit. Its failure path is part of the graph.
+
+</details>
 
 ## Run the lab
 
@@ -57,7 +68,9 @@ Preserve state across the return edge.
 
 ```text
 Extend the local graph with check, repair,
-and recheck nodes. Permit two repairs. Keep
+and recheck nodes. Permit two repairs per
+fixture. Give each fixture its own counter
+and preserve it across its return edge. Keep
 the original validation rule fixed. Save the
 graph and state transitions.
 ```
@@ -88,7 +101,7 @@ The agent keeps these in your lab workspace or records the original experiment p
 
 | Output | What to inspect |
 |---|---|
-| Graph and state rules | Show check → repair → recheck and both terminal exits, with a two-repair allowance. |
+| Graph and state rules | Show check → repair → recheck and both terminal exits, with a two-repair allowance per fixture and at most four repairs across both fixtures. |
 | Successful repair trace | Shows the missing field becoming present and the unchanged validator accepting it. |
 | Exhausted repair trace | Shows two ineffective edits and a terminal failure without another hidden attempt. |
 

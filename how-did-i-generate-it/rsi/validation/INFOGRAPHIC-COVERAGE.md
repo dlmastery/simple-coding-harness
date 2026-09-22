@@ -2,7 +2,7 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**69 of 101 labs** currently have a mapped generated infographic; **32 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**75 of 101 labs** currently have a mapped generated infographic; **26 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
@@ -11,7 +11,7 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | 00 · Start with a prediction | 4 | 4 | 0 |
 | 01 · Make one process dependable | 5 | 5 | 0 |
 | 02 · Repeat for a reason | 6 | 6 | 0 |
-| 03 · Give different cases different routes | 6 | 0 | 6 |
+| 03 · Give different cases different routes | 6 | 6 | 0 |
 | 04 · Agree on what the experiment means | 5 | 1 | 4 |
 | 05 · Build capability around the model | 5 | 1 | 4 |
 | 06 · Generate a harness from a brief | 6 | 1 | 5 |
@@ -55,12 +55,12 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
-| [03.01 · Draw the dependencies](../../../rsi/03_graph_engineering/step_01_dependencies/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-01.png) |
-| [03.02 · Route different failures differently](../../../rsi/03_graph_engineering/step_02_branch/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-02.png) |
-| [03.03 · Join independent checks](../../../rsi/03_graph_engineering/step_03_join/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-03.png) |
-| [03.04 · Put a bounded retry inside the graph](../../../rsi/03_graph_engineering/step_04_cycle/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-04.png) |
-| [03.05 · Resume only the affected work](../../../rsi/03_graph_engineering/step_05_recover/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-05.png) |
-| [03.06 · Read the plan, data flow, and trace](../../../rsi/03_graph_engineering/step_06_three_views/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-03-06.png) |
+| [03.01 · Draw the dependencies](../../../rsi/03_graph_engineering/step_01_dependencies/README.md) | [Selected figure](../../../rsi/assets/illustrations/artifact-dependencies-v2.png) | [Present](../../../rsi/assets/diagrams/lab-03-01.png) |
+| [03.02 · Route different failures differently](../../../rsi/03_graph_engineering/step_02_branch/README.md) | [Selected figure](../../../rsi/assets/illustrations/valid-invalid-unknown-routes-v1.png) | [Present](../../../rsi/assets/diagrams/lab-03-02.png) |
+| [03.03 · Join independent checks](../../../rsi/03_graph_engineering/step_03_join/README.md) | [Selected figure](../../../rsi/assets/illustrations/join-matching-evidence-v1.png) | [Present](../../../rsi/assets/diagrams/lab-03-03.png) |
+| [03.04 · Put a bounded retry inside the graph](../../../rsi/03_graph_engineering/step_04_cycle/README.md) | [Selected figure](../../../rsi/assets/illustrations/bounded-repair-cycle-v1.png) | [Present](../../../rsi/assets/diagrams/lab-03-04.png) |
+| [03.05 · Resume only the affected work](../../../rsi/03_graph_engineering/step_05_recover/README.md) | [Selected figure](../../../rsi/assets/illustrations/recover-affected-descendants-v1.png) | [Present](../../../rsi/assets/diagrams/lab-03-05.png) |
+| [03.06 · Read the plan, data flow, and trace](../../../rsi/03_graph_engineering/step_06_three_views/README.md) | [Selected figure](../../../rsi/assets/illustrations/plan-flow-trace-views-v2.png) | [Present](../../../rsi/assets/diagrams/lab-03-06.png) |
 
 ## 04 · Agree on what the experiment means
 

@@ -28,9 +28,20 @@ If report formatting fails, valid predictions need not be recomputed. If the dat
 
 **A concrete example.** A report writer crashes after predictions are saved and checked. Rewriting the report needs those existing outputs, so another fit adds no necessary evidence. Change the split instead, and the fitted recipe’s training membership and evaluation membership change. The old downstream results cannot simply be relabelled as belonging to the new split.
 
+![A report-format failure affects only the report when upstream versions remain valid. A changed split makes fitting, predictions, metric checks, and reports stale for the new version.](../../assets/illustrations/recover-affected-descendants-v1.png)
+
+*These chains show dependencies among actions and artifacts; they are not claims that a node just executed. In the required recovery exercise, reuse the checked baseline predictions and repair the report without another fit. The changed-split case is a simulation that plans invalidation, not authorization to mix old evidence into a new task or quietly retrain. Old results remain valid records of their original inputs. Record hashes or other reliable input identities, completion state, reuse decisions, and the absence of an extra fit.*
+
+[Open the illustration at full size](../../assets/illustrations/recover-affected-descendants-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.](../../assets/diagrams/lab-03-05.png)
 
 *Read the diagram:* Changing an upstream artifact invalidates its descendants. Unaffected independent work can remain valid.
+
+</details>
 
 ## Run the lab
 

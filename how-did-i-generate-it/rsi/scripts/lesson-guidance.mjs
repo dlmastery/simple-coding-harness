@@ -109,13 +109,13 @@ export const guidance = {
     hint:'“The check found no error” and “the check never returned a result” are different statements. Follow each through the branch conditions.'
   },
   '03.03': {
-    outputs:[['Data and resource check records','Each names candidate identity, contract version, outcome, and whether the input is a teaching fixture.'],['Join implementation','Requires both matching passes before continuing.'],['JOIN-REPORT.md','Preserves complete, missing, and mismatched cases and states whether execution was sequential or concurrent.']],
+    outputs:[['Data and resource check records','Each names candidate identity, contract version, outcome, and whether the input is a teaching fixture.'],['Join implementation','Requires both matching passes before continuing.'],['JOIN-REPORT.md','Preserves matching, missing, wrong-candidate, and wrong-contract cases and states whether execution was sequential or concurrent.']],
     recovery:'If a mismatched pair passes, compare the identities before combining the booleans. If one result never arrives, stop at the declared wait limit and report incomplete evidence. An invented resource-pass fixture can test join logic, but must not be presented as a measurement of available RAM, cost, or cluster capacity.',
     hint:'Write the candidate name beside every pass. You need two passes for the same object under the same contract, not merely two successful checks somewhere.'
   },
   '03.04': {
     example:'An illustrative report lacks a required candidate ID. Repair 1 adds that ID, so rechecking succeeds. In a second fixture, both repairs change only the title. The ID remains missing; the graph exits with failure after repair 2. Both runs terminate correctly, although only one repairs the artifact.',
-    outputs:[['Graph and state rules','Show check → repair → recheck and both terminal exits, with a two-repair allowance.'],['Successful repair trace','Shows the missing field becoming present and the unchanged validator accepting it.'],['Exhausted repair trace','Shows two ineffective edits and a terminal failure without another hidden attempt.']],
+    outputs:[['Graph and state rules','Show check → repair → recheck and both terminal exits, with a two-repair allowance per fixture and at most four repairs across both fixtures.'],['Successful repair trace','Shows the missing field becoming present and the unchanged validator accepting it.'],['Exhausted repair trace','Shows two ineffective edits and a terminal failure without another hidden attempt.']],
     recovery:'If the repair counter returns to zero on the back edge, store it in the experiment state rather than inside one node invocation. If a repair succeeds by deleting the required-field rule, reject that result: it changed the evaluator instead of fixing the artifact. Keep ineffective edits so the failure can be explained.',
     hint:'Count repairs separately from checks. The first check discovers the problem; later checks decide whether a repair worked under the same rule.'
   },

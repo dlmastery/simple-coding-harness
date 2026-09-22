@@ -1,0 +1,9 @@
+Use case: scientific-educational. Landscape teaching infographic, professional ink-and-watercolor detail on white, navy serif headings and large readable labels. Reference image is for craft only. Use blue fixed inputs, amber proposed/changed artifacts, teal evidence and red explicit refusals. Only use the exact requested text: no new slogans, scores, charts, code, hidden arrows, or claims. Draw clear connectors with visible endpoints. Evidence fields remain blank unless a table explicitly says illustrative expected behavior. No decorative checkmarks. The agent does implementation; the learner reads and reasons.
+Title "Missing evidence needs its own route". Subtitle "03.02 • Three fixtures • No model fits".
+Three horizontal lanes with independent LEFT-TO-RIGHT paths; no shared arrows between lanes.
+Lane1 blue input document "Check passes for the fixture" → blue condition card "VALID" → teal destination "Ready for modeling". Small final note "No fit in this routing lab".
+Lane2 amber input document "Teaching copy missing cnt" → red condition card "INVALID" → red destination "Stop and repair the input".
+Lane3 pale blue input document "No check result" → amber condition card "UNKNOWN" → amber destination "Stop and obtain evidence".
+Across bottom a wide open "ROUTES.md" with three numbered rows 1,2,3 and columns "Input", "Condition", "Chosen action", "Exit status"; keep cells empty except row numbers.
+At left of ledger, a preserved blue data folder "Pinned source data" and a separate amber folder "Teaching copies". No arrow mutates source data.
+Footer "Unknown does not mean valid." All three lane outcomes are expected routing behavior, not measured results; include heading above lanes "Expected routes to test". No model training, successful-run badges, automatic retry loop, or medical/safety imagery.

@@ -28,9 +28,20 @@ The control graph says which action may follow. Data flow says which artifact ea
 
 **A concrete example.** The plan permits fit → check → report. The data-flow table says the checker reads candidate A’s predictions. A failed trace ends just after fitting. You can claim a model ran, but cannot claim the check passed or that its report exists. Adding a “verified” box to the diagram does not add a missing execution event.
 
+![A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.](../../assets/illustrations/plan-flow-trace-views-v2.png)
+
+*Fit abbreviates the tool operation that fits on training rows and predicts for selection inputs; selection targets do not fit model parameters. A and its paths are illustrative identities to replace with the actual run’s records. The table states required flow, not proof that each file exists. The two gray trace entries mark actions not reached in this example, not fabricated executed events. For the real lab, inspect both completed and failed traces and confirm the relevant outputs before making a completion claim.*
+
+[Open the illustration at full size](../../assets/illustrations/plan-flow-trace-views-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Three views answer different questions. A drawn branch does not prove that branch ran.](../../assets/diagrams/lab-03-06.png)
 
 *Read the diagram:* Three views answer different questions. A drawn branch does not prove that branch ran.
+
+</details>
 
 ## Run the lab
 

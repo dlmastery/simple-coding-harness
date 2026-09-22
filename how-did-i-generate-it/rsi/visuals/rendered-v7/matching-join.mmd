@@ -1,0 +1,6 @@
+flowchart LR
+A["Candidate and contract identity"] --> B["Data check"]
+A --> C["Resource check"]
+B --> D["Join matching verdicts"]
+C --> D
+D --> E["Proceed only if all pass"]

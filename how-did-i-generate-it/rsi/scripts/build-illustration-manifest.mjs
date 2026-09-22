@@ -7,6 +7,14 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["artifact-dependencies-v1","exec-e6d7b7b2-160c-4205-a5ce-068a036f0b06.png",false],
+  ["artifact-dependencies-v2","exec-34246052-1920-4aca-a1f1-2f66f64372df.png",true],
+  ["valid-invalid-unknown-routes-v1","exec-c87d5244-7b86-4c8f-b793-20decba4a21c.png",true],
+  ["join-matching-evidence-v1","exec-fe09ae86-d926-49c8-8dba-f5eda391baf8.png",true],
+  ["bounded-repair-cycle-v1","exec-11cc5b2d-f87c-4033-b38c-9cbb6bb10db2.png",true],
+  ["recover-affected-descendants-v1","exec-2947830b-030d-4311-b61a-3e0b7997b09c.png",true],
+  ["plan-flow-trace-views-v1","exec-bb346c32-4f19-485e-8f83-63952429a7f1.png",false],
+  ["plan-flow-trace-views-v2","exec-6301d4fe-67ac-4ead-89b9-72b5bebba399.png",true],
   ["one-factor-model-change-v1","exec-52b50b5a-9043-4b2b-b2ca-9283760a4e5e.png",true],
   ["feedback-to-feature-choice-v1","exec-1f6cc5ef-fc0c-4e59-aef9-08e2b48660b5.png",true],
   ["duplicate-and-budget-stops-v1","exec-4677aaac-1c0e-42dc-90c9-91288e3cea08.png",true],

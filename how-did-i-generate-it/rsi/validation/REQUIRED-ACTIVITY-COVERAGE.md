@@ -248,9 +248,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/03-03).
 
-**Closure gap:** The join executed sequentially with declared resource fixtures; measured parallel resource checks are absent.
+**Closure gap:** The join executed sequentially with declared resource fixtures. The newly explicit wrong-contract case still needs execution evidence; measured parallel resource checks are also absent.
 
-**Acceptance to verify:** The join rejects mismatched identities and incomplete evidence. The report states whether checks ran sequentially or concurrently.
+**Acceptance to verify:** The join rejects mismatched candidate identities, mismatched contract versions, and incomplete evidence. The report states whether checks ran sequentially or concurrently.
 
 ### [03.04 · Put a bounded retry inside the graph](../../../rsi/03_graph_engineering/step_04_cycle/README.md)
 

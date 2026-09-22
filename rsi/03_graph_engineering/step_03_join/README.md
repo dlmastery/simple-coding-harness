@@ -20,7 +20,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 **Starting state:** The branch router and a candidate recipe. Use small local check fixtures.
 
-**Budget:** No model fits; three join scenarios. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+**Budget:** No model fits; four join scenarios. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
 
 ## How it works
 
@@ -28,9 +28,20 @@ Two checks can inspect different properties of the same candidate. Their results
 
 **A concrete example.** Imagine the data check passes for candidate A, while the prediction check passes for candidate B. You have two passes, but no candidate has passed both checks. The join must ask “two passes for which candidate?” This is why identity belongs in the evidence, not just in a filename chosen by the agent.
 
-![A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.](../../assets/diagrams/lab-03-03.png)
+![Data and resource check records join only when both pass for the same candidate and contract. Four symbolic fixtures distinguish matching, missing, wrong-candidate, and wrong-contract results.](../../assets/illustrations/join-matching-evidence-v1.png)
 
-*Read the diagram:* A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.
+*A and B denote candidate identities; v1 and v2 denote contract versions. The table gives expected fixture behavior, not observed resource availability. Run all four cases and retain actual verdicts. Missing evidence remains incomplete until the declared wait limit or stop rule applies. A matching pair can be processed sequentially; converging arrows do not prove concurrent execution or independent agent contexts. The fourth wrong-contract case is a new explicit requirement and remains unverified by the earlier three-case author run.*
+
+[Open the illustration at full size](../../assets/illustrations/join-matching-evidence-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![A join requires data and resource passes for the same candidate and contract. Missing or mismatched evidence cannot authorize the next action.](../../assets/diagrams/lab-03-03.png)
+
+*Read the diagram:* A join requires data and resource passes for the same candidate and contract. Missing or mismatched evidence cannot authorize the next action.
+
+</details>
 
 ## Run the lab
 
@@ -70,17 +81,19 @@ Do not launch agent subworkers.
 Test missing and stale results.
 
 ```text
-Run three cases: both checks pass for A; A
-has only one result; data passes for A while
-resources pass for B. Retain JOIN-REPORT.md
-and all check records.
+Run four cases: both checks pass for A under
+contract v1; A has only one result; data
+passes for A while resources pass for B;
+both name A but use different contract
+versions. Retain JOIN-REPORT.md and all
+check records.
 ```
 
 **Observe:** Only the complete matching case proceeds.
 
 ## Check your result
 
-The join rejects mismatched identities and incomplete evidence. The report states whether checks ran sequentially or concurrently.
+The join rejects mismatched candidate identities, mismatched contract versions, and incomplete evidence. The report states whether checks ran sequentially or concurrently.
 
 ### Open these outputs
 
@@ -90,7 +103,7 @@ The agent keeps these in your lab workspace or records the original experiment p
 |---|---|
 | Data and resource check records | Each names candidate identity, contract version, outcome, and whether the input is a teaching fixture. |
 | Join implementation | Requires both matching passes before continuing. |
-| JOIN-REPORT.md | Preserves complete, missing, and mismatched cases and states whether execution was sequential or concurrent. |
+| JOIN-REPORT.md | Preserves matching, missing, wrong-candidate, and wrong-contract cases and states whether execution was sequential or concurrent. |
 
 Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
 

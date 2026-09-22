@@ -28,9 +28,20 @@ A branch is a decision with explicit conditions. If required fields are absent, 
 
 **A concrete example.** A sample containing cnt can pass the required-target check. A sample missing cnt is invalid. A missing check report is unknown: it supplies no verdict at all. Both invalid and unknown should stop this route, but for different reasons. Recording those reasons tells the next step whether to repair data or obtain missing evidence.
 
+![Three expected routes send a passing fixture to modeling readiness, a copy missing cnt to input repair, and an absent check result to evidence collection. The route ledger is blank until execution.](../../assets/illustrations/valid-invalid-unknown-routes-v1.png)
+
+*Valid means passing the declared local fixture check, not proof of all possible data-quality rules. Missing cnt supplies evidence of a violation; no check result supplies no verdict. Both stop this route, for different reasons. Ready for modeling is a routing decision only: no model fits run in this lab. Keep mutated fixtures outside the pinned data and record all three actual routes, exit statuses, and refusal reasons.*
+
+[Open the illustration at full size](../../assets/illustrations/valid-invalid-unknown-routes-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![Different failures require different routes. A data problem should not trigger an expensive model search.](../../assets/diagrams/lab-03-02.png)
 
 *Read the diagram:* Different failures require different routes. A data problem should not trigger an expensive model search.
+
+</details>
 
 ## Run the lab
 

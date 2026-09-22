@@ -26,7 +26,7 @@ const limitations = {
   '01.04': 'Reuses the supplied checker; independent checker generation is untested. Reconcile the additional change separately.',
   '01.05': 'Same author context; the requested fresh-agent handoff is untested. A new process is not a new coding-agent context.',
   '02.05': 'A clean stop between commands was resumed. Forced process interruption and stale-lock recovery were not exercised.',
-  '03.03': 'The join executed sequentially with declared resource fixtures; measured parallel resource checks are absent.',
+  '03.03': 'The join executed sequentially with declared resource fixtures. The newly explicit wrong-contract case still needs execution evidence; measured parallel resource checks are also absent.',
   '03.06': 'The three views are described, but three separately rendered diagrams were not produced by this run.',
   '06.06': 'Saved generated packages ran in fresh output state. Independent regeneration from the brief in another agent is untested.',
   '08.02': 'Final lock and row/target recomputation executed. The author had seen the public final result before; this is a replay.',

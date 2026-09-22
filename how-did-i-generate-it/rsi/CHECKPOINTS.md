@@ -1,5 +1,7 @@
 # GitHub checkpoints
 
+- [09e84fa](https://github.com/dlmastery/simple-coding-harness/commit/09e84fa5d9431e4169484b2003249872510be5fc): all six loop labs illustrated; 73 selections, 114 outputs, 69 mapped labs, and 3,890 checked local links. Remote hash verified before graph work.
+
 - [5a019bd](https://github.com/dlmastery/simple-coding-harness/commit/5a019bd9e6ba2808dcbaa47e8fab592eb356229d): all five fixed-process labs individually illustrated; 68 selections, 109 outputs, 64 mapped labs, and 3,844 valid local links. Remote hash verified before loop work.
 
 - [e99ee2a](https://github.com/dlmastery/simple-coding-harness/commit/e99ee2a7202d9a6c15358b313f49c2d3a430958c): all four introductory labs individually illustrated; 64 selections, 102 versions, 60 mapped labs, and 3,807 checked links. Remote hash verified before fixed-process work.

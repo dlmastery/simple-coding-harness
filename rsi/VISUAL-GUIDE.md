@@ -196,6 +196,66 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 02.06: Compare two ways to spend the same attempts](02_loop_engineering/step_06_compare_loops/README.md).
 
+## An arrow names something the next action needs
+
+![Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.](assets/illustrations/artifact-dependencies-v2.png)
+
+*Each edge names one dependency, not every input required by its destination. The fit also needs task data and a recipe; the checker also needs reference targets and row identities. A document shown at a desk can be an input being read or an output being written: follow the edge label to determine its role. Test ordering from an initial state without the candidate predictions, so a leftover file cannot conceal the invalid order. The small report icons are illustrative. This lab validates the graph without fitting another model.*
+
+[Open the illustration at full size](assets/illustrations/artifact-dependencies-v2.png).
+
+[Lab 03.01: Draw the dependencies](03_graph_engineering/step_01_dependencies/README.md).
+
+## Missing evidence needs its own route
+
+![Three expected routes send a passing fixture to modeling readiness, a copy missing cnt to input repair, and an absent check result to evidence collection. The route ledger is blank until execution.](assets/illustrations/valid-invalid-unknown-routes-v1.png)
+
+*Valid means passing the declared local fixture check, not proof of all possible data-quality rules. Missing cnt supplies evidence of a violation; no check result supplies no verdict. Both stop this route, for different reasons. Ready for modeling is a routing decision only: no model fits run in this lab. Keep mutated fixtures outside the pinned data and record all three actual routes, exit statuses, and refusal reasons.*
+
+[Open the illustration at full size](assets/illustrations/valid-invalid-unknown-routes-v1.png).
+
+[Lab 03.02: Route different failures differently](03_graph_engineering/step_02_branch/README.md).
+
+## Two passes must describe the same candidate
+
+![Data and resource check records join only when both pass for the same candidate and contract. Four symbolic fixtures distinguish matching, missing, wrong-candidate, and wrong-contract results.](assets/illustrations/join-matching-evidence-v1.png)
+
+*A and B denote candidate identities; v1 and v2 denote contract versions. The table gives expected fixture behavior, not observed resource availability. Run all four cases and retain actual verdicts. Missing evidence remains incomplete until the declared wait limit or stop rule applies. A matching pair can be processed sequentially; converging arrows do not prove concurrent execution or independent agent contexts. The fourth wrong-contract case is a new explicit requirement and remains unverified by the earlier three-case author run.*
+
+[Open the illustration at full size](assets/illustrations/join-matching-evidence-v1.png).
+
+[Lab 03.03: Join independent checks](03_graph_engineering/step_03_join/README.md).
+
+## Repair the artifact while keeping the rule fixed
+
+![A fixed candidate-ID rule checks a report. Invalid reports are repaired only while fewer than two repairs have been used, then rechecked; valid and exhausted paths stop separately. Two fixture examples use one and two repairs.](assets/illustrations/bounded-repair-cycle-v1.png)
+
+*The blue notebook supplies the unchanged validation rule; the return edge carries the changed report and accumulated counter. Reserve each repair attempt before running it, and keep failed attempts in that fixture’s count. Two repair slots apply to each fixture, with at most four across the two runs; the expected examples use three. The smaller strips omit intermediate checks for space, but the executable controller must recheck after every repair. A third ineffective repair is not permitted. Success and failure are expected paths to test, not new execution claims.*
+
+[Open the illustration at full size](assets/illustrations/bounded-repair-cycle-v1.png).
+
+[Lab 03.04: Put a bounded retry inside the graph](03_graph_engineering/step_04_cycle/README.md).
+
+## Rerun the work whose inputs changed
+
+![A report-format failure affects only the report when upstream versions remain valid. A changed split makes fitting, predictions, metric checks, and reports stale for the new version.](assets/illustrations/recover-affected-descendants-v1.png)
+
+*These chains show dependencies among actions and artifacts; they are not claims that a node just executed. In the required recovery exercise, reuse the checked baseline predictions and repair the report without another fit. The changed-split case is a simulation that plans invalidation, not authorization to mix old evidence into a new task or quietly retrain. Old results remain valid records of their original inputs. Record hashes or other reliable input identities, completion state, reuse decisions, and the absence of an extra fit.*
+
+[Open the illustration at full size](assets/illustrations/recover-affected-descendants-v1.png).
+
+[Lab 03.05: Resume only the affected work](03_graph_engineering/step_05_recover/README.md).
+
+## The plan, the files, and the events answer different questions
+
+![A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.](assets/illustrations/plan-flow-trace-views-v2.png)
+
+*Fit abbreviates the tool operation that fits on training rows and predicts for selection inputs; selection targets do not fit model parameters. A and its paths are illustrative identities to replace with the actual run’s records. The table states required flow, not proof that each file exists. The two gray trace entries mark actions not reached in this example, not fabricated executed events. For the real lab, inspect both completed and failed traces and confirm the relevant outputs before making a completion claim.*
+
+[Open the illustration at full size](assets/illustrations/plan-flow-trace-views-v2.png).
+
+[Lab 03.06: Read the plan, data flow, and trace](03_graph_engineering/step_06_three_views/README.md).
+
 ## Workflow and domain meaning
 
 ![A workflow graph routes valid data toward fitting and invalid data toward repair. Separate domain relations say the scaler is fit on training data, search selects on selection data, and the model is measured by MAE.](assets/illustrations/graph-ontology-v1.png)

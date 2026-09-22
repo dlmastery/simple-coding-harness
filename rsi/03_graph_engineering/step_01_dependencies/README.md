@@ -28,9 +28,20 @@ Draw each action as a node. An arrow from inspect data to validate split means t
 
 **A concrete example.** The fit action produces predictions.csv. The metric check consumes that file. Drawing fit → check records a dependency, not a preference about page layout. Moving the check earlier leaves it without its required input. Two actions with no shared dependency may be reordered, but only if they also avoid conflicting writes.
 
+![Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.](../../assets/illustrations/artifact-dependencies-v2.png)
+
+*Each edge names one dependency, not every input required by its destination. The fit also needs task data and a recipe; the checker also needs reference targets and row identities. A document shown at a desk can be an input being read or an output being written: follow the edge label to determine its role. Test ordering from an initial state without the candidate predictions, so a leftover file cannot conceal the invalid order. The small report icons are illustrative. This lab validates the graph without fitting another model.*
+
+[Open the illustration at full size](../../assets/illustrations/artifact-dependencies-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![An arrow is a prerequisite: the destination needs the source to finish first.](../../assets/diagrams/lab-03-01.png)
 
 *Read the diagram:* An arrow is a prerequisite: the destination needs the source to finish first.
+
+</details>
 
 ## Run the lab
 

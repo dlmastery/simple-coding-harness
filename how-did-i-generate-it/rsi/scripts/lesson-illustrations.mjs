@@ -1,6 +1,36 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  "03.01": {
+    "file": "artifact-dependencies-v2.png",
+    "alt": "Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.",
+    "caption": "Each edge names one dependency, not every input required by its destination. The fit also needs task data and a recipe; the checker also needs reference targets and row identities. A document shown at a desk can be an input being read or an output being written: follow the edge label to determine its role. Test ordering from an initial state without the candidate predictions, so a leftover file cannot conceal the invalid order. The small report icons are illustrative. This lab validates the graph without fitting another model."
+},
+  "03.02": {
+    "file": "valid-invalid-unknown-routes-v1.png",
+    "alt": "Three expected routes send a passing fixture to modeling readiness, a copy missing cnt to input repair, and an absent check result to evidence collection. The route ledger is blank until execution.",
+    "caption": "Valid means passing the declared local fixture check, not proof of all possible data-quality rules. Missing cnt supplies evidence of a violation; no check result supplies no verdict. Both stop this route, for different reasons. Ready for modeling is a routing decision only: no model fits run in this lab. Keep mutated fixtures outside the pinned data and record all three actual routes, exit statuses, and refusal reasons."
+},
+  "03.03": {
+    "file": "join-matching-evidence-v1.png",
+    "alt": "Data and resource check records join only when both pass for the same candidate and contract. Four symbolic fixtures distinguish matching, missing, wrong-candidate, and wrong-contract results.",
+    "caption": "A and B denote candidate identities; v1 and v2 denote contract versions. The table gives expected fixture behavior, not observed resource availability. Run all four cases and retain actual verdicts. Missing evidence remains incomplete until the declared wait limit or stop rule applies. A matching pair can be processed sequentially; converging arrows do not prove concurrent execution or independent agent contexts. The fourth wrong-contract case is a new explicit requirement and remains unverified by the earlier three-case author run."
+},
+  "03.04": {
+    "file": "bounded-repair-cycle-v1.png",
+    "alt": "A fixed candidate-ID rule checks a report. Invalid reports are repaired only while fewer than two repairs have been used, then rechecked; valid and exhausted paths stop separately. Two fixture examples use one and two repairs.",
+    "caption": "The blue notebook supplies the unchanged validation rule; the return edge carries the changed report and accumulated counter. Reserve each repair attempt before running it, and keep failed attempts in that fixture’s count. Two repair slots apply to each fixture, with at most four across the two runs; the expected examples use three. The smaller strips omit intermediate checks for space, but the executable controller must recheck after every repair. A third ineffective repair is not permitted. Success and failure are expected paths to test, not new execution claims."
+},
+  "03.05": {
+    "file": "recover-affected-descendants-v1.png",
+    "alt": "A report-format failure affects only the report when upstream versions remain valid. A changed split makes fitting, predictions, metric checks, and reports stale for the new version.",
+    "caption": "These chains show dependencies among actions and artifacts; they are not claims that a node just executed. In the required recovery exercise, reuse the checked baseline predictions and repair the report without another fit. The changed-split case is a simulation that plans invalidation, not authorization to mix old evidence into a new task or quietly retrain. Old results remain valid records of their original inputs. Record hashes or other reliable input identities, completion state, reuse decisions, and the absence of an extra fit."
+},
+  "03.06": {
+    "file": "plan-flow-trace-views-v2.png",
+    "alt": "A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.",
+    "caption": "Fit abbreviates the tool operation that fits on training rows and predicts for selection inputs; selection targets do not fit model parameters. A and its paths are illustrative identities to replace with the actual run’s records. The table states required flow, not proof that each file exists. The two gray trace entries mark actions not reached in this example, not fabricated executed events. For the real lab, inspect both completed and failed traces and confirm the relevant outputs before making a completion claim."
+},
   "02.01": {
     "file": "one-factor-model-change-v1.png",
     "alt": "A hypothesis from earlier hourly errors motivates a two-fit comparison of a constant training-median predictor and a calendar-based linear model under the same task, split, features, seed, and MAE.",

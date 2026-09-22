@@ -1,14 +1,50 @@
 # Illustrations for the RSI course
 
-Seventy-three selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Seventy-nine selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 114 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 122 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 03.01
+
+![Six actions form an acyclic dependency chain from framing to reporting, with an artifact named on each edge. Two orderings contain the same actions but swap fit and check in the invalid example.](artifact-dependencies-v2.png)
+
+Selected: [artifact-dependencies-v2.png](artifact-dependencies-v2.png). Exact [prompt](artifact-dependencies-v2.prompt.md). Each edge names one dependency, not every input required by its destination. The fit also needs task data and a recipe; the checker also needs reference targets and row identities. A document shown at a desk can be an input being read or an output being written: follow the edge label to determine its role. Test ordering from an initial state without the candidate predictions, so a leftover file cannot conceal the invalid order. The small report icons are illustrative. This lab validates the graph without fitting another model.
+
+## Lab 03.02
+
+![Three expected routes send a passing fixture to modeling readiness, a copy missing cnt to input repair, and an absent check result to evidence collection. The route ledger is blank until execution.](valid-invalid-unknown-routes-v1.png)
+
+Selected: [valid-invalid-unknown-routes-v1.png](valid-invalid-unknown-routes-v1.png). Exact [prompt](valid-invalid-unknown-routes-v1.prompt.md). Valid means passing the declared local fixture check, not proof of all possible data-quality rules. Missing cnt supplies evidence of a violation; no check result supplies no verdict. Both stop this route, for different reasons. Ready for modeling is a routing decision only: no model fits run in this lab. Keep mutated fixtures outside the pinned data and record all three actual routes, exit statuses, and refusal reasons.
+
+## Lab 03.03
+
+![Data and resource check records join only when both pass for the same candidate and contract. Four symbolic fixtures distinguish matching, missing, wrong-candidate, and wrong-contract results.](join-matching-evidence-v1.png)
+
+Selected: [join-matching-evidence-v1.png](join-matching-evidence-v1.png). Exact [prompt](join-matching-evidence-v1.prompt.md). A and B denote candidate identities; v1 and v2 denote contract versions. The table gives expected fixture behavior, not observed resource availability. Run all four cases and retain actual verdicts. Missing evidence remains incomplete until the declared wait limit or stop rule applies. A matching pair can be processed sequentially; converging arrows do not prove concurrent execution or independent agent contexts. The fourth wrong-contract case is a new explicit requirement and remains unverified by the earlier three-case author run.
+
+## Lab 03.04
+
+![A fixed candidate-ID rule checks a report. Invalid reports are repaired only while fewer than two repairs have been used, then rechecked; valid and exhausted paths stop separately. Two fixture examples use one and two repairs.](bounded-repair-cycle-v1.png)
+
+Selected: [bounded-repair-cycle-v1.png](bounded-repair-cycle-v1.png). Exact [prompt](bounded-repair-cycle-v1.prompt.md). The blue notebook supplies the unchanged validation rule; the return edge carries the changed report and accumulated counter. Reserve each repair attempt before running it, and keep failed attempts in that fixture’s count. Two repair slots apply to each fixture, with at most four across the two runs; the expected examples use three. The smaller strips omit intermediate checks for space, but the executable controller must recheck after every repair. A third ineffective repair is not permitted. Success and failure are expected paths to test, not new execution claims.
+
+## Lab 03.05
+
+![A report-format failure affects only the report when upstream versions remain valid. A changed split makes fitting, predictions, metric checks, and reports stale for the new version.](recover-affected-descendants-v1.png)
+
+Selected: [recover-affected-descendants-v1.png](recover-affected-descendants-v1.png). Exact [prompt](recover-affected-descendants-v1.prompt.md). These chains show dependencies among actions and artifacts; they are not claims that a node just executed. In the required recovery exercise, reuse the checked baseline predictions and repair the report without another fit. The changed-split case is a simulation that plans invalidation, not authorization to mix old evidence into a new task or quietly retrain. Old results remain valid records of their original inputs. Record hashes or other reliable input identities, completion state, reuse decisions, and the absence of an extra fit.
+
+## Lab 03.06
+
+![A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.](plan-flow-trace-views-v2.png)
+
+Selected: [plan-flow-trace-views-v2.png](plan-flow-trace-views-v2.png). Exact [prompt](plan-flow-trace-views-v2.prompt.md). Fit abbreviates the tool operation that fits on training rows and predicts for selection inputs; selection targets do not fit model parameters. A and its paths are illustrative identities to replace with the actual run’s records. The table states required flow, not proof that each file exists. The two gray trace entries mark actions not reached in this example, not fabricated executed events. For the real lab, inspect both completed and failed traces and confirm the relevant outputs before making a completion claim.
 
 ## Lab 02.01
 

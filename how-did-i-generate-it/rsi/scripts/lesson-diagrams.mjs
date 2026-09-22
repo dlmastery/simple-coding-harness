@@ -46,8 +46,8 @@ B -->|data| C["Repair data contract"]
 B -->|model| D["Propose model change"]
 C --> E["Recheck"]
 D --> E`),
-'03.03':D('A join waits for all required checks on the same candidate. An old pass for another candidate cannot fill the gap.',`A["Candidate identity"] --> B["Data check"]
-A --> C["Result check"]
+'03.03':D('A join requires data and resource passes for the same candidate and contract. Missing or mismatched evidence cannot authorize the next action.',`A["Candidate and contract identity"] --> B["Data check"]
+A --> C["Resource check"]
 B --> D["Join matching verdicts"]
 C --> D
 D --> E["Proceed only if all pass"]`),

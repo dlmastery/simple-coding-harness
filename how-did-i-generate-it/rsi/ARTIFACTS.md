@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Graph-engineering illustration review](validation/GRAPH-ILLUSTRATIONS.md): six selections from eight outputs, fourth join scenario, per-fixture repair accounting, and a [corrected join schematic](visuals/rendered-gallery-v7.md).
+
 - [Loop-engineering illustration review](validation/LOOP-ILLUSTRATIONS.md): five first-attempt selections; controlled factors, feedback timing, refusal order, resumption, and matched fit budgets.
 
 - [Fixed process, skill, checker, and handoff review](validation/FIXED-PROCESS-ILLUSTRATIONS.md): four selected figures from seven outputs, with clearer source-target, repeatability, and session-exposure instructions.
