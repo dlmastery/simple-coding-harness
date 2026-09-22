@@ -1,0 +1,5 @@
+"path","url","sha256_utf8_response_text","characters","status"
+"README.md","https://raw.githubusercontent.com/evoundo/evoundo/1d4c96951557f60df9d362e90e4848dad802c40e/README.md","d695607b7d527fc404bfc50824406198e643864b17700731ec146ed1cfbd8ff5","9189","200"
+"LICENSE","https://raw.githubusercontent.com/evoundo/evoundo/1d4c96951557f60df9d362e90e4848dad802c40e/LICENSE","a056a32d2f794a9d72b663f54ddcabf08c3976c568ab3f6e02bbc6fd533e9578","4554","200"
+"docs/benchmarks.md","https://raw.githubusercontent.com/evoundo/evoundo/1d4c96951557f60df9d362e90e4848dad802c40e/docs/benchmarks.md","c1b672e693ba3c93080ea4e60474d89d7611b3e07979fdd84107f3c509fa1016","1816","200"
+"pyproject.toml","https://raw.githubusercontent.com/evoundo/evoundo/1d4c96951557f60df9d362e90e4848dad802c40e/pyproject.toml","368e377c8ffac8007d69afb96ff1010569463e13ad630a584996954691970109","2751","200"

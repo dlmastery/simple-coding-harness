@@ -2,16 +2,18 @@
 
 [Course](../README.md) · [Research studio](../10_research_studio/README.md)
 
-Latest discovery pass: **22 August–21 September 2026**, with the prior dated corpus retained. The inventory now contains 31 papers and five reports, including one older paper with a recent revision. Prioritize work from the latest two weeks. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
+Latest focused discovery pass: **23 August–22 September 2026**, with earlier dated sweeps retained. The inventory now contains 33 papers and five reports, including one older paper with a recent revision. The new entries have different reading depth: EvoUndo received a selected-source audit; NeoHorse-1 is an abstract-screened lead. Prioritize work from the latest two weeks. Original publication and revision dates matter; recent crawling or reposting does not make a work new.
 
 The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-SWEEP.md), [search log](../../how-did-i-generate-it/rsi/research/SEARCH-LOG.md), and [claim corrections](../../how-did-i-generate-it/rsi/research/CLAIM-CORRECTIONS.md) preserve the broader sweep and reading depth. Some sources are leads with abstract-level screening. Their studio activities explicitly begin with a method audit before borrowing technical details.
 
 ## Main studio sources
 
-The [executed reading audits](../evidence/2026-09-21/research-reading/README.md) show how to apply two frameworks to actual artifacts and trace one current announcement. The [six-system comparison](../evidence/2026-09-21/system-comparison/README.md) separates mechanisms from reported results. These are selected-source audits, not paper reproductions.
+The [executed reading audits](../evidence/2026-09-21/research-reading/README.md) show how to apply two frameworks to actual artifacts and trace one current announcement. The [six-system comparison](../evidence/2026-09-21/system-comparison/README.md) separates mechanisms from reported results. The [unfamiliar-source capstone](../evidence/2026-09-22/external-audit/README.md) adds a recent revision, pinned artifact inspection and a small acceptance-rule check. These are selected-source audits, not paper reproductions.
 
 | Work | First date | Course use |
 |---|---|---|
+| [EvoUndo](https://arxiv.org/abs/2608.28363v2) | 28 Aug; v2 16 Sep | Capstone source audit, reporting corrections and a numerical acceptance-rule check |
+| [NeoHorse-1](https://arxiv.org/abs/2609.08183v1) | 8 Sep | Optional model–harness lead; abstract and dates checked, methods and artifacts not yet audited |
 | [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873) | 10 Sep 2026 | Definitions and evidence framework |
 | [RSIAgent](https://arxiv.org/abs/2609.15364) | 14 Sep | Exploration, outcome verification, actor memory |
 | [Recuris](https://arxiv.org/abs/2608.24876) | 25 Aug | Working state and reusable experience |

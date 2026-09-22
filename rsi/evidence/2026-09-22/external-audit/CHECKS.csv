@@ -1,0 +1,7 @@
+check,status
+enumeration,PASS
+both reject zero successes,PASS
+both accept all successes,PASS
+all-success Wilson closed form,PASS
+separate exact-count criterion,PASS
+pooled exact-count criterion,PASS

@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-99 labs have mapped related author-execution evidence; 2 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+100 labs have mapped related author-execution evidence; 1 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1330,9 +1330,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** State the strongest reasonable interpretation of the authors’ result before presenting your limitation. Check that both can be true.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Versioned primary-source audit and acceptance-rule arithmetic](../../../rsi/evidence/2026-09-22/external-audit/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Date-bounded queries, selected v2 methods/results/limits, pinned repository metadata, a charitable short audit and a discriminating follow-up are retained. One calculator enumerates 441 count pairs with six checks. No source-system execution, raw paper-outcome reanalysis, full implementation audit, complete-paper review, independent peer or learner assessment occurred; HTML and PDF-image access failures remain explicit.
 
 **Acceptance to verify:** The audit uses primary sources and accurate dates. It neither exaggerates nor dismisses results beyond the evidence.
 

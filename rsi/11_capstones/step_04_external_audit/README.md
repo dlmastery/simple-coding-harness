@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Start with what changes and how it is evaluated. Then inspect inheritance, resources, retained artifacts, failures, transfer, and access boundaries. Use the authors’ definitions accurately while stating your own evaluation criteria. A critical audit should be precise and fair, not reflexively skeptical.
 
-**A concrete example.** A new source reports a better retained agent after several harness edits. You can accept that reported result while asking whether the edit-generating procedure itself changed. The follow-up should inspect or test that missing link, rather than dismissing the result because it does not establish every stronger RSI claim.
+**A concrete example.** The saved [author source audit](../../evidence/2026-09-22/external-audit/README.md) follows a revised paper, checks artifact availability, and compares two acceptance formulas. Its small calculator finds one disagreement among 441 possible count pairs. That does not refute agreement on the paper’s actual recorded outcomes. The useful next step is to obtain the versioned records and recompute both decisions. This is source reading plus arithmetic, not a reproduction or a claim that recovery repair establishes autonomous RSI.
 
 ![Primary source records lead to a claim and evidence audit, then to a small follow-up designed to distinguish an alternative explanation.](../../assets/illustrations/capstone-audit-v1.png)
 

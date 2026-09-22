@@ -36,6 +36,6 @@ Check local links, selected-image identities, generated-page preservation, spell
 
 The 101 lesson pages, individual figures, shared skills, and source briefs are authored and checkpointed. Bounded activity verification has now begun; its findings can still require content corrections.
 
-The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 99 related evidence mappings and 2 unmapped labs; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
+The full pass still includes published rendering, remaining source-method audits and freshness, required activity execution and counterexamples, clean starts, agent/context boundaries, and compatible backend checks. The existing inventory has 100 related evidence mappings and 1 unmapped lab; a mapping alone does not close a lab. Preserve the specific gaps in the completion ledger. Do not turn deferred verification into a claim of completion.
 
 Run expensive or broad checks when the material is ready for that pass. No new ML executions are required merely to publish an illustration revision. Report actual student, other-agent, GPU, and cluster testing only if it occurs.

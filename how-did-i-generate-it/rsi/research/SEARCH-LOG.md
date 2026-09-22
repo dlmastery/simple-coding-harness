@@ -1,5 +1,7 @@
 # Research search log
 
+**21–22 September capstone discovery:** six explicit dated queries found EvoUndo and NeoHorse-1. The local date rollover moved the final window to 23 August–22 September. Exact queries, exclusions, versions, repository identity and HTML/PDF-image access failures are in the [source trail](../../../rsi/evidence/2026-09-22/external-audit/SEARCH-AND-READING.md). Earlier cutoff statements below are historical records.
+
 Cutoff: 19 September 2026. Current discovery window: 20 August–19 September. Earlier searching focused on the user-supplied papers and the latest two weeks. The user then requested a broader one-month sweep.
 
 ## Queries used in the broader sweep
