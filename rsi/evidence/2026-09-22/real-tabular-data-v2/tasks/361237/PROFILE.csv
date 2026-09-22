@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+361237,44959,concrete_compressive_strength,procedure-comparison,regression,strength,1030,8,0,0,0,34,9,True,510beb3f50cba7907815b611af40edf14eb75902995bb9d7bccb40db156cf8ec,601,213,216

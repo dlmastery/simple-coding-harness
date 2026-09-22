@@ -6,6 +6,8 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| What is the starting point on public tabular tasks? | [48 baseline fits, six development tasks, 801 checks; final scores withheld](2026-09-22/real-tabular-baseline/README.md) |
+| How were the new data and task boundaries checked? | [Twelve public tasks, duplicate groups, source exclusions and prior digits overlap](2026-09-22/real-tabular-data-v2/README.md) |
 | Does the changed policy save actual fits on new tasks? | [Completed sixteen-task comparison: 55 versus 192 fits, quality and uncertainty separate](2026-09-22/discovery-final/README.md) |
 | Does a richer inner harness improve every task? | [144-fit paired development test: two local gains, four ties, rejected promotion](2026-09-22/harness-revision-development/README.md) |
 | What happened in the smaller prospective shakedown? | [Four new instances with separate final rows](2026-09-22/discovery-shakedown/README.md) |

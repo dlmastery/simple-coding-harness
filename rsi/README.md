@@ -14,6 +14,31 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 **Begin with [Start here](START-HERE.md).** You use ordinary language and Markdown. The coding agent writes the code, configuration, tests, and launch files.
 
+## See the whole journey
+
+[![All twelve themes connect one experiment, dependable workflows, a system and its builder, self-improvement, the research studio and capstones.](assets/illustrations/course-mindmap-v2.png)](COURSE-MAP.md)
+
+Follow themes **00–11**. Start with one prediction; add loops, graphs and
+domain rules; build a harness; distinguish the self-* ideas; then investigate
+changes to the improver. [Open the guided outline](COURSE-MAP.md) for each
+theme's purpose, prerequisites and readiness check.
+
+The research studio and capstones are the destination. Select a preview to
+open its illustrated walkthrough; use the full-size links to read every label.
+
+| Research studio · 38 labs | Capstones · 5 projects |
+|---|---|
+| [![The research studio connects thirteen groups of research mechanisms.](assets/illustrations/research-studio-map-v3.png)](10_research_studio/README.md) | [![Five capstones connect building, recursive comparison, transfer, source audit and teaching.](assets/illustrations/capstone-map-v3.png)](11_capstones/README.md) |
+| [Explore the studio](10_research_studio/README.md) · [Full-size map](assets/illustrations/research-studio-map-v3.png) | [Explore the capstones](11_capstones/README.md) · [Full-size map](assets/illustrations/capstone-map-v3.png) |
+
+**[Browse all 101 codelab illustrations](VISUAL-GUIDE.md)** · [Teaching roadmap](TEACHING-ROADMAP.md) · [Skills and intent briefs](SOURCE-ARTIFACTS.md).
+
+These maps explain the mechanisms and learning route. They do not report
+experimental wins. Each lab connects its illustration to instructions, checks,
+takeaways and an explained quiz.
+
+## What has been tested
+
 **What the results currently show:** this course has executed mechanism lessons and small author-guided comparisons. It has **not demonstrated general, autonomous recursive self-improvement**. The original Dream-RSI exercise retained its baseline; the positive recursive capstone uses an author-written correction to a weak ranking rule. Read the [results diagnosis and benchmark repair plan](../how-did-i-generate-it/rsi/validation/RSI-RESULTS-DIAGNOSIS-2026-09-22.md) before interpreting the original near-zero result table or the newer examples as evidence of a successful RSI system.
 
 The repair began with [360 pilot attempts](evidence/2026-09-22/pipeline-operator-pilot/README.md) and [43 online discovery fits](evidence/2026-09-22/online-discovery/README.md). It now includes a [completed sixteen-task comparison](evidence/2026-09-22/discovery-final/README.md): the replay-selected policy used **55 search fits versus 192** for broad search. Separate final-row quality improved on three tasks, tied on twelve and worsened on one. Its uncertainty interval includes zero, so a predictive gain is not established. This is a real reduction in executed search work on known synthetic task families; development costs, unmetered agent inference and an explicitly recorded host interruption remain additional. Other method repairs and improvement of the improver are still in progress.

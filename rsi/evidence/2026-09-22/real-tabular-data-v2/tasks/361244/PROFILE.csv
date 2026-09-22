@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+361244,44966,solar_flare,development,regression,c_class_flares,1066,10,8,0,1,822,74,True,34f377d0c949b0a35e7b6ce5fd9854f4154842dd03e46d24cfcebe2d5c267794,620,270,176

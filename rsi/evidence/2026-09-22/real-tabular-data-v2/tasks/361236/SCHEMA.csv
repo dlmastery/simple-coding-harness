@@ -1,0 +1,9 @@
+column,role,kind,categories
+process.b1.capacity,feature,numeric,
+process.b2.capacity,feature,numeric,
+process.b3.capacity,feature,numeric,
+process.b4.capacity,feature,numeric,
+property.price,feature,numeric,
+property.product,feature,categorical,1 | 2 | 3 | 4 | 5 | 6
+property.winner,feature,categorical,0 | 1 | 2 | 3 | 4
+verification.time,target,numeric,

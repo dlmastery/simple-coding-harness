@@ -1,5 +1,24 @@
 # Build a coding agent, one mechanism at a time
 
+**This repository contains two courses.** Choose the question you want to study:
+
+| Course | Start here | Browse the illustrations |
+|---|---|---|
+| Build a coding agent and its harness · 54 lessons | [Harness walkthrough](harness/START-HERE.md) | [Harness visual guide](harness/VISUAL-GUIDE.md) |
+| From one ML experiment to recursive self-improvement · 101 codelabs | [RSI masterclass](rsi/README.md) | [RSI visual guide](rsi/VISUAL-GUIDE.md) |
+
+## The RSI masterclass at a glance
+
+[![The RSI course branches from one ML experiment through loops, graphs, domain rules, generated harnesses, self-improvement, research studio and capstones.](rsi/assets/illustrations/course-mindmap-v2.png)](rsi/COURSE-MAP.md)
+
+Follow the numbered themes from one experiment to changes in the research
+procedure and its improver. This is a learning map; measured results are
+reported separately in the course.
+
+**Explore:** [Full visual outline](rsi/COURSE-MAP.md) · [Research studio and its 38 labs](rsi/10_research_studio/README.md) · [Five capstones](rsi/11_capstones/README.md) · [All 101 illustrated labs](rsi/VISUAL-GUIDE.md).
+
+## The coding-harness course
+
 Ask a model to explain a file and it can produce a plausible answer. Give it a file-reading tool and it can inspect the actual contents. Feed that observation into its next request and you have the beginning of an agent loop.
 
 This course builds the machinery around that loop: tools, skills, state, permissions, context, recovery and evaluation. Each lesson keeps a runnable implementation beside its explanation. You can ask your coding agent to execute and modify the examples while you predict, inspect and explain the behavior.

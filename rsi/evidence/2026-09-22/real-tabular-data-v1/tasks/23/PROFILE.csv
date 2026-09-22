@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+23,23,cmc,procedure-comparison,classification,Contraceptive_method_used,1473,9,7,0,0,115,62,True,9d8694d39e05d9d2963fccbe4f71e2af04c72c13de45f5dcbe775a586f214567,870,326,277

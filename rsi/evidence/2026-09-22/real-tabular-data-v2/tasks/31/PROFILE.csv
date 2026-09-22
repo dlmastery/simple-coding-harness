@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+31,31,credit-g,procedure-comparison,classification,class,1000,20,13,0,0,0,0,True,768be84ef749110d5fcac109a6541f2df190e8c6987e1dc432c0a4f29d0642f5,604,195,201
