@@ -1,0 +1,3 @@
+Expected migration change: comparison test discovers themed paths.
+54 unique lessons; 68 published pages; 812 local file links; 1396 unchanged implementation/configuration files.
+0 publication problems.

@@ -1,0 +1,6 @@
+Resolved 12 packages in 368ms
+Prepared 1 package in 2.48s
+Uninstalled 1 package in 66ms
+Installed 1 package in 98ms
+ - trueforge-sdk==0.2.0
+ + trueforge-sdk==0.1.3

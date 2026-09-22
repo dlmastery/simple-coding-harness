@@ -379,7 +379,7 @@ when `node` is on the PATH. To confirm that `harness/` is the codelab's
 step 21 unchanged:
 
 ```bash
-diff -r ../../../step_21_streaming_headless/harness harness -x __pycache__
+diff -r ../../../harness/04_tools/step_21_streaming_headless/harness harness -x __pycache__
 ```
 
 ## Error handling

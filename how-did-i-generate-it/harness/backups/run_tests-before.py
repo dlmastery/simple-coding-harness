@@ -1,8 +1,7 @@
 """Run every step's offline test suite. No API key needed.
 
-    python run_tests.py            # all courses
-    python run_tests.py 13 14      # these harness steps (2 selects every 2.x stage)
-    python run_tests.py harness    # all 54 harness lessons
+    python run_tests.py            # all steps, root and genui/
+    python run_tests.py 13 14      # just these root steps (2 selects every 2.x stage)
     python run_tests.py genui/02   # every step under genui/02_*
     python run_tests.py rsi        # every step of the rsi/ series
 """
@@ -16,11 +15,10 @@ numbers = {int(a) for a in sys.argv[1:] if a.isdigit()}
 prefixes = [a.rstrip("/") for a in sys.argv[1:] if not a.isdigit()]
 
 steps = []
-for step in sorted(ROOT.glob("harness/*/step_*/")):
-    rel = step.relative_to(ROOT).as_posix()
-    numeric_match = int(step.name.split("_")[1]) in numbers
-    prefix_match = any(rel.startswith(p) for p in prefixes)
-    if (numbers or prefixes) and not (numeric_match or prefix_match):
+for step in sorted(ROOT.glob("step_*/")):
+    if prefixes and not numbers:
+        continue
+    if numbers and int(step.name.split("_")[1]) not in numbers:
         continue
     steps.append(step)
 for step in sorted(ROOT.glob("genui/*/step_*/")):
@@ -37,9 +35,6 @@ if include_rsi:
     steps.append(ROOT / "rsi" / "maintenance")
 
 failed = []
-if not steps:
-    sys.exit("No lessons match the requested selectors.")
-
 for step in steps:
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
@@ -48,10 +43,8 @@ for step in steps:
     )
     verdict = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else result.stderr.strip()[-200:]
     label = step.relative_to(ROOT).as_posix()
-    print(f"{label:<44} {verdict}", flush=True)
-    # pytest exits 5 when an optional module is entirely skipped at collection.
-    optional_skip = result.returncode == 5 and "skipped" in verdict
-    if result.returncode and not optional_skip:
+    print(f"{label:<44} {verdict}")
+    if result.returncode:
         failed.append(label)
         tail = "\n".join((result.stdout + result.stderr).strip().splitlines()[-40:])
         print("\n".join("    " + line for line in tail.splitlines()))

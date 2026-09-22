@@ -1,0 +1,164 @@
+harness/01_foundations/step_01_minimal_chat  3 passed in 1.14s
+harness/01_foundations/step_02_1_bash_tool   3 passed in 2.04s
+harness/01_foundations/step_02_2_generic_tools 4 passed in 2.03s
+harness/01_foundations/step_02_3_read_file   4 passed in 0.57s
+harness/01_foundations/step_02_4_agent_loop  4 passed in 1.05s
+harness/01_foundations/step_03_better_ui     4 passed in 1.86s
+harness/01_foundations/step_04_skills        3 passed in 0.09s
+harness/01_foundations/step_05_file_editing  4 passed in 0.16s
+harness/01_foundations/step_06_late_injection 4 passed in 0.91s
+harness/01_foundations/step_07_file_freshness 3 passed in 0.09s
+harness/01_foundations/step_08_sessions_rewind 7 passed in 1.94s
+harness/02_control/step_09_installable_command 9 passed in 3.41s
+harness/02_control/step_10_todos             7 passed in 1.72s
+harness/02_control/step_11_permissions       6 passed in 1.68s
+harness/02_control/step_12_sandbox           7 passed, 1 skipped in 3.13s
+harness/02_control/step_13_readable_todos_input_line 7 passed in 1.91s
+harness/02_control/step_14_compaction        10 passed in 1.58s
+harness/02_control/step_15_subagents         9 passed in 1.63s
+harness/03_adapters/step_16_claude_agent_sdk 1 skipped in 0.01s
+    1 skipped in 0.01s
+harness/03_adapters/step_17_openai_agents_sdk 1 skipped in 0.00s
+    1 skipped in 0.00s
+harness/03_adapters/step_18_google_antigravity_sdk 1 skipped in 0.01s
+    1 skipped in 0.01s
+harness/03_adapters/step_19_deepseek_harness 1 skipped in 0.01s
+    1 skipped in 0.01s
+harness/03_adapters/step_20_openrouter       22 passed in 1.82s
+harness/04_tools/step_21_streaming_headless  29 passed in 4.03s
+harness/04_tools/step_22_parallel_tools      28 passed in 3.63s
+harness/04_tools/step_23_browser_use         18 passed, 1 skipped in 1.35s
+harness/04_tools/step_24_computer_use        21 passed in 1.89s
+harness/04_tools/step_25_memory              19 passed in 2.00s
+harness/04_tools/step_26_mcp_client          21 passed in 5.28s
+harness/04_tools/step_27_hooks               36 passed in 7.99s
+harness/04_tools/step_28_plan_mode           20 passed in 2.01s
+harness/04_tools/step_29_jobs_parallel_subagents 24 passed in 10.80s
+harness/04_tools/step_30_eval                26 passed in 9.84s
+harness/05_recovery/step_31_instruction_files 23 passed in 1.71s
+harness/05_recovery/step_32_context_budget   22 passed in 1.67s
+harness/05_recovery/step_33_checkpoints      22 passed in 2.83s
+harness/05_recovery/step_34_durability       28 passed in 3.66s
+harness/05_recovery/step_35_human_in_the_loop 23 passed in 3.06s
+harness/05_recovery/step_36_orchestration    21 passed in 2.96s
+harness/05_recovery/step_37_production_anatomy 14 passed in 1.54s
+harness/05_recovery/step_38_capstone         26 passed in 89.37s (0:01:29)
+harness/06_production/step_39_approval_modes 21 passed in 3.42s
+harness/06_production/step_40_handoffs       26 passed in 3.58s
+harness/06_production/step_41_stop_conditions 23 passed in 3.54s
+harness/06_production/step_42_streaming_tool_output 19 passed in 5.35s
+harness/06_production/step_43_extensions     31 passed in 6.52s
+harness/06_production/step_44_replay_trace   22 passed in 2.58s
+harness/06_production/step_45_typescript_core 4 passed, 1 skipped in 4.07s
+harness/07_server/step_46_trueforge_loop     14 passed in 1.99s
+harness/07_server/step_47_trueforge_tools_mcp 16 passed in 9.14s
+harness/07_server/step_48_trueforge_sandbox_skills 3 failed, 13 passed in 3.45s
+    
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_48_trueforge_sandbox_skills\test_step.py:349: 
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\harness\07_server\step_48_trueforge_sandbox_skills\demo.py:31: in main
+        return run(args)
+               ^^^^^^^^^
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\harness\07_server\step_48_trueforge_sandbox_skills\demo.py:51: in run
+        events = list_events(client, session_id, result["turn_id"])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    client = <trueforge_sdk.client.TrueForge object at 0x000001DA82A1E120>
+    session_id = 'sess-1', turn_id = 'turn-1'
+    
+        def list_events(client: TrueForge, session_id: str, turn_id: str) -> list:
+            """Every stored event of a finished turn, deltas already merged, across all pages."""
+            events, token = [], None
+            while True:
+                page = client.sessions.list_turn_events(session_id=session_id, turn_id=turn_id, page_token=token)
+    >           events.extend(page.data)
+                              ^^^^^^^^^
+    E           AttributeError: 'SyncPager' object has no attribute 'data'
+    
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\harness\07_server\step_48_trueforge_sandbox_skills\client\sandbox.py:189: AttributeError
+    ---------------------------- Captured stdout call -----------------------------
+    session sess-1
+    > fail
+    turn.created     turn-1
+    model.message    exec  echo hi > hello.py
+    sandbox.created  v1:local:/tmp/sandboxes/sess-1/box-1
+    tool.response    exit 0  hi
+    turn.done        error  in=100 out=5  model unavailable
+    
+    (no final message)
+    turn error: model unavailable
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_list_events_follows_the_pagination_cursor - Attribu...
+    FAILED test_step.py::test_demo_runs_downloads_and_deletes_the_session - Attri...
+    FAILED test_step.py::test_demo_exits_1_on_an_errored_turn_and_keeps_the_session
+    3 failed, 13 passed in 3.45s
+harness/07_server/step_49_trueforge_context  18 passed in 3.30s
+harness/07_server/step_50_trueforge_subagents_eval 5 failed, 13 passed, 3 warnings in 21.74s
+    >   ???
+    
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_50_trueforge_subagents_eval\test_step.py:499: 
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    demo.py:42: in main
+        return run(cli)
+               ^^^^^^^^
+    demo.py:66: in run
+        turns = sessions.list_turns(client, session_id) if len(cli.replay) < 2 else None
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    
+    client = <trueforge_sdk.client.TrueForge object at 0x000001998618BDD0>
+    session_id = 'sess-1'
+    
+        def list_turns(client, session_id: str) -> list:
+            """Every turn of a session in creation order, following the pagination tokens."""
+            turns, token = [], None
+            while True:
+                page = client.sessions.list_turns(session_id=session_id, page_token=token)
+    >           turns.extend(page.data)
+                             ^^^^^^^^^
+    E           AttributeError: 'SyncPager' object has no attribute 'data'
+    
+    client\sessions.py:29: AttributeError
+    ============================== warnings summary ===============================
+    test_step.py::test_tools_server_annotations_and_project_root
+    test_step.py::test_bash_tool_round_trips_utf8_and_kills_a_stuck_command
+    test_step.py::test_eval_runner_uses_the_real_tools_server_through_the_fake_agent
+      C:\Users\abhir\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\contextlib.py:105: DeprecationWarning: Use `streamable_http_client` instead.
+        self.gen = func(*args, **kwds)
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events
+    FAILED test_step.py::test_reconnect_subscribes_while_running_and_replays_when_done
+    FAILED test_step.py::test_reconnect_replays_when_the_live_stream_ends_before_turn_done
+    FAILED test_step.py::test_demo_threads_mode_prints_the_session - AttributeErr...
+    FAILED test_step.py::test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server
+    5 failed, 13 passed, 3 warnings in 21.74s
+harness/07_server/step_51_trueforge_comparison 2 failed, 14 passed in 0.35s
+    .........FF.....                                                         [100%]
+    ================================== FAILURES ===================================
+    _______________ test_every_cited_step_and_stage_is_a_directory ________________
+    
+    >   ???
+    E   AssertionError: step 13 has no directory
+    E   assert []
+    E    +  where [] = list(<generator object Path.glob at 0x0000011451B858B0>)
+    E    +    where <generator object Path.glob at 0x0000011451B858B0> = glob('step_13_*')
+    E    +      where glob = WindowsPath('C:/Users/abhir/Documents/Codex/2026-09-19/lo/work/simple-coding-harness/harness/07_server').glob
+    
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_51_trueforge_comparison\test_step.py:124: AssertionError
+    ______ test_metrics_table_covers_the_capstone_and_every_part_seven_step _______
+    
+    >   ???
+    E   AssertionError: step 38 has no directory
+    E   assert []
+    E    +  where [] = list(<generator object Path.glob at 0x000001145384EBD0>)
+    E    +    where <generator object Path.glob at 0x000001145384EBD0> = glob('step_38_*')
+    E    +      where glob = WindowsPath('C:/Users/abhir/Documents/Codex/2026-09-19/lo/work/simple-coding-harness/harness/07_server').glob
+    
+    C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\step_51_trueforge_comparison\test_step.py:137: AssertionError
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_every_cited_step_and_stage_is_a_directory - Asserti...
+    FAILED test_step.py::test_metrics_table_covers_the_capstone_and_every_part_seven_step
+    2 failed, 14 passed in 0.35s

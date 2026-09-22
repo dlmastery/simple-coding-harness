@@ -78,13 +78,12 @@ def step_dirs(args):
             yield ROOT / "genui", "genui/README.md"
         if (ROOT / "rsi" / "README.md").exists():
             yield ROOT / "rsi", "rsi/README.md"
-    for step in sorted(ROOT.glob("harness/*/step_*/")):
-        rel = step.relative_to(ROOT).as_posix()
-        numeric_match = int(step.name.split("_")[1]) in numbers
-        prefix_match = any(rel.startswith(p) for p in prefixes)
-        if (numbers or prefixes) and not (numeric_match or prefix_match):
+    for step in sorted(ROOT.glob("step_*/")):
+        if prefixes and not numbers:
             continue
-        yield step, rel
+        if numbers and int(step.name.split("_")[1]) not in numbers:
+            continue
+        yield step, step.name
     for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/**/step_*/"))):
         if not (step / "README.md").exists():
             continue

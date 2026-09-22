@@ -1,0 +1,26 @@
+54 unique lessons; 68 published pages; 822 local file links; 1397 unchanged implementation/configuration files.
+harness/01_foundations/step_02_2_generic_tools/README.md: missing **args
+harness/01_foundations/step_02_2_generic_tools/README.md: missing **args
+harness/02_control/step_09_installable_command/README.md: missing **args
+harness/03_adapters/step_20_openrouter/README.md: missing **args
+harness/04_tools/step_21_streaming_headless/README.md: missing **args
+harness/04_tools/step_22_parallel_tools/README.md: missing **args
+harness/04_tools/step_30_eval/README.md: missing stats
+harness/05_recovery/step_38_capstone/README.md: missing **args
+harness/06_production/step_43_extensions/README.md: missing **args
+harness/06_production/step_45_typescript_core/README.md: missing **args
+harness/01_foundations/README.md: missing ../assets/foundations-v1.png
+harness/01_foundations/README.md: missing ../assets/foundations-v1.png
+harness/02_control/README.md: missing ../assets/control-v1.png
+harness/02_control/README.md: missing ../assets/control-v1.png
+harness/03_adapters/README.md: missing ../assets/adapters-v1.png
+harness/03_adapters/README.md: missing ../assets/adapters-v1.png
+harness/04_tools/README.md: missing ../assets/tools-v1.png
+harness/04_tools/README.md: missing ../assets/tools-v1.png
+harness/05_recovery/README.md: missing ../assets/recovery-v1.png
+harness/05_recovery/README.md: missing ../assets/recovery-v1.png
+harness/06_production/README.md: missing ../assets/production-v1.png
+harness/06_production/README.md: missing ../assets/production-v1.png
+harness/07_server/README.md: missing ../assets/server-v1.png
+harness/07_server/README.md: missing ../assets/server-v1.png
+24 publication problems.
