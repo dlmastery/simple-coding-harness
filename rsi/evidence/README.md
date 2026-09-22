@@ -21,6 +21,7 @@ Start with the scientific question you want to check:
 | What happens when an action hint becomes outdated? | [Four form attempts with actual inspections and exact checks](2026-09-21/scaffolding/README.md) |
 | Can the smallest visible error be the wrong choice? | [Two live browser attempts with a revised inspection skill](2026-09-21/gui-skill/README.md) |
 | Can fewer reports preserve the same checked result? | [Four matched fits with fixed quality and cost boundaries](2026-09-21/efficient-harnesses/README.md) |
+| Does an improved generated report imply a better builder? | [Two matched harness executions and the unchanged historical builder](2026-09-21/harness-builder/README.md) |
 | Can a proposed schedule perform an invalid update? | [Typed operations and scheduler checks](2026-09-21/operator-composition/README.md) |
 | Can a candidate exploit information in a reference trace? | [Checked references and rejected shortcuts](2026-09-21/checked-reference/README.md) |
 

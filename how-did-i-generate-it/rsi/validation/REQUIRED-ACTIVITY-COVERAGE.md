@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-91 labs have mapped related author-execution evidence; 10 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+92 labs have mapped related author-execution evidence; 9 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1185,9 +1185,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Propose a generator comparison on two fresh briefs. Explain why evaluating only one generated artifact is weak evidence for a general builder claim.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Source-specific map and two matched generated-harness executions](../../../rsi/evidence/2026-09-21/harness-builder/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The observed parent report failure is repaired by one component edit; child reports both recalls with identical predictions. Historical builder identity is recovered and unchanged; it does not run. The two-brief comparison is an unexecuted proposal. Independent creator/executor contexts, generator superiority, broad transfer, and learner assessment remain untested.
 
 **Acceptance to verify:** The source audit is completed before paper-specific mechanism claims. The local experiment identifies what changed and what was evaluated.
 

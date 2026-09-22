@@ -1,0 +1,3 @@
+# Preserve sealed output whose value appears after a space and newline.
+COST.md whitespace=-blank-at-eol,cr-at-eol
+CHILD-PROVENANCE.md whitespace=-blank-at-eol,cr-at-eol
