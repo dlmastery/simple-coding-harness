@@ -1,0 +1,4 @@
+attempt,operator,parent,candidate,model,features,selection_mae,fit_seconds,decision,retained_after,policy_sha256
+1,draft,root,trial-001,constant,calendar,159.94791188618632,0.068759,retained,trial-001,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc
+2,refine,trial-001,trial-002,linear,calendar,109.80766775073437,0.07245,retained,trial-002,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc
+3,explore,trial-002,trial-003,tree,calendar,125.04948805895863,0.084135,rejected,trial-002,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc

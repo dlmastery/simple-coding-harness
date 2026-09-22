@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Swap the role being tested. Give each researcher the same task of improving a researcher, with the same starting artifact and resources. Weco’s report distinguishes its demonstrated improvement claim from an ignition comparison that was not statistically significant. Keep that uncertainty in the audit.
 
-**A concrete example.** A researcher becomes good at finding strong ML candidates but proposes brittle changes when asked to improve another researcher. Its earlier task-search win remains real. The new role-transfer test can still fail because producing good solutions and producing better solution-finding procedures are different capabilities.
+**A concrete example.** The [recorded role exercise](../../../evidence/2026-09-21/aide-labs/README.md) projects each frozen researcher’s operator preference into an identical target procedure. Both targets pass two of three constructed decision cases, with opposite duplicate-proposal failures. No models are fitted. This narrow adapter makes the changed decision observable; it does not test general researcher-writing ability. The child’s earlier MAE win cannot answer this separate question.
 
 ![Frozen researchers R0 and R1 each revise an identical target procedure T0. Their separate proposals TA and TB execute on matched fixtures and produce blank behavior-and-cost reports.](../../../assets/illustrations/ignition-role-transfer-v1.png)
 

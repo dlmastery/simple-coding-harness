@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The inner researcher proposes ML candidates, evaluates them, and chooses what to pursue. In our exercise, operators are readable actions such as change model family or add a permitted feature group. Their order and allocation define a research procedure that an outer process can later revise.
 
-**A concrete example.** An inner researcher can spend four attempts on one model family or reserve attempts for a different permitted family. Even with identical fitting tools, those operator choices can expose different candidates before the budget ends. The researcher’s procedure is therefore an object that an outer process can inspect and revise.
+**A concrete example.** In the [recorded four-fit walkthrough](../../../evidence/2026-09-21/aide-labs/README.md), the researcher tries a median baseline, a linear model, a tree, and a permitted input change. It rejects the tree and applies the input change to the retained linear parent. Replaying another order reaches an unobserved recipe and returns unknown. The procedure explains how the search reached its result; four scores alone do not.
 
 ![A fixed inner researcher chooses a valid parent and an allowed operator, fits one candidate, checks predictions and cost, and retains or rejects it within four total attempts.](../../../assets/illustrations/inner-ml-researcher-v2.png)
 

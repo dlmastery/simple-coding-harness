@@ -1,0 +1,7 @@
+# Projected target proposal
+
+Order: draft refine enrich
+Producer: R1
+Producer SHA-256: 842ef6153a80175ea4f4e29da15e2b61c05728dad9b00da75d335b912f66cf24
+Target SHA-256: 78ca6d539364d0dfff2070923bced8add4a098c80760d59a8b6ae85bb7976625
+Adapter SHA-256: eee0807eff0a8addd7e20c791c7d06cb21ad58f71857a794d6a99118cdc0a242

@@ -1,0 +1,3 @@
+# Frozen adapter
+
+SHA-256: eee0807eff0a8addd7e20c791c7d06cb21ad58f71857a794d6a99118cdc0a242

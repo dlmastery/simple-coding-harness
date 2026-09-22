@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-77 labs have mapped related author-execution evidence; 24 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+80 labs have mapped related author-execution evidence; 21 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -951,9 +951,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Replay the same known candidate outcomes under a different ordering and state where unobserved outcomes prevent a conclusion.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed inner search, matched procedure comparison, and role fixtures](../../../rsi/evidence/2026-09-21/aide-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Four regression fits, before-action decisions, retained and rejected recipes, prediction checks, and an unknown-stopping reordered replay executed. The fixed controller and author-exposed data do not establish autonomous discovery, protected evaluation, or learner understanding.
 
 **Acceptance to verify:** The operator choices and budget are visible. The retained result is identifiable. The exercise is labelled a small adaptation of the nested-research idea.
 
@@ -964,9 +964,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Give the child twice the fit budget in a separate illustration and explain why that no longer isolates the procedure change.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed inner search, matched procedure comparison, and role fixtures](../../../rsi/evidence/2026-09-21/aide-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** One actor proposal and two frozen three-fit searches executed from empty matched state. An unequal-budget illustration stayed unexecuted. The child improved selection MAE on exposed development data; inference cost, independent tasks, statistical reliability, and learner understanding remain untested.
 
 **Acceptance to verify:** Starting artifacts and declared budgets match. All nested attempts remain in the ledger. The claim is limited to this comparison.
 
@@ -977,9 +977,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Construct an example where a strong optimizer always proposes overcomplicated procedures. Explain why task skill and improvement skill can diverge.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed inner search, matched procedure comparison, and role fixtures](../../../rsi/evidence/2026-09-21/aide-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two frozen-producer preferences were projected through one shared adapter into target procedures; six behavioral fixtures and one separate overcomplication check executed with zero fits. General researcher-code generation, independent proposer contexts, repeated fresh-task improvement, and ignition are not established.
 
 **Acceptance to verify:** The audit does not call the paper’s ignition result established. The classroom comparison uses a new outcome rather than recycling task scores.
 

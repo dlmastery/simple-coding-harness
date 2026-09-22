@@ -10,6 +10,11 @@ const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
 for (const [id,gap] of Object.entries({
+  '10.13': 'Four regression fits, before-action decisions, retained and rejected recipes, prediction checks, and an unknown-stopping reordered replay executed. The fixed controller and author-exposed data do not establish autonomous discovery, protected evaluation, or learner understanding.',
+  '10.14': 'One actor proposal and two frozen three-fit searches executed from empty matched state. An unequal-budget illustration stayed unexecuted. The child improved selection MAE on exposed development data; inference cost, independent tasks, statistical reliability, and learner understanding remain untested.',
+  '10.15': 'Two frozen-producer preferences were projected through one shared adapter into target procedures; six behavioral fixtures and one separate overcomplication check executed with zero fits. General researcher-code generation, independent proposer contexts, repeated fresh-task improvement, and ignition are not established.'
+})) related.set(id, {path: 'rsi/evidence/2026-09-21/aide-labs/README.md', label: 'Executed inner search, matched procedure comparison, and role fixtures', gap});
+for (const [id,gap] of Object.entries({
   '10.10': 'Two prerequisite trace captures and two context-only patch checks executed; a two-component alternative remains a labelled proposal. Component and fixed-driver scope is explicit. Constructed records and a stub do not test real language-model compression, independent actors, or learner understanding.',
   '10.11': 'All seven declared fixture executions are retained, including independent-edit passes, combined failures on original/fresh cases, and a malformed-input refusal before the stub. Zero fits. The combination was rejected; broad transfer, real agents, and learner interpretation remain untested.',
   '10.12': 'Selected primary methods and both source figures were inspected. Eight local proposal edges and 28 source files were identity-checked; both improver proposals remain rejected. No new model execution, independent source reproduction, accepted recursive revision in this run, or learner assessment is established.'

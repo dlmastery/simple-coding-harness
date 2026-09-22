@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 The outer task changes the inner researcher’s procedure. It might revise which operator to try or when to stop exploring a branch. Evaluate parent and child inner researchers from the same starting state. Our small comparison does not reproduce Weco’s much larger run.
 
-**A concrete example.** The parent spends all three comparison fits refining its first promising family. The proposed child reserves its last fit for a contrasting family. Freeze both procedures, then run each with three attempts from the same start. The child’s outcome includes the cost of any discarded exploration, not just its retained model.
+**A concrete example.** In the [recorded matched comparison](../../../evidence/2026-09-21/aide-labs/README.md), the child moves the weather-input change ahead of the tree probe. Each researcher spends three fits. The parent retains selection MAE 109.81; the child retains 99.18. The earlier four-fit trace motivated this edit and belongs in its discovery cost. This exposed-data result measures one procedure change, not ignition or equal total research cost.
 
 ![A researcher directs task search. Parent and candidate researchers are compared under the same task and total budget. A separate test uses each as an improver of an identical starting researcher, then executes their proposals.](../../../assets/illustrations/nested-research-v2.png)
 
