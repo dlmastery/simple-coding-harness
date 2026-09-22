@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 Reproducibility begins with a fixed recipe and known inputs. Record versions and hashes, then execute the same actions. A trace says what actually happened. It can differ from the intended process if a command fails or an assumption is missing.
 
-**A concrete example.** Two runs can produce byte-identical predictions while taking different wall-clock times. The recipe is repeatable; the operating system did not schedule both commands identically. Conversely, matching rounded MAE values can hide different predictions. Compare rows and settings before deciding what repeated.
+**A concrete example.** The [new fixed-process run](../../evidence/2026-09-22/fixed-process/README.md) reproduces the earlier baseline’s complete prediction bytes and MAE 159.947912. Its recorded fit time differs. Its tool version and enforced one-attempt contract also differ from the older run, so the comparison names them explicitly. In a teaching copy, deleting only the result report leaves the successful ledger and predictions intact. A missing report does not justify another fit.
 
 ![A five-action process guides one constant-median fit in a fresh workspace. A blank trace records inputs, outputs, exit status, and time, while a comparison notebook separates predictions and scores from runtime.](../../assets/illustrations/fixed-process-trace-v2.png)
 

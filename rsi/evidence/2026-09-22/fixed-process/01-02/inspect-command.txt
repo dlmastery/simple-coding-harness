@@ -1,0 +1,5 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\lab.py', 'inspect', '--task', 'bike', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-fixed-process\\01-02']
+Exit: 0
+Process wall seconds: 1.9374797999917064
+
+C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\rsi-work-2026-09-22-fixed-process\01-02\DATA-REPORT.md

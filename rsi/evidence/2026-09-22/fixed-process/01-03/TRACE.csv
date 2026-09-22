@@ -1,0 +1,6 @@
+action,inputs,outputs,start_utc,end_utc,seconds,status
+frame,TASK.md; data-card context,TASK.md; FRAME-CHECK.md,2026-09-22T07:55:24.262014+00:00,2026-09-22T07:55:24.263527+00:00,0.0010212999768555164,complete
+inspect,pinned hour.csv,DATA-REPORT.md; sample.csv; data-overview.png,2026-09-22T07:55:24.263527+00:00,2026-09-22T07:55:26.145386+00:00,1.8914143999863882,complete
+split,TASK.md; source dates,SPLIT.md,2026-09-22T07:55:26.145386+00:00,2026-09-22T07:55:26.192548+00:00,0.03598630000487901,complete
+fit,BASELINE-SKILL.md; task and training data,CONTRACT.md; trials.csv; trial-001 artifacts,2026-09-22T07:55:26.192548+00:00,2026-09-22T07:55:27.755090+00:00,1.5627865999995265,complete
+check,predictions; source targets; candidate registry,trial-001/CHECK.md,2026-09-22T07:55:27.755090+00:00,2026-09-22T07:55:29.306747+00:00,1.5496760999958497,complete

@@ -73,9 +73,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Move split design after fitting. Explain what temptation this creates and why a later good score would be harder to interpret.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/01-01).
+**Evidence:** [Five-action process and saved-skill executions with concrete extensions](../../../rsi/evidence/2026-09-22/fixed-process/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** Five actions now have concrete inputs, outputs and completion checks. A real baseline row is traced backward; split-after-fit bias is explained as a hypothetical counterexample. No fit or learner response is attributed to this planning activity.
 
 **Acceptance to verify:** Each action has a concrete input and output. Task, split, and metric are fixed before model fitting. The process contains no learner-designed improvement loop.
 
@@ -86,9 +86,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove an output report from a copy of the new workspace. Have the agent distinguish a missing artifact from an unexecuted model fit.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/01-02).
+**Evidence:** [Five-action process and saved-skill executions with concrete extensions](../../../rsi/evidence/2026-09-22/fixed-process/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A new one-fit process has a contemporaneous five-action trace, data inspection and prediction check. Full prediction bytes match the prior run; tool/contract changes and runtimes are explicit. A copied missing report is diagnosed without retraining. The environment and author context are reused; learner assessment remains unattempted.
 
 **Acceptance to verify:** The trace contains all five actions. The score recomputes from the new predictions. Any version difference is visible.
 
@@ -99,9 +99,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Add an ambiguous instruction, “use the best data.” Identify two conflicting interpretations, then replace it with a concrete input-availability rule.
 
-**Evidence:** [Selected author execution](../../../rsi/evidence/2026-09-20/clean-journey/01-03).
+**Evidence:** [Five-action process and saved-skill executions with concrete extensions](../../../rsi/evidence/2026-09-22/fixed-process/README.md).
 
-**Closure gap:** Reconcile each action and the additional change below with its files. A directory or progress note alone does not close the lab.
+**Closure gap:** A saved skill supplies recipe arguments to the fixed driver in a new one-fit workspace. Its snapshot, instruction record, five-action trace and checked predictions agree. Ambiguous and repaired text variants are retained without extra fits. Autonomous planning, changed-skill effectiveness, fresh contexts and learner understanding are not established.
 
 **Acceptance to verify:** The skill names its stop condition and reports. An actual execution follows it. A prose restriction is not described as a sandbox.
 

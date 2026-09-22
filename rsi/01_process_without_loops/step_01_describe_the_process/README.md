@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A process says what actions turn an input into an output. For this task: frame the question, inspect the data, fix the split, fit the baseline, and check the result. These are actions with products. “Be accurate” is an aim, not an executable action.
 
-**A concrete example.** “Fit a baseline” needs more than a table. It also needs the target, allowed columns, and training rows. Its output is a fitted recipe and predictions. The later checker consumes those predictions and the expected selection-row identities. Writing these input/output pairs reveals why a missing split decision cannot be repaired by a confident final paragraph.
+**A concrete example.** “Fit a baseline” needs more than a table: it needs a target, allowed columns and training rows. The [worked process](../../evidence/2026-09-22/fixed-process/PROCESS.md) names those inputs and the saved predictions that the checker will consume. Its [backward trace](../../evidence/2026-09-22/fixed-process/GAP-REVIEW.md) connects one actual error to the earlier task and split decisions. A confident summary cannot supply a missing evaluation decision after the result is known.
 
 ![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](../../assets/illustrations/data-science-process-v4.png)
 

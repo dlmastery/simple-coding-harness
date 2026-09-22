@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 A skill describes when to act, what to read, which tools to use, what outputs to keep, and when to stop. The host coding agent interprets it. The tool performs operations such as fitting a model. The evaluator checks an output. These roles cooperate but are not identical.
 
-**A concrete example.** A usable instruction says: read the task, verify the pinned data, fit the training-median baseline once, save predictions, recompute MAE, then stop. A tool supplies the fitting operation. The host agent chooses the tool call by following the skill. The skill file contains neither the language model nor a technical barrier that prevents the agent from ignoring it.
+**A concrete example.** The [saved baseline skill](../../evidence/2026-09-22/fixed-process/BASELINE-SKILL.md) tells the agent to verify the task and data, fit once, check predictions and stop. The actual driver reads its task, model, features, seed and attempt fields; the [trace](../../evidence/2026-09-22/fixed-process/01-03/TRACE.md) records those actions. The fit tool performs the training. This demonstrates a fixed saved procedure being used. It does not show independent agents or a skill rewriting its own improver.
 
 ![Earlier process and trace files inform a learner-owned skill. The coding agent reads it, invokes a fit tool, and sends saved predictions to an output checker, which also reads reference targets and row IDs.](../../assets/illustrations/skill-agent-tool-check-v2.png)
 
