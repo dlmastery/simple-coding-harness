@@ -18,6 +18,15 @@ For an existing successful selection candidate, run `rsi/tools/check_result.py C
 
 ## Scope and limits
 
+For the research extension, use [run-discovery-cycle](../skills/run-discovery-cycle/SKILL.md)
+and [its experiment guide](../experiments/tabular-discovery/README.md). The separate
+`discovery_run.py` tool records actual parent-workspace inheritance and supplies
+the same decision interface to online execution and replay. It has its own
+frozen allocations; opening the extension does not increase an earlier lab's
+budget. The deterministic inner proposer and agent-authored exploration policy
+are distinct components. Its paired evaluator also keeps final rows outside
+the search workspace.
+
 For lab 07.07, the agent runs `rsi/tools/self_play.py --output PATH` through the same local Python environment. The output folder must be new or empty. The tool fixes a 4,000-game protocol: 3,000 training games and 500 evaluation games each for untrained and trained policies. It saves the contract before training, freezes the trained table before evaluation, and records every move and parameter update in CSV files. No student-written code, API service, or GPU is required. Apply the lesson's 60-second command timeout; the tool does not enforce an operating-system deadline itself.
 
 The self-play tool uses only Python's standard library. The agent can check game rules and evaluation boundaries with `python -m pytest -q rsi/maintenance/test_self_play.py`, using the environment above. The four checks include separate tiny training/evaluation fixtures; report their cost separately from the 4,000-game lesson experiment. Use the installed plotting libraries to graph actual evaluation counts. A header-only initial policy CSV means every legal state-action value is zero, not that the file is incomplete. Missing entries in either table also mean zero.
