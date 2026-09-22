@@ -69,6 +69,14 @@ outside online rollouts and selected models are frozen before scoring.
 These published seeds become known examples after the study. A new research
 claim needs newly declared evaluation tasks.
 
+The maintainer evaluator's generator check expects the six original development
+files in a sibling `rsi-work-2026-09-22-discovery/data` folder. In a new clone,
+the agent can copy those exact files from the online-discovery evidence archive
+into that sibling folder without fitting models. Keep the archive unchanged.
+The larger Windows evaluation can use the temporary awake helper described
+in the discovery-cycle skill. The [standby incident](../../evidence/2026-09-22/discovery-interruption/README.md)
+shows why host interruption and model failure must stay distinct.
+
 This is a laptop adaptation. The inner proposer is a fixed program; the policy
 developer is the current coding agent. It does not reproduce Dream-RSI's full
 LLM discovery system. The generated tasks are controlled instances of three

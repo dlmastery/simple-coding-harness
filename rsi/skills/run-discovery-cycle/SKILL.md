@@ -27,6 +27,14 @@ course cases, not hidden evaluation tasks. `init` freezes data, policy, proposer
 runtime, attempt allowance and worker-process budget. Keep matching source to
 resume; do not edit hashes to make a changed runtime accept an old experiment.
 
+For the long Windows evaluation, the supplied
+`how-did-i-generate-it/rsi/scripts/run_discovery_awake.ps1` helper requests
+temporary idle-sleep prevention and releases it when the process ends. It does
+not change persistent power settings. If a host interruption breaks an attempt,
+preserve its original status and timing, inspect the system evidence, and
+declare any replacement before evaluation. A result file alone does not justify
+rewriting an observed timeout as success.
+
 ## Build and inspect a real tree
 
 Run only the declared online allowance. Each child must copy and verify its

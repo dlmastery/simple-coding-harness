@@ -31,6 +31,28 @@ def check(work):
     require("unique_task_arm", not results.duplicated(["seed", "arm"]).any())
     require("all_planned_arms", set(zip(order.seed, order.arm)) == set(zip(results.seed, results.arm)))
     require("all_choices_reported", set(zip(selected.seed, selected.arm)) == set(zip(results.seed, results.arm)))
+    recovery = work / "standby-recovery"
+    if recovery.exists():
+        for item in pd.read_csv(recovery / "EFFECTIVE-FREEZE.csv").itertuples():
+            require("recovery/freeze/" + item.path, sha(work / item.path) == item.sha256)
+        old_order = pd.read_csv(recovery / "original-ORDER.csv")
+        reconstructed = order.copy()
+        reconstructed.loc[reconstructed.seed == 8123, "seed"] = 8105
+        require("recovery/single_task_replacement", reconstructed.equals(old_order))
+        require("recovery/source_unchanged", sha(work / "SOURCE-FREEZE.csv") == sha(recovery / "original-SOURCE-FREEZE.csv"))
+        old_data = dict(pd.read_csv(recovery / "original-DATA-FREEZE.csv").itertuples(index=False, name=None))
+        new_data = dict(pd.read_csv(work / "DATA-FREEZE.csv").itertuples(index=False, name=None))
+        require("recovery/original_data_preserved", all(new_data.get(k) == v for k, v in old_data.items()))
+        require("recovery/only_replacement_data_added", set(new_data) - set(old_data) ==
+                {"public/task-8123.npz", "evaluator/task-8123.npz"})
+        require("recovery/task_pairing", 8105 not in set(results.seed) and 8123 in set(results.seed))
+        exclusion = pd.read_csv(recovery / "EXCLUSION.csv").iloc[0]
+        excluded_tree = work / "rollouts/8105/broad-stop/TREE.csv"
+        require("recovery/failed_history_unchanged", sha(excluded_tree) == exclusion.original_tree_sha256)
+        failed = pd.read_csv(excluded_tree)
+        require("recovery/extra_cost_retained", len(failed) == exclusion.interrupted_attempts and
+                np.isclose(failed.seconds.sum(), exclusion.recorded_worker_seconds))
+        require("recovery/unused_task_not_scored", not (work / "scoring/8105").exists())
     for row in results.itertuples():
         label = f"{row.seed}/{row.arm}"
         rollout = work / "rollouts" / str(row.seed) / row.arm
