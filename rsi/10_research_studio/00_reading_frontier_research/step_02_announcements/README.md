@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Record who made the claim, when it first appeared, what was measured, and what the linked evidence contains. Original X posts can be valid announcement sources. A blocked thread stays unverified; a repost is not a substitute for its missing content.
 
-**A concrete example.** An author reposts a July report in September. The post is recent, but the experiment is still July work unless a substantive new result is linked. Conversely, a September methods revision may matter even when the title stays the same. Your claim card records both events and identifies what actually changed.
+**A concrete example.** The saved [announcement audit](../../../evidence/2026-09-21/research-reading/CLAIM-CARD.md) follows an author-linked project page to its dated paper and evaluation. It distinguishes automated review from conference acceptance, and source-reported verification from an independent reproduction. The paper date is known while the first website date remains unresolved. A recent crawl cannot fill that gap.
 
 ![A fictional author announcement leads to methods, evaluation, and available artifacts, which populate a blank claim card. Side notes distinguish original dates, inaccessible posts, and independent reproduction.](../../../assets/illustrations/announcement-evidence-trail-v2.png)
 

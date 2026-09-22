@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| What evidence supports a research label or announcement? | [Two frameworks, three local cases, and one primary claim trail](2026-09-21/research-reading/README.md) |
 | Do six RSI systems change the same thing? | [Mechanism-only matrix, result boundaries, and a challenged local claim](2026-09-21/system-comparison/README.md) |
 | Does the basic ML workflow run? | [Initial execution record and environment](2026-09-20/README.md) |
 | What did the three exploration attempts establish? | [Measured probes and a decision before the final fit](2026-09-21/exploration/README.md) |

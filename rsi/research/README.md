@@ -8,6 +8,8 @@ The detailed [research inventory](../../how-did-i-generate-it/rsi/RSI-RESEARCH-S
 
 ## Main studio sources
 
+The [executed reading audits](../evidence/2026-09-21/research-reading/README.md) show how to apply two frameworks to actual artifacts and trace one current announcement. The [six-system comparison](../evidence/2026-09-21/system-comparison/README.md) separates mechanisms from reported results. These are selected-source audits, not paper reproductions.
+
 | Work | First date | Course use |
 |---|---|---|
 | [The Last AI Built by Humans](https://arxiv.org/abs/2609.11873) | 10 Sep 2026 | Definitions and evidence framework |

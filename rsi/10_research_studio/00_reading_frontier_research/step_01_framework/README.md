@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Begin with your artifacts, then apply the paper’s definitions. Keep execution changes, strategy changes, retained experience, deployment changes, and inherited improver changes distinct. Do not equate this framework’s level numbers with another lab’s terminology.
 
-**A concrete example.** Your fixed search loop tries a tree after a linear model. Your memory experiment saves a rule for later tasks. Your inheritance experiment changes the rule that generates future skill edits. These are three different artifacts and feedback paths. Apply a source’s criteria to each; do not infer that similarly numbered levels in two publications mean the same thing.
+**A concrete example.** The saved [three-case audit](../../../evidence/2026-09-21/research-reading/README.md) checks a bounded retry controller, memory used by a later process, and a revised improver used for a later check. Their recorded hashes match the actual files. Those matches establish identity; they do not establish autonomous discovery or a general performance advantage. The audit keeps the named framework and Weco terminology in separate columns.
 
 ![Three parallel cases show fixed retries, saved memory, and a proposed improver used in a later round. A blank framework ledger asks for source criteria, observed artifacts, and missing evidence.](../../../assets/illustrations/classify-the-mechanism-v1.png)
 

@@ -1,0 +1,5 @@
+action,model,features,attempts_before,attempts_after,exit_status,command_seconds,outcome
+run,linear,calendar,0,1,0,0.171831,Checked trial-001; score 109.807668.
+run,tree,calendar,1,2,0,0.199841,Checked trial-002; score 125.049488.
+run,linear,calendar,2,2,1,0.000457,REFUSED: Duplicate recipe; no new fit. Use a separately declared replication experiment.
+run,forest,calendar,2,2,1,0.001606,REFUSED: Attempt budget exhausted. Keep the evidence and stop.

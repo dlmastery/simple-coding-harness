@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-94 labs have mapped related author-execution evidence; 7 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+96 labs have mapped related author-execution evidence; 5 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -795,9 +795,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Apply Weco’s differently defined level terminology to the same cases in a separate column. Explain why equal numbers need not mean equal mechanisms.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Versioned framework and three-case evidence classification](../../../rsi/evidence/2026-09-21/research-reading/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Selected v2 definitions and historical Weco criteria are mapped separately to actual retry, memory, and inherited-improver records; three artifact identities pass. This is an author audit of scoped demonstrations, not autonomous discovery, full-paper review, general effectiveness, or learner assessment.
 
 **Acceptance to verify:** The audit separates structural and effective improvement. Missing evidence remains visible. Level numbers are not mixed across sources.
 
@@ -808,9 +808,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Compare the headline with an ablation or limitation in its linked paper. Explain whether the headline omits a condition.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Date-bounded discovery and primary announcement claim trail](../../../rsi/evidence/2026-09-21/research-reading/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Six explicit recent-month queries, identity/date checks, methods/results links, and a headline-to-integrity-sample comparison are retained. Original social post, website first date, pinned runnable artifact, complete costs, independent reproduction, and learner assessment remain unverified.
 
 **Acceptance to verify:** Every technical claim has a primary source or is marked unresolved. No inaccessible post is presented as read. The date window is explicit.
 
