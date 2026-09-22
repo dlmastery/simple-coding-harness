@@ -16,7 +16,7 @@ This course builds that distinction slowly. You begin with one understandable pr
 
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 
-Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete, while full course verification remains in progress.
+Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete. The [author handoff](../how-did-i-generate-it/rsi/validation/AUTHOR-HANDOFF-2026-09-22.md) separates completed maintainer checks from learner and environment validation.
 
 To see what has actually run, open the [measured-example guide](evidence/README.md). It connects questions about ML results, memory, GUI mistakes, reporting cost, and harness changes to actual traces and checks. Some improvements preserve predictions while making the process clearer or cheaper; some proposed changes fail. Each example explains what its evidence supports and what remains untested.
 
@@ -160,7 +160,7 @@ Work through the first themes in order. Keep one short lab note: prediction, obs
 
 Use the [instructor guide](instructor/README.md) to choose checkpoints and assess explanations. The complete [course-authoring skill](../skills/build-research-codelabs/SKILL.md) preserves the method for diffusion models, flow methods, or another complex topic.
 
-All 101 lesson pages, individual illustrations, briefs, and shared skills are authored. The [sequential source review](../how-did-i-generate-it/rsi/validation/READING-PATH-REVIEW-2026-09-22.md) now covers every lesson and has corrected budget and prerequisite ambiguities. Final publication review is in progress: the [activity inventory](../how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md) identifies execution evidence and remaining gaps. Learner assessment, research review, and backend checks have separate status.
+All 101 lesson pages, individual illustrations, briefs, and shared skills are authored. The [sequential source review](../how-did-i-generate-it/rsi/validation/READING-PATH-REVIEW-2026-09-22.md) now covers every lesson and has corrected budget and prerequisite ambiguities. The [maintainer acceptance pass](../how-did-i-generate-it/rsi/validation/AUTHOR-HANDOFF-2026-09-22.md) is complete, and the course is ready for a teaching pilot. The [activity inventory](../how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md) identifies actual execution evidence and its limits. Real learner assessment, peer sessions and additional agent/GPU environments remain untested.
 
 The [development record](../how-did-i-generate-it/rsi/README.md) retains plans, intermediate artifacts, checks, and GitHub checkpoints. The [visual record](../how-did-i-generate-it/rsi/visuals/generated/README.md) preserves every generated version and prompt; [per-lab coverage](../how-did-i-generate-it/rsi/validation/INFOGRAPHIC-COVERAGE.md) maps the selected figures to all 101 labs.
 
