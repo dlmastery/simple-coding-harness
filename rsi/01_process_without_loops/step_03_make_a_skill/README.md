@@ -28,9 +28,20 @@ A skill describes when to act, what to read, which tools to use, what outputs to
 
 **A concrete example.** A usable instruction says: read the task, verify the pinned data, fit the training-median baseline once, save predictions, recompute MAE, then stop. A tool supplies the fitting operation. The host agent chooses the tool call by following the skill. The skill file contains neither the language model nor a technical barrier that prevents the agent from ignoring it.
 
+![Earlier process and trace files inform a learner-owned skill. The coding agent reads it, invokes a fit tool, and sends saved predictions to an output checker, which also reads reference targets and row IDs.](../../assets/illustrations/skill-agent-tool-check-v2.png)
+
+*These are distinct responsibilities within one agent workflow, not independent security domains. The one fitted number is the training median. The learner skill must name actual dependencies and concrete refusal checks; the compact notebook is an outline, not a complete runnable skill. To confirm the one-fit budget, inspect the trial ledger and instruction-to-action trace as well as predictions. Blank checker results must be filled from execution. Preserve the canonical course skills.*
+
+[Open the illustration at full size](../../assets/illustrations/skill-agent-tool-check-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The skill tells the agent how to carry out the process. Tools perform the concrete operations.](../../assets/diagrams/lab-01-03.png)
 
 *Read the diagram:* The skill tells the agent how to carry out the process. Tools perform the concrete operations.
+
+</details>
 
 ## Run the lab
 

@@ -2,14 +2,14 @@
 
 This inventory tracks a generated infographic mapped directly to a lab. Shared theme maps and the precise step schematics are separate. A present image does not establish scientific correctness, rendering quality, execution, or learner understanding.
 
-**60 of 101 labs** currently have a mapped generated infographic; **41 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
+**64 of 101 labs** currently have a mapped generated infographic; **37 remain**. The selected gallery also contains course maps and the compute guide, so its total image count is not a completed-lab count.
 
 All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones have mapped images. Continue with the remaining foundation labs. Preserve the two-or-three-attempt generation discipline.
 
 | Theme | Labs | Mapped lab infographics | Remaining |
 |---|---|---|---|
 | 00 · Start with a prediction | 4 | 4 | 0 |
-| 01 · Make one process dependable | 5 | 1 | 4 |
+| 01 · Make one process dependable | 5 | 5 | 0 |
 | 02 · Repeat for a reason | 6 | 1 | 5 |
 | 03 · Give different cases different routes | 6 | 0 | 6 |
 | 04 · Agree on what the experiment means | 5 | 1 | 4 |
@@ -35,10 +35,10 @@ All seven theme-09 RSI labs, all 38 research-studio labs, and all five capstones
 | Lab | Generated infographic | Precise step schematic |
 |---|---|---|
 | [01.01 · Write the data science process](../../../rsi/01_process_without_loops/step_01_describe_the_process/README.md) | [Selected figure](../../../rsi/assets/illustrations/data-science-process-v4.png) | [Present](../../../rsi/assets/diagrams/lab-01-01.png) |
-| [01.02 · Run the process without changing it](../../../rsi/01_process_without_loops/step_02_run_the_process/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-01-02.png) |
-| [01.03 · Turn the process into a skill](../../../rsi/01_process_without_loops/step_03_make_a_skill/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-01-03.png) |
-| [01.04 · Check outputs with a separate calculation](../../../rsi/01_process_without_loops/step_04_separate_the_check/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-01-04.png) |
-| [01.05 · Reuse the skill in a fresh session](../../../rsi/01_process_without_loops/step_05_reuse_the_skill/README.md) | Pending | [Present](../../../rsi/assets/diagrams/lab-01-05.png) |
+| [01.02 · Run the process without changing it](../../../rsi/01_process_without_loops/step_02_run_the_process/README.md) | [Selected figure](../../../rsi/assets/illustrations/fixed-process-trace-v2.png) | [Present](../../../rsi/assets/diagrams/lab-01-02.png) |
+| [01.03 · Turn the process into a skill](../../../rsi/01_process_without_loops/step_03_make_a_skill/README.md) | [Selected figure](../../../rsi/assets/illustrations/skill-agent-tool-check-v2.png) | [Present](../../../rsi/assets/diagrams/lab-01-03.png) |
+| [01.04 · Check outputs with a separate calculation](../../../rsi/01_process_without_loops/step_04_separate_the_check/README.md) | [Selected figure](../../../rsi/assets/illustrations/row-identity-check-v1.png) | [Present](../../../rsi/assets/diagrams/lab-01-04.png) |
+| [01.05 · Reuse the skill in a fresh session](../../../rsi/01_process_without_loops/step_05_reuse_the_skill/README.md) | [Selected figure](../../../rsi/assets/illustrations/fresh-session-handoff-v2.png) | [Present](../../../rsi/assets/diagrams/lab-01-05.png) |
 
 ## 02 · Repeat for a reason
 

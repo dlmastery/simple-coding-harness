@@ -7,6 +7,13 @@ import {fileURLToPath} from 'node:url';
 const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const folder=resolve(repo,'how-did-i-generate-it/rsi/visuals/generated');
 const outputs=[
+  ["fixed-process-trace-v1","exec-590c4024-023a-4519-b504-df55e58012ff.png",false],
+  ["fixed-process-trace-v2","exec-ea4d02a6-9d2f-4446-a197-5eba4a5bc9ba.png",true],
+  ["skill-agent-tool-check-v1","exec-196e28b2-f7ff-4117-acfa-9bda3c91064b.png",false],
+  ["skill-agent-tool-check-v2","exec-b162723e-4c7a-4cc2-811d-69660785c289.png",true],
+  ["row-identity-check-v1","exec-387d1e8b-553e-4181-a440-fe016dca6f73.png",true],
+  ["fresh-session-handoff-v1","exec-008e8ecc-ad3b-47b2-b7fb-df5af0219fef.png",false],
+  ["fresh-session-handoff-v2","exec-f7005708-547b-47e9-9144-35ea3736a21d.png",true],
   ["inspectable-workspace-v1","exec-7fd89324-bb12-4ae2-94c9-260e72291724.png",false],
   ["inspectable-workspace-v2","exec-9b206893-f23b-4273-9ca9-2d356772077d.png",true],
   ["training-median-baseline-v1","exec-3a0cc723-8f75-4725-9564-152d472c8e55.png",true],

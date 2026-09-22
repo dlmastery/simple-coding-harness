@@ -24,13 +24,24 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 ## How it works
 
-A fresh session has a new working context. It reads the stored skill and task to recover the procedure. If it behaves the same way, that supports reuse. It does not show the procedure improved: the retained instructions have not changed.
+A fresh session has a new working context. Check whether the host also supplies earlier conversation, shared memory, or other retained information. Record that exposure rather than assuming it is absent. The session reads the stored skill and task to recover the procedure. If it behaves the same way, that supports reuse. It does not show the procedure improved: the retained instructions have not changed.
 
 **A concrete example.** A new session reading “repeat our successful run” lacks the decisions hidden in “our.” A handoff that names TASK.md, the skill version, pinned data, setup, workspace, and budget can recover them. Supplying the desired score would encourage imitation of the answer; supply the procedure and let the new execution determine its score.
+
+![Task, skill identity, setup, workspace rule, and one-fit limit cross from an earlier session to a new session through a saved handoff. The old conversation is not part of that transfer, and the actual context boundary must be recorded.](../../assets/illustrations/fresh-session-handoff-v2.png)
+
+*The bridge shows the intended file-based handoff, not proven isolation. The new session must be able to read the exact skill and dependencies; a hash without the file is insufficient. Inspect imported conversation, host memory, and other exposure before describing the boundary. If the host cannot provide a fresh session, label the exercise a same-context demonstration. The earlier checkmarks depict prepared inputs; the output tray contains no measured result yet. Compare after execution, without supplying the old score as a target. Reusing the same skill establishes no adaptive improvement.*
+
+[Open the illustration at full size](../../assets/illustrations/fresh-session-handoff-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
 
 ![A new session receives saved files. It should not need an unrecorded explanation from the previous chat.](../../assets/diagrams/lab-01-05.png)
 
 *Read the diagram:* A new session receives saved files. It should not need an unrecorded explanation from the previous chat.
+
+</details>
 
 ## Run the lab
 

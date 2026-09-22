@@ -28,9 +28,20 @@ A separate calculation can recompute a metric without trusting the report writer
 
 **A concrete example.** Suppose a prediction row has a plausible error but refers to source row 12, which belongs to training. The arithmetic can be correct and the selection claim still invalid. A checker with expected row identities rejects that substitution. A checker given only “MAE 159.95” cannot detect it.
 
+![Two runs of the same checker use common expected selection IDs, source targets, and candidate identity. The original symbolic rows S1, S2, S3 are compared with a teaching copy containing training row T1 instead of S2.](../../assets/illustrations/row-identity-check-v1.png)
+
+*S1, S2, S3, and T1 are symbolic IDs. The red text in the altered table is an annotation, not a prediction value. Change only the ID in the real teaching copy; preserve prediction values and the original file. Both runs use the same checker code and reference inputs despite the different illustration colors. Check the full row set, duplicates, candidate identity, and targets from pinned data. The archive lock means preserve the original; it does not establish access control. Record actual verdicts and nonzero failure status.*
+
+[Open the illustration at full size](../../assets/illustrations/row-identity-check-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.](../../assets/diagrams/lab-01-04.png)
 
 *Read the diagram:* The checker starts from prediction rows. It does not accept the solver’s reported score as its input truth.
+
+</details>
 
 ## Run the lab
 
@@ -57,12 +68,16 @@ experiment.
 Give the check its own inputs.
 
 ```text
-Generate a checker that reads the candidate
-ID, prediction rows, expected partition row
-IDs, and declared metric. Recompute MAE and
-reject missing, duplicate, or mismatched
-rows. Run it on the baseline. Save its code
-and output.
+Generate a checker that reads the expected
+candidate identity and recipe from the run
+records, prediction rows, expected partition
+row IDs, source targets from the pinned
+data, and declared metric. Match rows to
+source targets instead of trusting copied
+actual values. Recompute MAE and reject
+missing, duplicate, or mismatched rows. Run
+it on the baseline. Save its code and
+output.
 ```
 
 **Observe:** The checker checks identity and completeness as well as arithmetic.

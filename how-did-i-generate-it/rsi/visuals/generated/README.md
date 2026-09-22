@@ -1,14 +1,38 @@
 # Illustrations for the RSI course
 
-Sixty-four selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
+Sixty-eight selected illustrations were produced on 20–21 September 2026 with the built-in image-generation tool. The user [approved this alternative](../GENERATOR-DECISION.md) to the original Imagen preference. The tool returns the image and an output hint but no model identifier. These assets are not labelled Imagen-generated. The [student visual guide](../../../../rsi/VISUAL-GUIDE.md) shows only the selected figures and links back to their lessons and maps.
 
-All 102 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
+All 109 generated versions are retained. The [manifest](MANIFEST.csv) records each PNG, exact prompt, original output filename, dimensions, byte count, SHA-256, and selected course copy. The [manifest source](../../scripts/build-illustration-manifest.mjs) verifies that selected copies match. The course publisher embeds selected assets through [the illustration map](../../scripts/lesson-illustrations.mjs), so rebuilding lessons preserves them. The [visual-guide publisher](../../scripts/build-visual-guide.mjs) generates the student companion from the same reviewed captions.
 
 These are conceptual explanations, not empirical result figures. Numerical plots remain separate and use recorded experiment data. Each course embed has descriptive alternative text, a caption, and a full-size link. The corresponding precise step diagram remains available in a disclosure.
 
 The new navigation maps appear first in the student guide. They support early visual feedback; the remaining focused lesson illustrations are still in progress. Following the user's cost correction, review technical labels and relations before generation and use no more than three attempts per figure.
 
 All seven theme-09 labs and all five capstones now have mapped generated infographics. The [per-lab inventory](../../validation/INFOGRAPHIC-COVERAGE.md) distinguishes these from the rest of the unfinished course. The five new theme-09 figures used six outputs: the first fixed-improver draft needed one connector correction; the other four were selected on their first attempts. The [first fixed-improver draft](fixed-improver-v1.png) and [prompt](fixed-improver-v1.prompt.md) remain available.
+
+## Lab 01.02
+
+![A five-action process guides one constant-median fit in a fresh workspace. A blank trace records inputs, outputs, exit status, and time, while a comparison notebook separates predictions and scores from runtime.](fixed-process-trace-v2.png)
+
+Selected: [fixed-process-trace-v2.png](fixed-process-trace-v2.png). Exact [prompt](fixed-process-trace-v2.prompt.md). The five numbered rows are actions to record, not evidence that they succeeded. Fill the trace as each action occurs and preserve failures. Compare the new run with the earlier recipe and artifacts after execution; never copy old predictions into the new run as if they were newly fitted. A matching rounded score alone does not establish matching predictions. The one-fit limit includes the attempt you record; this lab does not introduce search or recipe revision.
+
+## Lab 01.03
+
+![Earlier process and trace files inform a learner-owned skill. The coding agent reads it, invokes a fit tool, and sends saved predictions to an output checker, which also reads reference targets and row IDs.](skill-agent-tool-check-v2.png)
+
+Selected: [skill-agent-tool-check-v2.png](skill-agent-tool-check-v2.png). Exact [prompt](skill-agent-tool-check-v2.prompt.md). These are distinct responsibilities within one agent workflow, not independent security domains. The one fitted number is the training median. The learner skill must name actual dependencies and concrete refusal checks; the compact notebook is an outline, not a complete runnable skill. To confirm the one-fit budget, inspect the trial ledger and instruction-to-action trace as well as predictions. Blank checker results must be filled from execution. Preserve the canonical course skills.
+
+## Lab 01.04
+
+![Two runs of the same checker use common expected selection IDs, source targets, and candidate identity. The original symbolic rows S1, S2, S3 are compared with a teaching copy containing training row T1 instead of S2.](row-identity-check-v1.png)
+
+Selected: [row-identity-check-v1.png](row-identity-check-v1.png). Exact [prompt](row-identity-check-v1.prompt.md). S1, S2, S3, and T1 are symbolic IDs. The red text in the altered table is an annotation, not a prediction value. Change only the ID in the real teaching copy; preserve prediction values and the original file. Both runs use the same checker code and reference inputs despite the different illustration colors. Check the full row set, duplicates, candidate identity, and targets from pinned data. The archive lock means preserve the original; it does not establish access control. Record actual verdicts and nonzero failure status.
+
+## Lab 01.05
+
+![Task, skill identity, setup, workspace rule, and one-fit limit cross from an earlier session to a new session through a saved handoff. The old conversation is not part of that transfer, and the actual context boundary must be recorded.](fresh-session-handoff-v2.png)
+
+Selected: [fresh-session-handoff-v2.png](fresh-session-handoff-v2.png). Exact [prompt](fresh-session-handoff-v2.prompt.md). The bridge shows the intended file-based handoff, not proven isolation. The new session must be able to read the exact skill and dependencies; a hash without the file is insufficient. Inspect imported conversation, host memory, and other exposure before describing the boundary. If the host cannot provide a fresh session, label the exercise a same-context demonstration. The earlier checkmarks depict prepared inputs; the output tray contains no measured result yet. Compare after execution, without supplying the old score as a target. Reusing the same skill establishes no adaptive improvement.
 
 ## Lab 00.02
 

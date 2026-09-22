@@ -1,6 +1,26 @@
 // Reviewed conceptual illustrations. Exact prompts and rejected versions are
 // retained in ../visuals/generated/. These are not experimental result plots.
 export const illustrations = {
+  "01.02": {
+    "file": "fixed-process-trace-v2.png",
+    "alt": "A five-action process guides one constant-median fit in a fresh workspace. A blank trace records inputs, outputs, exit status, and time, while a comparison notebook separates predictions and scores from runtime.",
+    "caption": "The five numbered rows are actions to record, not evidence that they succeeded. Fill the trace as each action occurs and preserve failures. Compare the new run with the earlier recipe and artifacts after execution; never copy old predictions into the new run as if they were newly fitted. A matching rounded score alone does not establish matching predictions. The one-fit limit includes the attempt you record; this lab does not introduce search or recipe revision."
+},
+  "01.03": {
+    "file": "skill-agent-tool-check-v2.png",
+    "alt": "Earlier process and trace files inform a learner-owned skill. The coding agent reads it, invokes a fit tool, and sends saved predictions to an output checker, which also reads reference targets and row IDs.",
+    "caption": "These are distinct responsibilities within one agent workflow, not independent security domains. The one fitted number is the training median. The learner skill must name actual dependencies and concrete refusal checks; the compact notebook is an outline, not a complete runnable skill. To confirm the one-fit budget, inspect the trial ledger and instruction-to-action trace as well as predictions. Blank checker results must be filled from execution. Preserve the canonical course skills."
+},
+  "01.04": {
+    "file": "row-identity-check-v1.png",
+    "alt": "Two runs of the same checker use common expected selection IDs, source targets, and candidate identity. The original symbolic rows S1, S2, S3 are compared with a teaching copy containing training row T1 instead of S2.",
+    "caption": "S1, S2, S3, and T1 are symbolic IDs. The red text in the altered table is an annotation, not a prediction value. Change only the ID in the real teaching copy; preserve prediction values and the original file. Both runs use the same checker code and reference inputs despite the different illustration colors. Check the full row set, duplicates, candidate identity, and targets from pinned data. The archive lock means preserve the original; it does not establish access control. Record actual verdicts and nonzero failure status."
+},
+  "01.05": {
+    "file": "fresh-session-handoff-v2.png",
+    "alt": "Task, skill identity, setup, workspace rule, and one-fit limit cross from an earlier session to a new session through a saved handoff. The old conversation is not part of that transfer, and the actual context boundary must be recorded.",
+    "caption": "The bridge shows the intended file-based handoff, not proven isolation. The new session must be able to read the exact skill and dependencies; a hash without the file is insufficient. Inspect imported conversation, host memory, and other exposure before describing the boundary. If the host cannot provide a fresh session, label the exercise a same-context demonstration. The earlier checkmarks depict prepared inputs; the output tray contains no measured result yet. Compare after execution, without supplying the old score as a target. Reusing the same skill establishes no adaptive improvement."
+},
   "00.02": {
     "file": "inspectable-workspace-v2.png",
     "alt": "Separate course and learner folders sit under one parent. A capability report records observed checks, and data inspection compares hashes and produces a report, sample, and actual plot.",

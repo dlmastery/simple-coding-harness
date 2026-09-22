@@ -28,9 +28,20 @@ Reproducibility begins with a fixed recipe and known inputs. Record versions and
 
 **A concrete example.** Two runs can produce byte-identical predictions while taking different wall-clock times. The recipe is repeatable; the operating system did not schedule both commands identically. Conversely, matching rounded MAE values can hide different predictions. Compare rows and settings before deciding what repeated.
 
+![A five-action process guides one constant-median fit in a fresh workspace. A blank trace records inputs, outputs, exit status, and time, while a comparison notebook separates predictions and scores from runtime.](../../assets/illustrations/fixed-process-trace-v2.png)
+
+*The five numbered rows are actions to record, not evidence that they succeeded. Fill the trace as each action occurs and preserve failures. Compare the new run with the earlier recipe and artifacts after execution; never copy old predictions into the new run as if they were newly fitted. A matching rounded score alone does not establish matching predictions. The one-fit limit includes the attempt you record; this lab does not introduce search or recipe revision.*
+
+[Open the illustration at full size](../../assets/illustrations/fixed-process-trace-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
 ![The process becomes evidence only when its actions run and their outputs are retained.](../../assets/diagrams/lab-01-02.png)
 
 *Read the diagram:* The process becomes evidence only when its actions run and their outputs are retained.
+
+</details>
 
 ## Run the lab
 
@@ -63,7 +74,7 @@ artifact, exit status, and elapsed time in
 TRACE.md. Do not improve the recipe.
 ```
 
-**Observe:** The same data and recipe give the same metric within numerical tolerance.
+**Observe:** With matching inputs and runtime, expect the same metric within numerical tolerance. Check the new predictions before making that claim.
 
 ### 2. Compare the runs
 

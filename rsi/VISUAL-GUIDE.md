@@ -96,6 +96,46 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 [Lab 01.01: Write the data science process](01_process_without_loops/step_01_describe_the_process/README.md).
 
+## A plan says what should happen. A trace records what did.
+
+![A five-action process guides one constant-median fit in a fresh workspace. A blank trace records inputs, outputs, exit status, and time, while a comparison notebook separates predictions and scores from runtime.](assets/illustrations/fixed-process-trace-v2.png)
+
+*The five numbered rows are actions to record, not evidence that they succeeded. Fill the trace as each action occurs and preserve failures. Compare the new run with the earlier recipe and artifacts after execution; never copy old predictions into the new run as if they were newly fitted. A matching rounded score alone does not establish matching predictions. The one-fit limit includes the attempt you record; this lab does not introduce search or recipe revision.*
+
+[Open the illustration at full size](assets/illustrations/fixed-process-trace-v2.png).
+
+[Lab 01.02: Run the process without changing it](01_process_without_loops/step_02_run_the_process/README.md).
+
+## The skill guides. The agent acts. The tool runs.
+
+![Earlier process and trace files inform a learner-owned skill. The coding agent reads it, invokes a fit tool, and sends saved predictions to an output checker, which also reads reference targets and row IDs.](assets/illustrations/skill-agent-tool-check-v2.png)
+
+*These are distinct responsibilities within one agent workflow, not independent security domains. The one fitted number is the training median. The learner skill must name actual dependencies and concrete refusal checks; the compact notebook is an outline, not a complete runnable skill. To confirm the one-fit budget, inspect the trial ledger and instruction-to-action trace as well as predictions. Blank checker results must be filled from execution. Preserve the canonical course skills.*
+
+[Open the illustration at full size](assets/illustrations/skill-agent-tool-check-v2.png).
+
+[Lab 01.03: Turn the process into a skill](01_process_without_loops/step_03_make_a_skill/README.md).
+
+## A plausible score can belong to the wrong rows
+
+![Two runs of the same checker use common expected selection IDs, source targets, and candidate identity. The original symbolic rows S1, S2, S3 are compared with a teaching copy containing training row T1 instead of S2.](assets/illustrations/row-identity-check-v1.png)
+
+*S1, S2, S3, and T1 are symbolic IDs. The red text in the altered table is an annotation, not a prediction value. Change only the ID in the real teaching copy; preserve prediction values and the original file. Both runs use the same checker code and reference inputs despite the different illustration colors. Check the full row set, duplicates, candidate identity, and targets from pinned data. The archive lock means preserve the original; it does not establish access control. Record actual verdicts and nonzero failure status.*
+
+[Open the illustration at full size](assets/illustrations/row-identity-check-v1.png).
+
+[Lab 01.04: Check outputs with a separate calculation](01_process_without_loops/step_04_separate_the_check/README.md).
+
+## Carry the procedure across the session boundary
+
+![Task, skill identity, setup, workspace rule, and one-fit limit cross from an earlier session to a new session through a saved handoff. The old conversation is not part of that transfer, and the actual context boundary must be recorded.](assets/illustrations/fresh-session-handoff-v2.png)
+
+*The bridge shows the intended file-based handoff, not proven isolation. The new session must be able to read the exact skill and dependencies; a hash without the file is insufficient. Inspect imported conversation, host memory, and other exposure before describing the boundary. If the host cannot provide a fresh session, label the exercise a same-context demonstration. The earlier checkmarks depict prepared inputs; the output tray contains no measured result yet. Compare after execution, without supplying the old score as a target. Reusing the same skill establishes no adaptive improvement.*
+
+[Open the illustration at full size](assets/illustrations/fresh-session-handoff-v2.png).
+
+[Lab 01.05: Reuse the skill in a fresh session](01_process_without_loops/step_05_reuse_the_skill/README.md).
+
 ## A loop needs memory and a way out
 
 ![Propose, run, check, and record surround persistent state. A limit gate leads to the next attempt or stop. A failed fit is recorded and still consumes an attempt. Resumption reads the same saved state.](assets/illustrations/bounded-loop-v1.png)

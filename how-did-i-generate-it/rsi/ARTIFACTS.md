@@ -1,5 +1,7 @@
 # Artifact index
 
+- [Fixed process, skill, checker, and handoff review](validation/FIXED-PROCESS-ILLUSTRATIONS.md): four selected figures from seven outputs, with clearer source-target, repeatability, and session-exposure instructions.
+
 - [Workspace, baseline, and evidence illustration review](validation/START-HERE-ILLUSTRATIONS.md): three selected figures from four outputs; all theme-00 labs now have individual figures.
 
 - [Inner research, ignition, and fixed meta-skill review](validation/INNER-IGNITION-META-ILLUSTRATIONS.md): three selected figures, five retained outputs, and completion of the 38 research-lab infographic mappings.
