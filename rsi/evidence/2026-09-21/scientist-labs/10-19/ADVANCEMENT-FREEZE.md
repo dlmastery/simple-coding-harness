@@ -1,0 +1,3 @@
+# Before full fits
+
+SHA-256: 4453e48e69f6999ebfb0c00672b3f765d1e8734896f2a7f83fd4f080a08743e1

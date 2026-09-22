@@ -10,6 +10,12 @@ const evidenceRoot = 'rsi/evidence/2026-09-20/';
 const link = p => relative(destination, resolve(repo, p)).split(sep).join('/');
 const related = new Map();
 for (const [id,gap] of Object.entries({
+  '10.18': 'A saved hypothesis, two matched fits, prediction checks, hourly errors, and a conditional conclusion are retained. The author had prior development-result exposure; this is not blind hypothesis discovery, causal evidence, or learner assessment.',
+  '10.19': 'Two separately implemented subset screens and two matched fuller confirmation/ablation fits executed. The fastest-screen alternative uses measured times without extra fits. No fuller-condition ranking of the unselected idea, protected evaluation, independent-agent screening, or learner assessment is established.',
+  '10.20': 'A current-context agent review, frozen two-fit seed follow-up, evidence-linked response, and restatement counterexample are retained. Two seeds do not establish broad robustness; independent peer review, conference acceptance, and learner assessment remain absent.',
+  '10.21': 'The two-study lineage records a fixed researcher hash with growing context, actual costs, a measured chart, selected source evaluation audit, and an unexecuted matched researcher comparison. It does not demonstrate a revised improver, researcher-level superiority, or learner understanding.'
+})) related.set(id, {path: 'rsi/evidence/2026-09-21/scientist-labs/README.md', label: 'Executed scientific workflow and audited result lineage', gap});
+for (const [id,gap] of Object.entries({
   '10.16': 'Two separately allocated parent captures, one task-skill edit, two child checks, an unchanged updater, and a byte-identical renamed copy are retained. Constructed ML workflow decisions test a unit repair, not new model performance, independent agents, or learner understanding.',
   '10.17': 'A separately prepared second update trace, one self-directed updater proposal, and two later task-skill arms executed. The revised policy selected a different internal check; both arms faced the same three external cases. A schedule simulation is labelled hypothetical. Shared author context and known fixtures do not establish general autonomous discovery, protected evaluation, statistical benefit, or learner understanding.'
 })) related.set(id, {path: 'rsi/evidence/2026-09-21/meta-skills/README.md', label: 'Executed fixed task repairs and an inherited updater revision', gap});

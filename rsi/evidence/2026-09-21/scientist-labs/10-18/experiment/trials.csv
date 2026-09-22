@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,linear,calendar,17,109.80766775073437,0.072792,6683eea390d3cb6b4c5f0708a3d1e4418ff9d524dcd2fb186057cbd4d870e33f,Baseline for the weather-input hypothesis; fixed linear recipe and calendar inputs.
+trial-002,ok,bike,linear,all,17,99.17592378687597,0.079681,6683eea390d3cb6b4c5f0708a3d1e4418ff9d524dcd2fb186057cbd4d870e33f,Add permitted observed weather fields; same linear recipe and fixed development split.

@@ -1,0 +1,24 @@
+# screen-tree
+
+Exit: 0
+Wall seconds: 1.540544000
+
+Stdout:
+# Screening result
+
+Model: tree
+Selection MAE: 79.259565530700
+Fit and prediction seconds: 0.017600100
+Training rows: 2067
+Selection rows: 741
+Scaler training rows seen: 2067
+Python: 3.12.12
+scikit-learn: 1.7.2
+pandas: 2.3.2
+NumPy: 2.5.3
+
+Only the recorded subset fits preprocessing and estimator parameters. Source bytes are public; this is not a secret evaluation service.
+
+
+Stderr:
+(empty)

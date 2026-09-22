@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A previous result can become the baseline for a new investigation. Track the result lineage separately from the researcher version. If the procedure stays fixed while solutions improve, the evidence concerns accumulated research outputs. Testing a better researcher needs a comparison of research processes.
 
-**A concrete example.** The first study produces a better feature recipe. The second uses that recipe as its baseline and finds another gain. If both studies followed the same research instructions, the results improved while the recorded researcher stayed fixed. Accumulated outputs and improved research ability need separate lineages.
+**A concrete example.** The [measured two-study lineage](../../../evidence/2026-09-21/scientist-labs/README.md) moves from linear/calendar to linear/all and then forest/all. Every edge records the same research-procedure hash. The model recipes improve while the author’s context accumulates results; the stored research instructions do not change. A separate matched old/new-researcher experiment is proposed but unexecuted.
 
 ![Two studies retain artifact records while the stored researcher stays R0. A separate unexecuted comparison puts old R0 and revised R1 on identical fresh baselines and compares outcomes and costs.](../../../assets/illustrations/discovery-and-researcher-v2.png)
 

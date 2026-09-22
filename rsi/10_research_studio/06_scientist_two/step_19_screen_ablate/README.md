@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 Screening uses a cheaper test to choose which idea deserves more work. Confirmation then tests the chosen idea under the declared fuller conditions. An ablation removes the proposed component. Keep screening and confirmation results distinct; a cheap proxy is not automatically the final objective.
 
-**A concrete example.** A cheap screen on a small, earlier training subset may favor a simple model. The fuller development comparison can favor another idea because more data supports it. That disagreement is a result about the screen’s usefulness, not a reason to hide the cheaper run.
+**A concrete example.** The [recorded screen](../../../evidence/2026-09-21/scientist-labs/README.md) advances forest over tree on a small development subset. Under fuller conditions, the selected forest improves MAE by only about 1.15% over its matched linear ablation. Only forest received confirmation, so this does not establish a fuller-data ranking of both screened ideas. The ablation removes the estimator replacement while keeping weather inputs.
 
 ![Two small-data screening fits select one idea. Two matched fuller fits compare that idea with its component removed. Results remain blank and final evaluation stays untouched.](../../../assets/illustrations/screen-and-ablate-v2.png)
 

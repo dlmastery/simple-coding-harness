@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-82 labs have mapped related author-execution evidence; 19 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+86 labs have mapped related author-execution evidence; 15 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1016,9 +1016,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Rewrite “weather improves demand prediction” as a conditional statement tied to this task, model, period, and metric.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed scientific workflow and audited result lineage](../../../rsi/evidence/2026-09-21/scientist-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A saved hypothesis, two matched fits, prediction checks, hourly errors, and a conditional conclusion are retained. The author had prior development-result exposure; this is not blind hypothesis discovery, causal evidence, or learner assessment.
 
 **Acceptance to verify:** The hypothesis precedes results. One declared factor changes. A failed hypothesis remains a valid research outcome.
 
@@ -1029,9 +1029,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Select on the fastest screen only and explain why that could miss an idea whose benefit appears at a larger data scale.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed scientific workflow and audited result lineage](../../../rsi/evidence/2026-09-21/scientist-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two separately implemented subset screens and two matched fuller confirmation/ablation fits executed. The fastest-screen alternative uses measured times without extra fits. No fuller-condition ranking of the unselected idea, protected evaluation, independent-agent screening, or learner assessment is established.
 
 **Acceptance to verify:** The screen does not consume final evaluation. Confirmation and ablation use matched conditions. All ideas and costs are retained.
 
@@ -1042,9 +1042,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Write a response that only restates the original claim. Explain which uncertainty remains unchanged.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed scientific workflow and audited result lineage](../../../rsi/evidence/2026-09-21/scientist-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** A current-context agent review, frozen two-fit seed follow-up, evidence-linked response, and restatement counterexample are retained. Two seeds do not establish broad robustness; independent peer review, conference acceptance, and learner assessment remain absent.
 
 **Acceptance to verify:** The response cites actual new evidence or identifies an unresolved issue. No automated score is presented as human peer acceptance.
 
@@ -1055,9 +1055,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Propose a matched experiment where old and new researcher procedures start from the same fresh baseline.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Executed scientific workflow and audited result lineage](../../../rsi/evidence/2026-09-21/scientist-labs/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The two-study lineage records a fixed researcher hash with growing context, actual costs, a measured chart, selected source evaluation audit, and an unexecuted matched researcher comparison. It does not demonstrate a revised improver, researcher-level superiority, or learner understanding.
 
 **Acceptance to verify:** The audit names the evaluated object. It does not infer researcher self-improvement from successive task gains alone.
 

@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 A reviewer can identify a missing baseline, confound, or unsupported generalization. Convert one valid criticism into an experiment. Automated review is useful feedback but is not a real conference acceptance decision. ScientistTwo’s automated assessment must be read with that distinction.
 
-**A concrete example.** The report says weather helps, but the reviewer notices that the weather arm also used a different estimator. A useful response compares the feature groups with one fixed estimator. If the gain disappears, the revised claim should say so. A longer defense of the first result would leave the confound unresolved.
+**A concrete example.** The [recorded review](../../../evidence/2026-09-21/scientist-labs/README.md) asks whether a small forest advantage repeats at another seed. Two follow-up fits preserve the direction at seed 29. The response reports that observation and leaves broad seed robustness unresolved. Review and response share one author context. The source paper also reports a separate human manuscript study; do not equate either kind of assessment with conference acceptance.
 
 ![An agent review asks whether a weather-feature finding depends on model family. Two matched tree-model fits use calendar inputs with and without weather, then evidence informs a revised response.](../../../assets/illustrations/review-to-evidence-v1.png)
 

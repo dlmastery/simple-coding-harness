@@ -1,0 +1,3 @@
+model,selection_mae,fit_seconds
+tree,79.259565530700,0.017600100
+forest,73.688599022211,0.170601200

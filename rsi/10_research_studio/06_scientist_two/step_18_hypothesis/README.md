@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../../sk
 
 ScientistTwo motivates a research workflow built around hypotheses and experiments. Our classroom question is narrow: does adding permitted weather information help a fixed linear recipe beyond calendar inputs? This is a prediction study, not a causal claim about weather.
 
-**A concrete example.** Calendar inputs can explain the usual morning peak while leaving unusually quiet hours poorly predicted. The proposed weather features might reduce those errors. Compare the same linear recipe with and without that feature group. Even a lower MAE would establish a predictive association under this contract, not the causal effect of changing the weather.
+**A concrete example.** The [recorded hypothesis test](../../../evidence/2026-09-21/scientist-labs/README.md) repeats the fixed linear recipe with calendar-only and calendar-plus-weather inputs. Selection MAE falls from 109.81 to 99.18, exceeding the declared 5% threshold. The author already knew these development data. The result supports a conditional predictive observation, not a causal effect of changing weather or a claim of blind discovery.
 
 ![A bike-demand limitation leads to a hypothesis, cheap screening and fuller experiments, matched weather-feature ablation, and an agent review answered by a follow-up experiment with retained records.](../../../assets/illustrations/scientific-claim-v2.png)
 
