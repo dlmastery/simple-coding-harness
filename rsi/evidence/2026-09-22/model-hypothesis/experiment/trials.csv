@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.065555,not supplied,A fixed median misses hourly structure; test a calendar linear model while holding inputs and evaluation fixed.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.080679,not supplied,A fixed median misses hourly structure; test a calendar linear model while holding inputs and evaluation fixed.

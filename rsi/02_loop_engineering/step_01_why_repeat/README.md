@@ -26,7 +26,7 @@ Open the coding agent at the repository root. Read [the tutor skill](../../skill
 
 An improvement hypothesis connects an observed error to a proposed change. Here the median predicts the same count at every hour. A linear model with encoded calendar categories can assign different contributions to different hours. Holding the feature set fixed isolates the model-family change.
 
-**A concrete example.** A constant predictor gives the same answer at 3 a.m. and 5 p.m. A model with calendar categories can assign different contributions to those hours. In the saved author run, replacing the constant model with a calendar linear model changed selection MAE from 159.95 to 109.81. Both used the same calendar input group; the comparison isolates a model change rather than adding weather at the same time.
+**A concrete example.** A constant predictor gives the same answer at 3 a.m. and 5 p.m. The [saved pre-fit hypothesis](../../evidence/2026-09-22/model-hypothesis/HYPOTHESIS.md) proposes a calendar linear model to represent part of that pattern. In the [two-fit comparison](../../evidence/2026-09-22/model-hypothesis/README.md), selection MAE changes from 159.947912 to 109.807668. Both use the same calendar input group. Hour 8 remains weak, and hours 6, 22 and 23 get worse. The result supports this model choice on this selection period; it does not prove every hour improved.
 
 ![A hypothesis from earlier hourly errors motivates a two-fit comparison of a constant training-median predictor and a calendar-based linear model under the same task, split, features, seed, and MAE.](../../assets/illustrations/one-factor-model-change-v1.png)
 

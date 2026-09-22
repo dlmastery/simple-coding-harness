@@ -1,0 +1,7 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\check_result.py', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-model-hypothesis\\experiment\\trial-002', '--report', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-model-hypothesis\\experiment\\trial-002\\CHECK.md']
+Start UTC: 2026-09-22T08:18:47.427971+00:00
+End UTC: 2026-09-22T08:18:48.958200+00:00
+Exit: 0
+Wall seconds: 1.5287861000106204
+
+PASS: selection rows, targets, ledger, and report agree. Score: 109.807668.

@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Did the diagnosis precede the alternative model? | [Saved hypothesis, two controlled fits and hourly regressions](2026-09-22/model-hypothesis/README.md) |
 | Does saved state or feedback actually control the next fit? | [Five fits, retained state versions, pre-fit decisions and hourly regressions](2026-09-22/loop-state-feedback/README.md) |
 | Does a saved skill produce a repeatable process? | [Two five-action traces, identical predictions and a missing-report diagnosis](2026-09-22/fixed-process/README.md) |
 | Can a plausible score hide the wrong rows? | [Generated checker and a one-row substitution refusal](2026-09-22/generated-checker/README.md) |

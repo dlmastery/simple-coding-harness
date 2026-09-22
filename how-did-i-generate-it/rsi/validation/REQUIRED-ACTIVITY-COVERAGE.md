@@ -140,9 +140,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Inspect a slice where the new model is still weak. Explain why a better average does not imply every hour improved.
 
-**Evidence:** [Pre-action state and feedback runs with historical slice and stop audits](../../../rsi/evidence/2026-09-22/loop-state-feedback/README.md).
+**Evidence:** [New pre-fit diagnosis and controlled two-fit comparison](../../../rsi/evidence/2026-09-22/model-hypothesis/README.md).
 
-**Closure gap:** The original controlled two-fit comparison now has a checked 24-hour slice audit and actual-data figure. Its missing pre-fit diagnosis remains a specific historical gap: a retrospective explanation cannot govern an earlier fit. No new fit or learner answer is attributed to this audit.
+**Closure gap:** A separately allocated run saves a hypothesis, alternative and possible failure before two checked fits. Saved fields govern recipes; all 24 hourly comparisons and eight checks are retained. This closes the missing-note evidence gap without rewriting the historical run. Prior outcome exposure, one selection period, same author context and unattempted student assessment remain explicit.
 
 **Acceptance to verify:** The data, split, metric, seed, and feature set match. Only the model family changes. COMPARISON.md retains both results and costs.
 

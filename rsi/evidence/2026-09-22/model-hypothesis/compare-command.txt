@@ -1,0 +1,7 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\lab.py', 'compare', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-model-hypothesis\\experiment']
+Start UTC: 2026-09-22T08:18:48.960657+00:00
+End UTC: 2026-09-22T08:18:50.427855+00:00
+Exit: 0
+Wall seconds: 1.4824499000096694
+
+trial-002
