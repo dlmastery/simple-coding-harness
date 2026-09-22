@@ -1,0 +1,4 @@
+candidate,model,mae,scope
+A,forest,73.688599022211,screen
+B,forest,98.03122050618987,full
+C,linear,99.17592378687597,full

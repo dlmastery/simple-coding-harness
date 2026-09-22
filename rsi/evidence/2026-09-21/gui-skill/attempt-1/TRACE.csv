@@ -1,0 +1,4 @@
+sequence,time_utc,action,value
+1,2026-09-22T05:37:53.957Z,begin,-
+2,2026-09-22T05:37:58.336Z,filter,forest
+3,2026-09-22T05:38:03.691Z,select,A

@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-89 labs have mapped related author-execution evidence; 12 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+90 labs have mapped related author-execution evidence; 11 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1159,9 +1159,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Inspect the two saved UI attempts. Determine whether each inspected the warning hidden in the detail view before selecting. Do not add a third UI attempt to improve the presentation.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Two live browser attempts with saved metrics and screenshots](../../../rsi/evidence/2026-09-21/gui-skill/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** The deliberate first control failed; detail inspection on the unchanged page led to a passing second selection. The visible-trace critique, one-instruction repair, exact checks, and warning-exposure audit are retained. All roles share author context; independent critique, general skill reuse, other browser integrations, and learner assessment remain untested.
 
 **Acceptance to verify:** The page uses actual data. Live interaction is distinguished from reading HTML or a simulation. Missing browser capability is reported rather than claiming completion.
 

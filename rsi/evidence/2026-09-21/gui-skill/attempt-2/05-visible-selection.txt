@@ -1,0 +1,52 @@
+Browser tab: 6, Title: "Experiment review · lab 10.29", URL: "http://127.0.0.1:8769/".
+1 AXWebArea Experiment review · lab 10.29, URL: 127.0.0.1:8769/
+	2 container
+		3 text RSI RESEARCH STUDIO · 10.29
+		4 heading Inspect before you select, Value: 1
+			5 text Inspect before you select
+		6 text Select the lowest-MAE valid candidate trained on full 2011 data and evaluated on January–June 2012. A smaller error from a different evaluation subset is ineligible. Saved bike-rental results. Lower MAE is better. This page runs no models.
+		7 button (disabled) Start attempt, ID: start
+		8 container work
+			9 container
+				10 text Filter model
+				11 text field (disabled) Filter model, Value: forest, ID: filter
+				12 button (disabled) Apply filter, ID: apply
+			13 table
+				14 row
+					15 cell
+						16 text Candidate
+					17 cell
+						18 text Model
+					19 cell
+						20 text MAE
+					21 cell
+						22 text Inspect
+					23 cell
+						24 text Choose
+				25 container body
+					83 row
+						84 cell
+							85 text A
+						86 cell
+							87 text forest
+						88 cell
+							89 text 73.688599
+						90 cell
+							91 button (disabled) Details A
+						92 cell
+							93 button (disabled) Select A
+					94 row
+						95 cell
+							96 text B
+						97 cell
+							98 text forest
+						99 cell
+							100 text 98.031221
+						101 cell
+							102 button (disabled) Details B
+						103 cell
+							104 button (disabled) Select B
+			82 text B: Eligible for this task. Training: full 2011. Evaluation: January–June 2012. Prediction check passed.
+		105 text Selection recorded: B. Attempt complete.
+
+The focused UI element is 1 AXWebArea Experiment review · lab 10.29, URL: 127.0.0.1:8769/
