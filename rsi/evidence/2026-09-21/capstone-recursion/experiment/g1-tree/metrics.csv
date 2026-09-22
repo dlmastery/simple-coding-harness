@@ -1,0 +1,2 @@
+candidate,model,features,metric,training_MAE,selection_MAE,fit_seconds,predictions_sha256,model_sha256,training_predictions_sha256
+g1-tree,tree,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,MAE,0.0,0.6933867735470942,0.01621889998205006,d4fb12132c7434e8b61fb398c343af67992118e9b22df2121347518251a4e7a7,633d9a1ff204b5b7d2b34568ccaaf509d610b64ffbfa1fd762ea802150cecf3b,065030d5f2bde2f19a04965f47c6389ae6942e4b3724b27b6ac8b8ebdc5e4eac

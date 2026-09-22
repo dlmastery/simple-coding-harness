@@ -299,7 +299,7 @@ export const illustrations = {
   '11.02': {
     file: 'capstone-recursion-v1.png',
     alt: 'Four evidence areas surround a bounded experiment: protocol, proposal and decision lineage, inherited changed-rule use, and a matched comparison with complete costs.',
-    caption: 'These are the evidence needed to inspect the experiment. Distinguish a candidate trial from retained use; promote only through the declared decision and trace whichever version actually governs the next round. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol, with agent-inference limits declared separately.'
+    caption: 'These are the evidence needed to inspect the experiment. The pictured contrasting-case check is one possible revision; the saved author run changes ranking from training to selection MAE. Its later use occurs in the candidate trial, with acceptance afterward and no third generation. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol; record agent-inference limits and unavailable costs separately.'
   },
   '11.03': {
     file: 'capstone-portability-v1.png',

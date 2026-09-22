@@ -2,7 +2,7 @@
 
 This inventory separates authored instructions from execution evidence. It covers all 101 lab READMEs at the current source revision. The [editorial inventory](README-GUIDANCE-COVERAGE.md) answers a different question.
 
-97 labs have mapped related author-execution evidence; 4 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
+98 labs have mapped related author-execution evidence; 3 do not yet have a lab-specific execution mapping here. **These are mapping counts, not completed-lab counts.** Unmapped means unverified in this inventory, not proof that a mechanism has never run. Component tests, primary-source reading, and a progress-file assertion do not automatically satisfy a lesson activity.
 
 Each entry retains the required steps, the additional change, the closest known execution record, and a closure gap. To close an activity, name its actual input, command or action, output, check, and budget in the execution record. Preserve failed attempts. Source-review activities need the specific inspected primary sections and a completed claim audit; an abstract link alone is insufficient.
 
@@ -1304,9 +1304,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Ask a reviewer to remove one key artifact from the evidence pack and identify which claim no longer follows.
 
-**Evidence:** No lab-specific execution mapping yet.
+**Evidence:** [Eight-fit improver comparison with terminal evaluation](../../../rsi/evidence/2026-09-21/capstone-recursion/README.md).
 
-**Closure gap:** Execute or locate and inspect the named activities, preserve their artifacts, and assess the additional change. Do not infer completion from the authored example.
+**Closure gap:** Two initial fits expose the weak training-ranking rule; two matched three-fit arms execute original and revised Markdown instructions. Candidate-trial inheritance, frozen external acceptance, terminal evaluation, 43 checks and three refusals are retained. No post-acceptance third generation, autonomous proposal, fresh-task effectiveness, complete research cost, independent context, peer or learner assessment occurred.
 
 **Acceptance to verify:** The improved object is identified. The revised improver actually governs later work. Fairness limits and missing costs remain in the conclusion.
 

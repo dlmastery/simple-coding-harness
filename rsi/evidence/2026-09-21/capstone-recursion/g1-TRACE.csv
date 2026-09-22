@@ -1,0 +1,3 @@
+phase,skill,skill_sha256,instruction,candidate,previous,training_MAE,selection_MAE,decision,retained
+g1,I0.md,753b9cddd58ea16e59eeffa1018171e0de26498f1456d86e4d4c4a593d2bc65e,training_MAE,g1-ridge,,0.5765851464615885,0.6092388935621454,retain,g1-ridge
+g1,I0.md,753b9cddd58ea16e59eeffa1018171e0de26498f1456d86e4d4c4a593d2bc65e,training_MAE,g1-tree,g1-ridge,0.0,0.6933867735470942,retain,g1-tree

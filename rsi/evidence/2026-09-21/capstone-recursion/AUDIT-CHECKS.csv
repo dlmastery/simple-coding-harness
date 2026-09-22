@@ -1,0 +1,44 @@
+check,status,detail
+frozen inputs,PASS,"Protocol, original improver, initial driver, package and data hashes match"
+pre-final I0.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final I1.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final CHILD-FROZEN.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final CHANGE-PROPOSAL.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final PROMOTION.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g1-TASK-SKILL.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i0-START.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i1-START.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/ATTEMPTS.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i0-CHOICE.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i0-TRACE.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i0-TASK-SKILL.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i0-tree/model.joblib,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i0-tree/predictions.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i0-tree/training-predictions.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i0-tree/metrics.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i1-CHOICE.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i1-TRACE.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final g2-i1-TASK-SKILL.md,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i1-forest/model.joblib,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i1-forest/predictions.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i1-forest/training-predictions.csv,PASS,Hash still matches frozen pre-evaluation identity
+pre-final experiment/g2-i1-forest/metrics.csv,PASS,Hash still matches frozen pre-evaluation identity
+budget,PASS,"Eight charged successful fits, no hidden retry in this ledger"
+all candidate predictions,PASS,"Checked saved models, exact partition rows, original targets, finite predictions and recomputed training/selection MAE"
+matched tree,PASS,Same model recipe and byte-identical selection predictions across the two arms
+matched ridge,PASS,Same model recipe and byte-identical selection predictions across the two arms
+matched forest,PASS,Same model recipe and byte-identical selection predictions across the two arms
+trace g1-ridge,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+trace g1-tree,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+endpoint g1,PASS,Saved endpoint matches last retention
+trace g2-i0-tree,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+trace g2-i0-ridge,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+trace g2-i0-forest,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+endpoint g2-i0,PASS,Saved endpoint matches last retention
+trace g2-i1-tree,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+trace g2-i1-ridge,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+trace g2-i1-forest,PASS,"Actual trace matches exact instruction, score, earlier state and strict retention rule"
+endpoint g2-i1,PASS,Saved endpoint matches last retention
+external acceptance,PASS,Fixed selection rule applied before terminal evaluation
+final g2-i0,PASS,Exact 992 evaluation rows and targets; prediction hash and independently recomputed MAE agree
+final g2-i1,PASS,Exact 992 evaluation rows and targets; prediction hash and independently recomputed MAE agree
