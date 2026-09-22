@@ -4,7 +4,7 @@
 
 This index links the instructions that define all 101 codelabs: their purpose, procedure, constraints, and authoring source. These are course materials, not generated learner inputs, experiment outputs, or execution records.
 
-The per-lab intent file is named **BRIEF.md**. The detailed procedure is in the lab **README.md**, including its run prompts and checks. There is currently no separate INTENT.md or dedicated SKILL.md in each lab folder. Seven shared skills provide the common agent procedures; the tutor reads the selected lab and its brief.
+The per-lab intent file is named **BRIEF.md**. The detailed procedure is in the lab **README.md**, including its run prompts and checks. There is currently no separate INTENT.md or dedicated SKILL.md in each lab folder. Eight shared skills provide the common agent procedures; the tutor reads the selected lab and its brief.
 
 The authored course is on [codex/rsi-masterclass-rebuild](https://github.com/dlmastery/simple-coding-harness/tree/codex/rsi-masterclass-rebuild/rsi). If you see the old eighteen-step RSI course on GitHub, check the selected branch.
 
@@ -19,6 +19,7 @@ The authored course is on [codex/rsi-masterclass-rebuild](https://github.com/dlm
 | [RSI tutor](skills/rsi-tutor/SKILL.md) | How to teach and execute one lab, with learner checkpoints |
 | [Run an ML experiment](skills/run-ml-experiment/SKILL.md) | How to run one declared ML hypothesis |
 | [Review domain meaning](skills/review-domain/SKILL.md) | How to check data, metrics, splits, and evidence meanings |
+| [Run a discovery cycle](skills/run-discovery-cycle/SKILL.md) | How to build real discovery trees, revise a policy through replay and deploy it later |
 | [Improve a research skill](skills/improve-research-skill/SKILL.md) | How to propose and compare a procedural change |
 | [Build an ML harness](skills/build-ml-harness/SKILL.md) | How to generate a harness from a readable brief |
 | [Audit an RSI claim](skills/audit-rsi-claim/SKILL.md) | How to match a claim to its evidence |

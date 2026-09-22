@@ -20,6 +20,6 @@ Find the first branch with no recorded outcome. The replay must stop there. The 
 - [10.08 · Replay only what the history can answer](step_08_replay/README.md): Two replay policies evaluated on a recorded discovery tree, with explicit missing coverage.
 - [10.09 · Test the replay winner on fresh work](step_09_online/README.md): An online confirmation comparison after replay selection.
 
-**Carry forward:** Keep separate records for history collection, replay selection, and online confirmation, including their costs. A successful replay does not supply evidence for an unvisited branch.
+**Carry forward:** Keep separate records for history collection, replay selection, and online confirmation, including their costs. A successful replay does not supply evidence for an unvisited branch. Continue with the [tabular discovery extension](../../experiments/tabular-discovery/README.md) for actual parent-workspace inheritance, agent-written policy revisions and repeated online cycles under a separate declared budget.
 
 Read the source connection in each lab. The required path fits a laptop; actual large-model training is an optional, separately planned extension.

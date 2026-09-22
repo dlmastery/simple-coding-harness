@@ -10,6 +10,10 @@ verify predictions, metrics, parent snapshots, budgets and agreement between
 online decisions and replay. This is a controlled laptop adaptation of a
 discovery/replay cycle, not a reproduction of Dream-RSI's full agent system.
 
+A later [198-check lineage audit](POLICY-LINEAGE-CHECKS.csv) re-executes every
+archived replay decision, verifies both selection rankings and checks that
+later online work loads the exact selected policy. This adds no ML fits.
+
 | Generation | Policy | Classification: fits / selection balanced accuracy | Regression: fits / selection MAE |
 |---|---|---|---|
 | 0 | Fixed broad exploration | 12 / 0.911774 | 12 / 0.232303 |
@@ -61,3 +65,5 @@ Generated Markdown and CSV retain original sibling-workspace paths: a path
 beginning `../rsi-work-2026-09-22-discovery/` maps to the same suffix in this
 archive. Preserve those original bytes; use the mapping when inspecting a
 clone. The README and manifest are publication additions, not run outputs.
+The later policy-lineage audit is also a publication check outside the original
+670-file source-workspace manifest.

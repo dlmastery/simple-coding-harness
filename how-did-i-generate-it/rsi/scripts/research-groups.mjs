@@ -20,7 +20,7 @@ export const researchGroups = {
     title:'Dream-RSI: history, replay, and new evidence', question:'What can a saved discovery history answer without another experiment?',
     intro:'Build a small tree from actual ML attempts. Use that recorded structure to compare replay policies, keeping absent outcomes unknown. Finally, return to fresh work and test whether the replay-selected policy still helps.',
     entry:'Use a new bike workspace, a three-attempt plan, and the task/evaluation boundaries learned earlier. The later online comparison has its own declared budget.',
-    exit:'Keep separate records for history collection, replay selection, and online confirmation, including their costs. A successful replay does not supply evidence for an unvisited branch.'
+    exit:'Keep separate records for history collection, replay selection, and online confirmation, including their costs. A successful replay does not supply evidence for an unvisited branch. Continue with the [tabular discovery extension](../../experiments/tabular-discovery/README.md) for actual parent-workspace inheritance, agent-written policy revisions and repeated online cycles under a separate declared budget.'
   },
   '03_modular_harness_evolution': {
     figure:'10.10',
