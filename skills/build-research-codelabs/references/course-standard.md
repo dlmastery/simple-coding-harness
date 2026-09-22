@@ -57,6 +57,8 @@ Explain the distinction between the model, coding agent, skill instructions, gen
 
 Use one canonical skill source. Generate or maintain adapters for agent-specific discovery and integration. Provide a file-reading fallback where possible. Test claimed support in the actual agent and state the versions. Do not promise that every agent supports the same hooks, isolation, or tools.
 
+Distinguish a lesson's notes folder from an experiment's persistent state. A new lesson must not silently reset a continued experiment's attempt budget, data exposure, or final lock. State which original workspace to reuse. Before a multi-arm comparison, allocate the total lesson budget across its arms and count additional checks separately. Explicit lesson limits override a generic default while actual tool limits still apply. Creating more folders does not authorize more trials.
+
 When teaching coordination, distinguish a trace reconstructed after execution from state that controlled the actions. Save and read the required state before launching the next action. Test a real process boundary and a refused action when relevant. Match checker evidence to the complete candidate identity, even when two candidates produce identical predictions. Preserve the original run and its cost if review requires a separate corrective experiment.
 
 ## A meaningful task at an affordable scale

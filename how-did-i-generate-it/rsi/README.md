@@ -2,6 +2,8 @@
 
 This directory records the plan, research, user requirements, decisions, and checks behind the RSI course rebuild. Implementation was authorized on 20 September. The new course has 101 authored labs; execution, research-depth, learner, and illustration validation remain separately tracked.
 
+Individual infographic production is complete: [101 of 101 labs](validation/INFOGRAPHIC-COVERAGE.md), plus shared maps and the compute guide. The [authoring-first plan](AUTHORING-FIRST.md) and [completion ledger](COURSE-COMPLETION-LEDGER.md) distinguish authored material from the remaining content review and execution checks. The latest verified illustration checkpoint is [041b777](https://github.com/dlmastery/simple-coding-harness/commit/041b77782158834505d09bd1206e00a9603d9040).
+
 Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual path from a fixed ML workflow to bounded recursive improvement, with laptop defaults and a path to larger compute.
 
 | Record | Purpose |

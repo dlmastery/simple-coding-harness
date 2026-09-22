@@ -26,5 +26,4 @@ Six selections used seven generated outputs. All were inspected at full size. Fi
 
 Existing measured plots remain unchanged. No new model fits or native-agent experiments were run for illustration publication. This closes the individual-figure production gap, not the full course acceptance work.
 
-Publication checks: regenerated all 101 lessons and the 105-figure guide; coverage is 101/101 with zero missing figures. Manifest verified all 105 selected copies against 154 archived PNGs. Course checker reported 4,197 local links and zero publication problems. Activity mappings remain 63/101 and do not imply completion. Git whitespace check passed.
-
+Publication checks: regenerated all 101 lessons and the 105-figure guide; coverage is 101/101 with zero missing figures. Manifest verified all 105 selected copies against 154 archived PNGs. Course checker reported 4,197 local links and zero publication problems. Activity mappings remain 63/101 and do not imply completion. The unstaged whitespace check passed before new files were staged. The staged check later found three extra blank lines at EOF; those are corrected in the following content-audit checkpoint.

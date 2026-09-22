@@ -14,7 +14,7 @@ All seven theme-09 labs and all five capstones now have mapped generated infogra
 
 ![Three paired seeds compare frozen tree and forest recipes on one task and split. Six result slots lead to paired differences, while a separate crossed-out example rejects reporting only a favorable seed.](paired-seeds-comparison-v1.png)
 
-Selected: [paired-seeds-comparison-v1.png](paired-seeds-comparison-v1.png). Exact [prompt](paired-seeds-comparison-v1.prompt.md). The difference is forest MAE minus tree MAE, so a negative value favors the forest. Recipe families and complexity differ; seeds are paired within that comparison. The star on seed 29 is an arbitrary example of selective reporting, not the best seed in the archived run. Blank cells and checklist marks specify planned work, not new measurements. The measured plot below uses the actual recorded results. Three seeds do not establish transfer to other tasks or data splits.
+Selected: [paired-seeds-comparison-v1.png](paired-seeds-comparison-v1.png). Exact [prompt](paired-seeds-comparison-v1.prompt.md). The difference is forest MAE minus tree MAE, so a negative value favors the forest. Recipe families and complexity differ; seeds are paired within that comparison. The star on seed 29 is an arbitrary example of selective reporting, not the best seed in the archived run. Blank cells and checklist marks specify planned work, not new measurements. The lesson’s separate measured plot uses the actual recorded results. Three seeds do not establish transfer to other tasks or data splits.
 
 ## Lab 08.02
 
@@ -32,7 +32,7 @@ Selected: [research-cost-ledger-v1.png](research-cost-ledger-v1.png). Exact [pro
 
 ![Four fixed parent/child and memory-absent/present combinations form a factorial comparison. Memory effects are compared within each skill. A detached fifth condition removes one conflicting memory rule and keeps a separate record.](memory-skill-factorial-v1.png)
 
-Selected: [memory-skill-factorial-v1.png](memory-skill-factorial-v1.png). Exact [prompt](memory-skill-factorial-v1.prompt.md). Keep the same memory version in both memory-present arms and the same parent or child instructions across its row. The blank records do not assume the child wins or memory helps. Differences between the two memory effects describe an interaction in these observations; noisy results need uncertainty analysis before a broader claim. The four main checks or fits and the separate follow-up have distinct budgets. Fresh folders do not isolate agent knowledge. The archived worked example below replays deterministic decisions over cached predictions; it is not an LLM training experiment.
+Selected: [memory-skill-factorial-v1.png](memory-skill-factorial-v1.png). Exact [prompt](memory-skill-factorial-v1.prompt.md). Keep the same memory version in both memory-present arms and the same parent or child instructions across its row. The blank records do not assume the child wins or memory helps. Differences between the two memory effects describe an interaction in these observations; noisy results need uncertainty analysis before a broader claim. The four main checks or fits and the separate follow-up have distinct budgets. Fresh folders do not isolate agent knowledge. The lesson’s archived worked example replays deterministic decisions over cached predictions; it is not an LLM training experiment.
 
 ## Lab 08.05
 

@@ -13,7 +13,7 @@ Students type natural language only. Generate code, setup, configuration, and co
 
 Check file access, command execution, Python availability, network needs, and plotting. Set up a project-local environment from the pinned requirements. Do not claim that a capability works until a small run demonstrates it. If a required capability is absent, report the specific gap and preserve progress.
 
-Create a sibling `rsi-work` directory beside the repository. Give each lab its own folder. If it exists, inspect `PROGRESS.md` and keep prior evidence. Reset creates a new sibling folder with a suffix. Do not delete previous work. Report absolute paths to the student.
+Create a sibling `rsi-work` directory beside the repository. Give each lab a folder for its notes. If it exists, inspect `PROGRESS.md` and keep prior evidence. Distinguish that notes folder from an experiment workspace that holds a frozen contract, attempts, and final lock. When a lesson continues or closes an earlier experiment, use its original workspace and record the path in the new lab notes. A new notes folder must not reset attempts or reopen final evaluation. Reset creates a separately labelled experiment with a suffix; preserve the earlier experiment and its exposure history. Report absolute paths to the student.
 
 ## Teach one step
 
@@ -26,7 +26,7 @@ Use the lesson illustration before the first relevant action. Ask the learner to
 5. Invite a short explanation in the learner's own words. Offer a hint before the answer. A wrong prediction is useful evidence about their mental model.
 6. Save `PROGRESS.md` with the completed step, experiment paths, learner observations if supplied, remaining budget, and next action. Never invent learner responses.
 
-Apply the smaller of the lab limit and the tool limit. Default to sequential CPU fits, at most four per ordinary lesson. Apply a 60-second command timeout. Stop on a contract change, unexpected data hash, exhausted budget, or a request to stop. Distinguish measured fit time from unmeasured agent cost.
+Read the whole lab budget, including its additional change, before starting. Use its explicit fit and check allowances; four sequential CPU fits is only the default when the lab gives no limit. A no-fit lab permits none. Respect the tool's lower hard limit and each workspace's frozen allocation. When a comparison uses several workspaces, record their allocations and the combined lab total before running; extra folders do not create extra budget. Apply a 60-second command timeout. Stop on a contract change, unexpected data hash, exhausted budget, or a request to stop. Distinguish measured fit time from unmeasured agent cost.
 
 ## Keep claims precise
 

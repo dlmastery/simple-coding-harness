@@ -70,7 +70,7 @@ ${l.why}
 
 Complete ${previous}. You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
 
-Open the coding agent at the repository root. Read [the tutor skill](${to('skills/rsi-tutor/SKILL.md')}) and this lab's [brief](BRIEF.md). The agent creates a separate sibling workspace named <code>rsi-work/${l.id.replace('.','-')}</code> and reports its absolute path. It checks local Python and the [tool requirements](${to('tools/README.md')}) before execution. You do not write code or configuration.${l.workspaceNote ? `\n\n${l.workspaceNote}` : ''}
+Open the coding agent at the repository root. Read [the tutor skill](${to('skills/rsi-tutor/SKILL.md')}) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/${l.id.replace('.','-')}</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](${to('tools/README.md')}) before execution. You do not write code or configuration.${l.workspaceNote ? `\n\n${l.workspaceNote}` : ''}
 
 **Starting state:** ${l.start}
 
