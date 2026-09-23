@@ -1,9 +1,9 @@
 # RSI masterclass presentation source
 
-Status: teaching sequence and speaker-note draft. The PPTX is pending the
-experimental repair gates in the presentation brief. This file is authoring
-provenance, not a finished presentation. Results placeholders below describe
-required evidence; they must not appear in a delivered slide deck.
+Status: teaching sequence and speaker-note draft, with the completed repair
+results integrated. No PPTX exists yet. The user's choice about presenting
+verified mixed results is pending in the presentation brief. This file is
+authoring provenance. Its publication does not establish a rendered deck.
 
 Audience: an advanced AI/ML class that knows training and evaluation but has
 not studied RSI. Plan a 75–90 minute lecture with discussion, followed by the
@@ -406,6 +406,17 @@ search can discover. Count the losing inner searches as part of the outer
 cost. A changed harness must execute later searches under a fair comparison.
 A rearranged list that still evaluates every recipe may leave quality unchanged.
 
+The completed classroom study rewrites full researchers. Each researcher
+executes twelve model attempts and uses observed feedback to choose later
+experiments. The outer rule compares whole researchers on six development
+tasks. I1's child narrowly passes that gate. The same frozen improver then
+generates another researcher from its retained parent, and that researcher
+actually runs on six reserved tasks. The final comparison remains inconclusive.
+The coding agent wrote the bounded improvers. Separate LLM agents, autonomous
+researcher invention and the paper's full system were not tested.
+
+Local evidence: [complete researcher and later use](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md).
+
 Source: Weco report, https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement,
 and 2026-09-21-AIDE-METHOD-AUDIT.md. The report is an explicitly dated older foundation.
 
@@ -435,6 +446,16 @@ analysis, retrieval, allocation, proposal and evolution. A later round must
 use the revised updater, not merely store it beside the old one. State which
 roles and branch mechanisms the local adaptation implements. The classroom
 fixture and the paper's full system support different claims.
+
+The later public-task study reads five versioned role files inside one
+author context. Those files do not create five independent agents. The
+complete-researcher extension separately checks that a changed improver
+creates a later researcher and that this researcher runs. Its primary
+comparison has two gains, three ties and one regression. Show the later
+execution trace before discussing whether those results establish a benefit.
+
+Local evidence: [role-file comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md)
+and [generated-researcher comparison](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md).
 
 Source: MetaSkill-Evolve v1, https://arxiv.org/html/2607.05297v1, and its method audit.
 This is an explicitly dated older foundation.
@@ -469,38 +490,150 @@ notes, separate from our measured classroom results.
 
 Source: ScienceBuddy, https://arxiv.org/abs/2609.17523, and sciencebuddy-result-audit evidence.
 
-## 32 · Repaired experimental results
+## 32 · Fewer executed fits on sixteen tasks
 
-Authoring requirement: use the final checked result table. Show task-level
-quality and actual search cost separately. Include the original baseline,
-greedy control, lineage-only control, evolved policy and stopping ablation.
-The four-task shakedown is supporting evidence, never the final headline.
+On slide: The evolved policy used 55 search fits versus broad search's 192.
+Final quality improved on three tasks, tied on twelve and worsened on one.
+The overall quality difference remains uncertain.
 
-Speaker-note requirement: explain what changed in the procedure, how it was
-selected, when it was frozen, and which uncertainty remains. Discuss predictive
-ties directly. State whether a result supports quality, efficiency, both or
-neither. Link the selected source, prediction checks and cost accounting.
+Visual: editable horizontal bars for search fits, with all five procedures.
+Put the native task results and full cost categories in the notes.
 
-## 33 · Evidence across the seven repaired comparisons
+| Procedure | Search fits | Mean normalized final loss |
+|---|---:|---:|
+| Broad search | 192 | 0.156857 |
+| Greedy search | 192 | 0.182729 |
+| Lineage-first search without early stopping | 192 | 0.156857 |
+| Evolved policy | 55 | 0.154037 |
+| Broad search with the learned stopping rule | 84 | 0.155744 |
 
-Authoring requirement: an editable table with separate columns for implemented
-mechanism, later use, predictive outcome, resource outcome and remaining limits.
-Populate only after each required method comparison has its reviewed evidence.
-Do not turn one discovery-policy study into seven separately validated methods.
+Speaker notes: These bars count actual executed searches. The policy saved
+137 fits against broad search. A simpler stopping ablation saved 108, so much
+of the saving comes from stopping. The evolved allocation saved another 29.
+Ask students why the stopping ablation belongs on the slide. Its presence
+helps separate the contribution of stopping from the branch-allocation change.
 
-Speaker-note requirement: walk through one successful change and one rejected
-or harmful change. Explain why a faithful mechanism can still fail to improve
-the selected benchmark. Keep source-paper performance separate from local results.
+The primary normalized loss difference is -0.002820. Its exploratory 95%
+task-bootstrap interval is [-0.006548, +0.000010], which includes zero.
+Task 8123 improves from 0.901803 to 0.913071 balanced accuracy. Task 8106's
+MAE worsens from 0.245790 to 0.246037. Discuss both. A favorable mean alone
+does not establish a reliable predictive advantage.
+
+The paired phase incurred 715 searches and 80 scoring refits. A disclosed
+standby interruption adds two admitted attempts in the excluded case, for
+797 attempts. All eighty retained candidates were frozen before scoring.
+Development, the earlier shakedown and agent inference add costs outside
+these bars. The experiment therefore supports lower search work in this
+setting, while total research-cost savings remain unknown.
+
+These are new instances of known synthetic families. The developer knew the
+generator and wrote the policy changes. The experiment does not establish
+unseen-domain transfer, full Dream-RSI reproduction or an improved updater.
+Transition: the next comparison tests complete researchers generated by two
+different improvers on public classification and regression tasks.
+
+Sources: [full report](../../../rsi/evidence/2026-09-22/discovery-final/README.md),
+[individual results](../../../rsi/evidence/2026-09-22/discovery-final/RESULTS.csv),
+[paired intervals](../../../rsi/evidence/2026-09-22/discovery-final/PAIRED.csv)
+and [incurred costs](../../../rsi/evidence/2026-09-22/discovery-final/INCURRED-COSTS.csv).
+
+## 33 · Later researchers have mixed results
+
+On slide: I1's later researcher improved two tasks, tied three and worsened
+one against I0 and the parent. The overall effect remains inconclusive.
+
+Visual: editable comparison table. All values below are normalized loss
+changes for I1 minus the named control. Lower is better.
+
+| Control | Mean change | Exploratory 95% interval |
+|---|---:|---|
+| I0, the primary comparison | +0.000120 | [-0.001826, +0.002390] |
+| Parent researcher | +0.000120 | [-0.001826, +0.002390] |
+| Fixed portfolio | -0.002307 | [-0.005816, +0.000790] |
+| Random search | +0.001125 | [-0.000414, +0.003240] |
+
+Speaker notes: The outer development gate accepted I1's first researcher
+after two small gains and four ties. It rejected I0's child. Both frozen
+improvers then generated a second researcher from their retained parent and
+completed traces. The second researchers actually executed the reserved-task
+searches. This is the evidence of later use.
+
+On spam, I1's balanced accuracy is 0.948947 versus the parent's 0.944437.
+On satellite pixels it is 0.846324 versus 0.844385. On housing, I1's MAE rises
+to 50,276.97 from 49,038.58. A larger MAE is worse. DNA, protein and grid
+have tied aggregate scores in this comparison. Ask students why highlighting
+only spam would give a misleading account of the study.
+
+The subsequent prediction audit explains those ties. Protein and grid select
+the same constructor as the parent. DNA selects different SVM settings but
+makes the same class prediction on every final row. I1 nevertheless changes
+all four experiments after the shared eight-model start on every task.
+Different search behavior therefore need not change the final predictions.
+The [frozen-outcome diagnosis](../validation/nested-outcome-diagnosis/README.md)
+also records selection/final rank reversals without retraining.
+
+All four intervals include zero. The experiment uses six public tasks, one
+model seed and 10,000 task-bootstrap draws stratified by classification or
+regression. These are exploratory intervals without multiplicity adjustment.
+They neither prove equality nor establish an overall advantage. The sign of
+the mean also depends on the control. Keep the prespecified I1–I0 comparison
+visible when discussing the favorable mean against fixed search.
+
+Every arm used twelve search attempts per task. The full study incurred 624
+attempts: 216 development searches, 18 development refits, 360 reserved
+searches and 30 reserved refits. Losing searches count. There is no saved-fit
+claim in this study. The final audit independently checks predictions,
+selection freezes, source inheritance and feedback-dependent choices.
+
+The improvers are bounded programs written by the coding agent. The study
+does not train model weights or demonstrate autonomous invention. Public
+files provide a procedural evaluation boundary. These final tasks are now
+exposed and cannot serve as untouched tests for a revision motivated by them.
+Transition: separate the verified mechanism from the scientific claim it
+can support, then use that distinction in the capstones.
+
+Sources: [complete report](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md),
+[unrounded contrasts](../../../rsi/evidence/2026-09-22/nested-research-evaluation/CONTRASTS.csv),
+[native scores](../../../rsi/evidence/2026-09-22/nested-research-evaluation/NATIVE-SCORES.csv)
+and [development gate](../../../rsi/evidence/2026-09-22/nested-research-development/README.md).
 
 ## 34 · What the evidence supports
 
 Visual: `evidence-beyond-score-v1.png`.
 
-Speaker-note draft: A final score is one piece of evidence. Source identity,
-observed later use and fair comparison answer different questions. Ask students
-to state the strongest claim the current evidence supports, then identify the
-additional experiment required for a stronger claim. The final slide text
-must follow the reviewed outcomes rather than promise acceleration in advance.
+On slide: Changed source, later execution, predictive benefit and total cost
+answer different questions. The repaired course demonstrates real changes
+and later use. Overall RSI quality gains remain unestablished.
+
+Speaker notes: A final score is one piece of evidence. A changed source hash
+shows an edit. A trace can show that the changed instruction governed a later
+decision. A matched comparison asks whether the changed process helped.
+Ask students to make the strongest claim these records support, then name
+the evidence required for a stronger claim.
+
+Use this comparison matrix in discussion. It maps the user's original seven
+concerns to shared experiments. Its seven rows are not seven independent
+replications of the named systems.
+
+| Original concern | Executed mechanism and later use | Predictive result | Resource result and limit |
+|---|---|---|---|
+| Proof | Frozen choices, separate final rows and recomputed predictions | Mixed quality outcomes | Costs preserved, agent inference unknown |
+| Meta gate | Actual gate retention followed by generated-researcher execution | Small development gains, inconclusive reserved results | All 624 attempts count |
+| Dream-RSI | Parent workspaces, replay-selected policy and later online searches | 3 gains, 12 ties, 1 regression versus broad | 55 versus 192 search fits, known synthetic families |
+| Recuris | Current state separated from retained, checked experience | Memory beats random but loses to fixed overall | Full reproduction and general transfer unestablished |
+| RSIAgent | Practice records, outcome checks and frozen-memory comparison | Same shared memory comparison | Author context, bounded task space |
+| AIDE2 | Complete inner searches and executable outer rewrites | Later generated researchers have mixed results | Initial rejected study retained, no ignition claim |
+| MetaSkill | Separate skill/updater versions and inherited later execution | I1 versus I0: 2 gains, 3 ties, 1 regression | Bounded programs, no independent multi-agent or weight-learning claim |
+
+The construction repair also matters: a later assignment previously erased
+some template changes. Distinct source text had constructed identical models.
+The separately tested builder now preserves those changes. This fixes an
+implementation defect, but it does not guarantee that the new candidate is
+better. Use the housing regression to make that distinction concrete.
+
+Sources: [method requirements and evidence](../validation/REPAIRED-METHOD-REQUIREMENTS.md),
+[memory comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md)
+and [constructor repair](../../../rsi/evidence/2026-09-22/composition-repair/README.md).
 
 ## 35 · The capstone projects
 
@@ -548,8 +681,9 @@ Source: glossary, capstone 11.05 and TEACHING-ROADMAP.md.
 
 ## Production checks still required
 
-Before PPTX export, reconcile slides 19 and 21–34 with the finished experiment
-records and current source audits. Complete every speaker note with its source
+Before PPTX export, check slides 19 and 21–34 against the linked experiment
+records and current source audits. Slides 32–34 now contain the checked local
+results and their limits. Complete every remaining speaker note with its source
 links. Import editable charts from checked CSV data. Render every slide, inspect
 text size and illustration labels, check note parts inside the PPTX, and retain
 the authoring source, assets and visual review in GitHub. The delivered deck

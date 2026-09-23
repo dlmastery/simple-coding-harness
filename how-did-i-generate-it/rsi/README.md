@@ -24,7 +24,9 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 | [Visual explanations and review](visuals/REVIEW.md) | Technical diagrams, retained revisions, raster prompts, and review limits |
 | [Generated illustration gallery](visuals/generated/README.md) | Selected images, exact prompts, earlier versions, generator metadata, and scientific review |
 | [Compute extension](../../rsi/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
-| [Course evidence](../../rsi/evidence/2026-09-20/README.md) | Actual model fits, mechanism checks, and limits |
+| [Course evidence](../../rsi/evidence/README.md) | Actual model fits, mechanism checks, completed repair studies and limits |
+| [Completed nested-study publication](validation/NESTED-PUBLICATION-REVIEW.md) | Checked archive, lesson integration, publication repair and remaining gaps |
+| [Presentation source](presentation/STORYBOARD.md) | 37-slide outline, checked results and speaker-note draft; PPTX pending |
 | [Cross-platform checks](validation/CROSS-PLATFORM-CHECKS.md) | Successful RSI jobs on Linux, macOS, and Windows; separate aggregate failures |
 | [Artifact index](ARTIFACTS.md) | Intermediate artifacts, source hashes, validation, and explicit retention gaps |
 | [Reusable course-building skill](../../skills/build-research-codelabs/SKILL.md) | The complete reusable method, with references and an RSI preset |

@@ -109,6 +109,22 @@ and the host shares access to all files. The changed improver did produce and
 execute a later researcher, but its overall benefit remains unestablished
 under this contract.
 
+## Why some results still tie
+
+The [prediction-level diagnosis](../how-did-i-generate-it/rsi/validation/nested-outcome-diagnosis/README.md)
+checks the frozen records without retraining. I1 changes all four search
+positions after the common eight-model start on every task. Yet protein and
+grid retain the same selected constructor. DNA selects different SVM settings
+that make identical class predictions on all 622 final rows. All three ties
+are exact prediction ties in this comparison, not small gains hidden by rounding.
+
+The other tasks change predictions: 15 spam rows and 24 satellite rows, with
+better balanced accuracy, and all 800 housing rows, with worse MAE. Housing
+improves its selection loss but regresses on final rows. The shared probes
+and these rank reversals help explain the mixed outcome. They do not show
+that classification or regression is unsuitable for studying RSI, or that
+the best possible score on these datasets has been reached.
+
 ## Read a result without mixing its claims
 
 | Observation | What it supports | What it does not establish |

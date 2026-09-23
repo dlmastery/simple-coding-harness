@@ -1,0 +1,134 @@
+check,passed
+six tasks and thirty unique choices,True
+43/parent twelve successful attempts,True
+43/parent ordered steps,True
+43/parent frozen selected identity,True
+43/parent selection argmin,True
+43/parent final rows unique,True
+43/parent native score recomputes,True
+43/i0 twelve successful attempts,True
+43/i0 ordered steps,True
+43/i0 frozen selected identity,True
+43/i0 selection argmin,True
+43/i0 final rows unique,True
+43/i0 native score recomputes,True
+43/i0 same final rows and truth,True
+43/i1 twelve successful attempts,True
+43/i1 ordered steps,True
+43/i1 frozen selected identity,True
+43/i1 selection argmin,True
+43/i1 final rows unique,True
+43/i1 native score recomputes,True
+43/i1 same final rows and truth,True
+43/i0 common eight-model prefix,True
+43/i1 common eight-model prefix,True
+45/parent twelve successful attempts,True
+45/parent ordered steps,True
+45/parent frozen selected identity,True
+45/parent selection argmin,True
+45/parent final rows unique,True
+45/parent native score recomputes,True
+45/i0 twelve successful attempts,True
+45/i0 ordered steps,True
+45/i0 frozen selected identity,True
+45/i0 selection argmin,True
+45/i0 final rows unique,True
+45/i0 native score recomputes,True
+45/i0 same final rows and truth,True
+45/i1 twelve successful attempts,True
+45/i1 ordered steps,True
+45/i1 frozen selected identity,True
+45/i1 selection argmin,True
+45/i1 final rows unique,True
+45/i1 native score recomputes,True
+45/i1 same final rows and truth,True
+45/i0 common eight-model prefix,True
+45/i1 common eight-model prefix,True
+2074/parent twelve successful attempts,True
+2074/parent ordered steps,True
+2074/parent frozen selected identity,True
+2074/parent selection argmin,True
+2074/parent final rows unique,True
+2074/parent native score recomputes,True
+2074/i0 twelve successful attempts,True
+2074/i0 ordered steps,True
+2074/i0 frozen selected identity,True
+2074/i0 selection argmin,True
+2074/i0 final rows unique,True
+2074/i0 native score recomputes,True
+2074/i0 same final rows and truth,True
+2074/i1 twelve successful attempts,True
+2074/i1 ordered steps,True
+2074/i1 frozen selected identity,True
+2074/i1 selection argmin,True
+2074/i1 final rows unique,True
+2074/i1 native score recomputes,True
+2074/i1 same final rows and truth,True
+2074/i0 common eight-model prefix,True
+2074/i1 common eight-model prefix,True
+361241/parent twelve successful attempts,True
+361241/parent ordered steps,True
+361241/parent frozen selected identity,True
+361241/parent selection argmin,True
+361241/parent final rows unique,True
+361241/parent native score recomputes,True
+361241/i0 twelve successful attempts,True
+361241/i0 ordered steps,True
+361241/i0 frozen selected identity,True
+361241/i0 selection argmin,True
+361241/i0 final rows unique,True
+361241/i0 native score recomputes,True
+361241/i0 same final rows and truth,True
+361241/i1 twelve successful attempts,True
+361241/i1 ordered steps,True
+361241/i1 frozen selected identity,True
+361241/i1 selection argmin,True
+361241/i1 final rows unique,True
+361241/i1 native score recomputes,True
+361241/i1 same final rows and truth,True
+361241/i0 common eight-model prefix,True
+361241/i1 common eight-model prefix,True
+361251/parent twelve successful attempts,True
+361251/parent ordered steps,True
+361251/parent frozen selected identity,True
+361251/parent selection argmin,True
+361251/parent final rows unique,True
+361251/parent native score recomputes,True
+361251/i0 twelve successful attempts,True
+361251/i0 ordered steps,True
+361251/i0 frozen selected identity,True
+361251/i0 selection argmin,True
+361251/i0 final rows unique,True
+361251/i0 native score recomputes,True
+361251/i0 same final rows and truth,True
+361251/i1 twelve successful attempts,True
+361251/i1 ordered steps,True
+361251/i1 frozen selected identity,True
+361251/i1 selection argmin,True
+361251/i1 final rows unique,True
+361251/i1 native score recomputes,True
+361251/i1 same final rows and truth,True
+361251/i0 common eight-model prefix,True
+361251/i1 common eight-model prefix,True
+361260/parent twelve successful attempts,True
+361260/parent ordered steps,True
+361260/parent frozen selected identity,True
+361260/parent selection argmin,True
+361260/parent final rows unique,True
+361260/parent native score recomputes,True
+361260/i0 twelve successful attempts,True
+361260/i0 ordered steps,True
+361260/i0 frozen selected identity,True
+361260/i0 selection argmin,True
+361260/i0 final rows unique,True
+361260/i0 native score recomputes,True
+361260/i0 same final rows and truth,True
+361260/i1 twelve successful attempts,True
+361260/i1 ordered steps,True
+361260/i1 frozen selected identity,True
+361260/i1 selection argmin,True
+361260/i1 final rows unique,True
+361260/i1 native score recomputes,True
+361260/i1 same final rows and truth,True
+361260/i0 common eight-model prefix,True
+361260/i1 common eight-model prefix,True

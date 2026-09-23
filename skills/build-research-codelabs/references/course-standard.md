@@ -137,6 +137,37 @@ Draw measured charts from real data with plotting tools. Mark schematic curves a
 
 For diagrams with several procedural levels, check what each procedure acts on. A task skill can fit models; an updater proposes and checks edits to skills. Do not give both the same checklist. Show the candidate before its check, preserve the changed rule at later use, and ensure rejection cannot lead to activation. Check accompanying run prompts for the same mechanism; a correct picture cannot repair a missing execution instruction.
 
+## Presentation and benchmark follow-through
+
+When requested, provide a PowerPoint presentation with the approved course
+infographics, explanatory slides and speaker notes on every slide. Notes
+should explain the mechanism, give a teaching prompt, connect to the next
+idea and cite the relevant evidence. Keep measured charts and comparison
+tables editable. Reuse suitable approved illustrations and preserve their
+proportions. Retain the deck, authoring source, notes, data and rendered review
+in the authorized repository. Inspect every rendered slide and verify that
+the exported file contains the notes before claiming delivery.
+
+Respect a condition such as producing the deck after verified good results.
+Fix implementation defects and run the declared comparisons first. A desired
+positive result does not authorize selective reporting or repeated tuning on
+final cases. If the completed study has mixed or negative results, present
+the concrete evidence and clarify whether the requested presentation should
+cover those findings now. Continue independent evidence publication while
+that decision is pending. Do not describe a storyboard as a completed PPTX.
+
+Link the presentation status from the course and repository READMEs. When the
+actual deck exists, link its downloadable file there. Check that selected
+illustrations appear in their respective lesson and theme pages, not only
+in a gallery. Keep superseded drafts in provenance. A link audit establishes
+placement and target availability, not fresh visual review of every page.
+
+When a learner asks how difficult an industry or research benchmark is,
+compare its task class, allowed time, compute, data access, baseline strength
+and grading boundary with the classroom exercise. Use dated primary sources.
+Explain what a laptop adaptation preserves and what scale or fidelity it
+omits. Do not imply that good classroom results reproduce the larger benchmark.
+
 ## Assessment
 
 Every codelab ends with a quiz, normally four to six short questions, followed by “What's next.” Adjust length to the lab. Test recognition, interpretation of the student's result, a changed condition, and an explanation in the student's own words. Use debugging or transfer questions when useful.
