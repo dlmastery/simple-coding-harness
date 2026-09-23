@@ -1,7 +1,9 @@
 # A researcher that another procedure can revise
 
-**Status: the first development comparison is running. No new improvement
-claim is established.** Sources are frozen before training; read the latest
+**Status: development completed; I1's researcher passed the declared gate
+with two small gains and four ties. Reserved-task transfer is not yet established.**
+Read the [checked development report](../../../evidence/2026-09-22/nested-research-development/README.md).
+Sources are frozen before training; read the latest
 [implementation record](../../../../how-did-i-generate-it/rsi/IMPLEMENTATION-RECORD.md)
 before resuming an existing run.
 

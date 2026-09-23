@@ -64,6 +64,14 @@ implied by that preparation decision.
 The [six-task data preparation](../../../rsi/evidence/2026-09-22/nested-data/README.md)
 is now complete with zero fits. An independent parser and graph reconstruction
 verify source rows, target exclusions, whole-group allocation and recorded-ID
-isolation. The first parser failure is preserved. The next required step remains
-a genuinely nested researcher/improver protocol and execution; these data checks
-do not establish any RSI benefit.
+isolation. The first parser failure is preserved. These data checks do not
+establish any RSI benefit.
+
+The [complete-researcher development phase](../../../rsi/evidence/2026-09-22/nested-research-development/README.md)
+now executes 216 searches and 18 scoring refits. I1's generated researcher
+improves two exposed-task evaluation results and ties four, narrowly passing
+the predefined gate; I0 ties all six and is rejected. The 6,555 final checks
+include the 6,245 search checks. Both inherited improvers actually generate a
+second complete researcher; 22 independent lineage/gate checks pass. Reserved
+evaluation is running under the new protocol, with fixed and random controls.
+Transfer, general RSI benefit and any post-study deployment remain unestablished.

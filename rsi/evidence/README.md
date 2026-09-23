@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Can an improver rewrite a complete researcher and then use its retained result? | [234-attempt development comparison: two small gains, four ties, checked promotion and second-generation source; transfer still pending](2026-09-22/nested-research-development/README.md) |
 | Are the next tasks free of obvious target leakage and split crossings? | [Six datasets: raw-to-partition checks, excluded grid label, recorded-ID grouping and preserved parser failure; zero fits](2026-09-22/nested-data/README.md) |
 | Can different source changes cancel, and can the operator be repaired? | [Preserved failed preflight, corrected construction, four real fits and unlimited-depth check](2026-09-22/composition-repair/README.md) |
 | Does memory or a changed updater help on reserved public tasks? | [324-attempt matched comparison: memory beats random but loses to fixed; updater gains remain uncertain](2026-09-22/tabular-comparison/README.md) |

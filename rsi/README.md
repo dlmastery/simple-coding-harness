@@ -72,6 +72,14 @@ that incorrectly capped unlimited trees. Four integration fits run successfully;
 their scores tie or slightly regress. Correct execution is necessary, but it
 does not by itself establish a better improver.
 
+The next [complete-researcher development comparison](evidence/2026-09-22/nested-research-development/README.md)
+executes **234 attempts**. I1's rewritten researcher improves two evaluation
+results and ties four, narrowly passing its predefined development gate.
+These tasks were previously exposed, and the uncertainty interval reaches zero.
+Both inherited improvers have generated a later complete researcher; the
+five-procedure comparison on six separately reserved tasks is now running.
+This is a small development gain, not yet demonstrated transfer.
+
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 
 Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete. The [author handoff](../how-did-i-generate-it/rsi/validation/AUTHOR-HANDOFF-2026-09-22.md) separates completed maintainer checks from learner and environment validation.

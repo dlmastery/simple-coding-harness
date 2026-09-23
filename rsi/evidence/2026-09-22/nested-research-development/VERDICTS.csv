@@ -1,0 +1,3 @@
+improver,mean_loss_change,nonworse,better,worse,promote,retained
+i0,0.0,6,0,0,False,parent
+i1,-0.0021419889046967178,6,2,0,True,i1
