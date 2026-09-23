@@ -1,0 +1,645 @@
+{
+  "sourceCommit": "7db77bd8d38aa5f23dc4180e341de415d6b99296",
+  "font": "Arial",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "sources": [
+    {
+      "path": "rsi/README.md",
+      "bytes": 24597,
+      "sha256": "34cc7e01e6749c412b180f4a4bbaa7cbf644b66846f2f3dcc3fd71ec18573430"
+    },
+    {
+      "path": "rsi/09_recursive_self_improvement/step_01_three_objects/README.md",
+      "bytes": 8259,
+      "sha256": "fb0adeeca87a12ebb44f90ed999ba38791637147d9afa9c18e95a27638b431eb"
+    },
+    {
+      "path": "rsi/START-HERE.md",
+      "bytes": 2099,
+      "sha256": "95239eb7a566aecbf92abfb3de998ddb8c7ab7b87a1efe865d7099045bd22bb6"
+    },
+    {
+      "path": "rsi/COURSE-MAP.md",
+      "bytes": 54622,
+      "sha256": "e720d3c859a496e3a4dc4792e4a4d078821205f3e35f30dc69ece81e790f2b35"
+    },
+    {
+      "path": "rsi/TEACHING-ROADMAP.md",
+      "bytes": 14050,
+      "sha256": "7d1f884dbe4bb375d555dca60b9e174c11e0401fecb01fcfaffe492e7e310565"
+    },
+    {
+      "path": "rsi/00_start_here/README.md",
+      "bytes": 2999,
+      "sha256": "76f836b225098b59c24c0394e37a1959b4fb8ce2b0d06f53150622f93c5b78b5"
+    },
+    {
+      "path": "how-did-i-generate-it/rsi/validation/BENCHMARK-REPAIR-PROTOCOL.md",
+      "bytes": 6268,
+      "sha256": "7efc7067dc443ea8e06bb45aaa2a2a63e4b083c24d82c7e976378e813df9ebb8"
+    },
+    {
+      "path": "rsi/00_start_here/step_01_meet_the_task/README.md",
+      "bytes": 8185,
+      "sha256": "0c07cf848a6966f89bfc02ff969b26aa4f654381249f663e0e55b812d0e36254"
+    },
+    {
+      "path": "rsi/08_measuring_improvement/README.md",
+      "bytes": 2670,
+      "sha256": "0ae67d84dbed436915ddcadf15a69a23d701bf982e0250d462084c6dd16d5168"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/discovery-final/README.md",
+      "bytes": 6159,
+      "sha256": "2f275a8d6eb7a13b4b7f0a7806f03028b11a1418893796f96c07e867ec1bd47b"
+    },
+    {
+      "path": "rsi/00_start_here/step_03_one_attempt/README.md",
+      "bytes": 8178,
+      "sha256": "b8be4e61e5fdf69a6c3c9065a2361beec906bb868956e8acdfa5517aef320823"
+    },
+    {
+      "path": "rsi/02_loop_engineering/step_01_why_repeat/README.md",
+      "bytes": 8304,
+      "sha256": "f00871e0c495e07c7ef19b18690a2b4291654798f4056812e4a65605fd5f3e78"
+    },
+    {
+      "path": "rsi/skills/run-ml-experiment/SKILL.md",
+      "bytes": 2828,
+      "sha256": "6ad795d14356e7324b0caf04224b26267f4a82c1068687e79bd34a644dafda05"
+    },
+    {
+      "path": "rsi/01_process_without_loops/README.md",
+      "bytes": 3312,
+      "sha256": "a0d088c749c88fd689af2ea2b5a2405531fc56c047a90ecf26483a540076aeb0"
+    },
+    {
+      "path": "rsi/skills/README.md",
+      "bytes": 1540,
+      "sha256": "89845736c8d6170f21bed843f147e0d30122c8f0c18deed64527c9172b7ebfbe"
+    },
+    {
+      "path": "rsi/02_loop_engineering/README.md",
+      "bytes": 3386,
+      "sha256": "ad49a7764ef0dd9609413144fa3f74cd253b8949370db6f2de29fc3bca892c55"
+    },
+    {
+      "path": "rsi/03_graph_engineering/README.md",
+      "bytes": 2562,
+      "sha256": "c4936dd3d4e08242b9ece560bc696a5400210e1ede4d24309b3ad8ae144447de"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/graph-reconciliation/README.md",
+      "bytes": 4177,
+      "sha256": "4e51d00f16f935c1b9d56d44b3546bd7c419f00be4c9c12328cb566591cc4bb0"
+    },
+    {
+      "path": "rsi/04_ontology_engineering/README.md",
+      "bytes": 3227,
+      "sha256": "7631797eac1e5eccc529497d9f7487220659b56788c32bbeefbddb6ecfdb8e04"
+    },
+    {
+      "path": "rsi/05_system_intelligence/README.md",
+      "bytes": 3491,
+      "sha256": "9a111acb890fa224a11885907c9f555916d8f6715fbebfb75e6acc980e45819a"
+    },
+    {
+      "path": "rsi/06_meta_harness_engineering/README.md",
+      "bytes": 3296,
+      "sha256": "640a4bdac9916c15271be6f1cfec1a38331cf2e8a6c840adce51cf0fec5e225d"
+    },
+    {
+      "path": "rsi/evidence/2026-09-21/capstone-harness/README.md",
+      "bytes": 3004,
+      "sha256": "d00cc2af5b9ec8dbf6e0debf3ef5c7396e534d4123a42d268ef5359972631716"
+    },
+    {
+      "path": "rsi/07_understanding_self_star/README.md",
+      "bytes": 4011,
+      "sha256": "8c5873fae586c7223c85f3ce31313d4b44673a43275955d218214b83454a6f1a"
+    },
+    {
+      "path": "rsi/GLOSSARY.md",
+      "bytes": 21955,
+      "sha256": "aba352f8ba8f867814b9d72614bf9572734952fa1c61bd2159c40b6a79a174b2"
+    },
+    {
+      "path": "rsi/07_understanding_self_star/step_02_reflection/README.md",
+      "bytes": 7973,
+      "sha256": "4fa48eee1ffaf43047324935acb80edb9e0188915f0839b047d836f14bc1f011"
+    },
+    {
+      "path": "rsi/07_understanding_self_star/step_05_organization/README.md",
+      "bytes": 8189,
+      "sha256": "fc10c063e4f745f841d79b93025b1a609050f379a74800a39000b369f6cfa56c"
+    },
+    {
+      "path": "rsi/07_understanding_self_star/step_06_emergence/README.md",
+      "bytes": 8559,
+      "sha256": "f0ce9daab884a1927a292377c2cf11f3d1b65bbac3db5c98265fbce8c329fe76"
+    },
+    {
+      "path": "rsi/skills/improve-research-skill/SKILL.md",
+      "bytes": 4606,
+      "sha256": "ecf26a07090fe6d2861014191a6449f4871621ca1b6da55d21d2c05adb264e8f"
+    },
+    {
+      "path": "rsi/09_recursive_self_improvement/step_04_inherit/README.md",
+      "bytes": 9013,
+      "sha256": "87f222479be1a28f4d04a2041cde7a1c05b37a5b6fcbe62d06971ea1ba99b7fe"
+    },
+    {
+      "path": "how-did-i-generate-it/rsi/validation/RSI-RESULTS-DIAGNOSIS-2026-09-22.md",
+      "bytes": 8737,
+      "sha256": "6002c6f6797c358ec41a9b46cc6f2ebbcf69ce6cf3ec6dcd8df0b7a1177c3879"
+    },
+    {
+      "path": "rsi/RESULTS-GUIDE.md",
+      "bytes": 7975,
+      "sha256": "fff4d8e679d87a36b61fb4b73701ada2a46b0700b7c3295c140068f8b33a2595"
+    },
+    {
+      "path": "rsi/08_measuring_improvement/step_03_cost/README.md",
+      "bytes": 8105,
+      "sha256": "5c0682fe07011ddc8d5809827bb0c5c57f6373ccfc36e24c9ee379b93bfd5020"
+    },
+    {
+      "path": "how-did-i-generate-it/rsi/research/2026-09-22-BENCHMARK-SCALE.md",
+      "bytes": 3856,
+      "sha256": "939d05f67f24efb187833946d79fa42bf1e1d62e2b05d7caa261e67446d43831"
+    },
+    {
+      "path": "rsi/10_research_studio/README.md",
+      "bytes": 4889,
+      "sha256": "ac09e1b4557df882400fd34ff320a371559f708824ba614461bb3bf25a6d539a"
+    },
+    {
+      "path": "rsi/research/README.md",
+      "bytes": 8953,
+      "sha256": "4bbab2db287ba7aa89cd9184509ce4cb2f1b7d440f5c8eb1fcbe688450c646d9"
+    },
+    {
+      "path": "rsi/10_research_studio/02_dream_rsi/step_08_replay/README.md",
+      "bytes": 7999,
+      "sha256": "f55e38465829933e32566e424e6bc7975e136cdab99ed778cb3a9448bba14d7b"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/online-discovery/README.md",
+      "bytes": 4070,
+      "sha256": "4fea73e48f757e8e5702df9a9c6cb6b3033cda5ceff3aa1fd125b3dbe789499c"
+    },
+    {
+      "path": "rsi/10_research_studio/01_memory_and_exploration/step_04_actor_memory/README.md",
+      "bytes": 8339,
+      "sha256": "56716bdfd6fb3666585a16941d9771c38d934300419a3c1b0de61bfcd96e31c5"
+    },
+    {
+      "path": "rsi/10_research_studio/01_memory_and_exploration/step_06_working_and_experience/README.md",
+      "bytes": 8424,
+      "sha256": "b437cd1de0abce74fab98f7ea9aa908b5270afe6d4336585ebbd0e97d1df6a06"
+    },
+    {
+      "path": "rsi/10_research_studio/04_aide2/step_14_outer_research/README.md",
+      "bytes": 9213,
+      "sha256": "2b7cfa2b248bd534e454eea90dc15b725e27414e673038c057b02b73c886a32a"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/nested-research-evaluation/README.md",
+      "bytes": 6078,
+      "sha256": "82715c68015e2686d770f1c74b6ade04d4c214995add74593f73d3fe66627ee8"
+    },
+    {
+      "path": "rsi/10_research_studio/04_aide2/step_15_ignition/README.md",
+      "bytes": 8755,
+      "sha256": "3dee2ee9168e1aaeb24ba6aa97e22633f33c296bb5339f0d3e80b1acdc7c6035"
+    },
+    {
+      "path": "rsi/10_research_studio/05_meta_skill_evolution/step_17_meta_skills/README.md",
+      "bytes": 10503,
+      "sha256": "876fb3957076c2c7dd4fe1a8870bac1170577b5d5e6b519ae3acf40b6cbd42f6"
+    },
+    {
+      "path": "rsi/10_research_studio/06_scientist_two/README.md",
+      "bytes": 2769,
+      "sha256": "01188143b70687a9531824de128dbd3688ee9b52201b1007782f6163ce52353c"
+    },
+    {
+      "path": "rsi/evidence/2026-09-21/scientist-labs/README.md",
+      "bytes": 5490,
+      "sha256": "e671f91276a4b5a3fcf7839bf494d0afa9a6a8d2a047b9241b51ebc5b95ea4b8"
+    },
+    {
+      "path": "rsi/10_research_studio/07_sciencebuddy/README.md",
+      "bytes": 3153,
+      "sha256": "7c82c2df6dfdc596f4a225cea640fde5cd8f991a1626c5752cfda659b8f3a68f"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/discovery-final/RESULTS.csv",
+      "bytes": 32652,
+      "sha256": "a1ffd60f09330fb407f3b7870c759067b64bcd23d1db980c6988d2c84c387f65"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/discovery-final/PAIRED.csv",
+      "bytes": 1400,
+      "sha256": "f8ea259c0c399a936ab51202791a8be853bfd67fe09c3f7edc1f1e732ea158b8"
+    },
+    {
+      "path": "rsi/evidence/2026-09-22/nested-research-evaluation/CONTRASTS.csv",
+      "bytes": 405,
+      "sha256": "a098e3682026078e0f0ff10da6a9ffbaa6bac815f31ac493b5347b424d061d4e"
+    },
+    {
+      "path": "how-did-i-generate-it/rsi/validation/REPAIRED-METHOD-REQUIREMENTS.md",
+      "bytes": 9721,
+      "sha256": "599a5a085a6ef9715f9c199575932cb94fda6ae987ffb436aa1e2a3fd54b7c96"
+    },
+    {
+      "path": "rsi/11_capstones/README.md",
+      "bytes": 3569,
+      "sha256": "b5feaa9c5b0a3febae9d4f8f367293152f68c26aedfb9bfb3c0f6a39d6a4ee91"
+    },
+    {
+      "path": "rsi/compute/README.md",
+      "bytes": 7111,
+      "sha256": "6275fd065ee8ab044549d011f878af030ed2625f5346271a54c7b2272cd31e47"
+    },
+    {
+      "path": "rsi/skills/scale-experiment/SKILL.md",
+      "bytes": 2100,
+      "sha256": "e46970e7d92421d0c32fba84530592c1369c54161df2ff11da3db86666576ab0"
+    },
+    {
+      "path": "rsi/11_capstones/step_05_teach_back/README.md",
+      "bytes": 9225,
+      "sha256": "50dada8758d412c6527d144581d7a5381a33a978c550577c11e106f0e6dcc3c2"
+    },
+    {
+      "path": "rsi/assets/illustrations/main-overview-v2.png",
+      "bytes": 1910895,
+      "sha256": "0f598701b3093cf8003b34aa64757ee5ce0cf48e9c617a8072a6307c64aa70a7"
+    },
+    {
+      "path": "rsi/assets/illustrations/course-mindmap-v2.png",
+      "bytes": 2202003,
+      "sha256": "3fe1e13df8fc3739b847621e82ab51c7e72a7d3453920b774c0a7e1763b29a44"
+    },
+    {
+      "path": "rsi/assets/illustrations/data-science-process-v4.png",
+      "bytes": 1916741,
+      "sha256": "c92559a55dab6ff4ee60ab8ae913257a748adc239ae84b1613ef1718be6e91d1"
+    },
+    {
+      "path": "rsi/assets/illustrations/target-leakage-v2.png",
+      "bytes": 1703637,
+      "sha256": "8b1f3a186b949b7a5b19a748d6f91293c547cfdf1d68aa5a98d63733c5e2732d"
+    },
+    {
+      "path": "rsi/assets/illustrations/freeze-before-final-v2.png",
+      "bytes": 2012863,
+      "sha256": "cb7185e51fb0864f7c8dbf6ea67eb3b2ee363bad96246c1f2b8caa9ee83956df"
+    },
+    {
+      "path": "rsi/assets/illustrations/training-median-baseline-v1.png",
+      "bytes": 1951814,
+      "sha256": "3f857f650687c4cc675c6b594a91d64ac0fb75f48b7b5b6f3b6871ad02874f6e"
+    },
+    {
+      "path": "rsi/assets/illustrations/one-factor-model-change-v1.png",
+      "bytes": 1852573,
+      "sha256": "2e580ce45c08fa7a9e6ae34418a54cc8191807256cfb3fe57790bc2e870740c7"
+    },
+    {
+      "path": "rsi/assets/illustrations/skill-agent-tool-check-v2.png",
+      "bytes": 1908955,
+      "sha256": "6321010abeece09ceab545e2eed19cc40f1382375cb92abe68e1c01260df1114"
+    },
+    {
+      "path": "rsi/assets/illustrations/bounded-loop-v1.png",
+      "bytes": 1538954,
+      "sha256": "331b2e3ab14bdf8280feb8b83e70ec839b1c25143cdfc9f63750bd78a1388466"
+    },
+    {
+      "path": "rsi/assets/illustrations/artifact-dependencies-v2.png",
+      "bytes": 2017801,
+      "sha256": "1a8f2e8df6aeadfd1f221271c716528e1b0466b074693868c704dd3c3013a254"
+    },
+    {
+      "path": "rsi/assets/illustrations/graph-ontology-v1.png",
+      "bytes": 1382756,
+      "sha256": "bf7853b36cd9a1f32ddd48c031e395a0a6ace2beb275623f414129c39b515ecf"
+    },
+    {
+      "path": "rsi/assets/illustrations/system-coordination-v3.png",
+      "bytes": 2032259,
+      "sha256": "692cbe1f432ba2114e4a90fab97e38b24ae1bd2b25136816a75526a4e93f0391"
+    },
+    {
+      "path": "rsi/assets/illustrations/meta-harness-v2.png",
+      "bytes": 1883364,
+      "sha256": "d10f9a3d027f007b4202123e0fb36fc3620470a0f3138b22490da4fd16ea3c33"
+    },
+    {
+      "path": "rsi/assets/illustrations/self-star-v2.png",
+      "bytes": 1847800,
+      "sha256": "d41d9f412c446a76bc7e962bb719228b34f4f2ad8baffac34d9dfcf409836328"
+    },
+    {
+      "path": "rsi/assets/illustrations/reflection-hypothesis-checks-v2.png",
+      "bytes": 2139640,
+      "sha256": "6b8311024ee56963d09b72a8abda575fb169403dc3983cbf914e44a49efdfaac"
+    },
+    {
+      "path": "rsi/assets/illustrations/organization-shared-queue-v1.png",
+      "bytes": 1657139,
+      "sha256": "b39dfe24697a85c4f7794e8bd1d4313e9691efe1c550c98fe8260f39a7156acf"
+    },
+    {
+      "path": "rsi/assets/illustrations/name-experiment-objects-v2.png",
+      "bytes": 2224204,
+      "sha256": "9676236faa35955e9cfa0d9dd5d73adadb6d27f174b44a548c24a36934668bfb"
+    },
+    {
+      "path": "rsi/assets/illustrations/inherited-improver-v1.png",
+      "bytes": 1466511,
+      "sha256": "9183d146b3faf5a69f0252c41fe436a1bc5c14dd06c671a00d4b17028f454efd"
+    },
+    {
+      "path": "rsi/assets/illustrations/matched-search-budgets-v1.png",
+      "bytes": 1952522,
+      "sha256": "82c2e9555ec80a1c739f03560a7175f5a8c8c001f913a4e97933f6874b4eee7a"
+    },
+    {
+      "path": "rsi/assets/illustrations/research-studio-map-v3.png",
+      "bytes": 2153482,
+      "sha256": "e7ddc54fec633e9d313e0e5d253410dc95eaabb5817c2632f3f379b7c3356cf6"
+    },
+    {
+      "path": "rsi/assets/illustrations/replay-boundary-v2.png",
+      "bytes": 1606854,
+      "sha256": "78f45091072f5d8784c558e2687a5d8832a3405bf2a5aa6179e7219c6667dcfe"
+    },
+    {
+      "path": "rsi/assets/illustrations/replay-to-online-v2.png",
+      "bytes": 1889721,
+      "sha256": "c14fcc56b2b19badcfc5d07f7b9a4acbe4fc3a490be5c62a26af5e748b8d6399"
+    },
+    {
+      "path": "rsi/assets/illustrations/actor-memory-v2.png",
+      "bytes": 2122678,
+      "sha256": "7d272127a31eb5402b127e6daa89b478632862f552b5e9c8fc7689e812dbe366"
+    },
+    {
+      "path": "rsi/assets/illustrations/working-state-and-experience-v1.png",
+      "bytes": 2136967,
+      "sha256": "b3b988275299fc55f8f1f47a736344912f424030adabe27b362bdffbf55b3853"
+    },
+    {
+      "path": "rsi/assets/illustrations/nested-research-v2.png",
+      "bytes": 2140647,
+      "sha256": "499fa41f8b10aac162a6c4eb6cbed95ef1d9017545840f9a27cc12fa89c3083d"
+    },
+    {
+      "path": "rsi/assets/illustrations/ignition-role-transfer-v1.png",
+      "bytes": 1931803,
+      "sha256": "6a1ed5f82d2c85fff216a651484a49e85e881e68b71148b8f30e2dad950c97fa"
+    },
+    {
+      "path": "rsi/assets/illustrations/meta-skill-schedules-v3.png",
+      "bytes": 2125484,
+      "sha256": "86009201fb95b08af410ef5d97f3e27c35c8e4ad312cdb3e2e174aee25dae0e0"
+    },
+    {
+      "path": "rsi/assets/illustrations/scientific-claim-v2.png",
+      "bytes": 2073250,
+      "sha256": "0963904987618fc156fbcac6c8893954f6c111e5f4b441c1635831c3f374727d"
+    },
+    {
+      "path": "rsi/assets/illustrations/model-harness-v4.png",
+      "bytes": 2165463,
+      "sha256": "68d162ea049a5a95231a52959bc5403fdcff9a33ef6fd370a9a5abe5b51efb03"
+    },
+    {
+      "path": "rsi/assets/illustrations/evidence-beyond-score-v1.png",
+      "bytes": 1856774,
+      "sha256": "6369ab31b142d5d86d7958d6ea5a6707d0c61bdb70530c01cdcf4653e7818f63"
+    },
+    {
+      "path": "rsi/assets/illustrations/capstone-map-v3.png",
+      "bytes": 2140243,
+      "sha256": "f34d5036e960fa5e47ba131ee97517ec1b3714213601830ab25992eb0d26193c"
+    },
+    {
+      "path": "rsi/assets/illustrations/compute-contract-v2.png",
+      "bytes": 1588434,
+      "sha256": "0b48772d739f3b80351f396d944d484bdfd40eff0987f7d2a4096061d6046747"
+    },
+    {
+      "path": "rsi/assets/illustrations/capstone-teach-back-v2.png",
+      "bytes": 2093619,
+      "sha256": "bf0c51a3c7a3518c0edf8cd730e4d95d2e1b620ac0194b687ce4d9facc71d771"
+    }
+  ],
+  "assets": [
+    {
+      "slide": 1,
+      "path": "rsi/assets/illustrations/main-overview-v2.png",
+      "bytes": 1910895,
+      "sha256": "0f598701b3093cf8003b34aa64757ee5ce0cf48e9c617a8072a6307c64aa70a7"
+    },
+    {
+      "slide": 2,
+      "path": "rsi/assets/illustrations/course-mindmap-v2.png",
+      "bytes": 2202003,
+      "sha256": "3fe1e13df8fc3739b847621e82ab51c7e72a7d3453920b774c0a7e1763b29a44"
+    },
+    {
+      "slide": 3,
+      "path": "rsi/assets/illustrations/data-science-process-v4.png",
+      "bytes": 1916741,
+      "sha256": "c92559a55dab6ff4ee60ab8ae913257a748adc239ae84b1613ef1718be6e91d1"
+    },
+    {
+      "slide": 4,
+      "path": "rsi/assets/illustrations/target-leakage-v2.png",
+      "bytes": 1703637,
+      "sha256": "8b1f3a186b949b7a5b19a748d6f91293c547cfdf1d68aa5a98d63733c5e2732d"
+    },
+    {
+      "slide": 5,
+      "path": "rsi/assets/illustrations/freeze-before-final-v2.png",
+      "bytes": 2012863,
+      "sha256": "cb7185e51fb0864f7c8dbf6ea67eb3b2ee363bad96246c1f2b8caa9ee83956df"
+    },
+    {
+      "slide": 6,
+      "path": "rsi/assets/illustrations/training-median-baseline-v1.png",
+      "bytes": 1951814,
+      "sha256": "3f857f650687c4cc675c6b594a91d64ac0fb75f48b7b5b6f3b6871ad02874f6e"
+    },
+    {
+      "slide": 7,
+      "path": "rsi/assets/illustrations/one-factor-model-change-v1.png",
+      "bytes": 1852573,
+      "sha256": "2e580ce45c08fa7a9e6ae34418a54cc8191807256cfb3fe57790bc2e870740c7"
+    },
+    {
+      "slide": 8,
+      "path": "rsi/assets/illustrations/skill-agent-tool-check-v2.png",
+      "bytes": 1908955,
+      "sha256": "6321010abeece09ceab545e2eed19cc40f1382375cb92abe68e1c01260df1114"
+    },
+    {
+      "slide": 9,
+      "path": "rsi/assets/illustrations/bounded-loop-v1.png",
+      "bytes": 1538954,
+      "sha256": "331b2e3ab14bdf8280feb8b83e70ec839b1c25143cdfc9f63750bd78a1388466"
+    },
+    {
+      "slide": 10,
+      "path": "rsi/assets/illustrations/artifact-dependencies-v2.png",
+      "bytes": 2017801,
+      "sha256": "1a8f2e8df6aeadfd1f221271c716528e1b0466b074693868c704dd3c3013a254"
+    },
+    {
+      "slide": 11,
+      "path": "rsi/assets/illustrations/graph-ontology-v1.png",
+      "bytes": 1382756,
+      "sha256": "bf7853b36cd9a1f32ddd48c031e395a0a6ace2beb275623f414129c39b515ecf"
+    },
+    {
+      "slide": 12,
+      "path": "rsi/assets/illustrations/system-coordination-v3.png",
+      "bytes": 2032259,
+      "sha256": "692cbe1f432ba2114e4a90fab97e38b24ae1bd2b25136816a75526a4e93f0391"
+    },
+    {
+      "slide": 13,
+      "path": "rsi/assets/illustrations/meta-harness-v2.png",
+      "bytes": 1883364,
+      "sha256": "d10f9a3d027f007b4202123e0fb36fc3620470a0f3138b22490da4fd16ea3c33"
+    },
+    {
+      "slide": 14,
+      "path": "rsi/assets/illustrations/self-star-v2.png",
+      "bytes": 1847800,
+      "sha256": "d41d9f412c446a76bc7e962bb719228b34f4f2ad8baffac34d9dfcf409836328"
+    },
+    {
+      "slide": 15,
+      "path": "rsi/assets/illustrations/reflection-hypothesis-checks-v2.png",
+      "bytes": 2139640,
+      "sha256": "6b8311024ee56963d09b72a8abda575fb169403dc3983cbf914e44a49efdfaac"
+    },
+    {
+      "slide": 16,
+      "path": "rsi/assets/illustrations/organization-shared-queue-v1.png",
+      "bytes": 1657139,
+      "sha256": "b39dfe24697a85c4f7794e8bd1d4313e9691efe1c550c98fe8260f39a7156acf"
+    },
+    {
+      "slide": 17,
+      "path": "rsi/assets/illustrations/name-experiment-objects-v2.png",
+      "bytes": 2224204,
+      "sha256": "9676236faa35955e9cfa0d9dd5d73adadb6d27f174b44a548c24a36934668bfb"
+    },
+    {
+      "slide": 18,
+      "path": "rsi/assets/illustrations/inherited-improver-v1.png",
+      "bytes": 1466511,
+      "sha256": "9183d146b3faf5a69f0252c41fe436a1bc5c14dd06c671a00d4b17028f454efd"
+    },
+    {
+      "slide": 20,
+      "path": "rsi/assets/illustrations/matched-search-budgets-v1.png",
+      "bytes": 1952522,
+      "sha256": "82c2e9555ec80a1c739f03560a7175f5a8c8c001f913a4e97933f6874b4eee7a"
+    },
+    {
+      "slide": 22,
+      "path": "rsi/assets/illustrations/research-studio-map-v3.png",
+      "bytes": 2153482,
+      "sha256": "e7ddc54fec633e9d313e0e5d253410dc95eaabb5817c2632f3f379b7c3356cf6"
+    },
+    {
+      "slide": 23,
+      "path": "rsi/assets/illustrations/replay-boundary-v2.png",
+      "bytes": 1606854,
+      "sha256": "78f45091072f5d8784c558e2687a5d8832a3405bf2a5aa6179e7219c6667dcfe"
+    },
+    {
+      "slide": 24,
+      "path": "rsi/assets/illustrations/replay-to-online-v2.png",
+      "bytes": 1889721,
+      "sha256": "c14fcc56b2b19badcfc5d07f7b9a4acbe4fc3a490be5c62a26af5e748b8d6399"
+    },
+    {
+      "slide": 25,
+      "path": "rsi/assets/illustrations/actor-memory-v2.png",
+      "bytes": 2122678,
+      "sha256": "7d272127a31eb5402b127e6daa89b478632862f552b5e9c8fc7689e812dbe366"
+    },
+    {
+      "slide": 26,
+      "path": "rsi/assets/illustrations/working-state-and-experience-v1.png",
+      "bytes": 2136967,
+      "sha256": "b3b988275299fc55f8f1f47a736344912f424030adabe27b362bdffbf55b3853"
+    },
+    {
+      "slide": 27,
+      "path": "rsi/assets/illustrations/nested-research-v2.png",
+      "bytes": 2140647,
+      "sha256": "499fa41f8b10aac162a6c4eb6cbed95ef1d9017545840f9a27cc12fa89c3083d"
+    },
+    {
+      "slide": 28,
+      "path": "rsi/assets/illustrations/ignition-role-transfer-v1.png",
+      "bytes": 1931803,
+      "sha256": "6a1ed5f82d2c85fff216a651484a49e85e881e68b71148b8f30e2dad950c97fa"
+    },
+    {
+      "slide": 29,
+      "path": "rsi/assets/illustrations/meta-skill-schedules-v3.png",
+      "bytes": 2125484,
+      "sha256": "86009201fb95b08af410ef5d97f3e27c35c8e4ad312cdb3e2e174aee25dae0e0"
+    },
+    {
+      "slide": 30,
+      "path": "rsi/assets/illustrations/scientific-claim-v2.png",
+      "bytes": 2073250,
+      "sha256": "0963904987618fc156fbcac6c8893954f6c111e5f4b441c1635831c3f374727d"
+    },
+    {
+      "slide": 31,
+      "path": "rsi/assets/illustrations/model-harness-v4.png",
+      "bytes": 2165463,
+      "sha256": "68d162ea049a5a95231a52959bc5403fdcff9a33ef6fd370a9a5abe5b51efb03"
+    },
+    {
+      "slide": 34,
+      "path": "rsi/assets/illustrations/evidence-beyond-score-v1.png",
+      "bytes": 1856774,
+      "sha256": "6369ab31b142d5d86d7958d6ea5a6707d0c61bdb70530c01cdcf4653e7818f63"
+    },
+    {
+      "slide": 35,
+      "path": "rsi/assets/illustrations/capstone-map-v3.png",
+      "bytes": 2140243,
+      "sha256": "f34d5036e960fa5e47ba131ee97517ec1b3714213601830ab25992eb0d26193c"
+    },
+    {
+      "slide": 36,
+      "path": "rsi/assets/illustrations/compute-contract-v2.png",
+      "bytes": 1588434,
+      "sha256": "0b48772d739f3b80351f396d944d484bdfd40eff0987f7d2a4096061d6046747"
+    },
+    {
+      "slide": 37,
+      "path": "rsi/assets/illustrations/capstone-teach-back-v2.png",
+      "bytes": 2093619,
+      "sha256": "bf0c51a3c7a3518c0edf8cd730e4d95d2e1b620ac0194b687ce4d9facc71d771"
+    }
+  ]
+}

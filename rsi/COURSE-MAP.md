@@ -1,5 +1,7 @@
 # Your route through the RSI masterclass
 
+[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.
+
 [Course](README.md) · [Start here](START-HERE.md) · [Intent, skills, and authoring sources](SOURCE-ARTIFACTS.md)
 
 Start with one bike-demand prediction. Make its evidence trustworthy. Then add a reason for another experiment, rules for choosing the next action, and a way to preserve useful work. Only after those ideas are clear do you change the research procedure—and then the procedure that improves it.

@@ -33,9 +33,9 @@ open its illustrated walkthrough; use the full-size links to read every label.
 
 **[Browse all 101 codelab illustrations](VISUAL-GUIDE.md)** · [Teaching roadmap](TEACHING-ROADMAP.md) · [Skills and intent briefs](SOURCE-ARTIFACTS.md).
 
-**Presentation:** [37-slide outline and draft speaker notes](PRESENTATION.md).
-The comparisons have completed with mixed results. The PPTX remains pending
-the decision about presenting those findings; the linked page tracks its status.
+**Presentation:** [Download the 37-slide PowerPoint review draft](../how-did-i-generate-it/rsi/presentation/output/rsi-masterclass-review-v2.pptx) · [Speaker notes](../how-did-i-generate-it/rsi/presentation/build-v2/SPEAKER-NOTES.md) · [Preview the slides](PRESENTATION.md).
+Every slide has embedded speaker notes. The deck presents measured search savings
+and mixed prediction results, with their limits visible.
 
 These maps explain the mechanisms and learning route. They do not report
 experimental wins. Each lab connects its illustration to instructions, checks,

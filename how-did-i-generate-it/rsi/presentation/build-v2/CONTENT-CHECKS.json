@@ -1,0 +1,488 @@
+{
+  "deck": "rsi-masterclass-review-v2.pptx",
+  "sha256": "b7557350d9b49d4d74fe2981bdf9dae0e53af9e25d8825b34b601cd0ec2cc0a1",
+  "checks": [
+    {
+      "check": "37 slides",
+      "passed": true
+    },
+    {
+      "check": "slide 1: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 1: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 1: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 2: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 2: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 2: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 3: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 3: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 3: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 4: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 4: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 4: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 5: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 5: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 5: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 6: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 6: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 6: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 7: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 7: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 7: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 8: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 8: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 8: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 9: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 9: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 9: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 10: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 10: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 10: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 11: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 11: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 11: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 12: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 12: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 12: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 13: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 13: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 13: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 14: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 14: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 14: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 15: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 15: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 15: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 16: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 16: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 16: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 17: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 17: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 17: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 18: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 18: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 18: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 19: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 19: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 19: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 20: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 20: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 20: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 21: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 21: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 21: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 22: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 22: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 22: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 23: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 23: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 23: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 24: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 24: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 24: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 25: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 25: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 25: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 26: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 26: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 26: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 27: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 27: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 27: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 28: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 28: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 28: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 29: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 29: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 29: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 30: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 30: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 30: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 31: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 31: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 31: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 32: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 32: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 32: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 33: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 33: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 33: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 34: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 34: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 34: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 35: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 35: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 35: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 36: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 36: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 36: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "slide 37: one notes relationship",
+      "passed": true
+    },
+    {
+      "check": "slide 37: complete authored notes retained",
+      "passed": true
+    },
+    {
+      "check": "slide 37: source URL in notes",
+      "passed": true
+    },
+    {
+      "check": "one native chart",
+      "passed": true
+    },
+    {
+      "check": "chart values match frozen attempt ledger",
+      "passed": true
+    },
+    {
+      "check": "editable chart workbook present",
+      "passed": true
+    },
+    {
+      "check": "i0: result table matches frozen contrast",
+      "passed": true
+    },
+    {
+      "check": "parent: result table matches frozen contrast",
+      "passed": true
+    },
+    {
+      "check": "fixed: result table matches frozen contrast",
+      "passed": true
+    },
+    {
+      "check": "random: result table matches frozen contrast",
+      "passed": true
+    },
+    {
+      "check": "only corrected slide 17 changed visually",
+      "passed": true
+    }
+  ],
+  "failures": 0,
+  "boundary": "OOXML and archived-data checks; no native PowerPoint execution."
+}

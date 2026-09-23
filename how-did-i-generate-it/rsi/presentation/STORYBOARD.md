@@ -1,9 +1,9 @@
 # RSI masterclass presentation source
 
-Status: teaching sequence and speaker-note draft, with the completed repair
-results integrated. No PPTX exists yet. The user's choice about presenting
-verified mixed results is pending in the presentation brief. This file is
-authoring provenance. Its publication does not establish a rendered deck.
+Status: the [37-slide PowerPoint review draft](output/rsi-masterclass-review-v2.pptx)
+and [complete embedded notes](build-v2/SPEAKER-NOTES.md) are available.
+The deck includes the completed repair results and their uncertainty.
+See the [publication review](REVIEW.md) for checks and remaining limits.
 
 Audience: an advanced AI/ML class that knows training and evaluation but has
 not studied RSI. Plan a 75–90 minute lecture with discussion, followed by the
@@ -251,7 +251,7 @@ Source: labs 07.05–07.06 and their scheduling evidence.
 On slide: The solver does the task. The improver changes its procedure. The
 evaluator judges the resulting work.
 
-Visual: `name-experiment-objects-v2.png`.
+Visual: `../diagrams/lab-09-01.png`.
 
 Speaker notes: Use one concrete ML search as the example. A model parameter
 belongs to the solution. An experiment-allocation policy belongs to the

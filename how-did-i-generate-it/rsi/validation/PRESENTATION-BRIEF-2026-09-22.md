@@ -1,3 +1,5 @@
+Current status: [37-slide review draft with embedded notes](../../../rsi/PRESENTATION.md) is available. It presents verified mixed findings. The original success condition is not assumed satisfied. [Publication checks](../presentation/REVIEW.md). Earlier planning below is retained.
+
 # RSI presentation after experimental repair
 
 Requested on 22 September 2026.

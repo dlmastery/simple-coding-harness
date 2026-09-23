@@ -1,35 +1,40 @@
 # Presentation and speaker notes
 
-**Status: outline and speaker-note draft available; PowerPoint not yet built.**
+**[Download the 37-slide PowerPoint review draft](../how-did-i-generate-it/rsi/presentation/output/rsi-masterclass-review-v2.pptx)** (57 MB).
 
-The planned presentation takes an advanced AI/ML audience from one experiment
-to research procedures and changes to their improver. It uses the course's
-white-background infographics, editable result charts and notes on every slide.
-The planned lecture takes 75–90 minutes, separate from the codelabs.
+The deck follows the course from one ML experiment to changes in a research
+procedure and its improver. It includes the course illustrations, an editable
+results chart, editable comparison tables and speaker notes on all 37 slides.
+Allow an estimated 75–90 minutes for the lecture and discussion. The codelabs
+have their own schedule.
 
-- [Read the 37-slide storyboard and draft speaker notes](../how-did-i-generate-it/rsi/presentation/STORYBOARD.md). Slides 32–34 now contain the completed measured results, comparison tables and evidence links.
-- [Preview the course illustrations](VISUAL-GUIDE.md).
-- [Read the presentation requirements and remaining gates](../how-did-i-generate-it/rsi/validation/PRESENTATION-BRIEF-2026-09-22.md).
-- [Inspect the measured experiments](evidence/README.md).
+- [Read the complete speaker notes](../how-did-i-generate-it/rsi/presentation/build-v2/SPEAKER-NOTES.md).
+- [Browse all 37 rendered slides](../how-did-i-generate-it/rsi/presentation/RENDERED-SLIDES.md).
+- [Read the teaching outline](../how-did-i-generate-it/rsi/presentation/STORYBOARD.md).
+- [Inspect the authoring sources, earlier draft and checks](../how-did-i-generate-it/rsi/presentation/README.md).
+- [Browse all 101 codelab illustrations](VISUAL-GUIDE.md).
 
-The user requested the PPTX after the experimental repair and verified results.
-The [six-procedure comparison](evidence/2026-09-22/tabular-comparison/README.md)
-has now completed, including later updater use. Memory beats random search
-but loses to the stronger fixed portfolio overall; updater benefit remains
-uncertain. The original request conditions the deck on a successful repair,
-so these outcomes cannot be presented as established RSI gains. No downloadable
-RSI `.pptx` exists. A presentation for a different topic is not this deliverable.
+This is a **review draft of the verified findings**. The discovery experiment
+used fewer search fits. The later researcher comparison produced two gains,
+three ties and one regression against its primary control. Its uncertainty
+interval includes zero. These findings do not establish an overall RSI gain.
+See the [results guide](RESULTS-GUIDE.md) for the full interpretation.
 
-The subsequent [complete-researcher development comparison](evidence/2026-09-22/nested-research-development/README.md)
-has two small gains and four ties, with a checked promotion and later source
-generation. These are exposed development tasks, and the interval reaches zero.
-The [reserved-task evaluation](evidence/2026-09-22/nested-research-evaluation/README.md)
-has now completed: I1 improves two tasks, ties three and worsens one against
-I0 and the parent. All paired intervals include zero. These mixed results must
-appear in any presentation of the repair. The user has been asked whether to
-present the verified findings now or keep the requested success deck pending
-stronger results. No answer or finished PPTX is assumed.
+## Preview the lecture
 
-When those results are ready, this page will link the PPTX, its complete
-speaker notes, authoring sources and rendered review. The deck must distinguish
-predictive gains, saved search work, failed proposals and unresolved claims.
+The research studio connects the advanced mechanisms to their codelabs:
+
+![Research studio lecture slide](../how-did-i-generate-it/rsi/presentation/build-v2/renders/slide-22.png)
+
+Measured search work and prediction quality answer different questions:
+
+![Measured search attempts and the prediction-quality boundary](../how-did-i-generate-it/rsi/presentation/build-v2/renders/slide-32.png)
+
+The capstones ask students to build, compare, transfer, audit and explain:
+
+![Five capstones and their evidence requirements](../how-did-i-generate-it/rsi/presentation/build-v2/renders/slide-35.png)
+
+All slides were rendered and inspected. Package checks and 120 content checks
+pass, including embedded notes and result values. Native PowerPoint
+application behavior has not been tested. The original request for a deck
+showing strong RSI gains remains conditional on evidence that supports them.

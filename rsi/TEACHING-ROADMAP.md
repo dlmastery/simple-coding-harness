@@ -1,5 +1,7 @@
 # Teach the course one capability at a time
 
+[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.
+
 [Course](README.md) · [Glossary](GLOSSARY.md) · [Every lab](COURSE-MAP.md) · [Instructor guide](instructor/README.md)
 
 The teaching goal is that students can follow one chain: a data question produces an experiment; a failure motivates a procedure change; a revised improver governs later work; a fair comparison determines what the change achieved. They should be able to explain a failure as clearly as a success.

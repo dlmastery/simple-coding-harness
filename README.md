@@ -17,7 +17,7 @@ reported separately in the course.
 
 **Explore:** [Full visual outline](rsi/COURSE-MAP.md) · [Research studio and its 38 labs](rsi/10_research_studio/README.md) · [Five capstones](rsi/11_capstones/README.md) · [All 101 illustrated labs](rsi/VISUAL-GUIDE.md).
 
-**RSI presentation:** [Outline, draft speaker notes and PPTX status](rsi/PRESENTATION.md). The PowerPoint is not yet built. The repaired comparison has completed, but its mixed results do not establish an overall RSI gain.
+**RSI presentation:** [Download the 37-slide PowerPoint review draft](how-did-i-generate-it/rsi/presentation/output/rsi-masterclass-review-v2.pptx) · [Speaker notes](how-did-i-generate-it/rsi/presentation/build-v2/SPEAKER-NOTES.md) · [Preview and evidence](rsi/PRESENTATION.md). The deck includes measured search savings and mixed prediction results; it does not claim an established overall RSI gain.
 
 ## The coding-harness course
 

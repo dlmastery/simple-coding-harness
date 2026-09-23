@@ -1,0 +1,306 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/6l0j294r",
+    "id": "6l0j294r",
+    "slide": 32,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Arial",
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/7uh0nuxs",
+      "id": "5",
+      "name": "Slide title",
+      "bbox": [
+        64,
+        40,
+        1152,
+        64
+      ],
+      "geometry": "rect",
+      "text": "Fewer executed fits on sixteen tasks",
+      "textPreview": "Fewer executed fits on sixteen tasks",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Fewer executed fits on sixteen tasks"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Fewer executed fits on sixteen tasks",
+          "resolvedTextStyle": {
+            "fontSize": 44,
+            "typeface": "Arial",
+            "color": "#112840",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Fewer executed fits on sixteen tasks",
+              "fontSize": 44,
+              "typeface": "Arial",
+              "color": "#112840",
+              "bold": true
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/kr61sfy1",
+      "id": "2",
+      "name": "Teaching point",
+      "bbox": [
+        64,
+        115,
+        1152,
+        84
+      ],
+      "geometry": "rect",
+      "text": "55 search fits versus 192. Overall predictive change remains uncertain.",
+      "textPreview": "55 search fits versus 192. Overall predictive change remains uncertain.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "55 search fits versus 192. Overall predictive change remains uncertain."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "55 search fits versus 192. Overall predictive change remains uncertain.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "55 search fits versus 192. Overall predictive change remains uncertain.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "chart",
+      "scope": "slide",
+      "aid": "ch/wna18vul",
+      "id": "6",
+      "name": "Chart",
+      "bbox": [
+        72,
+        210,
+        1120,
+        385
+      ],
+      "chartType": "bar"
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/6t8jupg7",
+      "id": "4",
+      "name": "Quality and cost boundary",
+      "bbox": [
+        64,
+        620,
+        1152,
+        75
+      ],
+      "geometry": "rect",
+      "text": "Final quality: 3 better, 12 tied, 1 worse versus broad.\nBars exclude development, scoring and unmetered agent inference.",
+      "textPreview": "Final quality: 3 better, 12 tied, 1 worse versus broad. | Bars exclude development, scoring and unmetered agent inference.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Final quality: 3 better, 12 tied, 1 worse versus broad."
+          },
+          {
+            "index": 2,
+            "text": "Bars exclude development, scoring and unmetered agent inference."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Final quality: 3 better, 12 tied, 1 worse versus broad.",
+          "resolvedTextStyle": {
+            "fontSize": 25,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Final quality: 3 better, 12 tied, 1 worse versus broad.",
+              "fontSize": 25,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Bars exclude development, scoring and unmetered agent inference.",
+          "resolvedTextStyle": {
+            "fontSize": 25,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Bars exclude development, scoring and unmetered agent inference.",
+              "fontSize": 25,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

@@ -1,0 +1,702 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/m1wvqtk3",
+    "id": "m1wvqtk3",
+    "slide": 21,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Arial",
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qp03yt8n",
+      "id": "5",
+      "name": "Slide title",
+      "bbox": [
+        64,
+        40,
+        1152,
+        64
+      ],
+      "geometry": "rect",
+      "text": "Research benchmark scale",
+      "textPreview": "Research benchmark scale",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Research benchmark scale"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Research benchmark scale",
+          "resolvedTextStyle": {
+            "fontSize": 44,
+            "typeface": "Arial",
+            "color": "#112840",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Research benchmark scale",
+              "fontSize": 44,
+              "typeface": "Arial",
+              "color": "#112840",
+              "bold": true
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1gbmxs7a",
+      "id": "2",
+      "name": "Teaching point",
+      "bbox": [
+        64,
+        115,
+        1152,
+        84
+      ],
+      "geometry": "rect",
+      "text": "The laptop exercise and larger benchmarks test different capabilities.",
+      "textPreview": "The laptop exercise and larger benchmarks test different capabilities.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "The laptop exercise and larger benchmarks test different capabilities."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "The laptop exercise and larger benchmarks test different capabilities.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The laptop exercise and larger benchmarks test different capabilities.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/gv2xs7mh",
+      "id": "6",
+      "bbox": [
+        64,
+        210,
+        1152,
+        375
+      ],
+      "text": "Setting | Task scope | Resource and grading boundary\nLocal nested study | 6 reserved public tabular tasks | 12 fits per procedure per task\nPublic files, procedural boundary\nRSI-Exam | 88 tasks in 6 domains\n35 public, 53 withheld | Up to 12 hours per task\nSeparate hidden grading\nMLE-bench | 75 competitions\n22 in the smaller subset | Recommended: 24 hours, 36 vCPUs,\n440 GB RAM, 24 GB A10 GPU",
+      "textPreview": "Setting | Task scope | Resource and grading boundary | Local nested study | 6 reserved public tabular tasks | 12 fits per procedure per t...",
+      "rows": 4,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            64,
+            210,
+            235,
+            93.75
+          ],
+          "text": "Setting",
+          "textPreview": "Setting",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Setting",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Setting",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            299,
+            210,
+            355,
+            93.75
+          ],
+          "text": "Task scope",
+          "textPreview": "Task scope",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Task scope",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Task scope",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            654,
+            210,
+            562,
+            93.75
+          ],
+          "text": "Resource and grading boundary",
+          "textPreview": "Resource and grading boundary",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Resource and grading boundary",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Resource and grading boundary",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            64,
+            303.75,
+            235,
+            93.75
+          ],
+          "text": "Local nested study",
+          "textPreview": "Local nested study",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Local nested study",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Local nested study",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            299,
+            303.75,
+            355,
+            93.75
+          ],
+          "text": "6 reserved public tabular tasks",
+          "textPreview": "6 reserved public tabular tasks",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "6 reserved public tabular tasks",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "6 reserved public tabular tasks",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            654,
+            303.75,
+            562,
+            93.75
+          ],
+          "text": "12 fits per procedure per task\nPublic files, procedural boundary",
+          "textPreview": "12 fits per procedure per task | Public files, procedural boundary",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "12 fits per procedure per task",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "12 fits per procedure per task",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "Public files, procedural boundary",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Public files, procedural boundary",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            64,
+            397.5,
+            235,
+            93.75
+          ],
+          "text": "RSI-Exam",
+          "textPreview": "RSI-Exam",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "RSI-Exam",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "RSI-Exam",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            299,
+            397.5,
+            355,
+            93.75
+          ],
+          "text": "88 tasks in 6 domains\n35 public, 53 withheld",
+          "textPreview": "88 tasks in 6 domains | 35 public, 53 withheld",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "88 tasks in 6 domains",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "88 tasks in 6 domains",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "35 public, 53 withheld",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "35 public, 53 withheld",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            654,
+            397.5,
+            562,
+            93.75
+          ],
+          "text": "Up to 12 hours per task\nSeparate hidden grading",
+          "textPreview": "Up to 12 hours per task | Separate hidden grading",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Up to 12 hours per task",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Up to 12 hours per task",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "Separate hidden grading",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Separate hidden grading",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            64,
+            491.25,
+            235,
+            93.75
+          ],
+          "text": "MLE-bench",
+          "textPreview": "MLE-bench",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "MLE-bench",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "MLE-bench",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            299,
+            491.25,
+            355,
+            93.75
+          ],
+          "text": "75 competitions\n22 in the smaller subset",
+          "textPreview": "75 competitions | 22 in the smaller subset",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "75 competitions",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "75 competitions",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "22 in the smaller subset",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "22 in the smaller subset",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            654,
+            491.25,
+            562,
+            93.75
+          ],
+          "text": "Recommended: 24 hours, 36 vCPUs,\n440 GB RAM, 24 GB A10 GPU",
+          "textPreview": "Recommended: 24 hours, 36 vCPUs, | 440 GB RAM, 24 GB A10 GPU",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Recommended: 24 hours, 36 vCPUs,",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Recommended: 24 hours, 36 vCPUs,",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            },
+            {
+              "index": 2,
+              "text": "440 GB RAM, 24 GB A10 GPU",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "440 GB RAM, 24 GB A10 GPU",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ra9kryp8",
+      "id": "4",
+      "name": "Dated scope",
+      "bbox": [
+        64,
+        618,
+        1152,
+        65
+      ],
+      "geometry": "rect",
+      "text": "Maintainer specifications checked 22 September 2026. Resources vary by task.",
+      "textPreview": "Maintainer specifications checked 22 September 2026. Resources vary by task.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Maintainer specifications checked 22 September 2026. Resources vary by task."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Maintainer specifications checked 22 September 2026. Resources vary by task.",
+          "resolvedTextStyle": {
+            "fontSize": 25,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Maintainer specifications checked 22 September 2026. Resources vary by task.",
+              "fontSize": 25,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}
