@@ -55,6 +55,8 @@ jobs:
         run: python check_snippets.py rsi
       - name: Rebuild the lesson pages from their source
         run: node how-did-i-generate-it/rsi/scripts/build-lessons.mjs
+      - name: Rebuild the visual guide from its source
+        run: node how-did-i-generate-it/rsi/scripts/build-visual-guide.mjs
       - name: Verify teaching-support publication and coverage
         run: node how-did-i-generate-it/rsi/scripts/audit-readme-guidance.mjs
       - name: Refresh the activity inventory without assuming completion

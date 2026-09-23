@@ -24,6 +24,7 @@ const table=items=>[
 const ordered=Object.entries(themes).sort(([a],[b])=>Number(a)-Number(b));
 const body=[
   '# Your route through the RSI masterclass',
+  '[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.',
   '[Course](README.md) · [Start here](START-HERE.md) · [Intent, skills, and authoring sources](SOURCE-ARTIFACTS.md)',
   'Start with one bike-demand prediction. Make its evidence trustworthy. Then add a reason for another experiment, rules for choosing the next action, and a way to preserve useful work. Only after those ideas are clear do you change the research procedure—and then the procedure that improves it.',
   'This guide explains the full '+lessons.length+'-lab route. It is also a place to return when a new term obscures the purpose of the next step. The numbered themes give reading order; the mindmap shows how the ideas belong together. Your position in the course is not a claim that earlier experiments succeeded.',

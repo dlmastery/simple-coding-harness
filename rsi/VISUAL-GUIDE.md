@@ -882,7 +882,7 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 ![An immutable trace, a retained knowledge notebook, and active skill S0 serve different roles. The improver proposes S1 and checks it; rejection keeps S0 active while retaining a scoped failure note.](assets/illustrations/knowledge-stores-v1.png)
 
-*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the active skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. The rejected S1 is illustrative, not a measured course result. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
+*The notebook can contain lessons from earlier failures and receives the new result after checking. It is not rolled back with a rejected skill edit. In this controlled activity, the actor reads the supplied skill; the improver can consult the trace and notebook. Record actual reads: role instructions alone do not enforce isolation. S0 and S1 are conceptual identities; the linked walkthrough retains its actual accepted and rejected files. This is a small WikiSkill-inspired exercise with two fixtures and no new model fit.*
 
 [Open the illustration at full size](assets/illustrations/knowledge-stores-v1.png).
 
@@ -902,7 +902,7 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 ![A first attempt selects candidate A without opening its details. A restricted visible-trace packet supports a critique, one skill instruction changes, and a second attempt is checked with the fixed executable selection rule.](assets/illustrations/gui-skill-repair-v1.png)
 
-*The enlarged warning is a reader callout to information already present on the page. It was not observed in the pictured failed attempt and must not be added to that attempt’s critic packet. Supply only the declared visible trace, not the skill package or answer key. Use a separate critic context where available; otherwise label the shared context. The rule-check ticks name operations, not recorded passes. Compare the critic’s verdict with the executable result. This EvoSkill-inspired classroom task allows two actual UI attempts and no new model fits; the illustration is not an execution record.*
+*The enlarged warning is a reader callout to information already present on the page. It was not observed in the pictured failed attempt and must not be added to that attempt’s critic packet. The image uses an excluded-input example; the linked live walkthrough uses a real screening score that is ineligible because its evaluation scope differs. Supply only the declared visible trace, not the skill package or answer key. Use a separate critic context where available; otherwise label the shared context. The rule-check ticks name operations, not recorded passes. Compare the critic’s verdict with the executable result. This EvoSkill-inspired classroom task allows two actual UI attempts and no new model fits; the illustration is not an execution record.*
 
 [Open the illustration at full size](assets/illustrations/gui-skill-repair-v1.png).
 
@@ -1012,7 +1012,7 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 ![Four evidence areas surround a bounded experiment: protocol, proposal and decision lineage, inherited changed-rule use, and a matched comparison with complete costs.](assets/illustrations/capstone-recursion-v1.png)
 
-*These are the evidence needed to inspect the experiment. Distinguish a candidate trial from retained use; promote only through the declared decision and trace whichever version actually governs the next round. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol, with agent-inference limits declared separately.*
+*These are the evidence needed to inspect the experiment. The pictured contrasting-case check is one possible revision; the saved author run changes ranking from training to selection MAE. Its later use occurs in the candidate trial, with acceptance afterward and no third generation. Match starting artifacts and external comparison rules. Eight fits is the total maximum across the two-generation protocol; record agent-inference limits and unavailable costs separately.*
 
 [Open the illustration at full size](assets/illustrations/capstone-recursion-v1.png).
 
@@ -1042,7 +1042,7 @@ These are conceptual illustrations. Measured results appear as separate plots wi
 
 ![A peer follows three stories: prediction and checked error, failure and skill revision, and a changed improver rule used in a later round. Portfolio tabs link the brief, versions, runs, costs, and claim.](assets/illustrations/capstone-teach-back-v2.png)
 
-*Keep the target out of model inputs; it belongs in the error check. Trace the added contrasting-case rule into an executed later action. The small strip can represent a candidate trial; it does not itself prove retention or benefit. Show the real comparison and decisions in the portfolio. The peer scene is illustrative: record a session only after it occurs and mark pending review honestly.*
+*Keep the target out of model inputs; it belongs in the error check. The bike equation and contrasting-case rule illustrate the story structure. The linked portfolio uses white-wine predictions, a separate unit repair and a changed ranking rule. Its later use occurs in a candidate trial; retention and benefit have separate records. The peer scene is illustrative: no session is claimed until it occurs.*
 
 [Open the illustration at full size](assets/illustrations/capstone-teach-back-v2.png).
 

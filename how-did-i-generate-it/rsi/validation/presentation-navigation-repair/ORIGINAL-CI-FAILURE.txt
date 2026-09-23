@@ -1,0 +1,76 @@
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	﻿2026-09-23T01:34:12.4774196Z ##[group]Run git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4775484Z [36;1mgit diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md[0m
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4812784Z shell: /usr/bin/bash -e {0}
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4813055Z env:
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4813263Z   PYTHONUTF8: 1
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4813496Z   MPLBACKEND: Agg
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4813835Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4814302Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4814773Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4815171Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4815565Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4815999Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.4816335Z ##[endgroup]
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9204317Z diff --git a/rsi/COURSE-MAP.md b/rsi/COURSE-MAP.md
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9205066Z index b1764c23..86bc2b63 100644
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9205541Z --- a/rsi/COURSE-MAP.md
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9205984Z +++ b/rsi/COURSE-MAP.md
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9206357Z @@ -1,7 +1,5 @@
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9206791Z  # Your route through the RSI masterclass
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9207504Z  
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9208656Z -[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9209784Z -
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9211032Z  [Course](README.md) · [Start here](START-HERE.md) · [Intent, skills, and authoring sources](SOURCE-ARTIFACTS.md)
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9211877Z  
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:12.9214640Z  Start with one bike-demand prediction. Make its evidence trustworthy. Then add a reason for another experiment, rules for choosing the next action, and a way to preserve useful work. Only after those ideas are clear do you change the research procedure—and then the procedure that improves it.
+CPU checks (ubuntu-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:13.3568628Z ##[error]Process completed with exit code 1.
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	﻿2026-09-23T01:34:30.8737100Z ##[group]Run git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8738200Z [36;1mgit diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md[0m
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8777220Z shell: /bin/bash -e {0}
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8777450Z env:
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8777620Z   PYTHONUTF8: 1
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8777780Z   MPLBACKEND: Agg
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8778060Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8778500Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8778980Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8779370Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8779740Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:30.8780130Z ##[endgroup]
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6237880Z diff --git a/rsi/COURSE-MAP.md b/rsi/COURSE-MAP.md
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6238390Z index b1764c23..86bc2b63 100644
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6238670Z --- a/rsi/COURSE-MAP.md
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6238910Z +++ b/rsi/COURSE-MAP.md
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6239200Z @@ -1,7 +1,5 @@
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6239490Z  # Your route through the RSI masterclass
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6239760Z  
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6240530Z -[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6241010Z -
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6242490Z  [Course](README.md) · [Start here](START-HERE.md) · [Intent, skills, and authoring sources](SOURCE-ARTIFACTS.md)
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6242910Z  
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.6244770Z  Start with one bike-demand prediction. Make its evidence trustworthy. Then add a reason for another experiment, rules for choosing the next action, and a way to preserve useful work. Only after those ideas are clear do you change the research procedure—and then the procedure that improves it.
+CPU checks (macos-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:31.7772060Z ##[error]Process completed with exit code 1.
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	﻿2026-09-23T01:34:52.3561891Z ##[group]Run git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3563255Z [36;1mgit diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md[0m
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3632854Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3633199Z env:
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3633361Z   PYTHONUTF8: 1
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3633562Z   MPLBACKEND: Agg
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3633836Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3634292Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.12.10\x64/lib/pkgconfig
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3634741Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3635140Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3635533Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.12.10\x64
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.3635865Z ##[endgroup]
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9599381Z diff --git a/rsi/COURSE-MAP.md b/rsi/COURSE-MAP.md
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9600194Z index b1764c23..86bc2b63 100644
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9600569Z --- a/rsi/COURSE-MAP.md
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9600876Z +++ b/rsi/COURSE-MAP.md
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9601155Z @@ -1,7 +1,5 @@
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9601448Z  # Your route through the RSI masterclass
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9601796Z  
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9603017Z -[Lecture slides and speaker notes](PRESENTATION.md): 37-slide PowerPoint review draft with the course figures and measured results.
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9603777Z -
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9604741Z  [Course](README.md) · [Start here](START-HERE.md) · [Intent, skills, and authoring sources](SOURCE-ARTIFACTS.md)
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9605381Z  
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:52.9607656Z  Start with one bike-demand prediction. Make its evidence trustworthy. Then add a reason for another experiment, rules for choosing the next action, and a way to preserve useful work. Only after those ideas are clear do you change the research procedure—and then the procedure that improves it.
+CPU checks (windows-latest, Python 3.12)	Refuse stale generated pages	2026-09-23T01:34:53.3562097Z ##[error]Process completed with exit code 1.
