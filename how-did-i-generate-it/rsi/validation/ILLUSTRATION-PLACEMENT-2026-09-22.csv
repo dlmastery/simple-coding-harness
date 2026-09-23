@@ -334,3 +334,5 @@ entry-page,RSI,rsi/README.md,capstone-map-v3.png,true
 entry-page,repository,README.md,course-mindmap-v2.png,true
 expanded-map,studio,rsi/10_research_studio/README.md,research-studio-map-v3.png,true
 expanded-map,capstones,rsi/11_capstones/README.md,capstone-map-v3.png,true
+results-guide,discovery,rsi/RESULTS-GUIDE.md,replay-to-online-v2.png,true
+results-guide,nested-research,rsi/RESULTS-GUIDE.md,nested-research-v2.png,true

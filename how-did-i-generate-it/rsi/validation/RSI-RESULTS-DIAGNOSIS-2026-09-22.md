@@ -1,5 +1,11 @@
 # Why the reported gains are mostly zero
 
+This is the original diagnosis, preserved as the starting point of the repair.
+For completed experiments and the current boundary of the claims, read
+[what changed after the zero-gain results](../../../rsi/RESULTS-GUIDE.md).
+The proposed next steps below are historical; the implementation record tracks
+which have since run.
+
 The user supplied a seven-row comparison from the original course and asked where self-improvement was demonstrated. The concern is valid. The table does not establish a reliable predictive gain or a general recursive improvement result. Course authoring and illustration completion must not be confused with that scientific outcome.
 
 ## Evidence inspected

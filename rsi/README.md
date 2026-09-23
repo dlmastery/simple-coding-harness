@@ -43,6 +43,10 @@ takeaways and an explained quiz.
 
 ## What has been tested
 
+Start with [what changed after the zero-gain results](RESULTS-GUIDE.md).
+It separates better predictions, fewer executed experiments and improvement
+of the researcher, with illustrations and links to the measured evidence.
+
 **What the results currently show:** this course has executed mechanism lessons and small author-guided comparisons. It has **not demonstrated general, autonomous recursive self-improvement**. The original Dream-RSI exercise retained its baseline; the positive recursive capstone uses an author-written correction to a weak ranking rule. Read the [results diagnosis and benchmark repair plan](../how-did-i-generate-it/rsi/validation/RSI-RESULTS-DIAGNOSIS-2026-09-22.md) before interpreting the original near-zero result table or the newer examples as evidence of a successful RSI system.
 
 The repair began with [360 pilot attempts](evidence/2026-09-22/pipeline-operator-pilot/README.md) and [43 online discovery fits](evidence/2026-09-22/online-discovery/README.md). It now includes a [completed sixteen-task comparison](evidence/2026-09-22/discovery-final/README.md): the replay-selected policy used **55 search fits versus 192** for broad search. Separate final-row quality improved on three tasks, tied on twelve and worsened on one. Its uncertainty interval includes zero, so a predictive gain is not established. This is a real reduction in executed search work on known synthetic task families; development costs, unmetered agent inference and an explicitly recorded host interruption remain additional. Other method repairs and improvement of the improver are still in progress.

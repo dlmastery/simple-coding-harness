@@ -21,6 +21,12 @@ so these outcomes cannot be presented as established RSI gains. The outline
 does not yet contain a finished results story, and no downloadable RSI `.pptx`
 exists. A presentation for a different topic is not this deliverable.
 
+The subsequent [complete-researcher development comparison](evidence/2026-09-22/nested-research-development/README.md)
+has two small gains and four ties, with a checked promotion and later source
+generation. These are exposed development tasks, and the interval reaches zero.
+The five-procedure reserved-task evaluation is running. Its checked results
+must be included before the presentation's experimental story is finalized.
+
 When those results are ready, this page will link the PPTX, its complete
 speaker notes, authoring sources and rendered review. The deck must distinguish
 predictive gains, saved search work, failed proposals and unresolved claims.
