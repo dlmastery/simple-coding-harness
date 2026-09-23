@@ -25,4 +25,6 @@ Check the effective behavior of composed changes. A new recipe name or different
 
 Include a credible conventional search control as well as the parent procedure. Beating the parent does not imply beating that control. Report predictive differences, actual executed work and uncertainty separately. For a worked six-procedure comparison, read `rsi/experiments/real-tabular/comparison/README.md` and inspect its evidence before proposing another run.
 
+Check that an operator does what its name promises. A higher-capacity tree proposal must not impose a new finite depth cap on an unlimited parent. Parameter clipping can also make a proposed change identical to its parent. Preserve integer-versus-fraction semantics when comparing settings. The checked example in `rsi/experiments/real-tabular/refinement-v2/README.md` separates constructor changes, prediction changes and measured quality.
+
 Stop at the lesson's generation limit. Return a lineage table, results, costs, rejected changes, and a claim audit. Never replace a failed experiment with invented success.

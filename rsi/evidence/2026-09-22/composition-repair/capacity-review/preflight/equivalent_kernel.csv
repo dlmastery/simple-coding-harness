@@ -1,0 +1,3 @@
+template,factor,constructor_sha256,reason
+one:rbf-unscaled,0.1,06e439978a38c86d03343adf6ee750490828ea69054d5a680fe4247b0f6ea0eb,
+two:unscaled-c1,1.0,06e439978a38c86d03343adf6ee750490828ea69054d5a680fe4247b0f6ea0eb,same-constructor

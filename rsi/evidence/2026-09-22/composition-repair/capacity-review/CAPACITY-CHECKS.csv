@@ -1,0 +1,11 @@
+check,passed
+classification/base:extra-trees/3.0/unlimited_parent_preserved,True
+classification/base:extra-trees/20.0/unlimited_parent_preserved,True
+classification/base:random-forest/3.0/unlimited_parent_preserved,True
+classification/base:random-forest/20.0/unlimited_parent_preserved,True
+regression/base:extra-trees/3.0/unlimited_parent_preserved,True
+regression/base:extra-trees/20.0/unlimited_parent_preserved,True
+regression/base:random-forest/3.0/unlimited_parent_preserved,True
+regression/base:random-forest/20.0/unlimited_parent_preserved,True
+prior_fit_constructor/3,True
+prior_fit_constructor/361234,True

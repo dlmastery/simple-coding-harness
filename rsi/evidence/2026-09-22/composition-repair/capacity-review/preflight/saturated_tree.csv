@@ -1,0 +1,3 @@
+template,factor,constructor_sha256,reason
+base:extra-trees,3.0,1565941bbd1ecda96eccd7fc7473ee79bf3d588a5222f68fc9e7ed2a754f04f2,
+one:extra-leaf2,3.0,1565941bbd1ecda96eccd7fc7473ee79bf3d588a5222f68fc9e7ed2a754f04f2,same-constructor

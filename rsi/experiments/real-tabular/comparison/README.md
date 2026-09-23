@@ -73,3 +73,9 @@ reproduction of every named paper. Inspect the [actual later skills](../../../ev
 and [composition diagnosis](../../../evidence/2026-09-22/tabular-comparison/composition/README.md).
 Two changed recipes construct identical estimators after a later parameter
 assignment overwrites an earlier change. The full frozen result stays intact.
+
+The separate [refinement repair](../refinement-v2/README.md) now preserves
+template-relative settings and rejects identical constructed candidates.
+Its four-fit integration check and later no-fit capacity review are preserved
+separately. This fixes observable behavior; it does not replace these results
+or establish a stronger research procedure.

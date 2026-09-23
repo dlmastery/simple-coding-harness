@@ -66,6 +66,12 @@ but a reliable recursive improvement has not been established.
 All procedures spend eight search fits per task. Read the full comparison
 before interpreting one favorable task as a general gain.*
 
+The [subsequent operator repair](evidence/2026-09-22/composition-repair/README.md)
+fixes template settings that were overwritten and a higher-capacity branch
+that incorrectly capped unlimited trees. Four integration fits run successfully;
+their scores tie or slightly regress. Correct execution is necessary, but it
+does not by itself establish a better improver.
+
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 
 Every codelab now has its own conceptual illustration. Browse the [visual guide](VISUAL-GUIDE.md) to see the mechanisms, then follow the lab instructions to test them. Blank result cards show what to record; measured plots link to actual experiment evidence. Illustration coverage is complete. The [author handoff](../how-did-i-generate-it/rsi/validation/AUTHOR-HANDOFF-2026-09-22.md) separates completed maintainer checks from learner and environment validation.

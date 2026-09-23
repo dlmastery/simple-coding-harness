@@ -51,3 +51,12 @@ the completed discovery-policy study. The PPTX remains required and pending
 the requested successful repair. Fixing observable implementation weaknesses
 and testing future revisions requires a new declared study, not retuning on
 these final scores. Do not turn checked execution into established efficacy.
+
+The [separately versioned operator repair](../../../rsi/evidence/2026-09-22/composition-repair/README.md)
+now corrects overwritten template settings, constructor duplicate detection
+and the unlimited-depth capacity error. Four successful integration fits
+produce a tie and a small regression; 420 final construction checks and ten
+additional capacity checks pass. The stronger allocation comparison remains
+unfinished. Six [next-task candidates](NEXT-PROCEDURE-TASKS.md) are selected
+from metadata with source limitations recorded; no new fitting allowance is
+implied by that preparation decision.
