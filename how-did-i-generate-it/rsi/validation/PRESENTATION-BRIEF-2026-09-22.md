@@ -4,7 +4,7 @@ Requested on 22 September 2026.
 
 The user asks for a presentation in PowerPoint (.pptx) after the benchmark issue is fixed and the lesson runs show good results. Include professional infographics and the remaining explanatory slides, with speaker notes.
 
-Status: a [37-slide teaching sequence and speaker-note draft](../presentation/STORYBOARD.md) is prepared. PPTX production remains pending the remaining repaired method comparisons and evidence review. The sixteen-task policy comparison now supports actual search savings with uncertain predictive change. The six-task builder revision failed its unchanged promotion gate; its conditional final study did not run. Include both outcomes when the deck is produced. No PPTX has been exported.
+Status: a [37-slide teaching sequence and speaker-note draft](../presentation/STORYBOARD.md) is prepared. The repaired method comparisons are complete, including the 624-attempt nested study. Its later researchers execute, but the overall quality result remains inconclusive. The user was asked whether to present these verified mixed results now or keep the deck pending stronger results; no answer is assumed. The sixteen-task policy comparison supports actual search savings with uncertain predictive change. The six-task builder revision failed its unchanged promotion gate; its conditional final study did not run. Include these outcomes when the deck is produced. No PPTX has been exported.
 
 ## Presentation requirements
 

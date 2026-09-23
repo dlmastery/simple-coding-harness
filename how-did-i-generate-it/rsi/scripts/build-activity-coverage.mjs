@@ -229,6 +229,9 @@ const laterComparison = new Map(['09.04','09.05','10.04','10.05','10.06','10.12'
   text: 'A separately budgeted 324-attempt public-task comparison now verifies source inheritance, frozen memory, two later skill rounds and final predictions under sound controls. Memory beats random but loses to fixed overall; updater benefit remains uncertain. This supplements the original activity rather than changing its budget. Independent contexts, post-promotion deployment, repeated meta-generations, learner assessment and general RSI effectiveness remain unestablished.'
 }]));
 laterComparison.set('10.09', {path:'rsi/evidence/2026-09-22/discovery-final/README.md', text:'The later sixteen-task study deploys the replay-selected policy and measures 55 versus 192 executed fits, with uncertain predictive change. Its known synthetic families, author context, host interruption and extra costs are disclosed. It does not replace this original four-fit activity or establish general transfer.'});
+const nestedComparison = new Set(['09.04','09.05','10.14','10.17','11.02','11.05']);
+const nestedPath = 'rsi/evidence/2026-09-22/nested-research-evaluation/README.md';
+if (!existsSync(resolve(repo,nestedPath))) throw new Error('Missing nested research evidence');
 
 for (const [id,r] of related) {
   if (!lessons.some(l=>l.id===id) || !existsSync(resolve(repo,r.path))) throw new Error('Invalid evidence mapping: '+id);
@@ -250,6 +253,9 @@ for (const [key,t] of Object.entries(themes).sort(([a],[b])=>Number(a)-Number(b)
     if (supplement) {
       if (!existsSync(resolve(repo,supplement.path))) throw new Error('Missing comparison evidence: '+l.id);
       body += `\n**Later extension:** [Checked comparison](${link(supplement.path)}). ${supplement.text}\n`;
+    }
+    if (nestedComparison.has(l.id)) {
+      body += `\n**Complete-researcher extension:** [624-attempt study](${link(nestedPath)}). Frozen improvers generate full executable researchers, a fixed outer gate retains a parent, and a later generation actually runs on six reserved tasks. All losing development searches count. I1 improves two reserved tasks, ties three and worsens one against I0 and the parent; all reported contrast intervals include zero. This adds checked post-gate source generation and execution to the earlier records, without claiming an overall RSI gain, independent LLM agents, weight learning, post-study deployment or learner assessment. The original lesson budget remains unchanged.\n`;
     }
     body += `\n**Acceptance to verify:** ${l.check}\n`;
   }

@@ -5,7 +5,8 @@ the user's review.** The completion statements and counts below describe that
 earlier checkpoint. They are not the current whole-project completion status.
 The [current implementation record](../IMPLEMENTATION-RECORD.md) tracks the
 repaired comparisons. [Nested development](../../../rsi/evidence/2026-09-22/nested-research-development/README.md)
-now has a small checked gain, while reserved-task evaluation is running.
+has two small gains and four ties. The [reserved-task evaluation](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md)
+is now complete: two gains, three ties and one regression, with no reliable overall benefit.
 The [requested presentation](PRESENTATION-BRIEF-2026-09-22.md) is still pending.
 
 The course materials and maintainer acceptance pass are complete for a teaching pilot. This means the authored course, illustrations, skills, research notes, execution examples and publication checks are ready to use. It does not mean that 101 student sessions, independent agent reproductions or GPU backends have been validated.

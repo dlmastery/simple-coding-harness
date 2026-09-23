@@ -69,6 +69,17 @@ autonomous discovery, successful post-promotion generations or general RSI.
 Keep the [separate discovery-policy study](evidence/2026-09-22/discovery-final/README.md),
 which measures fewer executed fits, distinct from this equal-fit comparison.
 
+The [complete-researcher study](evidence/2026-09-22/nested-research-evaluation/README.md)
+adds a distinct test of later source use. An improver rewrites a complete
+twelve-fit researcher, the outer gate retains a parent, and the inherited
+improver generates another researcher that actually runs on reserved tasks.
+Count all 624 attempts, including losing development searches. I1 improves
+spam and satellite classification, ties three tasks and worsens housing
+regression against I0 and the parent; the overall interval spans zero.
+Read the [illustrated results guide](RESULTS-GUIDE.md) and trace both a gain
+and the housing regression. This establishes executed inheritance, not an
+overall RSI gain. Keep this study separate from the eight-fit teaching case.
+
 ## Let a peer start without this chat
 
 Open the repository in a coding agent and give it this prompt:

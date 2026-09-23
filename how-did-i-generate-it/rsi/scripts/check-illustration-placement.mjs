@@ -29,6 +29,7 @@ check('rsi/10_research_studio/README.md','research-studio-map-v3.png','expanded-
 check('rsi/11_capstones/README.md','capstone-map-v3.png','expanded-map','capstones');
 check('rsi/RESULTS-GUIDE.md','replay-to-online-v2.png','results-guide','discovery');
 check('rsi/RESULTS-GUIDE.md','nested-research-v2.png','results-guide','nested-research');
+check('rsi/RESULTS-GUIDE.md','native-scores.png','measured-results','nested-research');
 const dest=resolve(repo,'how-did-i-generate-it/rsi/validation/ILLUSTRATION-PLACEMENT-2026-09-22.csv');
 writeFileSync(dest,'kind,id,page,figure,passed\n'+records.map(r=>Object.values(r).join(',')).join('\n')+'\n');
 const failures=records.filter(r=>!r.passed);

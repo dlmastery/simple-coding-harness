@@ -1,0 +1,38 @@
+task,arm,serial,template,factor,parent_step,reason,status,constructor_sha256
+43,random,9,base:random-forest,1.42432313,0,seeded full-space random search,duplicate-constructor,5c67443c7b76ab73a148c12eaa01d535b505db3cf7403ec46d1f21cca4380420
+43,random,11,base:random-forest,1.14541601,0,seeded full-space random search,duplicate-constructor,5c67443c7b76ab73a148c12eaa01d535b505db3cf7403ec46d1f21cca4380420
+43,random,13,base:neighbors-25,0.98594749,0,seeded full-space random search,duplicate-constructor,66b969144836ce9c65889bf7c0f7bb717e4d1d3fbe0a0b93c48ff6457400aa65
+43,parent,11,base:hist-boost,1.0,9,refine current best checked model,duplicate-constructor,7ad33adfd2767eaf1a3d4f091c22e45bc376cd4bfa33b453e872c9f1fd947f69
+43,i0,9,base:hist-boost,1.0,4,refine current best checked model,duplicate-constructor,7ad33adfd2767eaf1a3d4f091c22e45bc376cd4bfa33b453e872c9f1fd947f69
+43,i0,11,base:hist-boost,1.0,9,refine current best checked model,duplicate-constructor,7ad33adfd2767eaf1a3d4f091c22e45bc376cd4bfa33b453e872c9f1fd947f69
+43,i1,12,base:extra-trees,2.0,2,alternate two checked families; use observed generalization gap,duplicate-constructor,3a5e0afcee85339699235e64e6a20b6cec3bbef6af98b8d5faf0b9cd0fbfcb12
+43,i1,13,base:hist-boost,1.0,4,alternate two checked families; use observed generalization gap,duplicate-constructor,7ad33adfd2767eaf1a3d4f091c22e45bc376cd4bfa33b453e872c9f1fd947f69
+43,i1,14,base:extra-trees,1.0,2,alternate two checked families; use observed generalization gap,duplicate-constructor,3a5e0afcee85339699235e64e6a20b6cec3bbef6af98b8d5faf0b9cd0fbfcb12
+45,parent,10,base:rbf-10,0.5,6,refine current best checked model,duplicate-constructor,725935e2e8f875cfdd7c24a3e3a3ddde44620eba56c5e2247f929c64e365a184
+45,parent,13,base:rbf-10,1.0,11,refine current best checked model,duplicate-constructor,93afdec8f81f08e32aacfcf567ef7e6bd922272ab611a645a16ec0237ec27223
+45,i0,9,base:rbf-10,1.0,6,refine current best checked model,duplicate-constructor,93afdec8f81f08e32aacfcf567ef7e6bd922272ab611a645a16ec0237ec27223
+45,i0,13,base:rbf-10,1.0,11,refine current best checked model,duplicate-constructor,93afdec8f81f08e32aacfcf567ef7e6bd922272ab611a645a16ec0237ec27223
+45,i1,12,base:random-forest,2.0,5,alternate two checked families; use observed generalization gap,duplicate-constructor,bdd84b43311c6cdb55010f05e1761753551b14516f2b1061f1fd0abe5b62cace
+45,i1,13,base:rbf-10,1.0,6,alternate two checked families; use observed generalization gap,duplicate-constructor,93afdec8f81f08e32aacfcf567ef7e6bd922272ab611a645a16ec0237ec27223
+45,i1,14,base:random-forest,1.0,5,alternate two checked families; use observed generalization gap,duplicate-constructor,bdd84b43311c6cdb55010f05e1761753551b14516f2b1061f1fd0abe5b62cace
+2074,parent,11,base:hist-boost,1.0,9,refine current best checked model,duplicate-constructor,9d3f0b709aea65036f6a10c656b8277a9cf294cf991d89c3bbd5dd4f042b8889
+2074,i0,9,base:hist-boost,1.0,4,refine current best checked model,duplicate-constructor,9d3f0b709aea65036f6a10c656b8277a9cf294cf991d89c3bbd5dd4f042b8889
+2074,i0,11,base:hist-boost,1.0,9,refine current best checked model,duplicate-constructor,9d3f0b709aea65036f6a10c656b8277a9cf294cf991d89c3bbd5dd4f042b8889
+2074,random,9,one:extra-leaf2,2.36641672,0,seeded full-space random search,duplicate-constructor,6fce8651c32d2e08ef7d8445a21e56779c259797196d57954fdb52bea4527cf7
+361241,i0,9,base:neighbors-5,1.0,8,refine current best checked model,duplicate-constructor,b2b7a8f1a22dc160c0fb44c4ecafad94c731d1a6ea86a9ab29e5926b6a1e86f9
+361241,i0,13,base:neighbors-5,4.0,8,refine current best checked model,duplicate-constructor,78a603a8dc3752d67371b6f544c0c5428418b11921558eb2a639e5bd4a96c0ff
+361241,parent,10,base:neighbors-5,0.5,8,refine current best checked model,duplicate-constructor,317ef26cb01771588b84dd90065170f8f89517a00162b537f0a4e56325b45c71
+361241,parent,13,base:neighbors-5,4.0,8,refine current best checked model,duplicate-constructor,78a603a8dc3752d67371b6f544c0c5428418b11921558eb2a639e5bd4a96c0ff
+361251,random,11,two:extra-leaf5,3.39356953,0,seeded full-space random search,duplicate-constructor,cd098f35e807fd9846dfa1852b290ae3e4e0ac6aa9790b4895de396efc197bc1
+361251,parent,10,base:rbf-1,0.5,4,refine current best checked model,duplicate-constructor,7aa1b12d8b71447f9f2be8c1185d7ca1cfeae2f88519df4837c5a445c1d7b490
+361251,parent,12,base:rbf-1,0.5,10,refine current best checked model,duplicate-constructor,7aa1b12d8b71447f9f2be8c1185d7ca1cfeae2f88519df4837c5a445c1d7b490
+361251,i0,9,base:rbf-1,1.0,4,refine current best checked model,duplicate-constructor,a8c6ef15daeda24c4655a130d8840dd9cdffb40dde17ea6aedd4fab43cf1c193
+361251,i0,12,base:rbf-1,0.5,10,refine current best checked model,duplicate-constructor,7aa1b12d8b71447f9f2be8c1185d7ca1cfeae2f88519df4837c5a445c1d7b490
+361260,parent,10,base:extra-trees,0.5,5,refine current best checked model,duplicate-constructor,c506f3e150464264b0704eea029ecd1c5b25dca54d7f905c8c46b88cf29eebdf
+361260,parent,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,parent,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,parent,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,i0,9,base:extra-trees,1.0,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,i0,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,i0,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251
+361260,i0,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,ad5902298f87a6c08d54ed5dbfa6c31282c8085423c06c46bdd1391ce7086251

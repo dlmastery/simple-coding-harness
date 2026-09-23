@@ -23,9 +23,9 @@ The new `rsi/tools/discovery.py` supplies this observation and replay interface 
 
 Read [RSIAgent v1, sections 3 and 8](https://arxiv.org/html/2609.15364v1). The actor writes memory after receiving an outcome grounded by a separate verifier. The curriculum selects practice and revisits gaps. Final evaluation disables learning. The paper includes target-conditioned practice; a course comparison on unseen tasks must distinguish its stricter transfer question from that setting. Role names inside one conversation do not provide independent contexts.
 
-## Remaining method work
+## Evidence needed for the method names
 
-Recuris and MetaSkill already have source audits in the research folder; reconcile those audits with the expanded experiments before claiming implementation. AIDE2 requires code-level harness revision and later execution. A rearranged fixed list is not enough if every candidate still runs. Keep predictive selection, procedure promotion and evaluation of the improver as distinct decisions.
+Recuris and MetaSkill have source audits in the research folder. The expanded experiments below are classroom adaptations; their complete execution does not establish reproduction of those systems. AIDE2 requires code-level harness revision and later execution. A rearranged fixed list is not enough if every candidate still runs. Keep predictive selection, procedure promotion and evaluation of the improver as distinct decisions.
 
 ## Measured progress, 22 September
 
@@ -37,9 +37,9 @@ The repaired discovery cycle executed 43 online development fits. Six agent-writ
 |---|---|
 | Proof and meta gate | Separate final rows, five matched arms, checked predictions, costs, uncertainty, recorded promotion and actual later use now exist. This is one shared comparison, not two independent studies. |
 | Dream-inspired mechanism | Real parent workspaces, growing history pool, replay revisions and prospective online comparison completed. Fixed inner proposer and same-context coding agent remain explicit simplifications. |
-| AIDE-inspired harness revision | Changed builder/proposer ran 144 fits on six paired development tasks; 417 checks pass. Two local gains and four ties did not meet the prespecified mean-gain threshold. Parent retained; conditional final study not run. This is a rejected code-level revision, not successful harness transfer or ignition. |
+| AIDE-inspired harness revision | The initial 144-fit revision failed promotion; its conditional final study stays closed. The later 624-attempt study executes complete generated researchers and their inherited second generation, with fixed/random controls. Final quality is inconclusive; no ignition or full AIDE2 reproduction. |
 | Recuris and RSIAgent | The expanded public-task study now compares frozen experience with fixed and random controls. Memory improves three tasks and ties three against random, but loses to fixed overall. Checked experience and current state stay separate. The source-specific earlier curriculum exercises remain distinct; this is not a full reproduction. |
-| MetaSkill and recursive capstone | Five versioned role inputs govern two later skill rounds per adaptive search. Revised updater versus original updater with the revised harness improves two final tasks, ties three and worsens one; the mean interval includes zero. Candidate-trial inheritance is verified, but post-promotion deployment, repeated meta-generations and reliable RSI benefit remain unestablished. |
+| MetaSkill and recursive capstone | The earlier role-file comparison verifies candidate-trial inheritance. The later complete-researcher study also verifies gate-conditioned parent retention, actual second-generation source creation and its reserved-task execution. I1 improves two tasks, ties three and worsens one against I0/parent. Overall benefit, autonomous meta-generations and post-study deployment remain unestablished. |
 
 The [public-tabular comparison](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md)
 adds 288 search fits and 36 final refits, with 10,353 final checks. Its revised
@@ -56,10 +56,10 @@ The [separately versioned operator repair](../../../rsi/evidence/2026-09-22/comp
 now corrects overwritten template settings, constructor duplicate detection
 and the unlimited-depth capacity error. Four successful integration fits
 produce a tie and a small regression; 420 final construction checks and ten
-additional capacity checks pass. The stronger allocation comparison remains
-unfinished. Six [next-task candidates](NEXT-PROCEDURE-TASKS.md) are selected
-from metadata with source limitations recorded; no new fitting allowance is
-implied by that preparation decision.
+additional capacity checks pass. Six [next-task candidates](NEXT-PROCEDURE-TASKS.md)
+were then selected from metadata with source limitations recorded. Their
+preparation and completed allocation comparison are reported below; the
+earlier four-fit repair budget remains closed.
 
 The [six-task data preparation](../../../rsi/evidence/2026-09-22/nested-data/README.md)
 is now complete with zero fits. An independent parser and graph reconstruction
@@ -72,6 +72,18 @@ now executes 216 searches and 18 scoring refits. I1's generated researcher
 improves two exposed-task evaluation results and ties four, narrowly passing
 the predefined gate; I0 ties all six and is rejected. The 6,555 final checks
 include the 6,245 search checks. Both inherited improvers actually generate a
-second complete researcher; 22 independent lineage/gate checks pass. Reserved
-evaluation is running under the new protocol, with fixed and random controls.
-Transfer, general RSI benefit and any post-study deployment remain unestablished.
+second complete researcher; 22 independent lineage/gate checks pass.
+
+The [reserved evaluation](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md)
+has also completed. Its 360 searches and 30 scoring refits bring the whole
+study to the declared 624 attempts. All 10,813 final checks pass, including
+10,299 search checks performed before final scoring. The inherited researchers
+actually execute on the six reserved tasks. I1 improves two tasks, ties three
+and worsens one against I0 and the parent. The primary mean loss change is
++0.000120, with an exploratory interval of [-0.001826, +0.002390]. All four
+reported comparison intervals include zero. Later source use is established;
+an overall quality benefit, acceleration and post-study deployment are not.
+The full study is closed. No new fits or retuning on these final outcomes
+are authorized by this record. The presentation decision remains pending:
+the user was asked whether to present verified mixed results now or retain
+the original condition of stronger results. Silence is not approval.

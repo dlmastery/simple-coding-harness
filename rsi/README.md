@@ -80,9 +80,11 @@ The next [complete-researcher development comparison](evidence/2026-09-22/nested
 executes **234 attempts**. I1's rewritten researcher improves two evaluation
 results and ties four, narrowly passing its predefined development gate.
 These tasks were previously exposed, and the uncertainty interval reaches zero.
-Both inherited improvers have generated a later complete researcher; the
-five-procedure comparison on six separately reserved tasks is now running.
-This is a small development gain, not yet demonstrated transfer.
+Both inherited improvers generated a later complete researcher. The
+[completed reserved-task comparison](evidence/2026-09-22/nested-research-evaluation/README.md)
+adds 390 attempts: I1 improves two tasks, ties three and worsens one against
+I0 and the parent. Its mean loss change is near zero and all paired intervals
+include zero. Later execution is verified; an overall RSI gain is not established.
 
 To inspect the authored materials, open [all 101 codelabs and their source instructions](SOURCE-ARTIFACTS.md). Each entry links the lesson, its intent brief, and its authoring module. The same index links the shared skills and whole-course requirements.
 

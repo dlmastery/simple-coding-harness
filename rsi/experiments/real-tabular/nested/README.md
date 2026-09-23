@@ -1,8 +1,9 @@
 # A researcher that another procedure can revise
 
-**Status: development completed; I1's researcher passed the declared gate
-with two small gains and four ties. Reserved-task transfer is not yet established.**
-Read the [checked development report](../../../evidence/2026-09-22/nested-research-development/README.md).
+**Status: the complete 624-attempt study has finished. I1's small development
+gain did not establish an overall advantage in reserved-task evaluation.**
+Read the [development report](../../../evidence/2026-09-22/nested-research-development/README.md)
+and [the full reserved-task comparison](../../../evidence/2026-09-22/nested-research-evaluation/README.md).
 Sources are frozen before training; read the latest
 [implementation record](../../../../how-did-i-generate-it/rsi/IMPLEMENTATION-RECORD.md)
 before resuming an existing run.
@@ -48,6 +49,10 @@ Keep every proposal, rejected constructor, failed fit, prediction and source.
 Do not retry a spent attempt or tune from the reserved final results.
 Explain which object changed and whether its later use is actually measured.
 ```
+
+This published study is closed. Inspect its saved evidence rather than
+restarting its admitted commands. A new experiment needs a separate declared
+workspace and budget.
 
 The agent uses `run_nested_research.py` for preparation, search and scoring;
 `preflight_nested_research.py` for labelled synthetic control-flow checks;
