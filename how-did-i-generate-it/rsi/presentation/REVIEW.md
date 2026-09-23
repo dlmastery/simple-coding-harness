@@ -41,8 +41,9 @@ repository links. Temporary dependency junctions were removed after rendering.
 
 ## Limits
 
-Native PowerPoint application behavior has not been tested. Learner feedback
-on pacing is pending. The draft reports measured search savings and mixed
+The later [native PowerPoint review](NATIVE-REVIEW.md) verifies read-only
+opening, all notes, native object recognition and slide export in PowerPoint 16.0.
+Other applications, slideshow controls and learner feedback on pacing remain untested. The draft reports measured search savings and mixed
 prediction outcomes, with no claim of a reliable overall RSI gain. Preparing
 this review draft does not imply that the user approved final framing or that
 the broader course execution goal is complete.

@@ -1,0 +1,9 @@
+﻿PowerPoint_version=16.0
+slides=37
+opened_read_only=True
+visible_window=False
+input_sha256=b7557350d9b49d4d74fe2981bdf9dae0e53af9e25d8825b34b601cd0ec2cc0a1
+native_notes_match=37/37
+native_tables=19,21,33
+native_chart=32
+native_chart_values=192,192,192,55,84

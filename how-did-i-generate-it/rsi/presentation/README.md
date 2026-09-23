@@ -15,6 +15,7 @@ contains 37 slides with embedded notes. Read the [course introduction](../../../
 | [Content checks](build-v2/CONTENT-CHECKS.json) | Notes, result values and unchanged slide renders |
 | [Content checker](check-published-deck.py) | Read-only checks against archived result CSVs |
 | [Review record](REVIEW.md) | Visual inspection, corrections and limitations |
+| [Native PowerPoint review](NATIVE-REVIEW.md) | Read-only opening, all notes, native objects and exported slides |
 | [Earlier PowerPoint draft](output/rsi-masterclass-review-v1.pptx) | Retained intermediate version |
 | [Earlier builder and renders](build-v1/) | First build, startup failure and original review material |
 
