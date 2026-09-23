@@ -4,6 +4,10 @@
 
 Your first goal is small: understand one bike-demand prediction and inspect one result that actually ran. You do not need to build an autonomous system today.
 
+Want to see the route before you begin? Open the [illustrated course map](COURSE-MAP.md),
+[all 101 lab illustrations](VISUAL-GUIDE.md), or the [presentation and speaker notes](PRESENTATION.md).
+The [teaching roadmap](TEACHING-ROADMAP.md) helps you choose a course length.
+
 ## Open the project
 
 Open this repository in a coding agent with local file and command access. If it is not on your computer, ask the agent to clone `https://github.com/dlmastery/simple-coding-harness` into a new local folder. During this rebuild, use branch `codex/rsi-masterclass-rebuild`. Have the agent report the branch and commit it opened.

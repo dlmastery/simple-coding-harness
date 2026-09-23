@@ -1,5 +1,11 @@
 # Current completion audit
 
+Update, 23 September: the [two fresh-session checks](fresh-session-results/README.md)
+are complete. The complete packet reproduced the baseline with one fit; the
+missing-task packet caused a zero-fit stop. Historical filename exposure and
+shared host access limit the isolation claim. This adds execution evidence for
+lab 01.05 without changing the efficacy findings below.
+
 Audited 22 September 2026 against the active objective: “fix the issue and run
 the lessons - do not stop until the goal is done.” This record keeps the full
 repair and course scope. Historical ledgers remain preserved. The preceding
@@ -52,8 +58,9 @@ Learner predictions, peer reproduction, other native-agent sessions and optional
 GPU/cluster execution require their actual participants or environments. They
 must stay labelled until performed. The active goal is not marked complete.
 
-The next prepared execution is the [fresh-session handoff test](fresh-session-plan/README.md):
+The previously prepared execution was the [fresh-session handoff test](fresh-session-plan/README.md):
 two isolated contexts, one baseline fit in total, and a zero-fit missing-brief
 case. The user was asked for the required authorization to launch additional
-agents. The packets are prepared; dispatch is pending a reply, not inferred
-from elapsed time. Existing studies remain closed.
+agents. The user then resumed the prepared test. Both sessions are complete;
+see [the checked results](fresh-session-results/README.md). This separate one-fit
+allocation is exhausted. Existing studies remain closed.

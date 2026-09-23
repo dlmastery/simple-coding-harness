@@ -1,5 +1,15 @@
 # Fresh-session dispatch status
 
+Current status, 23 September 2026: the user resumed the prepared test. Both
+fresh contexts completed. One baseline fit reproduced the earlier predictions;
+the missing-task session stopped with zero fits. The parent passed 13,115
+independent assertions and archived 58 original files. A filename-discovery
+exposure limits the complete session's isolation claim. See
+[the execution record](fresh-session-results/README.md). This closes the dispatch
+blocker; it does not establish overall RSI efficacy or complete the wider goal.
+
+The remainder is the preserved pre-dispatch status.
+
 Status: blocked pending explicit user authorization. Recorded after the final
 published checkpoint passed RSI CI on all three operating systems.
 

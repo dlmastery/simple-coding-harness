@@ -1,7 +1,8 @@
 # Fresh-session handoff test
 
-Status: prepared, not launched. This addresses the explicitly untested fresh
-agent context in lab 01.05. It is not a new efficacy study or learner assessment.
+Status: executed on 23 September 2026 after the user resumed the prepared test.
+See [both outcomes and the context limitation](../fresh-session-results/README.md).
+The protocol below is retained. It is not a new efficacy study or learner assessment.
 
 Two sessions receive no parent conversation. Both read the same retained skill.
 The complete packet includes TASK.md. The negative packet deliberately omits
@@ -43,4 +44,6 @@ autonomous recursive improvement or a positive predictive effect.
 
 The session's operating rules require explicit user authorization before
 launching additional agents. The prepared packets are concrete and reviewable.
-No additional agent has been launched. Existing model studies remain closed.
+The user subsequently resumed this prepared test. Both bounded sessions have
+now finished; the separate one-fit allocation is exhausted. Existing model
+studies remain closed.

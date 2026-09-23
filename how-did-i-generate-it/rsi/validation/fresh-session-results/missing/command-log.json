@@ -1,0 +1,48 @@
+[
+  {
+    "sequence": 1,
+    "command": "$packet = 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\missing-task'; $output = 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-fresh-missing-2026-09-23'; if (Test-Path -LiteralPath $output) { throw 'Refusing: output directory already exists.' }; Get-Content -LiteralPath (Join-Path $packet 'HANDOFF.md') -Raw; Get-Content -LiteralPath (Join-Path $packet 'BASELINE-SKILL.md') -Raw",
+    "result": {
+      "exit_code": 0,
+      "chunk_id": "ac9dba",
+      "summary": "Output absent. Read both files verbatim. Handoff requires hash verification and missing-input inspection; baseline references TASK.md, pinned data card and course tool instructions."
+    }
+  },
+  {
+    "sequence": 2,
+    "command": "$packet = 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\missing-task'; Get-ChildItem -LiteralPath $packet -Force -Recurse | Select-Object FullName,PSIsContainer,Length; Get-FileHash -LiteralPath (Join-Path $packet 'BASELINE-SKILL.md') -Algorithm SHA256; [pscustomobject]@{TaskPresent = Test-Path -LiteralPath (Join-Path $packet 'TASK.md'); PinnedDataCardSpecifiedByHandoff = $false; CourseToolInstructionsSpecifiedByHandoff = $false} | ConvertTo-Json",
+    "result": {
+      "exit_code": 0,
+      "chunk_id": "12b0df",
+      "summary": "PowerShell table formatting truncated paths and did not expose hash; not used as hash evidence. TASK.md existence check returned false. Two specified-by-handoff fields were analyst-supplied classifications, not filesystem checks."
+    }
+  },
+  {
+    "sequence": 3,
+    "command": "$packet = 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\missing-task'; $inventory = @(Get-ChildItem -LiteralPath $packet -Force -Recurse | Select-Object FullName,PSIsContainer,Length); $skillHash = Get-FileHash -LiteralPath (Join-Path $packet 'BASELINE-SKILL.md') -Algorithm SHA256; [pscustomobject]@{Inventory = $inventory; SkillHash = $skillHash.Hash.ToLowerInvariant(); ExpectedSkillHash = '210bed6c0528855a878771f8c8c9acd635a7af1da38ab6f8d15a9ab1946e1d2b'; HashMatches = ($skillHash.Hash -eq '210bed6c0528855a878771f8c8c9acd635a7af1da38ab6f8d15a9ab1946e1d2b'); TaskPresent = Test-Path -LiteralPath (Join-Path $packet 'TASK.md')} | ConvertTo-Json -Depth 5",
+    "result": {
+      "exit_code": 0,
+      "chunk_id": "d0113c",
+      "inventory": [
+        {
+          "FullName": "C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\missing-task\\BASELINE-SKILL.md",
+          "PSIsContainer": false,
+          "Length": 539
+        },
+        {
+          "FullName": "C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\missing-task\\HANDOFF.md",
+          "PSIsContainer": false,
+          "Length": 630
+        }
+      ],
+      "SkillHash": "210bed6c0528855a878771f8c8c9acd635a7af1da38ab6f8d15a9ab1946e1d2b",
+      "HashMatches": true,
+      "TaskPresent": false
+    }
+  },
+  {
+    "sequence": 4,
+    "command_file": "artifact-persistence-command.ps1",
+    "result": "Create-only output directory succeeded; FINDINGS.md and PROGRESS.md written; exact persistence script recorded; command log written next. No additional input files read."
+  }
+]

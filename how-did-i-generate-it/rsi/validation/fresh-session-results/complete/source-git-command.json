@@ -1,0 +1,18 @@
+[
+  "git",
+  "diff",
+  "--exit-code",
+  "HEAD",
+  "--",
+  "how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\complete\\HANDOFF.md",
+  "how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\complete\\BASELINE-SKILL.md",
+  "how-did-i-generate-it\\rsi\\validation\\fresh-session-plan\\complete\\TASK.md",
+  "rsi\\AGENTS.md",
+  "rsi\\tools\\README.md",
+  "rsi\\tools\\requirements.txt",
+  "rsi\\tools\\lab.py",
+  "rsi\\tools\\check_result.py",
+  "rsi\\examples\\bike-demand\\DATA-CARD.md",
+  "rsi\\examples\\bike-demand\\source\\hour.csv",
+  "rsi\\examples\\bike-demand\\source\\bike-sharing.zip"
+]

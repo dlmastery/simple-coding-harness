@@ -1,0 +1,5 @@
+3.12.12 (main, Feb 12 2026, 00:40:26) [MSC v.1944 64 bit (AMD64)]
+sklearn 1.7.2
+pandas 2.3.2
+matplotlib 3.10.6
+numpy 2.5.3

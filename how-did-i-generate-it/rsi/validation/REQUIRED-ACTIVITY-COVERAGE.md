@@ -125,9 +125,9 @@ The selected journey's [scope and omissions](CLEAN-JOURNEY-RESULTS.md) govern it
 
 **Additional change:** Remove the task brief from a handoff copy. Have the new session identify the missing scientific choices instead of guessing a flattering metric.
 
-**Evidence:** [Checked saved executions with explicit handoffs and text-only extensions](saved-reuse-review/README.md).
+**Evidence:** [Two fresh agent contexts with one fit and a missing-task stop](fresh-session-results/README.md).
 
-**Closure gap:** The original handoff declares a same-context demonstration, which the lesson permits. Exact skill and prediction identities are checked; the missing-task extension has a retained diagnostic copy and author analysis. A genuinely fresh agent and learner responses remain untested.
+**Closure gap:** No parent conversation was supplied. The complete packet reproduced all 4,358 baseline predictions; 13,115 independent assertions pass. The missing-task context identified missing inputs and ran zero fits. Broad filename discovery exposed historical evidence paths to the complete context, but no historical scores or prediction contents were opened. Shared filesystem, host instructions, self-reported read ledgers, unmetered inference and skipped learner responses limit the claim. This establishes fixed reuse in one host, not adaptive improvement or cross-agent portability.
 
 **Acceptance to verify:** The handoff identifies every required artifact. The new run is real. The report distinguishes fixed reuse from adaptive improvement.
 

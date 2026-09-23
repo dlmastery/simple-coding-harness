@@ -1,0 +1,1 @@
+{"candidate": "trial-001", "status": "ok", "task": "bike", "model": "constant", "features": "calendar", "seed": 17, "score": 159.94791188618632, "seconds": 0.067868, "policy_sha256": "210bed6c0528855a878771f8c8c9acd635a7af1da38ab6f8d15a9ab1946e1d2b", "note": "Use the training median as the fixed hourly-rental baseline."}
