@@ -1,0 +1,22 @@
+column,role,kind,categories
+checking_status,feature,categorical,<0 | 0<=X<200 | >=200 | no checking
+duration,feature,numeric,
+credit_history,feature,categorical,no credits/all paid | all paid | existing paid | delayed previously | critical/other existing credit
+purpose,feature,categorical,new car | used car | furniture/equipment | radio/tv | domestic appliance | repairs | education | vacation | retraining | business | other
+credit_amount,feature,numeric,
+savings_status,feature,categorical,<100 | 100<=X<500 | 500<=X<1000 | >=1000 | no known savings
+employment,feature,categorical,unemployed | <1 | 1<=X<4 | 4<=X<7 | >=7
+installment_commitment,feature,numeric,
+personal_status,feature,categorical,male div/sep | female div/dep/mar | male single | male mar/wid | female single
+other_parties,feature,categorical,none | co applicant | guarantor
+residence_since,feature,numeric,
+property_magnitude,feature,categorical,real estate | life insurance | car | no known property
+age,feature,numeric,
+other_payment_plans,feature,categorical,bank | stores | none
+housing,feature,categorical,rent | own | for free
+existing_credits,feature,numeric,
+job,feature,categorical,unemp/unskilled non res | unskilled resident | skilled | high qualif/self emp/mgmt
+num_dependents,feature,numeric,
+own_telephone,feature,categorical,none | yes
+foreign_worker,feature,categorical,yes | no
+class,target,categorical,good | bad

@@ -1,0 +1,145 @@
+fixture,step,status,train_loss,selection_loss,task,kind,arm,serial,template,factor,parent_step,reason
+kernel,1,success,0.2001,0.4001,6,classification,parent,1,base:linear,1.0,0,broad conventional probe
+kernel,2,success,0.2002,0.4002,6,classification,parent,2,base:extra-trees,1.0,0,broad conventional probe
+kernel,3,success,-0.09970000000000001,0.1003,6,classification,parent,3,base:rbf-1,1.0,0,broad conventional probe
+kernel,4,success,0.20040000000000002,0.40040000000000003,6,classification,parent,4,base:hist-boost,1.0,0,broad conventional probe
+kernel,5,success,0.2005,0.4005,6,classification,parent,5,base:random-forest,1.0,0,broad conventional probe
+kernel,6,success,-0.0994,0.10060000000000001,6,classification,parent,6,base:rbf-10,1.0,0,broad conventional probe
+kernel,7,success,0.2007,0.4007,6,classification,parent,7,base:neighbors-5,1.0,0,broad conventional probe
+kernel,8,success,0.20080000000000003,0.40080000000000005,6,classification,parent,8,base:neighbors-25,1.0,0,broad conventional probe
+kernel,9,success,-0.09910000000000001,0.1009,6,classification,parent,9,base:rbf-1,0.5,3,refine current best checked model
+kernel,10,success,-0.099,0.101,6,classification,parent,11,base:rbf-1,2.0,3,refine current best checked model
+kernel,11,success,-0.0989,0.10110000000000001,6,classification,parent,12,base:rbf-1,0.25,3,refine current best checked model
+kernel,12,success,-0.0988,0.10120000000000001,6,classification,parent,13,base:rbf-1,4.0,3,refine current best checked model
+forest,1,success,0.2001,0.4001,6,classification,parent,1,base:linear,1.0,0,broad conventional probe
+forest,2,success,-0.0998,0.10020000000000001,6,classification,parent,2,base:extra-trees,1.0,0,broad conventional probe
+forest,3,success,0.20030000000000003,0.40030000000000004,6,classification,parent,3,base:rbf-1,1.0,0,broad conventional probe
+forest,4,success,0.20040000000000002,0.40040000000000003,6,classification,parent,4,base:hist-boost,1.0,0,broad conventional probe
+forest,5,success,-0.0995,0.1005,6,classification,parent,5,base:random-forest,1.0,0,broad conventional probe
+forest,6,success,0.2006,0.4006,6,classification,parent,6,base:rbf-10,1.0,0,broad conventional probe
+forest,7,success,0.2007,0.4007,6,classification,parent,7,base:neighbors-5,1.0,0,broad conventional probe
+forest,8,success,0.20080000000000003,0.40080000000000005,6,classification,parent,8,base:neighbors-25,1.0,0,broad conventional probe
+forest,9,success,-0.09910000000000001,0.1009,6,classification,parent,9,base:extra-trees,0.5,2,refine current best checked model
+forest,10,success,-0.099,0.101,6,classification,parent,12,base:extra-trees,0.25,2,refine current best checked model
+forest,11,success,-0.0989,0.10110000000000001,6,classification,parent,14,base:extra-trees,0.75,2,refine current best checked model
+forest,12,success,-0.0988,0.10120000000000001,6,classification,parent,16,base:extra-trees,0.125,2,refine current best checked model
+linear,1,success,-0.0999,0.10010000000000001,6,classification,parent,1,base:linear,1.0,0,broad conventional probe
+linear,2,success,0.2002,0.4002,6,classification,parent,2,base:extra-trees,1.0,0,broad conventional probe
+linear,3,success,0.20030000000000003,0.40030000000000004,6,classification,parent,3,base:rbf-1,1.0,0,broad conventional probe
+linear,4,success,0.20040000000000002,0.40040000000000003,6,classification,parent,4,base:hist-boost,1.0,0,broad conventional probe
+linear,5,success,0.2005,0.4005,6,classification,parent,5,base:random-forest,1.0,0,broad conventional probe
+linear,6,success,0.2006,0.4006,6,classification,parent,6,base:rbf-10,1.0,0,broad conventional probe
+linear,7,success,0.2007,0.4007,6,classification,parent,7,base:neighbors-5,1.0,0,broad conventional probe
+linear,8,success,0.20080000000000003,0.40080000000000005,6,classification,parent,8,base:neighbors-25,1.0,0,broad conventional probe
+linear,9,success,-0.09910000000000001,0.1009,6,classification,parent,9,base:linear,0.5,1,refine current best checked model
+linear,10,success,-0.099,0.101,6,classification,parent,11,base:linear,2.0,1,refine current best checked model
+linear,11,success,-0.0989,0.10110000000000001,6,classification,parent,12,base:linear,0.25,1,refine current best checked model
+linear,12,success,-0.0988,0.10120000000000001,6,classification,parent,13,base:linear,4.0,1,refine current best checked model
+reference,1,success,0.2001,0.4001,6,classification,parent,1,base:linear,1.0,0,broad conventional probe
+reference,2,success,0.2002,0.4002,6,classification,parent,2,base:extra-trees,1.0,0,broad conventional probe
+reference,3,success,0.20030000000000003,0.40030000000000004,6,classification,parent,3,base:rbf-1,1.0,0,broad conventional probe
+reference,4,success,0.20040000000000002,0.40040000000000003,6,classification,parent,4,base:hist-boost,1.0,0,broad conventional probe
+reference,5,success,0.2005,0.4005,6,classification,parent,5,base:random-forest,1.0,0,broad conventional probe
+reference,6,success,0.2006,0.4006,6,classification,parent,6,base:rbf-10,1.0,0,broad conventional probe
+reference,7,success,0.2007,0.4007,6,classification,parent,7,base:neighbors-5,1.0,0,broad conventional probe
+reference,8,success,0.20080000000000003,0.40080000000000005,6,classification,parent,8,base:neighbors-25,1.0,0,broad conventional probe
+reference,9,success,0.20090000000000002,0.40090000000000003,6,classification,parent,9,base:linear,0.5,1,refine current best checked model
+reference,10,success,0.201,0.401,6,classification,parent,11,base:linear,2.0,1,refine current best checked model
+reference,11,success,0.2011,0.4011,6,classification,parent,12,base:linear,0.25,1,refine current best checked model
+reference,12,success,0.2012,0.4012,6,classification,parent,13,base:linear,4.0,1,refine current best checked model
+kernel,1,success,0.2001,0.4001,6,classification,i0,1,base:linear,1.0,0,broad conventional probe
+kernel,2,success,0.2002,0.4002,6,classification,i0,2,base:extra-trees,1.0,0,broad conventional probe
+kernel,3,success,-0.09970000000000001,0.1003,6,classification,i0,3,base:rbf-1,1.0,0,broad conventional probe
+kernel,4,success,0.20040000000000002,0.40040000000000003,6,classification,i0,4,base:hist-boost,1.0,0,broad conventional probe
+kernel,5,success,0.2005,0.4005,6,classification,i0,5,base:random-forest,1.0,0,broad conventional probe
+kernel,6,success,-0.0994,0.10060000000000001,6,classification,i0,6,base:rbf-10,1.0,0,broad conventional probe
+kernel,7,success,0.2007,0.4007,6,classification,i0,7,base:neighbors-5,1.0,0,broad conventional probe
+kernel,8,success,0.20080000000000003,0.40080000000000005,6,classification,i0,8,base:neighbors-25,1.0,0,broad conventional probe
+kernel,9,success,-0.09910000000000001,0.1009,6,classification,i0,10,base:rbf-1,0.5,3,refine current best checked model
+kernel,10,success,-0.099,0.101,6,classification,i0,11,base:rbf-1,2.0,3,refine current best checked model
+kernel,11,success,-0.0989,0.10110000000000001,6,classification,i0,12,base:rbf-1,0.25,3,refine current best checked model
+kernel,12,success,-0.0988,0.10120000000000001,6,classification,i0,13,base:rbf-1,4.0,3,refine current best checked model
+forest,1,success,0.2001,0.4001,6,classification,i0,1,base:linear,1.0,0,broad conventional probe
+forest,2,success,-0.0998,0.10020000000000001,6,classification,i0,2,base:extra-trees,1.0,0,broad conventional probe
+forest,3,success,0.20030000000000003,0.40030000000000004,6,classification,i0,3,base:rbf-1,1.0,0,broad conventional probe
+forest,4,success,0.20040000000000002,0.40040000000000003,6,classification,i0,4,base:hist-boost,1.0,0,broad conventional probe
+forest,5,success,-0.0995,0.1005,6,classification,i0,5,base:random-forest,1.0,0,broad conventional probe
+forest,6,success,0.2006,0.4006,6,classification,i0,6,base:rbf-10,1.0,0,broad conventional probe
+forest,7,success,0.2007,0.4007,6,classification,i0,7,base:neighbors-5,1.0,0,broad conventional probe
+forest,8,success,0.20080000000000003,0.40080000000000005,6,classification,i0,8,base:neighbors-25,1.0,0,broad conventional probe
+forest,9,success,-0.09910000000000001,0.1009,6,classification,i0,10,base:extra-trees,0.5,2,refine current best checked model
+forest,10,success,-0.099,0.101,6,classification,i0,12,base:extra-trees,0.25,2,refine current best checked model
+forest,11,success,-0.0989,0.10110000000000001,6,classification,i0,14,base:extra-trees,0.75,2,refine current best checked model
+forest,12,success,-0.0988,0.10120000000000001,6,classification,i0,16,base:extra-trees,0.125,2,refine current best checked model
+linear,1,success,-0.0999,0.10010000000000001,6,classification,i0,1,base:linear,1.0,0,broad conventional probe
+linear,2,success,0.2002,0.4002,6,classification,i0,2,base:extra-trees,1.0,0,broad conventional probe
+linear,3,success,0.20030000000000003,0.40030000000000004,6,classification,i0,3,base:rbf-1,1.0,0,broad conventional probe
+linear,4,success,0.20040000000000002,0.40040000000000003,6,classification,i0,4,base:hist-boost,1.0,0,broad conventional probe
+linear,5,success,0.2005,0.4005,6,classification,i0,5,base:random-forest,1.0,0,broad conventional probe
+linear,6,success,0.2006,0.4006,6,classification,i0,6,base:rbf-10,1.0,0,broad conventional probe
+linear,7,success,0.2007,0.4007,6,classification,i0,7,base:neighbors-5,1.0,0,broad conventional probe
+linear,8,success,0.20080000000000003,0.40080000000000005,6,classification,i0,8,base:neighbors-25,1.0,0,broad conventional probe
+linear,9,success,-0.09910000000000001,0.1009,6,classification,i0,10,base:linear,0.5,1,refine current best checked model
+linear,10,success,-0.099,0.101,6,classification,i0,11,base:linear,2.0,1,refine current best checked model
+linear,11,success,-0.0989,0.10110000000000001,6,classification,i0,12,base:linear,0.25,1,refine current best checked model
+linear,12,success,-0.0988,0.10120000000000001,6,classification,i0,13,base:linear,4.0,1,refine current best checked model
+reference,1,success,0.2001,0.4001,6,classification,i0,1,base:linear,1.0,0,broad conventional probe
+reference,2,success,0.2002,0.4002,6,classification,i0,2,base:extra-trees,1.0,0,broad conventional probe
+reference,3,success,0.20030000000000003,0.40030000000000004,6,classification,i0,3,base:rbf-1,1.0,0,broad conventional probe
+reference,4,success,0.20040000000000002,0.40040000000000003,6,classification,i0,4,base:hist-boost,1.0,0,broad conventional probe
+reference,5,success,0.2005,0.4005,6,classification,i0,5,base:random-forest,1.0,0,broad conventional probe
+reference,6,success,0.2006,0.4006,6,classification,i0,6,base:rbf-10,1.0,0,broad conventional probe
+reference,7,success,0.2007,0.4007,6,classification,i0,7,base:neighbors-5,1.0,0,broad conventional probe
+reference,8,success,0.20080000000000003,0.40080000000000005,6,classification,i0,8,base:neighbors-25,1.0,0,broad conventional probe
+reference,9,success,0.20090000000000002,0.40090000000000003,6,classification,i0,10,base:linear,0.5,1,refine current best checked model
+reference,10,success,0.201,0.401,6,classification,i0,11,base:linear,2.0,1,refine current best checked model
+reference,11,success,0.2011,0.4011,6,classification,i0,12,base:linear,0.25,1,refine current best checked model
+reference,12,success,0.2012,0.4012,6,classification,i0,13,base:linear,4.0,1,refine current best checked model
+kernel,1,success,0.2001,0.4001,6,classification,i1,1,base:linear,1.0,0,broad conventional probe
+kernel,2,success,0.2002,0.4002,6,classification,i1,2,base:extra-trees,1.0,0,broad conventional probe
+kernel,3,success,-0.09970000000000001,0.1003,6,classification,i1,3,base:rbf-1,1.0,0,broad conventional probe
+kernel,4,success,0.20040000000000002,0.40040000000000003,6,classification,i1,4,base:hist-boost,1.0,0,broad conventional probe
+kernel,5,success,0.2005,0.4005,6,classification,i1,5,base:random-forest,1.0,0,broad conventional probe
+kernel,6,success,-0.0994,0.10060000000000001,6,classification,i1,6,base:rbf-10,1.0,0,broad conventional probe
+kernel,7,success,0.2007,0.4007,6,classification,i1,7,base:neighbors-5,1.0,0,broad conventional probe
+kernel,8,success,0.20080000000000003,0.40080000000000005,6,classification,i1,8,base:neighbors-25,1.0,0,broad conventional probe
+kernel,9,success,0.20090000000000002,0.40090000000000003,6,classification,i1,9,two:forest-all-features,1.0,0,retain coverage; test a different representation or objective
+kernel,10,success,-0.099,0.101,6,classification,i1,10,one:rbf-wide,1.0,0,retain coverage; test a different representation or objective
+kernel,11,success,-0.0989,0.10110000000000001,6,classification,i1,11,base:rbf-1,0.5,3,alternate two checked families; use observed generalization gap
+kernel,12,success,0.2012,0.4012,6,classification,i1,12,base:linear,0.5,1,alternate two checked families; use observed generalization gap
+forest,1,success,0.2001,0.4001,6,classification,i1,1,base:linear,1.0,0,broad conventional probe
+forest,2,success,-0.0998,0.10020000000000001,6,classification,i1,2,base:extra-trees,1.0,0,broad conventional probe
+forest,3,success,0.20030000000000003,0.40030000000000004,6,classification,i1,3,base:rbf-1,1.0,0,broad conventional probe
+forest,4,success,0.20040000000000002,0.40040000000000003,6,classification,i1,4,base:hist-boost,1.0,0,broad conventional probe
+forest,5,success,-0.0995,0.1005,6,classification,i1,5,base:random-forest,1.0,0,broad conventional probe
+forest,6,success,0.2006,0.4006,6,classification,i1,6,base:rbf-10,1.0,0,broad conventional probe
+forest,7,success,0.2007,0.4007,6,classification,i1,7,base:neighbors-5,1.0,0,broad conventional probe
+forest,8,success,0.20080000000000003,0.40080000000000005,6,classification,i1,8,base:neighbors-25,1.0,0,broad conventional probe
+forest,9,success,-0.09910000000000001,0.1009,6,classification,i1,9,two:forest-all-features,1.0,0,retain coverage; test a different representation or objective
+forest,10,success,0.201,0.401,6,classification,i1,10,one:rbf-wide,1.0,0,retain coverage; test a different representation or objective
+forest,11,success,-0.0989,0.10110000000000001,6,classification,i1,11,base:extra-trees,0.5,2,alternate two checked families; use observed generalization gap
+forest,12,success,0.2012,0.4012,6,classification,i1,12,base:linear,0.5,1,alternate two checked families; use observed generalization gap
+linear,1,success,-0.0999,0.10010000000000001,6,classification,i1,1,base:linear,1.0,0,broad conventional probe
+linear,2,success,0.2002,0.4002,6,classification,i1,2,base:extra-trees,1.0,0,broad conventional probe
+linear,3,success,0.20030000000000003,0.40030000000000004,6,classification,i1,3,base:rbf-1,1.0,0,broad conventional probe
+linear,4,success,0.20040000000000002,0.40040000000000003,6,classification,i1,4,base:hist-boost,1.0,0,broad conventional probe
+linear,5,success,0.2005,0.4005,6,classification,i1,5,base:random-forest,1.0,0,broad conventional probe
+linear,6,success,0.2006,0.4006,6,classification,i1,6,base:rbf-10,1.0,0,broad conventional probe
+linear,7,success,0.2007,0.4007,6,classification,i1,7,base:neighbors-5,1.0,0,broad conventional probe
+linear,8,success,0.20080000000000003,0.40080000000000005,6,classification,i1,8,base:neighbors-25,1.0,0,broad conventional probe
+linear,9,success,0.20090000000000002,0.40090000000000003,6,classification,i1,9,two:forest-all-features,1.0,0,retain coverage; test a different representation or objective
+linear,10,success,0.201,0.401,6,classification,i1,10,one:rbf-wide,1.0,0,retain coverage; test a different representation or objective
+linear,11,success,-0.0989,0.10110000000000001,6,classification,i1,11,base:linear,0.5,1,alternate two checked families; use observed generalization gap
+linear,12,success,0.2012,0.4012,6,classification,i1,12,base:extra-trees,0.5,2,alternate two checked families; use observed generalization gap
+reference,1,success,0.2001,0.4001,6,classification,i1,1,base:linear,1.0,0,broad conventional probe
+reference,2,success,0.2002,0.4002,6,classification,i1,2,base:extra-trees,1.0,0,broad conventional probe
+reference,3,success,0.20030000000000003,0.40030000000000004,6,classification,i1,3,base:rbf-1,1.0,0,broad conventional probe
+reference,4,success,0.20040000000000002,0.40040000000000003,6,classification,i1,4,base:hist-boost,1.0,0,broad conventional probe
+reference,5,success,0.2005,0.4005,6,classification,i1,5,base:random-forest,1.0,0,broad conventional probe
+reference,6,success,0.2006,0.4006,6,classification,i1,6,base:rbf-10,1.0,0,broad conventional probe
+reference,7,success,0.2007,0.4007,6,classification,i1,7,base:neighbors-5,1.0,0,broad conventional probe
+reference,8,success,0.20080000000000003,0.40080000000000005,6,classification,i1,8,base:neighbors-25,1.0,0,broad conventional probe
+reference,9,success,0.20090000000000002,0.40090000000000003,6,classification,i1,9,two:forest-all-features,1.0,0,retain coverage; test a different representation or objective
+reference,10,success,0.201,0.401,6,classification,i1,10,one:rbf-wide,1.0,0,retain coverage; test a different representation or objective
+reference,11,success,0.2011,0.4011,6,classification,i1,11,base:linear,0.5,1,alternate two checked families; use observed generalization gap
+reference,12,success,0.2012,0.4012,6,classification,i1,12,base:extra-trees,0.5,2,alternate two checked families; use observed generalization gap
