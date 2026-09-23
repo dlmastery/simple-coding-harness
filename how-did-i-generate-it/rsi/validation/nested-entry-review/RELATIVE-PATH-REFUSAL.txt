@@ -1,0 +1,2 @@
+usage: diagnose_nested_outcomes.py [-h] [--output OUTPUT]
+diagnose_nested_outcomes.py: error: --output must be an absolute path

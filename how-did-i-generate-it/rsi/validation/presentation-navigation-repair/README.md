@@ -19,3 +19,12 @@ Local checks: regenerate lessons, map, source index, visual guide, teaching
 inventory and activity inventory; confirm the resulting teaching files match
 the staged output. Check all selected illustration placements and local links.
 Remote verification must use the follow-up commit's actual workflow run.
+
+## Remote result
+
+The [follow-up RSI workflow](https://github.com/dlmastery/simple-coding-harness/actions/runs/35807099778)
+completed successfully on Linux, macOS and Windows for commit
+1b3f169c6b1b5f1242d1c0df20743bdf2adea9f0. This includes the added visual-guide
+rebuild and the unchanged-output check. [Workflow metadata](VERIFIED-CI.json)
+is preserved. The raw failure log keeps its original diff whitespace; authored
+files passed the whitespace check separately.

@@ -1,0 +1,13 @@
+43 i0 tie 0 same selected constructor and predictions
+43 i1 better 15 different predictions and score
+45 i0 tie 0 same selected constructor and predictions
+45 i1 tie 0 different selected constructors, identical predictions
+2074 i0 tie 0 same selected constructor and predictions
+2074 i1 better 24 different predictions and score
+361241 i0 tie 0 same selected constructor and predictions
+361241 i1 tie 0 same selected constructor and predictions
+361251 i0 tie 0 same selected constructor and predictions
+361251 i1 tie 0 same selected constructor and predictions
+361260 i0 tie 0 same selected constructor and predictions
+361260 i1 worse 800 different predictions and score
+133 checks; 39 archived inputs; zero model fits

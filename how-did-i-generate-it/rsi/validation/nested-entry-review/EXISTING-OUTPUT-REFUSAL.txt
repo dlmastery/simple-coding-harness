@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\diagnose_nested_outcomes.py", line 114, in <module>
+    main(args.output)
+  File "C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\how-did-i-generate-it\rsi\scripts\diagnose_nested_outcomes.py", line 18, in main
+    raise ValueError("Fresh diagnostic output required; preserve previous output")
+ValueError: Fresh diagnostic output required; preserve previous output

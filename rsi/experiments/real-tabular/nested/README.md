@@ -41,18 +41,32 @@ The course's smaller [recursive capstone](../../../11_capstones/README.md)
 remains the classroom entry point.
 
 ```text
-Read the nested research protocol and implementation record.
-Inspect the existing workspace and live process before acting.
-If development search is still running, resume its recorded handle.
-After it completes, independently check the entire search before scoring.
-Keep every proposal, rejected constructor, failed fit, prediction and source.
-Do not retry a spent attempt or tune from the reserved final results.
-Explain which object changed and whether its later use is actually measured.
+Read rsi/experiments/real-tabular/nested/README.md and
+rsi/evidence/2026-09-22/nested-research-evaluation/README.md.
+Guide me through this completed experiment one observation at a time.
+Create a new sibling learner workspace and report its absolute path.
+Use the archived evidence. Do not start or resume model training.
+Run diagnose_nested_outcomes.py from the authoring scripts with its
+--output argument pointing to a new report folder in that workspace.
+Show the input identities and checks before interpreting the scores.
+Compare one gain, one exact tie and one regression. Trace a selected
+prediction back to its researcher and inherited improver.
+Ask me which evidence proves changed behavior and which tests benefit.
+Mark any skipped learner answer as skipped. Keep the generated reports.
 ```
 
 This published study is closed. Inspect its saved evidence rather than
 restarting its admitted commands. A new experiment needs a separate declared
 workspace and budget.
+
+The diagnostic uses only Python's standard library and archived CSV files.
+It writes OUTCOMES.csv, INPUTS.csv and CHECKS.csv to the new report folder.
+It refuses an existing folder instead of replacing a learner's prior work.
+Expect twelve parent-relative rows (I0 and I1 on six tasks), 39 input identities
+and 133 passing checks with zero model fits. Read the
+[executed entry-path review](../../../../how-did-i-generate-it/rsi/validation/nested-entry-review/README.md)
+for the exact invocation, outputs and refusal checks. This is an audit of
+saved results; the original 624 attempts remain the cost of producing them.
 
 The agent uses `run_nested_research.py` for preparation, search and scoring;
 `preflight_nested_research.py` for labelled synthetic control-flow checks;
