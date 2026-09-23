@@ -60,3 +60,10 @@ additional capacity checks pass. The stronger allocation comparison remains
 unfinished. Six [next-task candidates](NEXT-PROCEDURE-TASKS.md) are selected
 from metadata with source limitations recorded; no new fitting allowance is
 implied by that preparation decision.
+
+The [six-task data preparation](../../../rsi/evidence/2026-09-22/nested-data/README.md)
+is now complete with zero fits. An independent parser and graph reconstruction
+verify source rows, target exclusions, whole-group allocation and recorded-ID
+isolation. The first parser failure is preserved. The next required step remains
+a genuinely nested researcher/improver protocol and execution; these data checks
+do not establish any RSI benefit.

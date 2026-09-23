@@ -1,0 +1,17 @@
+column,role,kind
+LATITUDE,feature,numeric
+LONGITUDE,feature,numeric
+SALE_PRC,target,numeric
+LND_SQFOOT,feature,numeric
+TOT_LVG_AREA,feature,numeric
+SPEC_FEAT_VAL,feature,numeric
+RAIL_DIST,feature,numeric
+OCEAN_DIST,feature,numeric
+WATER_DIST,feature,numeric
+CNTR_DIST,feature,numeric
+SUBCNTR_DI,feature,numeric
+HWY_DIST,feature,numeric
+age,feature,numeric
+avno60plus,feature,numeric
+month_sold,feature,numeric
+structure_quality,feature,numeric

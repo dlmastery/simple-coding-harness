@@ -6,6 +6,7 @@ Start with the scientific question you want to check:
 
 | Question | Evidence to inspect |
 |---|---|
+| Are the next tasks free of obvious target leakage and split crossings? | [Six datasets: raw-to-partition checks, excluded grid label, recorded-ID grouping and preserved parser failure; zero fits](2026-09-22/nested-data/README.md) |
 | Can different source changes cancel, and can the operator be repaired? | [Preserved failed preflight, corrected construction, four real fits and unlimited-depth check](2026-09-22/composition-repair/README.md) |
 | Does memory or a changed updater help on reserved public tasks? | [324-attempt matched comparison: memory beats random but loses to fixed; updater gains remain uncertain](2026-09-22/tabular-comparison/README.md) |
 | What did two source-level revisions change on public data? | [96 total development fits: digit selection gains, retained regression incumbents and an added median control](2026-09-22/real-tabular-revision-2/README.md) |

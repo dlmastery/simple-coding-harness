@@ -1,0 +1,11 @@
+column,role,kind
+RMSD,target,numeric
+F1,feature,numeric
+F2,feature,numeric
+F3,feature,numeric
+F4,feature,numeric
+F5,feature,numeric
+F6,feature,numeric
+F7,feature,numeric
+F8,feature,numeric
+F9,feature,numeric
