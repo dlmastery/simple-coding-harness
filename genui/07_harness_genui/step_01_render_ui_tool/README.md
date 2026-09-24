@@ -1,5 +1,10 @@
 # Step 01 - A render_ui tool for the harness
 
+<!-- genui-orientation -->
+**Lesson 21 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../06_mcp_apps/step_03_mcp_app_hybrid/README.md) · [Next lesson](../step_02_trueforge_generative_ui/README.md)
+
+<!-- /genui-orientation -->
+
 The harness codelab ends with a coding agent that talks in prose and tool
 panels. This step gives that agent a way to answer with an interface.
 

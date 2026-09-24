@@ -1,5 +1,20 @@
 # 06 - MCP Apps: UI in a host you do not control
 
+<!-- genui-orientation -->
+**You are here: theme 6 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../05_json_render/README.md) · [Next theme](../07_harness_genui/README.md)
+
+```mermaid
+flowchart LR
+T[Tool result] --> H[Host reads UI resource]
+H --> F[Sandboxed app frame]
+F --> B[Host bridge]
+B --> G[Allowed host operations]
+```
+
+*The host controls the bridge to an embedded app.*
+
+<!-- /genui-orientation -->
+
 The second transport in the State of Generative UI report (June 2026,
 https://www.openui.com/blog/state-of-generative-ui-report). Sub-theme 02
 put the agent inside a product you own. Here the agent lives in someone

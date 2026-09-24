@@ -1,5 +1,10 @@
 # Step 04 - OpenUI's html artifact: catalog by default, open-ended where needed
 
+<!-- genui-orientation -->
+**Lesson 14 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_03_format_benchmark/README.md) · [Next lesson](../../05_json_render/step_01_json_render_catalog/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the report's hybrid pattern on the step 02 stack.
 The Zod catalog keeps its eight components and gains two more: `Markdown`
 for conversational text and `HtmlArtifact`, whose second argument is a

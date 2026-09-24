@@ -1,5 +1,10 @@
 # Step 01 - A2UI messages by hand
 
+<!-- genui-orientation -->
+**Lesson 8 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../02_ag_ui/step_03_ag_ui_from_the_harness/README.md) · [Next lesson](../step_02_a2ui_from_a_model/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the A2UI v0.9.1 protocol with no library on either
 side. `a2ui.py` builds the four envelope messages and validates them against
 the official JSON schemas. `static/surface.mjs` keeps what a client keeps: a

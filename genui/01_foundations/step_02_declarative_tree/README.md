@@ -1,5 +1,10 @@
 # Step 02 - Declarative tree
 
+<!-- genui-orientation -->
+**Lesson 2 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_static_components/README.md) · [Next lesson](../step_03_open_ended_html/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the agent designs the layout. A catalog of eight
 components (`Card`, `Row`, `Column`, `Text`, `Metric`, `Table`, `Chart`,
 `Button`) replaces the three tools of step 01. The model writes the whole

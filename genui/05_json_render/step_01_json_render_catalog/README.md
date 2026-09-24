@@ -1,5 +1,10 @@
 # Step 01 - A json-render catalog and the React Renderer
 
+<!-- genui-orientation -->
+**Lesson 15 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../04_openui_lang/step_04_openui_html_artifact/README.md) · [Next lesson](../step_02_json_render_streaming_patches/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the whole json-render loop, once, without streaming.
 A catalog of six components with Zod props (`catalog.mjs`); the prompt the
 library generates from it (`catalog.prompt()`, printed by `prompt.mjs` and

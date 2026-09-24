@@ -1,5 +1,10 @@
 # Step 02 - TrueForge's generative UI, rendered in a page of ours
 
+<!-- genui-orientation -->
+**Lesson 22 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_render_ui_tool/README.md) · [Next lesson](../step_03_trueforge_hybrid/README.md)
+
+<!-- /genui-orientation -->
+
 Step 01 taught the local harness to draw. TrueForge, the hosted harness of
 Part 7, already does that: with `generative_ui` enabled its agent answers a
 dashboard request with an OpenUI Lang program inside a ```openui fence, and

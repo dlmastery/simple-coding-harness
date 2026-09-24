@@ -1,5 +1,10 @@
 # Step 02 - The same server in a real host: the harness, then Claude Desktop
 
+<!-- genui-orientation -->
+**Lesson 19 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_mcp_app_resource/README.md) · [Next lesson](../step_03_mcp_app_hybrid/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the lemonade server from step 01, unchanged,
 plugged into a host that was not written for it. The harness codelab's
 step 26 MCP client (`harness/`, copied into this step) becomes an MCP Apps

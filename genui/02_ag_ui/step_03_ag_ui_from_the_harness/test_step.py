@@ -136,8 +136,11 @@ def test_write_todos_becomes_state_delta(fake):
     events = list(bridge.run(run_input()))
     assert events[1].snapshot == {"todos": []}
     delta = next(e for e in events if e.type.value == "STATE_DELTA")
-    assert delta.delta[0]["op"] == "replace" and delta.delta[0]["path"] == "/todos"
-    assert [t["status"] for t in delta.delta[0]["value"]] == ["in_progress", "pending"]
+    # Assert the encoded browser contract, not the SDK's Python model shape.
+    operations = parse_sse(EventEncoder().encode(delta))[0]["delta"]
+    assert len(operations) == 1
+    assert operations[0]["op"] == "replace" and operations[0]["path"] == "/todos"
+    assert [t["status"] for t in operations[0]["value"]] == ["in_progress", "pending"]
     assert types(events).index("STATE_DELTA") > types(events).index("TOOL_CALL_RESULT")
 
 

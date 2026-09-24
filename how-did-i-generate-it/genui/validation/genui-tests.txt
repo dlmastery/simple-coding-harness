@@ -1,0 +1,371 @@
+genui/01_foundations/step_01_static_components 1 failed, 12 passed, 1 warning in 1.64s
+    ............F                                                            [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            node = shutil.which("node")
+            if node is None:
+                pytest.skip("node is not installed")
+            result = subprocess.run(
+                [node, "--test", "tests/render.test.mjs"], cwd=HERE, capture_output=True, text=True, timeout=120,
+            )
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ Metric renders the three props and marks a negative delta (1.0114ms)\n✔ props are escaped before they become markup... (0.0922ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 105.6103\n'
+    E        +  where '✔ Metric renders the three props and marks a negative delta (1.0114ms)\n✔ props are escaped before they become markup... (0.0922ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 105.6103\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '...nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 105.6103\n', stderr='').stdout
+    
+    test_step.py:214: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - AssertionError: assert '# fail ...
+    1 failed, 12 passed, 1 warning in 1.64s
+genui/01_foundations/step_02_declarative_tree 1 failed, 20 passed, 1 warning in 1.98s
+    ....................F                                                    [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            node = shutil.which("node")
+            if node is None:
+                pytest.skip("node is not installed")
+            result = subprocess.run(
+                [node, "--test", "tests/render.test.mjs", "tests/partial-json.test.mjs"],
+                cwd=HERE, capture_output=True, text=True, timeout=120,
+            )
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ a complete document parses like JSON.parse and is not partial (2.3166ms)\n✔ every prefix parses without throwing (5...0.1375ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 142.3127\n'
+    E        +  where '✔ a complete document parses like JSON.parse and is not partial (2.3166ms)\n✔ every prefix parses without throwing (5...0.1375ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 142.3127\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '... tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 142.3127\n', stderr='').stdout
+    
+    test_step.py:313: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - AssertionError: assert '# fail ...
+    1 failed, 20 passed, 1 warning in 1.98s
+genui/01_foundations/step_03_open_ended_html 1 failed, 26 passed, 1 warning in 1.75s
+    ..........................F                                              [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            node = shutil.which("node")
+            if node is None:
+                pytest.skip("node is not installed")
+            result = subprocess.run(
+                [node, "--test", "tests/render.test.mjs", "tests/partial-json.test.mjs", "tests/sandbox.test.mjs"],
+                cwd=HERE, capture_output=True, text=True, timeout=120,
+            )
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '✔ a complete document parses like JSON.parse and is not partial (1.7083ms)\n✔ every prefix parses without throwing (4...0.0683ms)\nℹ tests 22\nℹ suites 0\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 155.2253\n'
+    E        +  where '✔ a complete document parses like JSON.parse and is not partial (1.7083ms)\n✔ every prefix parses without throwing (4...0.0683ms)\nℹ tests 22\nℹ suites 0\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 155.2253\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '... tests 22\nℹ suites 0\nℹ pass 22\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 155.2253\n", stderr='').stdout
+    
+    test_step.py:390: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '✔ a compl...
+    1 failed, 26 passed, 1 warning in 1.75s
+genui/01_foundations/step_04_hybrid_escape_hatch 1 failed, 31 passed, 1 warning in 2.00s
+    ...............................F                                         [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            node = shutil.which("node")
+            if node is None:
+                pytest.skip("node is not installed")
+            result = subprocess.run(
+                [node, "--test", "tests/render.test.mjs", "tests/partial-json.test.mjs", "tests/sandbox.test.mjs"],
+                cwd=HERE, capture_output=True, text=True, timeout=120,
+            )
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '✔ a complete document parses like JSON.parse and is not partial (2.0654ms)\n✔ every prefix parses without throwing (4...0.3266ms)\nℹ tests 24\nℹ suites 0\nℹ pass 24\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 151.2207\n'
+    E        +  where '✔ a complete document parses like JSON.parse and is not partial (2.0654ms)\n✔ every prefix parses without throwing (4...0.3266ms)\nℹ tests 24\nℹ suites 0\nℹ pass 24\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 151.2207\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '... tests 24\nℹ suites 0\nℹ pass 24\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 151.2207\n", stderr='').stdout
+    
+    test_step.py:472: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '✔ a compl...
+    1 failed, 31 passed, 1 warning in 2.00s
+genui/02_ag_ui/step_01_ag_ui_server          10 passed, 1 warning in 1.66s
+genui/02_ag_ui/step_02_ag_ui_tools_and_state 15 passed, 1 warning in 1.58s
+genui/02_ag_ui/step_03_ag_ui_from_the_harness 11 passed, 1 warning in 50.87s
+genui/03_a2ui/step_01_a2ui_messages_by_hand  1 failed, 11 passed, 1 warning in 1.59s
+    ...........F                                                             [100%]
+    ================================== FAILURES ===================================
+    __________________________ test_node_surface_module ___________________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_surface_module():
+            result = subprocess.run(["node", "--test", "surface.test.mjs"], cwd=HERE, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ JSON Pointer: get, set creates parents, delete keeps array length, escapes (1.2502ms)\n✔ a child id may arrive befo... (0.2865ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 113.6215\n'
+    E        +  where '✔ JSON Pointer: get, set creates parents, delete keeps array length, escapes (1.2502ms)\n✔ a child id may arrive befo... (0.2865ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 113.6215\n' = CompletedProcess(args=['node', '--test', 'surface.test.mjs'], returncode=0, stdout='✔ JSON Pointer: get, set creates p...nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 113.6215\n', stderr='').stdout
+    
+    test_step.py:205: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_stream_endpoint_replays_repaired_messages
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_surface_module - AssertionError: assert '# fai...
+    1 failed, 11 passed, 1 warning in 1.59s
+genui/03_a2ui/step_02_a2ui_from_a_model      1 failed, 12 passed, 1 warning in 4.12s
+    ............F                                                            [100%]
+    ================================== FAILURES ===================================
+    __________________________ test_node_surface_module ___________________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_surface_module():
+            result = subprocess.run(["node", "--test", "surface.test.mjs"], cwd=HERE, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ JSON Pointer: get, set creates parents, delete keeps array length, escapes (1.3838ms)\n✔ a child id may arrive befo...s (0.3026ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 92.4337\n'
+    E        +  where '✔ JSON Pointer: get, set creates parents, delete keeps array length, escapes (1.3838ms)\n✔ a child id may arrive befo...s (0.3026ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 92.4337\n' = CompletedProcess(args=['node', '--test', 'surface.test.mjs'], returncode=0, stdout='✔ JSON Pointer: get, set creates p...\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 92.4337\n', stderr='').stdout
+    
+    test_step.py:247: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_generate_endpoint_and_action_round_trip
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_surface_module - AssertionError: assert '# fai...
+    1 failed, 12 passed, 1 warning in 4.12s
+genui/03_a2ui/step_03_a2ui_lit_and_ag_ui     1 failed, 7 passed, 1 warning in 28.50s
+    .......F                                                                 [100%]
+    ================================== FAILURES ===================================
+    ____________________ test_node_client_processor_and_bundle ____________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_client_processor_and_bundle():
+            npm = shutil.which("npm")
+            if not (HERE / "node_modules").exists():
+                if npm is None:
+                    pytest.skip("node_modules is missing and npm is not on PATH")
+                subprocess.run([npm, "install", "--no-audit", "--no-fund"], cwd=HERE, check=True, capture_output=True)
+            result = subprocess.run(["node", "--test", "agui.test.mjs"], cwd=HERE, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ parseSse splits complete frames and keeps the remainder (0.9269ms)\n✔ parseSse folds CRLF framing, skips keepalive ...3.6349ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 16264.2262\n'
+    E        +  where '✔ parseSse splits complete frames and keeps the remainder (0.9269ms)\n✔ parseSse folds CRLF framing, skips keepalive ...3.6349ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 16264.2262\n' = CompletedProcess(args=['node', '--test', 'agui.test.mjs'], returncode=0, stdout='✔ parseSse splits complete frames and... tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 16264.2262\n', stderr='').stdout
+    
+    test_step.py:200: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_a_run_is_run_started_steps_custom_a2ui_events_text_and_run_finished
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_client_processor_and_bundle - AssertionError: ...
+    1 failed, 7 passed, 1 warning in 28.50s
+genui/04_openui_lang/step_01_openui_lang_parser 24 passed in 0.91s
+genui/04_openui_lang/step_02_openui_react_lang 1 failed, 7 passed in 13.86s
+    ......F.                                                                 [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            need_node_modules()
+            result = nodetools.run(nodetools.NPM, "test")
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '\n> genui-step-02-openui-react-lang@0.1.0 test\n> node --test "tests/*.test.mjs"\n\n✔ the catalog has eight component...(8.4751ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4434.9564\n'
+    E        +  where '\n> genui-step-02-openui-react-lang@0.1.0 test\n> node --test "tests/*.test.mjs"\n\n✔ the catalog has eight component...(8.4751ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4434.9564\n' = CompletedProcess(args=['C:\\Users\\abhir\\AppData\\Local\\fnm_multishells\\1948_1790252679288\\npm.CMD', 'test'], retu...ℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4434.9564\n', stderr='').stdout
+    
+    test_step.py:135: AssertionError
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '\n> genui...
+    1 failed, 7 passed in 13.86s
+genui/04_openui_lang/step_03_format_benchmark 15 passed in 6.18s
+genui/04_openui_lang/step_04_openui_html_artifact 1 failed, 9 passed in 13.09s
+    ........F.                                                               [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            need_node_modules()
+            result = nodetools.run(nodetools.NPM, "test")
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '\n> genui-step-04-openui-html-artifact@0.1.0 test\n> node --test "tests/*.test.mjs"\n\n✔ the catalog is step 02\'s ei....0299ms)\nℹ tests 14\nℹ suites 0\nℹ pass 14\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1705.6527\n'
+    E        +  where '\n> genui-step-04-openui-html-artifact@0.1.0 test\n> node --test "tests/*.test.mjs"\n\n✔ the catalog is step 02\'s ei....0299ms)\nℹ tests 14\nℹ suites 0\nℹ pass 14\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1705.6527\n' = CompletedProcess(args=['C:\\Users\\abhir\\AppData\\Local\\fnm_multishells\\1948_1790252679288\\npm.CMD', 'test'], retu...tests 14\nℹ suites 0\nℹ pass 14\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1705.6527\n', stderr='').stdout
+    
+    test_step.py:161: AssertionError
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '\n> genui...
+    1 failed, 9 passed in 13.09s
+genui/05_json_render/step_01_json_render_catalog 1 failed, 9 passed, 1 warning in 8.16s
+    .........F                                                               [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            if NODE is None:
+                pytest.skip("node is not installed")
+            ensure_node_modules()
+            result = subprocess.run([NODE, "--test", "tests/render.test.mjs"], cwd=STEP, capture_output=True, text=True, encoding="utf-8", timeout=120)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '[json-render] Missing element "ghost" referenced as child of "Card". This element will not render.\n✔ the catalog has...r (3.0778ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 795.685\n'
+    E        +  where '[json-render] Missing element "ghost" referenced as child of "Card". This element will not render.\n✔ the catalog has...r (3.0778ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 795.685\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '...\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 795.685\n', stderr='').stdout
+    
+    test_step.py:138: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '[json-ren...
+    1 failed, 9 passed, 1 warning in 8.16s
+genui/05_json_render/step_02_json_render_streaming_patches 1 failed, 10 passed, 1 warning in 5.27s
+    ..........F                                                              [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            if NODE is None:
+                pytest.skip("node is not installed")
+            ensure_node_modules()
+            result = subprocess.run([NODE, "--test", "tests/stream.test.mjs"], cwd=STEP, capture_output=True, text=True, encoding="utf-8", timeout=120)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in '[json-render] Missing element "table-1" referenced as child of "Card". This element will not render.\n[json-render] M... (1.1655ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 697.1292\n'
+    E        +  where '[json-render] Missing element "table-1" referenced as child of "Card". This element will not render.\n[json-render] M... (1.1655ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 697.1292\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '...nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 697.1292\n', stderr='').stdout
+    
+    test_step.py:233: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - assert '# fail 0' in '[json-ren...
+    1 failed, 10 passed, 1 warning in 5.27s
+genui/05_json_render/step_03_json_render_actions_and_targets 1 failed, 9 passed, 1 warning in 25.58s
+    .........F                                                               [100%]
+    ================================== FAILURES ===================================
+    ___________________________ test_node_suite_passes ____________________________
+    
+        def test_node_suite_passes():
+            if NODE is None:
+                pytest.skip("node is not installed")
+            ensure_node_modules()
+            result = subprocess.run([NODE, "--test", "tests/targets.test.mjs"], cwd=STEP, capture_output=True, text=True, encoding="utf-8", timeout=120)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       AssertionError: assert '# fail 0' in '✔ the catalog has seven components and two actions, and the prompt lists them (1.2268ms)\n✔ the library accepts a spe...60.9095ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1084.4232\n'
+    E        +  where '✔ the catalog has seven components and two actions, and the prompt lists them (1.2268ms)\n✔ the library accepts a spe...60.9095ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1084.4232\n' = CompletedProcess(args=['C:/Users/abhir/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\\node.EXE', '...ℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1084.4232\n', stderr='').stdout
+    
+    test_step.py:206: AssertionError
+    ============================== warnings summary ===============================
+    ..\..\..\..\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_suite_passes - AssertionError: assert '# fail ...
+    1 failed, 9 passed, 1 warning in 25.58s
+genui/06_mcp_apps/step_01_mcp_app_resource   1 failed, 11 passed, 1 warning in 3.34s
+    ...........F                                                             [100%]
+    ================================== FAILURES ===================================
+    _________________________ test_node_bridge_and_client _________________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_bridge_and_client():
+            result = subprocess.run(["node", "--test", "bridge.test.mjs"], cwd=STEP, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in "✔ no csp metadata gives the spec's restrictive default (0.839ms)\n✔ declared domains widen exactly the matching direc....6001ms)\nℹ tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1168.7679\n"
+    E        +  where "✔ no csp metadata gives the spec's restrictive default (0.839ms)\n✔ declared domains widen exactly the matching direc....6001ms)\nℹ tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1168.7679\n" = CompletedProcess(args=['node', '--test', 'bridge.test.mjs'], returncode=0, stdout="✔ no csp metadata gives the spec's ...tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1168.7679\n", stderr='').stdout
+    
+    test_step.py:225: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_chat_endpoint
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_bridge_and_client - assert '# fail 0' in "✔ no...
+    1 failed, 11 passed, 1 warning in 3.34s
+genui/06_mcp_apps/step_02_mcp_app_in_a_real_host 1 failed, 19 passed, 1 warning in 4.31s
+    ...........F........                                                     [100%]
+    ================================== FAILURES ===================================
+    _________________________ test_node_bridge_and_client _________________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_bridge_and_client():
+            result = subprocess.run(["node", "--test", "bridge.test.mjs"], cwd=STEP, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in "✔ no csp metadata gives the spec's restrictive default (0.8328ms)\n✔ declared domains widen exactly the matching dire....1514ms)\nℹ tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1101.2757\n"
+    E        +  where "✔ no csp metadata gives the spec's restrictive default (0.8328ms)\n✔ declared domains widen exactly the matching dire....1514ms)\nℹ tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1101.2757\n" = CompletedProcess(args=['node', '--test', 'bridge.test.mjs'], returncode=0, stdout="✔ no csp metadata gives the spec's ...tests 17\nℹ suites 0\nℹ pass 17\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1101.2757\n", stderr='').stdout
+    
+    test_step.py:227: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_chat_endpoint
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_bridge_and_client - assert '# fail 0' in "✔ no...
+    1 failed, 19 passed, 1 warning in 4.31s
+genui/06_mcp_apps/step_03_mcp_app_hybrid     1 failed, 16 passed, 1 warning in 3.47s
+    ................F                                                        [100%]
+    ================================== FAILURES ===================================
+    _________________ test_node_bridge_client_catalog_and_sandbox _________________
+    
+        @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
+        def test_node_bridge_client_catalog_and_sandbox():
+            result = subprocess.run(["node", "--test", "bridge.test.mjs", "catalog.test.mjs"], cwd=STEP, capture_output=True, text=True)
+            assert result.returncode == 0, result.stdout + result.stderr
+    >       assert "# fail 0" in result.stdout
+    E       assert '# fail 0' in "✔ no csp metadata gives the spec's restrictive default (0.9473ms)\n✔ declared domains widen exactly the matching dire....2589ms)\nℹ tests 26\nℹ suites 0\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1132.3144\n"
+    E        +  where "✔ no csp metadata gives the spec's restrictive default (0.9473ms)\n✔ declared domains widen exactly the matching dire....2589ms)\nℹ tests 26\nℹ suites 0\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1132.3144\n" = CompletedProcess(args=['node', '--test', 'bridge.test.mjs', 'catalog.test.mjs'], returncode=0, stdout="✔ no csp metada...tests 26\nℹ suites 0\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1132.3144\n", stderr='').stdout
+    
+    test_step.py:348: AssertionError
+    ============================== warnings summary ===============================
+    test_step.py::test_chat_endpoint
+      C:\Users\abhir\Documents\Codex\2026-09-19\lo\work\simple-coding-harness\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+        _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+    
+    -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    =========================== short test summary info ===========================
+    FAILED test_step.py::test_node_bridge_client_catalog_and_sandbox - assert '# ...
+    1 failed, 16 passed, 1 warning in 3.47s
+genui/07_harness_genui/step_01_render_ui_tool 12 passed in 2.02s
+genui/07_harness_genui/step_02_trueforge_generative_ui 14 passed in 2.76s
+genui/07_harness_genui/step_03_trueforge_hybrid 15 passed in 2.77s

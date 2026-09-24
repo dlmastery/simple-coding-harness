@@ -1,5 +1,24 @@
 # Sub-theme 02 - AG-UI, the transport
 
+The Python SDK can store a state-patch operation as a typed object. The browser
+receives JSON after event encoding. The tests check that encoded contract and
+apply its patches, rather than depending on the SDK's internal Python shape.
+
+<!-- genui-orientation -->
+**You are here: theme 2 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../01_foundations/README.md) · [Next theme](../03_a2ui/README.md)
+
+```mermaid
+flowchart LR
+A[Agent run] --> E[Events and state patches]
+E --> C[Client applies updates]
+C --> P[Page renders state]
+P -->|user action| A
+```
+
+*Events carry a run; state determines what the page displays.*
+
+<!-- /genui-orientation -->
+
 The State of Generative UI report (June 2026)
 (https://www.openui.com/blog/state-of-generative-ui-report) separates two
 choices: what the agent generates, and how it travels to the screen. This

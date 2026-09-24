@@ -1,5 +1,10 @@
 # Step 02 - A2UI from a model
 
+<!-- genui-orientation -->
+**Lesson 9 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_a2ui_messages_by_hand/README.md) · [Next lesson](../step_03_a2ui_lit_and_ag_ui/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the model writes the messages. `prompt.py` uses the
 `a2ui-agent-sdk` package to build the system prompt from the Basic Catalog,
 to parse the reply while it streams, and to repair and validate it when it

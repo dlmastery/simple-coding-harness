@@ -1,5 +1,10 @@
 # Step 07.3 - Open-ended HTML and catalog components together, on TrueForge
 
+<!-- genui-orientation -->
+**Lesson 23 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_trueforge_generative_ui/README.md)
+
+<!-- /genui-orientation -->
+
 Step 02 rendered TrueForge's generative UI in a page of its own. The agent
 wrote an OpenUI Lang program from the harness's catalog, and the page drew
 it. That catalog is static: a table, a chart, a tag. It cannot give the

@@ -1,5 +1,10 @@
 # Step 02 - The real thing: lang-core and react-lang
 
+<!-- genui-orientation -->
+**Lesson 12 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_openui_lang_parser/README.md) · [Next lesson](../step_03_format_benchmark/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the official packages in place of the hand-written
 parser. The catalog is now defined with Zod through
 `@openuidev/react-lang`'s `defineComponent()` and `createLibrary()`; the

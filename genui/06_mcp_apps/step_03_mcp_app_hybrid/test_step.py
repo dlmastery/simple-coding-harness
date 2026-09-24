@@ -343,6 +343,6 @@ def test_the_tool_answers_while_the_region_is_generating(monkeypatch):
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
 def test_node_bridge_client_catalog_and_sandbox():
-    result = subprocess.run(["node", "--test", "bridge.test.mjs", "catalog.test.mjs"], cwd=STEP, capture_output=True, text=True)
+    result = subprocess.run(["node", "--test", "--test-reporter=tap", "bridge.test.mjs", "catalog.test.mjs"], cwd=STEP, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout

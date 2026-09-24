@@ -195,7 +195,7 @@ def test_node_client_processor_and_bundle():
         if npm is None:
             pytest.skip("node_modules is missing and npm is not on PATH")
         subprocess.run([npm, "install", "--no-audit", "--no-fund"], cwd=HERE, check=True, capture_output=True)
-    result = subprocess.run(["node", "--test", "agui.test.mjs"], cwd=HERE, capture_output=True, text=True)
+    result = subprocess.run(["node", "--test", "--test-reporter=tap", "agui.test.mjs"], cwd=HERE, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout
     bundle = HERE / "static" / "bundle.js"

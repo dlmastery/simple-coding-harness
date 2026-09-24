@@ -1,5 +1,10 @@
 # Step 03 - The token benchmark, reproduced
 
+<!-- genui-orientation -->
+**Lesson 13 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_openui_react_lang/README.md) · [Next lesson](../step_04_openui_html_artifact/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the numbers behind the report's "most
 token-efficient format" claim, recomputed here. The seven scenario programs
 the report's benchmark recorded (`samples/*.oui`, the model's own OpenUI Lang

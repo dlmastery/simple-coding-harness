@@ -1,0 +1,56 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_______________ test_tool_calls_become_events_and_state_deltas ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EFF35CF860>
+
+    def test_tool_calls_become_events_and_state_deltas(monkeypatch):
+        fake = FakeClient([METRIC, DONE])
+        monkeypatch.setattr(llm, "client", fake)
+        events = list(agent.run(run_input([UserMessage(id="u1", content="dashboard please")])))
+        assert types(events) == [
+            "RUN_STARTED", "STATE_SNAPSHOT",
+            "TOOL_CALL_START", "TOOL_CALL_ARGS", "TOOL_CALL_ARGS", "TOOL_CALL_END",
+            "TOOL_CALL_START", "TOOL_CALL_ARGS", "TOOL_CALL_END",
+            "STATE_DELTA", "TOOL_CALL_RESULT", "STATE_DELTA", "TOOL_CALL_RESULT",
+            "TEXT_MESSAGE_START", "TEXT_MESSAGE_CONTENT", "TEXT_MESSAGE_CONTENT", "TEXT_MESSAGE_END",
+            "RUN_FINISHED",
+        ]
+        deltas = [e for e in events if e.type.value == "STATE_DELTA"]
+>       assert deltas[0].delta == [{"op": "add", "path": "/dashboard/metrics/-", "value": {"title": "Cups sold", "value": "120", "delta": "+8%"}}]
+E       AssertionError: assert [AddOperation...lta': '+8%'})] == [{'op': 'add'...lue': '120'}}]
+E         
+E         At index 0 diff: AddOperation(op='add', path='/dashboard/metrics/-', value={'title': 'Cups sold', 'value': '120', 'delta': '+8%'}) != {'op': 'add', 'path': '/dashboard/metrics/-', 'value': {'title': 'Cups sold', 'value': '120', 'delta': '+8%'}}
+E         Use -v to get more diff
+
+genui\02_ag_ui\step_02_ag_ui_tools_and_state\test_step.py:90: AssertionError
+_____________ test_next_run_continues_from_the_client_tool_result _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001EFF35CE990>
+
+    def test_next_run_continues_from_the_client_tool_result(monkeypatch):
+        fake = FakeClient([RECORD, DONE])
+        monkeypatch.setattr(llm, "client", fake)
+        history = [
+            UserMessage(id="u1", content="buy a cooler"),
+            AssistantMessage(id="a1", content=None, tool_calls=[
+                ToolCall(id="c3", function=FunctionCall(name="confirm_purchase", arguments='{"item": "cooler", "cost": 40}')),
+            ]),
+            ToolMessage(id="t1", tool_call_id="c3", content="confirmed"),
+        ]
+        events = list(agent.run(run_input(history)))
+        sent = fake.requests[0]["messages"]
+        assert sent[-1] == {"role": "tool", "tool_call_id": "c3", "content": "confirmed"}
+        assert sent[-2]["tool_calls"][0]["id"] == "c3"
+        delta = next(e for e in events if e.type.value == "STATE_DELTA")
+>       assert delta.delta == [{"op": "add", "path": "/dashboard/purchases/-", "value": {"item": "cooler", "cost": 40}}]
+E       AssertionError: assert [AddOperation... 'cost': 40})] == [{'op': 'add'...': 'cooler'}}]
+E         
+E         At index 0 diff: AddOperation(op='add', path='/dashboard/purchases/-', value={'item': 'cooler', 'cost': 40}) != {'op': 'add', 'path': '/dashboard/purchases/-', 'value': {'item': 'cooler', 'cost': 40}}
+E         Use -v to get more diff
+
+genui\02_ag_ui\step_02_ag_ui_tools_and_state\test_step.py:133: AssertionError
+=========================== short test summary info ===========================
+FAILED genui/02_ag_ui/step_02_ag_ui_tools_and_state/test_step.py::test_tool_calls_become_events_and_state_deltas
+FAILED genui/02_ag_ui/step_02_ag_ui_tools_and_state/test_step.py::test_next_run_continues_from_the_client_tool_result
+2 failed, 13 deselected in 1.45s

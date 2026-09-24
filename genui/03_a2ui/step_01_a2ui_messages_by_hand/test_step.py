@@ -200,6 +200,6 @@ def test_stream_endpoint_replays_repaired_messages(monkeypatch):
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
 def test_node_surface_module():
-    result = subprocess.run(["node", "--test", "surface.test.mjs"], cwd=HERE, capture_output=True, text=True)
+    result = subprocess.run(["node", "--test", "--test-reporter=tap", "surface.test.mjs"], cwd=HERE, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout

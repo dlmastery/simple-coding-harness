@@ -228,6 +228,6 @@ def test_node_suite_passes():
     if NODE is None:
         pytest.skip("node is not installed")
     ensure_node_modules()
-    result = subprocess.run([NODE, "--test", "tests/stream.test.mjs"], cwd=STEP, capture_output=True, text=True, encoding="utf-8", timeout=120)
+    result = subprocess.run([NODE, "--test", "--test-reporter=tap", "tests/stream.test.mjs"], cwd=STEP, capture_output=True, text=True, encoding="utf-8", timeout=120)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout

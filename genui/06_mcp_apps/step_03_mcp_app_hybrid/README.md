@@ -1,5 +1,10 @@
 # Step 06.3 - Open-ended HTML and static components together, inside an MCP App
 
+<!-- genui-orientation -->
+**Lesson 20 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_mcp_app_in_a_real_host/README.md) · [Next lesson](../../07_harness_genui/step_01_render_ui_tool/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the report's hybrid pattern inside a host you do
 not control. Step 01's tool returned rows for a view that drew them. This
 step's tool, `lemonade_report(days, focus)`, returns two halves in

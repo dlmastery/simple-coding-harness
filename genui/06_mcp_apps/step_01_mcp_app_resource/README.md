@@ -1,5 +1,10 @@
 # Step 01 - An MCP App: a tool result that carries its interface
 
+<!-- genui-orientation -->
+**Lesson 18 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../05_json_render/step_03_json_render_actions_and_targets/README.md) · [Next lesson](../step_02_mcp_app_in_a_real_host/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** an MCP server whose tool comes with a user
 interface, and the smallest host that can show it. `server.py` is a
 FastMCP server with one tool, `lemonade_dashboard`, and one resource at

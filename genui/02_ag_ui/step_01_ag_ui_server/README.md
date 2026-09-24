@@ -1,5 +1,10 @@
 # Step 01 - An AG-UI server
 
+<!-- genui-orientation -->
+**Lesson 5 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../01_foundations/step_04_hybrid_escape_hatch/README.md) · [Next lesson](../step_02_ag_ui_tools_and_state/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** a FastAPI endpoint that speaks AG-UI. It accepts
 a `RunAgentInput`, calls a model, and streams five kinds of event back:
 `RUN_STARTED`, `TEXT_MESSAGE_START`, `TEXT_MESSAGE_CONTENT`,

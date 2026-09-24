@@ -220,6 +220,6 @@ def test_no_key_is_a_clear_error(monkeypatch):
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not on PATH")
 def test_node_bridge_and_client():
-    result = subprocess.run(["node", "--test", "bridge.test.mjs"], cwd=STEP, capture_output=True, text=True)
+    result = subprocess.run(["node", "--test", "--test-reporter=tap", "bridge.test.mjs"], cwd=STEP, capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout

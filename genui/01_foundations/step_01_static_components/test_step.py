@@ -208,7 +208,7 @@ def test_node_suite_passes():
     if node is None:
         pytest.skip("node is not installed")
     result = subprocess.run(
-        [node, "--test", "tests/render.test.mjs"], cwd=HERE, capture_output=True, text=True, timeout=120,
+        [node, "--test", "--test-reporter=tap", "tests/render.test.mjs"], cwd=HERE, capture_output=True, text=True, timeout=120,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "# fail 0" in result.stdout

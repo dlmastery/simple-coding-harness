@@ -1,5 +1,10 @@
 # Step 02 - Tool calls and shared state
 
+<!-- genui-orientation -->
+**Lesson 6 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_ag_ui_server/README.md) · [Next lesson](../step_03_ag_ui_from_the_harness/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** two more parts of the AG-UI vocabulary. Tool
 calls stream as `TOOL_CALL_START`, `TOOL_CALL_ARGS`, `TOOL_CALL_END` and
 `TOOL_CALL_RESULT`. Shared state travels as `STATE_SNAPSHOT` (the whole

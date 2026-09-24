@@ -1,5 +1,19 @@
 # Sub-theme 04 - OpenUI Lang
 
+<!-- genui-orientation -->
+**You are here: theme 4 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../03_a2ui/README.md) · [Next theme](../05_json_render/README.md)
+
+```mermaid
+flowchart LR
+L[UI language stream] --> P[Parser]
+P --> V[Resolve and validate references]
+V --> R[Component renderer]
+```
+
+*Parsing and reference resolution happen before components are rendered.*
+
+<!-- /genui-orientation -->
+
 OpenUI Lang is the line-oriented language for model-generated UI from the
 OpenUI project (`@openuidev/lang-core`, `@openuidev/react-lang`): every
 statement is `id = Component(args)`, arguments are positional, references

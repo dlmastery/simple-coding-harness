@@ -1,5 +1,19 @@
 # Sub-theme 01 - Foundations: static, declarative, open-ended
 
+<!-- genui-orientation -->
+**You are here: theme 1 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Next theme](../02_ag_ui/README.md)
+
+```mermaid
+flowchart LR
+A[Agent output] --> V[Validate component and props]
+V --> R[Application renderer]
+R --> P[Visible card or layout]
+```
+
+*The agent chooses; the application renders.*
+
+<!-- /genui-orientation -->
+
 The three ways an agent can produce an interface, built with no framework so
 the mechanism is visible before the libraries hide it. The map comes from
 the State of Generative UI report (June 2026),

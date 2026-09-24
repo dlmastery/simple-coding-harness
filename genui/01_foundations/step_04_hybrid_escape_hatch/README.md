@@ -1,5 +1,10 @@
 # Step 04 - Hybrid escape hatch
 
+<!-- genui-orientation -->
+**Lesson 4 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_03_open_ended_html/README.md) · [Next lesson](../../02_ag_ui/step_01_ag_ui_server/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the report's hybrid pattern, and a loop that
 closes. The step 02 catalog gains one component, `GeneratedView`, whose
 only prop is HTML the model writes; the page renders it in the step 03

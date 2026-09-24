@@ -86,9 +86,12 @@ def test_tool_calls_become_events_and_state_deltas(monkeypatch):
         "TEXT_MESSAGE_START", "TEXT_MESSAGE_CONTENT", "TEXT_MESSAGE_CONTENT", "TEXT_MESSAGE_END",
         "RUN_FINISHED",
     ]
-    deltas = [e for e in events if e.type.value == "STATE_DELTA"]
-    assert deltas[0].delta == [{"op": "add", "path": "/dashboard/metrics/-", "value": {"title": "Cups sold", "value": "120", "delta": "+8%"}}]
-    assert deltas[1].delta[0]["path"] == "/dashboard/chart"
+    # Verify the JSON Patch received by the browser. SDK 1.x represents
+    # operations as typed models inside Python; that is not the wire format.
+    deltas = [e for e in parse_sse("".join(EventEncoder().encode(e) for e in events))
+              if e["type"] == "STATE_DELTA"]
+    assert deltas[0]["delta"] == [{"op": "add", "path": "/dashboard/metrics/-", "value": {"title": "Cups sold", "value": "120", "delta": "+8%"}}]
+    assert deltas[1]["delta"][0]["path"] == "/dashboard/chart"
     # the second model request carries the assistant tool calls and both tool results
     second = fake.requests[1]["messages"]
     assert second[-3]["tool_calls"][0]["function"]["name"] == "show_metric"
@@ -96,7 +99,8 @@ def test_tool_calls_become_events_and_state_deltas(monkeypatch):
     # the state the tools built is the one the snapshot would show next run
     state = initial_state()
     for d in deltas:
-        apply_patch(state, d.delta)
+        apply_patch(state, d["delta"])
+    assert state["dashboard"]["metrics"] == [{"title": "Cups sold", "value": "120", "delta": "+8%"}]
     assert state["dashboard"]["chart"]["values"] == [40, 80]
 
 
@@ -130,7 +134,11 @@ def test_next_run_continues_from_the_client_tool_result(monkeypatch):
     assert sent[-1] == {"role": "tool", "tool_call_id": "c3", "content": "confirmed"}
     assert sent[-2]["tool_calls"][0]["id"] == "c3"
     delta = next(e for e in events if e.type.value == "STATE_DELTA")
-    assert delta.delta == [{"op": "add", "path": "/dashboard/purchases/-", "value": {"item": "cooler", "cost": 40}}]
+    operations = parse_sse(EventEncoder().encode(delta))[0]["delta"]
+    assert operations == [{"op": "add", "path": "/dashboard/purchases/-", "value": {"item": "cooler", "cost": 40}}]
+    state = initial_state()
+    apply_patch(state, operations)
+    assert state["dashboard"]["purchases"] == [{"item": "cooler", "cost": 40}]
     assert types(events)[-1] == "RUN_FINISHED"
 
 

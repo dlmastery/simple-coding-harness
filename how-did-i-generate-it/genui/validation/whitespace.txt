@@ -1,0 +1,90 @@
+how-did-i-generate-it/genui/validation/agui-before.txt:22: trailing whitespace.
++E         
+how-did-i-generate-it/genui/validation/agui-before.txt:48: trailing whitespace.
++E         
+how-did-i-generate-it/genui/validation/genui-tests.txt:5: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:17: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:23: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:32: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:45: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:51: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:60: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:73: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:79: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:88: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:101: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:107: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:119: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:127: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:133: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:142: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:150: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:156: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:165: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:178: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:184: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:194: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:202: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:212: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:220: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:229: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:239: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:245: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:254: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:264: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:270: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:279: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:289: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:295: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:304: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:312: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:318: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:327: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:335: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:341: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:350: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:358: trailing whitespace.
++    
+how-did-i-generate-it/genui/validation/genui-tests.txt:364: trailing whitespace.
++    

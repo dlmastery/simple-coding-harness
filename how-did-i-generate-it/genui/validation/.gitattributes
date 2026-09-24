@@ -1,0 +1,2 @@
+# Preserve captured process output, including original spacing and line endings.
+*.txt -text -whitespace

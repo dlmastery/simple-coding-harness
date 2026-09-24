@@ -1,5 +1,10 @@
 # Step 03 - The official renderer, over AG-UI
 
+<!-- genui-orientation -->
+**Lesson 10 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_a2ui_from_a_model/README.md) · [Next lesson](../../04_openui_lang/step_01_openui_lang_parser/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** two swaps around the same generate loop. The page
 renders with `@a2ui/lit`, the official Lit renderer, instead of
 `render.mjs`. The messages travel as AG-UI events: every A2UI envelope is

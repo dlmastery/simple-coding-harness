@@ -1,5 +1,10 @@
 # Step 01 - Static components
 
+<!-- genui-orientation -->
+**Lesson 1 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Next lesson](../step_02_declarative_tree/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the smallest generative UI there is. Three components
 exist before the model runs: a metric, a table, a chart. The model gets them as
 tools. Each tool call becomes one JSON message on a server-sent event stream,

@@ -1,5 +1,10 @@
 # Step 02 - Streaming JSON Patch into the element map
 
+<!-- genui-orientation -->
+**Lesson 16 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_01_json_render_catalog/README.md) · [Next lesson](../step_03_json_render_actions_and_targets/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the model streams the spec as JSON Patch operations
 (RFC 6902), one per line, and the page renders after every patch instead of
 waiting for the whole document. The four rules from step 1 are gone; the

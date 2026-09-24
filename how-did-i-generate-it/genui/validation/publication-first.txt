@@ -1,0 +1,4 @@
+Checked 23 lessons, 7 themes, 274 local links, two selected infographics and 529 original backup files.
+genui/01_foundations/step_01_static_components/README.md: missing props ?? {}
+genui/GENUI_SPEC.md: missing demo.png
+2 publication problems.

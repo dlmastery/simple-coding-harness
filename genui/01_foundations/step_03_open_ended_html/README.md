@@ -1,5 +1,10 @@
 # Step 03 - Open-ended HTML
 
+<!-- genui-orientation -->
+**Lesson 3 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_declarative_tree/README.md) · [Next lesson](../step_04_hybrid_escape_hatch/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the third generation mode. No catalog, no schema:
 the model writes the whole page as HTML, CSS and JS. The host puts that
 document in an `<iframe sandbox>` with a Content Security Policy, and the

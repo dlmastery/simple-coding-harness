@@ -1,5 +1,10 @@
 # Step 03 - Actions, and a second target
 
+<!-- genui-orientation -->
+**Lesson 17 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_json_render_streaming_patches/README.md) · [Next lesson](../../06_mcp_apps/step_01_mcp_app_resource/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** two things the flat element map makes cheap. First,
 actions: a `Button` component and two catalog actions (`refresh_numbers`,
 `show_details`). The library handles the built-in `setState` inside the page;

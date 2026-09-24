@@ -1,5 +1,10 @@
 # Step 03 - The harness codelab's loop over AG-UI
 
+<!-- genui-orientation -->
+**Lesson 7 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../step_02_ag_ui_tools_and_state/README.md) · [Next lesson](../../03_a2ui/step_01_a2ui_messages_by_hand/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the coding agent from the harness codelab, driven
 from a browser. `harness/` is a verbatim copy of `step_21_streaming_headless`
 (the stage 15 loop with streaming). `bridge.py` runs that loop and turns

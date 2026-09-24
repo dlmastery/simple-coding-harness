@@ -1,0 +1,23 @@
+genui/01_foundations/step_01_static_components 13 passed, 1 warning in 1.26s
+genui/01_foundations/step_02_declarative_tree 21 passed, 1 warning in 1.39s
+genui/01_foundations/step_03_open_ended_html 27 passed, 1 warning in 1.40s
+genui/01_foundations/step_04_hybrid_escape_hatch 32 passed, 1 warning in 1.49s
+genui/02_ag_ui/step_01_ag_ui_server          10 passed, 1 warning in 1.47s
+genui/02_ag_ui/step_02_ag_ui_tools_and_state 15 passed, 1 warning in 1.52s
+genui/02_ag_ui/step_03_ag_ui_from_the_harness 11 passed, 1 warning in 7.78s
+genui/03_a2ui/step_01_a2ui_messages_by_hand  12 passed, 1 warning in 1.37s
+genui/03_a2ui/step_02_a2ui_from_a_model      13 passed, 1 warning in 2.99s
+genui/03_a2ui/step_03_a2ui_lit_and_ag_ui     8 passed, 1 warning in 5.23s
+genui/04_openui_lang/step_01_openui_lang_parser 24 passed in 0.79s
+genui/04_openui_lang/step_02_openui_react_lang 8 passed in 2.31s
+genui/04_openui_lang/step_03_format_benchmark 15 passed in 0.37s
+genui/04_openui_lang/step_04_openui_html_artifact 10 passed in 2.06s
+genui/05_json_render/step_01_json_render_catalog 10 passed, 1 warning in 1.76s
+genui/05_json_render/step_02_json_render_streaming_patches 11 passed, 1 warning in 1.81s
+genui/05_json_render/step_03_json_render_actions_and_targets 10 passed, 1 warning in 2.91s
+genui/06_mcp_apps/step_01_mcp_app_resource   12 passed, 1 warning in 2.91s
+genui/06_mcp_apps/step_02_mcp_app_in_a_real_host 20 passed, 1 warning in 4.17s
+genui/06_mcp_apps/step_03_mcp_app_hybrid     17 passed, 1 warning in 2.91s
+genui/07_harness_genui/step_01_render_ui_tool 12 passed in 1.85s
+genui/07_harness_genui/step_02_trueforge_generative_ui 14 passed in 2.46s
+genui/07_harness_genui/step_03_trueforge_hybrid 15 passed in 2.37s

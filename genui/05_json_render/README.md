@@ -1,5 +1,20 @@
 # Sub-theme 05 - json-render, Vercel's declarative renderer
 
+<!-- genui-orientation -->
+**You are here: theme 5 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../04_openui_lang/README.md) · [Next theme](../06_mcp_apps/README.md)
+
+```mermaid
+flowchart LR
+C[Component catalog] --> V[Validate spec]
+S[Spec and patches] --> V
+V --> R[Target renderer]
+R --> A[Named user action]
+```
+
+*A catalog defines the allowed UI; patches change its state over time.*
+
+<!-- /genui-orientation -->
+
 json-render is one of the open formats in the declarative middle of the
 [State of Generative UI report (June 2026)](https://www.openui.com/blog/state-of-generative-ui-report):
 the model emits a JSON document that names components from a catalog you

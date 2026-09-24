@@ -1,5 +1,21 @@
 # Sub-theme 07 - Generative UI in the harness
 
+<!-- genui-orientation -->
+**You are here: theme 7 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../06_mcp_apps/README.md)
+
+```mermaid
+flowchart LR
+A[Agent loop] --> T[Render tool or UI output]
+T --> V[Validate and render]
+V --> U[User action]
+U --> G[Application checks action]
+G --> A
+```
+
+*The interface becomes one part of a complete agent workflow.*
+
+<!-- /genui-orientation -->
+
 The two codelabs meet here. The harness codelab built an agent loop and
 then moved it onto TrueForge; the generative UI series showed the formats
 an agent can emit instead of prose. This sub-theme puts a rendering

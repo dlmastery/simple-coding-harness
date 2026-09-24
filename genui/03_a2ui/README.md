@@ -1,5 +1,20 @@
 # Sub-theme 03 - A2UI, Google's declarative protocol
 
+<!-- genui-orientation -->
+**You are here: theme 3 of 7.** [Course map](../README.md#see-the-learning-path) · [Recorded walkthrough](../WALKTHROUGH.md) · [Previous theme](../02_ag_ui/README.md) · [Next theme](../04_openui_lang/README.md)
+
+```mermaid
+flowchart LR
+S[Surface components] --> R[Catalog renderer]
+D[Data model] --> R
+R --> U[Visible interface]
+U -->|action and values| A[Application]
+```
+
+*Component structure and application data meet at the renderer.*
+
+<!-- /genui-orientation -->
+
 A2UI v0.9.1 is a streaming JSON protocol: four envelope messages
 (`createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`), a
 flat component list joined by ids, a separate data model addressed by JSON

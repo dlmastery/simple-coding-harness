@@ -10,7 +10,7 @@
   "scripts": {
     "build": "esbuild app.mjs --bundle --format=esm --outfile=static/bundle.js --define:process.env.NODE_ENV=\\\"production\\\" --log-level=warning",
     "prompt": "node prompt.mjs",
-    "test": "node --test \"tests/*.test.mjs\"",
+    "test": "node --test --test-reporter=tap \"tests/*.test.mjs\"",
     "start": "python server.py"
   },
   "dependencies": {

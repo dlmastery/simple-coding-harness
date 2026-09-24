@@ -1,5 +1,10 @@
 # Step 01 - OpenUI Lang, parsed by hand
 
+<!-- genui-orientation -->
+**Lesson 11 of 23.** [Course](../../README.md) · [Theme](../README.md) · [Previous lesson](../../03_a2ui/step_03_a2ui_lit_and_ag_ui/README.md) · [Next lesson](../step_02_openui_react_lang/README.md)
+
+<!-- /genui-orientation -->
+
 **What this step adds:** the language itself, with no library. OpenUI Lang
 is the report's most token-efficient declarative format: one statement per
 line, `id = Component(args)`, arguments positional, references allowed
