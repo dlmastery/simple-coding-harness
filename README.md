@@ -123,7 +123,9 @@ N` from here. Running the agent itself needs `BASE_URL`, `API_KEY` and `MODEL` (
 
 **Reading order.** Stages 1 - 15 in order: each is the previous one plus one idea, and the
 READMEs assume you read the one before. Parts 2 - 7 can be read in any order after Part 1.
-`genui/` assumes stages 1 - 15 and step 21; `rsi/` assumes stages 4, 15, 30 and 35.
+The [GenUI foundations](genui/README.md) can be taken independently with basic Python,
+JavaScript, HTML and HTTP knowledge. Parent stages 1 - 15 and step 21 provide useful
+background for GenUI's final harness-integration theme. `rsi/` assumes stages 4, 15, 30 and 35.
 
 ---
 

@@ -1,0 +1,691 @@
+﻿2026-09-24T12:55:55.7567430Z Current runner version: '2.337.0'
+2026-09-24T12:55:55.7585920Z ##[group]Runner Image Provisioner
+2026-09-24T12:55:55.7586560Z Hosted Compute Agent
+2026-09-24T12:55:55.7586960Z Version: 20260828.587
+2026-09-24T12:55:55.7587390Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-24T12:55:55.7587900Z Build Date: 2026-08-28T16:44:25Z
+2026-09-24T12:55:55.7588380Z Worker ID: {59d1b07d-9266-43d9-a165-39437af7f1d1}
+2026-09-24T12:55:55.7588930Z Azure Region: westus
+2026-09-24T12:55:55.7589320Z ##[endgroup]
+2026-09-24T12:55:55.7590720Z ##[group]Operating System
+2026-09-24T12:55:55.7591190Z macOS
+2026-09-24T12:55:55.7591550Z 26.6.2
+2026-09-24T12:55:55.7591890Z 25G83
+2026-09-24T12:55:55.7592240Z ##[endgroup]
+2026-09-24T12:55:55.7592650Z ##[group]Runner Image
+2026-09-24T12:55:55.7593060Z Image: macos-26-arm64
+2026-09-24T12:55:55.7593420Z Version: 20260907.0351.1
+2026-09-24T12:55:55.7594330Z Included Software: https://github.com/actions/runner-images/blob/macos-26-arm64/20260907.0351/images/macos/macos-26-arm64-Readme.md
+2026-09-24T12:55:55.7595380Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-26-arm64%2F20260907.0351
+2026-09-24T12:55:55.7596070Z ##[endgroup]
+2026-09-24T12:55:55.7596840Z ##[group]GITHUB_TOKEN Permissions
+2026-09-24T12:55:55.7598250Z Contents: read
+2026-09-24T12:55:55.7598670Z Metadata: read
+2026-09-24T12:55:55.7599100Z ##[endgroup]
+2026-09-24T12:55:55.7600910Z Secret source: Actions
+2026-09-24T12:55:55.7601520Z Cache mode: write
+2026-09-24T12:55:55.7602040Z Prepare workflow directory
+2026-09-24T12:55:55.8099410Z Prepare all required actions
+2026-09-24T12:55:55.8144290Z Getting action download info
+2026-09-24T12:55:56.1301400Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-24T12:55:56.3696420Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-24T12:55:56.4763840Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-09-24T12:55:56.6506050Z Complete job name: course (macos-latest)
+2026-09-24T12:55:56.6993140Z ##[group]Run actions/checkout@v4
+2026-09-24T12:55:56.6994090Z with:
+2026-09-24T12:55:56.6994410Z   fetch-depth: 0
+2026-09-24T12:55:56.6994780Z   repository: dlmastery/simple-coding-harness
+2026-09-24T12:55:56.6997670Z   token: ***
+2026-09-24T12:55:56.6997970Z   ssh-strict: true
+2026-09-24T12:55:56.6998290Z   ssh-user: git
+2026-09-24T12:55:56.6998620Z   persist-credentials: true
+2026-09-24T12:55:56.6999060Z   clean: true
+2026-09-24T12:55:56.6999440Z   sparse-checkout-cone-mode: true
+2026-09-24T12:55:56.6999900Z   fetch-tags: false
+2026-09-24T12:55:56.7000310Z   show-progress: true
+2026-09-24T12:55:56.7000660Z   lfs: false
+2026-09-24T12:55:56.7000970Z   submodules: false
+2026-09-24T12:55:56.7001300Z   set-safe-directory: true
+2026-09-24T12:55:56.7001830Z   allow-unsafe-pr-checkout: false
+2026-09-24T12:55:56.7002420Z env:
+2026-09-24T12:55:56.7002940Z   PYTHONUTF8: 1
+2026-09-24T12:55:56.7003370Z ##[endgroup]
+2026-09-24T12:55:57.1144150Z Syncing repository: dlmastery/simple-coding-harness
+2026-09-24T12:55:57.1147150Z ##[group]Getting Git version info
+2026-09-24T12:55:57.1147890Z Working directory is '/Users/runner/work/simple-coding-harness/simple-coding-harness'
+2026-09-24T12:55:57.1149620Z [command]/opt/homebrew/bin/git version
+2026-09-24T12:55:57.1720720Z git version 2.55.0
+2026-09-24T12:55:57.1750870Z ##[endgroup]
+2026-09-24T12:55:57.1768080Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/89a120a8-37ca-49d2-b8e8-0344388eb11e/.gitconfig'
+2026-09-24T12:55:57.1777620Z Temporarily overriding HOME='/Users/runner/work/_temp/89a120a8-37ca-49d2-b8e8-0344388eb11e' before making global git config changes
+2026-09-24T12:55:57.1780610Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-24T12:55:57.1783140Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/simple-coding-harness/simple-coding-harness
+2026-09-24T12:55:57.1923640Z Deleting the contents of '/Users/runner/work/simple-coding-harness/simple-coding-harness'
+2026-09-24T12:55:57.1938540Z ##[group]Initializing the repository
+2026-09-24T12:55:57.1950790Z [command]/opt/homebrew/bin/git init /Users/runner/work/simple-coding-harness/simple-coding-harness
+2026-09-24T12:55:57.2390040Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-24T12:55:57.2392180Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-24T12:55:57.2394120Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-24T12:55:57.2395950Z hint: call:
+2026-09-24T12:55:57.2396800Z hint:
+2026-09-24T12:55:57.2397920Z hint: 	git config --global init.defaultBranch <name>
+2026-09-24T12:55:57.2399170Z hint:
+2026-09-24T12:55:57.2400400Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-24T12:55:57.2402270Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-24T12:55:57.2404060Z hint:
+2026-09-24T12:55:57.2405000Z hint: 	git branch -m <name>
+2026-09-24T12:55:57.2406140Z hint:
+2026-09-24T12:55:57.2407480Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-24T12:55:57.2410150Z Initialized empty Git repository in /Users/runner/work/simple-coding-harness/simple-coding-harness/.git/
+2026-09-24T12:55:57.2414220Z [command]/opt/homebrew/bin/git remote add origin https://github.com/dlmastery/simple-coding-harness
+2026-09-24T12:55:57.2524710Z ##[endgroup]
+2026-09-24T12:55:57.2526430Z ##[group]Disabling automatic garbage collection
+2026-09-24T12:55:57.2530520Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-09-24T12:55:57.2624870Z ##[endgroup]
+2026-09-24T12:55:57.2626510Z ##[group]Setting up auth
+2026-09-24T12:55:57.2630230Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-24T12:55:57.2715500Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-24T12:55:57.4051410Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-24T12:55:57.4164870Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-24T12:55:57.5422170Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-24T12:55:57.5487620Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-24T12:55:57.6503590Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-24T12:55:57.6589730Z ##[endgroup]
+2026-09-24T12:55:57.6591130Z ##[group]Fetching the repository
+2026-09-24T12:55:57.6597360Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-09-24T12:56:09.5084580Z From https://github.com/dlmastery/simple-coding-harness
+2026-09-24T12:56:09.5087980Z  * [new branch]        codex/genui-course-refresh -> origin/codex/genui-course-refresh
+2026-09-24T12:56:09.5089340Z  * [new branch]        codex/rsi-masterclass-rebuild -> origin/codex/rsi-masterclass-rebuild
+2026-09-24T12:56:09.5090040Z  * [new branch]        main       -> origin/main
+2026-09-24T12:56:09.5091140Z  * [new tag]           backup/rsi-before-masterclass-2026-09-24 -> backup/rsi-before-masterclass-2026-09-24
+2026-09-24T12:56:09.5157660Z [command]/opt/homebrew/bin/git branch --list --remote origin/codex/genui-course-refresh
+2026-09-24T12:56:09.5264420Z   origin/codex/genui-course-refresh
+2026-09-24T12:56:09.5274770Z [command]/opt/homebrew/bin/git rev-parse refs/remotes/origin/codex/genui-course-refresh
+2026-09-24T12:56:09.5357540Z 35a8c93db659766bee26052dd99ba7c7255aecf2
+2026-09-24T12:56:09.5362690Z ##[endgroup]
+2026-09-24T12:56:09.5364170Z ##[group]Determining the checkout info
+2026-09-24T12:56:09.5366110Z ##[endgroup]
+2026-09-24T12:56:09.5391130Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-09-24T12:56:09.5498270Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-24T12:56:09.5595950Z ##[group]Checking out the ref
+2026-09-24T12:56:09.5603300Z [command]/opt/homebrew/bin/git checkout --progress --force -B codex/genui-course-refresh refs/remotes/origin/codex/genui-course-refresh
+2026-09-24T12:56:10.7336790Z Updating files:   1% (808/42737)
+2026-09-24T12:56:10.9035410Z Updating files:   2% (855/42737)
+2026-09-24T12:56:11.6333840Z Updating files:   3% (1283/42737)
+2026-09-24T12:56:12.6249510Z Updating files:   3% (1493/42737)
+2026-09-24T12:56:13.1454360Z Updating files:   3% (1623/42737)
+2026-09-24T12:56:13.3262620Z Updating files:   4% (1710/42737)
+2026-09-24T12:56:13.6263890Z Updating files:   5% (2137/42737)
+2026-09-24T12:56:14.2698250Z Updating files:   5% (2298/42737)
+2026-09-24T12:56:14.3586890Z Updating files:   6% (2565/42737)
+2026-09-24T12:56:14.4359330Z Updating files:   7% (2992/42737)
+2026-09-24T12:56:14.5211750Z Updating files:   8% (3419/42737)
+2026-09-24T12:56:14.5966500Z Updating files:   9% (3847/42737)
+2026-09-24T12:56:14.6191560Z Updating files:  10% (4274/42737)
+2026-09-24T12:56:14.6553090Z Updating files:  10% (4458/42737)
+2026-09-24T12:56:14.7132250Z Updating files:  11% (4702/42737)
+2026-09-24T12:56:14.7784620Z Updating files:  12% (5129/42737)
+2026-09-24T12:56:14.8584650Z Updating files:  13% (5556/42737)
+2026-09-24T12:56:14.9117240Z Updating files:  14% (5984/42737)
+2026-09-24T12:56:14.9918890Z Updating files:  15% (6411/42737)
+2026-09-24T12:56:15.0536090Z Updating files:  16% (6838/42737)
+2026-09-24T12:56:15.1101530Z Updating files:  17% (7266/42737)
+2026-09-24T12:56:15.1800810Z Updating files:  18% (7693/42737)
+2026-09-24T12:56:15.2334230Z Updating files:  19% (8121/42737)
+2026-09-24T12:56:15.2771320Z Updating files:  20% (8548/42737)
+2026-09-24T12:56:15.3377770Z Updating files:  21% (8975/42737)
+2026-09-24T12:56:15.4313860Z Updating files:  22% (9403/42737)
+2026-09-24T12:56:15.5285160Z Updating files:  23% (9830/42737)
+2026-09-24T12:56:15.5873740Z Updating files:  24% (10257/42737)
+2026-09-24T12:56:15.6194960Z Updating files:  25% (10685/42737)
+2026-09-24T12:56:15.6563080Z Updating files:  25% (10965/42737)
+2026-09-24T12:56:15.7273250Z Updating files:  26% (11112/42737)
+2026-09-24T12:56:15.7964430Z Updating files:  27% (11539/42737)
+2026-09-24T12:56:15.8515210Z Updating files:  28% (11967/42737)
+2026-09-24T12:56:15.9073670Z Updating files:  29% (12394/42737)
+2026-09-24T12:56:15.9666730Z Updating files:  30% (12822/42737)
+2026-09-24T12:56:16.0210090Z Updating files:  31% (13249/42737)
+2026-09-24T12:56:16.0688620Z Updating files:  32% (13676/42737)
+2026-09-24T12:56:16.1234670Z Updating files:  33% (14104/42737)
+2026-09-24T12:56:16.1783800Z Updating files:  34% (14531/42737)
+2026-09-24T12:56:16.2522100Z Updating files:  35% (14958/42737)
+2026-09-24T12:56:16.3676520Z Updating files:  36% (15386/42737)
+2026-09-24T12:56:16.6209110Z Updating files:  37% (15813/42737)
+2026-09-24T12:56:16.7545540Z Updating files:  37% (15957/42737)
+2026-09-24T12:56:16.7943820Z Updating files:  38% (16241/42737)
+2026-09-24T12:56:16.8411270Z Updating files:  39% (16668/42737)
+2026-09-24T12:56:16.8810670Z Updating files:  40% (17095/42737)
+2026-09-24T12:56:16.9170390Z Updating files:  41% (17523/42737)
+2026-09-24T12:56:16.9580500Z Updating files:  42% (17950/42737)
+2026-09-24T12:56:16.9969350Z Updating files:  43% (18377/42737)
+2026-09-24T12:56:17.0511530Z Updating files:  44% (18805/42737)
+2026-09-24T12:56:17.1059070Z Updating files:  45% (19232/42737)
+2026-09-24T12:56:17.1635260Z Updating files:  46% (19660/42737)
+2026-09-24T12:56:17.2192880Z Updating files:  47% (20087/42737)
+2026-09-24T12:56:17.4216660Z Updating files:  48% (20514/42737)
+2026-09-24T12:56:17.4759760Z Updating files:  49% (20942/42737)
+2026-09-24T12:56:17.5126720Z Updating files:  50% (21369/42737)
+2026-09-24T12:56:17.5513080Z Updating files:  51% (21796/42737)
+2026-09-24T12:56:17.5968230Z Updating files:  52% (22224/42737)
+2026-09-24T12:56:17.6206320Z Updating files:  53% (22651/42737)
+2026-09-24T12:56:17.6303270Z Updating files:  53% (22989/42737)
+2026-09-24T12:56:17.6695450Z Updating files:  54% (23078/42737)
+2026-09-24T12:56:17.7107490Z Updating files:  55% (23506/42737)
+2026-09-24T12:56:18.0598740Z Updating files:  56% (23933/42737)
+2026-09-24T12:56:18.0966950Z Updating files:  57% (24361/42737)
+2026-09-24T12:56:18.1456090Z Updating files:  58% (24788/42737)
+2026-09-24T12:56:18.2015220Z Updating files:  59% (25215/42737)
+2026-09-24T12:56:18.2431060Z Updating files:  60% (25643/42737)
+2026-09-24T12:56:18.3320210Z Updating files:  61% (26070/42737)
+2026-09-24T12:56:18.3794720Z Updating files:  62% (26497/42737)
+2026-09-24T12:56:18.4219240Z Updating files:  63% (26925/42737)
+2026-09-24T12:56:18.4819590Z Updating files:  64% (27352/42737)
+2026-09-24T12:56:18.5225510Z Updating files:  65% (27780/42737)
+2026-09-24T12:56:18.5620280Z Updating files:  66% (28207/42737)
+2026-09-24T12:56:18.6214850Z Updating files:  67% (28634/42737)
+2026-09-24T12:56:18.6541460Z Updating files:  67% (28836/42737)
+2026-09-24T12:56:18.7380490Z Updating files:  68% (29062/42737)
+2026-09-24T12:56:18.8377880Z Updating files:  69% (29489/42737)
+2026-09-24T12:56:18.9251670Z Updating files:  70% (29916/42737)
+2026-09-24T12:56:18.9792570Z Updating files:  71% (30344/42737)
+2026-09-24T12:56:19.0331800Z Updating files:  72% (30771/42737)
+2026-09-24T12:56:19.0803360Z Updating files:  73% (31199/42737)
+2026-09-24T12:56:19.1275650Z Updating files:  74% (31626/42737)
+2026-09-24T12:56:19.1676950Z Updating files:  75% (32053/42737)
+2026-09-24T12:56:19.2058040Z Updating files:  76% (32481/42737)
+2026-09-24T12:56:19.2979640Z Updating files:  77% (32908/42737)
+2026-09-24T12:56:19.3946810Z Updating files:  78% (33335/42737)
+2026-09-24T12:56:19.5185420Z Updating files:  79% (33763/42737)
+2026-09-24T12:56:19.6135180Z Updating files:  80% (34190/42737)
+2026-09-24T12:56:19.6215760Z Updating files:  81% (34617/42737)
+2026-09-24T12:56:19.6919270Z Updating files:  81% (34715/42737)
+2026-09-24T12:56:19.9380950Z Updating files:  82% (35045/42737)
+2026-09-24T12:56:20.0579290Z Updating files:  83% (35472/42737)
+2026-09-24T12:56:20.1405360Z Updating files:  84% (35900/42737)
+2026-09-24T12:56:20.2476260Z Updating files:  85% (36327/42737)
+2026-09-24T12:56:20.3854600Z Updating files:  86% (36754/42737)
+2026-09-24T12:56:20.4805990Z Updating files:  87% (37182/42737)
+2026-09-24T12:56:20.6130550Z Updating files:  88% (37609/42737)
+2026-09-24T12:56:20.6235930Z Updating files:  89% (38036/42737)
+2026-09-24T12:56:20.7602140Z Updating files:  89% (38086/42737)
+2026-09-24T12:56:20.8898580Z Updating files:  90% (38464/42737)
+2026-09-24T12:56:21.0572530Z Updating files:  91% (38891/42737)
+2026-09-24T12:56:21.1758520Z Updating files:  92% (39319/42737)
+2026-09-24T12:56:21.2775800Z Updating files:  93% (39746/42737)
+2026-09-24T12:56:21.4451130Z Updating files:  94% (40173/42737)
+2026-09-24T12:56:21.5656290Z Updating files:  95% (40601/42737)
+2026-09-24T12:56:21.6239970Z Updating files:  96% (41028/42737)
+2026-09-24T12:56:21.6278640Z Updating files:  96% (41435/42737)
+2026-09-24T12:56:21.7097370Z Updating files:  97% (41455/42737)
+2026-09-24T12:56:21.8268300Z Updating files:  98% (41883/42737)
+2026-09-24T12:56:21.9121560Z Updating files:  99% (42310/42737)
+2026-09-24T12:56:21.9123830Z Updating files: 100% (42737/42737)
+2026-09-24T12:56:21.9127460Z Updating files: 100% (42737/42737), done.
+2026-09-24T12:56:21.9755410Z Switched to a new branch 'codex/genui-course-refresh'
+2026-09-24T12:56:21.9755990Z branch 'codex/genui-course-refresh' set up to track 'origin/codex/genui-course-refresh'.
+2026-09-24T12:56:21.9825880Z ##[endgroup]
+2026-09-24T12:56:22.0036450Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-09-24T12:56:22.0167650Z 35a8c93db659766bee26052dd99ba7c7255aecf2
+2026-09-24T12:56:22.0627290Z ##[group]Run actions/setup-python@v5
+2026-09-24T12:56:22.0627790Z with:
+2026-09-24T12:56:22.0628050Z   python-version: 3.12
+2026-09-24T12:56:22.0628360Z   check-latest: false
+2026-09-24T12:56:22.0630890Z   token: ***
+2026-09-24T12:56:22.0631190Z   update-environment: true
+2026-09-24T12:56:22.0631500Z   allow-prereleases: false
+2026-09-24T12:56:22.0631730Z   freethreaded: false
+2026-09-24T12:56:22.0632470Z env:
+2026-09-24T12:56:22.0632680Z   PYTHONUTF8: 1
+2026-09-24T12:56:22.0632960Z ##[endgroup]
+2026-09-24T12:56:22.3885000Z ##[group]Installed versions
+2026-09-24T12:56:22.3968520Z (node:1529) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T12:56:22.3971320Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T12:56:22.3972360Z Successfully set up CPython (3.12.10)
+2026-09-24T12:56:22.3974660Z ##[endgroup]
+2026-09-24T12:56:22.4145670Z ##[group]Run actions/setup-node@v4
+2026-09-24T12:56:22.4145990Z with:
+2026-09-24T12:56:22.4146150Z   node-version: 22
+2026-09-24T12:56:22.4146330Z   always-auth: false
+2026-09-24T12:56:22.4146500Z   check-latest: false
+2026-09-24T12:56:22.4148430Z   token: ***
+2026-09-24T12:56:22.4148570Z env:
+2026-09-24T12:56:22.4148700Z   PYTHONUTF8: 1
+2026-09-24T12:56:22.4148930Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:22.4149400Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-09-24T12:56:22.4149810Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:22.4150180Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:22.4150540Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:22.4150850Z ##[endgroup]
+2026-09-24T12:56:22.6879230Z Found in cache @ /Users/runner/hostedtoolcache/node/22.23.2/arm64
+2026-09-24T12:56:22.6880340Z (node:1530) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T12:56:22.6881240Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T12:56:22.6882340Z ##[group]Environment details
+2026-09-24T12:56:23.3124950Z node: v22.23.2
+2026-09-24T12:56:23.3143680Z npm: 10.9.8
+2026-09-24T12:56:23.3144600Z yarn: 1.22.22
+2026-09-24T12:56:23.3145400Z ##[endgroup]
+2026-09-24T12:56:23.3234320Z ##[group]Run python -m pip install -r requirements.txt
+2026-09-24T12:56:23.3234710Z [36;1mpython -m pip install -r requirements.txt[0m
+2026-09-24T12:56:23.3422230Z shell: /bin/bash -e {0}
+2026-09-24T12:56:23.3422460Z env:
+2026-09-24T12:56:23.3422630Z   PYTHONUTF8: 1
+2026-09-24T12:56:23.3422920Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:23.3423440Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-09-24T12:56:23.3423870Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:23.3424270Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:23.3424750Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:56:23.3425110Z ##[endgroup]
+2026-09-24T12:56:24.7851070Z Collecting openai>=1.50 (from -r requirements.txt (line 1))
+2026-09-24T12:56:24.8610380Z   Downloading openai-3.19.2-py3-none-any.whl.metadata (44 kB)
+2026-09-24T12:56:24.9254440Z Collecting rich>=13.0 (from -r requirements.txt (line 2))
+2026-09-24T12:56:24.9398730Z   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+2026-09-24T12:56:24.9972650Z Collecting pyyaml>=6.0 (from -r requirements.txt (line 3))
+2026-09-24T12:56:25.0054260Z   Downloading pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl.metadata (2.4 kB)
+2026-09-24T12:56:25.0337130Z Collecting prompt-toolkit>=3.0 (from -r requirements.txt (line 4))
+2026-09-24T12:56:25.0469540Z   Downloading prompt_toolkit-3.0.53-py3-none-any.whl.metadata (6.4 kB)
+2026-09-24T12:56:25.0789220Z Collecting pytest>=8.0 (from -r requirements.txt (line 5))
+2026-09-24T12:56:25.0920440Z   Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+2026-09-24T12:56:25.1238120Z Collecting typing_extensions>=4.5 (from -r requirements.txt (line 6))
+2026-09-24T12:56:25.1379140Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-09-24T12:56:25.1697930Z Collecting mcp<2,>=1.0 (from -r requirements.txt (line 7))
+2026-09-24T12:56:25.1842940Z   Downloading mcp-1.30.0-py3-none-any.whl.metadata (9.3 kB)
+2026-09-24T12:56:25.3069500Z Collecting pillow>=10.0 (from -r requirements.txt (line 8))
+2026-09-24T12:56:25.3210460Z   Downloading pillow-12.3.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (9.1 kB)
+2026-09-24T12:56:25.3590960Z Collecting fastapi>=0.110 (from -r requirements.txt (line 9))
+2026-09-24T12:56:25.3724710Z   Downloading fastapi-0.141.1-py3-none-any.whl.metadata (27 kB)
+2026-09-24T12:56:25.4305880Z Collecting httpx>=0.27 (from -r requirements.txt (line 10))
+2026-09-24T12:56:25.4440490Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-09-24T12:56:25.4750810Z Collecting uvicorn>=0.29 (from -r requirements.txt (line 11))
+2026-09-24T12:56:25.4880170Z   Downloading uvicorn-0.53.0-py3-none-any.whl.metadata (6.6 kB)
+2026-09-24T12:56:25.5463800Z Collecting trueforge_sdk>=0.1.3 (from -r requirements.txt (line 12))
+2026-09-24T12:56:25.5602710Z   Downloading trueforge_sdk-0.2.0-py3-none-any.whl.metadata (8.0 kB)
+2026-09-24T12:56:25.5851220Z Collecting ag-ui-protocol>=0.1.22 (from -r requirements.txt (line 13))
+2026-09-24T12:56:25.5984870Z   Downloading ag_ui_protocol-1.0.0-py3-none-any.whl.metadata (3.9 kB)
+2026-09-24T12:56:25.6573530Z Collecting a2ui-core>=0.1.1 (from -r requirements.txt (line 14))
+2026-09-24T12:56:25.6709220Z   Downloading a2ui_core-0.1.1-py3-none-any.whl.metadata (5.4 kB)
+2026-09-24T12:56:25.7065820Z Collecting jsonschema>=4.0 (from -r requirements.txt (line 15))
+2026-09-24T12:56:25.7211340Z   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+2026-09-24T12:56:25.7600950Z Collecting tiktoken>=0.7 (from -r requirements.txt (line 16))
+2026-09-24T12:56:25.7741890Z   Downloading tiktoken-0.14.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (6.7 kB)
+2026-09-24T12:56:25.7994680Z Collecting a2ui-agent-sdk>=0.6.0 (from -r requirements.txt (line 17))
+2026-09-24T12:56:25.8133460Z   Downloading a2ui_agent_sdk-0.6.0-py3-none-any.whl.metadata (4.3 kB)
+2026-09-24T12:56:25.8718450Z Collecting scikit-learn>=1.5 (from -r requirements.txt (line 18))
+2026-09-24T12:56:25.8852910Z   Downloading scikit_learn-1.9.1-cp312-cp312-macosx_12_0_arm64.whl.metadata (9.3 kB)
+2026-09-24T12:56:25.9717120Z Collecting pandas>=2.2 (from -r requirements.txt (line 19))
+2026-09-24T12:56:25.9869790Z   Downloading pandas-3.0.6-cp312-cp312-macosx_11_0_arm64.whl.metadata (79 kB)
+2026-09-24T12:56:26.1567290Z Collecting numpy>=1.26 (from -r requirements.txt (line 20))
+2026-09-24T12:56:26.1704090Z   Downloading numpy-2.5.3-cp312-cp312-macosx_14_0_arm64.whl.metadata (6.6 kB)
+2026-09-24T12:56:26.2555250Z Collecting matplotlib>=3.8 (from -r requirements.txt (line 21))
+2026-09-24T12:56:26.2716180Z   Downloading matplotlib-3.11.2-cp312-cp312-macosx_11_0_arm64.whl.metadata (80 kB)
+2026-09-24T12:56:26.3145060Z Collecting anyio>=4.5 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.3275530Z   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+2026-09-24T12:56:26.3533100Z Collecting httpx-sse>=0.4 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.3660970Z   Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)
+2026-09-24T12:56:26.3908560Z Collecting pydantic-settings>=2.5.2 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.4039100Z   Downloading pydantic_settings-2.15.0-py3-none-any.whl.metadata (3.9 kB)
+2026-09-24T12:56:26.4823820Z Collecting pydantic<3.0.0,>=2.11.0 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.4960330Z   Downloading pydantic-2.13.5-py3-none-any.whl.metadata (110 kB)
+2026-09-24T12:56:26.5302280Z Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.5441340Z   Downloading pyjwt-2.15.0-py3-none-any.whl.metadata (3.5 kB)
+2026-09-24T12:56:26.5718640Z Collecting python-multipart>=0.0.9 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.5859520Z   Downloading python_multipart-0.0.32-py3-none-any.whl.metadata (2.1 kB)
+2026-09-24T12:56:26.6199770Z Collecting sse-starlette>=1.6.1 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.6337890Z   Downloading sse_starlette-3.4.11-py3-none-any.whl.metadata (15 kB)
+2026-09-24T12:56:26.6796660Z Collecting starlette>=0.27 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.6941380Z   Downloading starlette-1.7.0-py3-none-any.whl.metadata (6.6 kB)
+2026-09-24T12:56:26.7297700Z Collecting typing-inspection>=0.4.1 (from mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.7442860Z   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+2026-09-24T12:56:26.7587430Z Requirement already satisfied: certifi in /Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages (from httpx>=0.27->-r requirements.txt (line 10)) (2026.7.22)
+2026-09-24T12:56:26.7822120Z Collecting httpcore==1.* (from httpx>=0.27->-r requirements.txt (line 10))
+2026-09-24T12:56:26.7964720Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-09-24T12:56:26.8388800Z Collecting idna (from httpx>=0.27->-r requirements.txt (line 10))
+2026-09-24T12:56:26.8525410Z   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-09-24T12:56:26.8871250Z Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.27->-r requirements.txt (line 10))
+2026-09-24T12:56:26.9017410Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-09-24T12:56:26.9329850Z Collecting annotated-types>=0.6.0 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:26.9475560Z   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-09-24T12:56:27.4652940Z Collecting pydantic-core==2.46.5 (from pydantic<3.0.0,>=2.11.0->mcp<2,>=1.0->-r requirements.txt (line 7))
+2026-09-24T12:56:27.4789940Z   Downloading pydantic_core-2.46.5-cp312-cp312-macosx_11_0_arm64.whl.metadata (6.6 kB)
+2026-09-24T12:56:27.5124690Z Collecting httpx2<3,>=2.12.0 (from openai>=1.50->-r requirements.txt (line 1))
+2026-09-24T12:56:27.5261960Z   Downloading httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+2026-09-24T12:56:27.6025310Z Collecting jiter<1,>=0.16.0 (from openai>=1.50->-r requirements.txt (line 1))
+2026-09-24T12:56:27.6172850Z   Downloading jiter-0.17.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (5.2 kB)
+2026-09-24T12:56:27.6480610Z Collecting sniffio (from openai>=1.50->-r requirements.txt (line 1))
+2026-09-24T12:56:27.6632600Z   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2026-09-24T12:56:27.6960960Z Collecting httpcore2==2.13.1 (from httpx2<3,>=2.12.0->openai>=1.50->-r requirements.txt (line 1))
+2026-09-24T12:56:27.7100600Z   Downloading httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+2026-09-24T12:56:27.7418620Z Collecting truststore>=0.10 (from httpx2<3,>=2.12.0->openai>=1.50->-r requirements.txt (line 1))
+2026-09-24T12:56:27.7562820Z   Downloading truststore-0.10.4-py3-none-any.whl.metadata (4.4 kB)
+2026-09-24T12:56:27.7892280Z Collecting markdown-it-py>=2.2.0 (from rich>=13.0->-r requirements.txt (line 2))
+2026-09-24T12:56:27.8032820Z   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+2026-09-24T12:56:27.8362160Z Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.0->-r requirements.txt (line 2))
+2026-09-24T12:56:27.8497540Z   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+2026-09-24T12:56:27.8807660Z Collecting wcwidth>=0.1.4 (from prompt-toolkit>=3.0->-r requirements.txt (line 4))
+2026-09-24T12:56:27.8954850Z   Downloading wcwidth-0.9.1-cp310-abi3-macosx_11_0_arm64.whl.metadata (23 kB)
+2026-09-24T12:56:27.9237580Z Collecting iniconfig>=1.0.1 (from pytest>=8.0->-r requirements.txt (line 5))
+2026-09-24T12:56:27.9367800Z   Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2026-09-24T12:56:27.9636990Z Collecting packaging>=22 (from pytest>=8.0->-r requirements.txt (line 5))
+2026-09-24T12:56:27.9770900Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-09-24T12:56:28.0016570Z Collecting pluggy<2,>=1.5 (from pytest>=8.0->-r requirements.txt (line 5))
+2026-09-24T12:56:28.0151220Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-09-24T12:56:28.0496170Z Collecting annotated-doc>=0.0.2 (from fastapi>=0.110->-r requirements.txt (line 9))
+2026-09-24T12:56:28.0633430Z   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+2026-09-24T12:56:28.0906500Z Collecting click>=7.0 (from uvicorn>=0.29->-r requirements.txt (line 11))
+2026-09-24T12:56:28.1035380Z   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+2026-09-24T12:56:28.1413660Z Collecting referencing>=0.37.0 (from a2ui-core>=0.1.1->-r requirements.txt (line 14))
+2026-09-24T12:56:28.1547800Z   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+2026-09-24T12:56:28.1990800Z Collecting attrs>=22.2.0 (from jsonschema>=4.0->-r requirements.txt (line 15))
+2026-09-24T12:56:28.2133980Z   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+2026-09-24T12:56:28.2421990Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.0->-r requirements.txt (line 15))
+2026-09-24T12:56:28.2558010Z   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+2026-09-24T12:56:28.4911040Z Collecting rpds-py>=0.25.0 (from jsonschema>=4.0->-r requirements.txt (line 15))
+2026-09-24T12:56:28.5090080Z   Downloading rpds_py-2026.6.3-cp312-cp312-macosx_11_0_arm64.whl.metadata (4.1 kB)
+2026-09-24T12:56:28.7958960Z Collecting regex (from tiktoken>=0.7->-r requirements.txt (line 16))
+2026-09-24T12:56:28.8107130Z   Downloading regex-2026.9.10-cp312-cp312-macosx_11_0_arm64.whl.metadata (40 kB)
+2026-09-24T12:56:28.8518590Z Collecting requests (from tiktoken>=0.7->-r requirements.txt (line 16))
+2026-09-24T12:56:28.8653980Z   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+2026-09-24T12:56:28.8960030Z Collecting a2a-sdk<0.4.0,>=0.3.0 (from a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:28.9109960Z   Downloading a2a_sdk-0.3.26-py3-none-any.whl.metadata (9.2 kB)
+2026-09-24T12:56:28.9394060Z Collecting antlr4-python3-runtime<4.14.0,>=4.13.0 (from a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:28.9557660Z   Downloading antlr4_python3_runtime-4.13.2-py3-none-any.whl.metadata (304 bytes)
+2026-09-24T12:56:28.9885910Z Collecting google-adk>=1.28.1 (from a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:29.0035090Z   Downloading google_adk-2.9.2-py3-none-any.whl.metadata (26 kB)
+2026-09-24T12:56:29.0607700Z Collecting google-genai>=1.27.0 (from a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:29.0747880Z   Downloading google_genai-2.25.0-py3-none-any.whl.metadata (56 kB)
+2026-09-24T12:56:29.1597110Z Collecting google-api-core>=1.26.0 (from a2a-sdk<0.4.0,>=0.3.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:29.1737280Z   Downloading google_api_core-2.38.0-py3-none-any.whl.metadata (3.2 kB)
+2026-09-24T12:56:29.2940620Z Collecting protobuf>=5.29.5 (from a2a-sdk<0.4.0,>=0.3.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:29.3085600Z   Downloading protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl.metadata (595 bytes)
+2026-09-24T12:56:29.4149530Z Collecting scipy>=1.10.0 (from scikit-learn>=1.5->-r requirements.txt (line 18))
+2026-09-24T12:56:29.4295000Z   Downloading scipy-1.18.1-cp312-cp312-macosx_14_0_arm64.whl.metadata (62 kB)
+2026-09-24T12:56:29.4824030Z Collecting joblib>=1.4.0 (from scikit-learn>=1.5->-r requirements.txt (line 18))
+2026-09-24T12:56:29.4999430Z   Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+2026-09-24T12:56:29.5499940Z Collecting narwhals>=2.0.1 (from scikit-learn>=1.5->-r requirements.txt (line 18))
+2026-09-24T12:56:29.5635520Z   Downloading narwhals-2.26.0-py3-none-any.whl.metadata (15 kB)
+2026-09-24T12:56:29.5915300Z Collecting threadpoolctl>=3.5.0 (from scikit-learn>=1.5->-r requirements.txt (line 18))
+2026-09-24T12:56:29.6064400Z   Downloading threadpoolctl-3.7.0-py3-none-any.whl.metadata (24 kB)
+2026-09-24T12:56:29.6389170Z Collecting python-dateutil>=2.8.2 (from pandas>=2.2->-r requirements.txt (line 19))
+2026-09-24T12:56:29.6540400Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+2026-09-24T12:56:29.7281620Z Collecting contourpy>=1.0.1 (from matplotlib>=3.8->-r requirements.txt (line 21))
+2026-09-24T12:56:29.7432100Z   Downloading contourpy-1.4.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (3.8 kB)
+2026-09-24T12:56:29.7767540Z Collecting cycler>=0.10 (from matplotlib>=3.8->-r requirements.txt (line 21))
+2026-09-24T12:56:29.7904610Z   Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+2026-09-24T12:56:29.9170360Z Collecting fonttools>=4.28.2 (from matplotlib>=3.8->-r requirements.txt (line 21))
+2026-09-24T12:56:29.9335280Z   Downloading fonttools-4.66.0-cp312-cp312-macosx_10_13_universal2.whl.metadata (129 kB)
+2026-09-24T12:56:29.9948920Z Collecting kiwisolver>=1.3.1 (from matplotlib>=3.8->-r requirements.txt (line 21))
+2026-09-24T12:56:30.0091550Z   Downloading kiwisolver-1.5.1-cp312-cp312-macosx_11_0_arm64.whl.metadata (5.2 kB)
+2026-09-24T12:56:30.0492320Z Collecting pyparsing>=3 (from matplotlib>=3.8->-r requirements.txt (line 21))
+2026-09-24T12:56:30.0662950Z   Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+2026-09-24T12:56:30.0989120Z Collecting aiosqlite>=0.21 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.1125420Z   Downloading aiosqlite-0.22.1-py3-none-any.whl.metadata (4.3 kB)
+2026-09-24T12:56:30.1961010Z Collecting authlib<2,>=1.6.6 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.2095010Z   Downloading authlib-1.8.0-py2.py3-none-any.whl.metadata (10 kB)
+2026-09-24T12:56:30.2476410Z Collecting google-auth>=2.47 (from google-auth[pyopenssl]>=2.47->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.2621050Z   Downloading google_auth-2.58.0-py3-none-any.whl.metadata (6.0 kB)
+2026-09-24T12:56:30.3045600Z Collecting graphviz<1,>=0.20.2 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.3177000Z   Downloading graphviz-0.21-py3-none-any.whl.metadata (12 kB)
+2026-09-24T12:56:30.3458840Z Collecting opentelemetry-api<=1.42.1,>=1.39 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.3595150Z   Downloading opentelemetry_api-1.42.1-py3-none-any.whl.metadata (1.4 kB)
+2026-09-24T12:56:30.3972980Z Collecting opentelemetry-sdk<=1.42.1,>=1.39 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.4123500Z   Downloading opentelemetry_sdk-1.42.1-py3-none-any.whl.metadata (1.7 kB)
+2026-09-24T12:56:30.4511680Z Collecting python-dotenv<2,>=1 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.4667220Z   Downloading python_dotenv-1.2.3-py3-none-any.whl.metadata (29 kB)
+2026-09-24T12:56:30.5000260Z Collecting tenacity<10,>=9 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.5130300Z   Downloading tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+2026-09-24T12:56:30.5629130Z Collecting watchdog<7,>=6 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.5794730Z   Downloading watchdog-6.0.0-cp312-cp312-macosx_11_0_arm64.whl.metadata (44 kB)
+2026-09-24T12:56:30.6692600Z Collecting websockets<16,>=15.0.1 (from google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.6848320Z   Downloading websockets-15.0.1-cp312-cp312-macosx_11_0_arm64.whl.metadata (6.8 kB)
+2026-09-24T12:56:30.8086470Z Collecting cryptography>=45.0.1 (from authlib<2,>=1.6.6->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.8221860Z   Downloading cryptography-50.0.1-cp311-abi3-macosx_11_0_arm64.whl.metadata (4.3 kB)
+2026-09-24T12:56:30.8491760Z Collecting joserfc>=1.6.1 (from authlib<2,>=1.6.6->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.8631820Z   Downloading joserfc-1.7.5-py3-none-any.whl.metadata (3.1 kB)
+2026-09-24T12:56:30.9007570Z Collecting distro<2,>=1.7.0 (from google-genai>=1.27.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.9164040Z   Downloading distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+2026-09-24T12:56:30.9522850Z Collecting pyasn1-modules>=0.2.1 (from google-auth>=2.47->google-auth[pyopenssl]>=2.47->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:30.9662630Z   Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+2026-09-24T12:56:31.0098720Z Collecting opentelemetry-semantic-conventions==0.63b1 (from opentelemetry-sdk<=1.42.1,>=1.39->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.0251230Z   Downloading opentelemetry_semantic_conventions-0.63b1-py3-none-any.whl.metadata (2.4 kB)
+2026-09-24T12:56:31.1409720Z Collecting charset_normalizer<4,>=2 (from requests->tiktoken>=0.7->-r requirements.txt (line 16))
+2026-09-24T12:56:31.1555440Z   Downloading charset_normalizer-3.5.1-cp312-cp312-macosx_10_13_universal2.whl.metadata (45 kB)
+2026-09-24T12:56:31.1868130Z Collecting urllib3<3,>=1.26 (from requests->tiktoken>=0.7->-r requirements.txt (line 16))
+2026-09-24T12:56:31.2001260Z   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+2026-09-24T12:56:31.2878530Z Collecting cffi>=2.0.0 (from cryptography>=45.0.1->authlib<2,>=1.6.6->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.3015440Z   Downloading cffi-2.1.1-cp312-cp312-macosx_11_0_arm64.whl.metadata (2.5 kB)
+2026-09-24T12:56:31.3275730Z Collecting pycparser (from cffi>=2.0.0->cryptography>=45.0.1->authlib<2,>=1.6.6->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.3416590Z   Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+2026-09-24T12:56:31.4124230Z Collecting googleapis-common-protos<2.0.0,>=1.69.2 (from google-api-core>=1.26.0->a2a-sdk<0.4.0,>=0.3.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.4256680Z   Downloading googleapis_common_protos-1.75.3-py3-none-any.whl.metadata (8.5 kB)
+2026-09-24T12:56:31.4530860Z Collecting proto-plus<2.0.0,>=1.26.1 (from google-api-core>=1.26.0->a2a-sdk<0.4.0,>=0.3.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.4660200Z   Downloading proto_plus-1.28.4-py3-none-any.whl.metadata (2.2 kB)
+2026-09-24T12:56:31.4713170Z INFO: pip is looking at multiple versions of google-api-core to determine which version is compatible with other requirements. This could take a while.
+2026-09-24T12:56:31.4717550Z Collecting google-api-core>=1.26.0 (from a2a-sdk<0.4.0,>=0.3.0->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.4848800Z   Downloading google_api_core-2.37.0-py3-none-any.whl.metadata (3.2 kB)
+2026-09-24T12:56:31.5026340Z   Downloading google_api_core-2.36.0-py3-none-any.whl.metadata (3.2 kB)
+2026-09-24T12:56:31.5203530Z   Downloading google_api_core-2.34.0-py3-none-any.whl.metadata (2.9 kB)
+2026-09-24T12:56:31.5482560Z Collecting cloudpickle>=3.0 (from joblib>=1.4.0->scikit-learn>=1.5->-r requirements.txt (line 18))
+2026-09-24T12:56:31.5614940Z   Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+2026-09-24T12:56:31.5861200Z Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.0->-r requirements.txt (line 2))
+2026-09-24T12:56:31.5989680Z   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+2026-09-24T12:56:31.6284890Z Collecting pyasn1<0.7.0,>=0.6.1 (from pyasn1-modules>=0.2.1->google-auth>=2.47->google-auth[pyopenssl]>=2.47->google-adk>=1.28.1->a2ui-agent-sdk>=0.6.0->-r requirements.txt (line 17))
+2026-09-24T12:56:31.6411730Z   Downloading pyasn1-0.6.4-py3-none-any.whl.metadata (8.4 kB)
+2026-09-24T12:56:31.6709660Z Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas>=2.2->-r requirements.txt (line 19))
+2026-09-24T12:56:31.6837510Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+2026-09-24T12:56:31.7132540Z Downloading mcp-1.30.0-py3-none-any.whl (234 kB)
+2026-09-24T12:56:31.7339420Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-09-24T12:56:31.7496890Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-09-24T12:56:31.7656660Z Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+2026-09-24T12:56:31.7892960Z Downloading pydantic_core-2.46.5-cp312-cp312-macosx_11_0_arm64.whl (1.9 MB)
+2026-09-24T12:56:31.8093150Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.9/1.9 MB 93.5 MB/s  0:00:00
+2026-09-24T12:56:31.8230420Z Downloading openai-3.19.2-py3-none-any.whl (2.1 MB)
+2026-09-24T12:56:31.8363850Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 169.1 MB/s  0:00:00
+2026-09-24T12:56:31.8498790Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-09-24T12:56:31.8657850Z Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+2026-09-24T12:56:31.8832980Z Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+2026-09-24T12:56:31.9016510Z Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+2026-09-24T12:56:31.9191530Z Downloading jiter-0.17.0-cp312-cp312-macosx_11_0_arm64.whl (321 kB)
+2026-09-24T12:56:31.9396800Z Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+2026-09-24T12:56:31.9603700Z Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+2026-09-24T12:56:31.9681620Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 158.2 MB/s  0:00:00
+2026-09-24T12:56:31.9816640Z Downloading pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl (173 kB)
+2026-09-24T12:56:31.9997670Z Downloading prompt_toolkit-3.0.53-py3-none-any.whl (392 kB)
+2026-09-24T12:56:32.0174030Z Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+2026-09-24T12:56:32.0336880Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-09-24T12:56:32.0516270Z Downloading pillow-12.3.0-cp312-cp312-macosx_11_0_arm64.whl (4.8 MB)
+2026-09-24T12:56:32.0975670Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 104.2 MB/s  0:00:00
+2026-09-24T12:56:32.1109890Z Downloading fastapi-0.141.1-py3-none-any.whl (131 kB)
+2026-09-24T12:56:32.1284900Z Downloading uvicorn-0.53.0-py3-none-any.whl (87 kB)
+2026-09-24T12:56:32.1464010Z Downloading trueforge_sdk-0.2.0-py3-none-any.whl (287 kB)
+2026-09-24T12:56:32.1656660Z Downloading ag_ui_protocol-1.0.0-py3-none-any.whl (36 kB)
+2026-09-24T12:56:32.1847590Z Downloading a2ui_core-0.1.1-py3-none-any.whl (75 kB)
+2026-09-24T12:56:32.2027750Z Downloading jsonschema-4.26.0-py3-none-any.whl (90 kB)
+2026-09-24T12:56:32.2233980Z Downloading tiktoken-0.14.0-cp312-cp312-macosx_11_0_arm64.whl (1.0 MB)
+2026-09-24T12:56:32.2373890Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 73.6 MB/s  0:00:00
+2026-09-24T12:56:32.2529970Z Downloading a2ui_agent_sdk-0.6.0-py3-none-any.whl (218 kB)
+2026-09-24T12:56:32.2711600Z Downloading a2a_sdk-0.3.26-py3-none-any.whl (151 kB)
+2026-09-24T12:56:32.2896740Z Downloading antlr4_python3_runtime-4.13.2-py3-none-any.whl (144 kB)
+2026-09-24T12:56:32.3090430Z Downloading scikit_learn-1.9.1-cp312-cp312-macosx_12_0_arm64.whl (8.3 MB)
+2026-09-24T12:56:32.3609140Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.3/8.3 MB 172.1 MB/s  0:00:00
+2026-09-24T12:56:32.3779760Z Downloading pandas-3.0.6-cp312-cp312-macosx_11_0_arm64.whl (10.1 MB)
+2026-09-24T12:56:32.4747050Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.1/10.1 MB 104.5 MB/s  0:00:00
+2026-09-24T12:56:32.5159600Z Downloading numpy-2.5.3-cp312-cp312-macosx_14_0_arm64.whl (5.4 MB)
+2026-09-24T12:56:32.5467880Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.4/5.4 MB 134.2 MB/s  0:00:00
+2026-09-24T12:56:32.5636290Z Downloading matplotlib-3.11.2-cp312-cp312-macosx_11_0_arm64.whl (9.3 MB)
+2026-09-24T12:56:32.6781810Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.3/9.3 MB 82.0 MB/s  0:00:00
+2026-09-24T12:56:32.6924330Z Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+2026-09-24T12:56:32.7135660Z Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-09-24T12:56:32.7310690Z Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+2026-09-24T12:56:32.7524680Z Downloading click-8.5.0-py3-none-any.whl (125 kB)
+2026-09-24T12:56:32.7712040Z Downloading contourpy-1.4.0-cp312-cp312-macosx_11_0_arm64.whl (284 kB)
+2026-09-24T12:56:32.7885100Z Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+2026-09-24T12:56:32.8069400Z Downloading fonttools-4.66.0-cp312-cp312-macosx_10_13_universal2.whl (3.1 MB)
+2026-09-24T12:56:32.8333850Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 137.0 MB/s  0:00:00
+2026-09-24T12:56:32.8507660Z Downloading google_adk-2.9.2-py3-none-any.whl (4.6 MB)
+2026-09-24T12:56:32.9076750Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.6/4.6 MB 109.0 MB/s  0:00:00
+2026-09-24T12:56:32.9245500Z Downloading authlib-1.8.0-py2.py3-none-any.whl (260 kB)
+2026-09-24T12:56:32.9502740Z Downloading google_genai-2.25.0-py3-none-any.whl (1.2 MB)
+2026-09-24T12:56:32.9625690Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 113.1 MB/s  0:00:00
+2026-09-24T12:56:32.9762420Z Downloading distro-1.9.0-py3-none-any.whl (20 kB)
+2026-09-24T12:56:33.1004300Z Downloading google_auth-2.58.0-py3-none-any.whl (262 kB)
+2026-09-24T12:56:33.1220790Z Downloading graphviz-0.21-py3-none-any.whl (47 kB)
+2026-09-24T12:56:33.1391610Z Downloading opentelemetry_api-1.42.1-py3-none-any.whl (61 kB)
+2026-09-24T12:56:33.1541080Z Downloading opentelemetry_sdk-1.42.1-py3-none-any.whl (170 kB)
+2026-09-24T12:56:33.1702510Z Downloading opentelemetry_semantic_conventions-0.63b1-py3-none-any.whl (203 kB)
+2026-09-24T12:56:33.1867280Z Downloading python_dotenv-1.2.3-py3-none-any.whl (22 kB)
+2026-09-24T12:56:33.2047180Z Downloading python_multipart-0.0.32-py3-none-any.whl (30 kB)
+2026-09-24T12:56:33.2203580Z Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+2026-09-24T12:56:33.2373310Z Downloading charset_normalizer-3.5.1-cp312-cp312-macosx_10_13_universal2.whl (344 kB)
+2026-09-24T12:56:33.2563140Z Downloading idna-3.20-py3-none-any.whl (69 kB)
+2026-09-24T12:56:33.2719070Z Downloading starlette-1.7.0-py3-none-any.whl (78 kB)
+2026-09-24T12:56:33.2878130Z Downloading tenacity-9.1.4-py3-none-any.whl (28 kB)
+2026-09-24T12:56:33.3059200Z Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+2026-09-24T12:56:33.3279360Z Downloading watchdog-6.0.0-cp312-cp312-macosx_11_0_arm64.whl (89 kB)
+2026-09-24T12:56:33.3464890Z Downloading websockets-15.0.1-cp312-cp312-macosx_11_0_arm64.whl (173 kB)
+2026-09-24T12:56:33.3645290Z Downloading aiosqlite-0.22.1-py3-none-any.whl (17 kB)
+2026-09-24T12:56:33.3809270Z Downloading cryptography-50.0.1-cp311-abi3-macosx_11_0_arm64.whl (4.0 MB)
+2026-09-24T12:56:33.4262780Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.0/4.0 MB 87.2 MB/s  0:00:00
+2026-09-24T12:56:33.4403510Z Downloading cffi-2.1.1-cp312-cp312-macosx_11_0_arm64.whl (184 kB)
+2026-09-24T12:56:33.4574350Z Downloading google_api_core-2.34.0-py3-none-any.whl (180 kB)
+2026-09-24T12:56:33.4739020Z Downloading googleapis_common_protos-1.75.3-py3-none-any.whl (306 kB)
+2026-09-24T12:56:33.4955390Z Downloading proto_plus-1.28.4-py3-none-any.whl (50 kB)
+2026-09-24T12:56:33.5124550Z Downloading protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl (456 kB)
+2026-09-24T12:56:33.5361590Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-09-24T12:56:33.5550130Z Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)
+2026-09-24T12:56:33.5724780Z Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-09-24T12:56:33.5886280Z Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+2026-09-24T12:56:33.6062150Z Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+2026-09-24T12:56:33.6261380Z Downloading joserfc-1.7.5-py3-none-any.whl (71 kB)
+2026-09-24T12:56:33.6439110Z Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+2026-09-24T12:56:33.6631420Z Downloading kiwisolver-1.5.1-cp312-cp312-macosx_11_0_arm64.whl (64 kB)
+2026-09-24T12:56:33.6792460Z Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+2026-09-24T12:56:33.6961740Z Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+2026-09-24T12:56:33.7153280Z Downloading narwhals-2.26.0-py3-none-any.whl (474 kB)
+2026-09-24T12:56:33.7338320Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-09-24T12:56:33.7509350Z Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+2026-09-24T12:56:33.7717700Z Downloading pyasn1-0.6.4-py3-none-any.whl (84 kB)
+2026-09-24T12:56:33.7881640Z Downloading pydantic_settings-2.15.0-py3-none-any.whl (69 kB)
+2026-09-24T12:56:33.8060050Z Downloading pyjwt-2.15.0-py3-none-any.whl (33 kB)
+2026-09-24T12:56:33.8252380Z Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+2026-09-24T12:56:33.8423890Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+2026-09-24T12:56:33.8616800Z Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+2026-09-24T12:56:33.8867350Z Downloading rpds_py-2026.6.3-cp312-cp312-macosx_11_0_arm64.whl (338 kB)
+2026-09-24T12:56:33.9061820Z Downloading scipy-1.18.1-cp312-cp312-macosx_14_0_arm64.whl (20.5 MB)
+2026-09-24T12:56:34.0500530Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 20.5/20.5 MB 144.5 MB/s  0:00:00
+2026-09-24T12:56:34.0670110Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+2026-09-24T12:56:34.0865790Z Downloading sse_starlette-3.4.11-py3-none-any.whl (17 kB)
+2026-09-24T12:56:34.1060250Z Downloading threadpoolctl-3.7.0-py3-none-any.whl (26 kB)
+2026-09-24T12:56:34.1288510Z Downloading truststore-0.10.4-py3-none-any.whl (18 kB)
+2026-09-24T12:56:34.1491150Z Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+2026-09-24T12:56:34.1687490Z Downloading wcwidth-0.9.1-cp310-abi3-macosx_11_0_arm64.whl (609 kB)
+2026-09-24T12:56:34.1746450Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 609.0/609.0 kB 88.2 MB/s  0:00:00
+2026-09-24T12:56:34.1881240Z Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+2026-09-24T12:56:34.2043790Z Downloading regex-2026.9.10-cp312-cp312-macosx_11_0_arm64.whl (291 kB)
+2026-09-24T12:56:34.2255970Z Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+2026-09-24T12:56:34.7201800Z Installing collected packages: antlr4-python3-runtime, websockets, wcwidth, watchdog, urllib3, typing_extensions, truststore, threadpoolctl, tenacity, sniffio, six, rpds-py, regex, pyyaml, python-multipart, python-dotenv, pyparsing, pyjwt, pygments, pycparser, pyasn1, protobuf, pluggy, pillow, packaging, numpy, narwhals, mdurl, kiwisolver, jiter, iniconfig, idna, httpx-sse, h11, graphviz, fonttools, distro, cycler, cloudpickle, click, charset_normalizer, attrs, annotated-types, annotated-doc, aiosqlite, uvicorn, typing-inspection, scipy, requests, referencing, python-dateutil, pytest, pydantic-core, pyasn1-modules, proto-plus, prompt-toolkit, opentelemetry-api, markdown-it-py, joblib, httpcore2, httpcore, googleapis-common-protos, contourpy, cffi, anyio, tiktoken, starlette, scikit-learn, rich, pydantic, pandas, opentelemetry-semantic-conventions, matplotlib, jsonschema-specifications, httpx2, httpx, cryptography, trueforge_sdk, sse-starlette, pydantic-settings, opentelemetry-sdk, openai, jsonschema, joserfc, google-auth, fastapi, ag-ui-protocol, mcp, google-api-core, authlib, a2ui-core, google-genai, a2a-sdk, google-adk, a2ui-agent-sdk
+2026-09-24T12:57:00.8717070Z 
+2026-09-24T12:57:00.8785510Z Successfully installed a2a-sdk-0.3.26 a2ui-agent-sdk-0.6.0 a2ui-core-0.1.1 ag-ui-protocol-1.0.0 aiosqlite-0.22.1 annotated-doc-0.0.5 annotated-types-0.8.0 antlr4-python3-runtime-4.13.2 anyio-4.15.1 attrs-26.1.0 authlib-1.8.0 cffi-2.1.1 charset_normalizer-3.5.1 click-8.5.0 cloudpickle-3.1.2 contourpy-1.4.0 cryptography-50.0.1 cycler-0.12.1 distro-1.9.0 fastapi-0.141.1 fonttools-4.66.0 google-adk-2.9.2 google-api-core-2.34.0 google-auth-2.58.0 google-genai-2.25.0 googleapis-common-protos-1.75.3 graphviz-0.21 h11-0.16.0 httpcore-1.0.9 httpcore2-2.13.1 httpx-0.28.1 httpx-sse-0.4.3 httpx2-2.13.1 idna-3.20 iniconfig-2.3.0 jiter-0.17.0 joblib-1.6.0 joserfc-1.7.5 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 kiwisolver-1.5.1 markdown-it-py-4.2.0 matplotlib-3.11.2 mcp-1.30.0 mdurl-0.1.2 narwhals-2.26.0 numpy-2.5.3 openai-3.19.2 opentelemetry-api-1.42.1 opentelemetry-sdk-1.42.1 opentelemetry-semantic-conventions-0.63b1 packaging-26.3 pandas-3.0.6 pillow-12.3.0 pluggy-1.6.0 prompt-toolkit-3.0.53 proto-plus-1.28.4 protobuf-7.36.2 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.0 pydantic-2.13.5 pydantic-core-2.46.5 pydantic-settings-2.15.0 pygments-2.21.0 pyjwt-2.15.0 pyparsing-3.3.3 pytest-9.1.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.3 python-multipart-0.0.32 pyyaml-6.0.3 referencing-0.37.0 regex-2026.9.10 requests-2.34.2 rich-15.0.0 rpds-py-2026.6.3 scikit-learn-1.9.1 scipy-1.18.1 six-1.17.0 sniffio-1.3.1 sse-starlette-3.4.11 starlette-1.7.0 tenacity-9.1.4 threadpoolctl-3.7.0 tiktoken-0.14.0 trueforge_sdk-0.2.0 truststore-0.10.4 typing-inspection-0.4.4 typing_extensions-4.16.0 urllib3-2.8.0 uvicorn-0.53.0 watchdog-6.0.0 wcwidth-0.9.1 websockets-15.0.1
+2026-09-24T12:57:01.3840550Z ##[group]Run python run_tests.py genui
+2026-09-24T12:57:01.3841430Z [36;1mpython run_tests.py genui[0m
+2026-09-24T12:57:01.5426480Z shell: /bin/bash -e {0}
+2026-09-24T12:57:01.5426770Z env:
+2026-09-24T12:57:01.5427050Z   PYTHONUTF8: 1
+2026-09-24T12:57:01.5427430Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:57:01.5428000Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-09-24T12:57:01.5428480Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:57:01.5429000Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:57:01.5429540Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T12:57:01.5429930Z ##[endgroup]
+2026-09-24T12:57:03.6597580Z genui/01_foundations/step_01_static_components 13 passed in 1.02s
+2026-09-24T12:57:05.0657700Z genui/01_foundations/step_02_declarative_tree 21 passed in 0.91s
+2026-09-24T12:57:06.6900720Z genui/01_foundations/step_03_open_ended_html 27 passed in 1.14s
+2026-09-24T12:57:08.3921330Z genui/01_foundations/step_04_hybrid_escape_hatch 32 passed in 1.17s
+2026-09-24T12:57:09.8343160Z genui/02_ag_ui/step_01_ag_ui_server          10 passed in 0.97s
+2026-09-24T12:57:11.1592000Z genui/02_ag_ui/step_02_ag_ui_tools_and_state 15 passed in 0.87s
+2026-09-24T12:57:21.9397990Z genui/02_ag_ui/step_03_ag_ui_from_the_harness 11 passed in 10.07s
+2026-09-24T12:57:23.4896480Z genui/03_a2ui/step_01_a2ui_messages_by_hand  12 passed in 1.13s
+2026-09-24T12:57:26.1115500Z genui/03_a2ui/step_02_a2ui_from_a_model      13 passed in 2.24s
+2026-09-24T12:57:33.3723150Z genui/03_a2ui/step_03_a2ui_lit_and_ag_ui     8 passed in 6.89s
+2026-09-24T12:58:09.5009240Z genui/04_openui_lang/step_01_openui_lang_parser 24 passed in 35.83s
+2026-09-24T12:58:49.6548980Z genui/04_openui_lang/step_02_openui_react_lang 8 passed in 39.83s
+2026-09-24T12:58:50.9446910Z genui/04_openui_lang/step_03_format_benchmark 15 passed in 1.00s
+2026-09-24T12:59:37.3646120Z genui/04_openui_lang/step_04_openui_html_artifact 10 passed in 45.89s
+2026-09-24T12:59:43.3985700Z genui/05_json_render/step_01_json_render_catalog 10 passed in 4.75s
+2026-09-24T12:59:47.5440750Z genui/05_json_render/step_02_json_render_streaming_patches 11 passed in 3.31s
+2026-09-24T12:59:54.6493070Z genui/05_json_render/step_03_json_render_actions_and_targets 10 passed in 6.45s
+2026-09-24T12:59:57.6837850Z genui/06_mcp_apps/step_01_mcp_app_resource   12 passed in 2.38s
+2026-09-24T13:00:01.5235340Z genui/06_mcp_apps/step_02_mcp_app_in_a_real_host 20 passed in 3.10s
+2026-09-24T13:00:04.2697620Z genui/06_mcp_apps/step_03_mcp_app_hybrid     17 passed in 2.19s
+2026-09-24T13:00:40.9612710Z genui/07_harness_genui/step_01_render_ui_tool 12 passed in 36.16s
+2026-09-24T13:01:18.6163990Z genui/07_harness_genui/step_02_trueforge_generative_ui 14 passed in 37.16s
+2026-09-24T13:01:56.5526350Z genui/07_harness_genui/step_03_trueforge_hybrid 15 passed in 37.45s
+2026-09-24T13:01:56.5805560Z ##[group]Run python check_snippets.py genui
+2026-09-24T13:01:56.5806010Z [36;1mpython check_snippets.py genui[0m
+2026-09-24T13:01:56.6785100Z shell: /bin/bash -e {0}
+2026-09-24T13:01:56.6785480Z env:
+2026-09-24T13:01:56.6785720Z   PYTHONUTF8: 1
+2026-09-24T13:01:56.6786860Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:56.6787360Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-09-24T13:01:56.6787960Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:56.6788590Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:56.6789050Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:56.6789430Z ##[endgroup]
+2026-09-24T13:01:57.6863310Z genui/01_foundations/step_01_static_components  8 snippets  ok
+2026-09-24T13:01:57.6867570Z genui/01_foundations/step_02_declarative_tree  9 snippets  ok
+2026-09-24T13:01:57.6869010Z genui/01_foundations/step_03_open_ended_html  7 snippets  ok
+2026-09-24T13:01:57.6872800Z genui/01_foundations/step_04_hybrid_escape_hatch  7 snippets  ok
+2026-09-24T13:01:57.6883100Z genui/02_ag_ui/step_01_ag_ui_server           6 snippets  ok
+2026-09-24T13:01:57.6884460Z genui/02_ag_ui/step_02_ag_ui_tools_and_state  9 snippets  ok
+2026-09-24T13:01:57.6885710Z genui/02_ag_ui/step_03_ag_ui_from_the_harness  9 snippets  ok
+2026-09-24T13:01:57.6887080Z genui/03_a2ui/step_01_a2ui_messages_by_hand   7 snippets  ok
+2026-09-24T13:01:57.6888390Z genui/03_a2ui/step_02_a2ui_from_a_model       7 snippets  ok
+2026-09-24T13:01:57.6889580Z genui/03_a2ui/step_03_a2ui_lit_and_ag_ui      9 snippets  ok
+2026-09-24T13:01:57.6890930Z genui/04_openui_lang/step_01_openui_lang_parser  6 snippets  ok
+2026-09-24T13:01:57.6892180Z genui/04_openui_lang/step_02_openui_react_lang  6 snippets  ok
+2026-09-24T13:01:57.6917940Z genui/04_openui_lang/step_03_format_benchmark  8 snippets  ok
+2026-09-24T13:01:57.6918770Z genui/04_openui_lang/step_04_openui_html_artifact  7 snippets  ok
+2026-09-24T13:01:57.6919340Z genui/05_json_render/step_01_json_render_catalog  9 snippets  ok
+2026-09-24T13:01:57.6920020Z genui/05_json_render/step_02_json_render_streaming_patches  7 snippets  ok
+2026-09-24T13:01:57.6920670Z genui/05_json_render/step_03_json_render_actions_and_targets  9 snippets  ok
+2026-09-24T13:01:57.6921270Z genui/06_mcp_apps/step_01_mcp_app_resource   10 snippets  ok
+2026-09-24T13:01:57.6921900Z genui/06_mcp_apps/step_02_mcp_app_in_a_real_host  6 snippets  ok
+2026-09-24T13:01:57.6922490Z genui/06_mcp_apps/step_03_mcp_app_hybrid      8 snippets  ok
+2026-09-24T13:01:57.6923080Z genui/07_harness_genui/step_01_render_ui_tool 10 snippets  ok
+2026-09-24T13:01:57.6923700Z genui/07_harness_genui/step_02_trueforge_generative_ui  9 snippets  ok
+2026-09-24T13:01:57.6924390Z genui/07_harness_genui/step_03_trueforge_hybrid  9 snippets  ok
+2026-09-24T13:01:57.6924860Z 182 snippets checked, 0 problems
+2026-09-24T13:01:57.6992250Z ##[group]Run python how-did-i-generate-it/genui/check_publication.py
+2026-09-24T13:01:57.6992830Z [36;1mpython how-did-i-generate-it/genui/check_publication.py[0m
+2026-09-24T13:01:57.7061760Z shell: /bin/bash -e {0}
+2026-09-24T13:01:57.7062010Z env:
+2026-09-24T13:01:57.7062370Z   PYTHONUTF8: 1
+2026-09-24T13:01:57.7062690Z   pythonLocation: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:57.7063360Z   PKG_CONFIG_PATH: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/lib/pkgconfig
+2026-09-24T13:01:57.7063980Z   Python_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:57.7064430Z   Python2_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:57.7065310Z   Python3_ROOT_DIR: /Users/runner/hostedtoolcache/Python/3.12.10/arm64
+2026-09-24T13:01:57.7065810Z ##[endgroup]
+2026-09-24T13:01:58.0871380Z Checked 23 lessons, 7 themes, 272 local links, two selected infographics and 529 original backup files.
+2026-09-24T13:01:58.0873010Z 0 publication problems.
+2026-09-24T13:01:58.1140940Z Post job cleanup.
+2026-09-24T13:01:58.7008930Z (node:9037) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T13:01:58.7009990Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T13:01:58.7447830Z Post job cleanup.
+2026-09-24T13:01:58.9782010Z (node:9077) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T13:01:58.9889000Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T13:01:59.0113660Z Post job cleanup.
+2026-09-24T13:01:59.1580420Z [command]/opt/homebrew/bin/git version
+2026-09-24T13:01:59.1740720Z git version 2.55.0
+2026-09-24T13:01:59.1895370Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/bc8f5ff7-f2b5-485c-ae0e-7e25461e25d4/.gitconfig'
+2026-09-24T13:01:59.1897390Z Temporarily overriding HOME='/Users/runner/work/_temp/bc8f5ff7-f2b5-485c-ae0e-7e25461e25d4' before making global git config changes
+2026-09-24T13:01:59.1898780Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-24T13:01:59.1899790Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/simple-coding-harness/simple-coding-harness
+2026-09-24T13:01:59.1935490Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-24T13:01:59.2014560Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-24T13:01:59.3828230Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-24T13:01:59.3896500Z http.https://github.com/.extraheader
+2026-09-24T13:01:59.3915580Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-24T13:01:59.4034730Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-24T13:01:59.5969270Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-24T13:01:59.6273900Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-24T13:01:59.8568790Z Cleaning up orphan processes
+2026-09-24T13:02:03.3031750Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

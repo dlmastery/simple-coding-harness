@@ -58,13 +58,20 @@ course code is changed.
 - 182 lesson snippets checked with zero mismatches.
 - Seven theme diagrams and orientation links across all 23 lessons.
 - Two selected infographics reviewed for labels, order, contrast and conceptual meaning.
+- GitHub's rendered README was inspected: both infographics loaded at their full source dimensions, the captions and full-size links were visible, and the interaction Mermaid diagram rendered successfully.
 - All 529 files in the original ZIP match their source Git blobs.
 - The publication scan found two false positives in code examples, which were preserved in its first report. After excluding code spans and fenced examples, it passes 272 local file links with zero problems. This is not a check of every external URL or anchor.
 
-The GenUI-specific workflow runs the same course tests and publication checks
-on Linux, macOS and Windows with Python 3.12 and Node 22. Its result must be
-inspected after publication. The separate whole-repository workflow also tests
-the parent harness; this refresh does not claim to fix unrelated SDK failures.
+The [GenUI-specific workflow run](https://github.com/dlmastery/simple-coding-harness/actions/runs/36002221550)
+passed on Linux, macOS and Windows with Python 3.12 and Node 22 at commit
+`35a8c93db659766bee26052dd99ba7c7255aecf2`. Each operating system passed all
+23 suites and 340 tests with no skips, plus the snippet and publication checks.
+The job logs are retained in `validation/ci-linux.txt`, `ci-macos.txt` and
+`ci-windows.txt`. The final publication checkpoint only adds this evidence,
+preserves log bytes and corrects the parent README's GenUI prerequisites;
+it does not change the tested GenUI implementation or workflow.
+The separate whole-repository workflow also tests the parent harness;
+this refresh does not claim to fix unrelated SDK failures.
 
 One long shell command for writing Markdown was rejected by automatic approval
 review with only "blocked by policy" returned. It made no changes. The intended
@@ -79,3 +86,7 @@ Use the current `main` checkout after publication. Read this record and the
 test outputs before continuing. Keep image prompts, earlier drafts and failed
 checks. Do not report a skipped test, historical screenshot, or a conceptual
 figure as a successful live integration.
+
+Captured text logs use `-text -whitespace` Git attributes. A follow-up staging
+pass restores their original bytes after Git's initial line-ending normalization;
+each staged log hash was compared with its unfiltered working-file hash.
