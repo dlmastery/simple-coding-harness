@@ -1,0 +1,4 @@
+Worker PID 29336 queried through Win32_Process.
+No matching process returned.
+The .running file and running ledger still exist.
+The failed driver is preserved; no retry of its admission stage.

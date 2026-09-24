@@ -1,0 +1,65 @@
+name: RSI course
+
+on:
+  push:
+    paths:
+      - "rsi/**"
+      - "how-did-i-generate-it/rsi/**"
+      - "skills/build-research-codelabs/**"
+      - "run_tests.py"
+      - "check_snippets.py"
+      - ".github/workflows/rsi.yml"
+  pull_request:
+    paths:
+      - "rsi/**"
+      - "how-did-i-generate-it/rsi/**"
+      - "skills/build-research-codelabs/**"
+      - "run_tests.py"
+      - "check_snippets.py"
+      - ".github/workflows/rsi.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  course:
+    name: CPU checks (${{ matrix.os }}, Python 3.12)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    env:
+      PYTHONUTF8: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install the documented course dependencies
+        run: python -m pip install -r rsi/tools/requirements.txt
+      - name: Record the actual environment
+        run: |
+          python --version
+          python -m pip freeze
+          node --version
+      - name: Check runtime behavior and course links
+        run: python run_tests.py rsi
+      - name: Check student snippet discovery
+        run: python check_snippets.py rsi
+      - name: Rebuild the lesson pages from their source
+        run: node how-did-i-generate-it/rsi/scripts/build-lessons.mjs
+      - name: Rebuild the visual guide from its source
+        run: node how-did-i-generate-it/rsi/scripts/build-visual-guide.mjs
+      - name: Verify teaching-support publication and coverage
+        run: node how-did-i-generate-it/rsi/scripts/audit-readme-guidance.mjs
+      - name: Refresh the activity inventory without assuming completion
+        run: node how-did-i-generate-it/rsi/scripts/build-activity-coverage.mjs
+      - name: Refuse stale generated pages
+        run: git diff --exit-code -- rsi how-did-i-generate-it/rsi/validation/README-GUIDANCE-COVERAGE.md how-did-i-generate-it/rsi/validation/REQUIRED-ACTIVITY-COVERAGE.md

@@ -1,0 +1,153 @@
+# 03.06 · Read the plan, data flow, and trace
+
+[Course](../../README.md) · [Theme](../README.md)
+
+**You are here:** Theme 03, Dependable workflows → lab 6 of 6. [Find this theme in the course map](../../COURSE-MAP.md#theme-03) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
+## What you will build
+
+Three views of one run: allowed actions, artifact movement, and actual events.
+
+## Why this matters
+
+A diagram can look correct even when execution took a different route.
+
+## Before you start
+
+Complete [03.05: Resume only the affected work](../step_05_recover/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/03-06</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** The workflow graph, a successful trace, and a failed trace from this theme.
+
+**Budget:** No fits; inspect two existing traces. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+The control graph says which action may follow. Data flow says which artifact each action consumes or produces. The trace records what happened at a particular time. A branch can exist in the graph without being taken in a run. A missing trace event is not supplied by drawing the node.
+
+**A concrete example.** A recovery folder contains CHECK.md, but that file was copied from the original run. Its presence alone does not prove that a new check ran during recovery. The [three-view author audit](../../evidence/2026-09-21/three-views/README.md) separates the original commands, copied artifacts, report failure, and subsequent recheck. It also adds a new node to the plan without granting that check to old results. Read the plan for permissions, the data flow for inputs, and the trace for recorded events.
+
+![A control plan allows fit, check, and report. A separate artifact table names their inputs and outputs for symbolic candidate A. An illustrative failed trace stops after fitting and has no completed check or report.](../../assets/illustrations/plan-flow-trace-views-v2.png)
+
+*Fit abbreviates the tool operation that fits on training rows and predicts for selection inputs; selection targets do not fit model parameters. A and its paths are illustrative identities to replace with the actual run’s records. The table states required flow, not proof that each file exists. The two gray trace entries mark actions not reached in this example, not fabricated executed events. For the real lab, inspect both completed and failed traces and confirm the relevant outputs before making a completion claim.*
+
+[Open the illustration at full size](../../assets/illustrations/plan-flow-trace-views-v2.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![Three views answer different questions. A drawn branch does not prove that branch ran.](../../assets/diagrams/lab-03-06.png)
+
+*Read the diagram:* Three views answer different questions. A drawn branch does not prove that branch ran.
+
+</details>
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 03.06, Read the plan,
+data flow, and trace, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
+```
+
+**Make a prediction:** Does a drawn verifier node prove that the verifier ran?
+
+### 1. Separate the views
+
+Make their questions distinct.
+
+```text
+Create VIEWS.md with a control graph, a
+data-flow table, and a time-ordered trace
+for one completed run. Use actual artifact
+names and candidate IDs.
+```
+
+**Observe:** Each view answers a different question.
+
+### 2. Find the mismatch
+
+Use a failed run to test the distinction.
+
+```text
+Compare the failed trace with the intended
+graph. Identify an allowed-but-unexecuted
+action and an output that therefore cannot
+be claimed. Save the audit.
+```
+
+**Observe:** The audit refuses to treat a planned check as completed evidence.
+
+## Check your result
+
+VIEWS.md distinguishes permission to act, required data, and observed execution. Every claimed completed check has a trace event and output.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| VIEWS.md | Contains the control graph, artifact-flow table, and time-ordered events for one real run. |
+| Failed-trace audit | Identifies an allowed action that did not execute and the output that cannot be claimed. |
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Add a new check node to the plan without rerunning the experiment. Explain why old results do not gain that check retroactively.
+
+## If something goes wrong
+
+If all three views are the same unlabeled picture, ask each to answer its own question: what may run, what data moves, and what did run? If an event lacks its output, inspect the underlying command before calling it complete. Mark missing trace evidence as missing rather than reconstructing a successful event from the plan.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Plans specify possibilities; traces record events.
+- Data flow exposes input dependencies.
+- A later diagram edit cannot change historical evidence.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. What does the control graph establish?
+2. What does the trace establish?
+3. Why is data flow separate?
+4. Can a planned check be counted as passed?
+
+<details>
+<summary>Hint</summary>
+
+A route map does not show which road a particular trip took. The same distinction separates the workflow plan from an execution trace.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. The intended allowed structure of execution.
+
+2. Recorded events for a particular run, subject to the trace’s integrity and completeness.
+
+3. Actions can occur in order yet consume the wrong or stale artifacts.
+
+4. No. It must execute against the relevant candidate and produce valid evidence.
+
+</details>
+
+## What's next
+
+The routes are explicit. Now make the meaning of their objects explicit too. Continue to [04.01: Name the objects in an experiment](../../04_ontology_engineering/step_01_entities/README.md).

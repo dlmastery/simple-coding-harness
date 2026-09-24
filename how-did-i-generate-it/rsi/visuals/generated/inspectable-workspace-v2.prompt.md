@@ -1,0 +1,1 @@
+Edit only the mug to the left of the hour.csv sheet in the rightmost panel. Remove its entire "SAME DATA SAME RESULTS" inscription. Leave that mug plain white with no text. Preserve every other object, label, blank field, connector, and layout exactly. Do not add any replacement slogan or new content.

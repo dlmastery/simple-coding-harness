@@ -1,0 +1,13 @@
+case,attempt,operator,verdict
+01-harness-before-model,1,data,accepted
+01-harness-before-model,2,harness,accepted
+01-harness-before-model,3,model,accepted
+02-model-before-harness,4,data,accepted
+02-model-before-harness,5,model,accepted
+02-model-before-harness,6,harness,accepted
+03-stale-evidence,7,harness,accepted
+03-stale-evidence,8,model,stale evidence
+04-forbidden-write,9,data,undeclared write
+05-inherited-scheduler,10,data,accepted
+05-inherited-scheduler,11,harness,accepted
+05-inherited-scheduler,12,model,accepted

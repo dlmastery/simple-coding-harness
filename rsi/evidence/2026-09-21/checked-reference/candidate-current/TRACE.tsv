@@ -1,0 +1,8 @@
+action	subject	observation
+read	CONTRACT.md	734a2d2a109c3a683b1548a3f4c799d51e492c9066083b6058231c2001455690
+read	current.md	106b40cc8aee6dc5ebde27092bf0a220dc51c748f0d07fd0170b9be43cdfb030
+read	candidate-skill.md	83662e4b87f58f2b28f917205fcc9ea4393a72019c743cb517ab569e77e827c4
+check	Target	present
+check	Metric	present
+check	Split	absent
+emit	verdict	missing Split

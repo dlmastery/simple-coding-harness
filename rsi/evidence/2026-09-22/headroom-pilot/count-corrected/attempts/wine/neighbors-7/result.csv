@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+wine,neighbors-7,ok,MAE,0.534704441776096,0.9072910474817799,0.005705199990188703,0.00997569999890402,2.2790425999846775,exit=0

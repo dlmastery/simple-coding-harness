@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+cancer,boost-0,ok,balanced_accuracy,0.9472233648704237,0.10555327025915262,0.13170850000460632,0.004591200005961582,2.5099697999830823,exit=0

@@ -1,0 +1,4 @@
+phase,skill,skill_sha256,instruction,candidate,previous,training_MAE,selection_MAE,decision,retained
+g2-i0,I0.md,753b9cddd58ea16e59eeffa1018171e0de26498f1456d86e4d4c4a593d2bc65e,training_MAE,g2-i0-tree,,0.0,0.6933867735470942,retain,g2-i0-tree
+g2-i0,I0.md,753b9cddd58ea16e59eeffa1018171e0de26498f1456d86e4d4c4a593d2bc65e,training_MAE,g2-i0-ridge,g2-i0-tree,0.5765851464615885,0.6092388935621454,reject,g2-i0-tree
+g2-i0,I0.md,753b9cddd58ea16e59eeffa1018171e0de26498f1456d86e4d4c4a593d2bc65e,training_MAE,g2-i0-forest,g2-i0-tree,0.3083514088850374,0.5530658503208373,reject,g2-i0-tree

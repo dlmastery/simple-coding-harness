@@ -1,0 +1,7 @@
+# Projected target proposal
+
+Order: draft refine explore
+Producer: R0
+Producer SHA-256: a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc
+Target SHA-256: 78ca6d539364d0dfff2070923bced8add4a098c80760d59a8b6ae85bb7976625
+Adapter SHA-256: eee0807eff0a8addd7e20c791c7d06cb21ad58f71857a794d6a99118cdc0a242

@@ -1,0 +1,637 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/nid43ytk",
+    "id": "nid43ytk",
+    "slide": 19,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Arial",
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ahk7qls3",
+      "id": "5",
+      "name": "Slide title",
+      "bbox": [
+        64,
+        40,
+        1152,
+        64
+      ],
+      "geometry": "rect",
+      "text": "Why the original results were mostly zero",
+      "textPreview": "Why the original results were mostly zero",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Why the original results were mostly zero"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Why the original results were mostly zero",
+          "resolvedTextStyle": {
+            "fontSize": 44,
+            "typeface": "Arial",
+            "color": "#112840",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Why the original results were mostly zero",
+              "fontSize": 44,
+              "typeface": "Arial",
+              "color": "#112840",
+              "bold": true
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9gb6xgbi",
+      "id": "2",
+      "name": "Teaching point",
+      "bbox": [
+        64,
+        115,
+        1152,
+        84
+      ],
+      "geometry": "rect",
+      "text": "Similar candidate sets can produce the same winner.",
+      "textPreview": "Similar candidate sets can produce the same winner.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Similar candidate sets can produce the same winner."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Similar candidate sets can produce the same winner.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Similar candidate sets can produce the same winner.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/w3q5w3a9",
+      "id": "6",
+      "bbox": [
+        64,
+        220,
+        1152,
+        360
+      ],
+      "text": "Observed issue | What it hides | Repair to check\nRepeated candidate sets | Different policy names can reach the same model | Inspect executed constructors and retained predictions\nFits called “wasted” afterward | A bookkeeping label does not save computation | Count attempts the program actually avoids\nFragile selection rankings | A selection gain can reverse on final rows | Freeze choices and retain all final outcomes",
+      "textPreview": "Observed issue | What it hides | Repair to check | Repeated candidate sets | Different policy names can reach the same model | Inspect ex...",
+      "rows": 4,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            64,
+            220,
+            310,
+            90
+          ],
+          "text": "Observed issue",
+          "textPreview": "Observed issue",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Observed issue",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Observed issue",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            374,
+            220,
+            410,
+            90
+          ],
+          "text": "What it hides",
+          "textPreview": "What it hides",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "What it hides",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "What it hides",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            784,
+            220,
+            432,
+            90
+          ],
+          "text": "Repair to check",
+          "textPreview": "Repair to check",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Repair to check",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Repair to check",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            64,
+            310,
+            310,
+            90
+          ],
+          "text": "Repeated candidate sets",
+          "textPreview": "Repeated candidate sets",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Repeated candidate sets",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Repeated candidate sets",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            374,
+            310,
+            410,
+            90
+          ],
+          "text": "Different policy names can reach the same model",
+          "textPreview": "Different policy names can reach the same model",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Different policy names can reach the same model",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Different policy names can reach the same model",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            784,
+            310,
+            432,
+            90
+          ],
+          "text": "Inspect executed constructors and retained predictions",
+          "textPreview": "Inspect executed constructors and retained predictions",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Inspect executed constructors and retained predictions",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Inspect executed constructors and retained predictions",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            64,
+            400,
+            310,
+            90
+          ],
+          "text": "Fits called “wasted” afterward",
+          "textPreview": "Fits called “wasted” afterward",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Fits called “wasted” afterward",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fits called “wasted” afterward",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            374,
+            400,
+            410,
+            90
+          ],
+          "text": "A bookkeeping label does not save computation",
+          "textPreview": "A bookkeeping label does not save computation",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "A bookkeeping label does not save computation",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "A bookkeeping label does not save computation",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            784,
+            400,
+            432,
+            90
+          ],
+          "text": "Count attempts the program actually avoids",
+          "textPreview": "Count attempts the program actually avoids",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Count attempts the program actually avoids",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Count attempts the program actually avoids",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            64,
+            490,
+            310,
+            90
+          ],
+          "text": "Fragile selection rankings",
+          "textPreview": "Fragile selection rankings",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Fragile selection rankings",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fragile selection rankings",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            374,
+            490,
+            410,
+            90
+          ],
+          "text": "A selection gain can reverse on final rows",
+          "textPreview": "A selection gain can reverse on final rows",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "A selection gain can reverse on final rows",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "A selection gain can reverse on final rows",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            784,
+            490,
+            432,
+            90
+          ],
+          "text": "Freeze choices and retain all final outcomes",
+          "textPreview": "Freeze choices and retain all final outcomes",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Freeze choices and retain all final outcomes",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Freeze choices and retain all final outcomes",
+                  "fontSize": 25,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/vitozqt8",
+      "id": "4",
+      "name": "Scope",
+      "bbox": [
+        64,
+        610,
+        1152,
+        70
+      ],
+      "geometry": "rect",
+      "text": "A code repair can restore the intended experiment without guaranteeing a quality gain.",
+      "textPreview": "A code repair can restore the intended experiment without guaranteeing a quality gain.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A code repair can restore the intended experiment without guaranteeing a quality gain."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A code repair can restore the intended experiment without guaranteeing a quality gain.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A code repair can restore the intended experiment without guaranteeing a quality gain.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

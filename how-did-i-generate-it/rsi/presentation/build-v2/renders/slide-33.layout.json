@@ -1,0 +1,748 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/nax4b2dk",
+    "id": "nax4b2dk",
+    "slide": 33,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Arial",
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/mlc3y54b",
+      "id": "5",
+      "name": "Slide title",
+      "bbox": [
+        64,
+        40,
+        1152,
+        64
+      ],
+      "geometry": "rect",
+      "text": "Later researchers have mixed results",
+      "textPreview": "Later researchers have mixed results",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Later researchers have mixed results"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Later researchers have mixed results",
+          "resolvedTextStyle": {
+            "fontSize": 44,
+            "typeface": "Arial",
+            "color": "#112840",
+            "bold": true
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Later researchers have mixed results",
+              "fontSize": 44,
+              "typeface": "Arial",
+              "color": "#112840",
+              "bold": true
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lk3m50nq",
+      "id": "2",
+      "name": "Teaching point",
+      "bbox": [
+        64,
+        115,
+        1152,
+        84
+      ],
+      "geometry": "rect",
+      "text": "I1 versus I0: two gains, three ties and one regression.",
+      "textPreview": "I1 versus I0: two gains, three ties and one regression.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "I1 versus I0: two gains, three ties and one regression."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "I1 versus I0: two gains, three ties and one regression.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "I1 versus I0: two gains, three ties and one regression.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/of610vuh",
+      "id": "6",
+      "bbox": [
+        64,
+        220,
+        1152,
+        355
+      ],
+      "text": "Control | Mean loss change | Exploratory 95% interval\nI0 (primary) | +0.000120 | [-0.001826, +0.002390]\nParent researcher | +0.000120 | [-0.001826, +0.002390]\nFixed portfolio | -0.002307 | [-0.005816, +0.000790]\nRandom search | +0.001125 | [-0.000414, +0.003240]",
+      "textPreview": "Control | Mean loss change | Exploratory 95% interval | I0 (primary) | +0.000120 | [-0.001826, +0.002390] | Parent researcher | +0.000120...",
+      "rows": 5,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            64,
+            220,
+            355,
+            71
+          ],
+          "text": "Control",
+          "textPreview": "Control",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Control",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Control",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            419,
+            220,
+            310,
+            71
+          ],
+          "text": "Mean loss change",
+          "textPreview": "Mean loss change",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Mean loss change",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Mean loss change",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            729,
+            220,
+            487,
+            71
+          ],
+          "text": "Exploratory 95% interval",
+          "textPreview": "Exploratory 95% interval",
+          "fillColor": "#E8F4F3",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Exploratory 95% interval",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Exploratory 95% interval",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            64,
+            291,
+            355,
+            71
+          ],
+          "text": "I0 (primary)",
+          "textPreview": "I0 (primary)",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "I0 (primary)",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "I0 (primary)",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            419,
+            291,
+            310,
+            71
+          ],
+          "text": "+0.000120",
+          "textPreview": "+0.000120",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "+0.000120",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "+0.000120",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            729,
+            291,
+            487,
+            71
+          ],
+          "text": "[-0.001826, +0.002390]",
+          "textPreview": "[-0.001826, +0.002390]",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "[-0.001826, +0.002390]",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "[-0.001826, +0.002390]",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            64,
+            362,
+            355,
+            71
+          ],
+          "text": "Parent researcher",
+          "textPreview": "Parent researcher",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Parent researcher",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Parent researcher",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            419,
+            362,
+            310,
+            71
+          ],
+          "text": "+0.000120",
+          "textPreview": "+0.000120",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "+0.000120",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "+0.000120",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            729,
+            362,
+            487,
+            71
+          ],
+          "text": "[-0.001826, +0.002390]",
+          "textPreview": "[-0.001826, +0.002390]",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "[-0.001826, +0.002390]",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "[-0.001826, +0.002390]",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            64,
+            433,
+            355,
+            71
+          ],
+          "text": "Fixed portfolio",
+          "textPreview": "Fixed portfolio",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Fixed portfolio",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Fixed portfolio",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            419,
+            433,
+            310,
+            71
+          ],
+          "text": "-0.002307",
+          "textPreview": "-0.002307",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "-0.002307",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "-0.002307",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            729,
+            433,
+            487,
+            71
+          ],
+          "text": "[-0.005816, +0.000790]",
+          "textPreview": "[-0.005816, +0.000790]",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "[-0.005816, +0.000790]",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "[-0.005816, +0.000790]",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "row": 5,
+          "column": 1,
+          "bbox": [
+            64,
+            504,
+            355,
+            71
+          ],
+          "text": "Random search",
+          "textPreview": "Random search",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Random search",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Random search",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 14,
+          "row": 5,
+          "column": 2,
+          "bbox": [
+            419,
+            504,
+            310,
+            71
+          ],
+          "text": "+0.001125",
+          "textPreview": "+0.001125",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "+0.001125",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "+0.001125",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 15,
+          "row": 5,
+          "column": 3,
+          "bbox": [
+            729,
+            504,
+            487,
+            71
+          ],
+          "text": "[-0.000414, +0.003240]",
+          "textPreview": "[-0.000414, +0.003240]",
+          "fillColor": "#FFFFFF",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "[-0.000414, +0.003240]",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "[-0.000414, +0.003240]",
+                  "fontSize": 28,
+                  "typeface": "Arial",
+                  "color": "#112840"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/nml47a5w",
+      "id": "4",
+      "name": "Interpretation",
+      "bbox": [
+        64,
+        615,
+        1152,
+        80
+      ],
+      "geometry": "rect",
+      "text": "Lower is better. Every interval includes zero.\nSix public tasks, one model seed. Full study: 624 model attempts.",
+      "textPreview": "Lower is better. Every interval includes zero. | Six public tasks, one model seed. Full study: 624 model attempts.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "autoFit": "none",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Lower is better. Every interval includes zero."
+          },
+          {
+            "index": 2,
+            "text": "Six public tasks, one model seed. Full study: 624 model attempts."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Lower is better. Every interval includes zero.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Lower is better. Every interval includes zero.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Six public tasks, one model seed. Full study: 624 model attempts.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Arial",
+            "color": "#112840"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Six public tasks, one model seed. Full study: 624 model attempts.",
+              "fontSize": 27,
+              "typeface": "Arial",
+              "color": "#112840"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

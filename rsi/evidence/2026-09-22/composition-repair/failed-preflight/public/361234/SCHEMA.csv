@@ -1,0 +1,10 @@
+column,role,kind,categories
+sex,feature,categorical,F | I | M
+length,feature,numeric,
+diameter,feature,numeric,
+height,feature,numeric,
+whole_weight,feature,numeric,
+shucked_weight,feature,numeric,
+cisvera_weight,feature,numeric,
+shell_weight,feature,numeric,
+rings,target,numeric,

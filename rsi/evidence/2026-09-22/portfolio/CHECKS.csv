@@ -1,0 +1,5 @@
+check,status,detail
+source manifest identities,PASS,30 previously sealed records match
+prediction row,PASS,Zero-based row 26 is selection; original quality target matches both predictions
+matched start,PASS,Both generation-two starts equal the saved tree recipe bytes
+later rule use,PASS,I1 trace identifies the saved file and selection_MAE instruction; endpoint forest

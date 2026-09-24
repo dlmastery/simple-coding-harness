@@ -1,0 +1,39 @@
+utc,action,detail
+2026-09-22T08:24:56.721390+00:00,command start,order-normal
+2026-09-22T08:24:56.826606+00:00,command end,order-normal: exit 0
+2026-09-22T08:24:56.826606+00:00,command start,order-check-first
+2026-09-22T08:24:56.963644+00:00,command end,order-check-first: exit 2
+2026-09-22T08:24:56.964065+00:00,command start,order-split-first
+2026-09-22T08:24:57.060323+00:00,command end,order-split-first: exit 2
+2026-09-22T08:24:57.060323+00:00,command start,order-edge-removed
+2026-09-22T08:24:57.172144+00:00,command end,order-edge-removed: exit 0
+2026-09-22T08:24:57.187961+00:00,command start,route-valid
+2026-09-22T08:24:57.313104+00:00,command end,route-valid: exit 0
+2026-09-22T08:24:57.313579+00:00,command start,route-missing-target
+2026-09-22T08:24:57.427228+00:00,command end,route-missing-target: exit 2
+2026-09-22T08:24:57.427228+00:00,command start,route-unknown
+2026-09-22T08:24:57.543623+00:00,command end,route-unknown: exit 2
+2026-09-22T08:24:57.543623+00:00,command start,route-unsafe-unknown
+2026-09-22T08:24:57.644204+00:00,command end,route-unsafe-unknown: exit 0
+2026-09-22T08:24:57.660015+00:00,command start,repair-effective
+2026-09-22T08:24:57.772203+00:00,report check,"effective: repairs=0, valid=False"
+2026-09-22T08:24:57.772203+00:00,repair reserved,effective: slot 1 of 2
+2026-09-22T08:24:57.783293+00:00,report check,"effective: repairs=1, valid=True"
+2026-09-22T08:24:57.787402+00:00,command end,repair-effective: exit 0
+2026-09-22T08:24:57.787402+00:00,command start,repair-ineffective
+2026-09-22T08:24:57.898289+00:00,report check,"ineffective: repairs=0, valid=False"
+2026-09-22T08:24:57.898289+00:00,repair reserved,ineffective: slot 1 of 2
+2026-09-22T08:24:57.898289+00:00,report check,"ineffective: repairs=1, valid=False"
+2026-09-22T08:24:57.912694+00:00,repair reserved,ineffective: slot 2 of 2
+2026-09-22T08:24:57.912694+00:00,report check,"ineffective: repairs=2, valid=False"
+2026-09-22T08:24:57.927547+00:00,command end,repair-ineffective: exit 2
+2026-09-22T08:24:57.961159+00:00,command start,report-failure
+2026-09-22T08:24:58.077344+00:00,command end,report-failure: exit 1
+2026-09-22T08:24:58.077344+00:00,command start,recovery-check
+2026-09-22T08:24:59.660410+00:00,command end,recovery-check: exit 0
+2026-09-22T08:24:59.660410+00:00,command start,report-recovery
+2026-09-22T08:24:59.777812+00:00,command end,report-recovery: exit 0
+2026-09-22T08:26:05.823547+00:00,command start,dependency-original
+2026-09-22T08:26:05.956548+00:00,command end,dependency-original: exit 0
+2026-09-22T08:26:05.956548+00:00,command start,dependency-altered
+2026-09-22T08:26:06.091850+00:00,command end,dependency-altered: exit 2

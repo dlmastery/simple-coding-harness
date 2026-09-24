@@ -1,0 +1,2 @@
+Candidate: A
+Result: checked

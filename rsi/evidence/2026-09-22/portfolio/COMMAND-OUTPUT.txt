@@ -1,0 +1,6 @@
+Exit: 0
+Subprocess seconds: 0.6626437
+
+30 original manifest identities PASS; four evidence checks PASS; zero fits.
+{'row_id': 26, 'partition': 'selection', 'group': 'a5a22e8b9c1c8a8bab036941e2fc8b841f68190c093acefc21d251d55333a3c3', 'arm': 'original rule', 'candidate': 'g2-i0-tree', 'target': np.float64(6.0), 'prediction': np.float64(7.0), 'absolute_error': np.float64(1.0)}
+{'row_id': 26, 'partition': 'selection', 'group': 'a5a22e8b9c1c8a8bab036941e2fc8b841f68190c093acefc21d251d55333a3c3', 'arm': 'revised rule', 'candidate': 'g2-i1-forest', 'target': np.float64(6.0), 'prediction': np.float64(6.264954212454213), 'absolute_error': np.float64(0.2649542124542128)}

@@ -1,0 +1,8 @@
+diagnostic_exit=0
+existing_output_refusal_exit=1
+relative_path_refusal_exit=2
+existing_reports_unchanged=True
+all_three_CSVs_match_prior_diagnosis=True
+model_fits=0
+learner_predictions=skipped
+learner_quiz_answers=skipped

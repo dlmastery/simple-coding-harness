@@ -1,0 +1,2 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.06998,c87c72afffcd1185d8a29932fc7ae2b407421dfcfeaff5cfed48c6fcf695348c,Reproduce the fixed training-median baseline without changing its recipe.

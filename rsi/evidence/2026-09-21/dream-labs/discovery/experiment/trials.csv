@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,all,17,159.94791188618632,0.072169,not supplied,Node A: measure constant with the same permitted inputs.
+trial-002,ok,bike,linear,all,17,99.17592378687597,0.076807,not supplied,Node B: measure linear with the same permitted inputs.
+trial-003,ok,bike,tree,all,17,115.28425728289812,0.09421,not supplied,Node C: measure tree with the same permitted inputs.

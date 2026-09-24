@@ -1,0 +1,3 @@
+task,metric,selection_score,rows,recorded_attempt_seconds,detail
+bike,MAE,99.17592378687597,4358,0.080845,Largest hourly mean absolute error occurs at hour 8; inspect error-by-hour.csv. This does not establish a causal explanation.
+wine,balanced accuracy,0.7449552553079488,319,0.050136,Class-0 recall 0.733812949640; class-1 recall 0.756097560976. False positives 74; false negatives 10. Counts are checked below.

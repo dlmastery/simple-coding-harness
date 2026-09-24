@@ -1,0 +1,4 @@
+action,model,features,attempts_before,attempts_after,exit_status,command_seconds,outcome
+run,constant,calendar,0,1,0,0.137277,Checked trial-001; score 159.947912.
+run,constant,casual,1,2,1,0.068738,"REFUSED: Use calendar, weather, or all. Count components and the target are forbidden features."
+run,linear,calendar,2,2,1,0.001532,REFUSED: Attempt budget exhausted. Keep the evidence and stop.

@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,all,17,159.94791188618632,0.070844,not supplied,The training median gives a simple error baseline.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.075903,not supplied,Calendar categories explain routine demand variation.
+trial-003,ok,bike,tree,all,17,115.28425728289812,0.096247,not supplied,A bounded tree captures calendar and weather interactions.

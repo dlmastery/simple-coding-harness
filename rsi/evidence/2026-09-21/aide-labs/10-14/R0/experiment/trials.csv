@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.068759,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc,draft applied to root: test constant/calendar under the fixed operator procedure.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.07245,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc,refine applied to trial-001: test linear/calendar under the fixed operator procedure.
+trial-003,ok,bike,tree,calendar,17,125.04948805895863,0.084135,a75c5784f5c0a14c93b3806bd0e0c5f30118e421e4e3c5c9cb42cddd2368d8bc,explore applied to trial-002: test tree/calendar under the fixed operator procedure.

@@ -1,0 +1,13 @@
+seed,kind,family,arm
+3101,classification,2,parent
+3101,classification,2,child
+3102,regression,0,child
+3102,regression,0,parent
+3103,classification,1,parent
+3103,classification,1,child
+3104,regression,2,child
+3104,regression,2,parent
+3105,classification,0,parent
+3105,classification,0,child
+3106,regression,1,child
+3106,regression,1,parent

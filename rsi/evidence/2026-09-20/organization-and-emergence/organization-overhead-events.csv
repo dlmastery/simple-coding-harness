@@ -1,0 +1,7 @@
+job,kind,worker,assigned,overhead,setup,start,end,deadline,lateness,result
+J01,check,0,0,3,0,3,11,100,0,checked-J01
+J02,check,1,0,3,0,3,4,100,0,checked-J02
+J03,check,1,4,3,0,7,14,100,0,checked-J03
+J04,check,0,11,3,0,14,15,100,0,checked-J04
+J05,check,1,14,3,0,17,23,100,0,checked-J05
+J06,check,0,15,3,0,18,19,100,0,checked-J06

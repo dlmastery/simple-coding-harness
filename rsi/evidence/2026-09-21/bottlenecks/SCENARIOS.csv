@@ -1,0 +1,6 @@
+scenario,proposal_minutes,execution_minutes,evaluation_minutes,extra_check_minutes
+baseline,1,0,9,0
+faster_proposals,0.5,0,9,0
+faster_evaluation,1,0,4.5,0
+checking_overhead,0.5,0,9,1
+costlier_verifier,0.5,0,12,0

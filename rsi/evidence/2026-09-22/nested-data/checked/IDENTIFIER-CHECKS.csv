@@ -1,0 +1,3 @@
+task,column,rows,distinct_raw_tokens,distinct_parsed_values,repeated_identifier_rows,cross_split_identifiers
+45,Instance_name,3190,3178,3178,12,0
+361260,PARCELNO,13932,13776,13776,156,0

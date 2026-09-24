@@ -1,0 +1,11 @@
+# How the new task became a harness
+
+Lab 11.01 needed a task that changed a scientific assumption without requiring new hardware or a new paid data source. The supplied UCI archive already contains white wine. The earlier course used red wine with a binary target; this capstone uses white wine and the original ordinal score as a regression target.
+
+The [declared protocol](CAPSTONE-HARNESS-PROTOCOL.md) came before fitting. The [maintained package source](../capstone-package/README.md) contains the agent-written task, workflow, runner, evaluator, guard checks, dependency pins, recovery instructions, and scale plan. The [author driver](../scripts/run-capstone-harness.mjs) copies these into a sibling workspace and adds the original data from the course. The maintained source directory is a generation template; its data folder is populated during that copy. The [archived generated package](../../../rsi/evidence/2026-09-21/capstone-harness/package/README.md) contains the actual data and executed version.
+
+The task defines meaning and the evaluator checks evidence. Identical input vectors share one hash group. The split never hashes the quality label. The baseline uses the training median. Later model options are deliberately small; none was tuned during this baseline activity. Runtime checks reject target leakage, metric changes, split drift, exhausted budgets, and mismatched candidate evidence.
+
+The observed failures improved the execution record. The existing environment lacked pip; the first metadata correction had a quoting defect. Both are preserved and the final driver uses importlib.metadata. A new environment installation exceeded the sixty-second limit; after confirming the process had ended, its retry completed without repeating a fit. Dependency versions and both installation records remain available.
+
+The result is a tested local package, not an autonomous improver. Two CPU baselines reproduce identical predictions. Seven corrupted-output fixtures and one no-training failure stub verify specific boundaries. Human learning, other native agents, remote scheduling, and final evaluation remain separate. The next capstone must predeclare its own solver/improver comparison and freeze a final evaluator before its new fits.

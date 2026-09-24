@@ -1,0 +1,163 @@
+# 10.34 · Keep model training aligned with its harness
+
+[Course](../../../README.md) · [Theme](../../README.md)
+
+**You are here:** Theme 10, Research studio → lab 34 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
+## What you will build
+
+An interface-mismatch experiment and a source audit of local versus whole-trajectory correction.
+
+## Why this matters
+
+Training or instruction changes can teach behavior that no longer fits the surrounding workflow.
+
+## Before you start
+
+Complete [10.33: Compare action hints and richer observations](../step_33_scaffolding/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/10-34</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** A small harness expecting a fixed tool-result format and two labelled response fixtures.
+
+**Budget:** Four interface checks: valid, mismatched, locally repaired, and incompatible-template counterexample. No LLM training. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+The source contrasts training from full expert trajectories with correction on the agent’s own trajectories in evolved harnesses. Our toy version changes an output convention while keeping the harness parser fixed. It illustrates compatibility, not the paper’s trained-model results.
+
+**A concrete example.** The harness expects Candidate and Status. A report uses Result instead of Status, so the parser rejects it. Changing that one field name restores compatibility; replacing the whole report with Run and Verdict still fails. The [author walkthrough](../../../evidence/2026-09-21/model-harness-fit/README.md) executed all four cases against the unchanged parser. This establishes a format repair, not a truthful status or trained-model improvement. Its [source audit](../../../evidence/2026-09-21/model-harness-fit/SOURCE-AUDIT.md) explains the larger training comparison.
+
+![Four plain-text reports meet or violate the same Candidate and Status field contract. A local field-name repair restores the expected format; a whole incompatible template still fails. A separate inset identifies the actual training stage in the source concept.](../../../assets/illustrations/harness-compatibility-v1.png)
+
+*The displayed verdicts are expected outcomes of these constructed format fixtures, not archived test results. Run all four checks. Accepting the field labels does not establish that candidate A is valid or that a task succeeded. The parser remains unchanged. The source study concerns broader planning compatibility and actual model training; the local field repair is only an analogy. Its separate training inset does not turn this four-check activity into an LLM-training experiment.*
+
+[Open the illustration at full size](../../../assets/illustrations/harness-compatibility-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.](../../../assets/diagrams/lab-10-34.png)
+
+*Read the diagram:* An otherwise sensible answer can violate a harness interface. The local correction restores compatibility without training model weights.
+
+</details>
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.34, Keep model
+training aligned with its harness, one step
+at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
+```
+
+**Make a prediction:** Can a more polished response fail because it violates a tool contract?
+
+### 1. Expose the mismatch
+
+Make compatibility executable.
+
+```text
+Generate a fixed parser expecting Candidate
+and Status fields. Test a correct response
+and a response using Result instead of
+Status. Keep both fixtures and the parser
+hash.
+```
+
+**Observe:** A plausible response can violate an interface.
+
+### 2. Repair locally and audit the source
+
+Connect the toy idea to the actual study carefully.
+
+```text
+Apply a minimal correction to the mismatched
+field and rerun the check. Read the paper’s
+training comparison, model families, data,
+and hardware. Explain what the toy omits and
+what real on-policy training would require.
+```
+
+**Observe:** The local repair restores compatibility without pretending to train a model.
+
+## Check your result
+
+The parser failure and repair are executed. The source audit distinguishes parameter training from an interface demonstration.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Fixed parser and four response fixtures | Retain valid, mismatched, repaired, and incompatible-template cases. |
+| Four executable verdicts | Show exactly which structural or semantic condition failed. |
+| Source training audit | Separates the local format demonstration from source-specific on-policy correction and weight updates. |
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Replace the whole correct response with another expert’s incompatible template. Explain why globally imitating a good trajectory can break a local contract.
+
+## If something goes wrong
+
+If the parser accepts the repaired response only after its requirements were weakened, the original comparison changed. Preserve the original parser and report that difference. Have the agent generate any machine representation; the student should inspect field meaning rather than type configuration. Formatting success alone does not prove the reported metric is correct.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- A capable model can be mismatched to its harness.
+- Local correction can preserve valid surrounding behavior.
+- Toy interface evidence does not reproduce training performance.
+
+## Research connection
+
+[Co-Evolving Harnesses and Models with On-Policy Correction](https://arxiv.org/abs/2609.09134), Salesforce research, 8 September 2026.
+
+**Activity type: source audit and mechanism exercise.** You inspect the source and execute a small local analogue. The task, models, resources, and evaluation differ from the paper.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Why can a correct-looking answer fail?
+2. What stays fixed in the toy comparison?
+3. What does on-policy mean at a high level here?
+4. What would establish the source’s training effect?
+
+<details>
+<summary>Hint</summary>
+
+A useful response must fit its consumer’s contract as well as express a plausible answer. Inspect both requirements.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. The harness depends on a specific semantic and structural interface.
+
+2. The parser and task contract.
+
+3. Correction is based on behavior produced by the current agent under its operating conditions.
+
+4. A faithful parameter-training and evaluation comparison with the stated models, harnesses, data, and resources.
+
+</details>
+
+## What's next
+
+Compose different improvement surfaces and inspect the schedule itself. Continue to [10.35: Compose changes to data, harness, and model](../../11_composition_and_reference_learning/step_35_metarsi/README.md).

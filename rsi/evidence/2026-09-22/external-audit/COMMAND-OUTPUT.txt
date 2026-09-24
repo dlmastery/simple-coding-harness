@@ -1,0 +1,4 @@
+Exit: 0
+Subprocess seconds: 0.0849982
+
+441 count pairs; 1 disagreement; 6/6 checks PASS.

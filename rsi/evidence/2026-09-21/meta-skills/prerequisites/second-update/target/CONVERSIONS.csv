@@ -1,0 +1,3 @@
+candidate,selection_mae,seconds,source_unit,basis
+B,10,0.8,second,declared conversion
+A,10,1.2,minute,declared conversion

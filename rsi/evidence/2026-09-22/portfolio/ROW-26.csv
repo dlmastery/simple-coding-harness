@@ -1,0 +1,13 @@
+field,value,role
+fixed acidity,6.9,model input
+volatile acidity,0.24,model input
+citric acid,0.35,model input
+residual sugar,1.0,model input
+chlorides,0.052,model input
+free sulfur dioxide,35.0,model input
+total sulfur dioxide,146.0,model input
+density,0.993,model input
+pH,3.45,model input
+sulphates,0.44,model input
+alcohol,10.0,model input
+quality,6.0,target for checking only

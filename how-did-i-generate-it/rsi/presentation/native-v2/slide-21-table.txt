@@ -1,0 +1,12 @@
+﻿Setting
+Task scope
+Resource and grading boundary
+Local nested study
+6 reserved public tabular tasks
+12 fits per procedure per taskPublic files, procedural boundary
+RSI-Exam
+88 tasks in 6 domains35 public, 53 withheld
+Up to 12 hours per taskSeparate hidden grading
+MLE-bench
+75 competitions22 in the smaller subset
+Recommended: 24 hours, 36 vCPUs,440 GB RAM, 24 GB A10 GPU

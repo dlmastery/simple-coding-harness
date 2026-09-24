@@ -1,0 +1,5 @@
+REFUSED: Interrupted candidate needs review. Mark it interrupted; do not silently rerun it.
+
+Exit: 2
+Expected: 2
+Seconds: 1.508120799990138

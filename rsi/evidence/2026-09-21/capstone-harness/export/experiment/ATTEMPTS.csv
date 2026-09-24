@@ -1,0 +1,2 @@
+candidate,model,features,status,fit_seconds,process_seconds,error
+baseline,median,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.0011767999967560172,0.02127870000549592,

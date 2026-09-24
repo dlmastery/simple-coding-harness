@@ -1,0 +1,5 @@
+path,sha256
+rsi/tools/lab.py,d69d3fbd8a4ace3e0332f4dfbc9a2648f87f858867229db63bc854f7810120a0
+rsi/tools/check_result.py,7fefc839f2b9ed85b0dc56a9076c63ed8759f999e3721e2a16c1e03e52d2ff61
+rsi/examples/bike-demand/source/hour.csv,e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f
+how-did-i-generate-it/rsi/scripts/run-aide-labs.py,a5249f4535565f78ff76dd4c4df3d891d9fd6c5658f8ad283302309286e21cc0

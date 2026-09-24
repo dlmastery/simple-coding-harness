@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\lab.py', 'compare', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-loop-state-feedback\\02-03']
+Start UTC: 2026-09-22T08:04:52.134177+00:00
+End UTC: 2026-09-22T08:04:53.896848+00:00
+Exit: 0
+Expected: 0
+Process wall seconds: 1.7567349000019021
+
+trial-002

@@ -1,0 +1,5 @@
+operator,model,features,selection_mae,status
+draft,constant,calendar,159.94791188618632,recorded deterministic recipe
+refine,linear,calendar,109.80766775073437,recorded deterministic recipe
+enrich,linear,all,99.17592378687597,recorded deterministic recipe
+explore,tree,all,unknown,unobserved recipe; stop

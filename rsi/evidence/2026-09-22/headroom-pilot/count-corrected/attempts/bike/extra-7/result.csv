@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,extra-7,ok,MAE,91.31671875,0.5654169289591546,0.2106186000164598,0.0146512999781407,2.3819008999853395,Derived count clipping; original fit cost retained; no refit

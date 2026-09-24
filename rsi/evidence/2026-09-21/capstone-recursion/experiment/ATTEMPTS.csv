@@ -1,0 +1,9 @@
+candidate,model,features,status,fit_seconds,process_seconds,error
+g1-ridge,ridge,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.0038886000111233443,0.053925299987895414,
+g1-tree,tree,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.01621889998205006,0.08687669999198988,
+g2-i0-tree,tree,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.017085300001781434,0.06719000000157394,
+g2-i0-ridge,ridge,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.0027691999857779592,0.04387639998458326,
+g2-i0-forest,forest,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.3217820000136271,0.439548599999398,
+g2-i1-tree,tree,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.016806200001155958,0.07735049998154864,
+g2-i1-ridge,ridge,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.004537100001471117,0.05619000000297092,
+g2-i1-forest,forest,fixed acidity|volatile acidity|citric acid|residual sugar|chlorides|free sulfur dioxide|total sulfur dioxide|density|pH|sulphates|alcohol,succeeded,0.32143490001908503,0.4435141999856569,

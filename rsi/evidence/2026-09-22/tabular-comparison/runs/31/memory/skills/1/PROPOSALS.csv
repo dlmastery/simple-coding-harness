@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+one:rbf-unscaled,1.0,0,frozen global-rank experience
+two:unscaled-c100,1.0,0,frozen global-rank experience
+two:unscaled-c1,1.0,0,frozen global-rank experience
+base:rbf-10,1.0,0,frozen global-rank experience

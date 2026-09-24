@@ -1,0 +1,2 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.103208,not supplied,Test constant with calendar under the unchanged bike task.

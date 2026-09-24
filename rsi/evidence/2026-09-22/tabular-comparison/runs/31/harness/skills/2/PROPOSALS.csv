@@ -1,0 +1,3 @@
+template,factor,parent_step,reason
+two:unscaled-c1,0.09,5,lower-capacity branch; revised harness may change representation
+one:rbf-wide,0.9,5,higher-capacity local branch

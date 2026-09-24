@@ -1,0 +1,5 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\lab.py', 'run', '--task', 'bike', '--workspace', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-fixed-process\\01-03', '--model', 'constant', '--features', 'calendar', '--seed', '17', '--attempt-limit', '1', '--hypothesis', 'Reproduce the fixed training-median baseline without changing its recipe.', '--policy', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-fixed-process\\BASELINE-SKILL.md']
+Exit: 0
+Process wall seconds: 1.5621892999915872
+
+{"candidate": "trial-001", "status": "ok", "task": "bike", "model": "constant", "features": "calendar", "seed": 17, "score": 159.94791188618632, "seconds": 0.06998, "policy_sha256": "c87c72afffcd1185d8a29932fc7ae2b407421dfcfeaff5cfed48c6fcf695348c", "note": "Reproduce the fixed training-median baseline without changing its recipe."}

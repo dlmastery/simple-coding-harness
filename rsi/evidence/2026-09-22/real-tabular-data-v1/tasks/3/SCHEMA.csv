@@ -1,0 +1,38 @@
+column,role,kind,categories
+bkblk,feature,categorical,t | f
+bknwy,feature,categorical,t | f
+bkon8,feature,categorical,t | f
+bkona,feature,categorical,t | f
+bkspr,feature,categorical,t | f
+bkxbq,feature,categorical,t | f
+bkxcr,feature,categorical,t | f
+bkxwp,feature,categorical,t | f
+blxwp,feature,categorical,t | f
+bxqsq,feature,categorical,t | f
+cntxt,feature,categorical,t | f
+dsopp,feature,categorical,t | f
+dwipd,feature,categorical,g | l
+hdchk,feature,categorical,t | f
+katri,feature,categorical,b | n | w
+mulch,feature,categorical,t | f
+qxmsq,feature,categorical,t | f
+r2ar8,feature,categorical,t | f
+reskd,feature,categorical,t | f
+reskr,feature,categorical,t | f
+rimmx,feature,categorical,t | f
+rkxwp,feature,categorical,t | f
+rxmsq,feature,categorical,t | f
+simpl,feature,categorical,t | f
+skach,feature,categorical,t | f
+skewr,feature,categorical,t | f
+skrxp,feature,categorical,t | f
+spcop,feature,categorical,t | f
+stlmt,feature,categorical,t | f
+thrsk,feature,categorical,t | f
+wkcti,feature,categorical,t | f
+wkna8,feature,categorical,t | f
+wknck,feature,categorical,t | f
+wkovl,feature,categorical,t | f
+wkpos,feature,categorical,t | f
+wtoeg,feature,categorical,n | t | f
+class,target,categorical,won | nowin

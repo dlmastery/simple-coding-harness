@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.110749,115d762954959af3a669a684d6c692c29f0f3193e09b051a7f69cb90d5959306,Execute predeclared constant under task skill 115d762954959af3a669a684d6c692c29f0f3193e09b051a7f69cb90d5959306; preserve all outcomes.
+trial-002,ok,bike,tree,calendar,17,125.04948805895863,0.138319,115d762954959af3a669a684d6c692c29f0f3193e09b051a7f69cb90d5959306,Execute predeclared tree under task skill 115d762954959af3a669a684d6c692c29f0f3193e09b051a7f69cb90d5959306; preserve all outcomes.

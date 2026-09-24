@@ -1,0 +1,14 @@
+workspace,candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+02-06/arm-a,trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.147293,not supplied,Run the declared fixed recipe.
+02-06/arm-a,trial-002,ok,bike,constant,calendar,17,159.94791188618632,0.156618,not supplied,Intentional replication under the predeclared fixed-retry control.
+02-06/arm-b,trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.116452,not supplied,Run the declared fixed recipe.
+02-06/arm-b,trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.213103,not supplied,Pre-fit decision SHA-256 097270cf5949ebb0abb794a00c6a23de903dab3399a56c17acdd6639141df94f: test a calendar-conditioned model from hourly baseline errors.
+05-02/bike,trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.417814,not supplied,Run the declared fixed recipe.
+05-02/wine,trial-001,ok,wine,constant,all,17,0.5,0.084872,not supplied,Run the declared fixed recipe.
+05-04/run,trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.111397,not supplied,Run the declared fixed recipe.
+08-01/tree,trial-001,ok,bike,tree,calendar,17,125.04948805895863,0.135062,not supplied,Run the declared fixed recipe.
+08-01/forest,trial-001,ok,bike,forest,calendar,17,108.12960722373228,0.825672,not supplied,Run the declared fixed recipe.
+08-01/tree,trial-002,ok,bike,tree,calendar,29,125.04948805895863,0.13407,not supplied,Run the declared fixed recipe.
+08-01/forest,trial-002,ok,bike,forest,calendar,29,108.6468516708133,0.906178,not supplied,Run the declared fixed recipe.
+08-01/tree,trial-003,ok,bike,tree,calendar,43,125.04948805895863,0.169064,not supplied,Run the declared fixed recipe.
+08-01/forest,trial-003,ok,bike,forest,calendar,43,108.45685088962668,1.193968,not supplied,Run the declared fixed recipe.

@@ -1,0 +1,2 @@
+serial,step,template,factor,parent_step,reason
+10,10,two:quadratic-splines,1.0,0,fixed expanded portfolio

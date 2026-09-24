@@ -1,0 +1,3 @@
+step,node,outcome,next
+1,inspect,invalid,diagnose
+2,diagnose,done,stop

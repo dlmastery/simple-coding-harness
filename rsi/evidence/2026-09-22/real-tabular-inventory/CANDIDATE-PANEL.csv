@@ -1,0 +1,7 @@
+suite,task,dataset,name,version,kind,target,rows,columns,symbolic_columns,missing_values,license,eligible,reason,data_url
+353,361234,44956,abalone,15,Supervised Regression,rings,4177,9,1.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111820/abalone.arff
+353,361235,44957,airfoil_self_noise,8,Supervised Regression,sound_pressure,1503,6,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111821/airfoil_self_noise.arff
+353,361236,44958,auction_verification,7,Supervised Regression,verification.time,2043,8,2.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111822/auction_verification.arff
+353,361237,44959,concrete_compressive_strength,7,Supervised Regression,strength,1030,9,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111823/concrete_compressive_strength.arff
+353,361244,44966,solar_flare,7,Supervised Regression,c_class_flares,1066,11,8.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111830/solar_flare.arff
+353,361247,44969,naval_propulsion_plant,7,Supervised Regression,gt_compressor_decay_state_coefficient,11934,15,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111833/naval_propulsion_plant.arff

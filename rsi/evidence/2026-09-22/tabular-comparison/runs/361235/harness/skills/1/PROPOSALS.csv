@@ -1,0 +1,3 @@
+template,factor,parent_step,reason
+one:absolute-forest,0.3,3,lower-capacity branch; revised harness may change representation
+base:random-forest,3.0,3,higher-capacity local branch

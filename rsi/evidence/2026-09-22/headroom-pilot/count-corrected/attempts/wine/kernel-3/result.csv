@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+wine,kernel-3,ok,MAE,0.5097767736620612,0.8649935680755187,0.025927500013494864,0.01731260001542978,2.225470800010953,exit=0

@@ -1,0 +1,2 @@
+serial,step,template,factor,parent_step,reason
+12,12,base:neighbors-25,6.90426866,0,seeded full-space random search

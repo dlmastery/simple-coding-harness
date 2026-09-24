@@ -1,0 +1,4 @@
+"task","row_id","truth","parent_prediction","i1_prediction","selection_rule","representative_sample"
+"43","416","1","1","0","first differing row for gain/regression; first row for exact tie","False"
+"45","1","EI","EI","EI","first differing row for gain/regression; first row for exact tie","False"
+"361260","1","349000.0","461491.40625000006","595471.9213029572","first differing row for gain/regression; first row for exact tie","False"

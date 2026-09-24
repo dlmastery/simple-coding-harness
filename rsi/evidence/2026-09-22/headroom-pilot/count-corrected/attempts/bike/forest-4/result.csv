@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,forest-4,ok,MAE,125.66384200678935,0.7780882252592682,0.1181267999927513,0.0065501000208314,2.2600707999954466,Derived count clipping; original fit cost retained; no refit

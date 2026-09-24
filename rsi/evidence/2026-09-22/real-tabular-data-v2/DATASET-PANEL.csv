@@ -1,0 +1,13 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+3,3,kr-vs-kp,development,classification,class,3196,36,36,0,0,0,0,True,b22a8a12bd40648400b000bad0545683b8ecd33ac84f2c265dd5c309c832fd69,1899,657,640
+6,6,letter,procedure-comparison,classification,class,20000,16,0,0,0,1332,0,True,a31f2d9ad119a53e182e7371d48981982dbb2b0a5e9f0aa7b73f373857b64e2e,2400,800,800
+16,16,mfeat-karhunen,development,classification,class,2000,64,0,0,0,6,0,True,1f9c621a9ee7435e84dfcaf02740e498815b3b626dda54a1d8faa41897c9ea80,1171,402,427
+23,23,cmc,procedure-comparison,classification,Contraceptive_method_used,1473,9,7,0,0,115,62,True,9d8694d39e05d9d2963fccbe4f71e2af04c72c13de45f5dcbe775a586f214567,870,326,277
+28,28,optdigits,development,classification,class,5620,64,0,0,2,0,0,True,e86f102c957f41c7022b187766b0f9949a54ae8cedc492de1cc29765f060358a,2400,800,800
+31,31,credit-g,procedure-comparison,classification,class,1000,20,13,0,0,0,0,True,768be84ef749110d5fcac109a6541f2df190e8c6987e1dc432c0a4f29d0642f5,604,195,201
+361234,44956,abalone,development,regression,rings,4177,8,1,0,0,0,0,True,148af233543e257b41b2ad79b4c3a22116be68d8f7a177a1bd108ce94402c8f4,2400,800,800
+361235,44957,airfoil_self_noise,procedure-comparison,regression,sound_pressure,1503,5,0,0,0,0,0,True,27c5c925f7f81911e9bd4664bba3656d2558d9ba301a6a0a617fac4b5797117a,890,299,314
+361236,44958,auction_verification,development,regression,verification.time,2043,7,2,0,0,0,0,True,f0dcaf7165b3235a6031395f2068bb7833bfbeb32c263713cf8834bd679a4d97,1230,413,400
+361237,44959,concrete_compressive_strength,procedure-comparison,regression,strength,1030,8,0,0,0,34,9,True,510beb3f50cba7907815b611af40edf14eb75902995bb9d7bccb40db156cf8ec,601,213,216
+361244,44966,solar_flare,development,regression,c_class_flares,1066,10,8,0,1,822,74,True,34f377d0c949b0a35e7b6ce5fd9854f4154842dd03e46d24cfcebe2d5c267794,620,270,176
+361247,44969,naval_propulsion_plant,procedure-comparison,regression,gt_compressor_decay_state_coefficient,11934,14,0,0,0,0,0,True,566a503cb6bcd1166f79346cadef9101a4be46573471b80158a6419fd0deea58,2400,800,800

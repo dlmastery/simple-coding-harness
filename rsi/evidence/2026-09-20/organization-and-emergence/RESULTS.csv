@@ -1,0 +1,9 @@
+case,policy,jobs,makespan_ticks,same_type_pairs,adjacent_pairs,clustering,max_lateness_ticks,checks
+organization-fixed,fixed,6,21,4,4,1.0,0,pass
+organization-dynamic,fifo,6,14,4,4,1.0,0,pass
+organization-overhead,fifo,6,23,4,4,1.0,0,pass
+emergence-fifo,fifo,12,12,0,10,0.0,0,pass
+emergence-local,local_history,12,8,8,10,0.8,0,pass
+emergence-random,random_history,12,9,7,10,0.7,0,pass
+urgent-fifo,fifo,12,12,0,10,0.0,1,pass
+urgent-local,local_history,12,8,8,10,0.8,3,pass

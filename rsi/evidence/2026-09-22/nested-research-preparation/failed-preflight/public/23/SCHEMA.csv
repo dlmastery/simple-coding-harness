@@ -1,0 +1,11 @@
+column,role,kind,categories
+Wifes_age,feature,numeric,
+Wifes_education,feature,categorical,1 | 2 | 3 | 4
+Husbands_education,feature,categorical,1 | 2 | 3 | 4
+Number_of_children_ever_born,feature,numeric,
+Wifes_religion,feature,categorical,0 | 1
+Wifes_now_working%3F,feature,categorical,0 | 1
+Husbands_occupation,feature,categorical,1 | 2 | 3 | 4
+Standard-of-living_index,feature,categorical,1 | 2 | 3 | 4
+Media_exposure,feature,categorical,0 | 1
+Contraceptive_method_used,target,categorical,1 | 2 | 3

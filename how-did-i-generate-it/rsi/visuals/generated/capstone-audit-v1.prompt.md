@@ -1,0 +1,12 @@
+Use case: scientific-educational.
+Create one original landscape 3:2 infographic for this individual codelab, not a course overview. Input image 1 is the visual-style reference: main-overview-v2. Match its professional textbook craft, pure white background, navy serif headings, crisp ink, restrained watercolor, concrete scientific objects, rich useful detail, blue fixed elements, amber changes, teal evidence, restrained red rejection. Keep generous white space and readable hierarchy. Vary the composition to suit the mechanism; avoid a generic grid of cards or decorative robots.
+Technical content is locked below. Use only the supplied technical text. Do not invent extra rules, filenames, scores, checklist items, badges, slogans, or claims. Unlabelled document lines may imply detail without becoming fake measurements. Do not draw performance curves. This is a conceptual teaching illustration, not an executed result. Use numbered reading order where specified; add no control-flow arrows except those explicitly requested.
+
+Title: "Turn a bold claim into a testable question"
+Three large numbered scenes form an illustrated investigator's reading desk.
+1 "Read the original source": a generic paper, a browser announcement printout, and a source card. Exact source-card labels: "Author", "Date", "Version", "What was read". Do not use real logos, titles, institutions, publication dates, or invented paper text.
+2 "Trace the claim": a magnifier over a claim card beside a separate evidence notebook. Exact notebook labels: "What changes?", "What is inherited?", "How is it compared?", "What did it cost?". Put two equally prominent paper tabs beside it: "Strongest support" and "Main limitation".
+3 "Propose the smallest useful check": an experimental plan on a small laptop with two comparison folders and a notebook. Exact labels: "Alternative explanation", "Distinguishing observation", "Follow-up experiment". No result or success marks.
+Use only two forward reading-order arrows, from scene 1 to 2 and from 2 to 3. Keep documents distinct; a claim is not its evidence.
+Footer: "State what the evidence supports—and what would change your conclusion."
+The lab selects a primary source discovered within the preceding month, or a clearly dated required foundation. Put that selection detail in a small margin note exactly "Recent discovery does not make an old paper new." A social announcement can be a lead but must not be depicted as a reproduced result. No training run is required by this illustration.

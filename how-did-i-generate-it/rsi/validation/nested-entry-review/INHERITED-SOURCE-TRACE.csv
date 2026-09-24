@@ -1,0 +1,4 @@
+"task","improver","retained_parent_sha256","later_researcher_sha256","attempts","selected_step","selected_template","selected_candidate_sha256","later_source_verified"
+"43","i1","053228ae5a337e2dee99c96a569d890f3a908d7194e2ba00c3cc5636ab02481f","26b2107d2758eebadad1d20b9c9a5907f4b886800f1e1793ba85fef016fbea4e","12","4","base:hist-boost","c57445ba4248176a610264d02f47077484c9b2db467b3617b7e6c2d09fac91b3","True"
+"45","i1","053228ae5a337e2dee99c96a569d890f3a908d7194e2ba00c3cc5636ab02481f","26b2107d2758eebadad1d20b9c9a5907f4b886800f1e1793ba85fef016fbea4e","12","6","base:rbf-10","99666013fed9dfb0cb3c8aefeb0ff36ea73030482a9d8666d270a500e98c3cc7","True"
+"361260","i1","053228ae5a337e2dee99c96a569d890f3a908d7194e2ba00c3cc5636ab02481f","26b2107d2758eebadad1d20b9c9a5907f4b886800f1e1793ba85fef016fbea4e","12","11","one:absolute-boost","232e87a607baa1faec0b8cc3c4e8c2a8a76dfc0d1f814e7c0dcbd9746d239e00","True"

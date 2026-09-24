@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+friedman,boost-0-quantile,ok,MAE,1.1419290441345475,0.2743109335540331,0.16457100000116043,0.01384119997965172,1.7539256000018213,exit=0

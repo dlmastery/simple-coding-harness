@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+wine,forest-0-quantile,ok,MAE,0.492358934169279,0.835438829787234,0.2808755000005476,0.006705900013912469,2.0893273999972735,exit=0

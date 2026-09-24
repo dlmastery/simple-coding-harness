@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+28,28,optdigits,development,classification,class,5620,64,0,0,2,0,0,True,e86f102c957f41c7022b187766b0f9949a54ae8cedc492de1cc29765f060358a,2400,800,800

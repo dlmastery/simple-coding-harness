@@ -1,0 +1,5 @@
+action,true_reward,observed_reward,advantage,gradient,finite_difference,old_logit,new_logit,old_probability,new_probability
+0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.25,0.25
+1,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.25,0.25
+2,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.25,0.25
+3,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.25,0.25

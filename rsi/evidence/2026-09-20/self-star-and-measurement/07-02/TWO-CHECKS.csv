@@ -1,0 +1,3 @@
+task,parent_training,parent_selection,child_training,child_selection,narrow_rule_keeps,always_tree_keeps,always_tree_is_better
+regression,24.487987257023374,24.202525504796444,0.0,71.8751149560598,linear,tree,False
+classification,0.8516666666666667,0.86,1.0,0.88,tree,tree,True

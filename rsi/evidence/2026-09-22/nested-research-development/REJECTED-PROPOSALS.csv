@@ -1,0 +1,35 @@
+task,arm,serial,template,factor,parent_step,reason,status,constructor_sha256
+6,parent,10,base:rbf-10,0.5,6,refine current best checked model,duplicate-constructor,5a37aa47273baa340dc89ceccb37d31c49041741de11565660a5376adb6db71b
+6,i0,9,base:rbf-10,1.0,6,refine current best checked model,duplicate-constructor,acb8cb170ac0cbe1ab878480e99ff6f167ea13b2c4f73adf946c3afaf367d248
+6,i1,12,base:extra-trees,2.0,2,alternate two checked families; use observed generalization gap,duplicate-constructor,bc07bb99b98df2d658f0cf78d1708f8e6da4018cf77c7cc6e8857f6ae00daee4
+6,i1,13,base:rbf-10,1.0,6,alternate two checked families; use observed generalization gap,duplicate-constructor,acb8cb170ac0cbe1ab878480e99ff6f167ea13b2c4f73adf946c3afaf367d248
+6,i1,14,base:extra-trees,1.0,2,alternate two checked families; use observed generalization gap,duplicate-constructor,bc07bb99b98df2d658f0cf78d1708f8e6da4018cf77c7cc6e8857f6ae00daee4
+23,i0,9,base:rbf-1,1.0,3,refine current best checked model,duplicate-constructor,6b24f9358906fd654ac367ce280d79a29d5e29ca2242f3a08eafa6d9ed35d7df
+23,i0,11,base:rbf-1,1.0,9,refine current best checked model,duplicate-constructor,6b24f9358906fd654ac367ce280d79a29d5e29ca2242f3a08eafa6d9ed35d7df
+23,parent,11,base:rbf-1,1.0,9,refine current best checked model,duplicate-constructor,6b24f9358906fd654ac367ce280d79a29d5e29ca2242f3a08eafa6d9ed35d7df
+31,parent,10,base:linear,0.5,1,refine current best checked model,duplicate-constructor,4fe2bb06614161f23b7a995300ef4cecd2775296e3b08ccdd3395360d4484aeb
+31,parent,13,base:linear,1.0,11,refine current best checked model,duplicate-constructor,d6b003ab3f95474405527cc066147cc9c9db18d5a64ea5f4a3dbfec8b10babb3
+31,i0,9,base:linear,1.0,1,refine current best checked model,duplicate-constructor,d6b003ab3f95474405527cc066147cc9c9db18d5a64ea5f4a3dbfec8b10babb3
+31,i0,13,base:linear,1.0,11,refine current best checked model,duplicate-constructor,d6b003ab3f95474405527cc066147cc9c9db18d5a64ea5f4a3dbfec8b10babb3
+361235,parent,10,base:extra-trees,0.5,5,refine current best checked model,duplicate-constructor,1a368254ba2a13308bd47c5e7ee9aef0c85c4ece6fdac8e5b3f72f398561784b
+361235,parent,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,parent,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,parent,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,i0,9,base:extra-trees,1.0,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,i0,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,i0,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361235,i0,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,2d46b90e0de448207a48c4b0ef6f87bf1ff0718380eaf4065bc7c4a490962fc7
+361237,i0,9,base:hist-boost,1.0,6,refine current best checked model,duplicate-constructor,d38d7261125132352c3f0401ade237b294255ae59434de8d0eb1f8dffa6dbd7e
+361237,parent,10,base:hist-boost,0.5,6,refine current best checked model,duplicate-constructor,ac36af8f3b2480d920b71bf10d1b1ae5172a36494495177f17db6bb2316f79fd
+361247,i1,11,base:extra-trees,2.0,5,alternate two checked families; use observed generalization gap,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i1,13,base:extra-trees,1.0,5,alternate two checked families; use observed generalization gap,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i1,14,base:hist-boost,2.0,11,alternate two checked families; use observed generalization gap,duplicate-constructor,874b641c8f8fd389d4746ffbb8f36d51e736a983e064fdc54d965f6a50011736
+361247,i1,15,base:extra-trees,4.0,5,alternate two checked families; use observed generalization gap,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,parent,10,base:extra-trees,0.5,5,refine current best checked model,duplicate-constructor,c3490b952ccf71c753f16315d858fa146b1d6969ab2f390f809c353019a4e90b
+361247,parent,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,parent,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,parent,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i0,9,base:extra-trees,1.0,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i0,11,base:extra-trees,2.0,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i0,13,base:extra-trees,4.0,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43
+361247,i0,15,base:extra-trees,1.5,5,refine current best checked model,duplicate-constructor,c0ac8f7a3d2b660e68a801bc5ab3786182eb4dda05bd70ddd8595885c589cb43

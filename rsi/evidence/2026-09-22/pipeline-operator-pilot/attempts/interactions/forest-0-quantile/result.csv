@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+interactions,forest-0-quantile,ok,balanced_accuracy,0.8557382333978079,0.2885235332043843,0.5412122999841813,0.008958899998106062,2.3218765999772586,exit=0

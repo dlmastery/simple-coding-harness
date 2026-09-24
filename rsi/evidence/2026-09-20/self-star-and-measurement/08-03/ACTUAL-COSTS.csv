@@ -1,0 +1,3 @@
+procedure,attempts,fit_seconds,fit_and_check_child_wall_seconds,checker_calls,failed_attempts,agent_cost
+parent,2,0.249068,9.435240799990424,2,0,unknown
+child,2,0.226161,9.801190399986808,2,0,unknown

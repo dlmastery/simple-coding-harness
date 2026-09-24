@@ -1,0 +1,10 @@
+check,passed
+Two charged unique attempts,True
+Interrupted slot retained,True
+One real continuation succeeded,True
+First proposal preserved,True
+Contract preserved,True
+Three-attempt ceiling retained,True
+No false first predictions,True
+No final evaluation,True
+No stale lock,True

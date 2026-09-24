@@ -1,0 +1,22 @@
+check,observed,expected,status
+Valid action order,True,True,pass
+Checking before fitting,False,False,pass
+Matching join,pass,pass,pass
+Missing join result,incomplete,incomplete,pass
+Wrong-candidate join,mismatch,mismatch,pass
+Stale-contract join,mismatch,mismatch,pass
+Effective repair,pass,pass,pass
+Ineffective repair stops,"('exhausted', 3)","('exhausted', 3)",pass
+Report-only recovery,{'report'},{'report'},pass
+Split invalidation,"{'fit', 'check', 'report', 'split'}","{'split', 'fit', 'check', 'report'}",pass
+Absent replay branch,"('unvisited', 'unknown', None)","('unvisited', 'unknown', None)",pass
+Replay charges realized cost,2.0,2.0,pass
+Replay enforces budget,budget stop,budget stop,pass
+Replay requires parent,unsupported path,unsupported path,pass
+Grouped signal signs,"[False, False, True, True]","[False, False, True, True]",pass
+Equal rewards give zero centered signal,"[0.0, 0.0, 0.0, 0.0]","[0.0, 0.0, 0.0, 0.0]",pass
+Toy probabilities sum to one,1.0,1.0,pass
+Toy preferred actions increase,True,True,pass
+Restricted operator write,"(0, 1, 0)","(0, 1, 0)",pass
+Stale evidence rejected,stale evidence,stale evidence,pass
+Evaluator write rejected,undeclared write surface,undeclared write surface,pass

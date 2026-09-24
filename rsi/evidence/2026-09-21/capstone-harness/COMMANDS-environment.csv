@@ -1,0 +1,2 @@
+name,exit_status,signal,wall_seconds,expected_exit
+00b-environment-metadata,1,,0.0485972,0

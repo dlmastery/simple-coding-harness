@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,boost-6,ok,MAE,92.9160905023461,0.5753199552270093,0.08627800000249408,0.012786100007360801,2.2639525000122376,exit=0

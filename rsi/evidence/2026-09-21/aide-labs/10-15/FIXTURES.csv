@@ -1,0 +1,7 @@
+producer,case,remaining,operator,recipe,outcome,expected_behavior_pass,decision_seconds
+R0,A,1,explore,tree/calendar,duplicate refused,0,3.6999990697950125e-06
+R0,B,1,explore,tree/calendar,valid unseen proposal,1,1.3999961083754897e-06
+R0,C,0,explore,none,correct stop,1,1.2999997125007212e-05
+R1,A,1,enrich,linear/all,valid unseen proposal,1,3.4999975468963385e-06
+R1,B,1,enrich,linear/all,duplicate refused,0,1.0999938240274787e-06
+R1,C,0,enrich,none,correct stop,1,5.00003807246685e-07

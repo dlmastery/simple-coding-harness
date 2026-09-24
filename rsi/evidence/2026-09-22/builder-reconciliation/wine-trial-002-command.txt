@@ -1,0 +1,8 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\check_result.py', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\evidence\\2026-09-20\\clean-journey\\06-05\\run\\trial-002', '--report', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-builder-reconciliation\\WINE-trial-002-CHECK.md']
+Start: 2026-09-22T08:55:34.707653+00:00
+End: 2026-09-22T08:55:36.224423+00:00
+Exit: 0
+Expected: 0
+Wall seconds: 1.5158439999795519
+Output:
+PASS: selection rows, targets, ledger, and report agree. Score: 0.744955.

@@ -1,0 +1,5 @@
+model,harness,invented_score,kind
+M0,H0,0.4,synthetic table evaluation
+M0,H1,0.7,synthetic table evaluation
+M1,H0,0.8,synthetic table evaluation
+M1,H1,0.6,synthetic table evaluation

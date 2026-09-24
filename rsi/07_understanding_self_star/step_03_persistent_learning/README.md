@@ -1,0 +1,156 @@
+# 07.03 · Retain and use a lesson
+
+[Course](../../README.md) · [Theme](../README.md)
+
+**You are here:** Theme 07, Changes and their evidence → lab 3 of 8. [Find this theme in the course map](../../COURSE-MAP.md#theme-07) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
+## What you will build
+
+A versioned memory note that changes a later decision.
+
+## Why this matters
+
+A saved lesson only matters to future behavior if a later process retrieves and uses it.
+
+## Before you start
+
+Complete [07.02: Test a reflection before trusting it](../step_02_reflection/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/07-03</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** A tested reflection, a new case, and a fresh session where available.
+
+**Budget:** One later task or fit; preserve a no-memory comparison if already available. The additional scope check uses one separately labelled fixture and no extra fit. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+Learning can be implemented through changed weights, memory, skills, or other retained state. This lab uses external memory. State the mechanism precisely: the host model reads a saved rule. A larger memory file is not evidence of better decisions.
+
+**A concrete example.** A saved rule says to use the declared metric direction and compare only compatible candidates. In the [later decision replay](../../evidence/2026-09-20/self-star-and-measurement/07-03/USE-AND-BENEFIT.md), a separate process reads that file and selects wine balanced accuracy 0.745 rather than 0.5. The deliberately weak no-memory control chose the smaller number. This demonstrates reading and using this explicit rule on known candidates; it does not measure an LLM learning new weights or generalizing to an unseen task.
+
+![A versioned memory note records a rule and its scope. A later decision names that memory before acting. A separate comparison asks whether its use helped, and an outside-scope fixture stops for clarification without fitting.](../../assets/illustrations/memory-save-use-benefit-v1.png)
+
+*A new-session label describes the intended exercise, not proof of an independent context. Record what the host actually exposes. The with-memory and no-memory trays are evidence slots; an empty tray is not a measured control. Within this lab’s budget, compare with a suitable existing no-memory result or state the unrun alternative as a prediction. The separate scope fixture tests refusal when comparison requirements are missing or incompatible. This memory-based adaptation changes an external artifact; it does not update language-model weights or the procedure that creates memories.*
+
+[Open the illustration at full size](../../assets/illustrations/memory-save-use-benefit-v1.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![Persistent learning requires a retained change that is used later. Use and benefit are separate checks.](../../assets/diagrams/lab-07-03.png)
+
+*Read the diagram:* Persistent learning requires a retained change that is used later. Use and benefit are separate checks.
+
+</details>
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 07.03, Retain and use a
+lesson, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
+```
+
+**Make a prediction:** What would demonstrate use of the memory rather than mere file existence?
+
+### 1. Retain the narrow rule
+
+Preserve scope and evidence.
+
+```text
+Write MEMORY-v1.md with the validated rule,
+when it applies, when it does not, and links
+to its supporting and failing cases. Keep
+the original trace separate.
+```
+
+**Observe:** The note retains a bounded lesson, not an unconditional slogan.
+
+### 2. Apply it later
+
+Trace persistence into behavior.
+
+```text
+In a new task context, read MEMORY-v1.md and
+record the decision it changes before
+execution. Run the task and compare with the
+declared no-memory behavior. Label a
+same-context exercise if a new session is
+unavailable.
+```
+
+**Observe:** A decision trace supports actual use.
+
+## Check your result
+
+The memory version is identified. A later action is linked to a specific rule. The result distinguishes use from benefit.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| MEMORY-v1.md | Retains the rule, scope, limits, and supporting evidence. |
+| Later decision trace | Names the memory version and the specific action it changed before execution. |
+| Use and outcome report | Distinguishes retrieval, behavior change, measured benefit, and any unexecuted no-memory counterfactual. |
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Apply the rule to a case outside its stated scope. Predict possible negative transfer before running a small check.
+
+## If something goes wrong
+
+If the later answer only quotes the memory, identify an actual changed choice before calling it behavioral use. If a fresh session is unavailable, label the shared context. If no no-memory run exists, keep the stated alternative as a prediction; do not invent a measured baseline or infer benefit solely from reading the note.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- External memory is one form of retained adaptation.
+- Persistence, use, and benefit are separate claims.
+- A useful lesson includes its scope.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Did the language-model weights change?
+2. Does reading memory prove it helped?
+3. What is negative transfer?
+4. Is persistent learning automatically recursive improvement?
+
+<details>
+<summary>Hint</summary>
+
+There are three separate questions: was it saved, was it used, and did using it help? Find different evidence for each.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. No. The changed state is an external memory artifact.
+
+2. No. Compare behavior and outcomes with a suitable baseline.
+
+3. A retained lesson harms performance on another case or task.
+
+4. No. The procedure that writes and checks memory may remain fixed.
+
+</details>
+
+## What's next
+
+Use a fixed improver to revise a task skill and measure its effect. Continue to [07.04: Improve a task skill with a fixed procedure](../step_04_self_improvement/README.md).

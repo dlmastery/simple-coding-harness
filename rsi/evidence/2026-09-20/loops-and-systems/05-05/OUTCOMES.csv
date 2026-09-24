@@ -1,0 +1,7 @@
+phase,system,fixture,features,domain_check,allowlist_check,fit_stub_reached,reason
+main,full,valid,hr weekday,True,True,True,dry-run fit stub reached; no training called
+main,full,leaked,hr weekday casual,True,True,False,domain check rejects outcome information
+main,domain-removed,valid,hr weekday,False,True,True,dry-run fit stub reached; no training called
+main,domain-removed,leaked,hr weekday casual,False,True,False,tool allowlist rejects undeclared inputs
+additional,both-removed,valid,hr weekday,False,False,True,dry-run fit stub reached; no training called
+additional,both-removed,leaked,hr weekday casual,False,False,True,dry-run fit stub reached; no training called

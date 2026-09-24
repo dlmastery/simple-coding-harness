@@ -1,0 +1,20 @@
+check,status
+bike: complete prediction bytes equal,PASS
+bike: complete frozen contracts equal,PASS
+bike: saved entry matches generation record,PASS
+bike: recovered builder matches generation record,PASS
+bike: brief matches generation record,PASS
+bike: one successful admitted fit retained,PASS
+bike: historical wrong-task command refused,PASS
+bike: recreated result records expected metric and runtime,PASS
+wine: complete prediction bytes equal,PASS
+wine: complete frozen contracts equal,PASS
+wine: saved entry matches generation record,PASS
+wine: recovered builder matches generation record,PASS
+wine: brief matches generation record,PASS
+wine: one successful admitted fit retained,PASS
+wine: historical wrong-task command refused,PASS
+wine: recreated result records expected metric and runtime,FAIL
+01.05: handoff names exact retained skill,PASS
+01.05: prediction bytes match retained recipe run,PASS
+01.05: original handoff declares shared context,PASS

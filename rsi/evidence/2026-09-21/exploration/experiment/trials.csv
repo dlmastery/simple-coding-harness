@@ -1,0 +1,4 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.075145,not supplied,Measure what a training-median predictor misses without input variation.
+trial-002,ok,bike,linear,calendar,17,109.80766775073437,0.076941,not supplied,Test whether calendar structure reduces the baseline selection error.
+trial-003,ok,bike,linear,all,17,99.17592378687597,0.081749,not supplied,"Adding the permitted weather group to the calendar Ridge model will reduce selection MAE compared with linear/calendar; the test keeps model family, seed, split, metric, and estimator settings fixed."

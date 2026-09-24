@@ -1,0 +1,5 @@
+{"candidate": "trial-002", "status": "ok", "task": "bike", "model": "linear", "features": "calendar", "seed": 17, "score": 109.80766775073437, "seconds": 0.07603, "policy_sha256": "not supplied", "note": "Continue after reconciling the interrupted fixture."}
+
+Exit: 0
+Expected: 0
+Seconds: 1.567550100007793

@@ -1,0 +1,7 @@
+key,value
+task,white-wine-quality-regression-v1
+metric,MAE
+budget,8
+package_sha256,99e6b8385614928b696f9c35a7ad27358bcfca25ffdcecb1c545d5ca7011d0a6
+data_sha256,76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836
+split_sha256,e804996a57150d7e0b232d2c86fb7abffe2df5968069b2dbf98193fc69b41da5

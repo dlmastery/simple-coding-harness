@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+wine,forest-0-pairwise,ok,MAE,0.5071022727272727,0.8604554521276596,1.64332679999643,0.009791299991775304,3.335419999988517,exit=0

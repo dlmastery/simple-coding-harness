@@ -1,0 +1,2 @@
+generation,parent_improver,proposed_improver,active_improver,active_improver_sha256,parent_task,active_task,active_task_sha256,selected_arm,improver_promoted,retained_selection
+2,skills/IMPROVER-v0.md,recursive/generation-2/IMPROVER-proposal.md,skills/IMPROVER-v0.md,00868ca8a96e4f2240b1d0c67b2139d5ec42f271e7078805dbfd3a1fdccf2a8c,skills/TASK-initial.md,recursive/generation-2/TASK-proposal.md,b7936438275b1693a911870fceb8b8619a32480914bfe590d49289762c2defa4,active,False,99.17592378687597

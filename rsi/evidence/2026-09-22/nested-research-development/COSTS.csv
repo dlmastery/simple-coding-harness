@@ -1,0 +1,7 @@
+phase,arm,attempts,success,failed,worker_seconds
+search,i0,72,72,0,149.91538959994796
+search,i1,72,72,0,152.5377052000258
+search,parent,72,72,0,147.80723920007586
+scoring,i0,6,6,0,11.791654299973743
+scoring,i1,6,6,0,11.670183900016127
+scoring,parent,6,6,0,11.670375200017588

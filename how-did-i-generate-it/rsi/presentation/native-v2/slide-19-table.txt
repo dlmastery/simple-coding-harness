@@ -1,0 +1,12 @@
+﻿Observed issue
+What it hides
+Repair to check
+Repeated candidate sets
+Different policy names can reach the same model
+Inspect executed constructors and retained predictions
+Fits called “wasted” afterward
+A bookkeeping label does not save computation
+Count attempts the program actually avoids
+Fragile selection rankings
+A selection gain can reverse on final rows
+Freeze choices and retain all final outcomes

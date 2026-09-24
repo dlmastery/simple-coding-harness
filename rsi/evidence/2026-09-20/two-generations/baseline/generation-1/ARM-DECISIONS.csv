@@ -1,0 +1,2 @@
+arm,improver,improver_sha256,partition,minimum_relative_gain,parent_training,child_training,parent_selection,child_selection,promoted,retained_task,retained_selection
+active,skills/IMPROVER-v0.md,00868ca8a96e4f2240b1d0c67b2139d5ec42f271e7078805dbfd3a1fdccf2a8c,training,0.0,55.72775460623984,65.18441286544846,109.80766775073437,125.04948805895863,False,skills/TASK-initial.md,109.80766775073437

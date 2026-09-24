@@ -1,0 +1,172 @@
+# 10.17 · Update the skill updater on a slower schedule
+
+[Course](../../../README.md) · [Theme](../../README.md)
+
+**You are here:** Theme 10, Research studio → lab 17 of 38. [Find this theme in the course map](../../../COURSE-MAP.md#theme-10) · [Whole-course mindmap](../../../COURSE-MAP.md#whole-course-mindmap).
+
+## What you will build
+
+A two-timescale trace with task-skill updates and one inherited meta-skill revision.
+
+## Why this matters
+
+Changing every layer at every step makes attribution and evaluation difficult.
+
+## Before you start
+
+Complete [10.16: Improve task skills with a fixed pipeline](../step_16_task_skills/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/10-17</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** Two task-skill update traces under the same frozen meta-skill. Lab 10.16 supplies one. Reuse a suitable second trace or prepare the missing prerequisite below.
+
+**Budget:** One meta-skill proposal and one later matched round, at most two fits per arm and four total. If the second prerequisite trace is missing, allow one separate task-skill edit and four no-fit fixture checks: parent and child on a target and a regression case. Record these before freezing the updater comparison. Plan about 40–60 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+Use several task-level outcomes to motivate a less frequent updater change. Apply the existing update pipeline to its own META-SKILL-v0 instructions, keeping the original version intact. Freeze each updater during the later matched task-skill round. The schedule separates observations used to propose the updater from outcomes used to evaluate its later behavior.
+
+**A concrete example.** In the [recorded later round](../../../evidence/2026-09-21/meta-skills/README.md), two unit-conversion repairs motivate a revised updater that requires unknown-unit refusal. Its next task proposal contains that instruction, and its check-policy field causes the driver to run the contrasting case. Both arms start from the same task skill. A fixed external check exposes a remaining error in the v0-produced child. This known-fixture result shows a narrow procedural effect, not general autonomous RSI. The [324-attempt public-tabular study](../../../evidence/2026-09-22/tabular-comparison/README.md) adds actual ML training: five versioned role files govern two later skill rounds under each updater. The revised updater improves two tasks, ties three and worsens one against the original updater using the revised harness. Its uncertainty interval includes zero. Read task 23 for the favorable trace and task 31 for the regression; neither alone establishes general RSI. In the [subsequent inherited rewrite](../../../evidence/2026-09-22/nested-research-evaluation/README.md), I1 generates a second complete researcher from its retained child and actual development traces. That researcher runs on six reserved tasks. It improves two, ties three and worsens one against I0, with a near-zero mean and an interval spanning zero. Separate the verified later use from the unestablished overall benefit.
+
+![Task skills S0, S1, and S2 change under the same updater U0. The pipeline then proposes a change to U0 itself. An accepted U1 uses its new contrasting-case rule on a later S3 proposal before keeping or rejecting it.](../../../assets/illustrations/meta-skill-schedules-v3.png)
+
+*The notebook lines are classroom examples, not complete skills. The updater edits procedures; the task skills direct experiments. Match Activate U1 to Active U1, then follow the same new rule into the later check. Acceptance is a possible path, not a guaranteed gain. The four-line updater is a teaching simplification of MetaSkill-Evolve’s July method. Keep the external comparison fixed and measure later behavior; a saved revision or a slower schedule alone does not establish benefit.*
+
+[Open the illustration at full size](../../../assets/illustrations/meta-skill-schedules-v3.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.](../../../assets/diagrams/lab-10-17.png)
+
+*Read the diagram:* Task skills can change frequently while the updater changes less often. The new updater must govern a later skill revision.
+
+</details>
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 10.17, Update the skill
+updater on a slower schedule, one step at a
+time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
+```
+
+**Make a prediction:** What becomes ambiguous if the task skill, updater, and evaluator all change together?
+
+### 1. Revise the updater
+
+Use accumulated evidence at the right level.
+
+```text
+Review the two task-skill traces. Use the
+diagnosis and proposal procedure in
+META-SKILL-v0, with its own instructions as
+the object to revise. Save the unchanged v0
+and one candidate v1, its motivating
+evidence, expected benefit, overhead, and
+counterexample. Keep the external evaluator
+fixed. Declare the later comparison and
+retention rule before running.
+```
+
+**Observe:** The recorded updater produces a proposal about its own procedure.
+
+### 2. Inherit and compare
+
+Observe the slower change in later work.
+
+```text
+From the same starting task skill and
+inputs, run one improvement round under v0
+and one under candidate v1 in separate
+folders. Allow at most two fits per arm,
+four total. Freeze each updater during its
+arm. Record where the changed instruction
+affects an action. Compare behavior and
+cost, then keep or reject v1 under the
+declared rule. Preserve negative and
+inconclusive results.
+```
+
+**Observe:** A candidate updater governs later work; its use and benefit are assessed separately.
+
+## Check your result
+
+The update schedule and inheritance are explicit. Structural recursion and measured effectiveness are reported separately.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| Accumulated trace review | Uses existing update traces with their actual updater identities and outcomes. |
+| Unchanged v0, candidate v1, and proposal trace | Show the original pipeline acting on its own instructions, the proposed edit, overhead, and limit. |
+| Later matched improvement record and retention decision | Uses the same starting task skill, at most two fits per arm, frozen updater identities, and separate structure/benefit conclusions. Separate folders do not erase shared agent context. |
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Change the update frequency in a labelled simulation and explain the tradeoff between responsiveness, cost, and attribution.
+
+## If something goes wrong
+
+If only one prior update trace exists, locate a suitable earlier trace or explicitly prepare the missing starting state before freezing this protocol. Do not invent a second run. If the active updater changes during its evaluation, preserve the event and narrow attribution. A version hash alone cannot prove its changed instruction governed the later action.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- Different layers can use different update schedules.
+- Freeze a layer while evaluating its effect.
+- Inheritance needs behavioral evidence.
+
+## Research connection
+
+[MetaSkill-Evolve](https://arxiv.org/abs/2607.05297), 6 July 2026. This older foundation is dated separately from the current-month sweep.
+
+**Activity type: mechanism exercise.** You execute a small classroom mechanism. Its task, models, and budget differ from the source. Local observations do not reproduce the paper’s headline result.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Why update the meta-skill less often here?
+2. Is slower always better?
+3. What must remain stable for the comparison?
+4. What if v1 is used but performs worse?
+
+<details>
+<summary>Hint</summary>
+
+Place task-skill updates and meta-skill updates on separate timelines. Mark when each candidate is frozen and when its later behavior is measured.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. It lets several task-level observations inform one procedural change and makes attribution easier.
+
+2. No. It can delay useful adaptation; the schedule is a design choice to test.
+
+3. Task conditions, evaluation rules, and declared resource accounting.
+
+4. The trace can demonstrate structural recursion while failing to show effective improvement.
+
+</details>
+
+## What's next
+
+Apply these ideas to autonomous scientific work, beginning with a testable hypothesis. Continue to [10.18: Turn a limitation into a scientific hypothesis](../../06_scientist_two/step_18_hypothesis/README.md).

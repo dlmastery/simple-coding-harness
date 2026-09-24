@@ -1,0 +1,2 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.067868,210bed6c0528855a878771f8c8c9acd635a7af1da38ab6f8d15a9ab1946e1d2b,Use the training median as the fixed hourly-rental baseline.

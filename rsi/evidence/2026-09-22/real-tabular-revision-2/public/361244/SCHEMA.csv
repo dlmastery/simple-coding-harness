@@ -1,0 +1,12 @@
+column,role,kind,categories
+class,feature,categorical,B | C | D | E | F | H
+largest_spot_size,feature,categorical,A | H | K | R | S | X
+spot_distribution,feature,categorical,C | I | O | X
+activity,feature,categorical,1 | 2
+evolution,feature,numeric,
+previous_activity,feature,categorical,1 | 2 | 3
+complex,feature,categorical,1 | 2
+complex_path,feature,categorical,1 | 2
+area,feature,categorical,1 | 2
+area_largest,feature,numeric,
+c_class_flares,target,numeric,

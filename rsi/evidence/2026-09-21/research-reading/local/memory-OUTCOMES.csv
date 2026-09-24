@@ -1,0 +1,3 @@
+procedure,candidate,cached_balanced_accuracy
+weak-no-memory,trial-001,0.5
+memory-aware,trial-002,0.7449552553079488

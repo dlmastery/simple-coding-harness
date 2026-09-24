@@ -1,0 +1,4 @@
+case,domain_guard,teaching_column_guard,declared_columns,verdict,reason,dry_run_stub_reached,fit_calls
+domain-present,True,False,total_users,refuse,domain check: three declared violations,False,0
+domain-removed,False,False,total_users,stub reached,domain guard removed; no remaining guard in this variant,True,0
+column-guard-remains,False,True,total_users,refuse,teaching allowlist: total_users is not an allowed column,False,0

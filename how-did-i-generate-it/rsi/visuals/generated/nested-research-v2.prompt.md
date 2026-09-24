@@ -1,0 +1,5 @@
+Make a targeted edit to this AIDE² educational illustration. Keep its composition, fine illustrative drawing, detailed objects, white background, headings, all three scenes, notebook identities, selection alternatives, and readable labels.
+1. Remove all little bar charts, including those on the bike-demand sign, first laptop display, and result sheets. Replace them with neutral document lines or a small bike symbol where appropriate. No numeric scores, graphs, or trend claims.
+2. In scene 3, between the two proposal sheets and the bottom comparison station, insert a clearly legible shared step "Run proposals on matched tasks". Both proposal sheets must enter this step; its output enters the comparison. This makes clear that the proposals' actual research behavior is evaluated. Preserve the labels "Same starter (identical)", both R0 and R1, and "A separate experiment".
+3. On the two proposal sheets in scene 3, replace "(for R2)" by "(candidate researcher)". Do not imply the different proposals are already the same accepted next version.
+Do not change anything else or add a paragraph. Retain the polished craft and connected explanation.

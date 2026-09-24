@@ -1,0 +1,7 @@
+column,role,kind,categories
+frequency,feature,numeric,
+angle_of_attack,feature,numeric,
+chord_length,feature,numeric,
+free_stream_velocity,feature,numeric,
+displacement_thickness,feature,numeric,
+sound_pressure,target,numeric,

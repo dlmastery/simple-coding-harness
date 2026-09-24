@@ -1,0 +1,3 @@
+template,factor,parent_step,reason
+base:extra-trees,0.3,2,lower-capacity local branch
+base:extra-trees,3.0,2,higher-capacity local branch

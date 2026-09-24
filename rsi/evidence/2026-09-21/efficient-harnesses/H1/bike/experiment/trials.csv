@@ -1,0 +1,2 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,linear,all,17,99.17592378687597,0.080746,bb502307e70cbb1ac9885a17ae6ce83e4035826565f3074bd6ea48cb493eb94e,Removing duplicate derived reports must preserve the same fixed recipe and predictions.

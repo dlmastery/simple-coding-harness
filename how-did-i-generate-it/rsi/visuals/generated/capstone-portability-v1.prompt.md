@@ -1,0 +1,13 @@
+Use case: scientific-educational.
+Create one original landscape 3:2 infographic for this individual codelab, not a course overview. Input image 1 is the visual-style reference: main-overview-v2. Match its professional textbook craft, pure white background, navy serif headings, crisp ink, restrained watercolor, concrete scientific objects, rich useful detail, blue fixed elements, amber changes, teal evidence, restrained red rejection. Keep generous white space and readable hierarchy. Vary the composition to suit the mechanism; avoid a generic grid of cards or decorative robots.
+Technical content is locked below. Use only the supplied technical text. Do not invent extra rules, filenames, scores, checklist items, badges, slogans, or claims. Unlabelled document lines may imply detail without becoming fake measurements. Do not draw performance curves. This is a conceptual teaching illustration, not an executed result. Use numbered reading order where specified; add no control-flow arrows except those explicitly requested.
+
+Title: "Change one dimension. Test its consequences."
+Three illustrated vertical panels show different portability questions. Use navy headings, realistic dataset notebooks, agent instruction sheets, a laptop and a small server, with amber only on the changed object.
+Panel 1 "Task transfer": two dataset notebooks "Task A" and "Task B" connected by one arrow. Below: "Same agent", "Same compute". One question: "Does the procedure fit the new problem?"
+Panel 2 "Agent portability": two distinct tool workspaces labelled "Agent A" and "Agent B" connected by one arrow. Below: "Same task", "Same compute". One question: "Can this host carry out the instructions?"
+Panel 3 "Compute portability": a laptop "Local CPU" and small server "Other backend" connected by one arrow. Below: "Same task", "Same agent". One question: "Do execution and recovery work here?"
+Across the bottom, draw a large ruled compatibility ledger with empty cells and EXACT column titles "Task", "Agent", "Runtime", "Backend", "Evidence", "Status". No ticks, pass stamps, supported-platform logos, version numbers, or invented values.
+Below the empty ledger, exact legend: "Planned · Generated · Inspected · Executed". These are distinct evidence statuses; do not draw an automatic progression arrow between them.
+Footer: "Choose two small tests. Leave untested combinations explicit."
+The required activity uses two small smoke runs, not a requirement to execute every shown alternative. A generated configuration is not an executed backend. No suggestion that paid or unavailable infrastructure has been launched.

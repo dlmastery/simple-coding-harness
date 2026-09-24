@@ -1,0 +1,4 @@
+# Preparation sources before acquisition
+
+prepare_real_tabular.py: 0e6c9c00e7053f97c00c727f23c358b0573a07e629894b89a1467222944cea15
+REAL-TABULAR-DATA-PROTOCOL.md: b301faf490445206dbd2e92b306b709d4181a4841ea195510a5dd5164464b74b

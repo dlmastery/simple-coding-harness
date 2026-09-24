@@ -1,0 +1,2 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,running,bike,constant,calendar,17,,0,not supplied,No-training interruption fixture; preserve the charged slot.

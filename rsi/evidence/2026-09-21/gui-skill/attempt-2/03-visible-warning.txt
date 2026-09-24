@@ -1,0 +1,4 @@
+Browser tab: 6, Title: "Experiment review · lab 10.29", URL: "http://127.0.0.1:8769/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++			82 text A: Ineligible for this task. Training: January–March 2011. Evaluation: January 2012 only (741 rows). This is a valid screening result, but its scope differs from the required full comparison.
+The focused UI element is 68 button Details A

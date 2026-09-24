@@ -1,0 +1,13 @@
+recipe,family,mode
+linear-0-pairwise,linear,pairwise
+linear-0-quantile,linear,quantile
+forest-0-pairwise,forest,pairwise
+forest-0-quantile,forest,quantile
+boost-0-pairwise,boost,pairwise
+boost-0-quantile,boost,quantile
+kernel-0-pairwise,kernel,pairwise
+kernel-0-quantile,kernel,quantile
+neighbors-0-pairwise,neighbors,pairwise
+neighbors-0-quantile,neighbors,quantile
+extra-0-pairwise,extra,pairwise
+extra-0-quantile,extra,quantile

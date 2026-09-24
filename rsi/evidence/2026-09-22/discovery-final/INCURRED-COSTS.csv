@@ -1,0 +1,4 @@
+category,attempts,failures,measured_process_seconds,recorded_fit_seconds
+completed paired search,715,0,1536.5633616992563,172.44220740019227
+separate final scoring refits,80,0,161.00073030006024,8.134394699998664
+excluded host-interrupted task,2,1,6368.91427790001,0.0046760999830439

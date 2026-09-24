@@ -1,0 +1,10 @@
+check,passed
+source inputs unchanged,True
+copied prediction unchanged,True
+copied one-fit ledger unchanged,True
+exactly one parsed prediction cell changed,True
+effective repairs use one slot,True
+ineffective repairs use two slots,True
+validator stays unchanged,True
+split descendants complete,True
+unknown path remains absent,True

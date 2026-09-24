@@ -1,0 +1,4 @@
+case,mean,population_std,objective_before,objective_after,expected_true_reward_before,expected_true_reward_after,action0_probability_after,gradient_max_error
+correct_rewards,0.5,0.5,0.0,0.09999999600000031,0.5,0.5498339963224117,0.2250830018387942,1.6570356198286618e-11
+equal_rewards,1.0,0.0,0.0,0.0,0.5,0.5,0.25,0.0
+one_wrong_reward,0.75,0.4330127018922193,5.551115123125783e-17,0.09999999538119797,0.5,0.5271777235820526,0.2635888617910263,7.826972403535137e-11

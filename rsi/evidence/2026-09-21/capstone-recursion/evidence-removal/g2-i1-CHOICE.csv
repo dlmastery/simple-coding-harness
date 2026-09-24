@@ -1,0 +1,2 @@
+candidate,model,training_MAE,selection_MAE
+g2-i1-forest,forest,0.3083514088850374,0.5530658503208373

@@ -1,0 +1,9 @@
+task,improver,candidate,fits,fit_seconds,agent_cost
+regression,v0,parent,1,0.0021134000053280033,unavailable
+regression,v0,child,1,0.009799799998290837,unavailable
+regression,v1,parent,1,0.006998299999395385,unavailable
+regression,v1,child,1,0.009359699994092807,unavailable
+classification,v1,parent,1,0.0077118999979575165,unavailable
+classification,v1,child,1,0.003552900001523085,unavailable
+classification,v0,parent,1,0.018174200005887542,unavailable
+classification,v0,child,1,0.0026904999976977706,unavailable

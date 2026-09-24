@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+16,16,mfeat-karhunen,development,classification,class,2000,64,0,0,0,6,0,True,1f9c621a9ee7435e84dfcaf02740e498815b3b626dda54a1d8faa41897c9ea80,1171,402,427

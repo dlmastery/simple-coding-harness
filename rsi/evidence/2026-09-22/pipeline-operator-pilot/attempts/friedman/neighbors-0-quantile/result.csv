@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+friedman,neighbors-0-quantile,ok,MAE,2.8668479235101505,0.6886660202705661,0.014362899994011968,0.014142700005322695,1.8262228000094183,exit=0

@@ -1,0 +1,5 @@
+flowchart LR
+  fit["Fit and predict"] --> check["Check result"]
+  check --> units["NEW: validate MAE unit label"]
+  units --> report["Use checked score and write report"]
+  note["Plan edit only: units check did not run"]

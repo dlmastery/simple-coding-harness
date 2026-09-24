@@ -1,0 +1,6 @@
+Edit this infographic surgically. Keep its style, composition, title, four fits, laptops, blank results and bottom teaching statements.
+Correct these technical details together:
+1. Remove the entire long blue connector from "Advance one idea" to the results notebook, including its arrowhead. Instead draw one unambiguous blue arrow from the right edge of "Advance one idea", along the divider in clear white space, UP to the LEFT EDGE of the "Fit 3 • With component" amber heading. Label it "Selected component". It must end at Fit 3, never at the results notebook. If routing is crowded, omit this arrow entirely and put the same matching label "Selected idea" on the selection card and above Fit 3. Prefer no arrow over an ambiguous one.
+2. Remove the small connector from "Fixed development evaluation" into the Idea B notebook. The two upper data cards are shared context for both ideas, not a direct preprocessing input; leave them without connectors.
+3. In BOTH upper data cards replace the three input labels with "Calendar inputs", "Permitted weather", "Bike-rental target". Remove the bicycle symbol beside the target if it confuses the text; label target plainly. Do not use "Usage features" or "Other available data".
+4. Keep "Fit preprocessing on training data only". No other changes. No invented numbers, checks or charts. Exactly four fits still.

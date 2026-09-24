@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,neighbors-6,ok,MAE,125.38126666666668,0.7763385688633878,0.006883399997605011,0.02364619998843409,2.2922564999898896,exit=0

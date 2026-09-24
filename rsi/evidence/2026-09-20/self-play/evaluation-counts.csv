@@ -1,0 +1,7 @@
+policy,seat,wins,draws,losses
+untrained,X,150,26,74
+untrained,O,77,25,148
+untrained,all,227,51,222
+trained,X,232,16,2
+trained,O,151,39,60
+trained,all,383,55,62

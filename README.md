@@ -34,9 +34,9 @@ Part 6   steps 39 - 45    the production surface: approval modes, handoffs, stop
 Part 7   steps 46 - 51    the same harness on TrueForge, an open-source harness server:
                           loop, tools as MCP, sandbox and skills, context, subagents, comparison
 Series   genui/           zero to hero on generative UI: the agent's output becomes an interface
-Series   rsi/             zero to hero on recursive self-improvement, 18 lessons that run inside a
-                          coding agent (Claude Code, this harness, Antigravity, Codex): skill packs only,
-                          the agent's own files get better across runs, and a verifier says by how much
+Series   rsi/             101 illustrated codelabs in 12 themes: one ML experiment, loops, graphs,
+                          domain rules, harness builders, self-improvement, research and capstones;
+                          students use natural language and skills, and the coding agent writes code
 ```
 
 A second series lives in [`genui/`](genui/): **zero to hero on generative
@@ -44,14 +44,18 @@ UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
-A third series lives in [`rsi/`](rsi/): **zero to hero on recursive
-self-improvement**, 18 lessons in the Claude Academy playbook format that you
-run by opening a coding agent in the lesson directory — no scripts to run, no
-Python shipped: an `intent.md` per problem, skill packs whose `tools.md` states
-the contracts the agent implements itself, a human approval cycle, a hook as
-the deterministic gate, and a curriculum of ML problems on which the pack (not
-the model) gets better, measured the way the September 2026 papers ask for.
-Fifteen of the eighteen lessons carry a transcript recorded in Claude Code.
+A third series lives in [`rsi/`](rsi/): **from one ML experiment to recursive
+self-improvement**. Its 101 codelabs include 38 research labs and five capstones.
+Students use natural language and Markdown skills; the coding agent writes and
+runs the implementation. Each lab includes an illustration, instructions,
+checks, takeaways and an explained quiz. Measured results and their limits stay
+visible: overall recursive improvement has not been established.
+
+[![The twelve-theme RSI learning journey](rsi/assets/illustrations/course-mindmap-v2.png)](rsi/COURSE-MAP.md)
+
+[Start RSI](rsi/START-HERE.md) · [Course map](rsi/COURSE-MAP.md) ·
+[Visual guide](rsi/VISUAL-GUIDE.md) · [PowerPoint and speaker notes](rsi/PRESENTATION.md) ·
+[Previous RSI course backup](backups/rsi-before-masterclass-2026-09-24/README.md).
 
 **What you will learn**
 

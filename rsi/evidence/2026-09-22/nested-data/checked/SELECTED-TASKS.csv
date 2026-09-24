@@ -1,0 +1,7 @@
+task,suite,dataset,name,version,kind,target,rows,columns,symbolic_columns,missing_values,license,eligible,reason,data_url
+43,99,44,spambase,1,Supervised Classification,class,4601,58,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/44/spambase.arff
+45,99,46,splice,1,Supervised Classification,Class,3190,61,61.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/46/splice.arff
+2074,99,182,satimage,1,Supervised Classification,class,6430,37,1.0,0.0,Public,False,license needs review,https://openml.org/data/v1/download/3619/satimage.arff
+361241,353,44963,physiochemical_protein,7,Supervised Regression,RMSD,45730,10,0.0,0.0,CC BY 4.0,False,row count outside laptop range,https://openml.org/data/v1/download/22111827/physiochemical_protein.arff
+361251,353,44973,grid_stability,7,Supervised Regression,stab,10000,13,0.0,0.0,CC BY 4.0,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111837/grid_stability.arff
+361260,353,44983,miami_housing,2,Supervised Regression,SALE_PRC,13932,16,0.0,0.0,CC0: Public Domain,True,metadata candidate; raw review pending,https://openml.org/data/v1/download/22111847/miami_housing.arff

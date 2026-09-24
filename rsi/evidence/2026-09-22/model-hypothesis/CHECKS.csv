@@ -1,0 +1,9 @@
+check,passed
+two successful fits,True
+only model family changes,True
+constant slices agree with earlier prerequisite,True
+selection rows total 4358,True
+constant weighted slices match score,True
+linear weighted slices match score,True
+frozen inputs unchanged,True
+no final lock,True

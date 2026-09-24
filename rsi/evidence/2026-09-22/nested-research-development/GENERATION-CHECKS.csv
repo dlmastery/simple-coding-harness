@@ -1,0 +1,23 @@
+check,passed
+i0/outer_gate,True
+i0/retained_parent,True
+i0/child_identity,True
+i0/Parent,True
+i0/Improver,True
+i0/Evidence,True
+i0/Invoked version entry,True
+i0/executable_researcher,True
+i0/inherited_multiplier,True
+i1/outer_gate,True
+i1/retained_parent,True
+i1/child_identity,True
+i1/Parent,True
+i1/Improver,True
+i1/Evidence,True
+i1/Invoked version entry,True
+i1/executable_researcher,True
+i1/verdict_changes_rewrite,True
+i1/updated_ranking/classification,True
+i1/updated_ranking/regression,True
+i1/changed_proposer,True
+generation_audit_completed,True

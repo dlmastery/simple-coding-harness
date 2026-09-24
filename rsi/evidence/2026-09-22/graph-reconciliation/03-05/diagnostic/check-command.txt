@@ -1,0 +1,5 @@
+Arguments: ['C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\.venv\\Scripts\\python.exe', '-B', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness\\rsi\\tools\\check_result.py', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-fixed-process\\01-02\\trial-001', '--report', 'C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\rsi-work-2026-09-22-fixed-process\\01-02\\trial-001\\CHECK.md']
+Exit: 0
+Process wall seconds: 1.536730499996338
+
+PASS: selection rows, targets, ledger, and report agree. Score: 159.947912.

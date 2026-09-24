@@ -1,0 +1,8 @@
+Evidence: 4358 selection rows; MAE 159.94791188618632 rentals per hour
+Report: ALTERED-REPORT.md; claimed MAE 10.000000
+REFUSED: Report disagrees at declared six-decimal precision
+
+Exit: 2
+Expected: 2
+Seconds: 0.14080440000000002
+Error: none

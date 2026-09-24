@@ -1,0 +1,16 @@
+repository_path,copy,sha256
+how-did-i-generate-it/rsi/capstone-package/DATA-CARD.md,package/DATA-CARD.md,dfcf3db290de2141e0f9af53707301ea751b3afaa53e4ec6831f6f9244dc4b2a
+how-did-i-generate-it/rsi/capstone-package/README.md,package/README.md,2517fc67c37cbc1036a2bd4a0f740ef7c48c312352e50c79a87da0d07c710860
+how-did-i-generate-it/rsi/capstone-package/RECOVERY.md,package/RECOVERY.md,be7e0d4659e9325409d37eb1ea7719e38f3e1f1701ca7fadd6ed20e80ce4ab87
+how-did-i-generate-it/rsi/capstone-package/SCALE-PLAN.md,package/SCALE-PLAN.md,6c40ada5d46cef6fa3d6cf04b6c17de15fab4327df6e7014624cf9a9f96f6df7
+how-did-i-generate-it/rsi/capstone-package/TASK.md,package/TASK.md,1240e789c069d9c33c4420a4dc324015e96a7a827cd9afb686fc669a57d84f3c
+how-did-i-generate-it/rsi/capstone-package/WORKFLOW.md,package/WORKFLOW.md,51a5b1940f38d4c53f035b16f429e5057b6c2bf8471fb87f9147a56c7b92a188
+how-did-i-generate-it/rsi/capstone-package/evaluate.py,package/evaluate.py,eb2250e7dfe080529fda21fe21fdf66d741984b0be9e23b63b89423fb9e7efe4
+how-did-i-generate-it/rsi/capstone-package/requirements.txt,package/requirements.txt,4ddf7020d41cac7a5a1c6208bac6abc050a4118e1fbaca1fcf51f8013cc36ccf
+how-did-i-generate-it/rsi/capstone-package/run.py,package/run.py,eb026918db8a0711ae0db70ffd2f792ce25c67935843eed1d633fa12713eedc1
+how-did-i-generate-it/rsi/capstone-package/task.py,package/task.py,5caf1bad8e04667984a49f2240baef6779283d1bf29f5d5904525e3ca55abf57
+how-did-i-generate-it/rsi/capstone-package/test_guards.py,package/test_guards.py,523127145a944905bd047d05c2757c0f6b91e5923f8ce495e2c07ff215b7eb20
+rsi/examples/wine-quality/source/winequality-white.csv,package/data/winequality-white.csv,76c3f809815c17c07212622f776311faeb31e87610d52c26d87d6e361b169836
+rsi/skills/build-ml-harness/SKILL.md,BUILDER-SKILL.md,6bc168e1e30ad1f7be9d82ede74812cdeababc3a06d492a46005b638d1d9ba10
+rsi/skills/scale-experiment/SKILL.md,SCALE-SKILL.md,e46970e7d92421d0c32fba84530592c1369c54161df2ff11da3db86666576ab0
+how-did-i-generate-it/rsi/validation/CAPSTONE-HARNESS-PROTOCOL.md,PROTOCOL.md,b9d53f2f6071a42ca78ae655e1e4aa8ce0d8cc8728eccee3e191eb9d800c8c4c

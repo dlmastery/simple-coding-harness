@@ -1,0 +1,37 @@
+Selected failure-log lines from https://github.com/dlmastery/simple-coding-harness/actions/runs/35709437801
+This is a filtered excerpt, not the full job log.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8917559Z step_48_trueforge_sandbox_skills             3 failed, 13 passed in 1.17s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8927806Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8930384Z     > fail
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8934250Z     turn error: model unavailable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8935395Z     FAILED test_step.py::test_list_events_follows_the_pagination_cursor - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8936360Z     FAILED test_step.py::test_demo_runs_downloads_and_deletes_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8937327Z     FAILED test_step.py::test_demo_exits_1_on_an_errored_turn_and_keeps_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8937955Z     3 failed, 13 passed in 1.17s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8939445Z step_50_trueforge_subagents_eval             5 failed, 13 passed, 3 warnings in 9.58s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8949626Z     E           AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8955390Z     FAILED test_step.py::test_replay_prints_a_finished_turn_from_its_stored_events - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8956631Z     FAILED test_step.py::test_reconnect_subscribes_while_running_and_replays_when_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8957694Z     FAILED test_step.py::test_reconnect_replays_when_the_live_stream_ends_before_turn_done - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8958798Z     FAILED test_step.py::test_demo_threads_mode_prints_the_session - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:19:51.8959848Z     FAILED test_step.py::test_demo_exits_1_on_an_error_turn_an_empty_session_and_a_dead_server - AttributeError: 'SyncPager' object has no attribute 'data'
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3811545Z     5 failed, 13 passed, 3 warnings in 9.58sChecked 101 lessons and 5580 local links.
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3851457Z genui/01_foundations/step_01_static_components 13 passed, 1 warning in 0.92s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3852347Z genui/01_foundations/step_02_declarative_tree 21 passed, 1 warning in 1.11s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3852959Z genui/01_foundations/step_03_open_ended_html 27 passed, 1 warning in 1.16s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3853553Z genui/01_foundations/step_04_hybrid_escape_hatch 32 passed, 1 warning in 1.27s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3854126Z genui/02_ag_ui/step_01_ag_ui_server          10 passed, 1 warning in 1.03s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3855010Z genui/02_ag_ui/step_02_ag_ui_tools_and_state 2 failed, 13 passed, 1 warning in 1.17s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3860130Z     FAILED test_step.py::test_tool_calls_become_events_and_state_deltas - AssertionError: assert [AddOperation...lta': '+8%'})] == [{'op': 'add'...lta': '+8%'}}]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3866959Z     FAILED test_step.py::test_next_run_continues_from_the_client_tool_result - AssertionError: assert [AddOperation... 'cost': 40})] == [{'op': 'add'... 'cost': 40}}]
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3873082Z     2 failed, 13 passed, 1 warning in 1.17s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3873579Z genui/02_ag_ui/step_03_ag_ui_from_the_harness 1 failed, 10 passed, 1 warning in 4.73s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3874516Z     =================================== FAILURES ===================================
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3874978Z     _____________________ test_write_todos_becomes_state_delta _____________________
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3876183Z         def test_write_todos_becomes_state_delta(fake):
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3877727Z             delta = next(e for e in events if e.type.value == "STATE_DELTA")
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3879298Z     E       TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3880242Z     /home/runner/work/simple-coding-harness/simple-coding-harness/genui/02_ag_ui/step_03_ag_ui_from_the_harness/test_step.py:139: TypeError
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3885509Z     FAILED test_step.py::test_write_todos_becomes_state_delta - TypeError: 'ReplaceOperation' object is not subscriptable
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3886111Z     1 failed, 10 passed, 1 warning in 4.73s
+steps (ubuntu-latest, 3.12)	Run python run_tests.py	2026-09-22T09:21:07.3886569Z genui/03_a2ui/step_01_a2ui_messages_by_hand  12 passed, 1 warning in 1.38s

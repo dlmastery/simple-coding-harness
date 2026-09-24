@@ -1,0 +1,4 @@
+recipe,selection_mae,seed,researcher_sha256
+Linear / calendar,109.80766775073437,17,6683eea390d3cb6b4c5f0708a3d1e4418ff9d524dcd2fb186057cbd4d870e33f
+Linear / calendar + weather,99.17592378687597,17,6683eea390d3cb6b4c5f0708a3d1e4418ff9d524dcd2fb186057cbd4d870e33f
+Forest / calendar + weather,98.03122050618987,17,6683eea390d3cb6b4c5f0708a3d1e4418ff9d524dcd2fb186057cbd4d870e33f

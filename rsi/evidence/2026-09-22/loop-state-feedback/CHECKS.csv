@@ -1,0 +1,9 @@
+check,passed
+three loop fits,True
+two feedback fits,True
+loop final state agrees,True
+last candidate not automatically retained,True
+changed feature group only,True
+loop state versions retained,True
+frozen inputs unchanged,True
+no final evaluation,True

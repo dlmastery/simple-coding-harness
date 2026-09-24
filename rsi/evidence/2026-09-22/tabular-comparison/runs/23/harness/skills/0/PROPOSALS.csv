@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+base:linear,1.0,0,common broad probe
+base:extra-trees,1.0,0,common broad probe
+base:rbf-1,1.0,0,common broad probe
+base:hist-boost,1.0,0,common broad probe

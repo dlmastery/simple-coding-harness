@@ -1,0 +1,17 @@
+# Preserve exact bytes of hashed experiment archives, including CRLF records.
+** -text whitespace=cr-at-eol
+# Preserve original OpenML/UCI comments and source formatting byte for byte.
+2026-09-22/real-tabular-data-v1/tasks/*/original.arff whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+2026-09-22/real-tabular-data-v2/tasks/*/original.arff whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+2026-09-22/real-tabular-data-v2/original-chess/kr-vs-kp.names whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+2026-09-22/real-tabular-data-v2/original-chess/kr-vs-kp.data whitespace=-blank-at-eof,cr-at-eol
+# Matplotlib emits trailing spaces inside SVG path data; retain the raw output.
+*.svg whitespace=-blank-at-eol,cr-at-eol
+# Original UCI descriptions contain trailing spaces; retain their hashed bytes.
+2026-09-21/capstone-portability/source/Readme.txt whitespace=-blank-at-eol,cr-at-eol
+2026-09-21/capstone-portability/source/winequality.names whitespace=-blank-at-eol,cr-at-eol
+# These raw commands had empty stdout/stderr; preserve the logged separator.
+2026-09-22/ontology-system/domain-valid-command.txt whitespace=-blank-at-eof,cr-at-eol
+2026-09-22/ontology-system/domain-unknown-command.txt whitespace=-blank-at-eof,cr-at-eol
+2026-09-22/ontology-system/domain-leaked-command.txt whitespace=-blank-at-eof,cr-at-eol
+2026-09-22/ontology-system/domain-omitted-command.txt whitespace=-blank-at-eof,cr-at-eol

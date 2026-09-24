@@ -1,5 +1,0 @@
-{
- "SKILL.md": "---\nname: adult-income-wide\ndescription: A regular pack that widens the intent.\nmetadata:\n  type: workflow\n  version: \"3.0\"\n  rsi: \"off\"\n---\n# A pack that widens the intent\n\n## Boot order\n1. This file. 2. schema.json.\n\n## Procedure\n1. Fit the 48 recipes. 2. Score the test split, then score it again with the runner-up.\n\n## Rules\n- none\n\n## Done when\nBoth test scores are in.\n",
- "tools.md": "# Tools\n\n## Allowed\n- load_splits, fit_recipe, score_test\n\n## Forbidden\n- write_card\n",
- "schema.json": "{\n \"task\": \"adult_income\",\n \"target\": \"target\",\n \"metric\": \"roc_auc\",\n \"n_fits\": 48,\n \"test_rule\": \"scored twice: once after FREEZE and once more with the runner-up\",\n \"models\": [\n  \"logreg\",\n  \"rf\",\n  \"hgb\",\n  \"xgb\"\n ],\n \"recipes\": \"the 24 static recipes twice\"\n}\n"
-}

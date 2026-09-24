@@ -1,0 +1,5 @@
+template,factor,parent_step,reason
+one:absolute-boost,1.0,0,frozen global-rank experience
+one:absolute-forest,1.0,0,frozen global-rank experience
+two:log-svr,1.0,0,frozen global-rank experience
+one:svr-tight,1.0,0,frozen global-rank experience

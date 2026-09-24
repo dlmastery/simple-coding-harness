@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "git",
+    "rev-parse",
+    "HEAD"
+  ],
+  "cwd": "C:\\Users\\abhir\\Documents\\Codex\\2026-09-19\\lo\\work\\simple-coding-harness",
+  "timeout_seconds": 60,
+  "started_utc": "2026-09-23T12:07:53.440650+00:00"
+}

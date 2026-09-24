@@ -1,0 +1,9 @@
+case,passed,observed
+false-summary,True,Summary disagrees with predictions
+wrong-row,True,"Missing, reordered, duplicate, or wrong partition rows"
+wrong-target,True,Targets differ from pinned source
+nonfinite,True,Non-finite prediction
+wrong-metric,True,Candidate identity or metric mismatch
+wrong-recipe,True,Recipe differs from charged attempt
+split-change,True,Saved split changed
+charged-failure-and-refused-retry,True,one simulated failed attempt; retry refused; zero model fits

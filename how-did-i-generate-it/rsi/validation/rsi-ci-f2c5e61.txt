@@ -1,0 +1,1 @@
+{"conclusion":"success","jobs":[{"conclusion":"success","name":"CPU checks (ubuntu-latest, Python 3.12)"},{"conclusion":"success","name":"CPU checks (macos-latest, Python 3.12)"},{"conclusion":"success","name":"CPU checks (windows-latest, Python 3.12)"}],"url":"https://github.com/dlmastery/simple-coding-harness/actions/runs/35699500998"}

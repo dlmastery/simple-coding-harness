@@ -1,0 +1,5 @@
+REFUSED: Workspace busy or interrupted. Check its recorded process before removing .running.
+
+Exit: 2
+Expected: 1
+Seconds: 1.565396200021496

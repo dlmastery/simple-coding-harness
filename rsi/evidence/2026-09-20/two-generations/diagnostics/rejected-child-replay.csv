@@ -1,0 +1,2 @@
+generation,verdict,expected_active,invalid_active,origin
+1,reject,skills/TASK-initial.md,baseline/generation-1/TASK-proposal.md,actual rejected child

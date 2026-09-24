@@ -1,0 +1,14 @@
+column,role,kind
+tau1,feature,numeric
+tau2,feature,numeric
+tau3,feature,numeric
+tau4,feature,numeric
+p1,feature,numeric
+p2,feature,numeric
+p3,feature,numeric
+p4,feature,numeric
+g1,feature,numeric
+g2,feature,numeric
+g3,feature,numeric
+g4,feature,numeric
+stab,target,numeric

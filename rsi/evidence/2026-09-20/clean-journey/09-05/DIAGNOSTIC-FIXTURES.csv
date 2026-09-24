@@ -1,0 +1,5 @@
+fixture,improver,partition,parent_score,child_score,promoted,improver_sha256
+overfit,v0,training,12,0,True,4cabf705ed71929c409c5a8b5760861e03481c5d306ee858b1be839041570109
+overfit,v1,selection,15,24,False,d5b27ebbf18dc8bbfb9b2e88a0f80f192cb34c01eb736181eb2e2e1d794adb0c
+useful,v0,training,12,8,True,4cabf705ed71929c409c5a8b5760861e03481c5d306ee858b1be839041570109
+useful,v1,selection,15,10,True,d5b27ebbf18dc8bbfb9b2e88a0f80f192cb34c01eb736181eb2e2e1d794adb0c

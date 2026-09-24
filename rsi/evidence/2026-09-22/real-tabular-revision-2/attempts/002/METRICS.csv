@@ -1,0 +1,3 @@
+split,metric,score,loss,training_scale,fit_seconds
+train,balanced_accuracy,1.0,0.0,1.0,0.06602870000642724
+selection,balanced_accuracy,0.9923401297497683,0.007659870250231737,1.0,0.06602870000642724

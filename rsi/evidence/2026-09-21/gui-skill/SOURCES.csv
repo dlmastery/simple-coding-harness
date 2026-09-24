@@ -1,0 +1,7 @@
+repository_path,copy,sha256
+rsi/evidence/2026-09-21/scientist-labs/10-19/screen/forest/RESULT.md,sources/screen-result.md,29e35dea5c8d18598e9a706c83f85dbfbc1838dec2b2486985badf66699f7cd9
+rsi/evidence/2026-09-21/scientist-labs/10-19/SCREENING-PLAN.md,sources/screening-plan.md,1bbcbae8e8a67de94c68cd25fdee8c41b6227efd5a46de7a60bab6827dba345e
+rsi/evidence/2026-09-21/scientist-labs/10-19/confirmation/experiment/trials.csv,sources/full-trials.csv,f4cd75b4c25285a5df2241a3440b50f22221792f3c58382bbb064fc168dc6bfc
+rsi/evidence/2026-09-21/scientist-labs/10-19/confirmation/experiment/CONTRACT.md,sources/full-contract.md,99ee29913196a8f07c63a3802b64ec18729bd5bf3d26538b54c3b3a527cc3345
+rsi/evidence/2026-09-21/scientist-labs/10-19/confirmation/experiment/trial-001/CHECK.md,sources/forest-check.md,fe23204d4978014920fc55218bfdd794f047384a07b38405b69b1800b42d13e3
+rsi/evidence/2026-09-21/scientist-labs/10-19/confirmation/experiment/trial-002/CHECK.md,sources/linear-check.md,e774b6a81e5ff7fa448c7c88d11b97491441358d7715a309f17e1e03e3fa5d4c

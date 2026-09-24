@@ -1,0 +1,7 @@
+%%{init: {"theme":"base","themeVariables":{"background":"#ffffff","primaryColor":"#eef5fb","primaryTextColor":"#172b3a","primaryBorderColor":"#45667d","lineColor":"#45667d","secondaryColor":"#fff3d9","tertiaryColor":"#e9f6f0","fontFamily":"Arial"}}}%%
+flowchart TD
+A["Shared policy table"] --> B["Play both sides"] --> C["Game outcome"]
+C -->|player returns| D["Fixed update rule"] -->|changed values| A
+A -->|freeze| E["Trained policy"]
+F["Untrained policy"] --> G["Fixed random opponent"]
+E --> G --> H["Wins, draws, losses"]

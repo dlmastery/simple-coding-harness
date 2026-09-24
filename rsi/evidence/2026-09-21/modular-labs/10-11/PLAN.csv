@@ -1,0 +1,8 @@
+case,version,expected,expected_seconds
+original,base,accepted,2
+original,A,accepted,2
+original,B,accepted,2
+original,AB,refused,2
+fresh,base,accepted,30
+fresh,AB,refused,
+malformed,AB,refused,

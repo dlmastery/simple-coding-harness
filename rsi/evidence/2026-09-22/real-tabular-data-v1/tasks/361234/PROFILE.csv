@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+361234,44956,abalone,development,regression,rings,4177,8,1,0,0,0,0,True,148af233543e257b41b2ad79b4c3a22116be68d8f7a177a1bd108ce94402c8f4,2400,800,800

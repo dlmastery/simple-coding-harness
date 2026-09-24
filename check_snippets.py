@@ -84,7 +84,9 @@ def step_dirs(args):
         if numbers and int(step.name.split("_")[1]) not in numbers:
             continue
         yield step, step.name
-    for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/step_*/"))):
+    for step in sorted(list(ROOT.glob("genui/*/step_*/")) + list(ROOT.glob("rsi/**/step_*/"))):
+        if not (step / "README.md").exists():
+            continue
         rel = step.relative_to(ROOT).as_posix()
         if numbers and not prefixes:
             continue

@@ -1,0 +1,12 @@
+# Two sources, different changed objects
+
+Both version-1 papers were submitted 1 September 2026. Read on 21 September. This is a methods, evaluation, resources, and limitations audit; neither source was reproduced.
+
+| [HarnessDev](https://arxiv.org/html/2609.01437v1) | [Harness-of-Harness](https://arxiv.org/html/2609.01481v1) |
+|---|---|
+| **Changed object:** a created or revised runnable harness; the creator develops it before freezing. [Sections 3.1–3.2](https://arxiv.org/html/2609.01437v1#S3.SS2). | **Changed object:** developed software, its development document, and execution evidence. Model, base harness, roles, and runtime policy stay fixed within a run. [Section 3](https://arxiv.org/html/2609.01481v1#S3). |
+| **Evaluation:** executor runs the frozen harness. Evolution feedback sets guide adaptation; disjoint SWE-Pro evaluation comes after freezing. [Sections 3.2 and 4.3](https://arxiv.org/html/2609.01437v1#S4.SS3). | **Evaluation:** separate role invocations have enforced permissions. Official evaluators assess software; their outputs do not enter development. [Sections 3.2 and B.2](https://arxiv.org/html/2609.01481v1#A2.SS2). |
+| **Resources:** execution tokens exclude creator work. MLE tasks have an A800, 14 vCPUs, and a ten-hour combined harness/grader allowance. [Sections 3.5 and B.1](https://arxiv.org/html/2609.01437v1#A2.SS1). | **Resources:** reported cumulative model traffic excludes benchmark evaluation. FrontierSWE uses task containers, with H200 access where needed; game runs use a local engine. [Sections 4.1 and B.3](https://arxiv.org/html/2609.01481v1#A2.SS3). |
+| **Limits:** one Evolution trajectory per creator/runtime cell, an unfinished cell, and held-out coverage restricted to SWE-Pro limit generalization. Development environment stays fixed. [Section 6.1](https://arxiv.org/html/2609.01437v1#S6.SS1). | **Limits:** main task–condition runs have one repetition. The pass-controlled comparison differs from matching every token or cost. The multi-day case is one software trajectory. [Sections B.2, B.5, and 5](https://arxiv.org/html/2609.01481v1#S5). |
+
+Our local change repairs an explicit class-recall report in an existing generated wine harness. Its builder stays fixed and does not run again. Two matched fits test report behavior, not the quality of a generator across briefs. Role names in our shared author conversation provide no source-style permission isolation.

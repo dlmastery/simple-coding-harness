@@ -1,0 +1,11 @@
+check,passed
+source inputs unchanged,True
+two slots one successful fit,True
+invalid features fail without predictions,True
+third request does not spend another slot,True
+generated entry preserved,True
+diagnostic changes docs only,True
+builder is not a runtime import,True
+historical training mask explicit,True
+wine groups remain together,True
+no final lock,True

@@ -1,0 +1,7 @@
+name,exit_status,signal,wall_seconds,expected_exit
+09b-resume-install,0,,26.207403199999998,0
+09c-dependency-check,0,,0.610736499999999,0
+10-clean-versions,0,,0.4565099000000009,0
+11-clean-prepare,0,,19.828123899999998,0
+12-clean-baseline,0,,1.734392200000002,0
+13-clean-check,0,,0.5468383000000031,0

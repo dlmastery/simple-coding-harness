@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+bike,forest-2,ok,MAE,111.76214710300934,0.6920113956554623,0.22409439997863956,0.009350100008305162,2.623789000004763,exit=0

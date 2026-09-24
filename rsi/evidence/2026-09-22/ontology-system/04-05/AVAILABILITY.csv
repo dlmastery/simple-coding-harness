@@ -1,0 +1,4 @@
+fixture,synthetic,origin_utc,target_utc,released_utc,verdict,expected,reason
+forecast-before-origin,True,2026-09-22T12:00:00+00:00,2026-09-23T12:00:00+00:00,2026-09-22T09:00:00+00:00,pass,pass,known before origin
+future-observation,True,2026-09-22T12:00:00+00:00,2026-09-23T12:00:00+00:00,2026-09-23T12:05:00+00:00,refuse,refuse,released after origin
+release-unknown,True,2026-09-22T12:00:00+00:00,2026-09-23T12:00:00+00:00,,refuse,refuse,release time missing

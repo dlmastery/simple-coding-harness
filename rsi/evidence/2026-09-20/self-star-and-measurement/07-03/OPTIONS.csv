@@ -1,0 +1,3 @@
+candidate,score,metric
+trial-001,0.5,balanced accuracy
+trial-002,0.7449552553079488,balanced accuracy

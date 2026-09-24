@@ -1,0 +1,7 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+3,3,kr-vs-kp,development,classification,class,3196,36,36,0,0,0,0,True,b22a8a12bd40648400b000bad0545683b8ecd33ac84f2c265dd5c309c832fd69,1899,657,640
+16,16,mfeat-karhunen,development,classification,class,2000,64,0,0,0,6,0,True,1f9c621a9ee7435e84dfcaf02740e498815b3b626dda54a1d8faa41897c9ea80,1171,402,427
+28,28,optdigits,development,classification,class,5620,64,0,0,2,0,0,True,e86f102c957f41c7022b187766b0f9949a54ae8cedc492de1cc29765f060358a,2400,800,800
+361234,44956,abalone,development,regression,rings,4177,8,1,0,0,0,0,True,148af233543e257b41b2ad79b4c3a22116be68d8f7a177a1bd108ce94402c8f4,2400,800,800
+361236,44958,auction_verification,development,regression,verification.time,2043,7,2,0,0,0,0,True,f0dcaf7165b3235a6031395f2068bb7833bfbeb32c263713cf8834bd679a4d97,1230,413,400
+361244,44966,solar_flare,development,regression,c_class_flares,1066,10,8,0,1,822,74,True,34f377d0c949b0a35e7b6ce5fd9854f4154842dd03e46d24cfcebe2d5c267794,620,270,176

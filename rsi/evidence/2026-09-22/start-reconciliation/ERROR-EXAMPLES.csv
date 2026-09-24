@@ -1,0 +1,6 @@
+example,source_row,hour,actual,predicted,signed_prediction_minus_actual,absolute_error
+first-1,8645,0,48,109,61,61
+first-2,8646,1,93,109,16,16
+first-3,8647,2,75,109,34,34
+quiet,8718,2,1,109,108,108
+busy,10622,17,957,109,-848,848

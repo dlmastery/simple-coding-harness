@@ -1,0 +1,5 @@
+task,dataset,name,kind,target,role,rows,features,duplicate_feature_rows,entity_keys,merged_components,conflicting_feature_groups,train,selection,final
+43,44,spambase,classification,class,nested-procedure-comparison,4601,57,394,0,4207,3,2400,800,800
+45,46,splice,classification,Class,nested-procedure-comparison,3190,60,185,3190,3005,1,1877,691,622
+2074,182,satimage,classification,class,nested-procedure-comparison,6430,36,0,0,6430,0,2400,800,800
+361241,44963,physiochemical_protein,regression,RMSD,nested-procedure-comparison,45730,9,1756,0,43974,38,2400,800,800

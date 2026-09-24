@@ -1,0 +1,5 @@
+Exit: 0
+
+14 audit checks PASS; two actual fits.
+{'task': 'bike', 'metric': 'MAE', 'selection_score': 99.17592378687597, 'rows': 4358, 'recorded_attempt_seconds': '0.080845', 'detail': 'Largest hourly mean absolute error occurs at hour 8; inspect error-by-hour.csv. This does not establish a causal explanation.'}
+{'task': 'wine', 'metric': 'balanced accuracy', 'selection_score': 0.7449552553079488, 'rows': 319, 'recorded_attempt_seconds': '0.050136', 'detail': 'Class-0 recall 0.733812949640; class-1 recall 0.756097560976. False positives 74; false negatives 10. Counts are checked below.'}

@@ -1,0 +1,3 @@
+candidate,status,task,model,features,seed,score,seconds,policy_sha256,note
+trial-001,ok,bike,constant,calendar,17,159.94791188618632,0.105946,not supplied,Execute the generated brief under its fixed task and budget.
+trial-002,failed,bike,constant,casual,17,,0.035245,not supplied,"Execute the generated brief under its fixed task and budget. | Refusal: Use calendar, weather, or all. Count components and the target are forbidden features."

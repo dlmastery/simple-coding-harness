@@ -1,0 +1,8 @@
+repository_path,copy,sha256
+how-did-i-generate-it/rsi/validation/HARNESS-BUILDER-PROTOCOL.md,PROTOCOL.md,c18e19bb7e731584df4195163f677a9258f7d6f09cbee2198f16aed6714b66bd
+how-did-i-generate-it/rsi/research/2026-09-21-HARNESS-BUILDER-AUDIT.md,SOURCE-MAP.md,e843d37b06f94a69f49ba6c096696d72dae9a8ee8453ef008831e1d63451a72a
+rsi/evidence/2026-09-20/clean-journey/06-05/HARNESS-BRIEF.md,HARNESS-BRIEF.md,fe40bc32d14097b386a542fbe49451dcc482bb1cd977ed94323056afb03ae473
+rsi/evidence/2026-09-20/clean-journey/06-05/run/trial-002/RESULT.md,HISTORICAL-RESULT.md,d57dd9db2712260dc364667db87f784ad874391d0d934a39515f5133b56f7b5c
+rsi/tools/lab.py,lab.source.py,d69d3fbd8a4ace3e0332f4dfbc9a2648f87f858867229db63bc854f7810120a0
+rsi/tools/check_result.py,checker.source.py,7fefc839f2b9ed85b0dc56a9076c63ed8759f999e3721e2a16c1e03e52d2ff61
+rsi/skills/build-ml-harness/SKILL.md,CURRENT-BUILDER-REFERENCE.md,6bc168e1e30ad1f7be9d82ede74812cdeababc3a06d492a46005b638d1d9ba10

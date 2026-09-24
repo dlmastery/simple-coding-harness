@@ -1,0 +1,7 @@
+check,passed
+original result preserved,True
+copy result absent,True
+copy predictions unchanged,True
+copy successful ledger unchanged,True
+one success still recorded,True
+skill snapshot matches read input,True

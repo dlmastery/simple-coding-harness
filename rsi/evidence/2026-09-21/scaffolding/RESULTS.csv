@@ -1,0 +1,5 @@
+condition,inspections,repairs,pass
+action,1,1,true
+observation,1,1,true
+fresh,1,1,true
+stale,2,1,true

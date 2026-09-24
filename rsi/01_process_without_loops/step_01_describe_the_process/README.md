@@ -1,0 +1,153 @@
+# 01.01 · Write the data science process
+
+[Course](../../README.md) · [Theme](../README.md)
+
+**You are here:** Theme 01, One experiment → lab 1 of 5. [Find this theme in the course map](../../COURSE-MAP.md#theme-01) · [Whole-course mindmap](../../COURSE-MAP.md#whole-course-mindmap).
+
+## What you will build
+
+A five-action process from task framing to a checked baseline report.
+
+## Why this matters
+
+An implicit process is hard to inspect. Writing its dependencies exposes missing decisions.
+
+## Before you start
+
+Complete [00.04: Check the evidence behind the answer](../../00_start_here/step_04_check_the_evidence/README.md). You need the concepts and the reports named below, not its old chat. If you start here directly, ask the tutor to prepare the listed starting state and explain the missing prerequisite first.
+
+Open the coding agent at the repository root. Read [the tutor skill](../../skills/rsi-tutor/SKILL.md) and this lab's [brief](BRIEF.md). The agent keeps this lab's notes in <code>rsi-work/01-01</code>, outside the repository, and reports the absolute path. If the lab continues an earlier experiment, keep that experiment in its original workspace with its existing budget and locks. A new notes folder does not reset an experiment. The agent checks local Python and the [tool requirements](../../tools/README.md) before execution. You do not write code or configuration.
+
+**Starting state:** The task brief, data report, and checked baseline from theme 00.
+
+**Budget:** No fits; inspect existing evidence. Plan about 20–35 minutes of reading and discussion; this is an author estimate, not a measured student duration. Coding-agent inference may use a paid online service. Record its cost separately when available.
+
+## How it works
+
+A process says what actions turn an input into an output. For this task: frame the question, inspect the data, fix the split, fit the baseline, and check the result. These are actions with products. “Be accurate” is an aim, not an executable action.
+
+**A concrete example.** “Fit a baseline” needs more than a table: it needs a target, allowed columns and training rows. The [worked process](../../evidence/2026-09-22/fixed-process/PROCESS.md) names those inputs and the saved predictions that the checker will consume. Its [backward trace](../../evidence/2026-09-22/fixed-process/GAP-REVIEW.md) connects one actual error to the earlier task and split decisions. A confident summary cannot supply a missing evaluation decision after the result is known.
+
+![Five actions frame hourly bike demand, inspect data, define chronological train/selection/final partitions, fit a training-median baseline, and compare selection predictions with targets.](../../assets/illustrations/data-science-process-v4.png)
+
+*Follow the numbered actions once. Train supplies the fitted median; the matching Selection labels identify the rows used for checking. Final stays reserved. The inspection checkmarks name work to complete, not proof about your run. Observed weather makes this a retrospective task, and the public data are not access-controlled. A checked baseline is the starting evidence for later improvement.*
+
+[Open the illustration at full size](../../assets/illustrations/data-science-process-v4.png).
+
+<details>
+<summary>See the step diagram</summary>
+
+![Follow one fixed process. No outer search chooses a new recipe after the result.](../../assets/diagrams/lab-01-01.png)
+
+*Read the diagram:* Follow one fixed process. No outer search chooses a new recipe after the result.
+
+</details>
+
+## Run the lab
+
+Start with this prompt. The tutor pauses for your prediction before it runs the next step.
+
+```text
+Read rsi/AGENTS.md and
+rsi/skills/rsi-tutor/SKILL.md.
+Guide me through lab 01.01, Write the data
+science process, one step at a time.
+Read its README and BRIEF. Prepare its
+separate workspace.
+You write and run the implementation. Keep
+the reports and failures.
+Ask me to predict the result before the
+experiment.
+```
+
+**Make a prediction:** Which action must happen before fitting if you want a meaningful comparison later?
+
+### 1. Name the actions
+
+Turn intentions into observable work.
+
+```text
+Create PROCESS.md with five actions: frame,
+inspect, split, fit, check. For each give
+its input, output, and completion check. Use
+the bike task. Do not add retries or search.
+```
+
+**Observe:** Every action leaves something a reader can inspect.
+
+### 2. Walk one record through
+
+Check that the sequence has no unexplained jump.
+
+```text
+Trace one baseline result backward through
+this process. Identify where the target,
+input availability, partition, and metric
+were fixed. Save a short gap review.
+```
+
+**Observe:** The choices that make the score meaningful precede the fit.
+
+## Check your result
+
+Each action has a concrete input and output. Task, split, and metric are fixed before model fitting. The process contains no learner-designed improvement loop.
+
+### Open these outputs
+
+The agent keeps these in your lab workspace or records the original experiment path when reusing evidence.
+
+| Output | What to inspect |
+|---|---|
+| PROCESS.md | Contains frame, inspect, split, fit, and check, each with its input, output, and completion condition. |
+| Gap review | Traces the existing baseline back to the decisions that make its score interpretable. No new fit is needed. |
+
+Ask the agent to open the actual files and show the command exit status. A written description of a run is not a run. Keep a short <code>LAB-NOTE.md</code> with your prediction, measured observation, explanation, and one limit. The tutor must mark skipped learner responses as skipped.
+
+## Try one change
+
+Move split design after fitting. Explain what temptation this creates and why a later good score would be harder to interpret.
+
+## If something goes wrong
+
+If a step says only “improve quality,” ask what action runs and what evidence marks it complete. If fitting appears before the target or partitions are defined, repair the order on paper. If a step depends on something remembered only from chat, add its source file to the process.
+
+Say “Stop this lab” to stop further work. Ask the agent to save <code>PROGRESS.md</code> with the last completed step and remaining budget. To resume, have it read that file and inspect active processes first. A reset creates a new sibling workspace; it does not erase failures or alter the source data. See the [recovery rules](../../tools/README.md) for interrupted tool runs.
+
+## Key takeaways
+
+- A useful process names actions and their products.
+- Evaluation decisions belong before search.
+- No learner-designed loop does not mean numerical algorithms contain no iterations.
+
+## Check your understanding
+
+Answer before opening the explanation. You can ask the tutor for a hint.
+
+1. Is “make a strong model” an executable process step?
+2. Why fix the split early?
+3. Can linear regression use an iterative solver here?
+4. What makes a process inspectable?
+
+<details>
+<summary>Hint</summary>
+
+Try to execute the process with the conversation hidden. At each step, name the specific input you would need and the output the next step expects.
+
+</details>
+
+<details>
+<summary>Explained answers</summary>
+
+1. It lacks a concrete action and completion check. Fitting a declared baseline is a step.
+
+2. It prevents choosing evaluation conditions in response to favorable results.
+
+3. Yes. The lesson removes an outer improvement loop, not internal numerical computation.
+
+4. Named inputs, actions, outputs, and checks that connect to actual evidence.
+
+</details>
+
+## What's next
+
+Run the written sequence once without adapting it. Continue to [01.02: Run the process without changing it](../step_02_run_the_process/README.md).

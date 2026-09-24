@@ -1,0 +1,2 @@
+task,recipe,status,metric,score,normalized_loss,fit_seconds,predict_seconds,process_seconds,note
+friedman,neighbors-0-pairwise,ok,MAE,3.4235507544206416,0.8223955843302722,0.009437200002139434,0.017284000001382083,1.809813400002895,exit=0

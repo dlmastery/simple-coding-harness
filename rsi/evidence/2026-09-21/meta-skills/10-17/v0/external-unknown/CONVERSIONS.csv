@@ -1,0 +1,3 @@
+candidate,selection_mae,seconds,source_unit,basis
+A,10,0.001,tick,assumed identity
+B,10,1,second,declared conversion

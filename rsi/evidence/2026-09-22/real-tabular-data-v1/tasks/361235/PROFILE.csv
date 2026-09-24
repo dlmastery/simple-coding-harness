@@ -1,0 +1,2 @@
+task,dataset,name,role,kind,target,rows,features,categorical_inputs,missing_inputs,constant_inputs,duplicate_rows,conflicting_groups,all_classes_in_each_split,raw_sha256,train,selection,final
+361235,44957,airfoil_self_noise,procedure-comparison,regression,sound_pressure,1503,5,0,0,0,0,0,True,27c5c925f7f81911e9bd4664bba3656d2558d9ba301a6a0a617fac4b5797117a,890,299,314

@@ -1,0 +1,6 @@
+action,inputs,outputs,start_utc,end_utc,seconds,status
+frame,TASK.md; data-card context,TASK.md; FRAME-CHECK.md,2026-09-22T07:55:19.155051+00:00,2026-09-22T07:55:19.155051+00:00,0.0007279999845195562,complete
+inspect,pinned hour.csv,DATA-REPORT.md; sample.csv; data-overview.png,2026-09-22T07:55:19.155051+00:00,2026-09-22T07:55:21.089272+00:00,1.9380363999807741,complete
+split,TASK.md; source dates,SPLIT.md,2026-09-22T07:55:21.089272+00:00,2026-09-22T07:55:21.132739+00:00,0.03835149999940768,complete
+fit,PROCESS.md; task and training data,CONTRACT.md; trials.csv; trial-001 artifacts,2026-09-22T07:55:21.134485+00:00,2026-09-22T07:55:22.713689+00:00,1.5792717000003904,complete
+check,predictions; source targets; candidate registry,trial-001/CHECK.md,2026-09-22T07:55:22.713689+00:00,2026-09-22T07:55:24.251072+00:00,1.5376272999856155,complete
