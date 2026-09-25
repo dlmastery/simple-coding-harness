@@ -1,7 +1,5 @@
 # Zero to Hero: Harness Engineering
 
-**Looking for the newer course?** Open the [rebuilt, illustrated harness course README](https://github.com/dlmastery/simple-coding-harness/blob/codex/rsi-masterclass-rebuild/README.md), with its themed learning path, glossary and teaching roadmap. That version is on the rebuild branch; this page retains the original step-by-step tutorial. [Browse the harness illustrations here](harness/VISUAL-GUIDE.md).
-
 ## Build a coding agent from one API call to a full harness, then run it on four SDKs, OpenRouter and an open-source harness server
 
 **Models are commodities. The harness is the product.** The same model
@@ -21,14 +19,6 @@ without a key. Every step's README shows the code with an explanation under
 each snippet.
 
 **What you will build**
-
-![One model request grows into a tool loop, then a harness with state, context, permissions and recovery.](harness/assets/overview-v1.png)
-
-Start with the request and follow the returned observation into the next action.
-The controls around the loop arrive in later lessons. [Open the overview full size](harness/assets/overview-v1.png) · [Browse all eight harness illustrations](harness/VISUAL-GUIDE.md).
-
-The illustrations below explain mechanisms. Their seven themes split Part 1 into
-foundations and controls, and group Parts 2–3 as adapters. The original lesson order stays the same.
 
 ```text
 Part 1   stages 1 - 15    a coding agent harness, by hand, one idea per stage
@@ -198,10 +188,6 @@ ready.
 # Part 1: Build the harness by hand
 
 ## Stage 1: One API call
-
-![A reply becomes an agent when a tool observation informs the next model request.](harness/assets/foundations-v1.png)
-
-*Stages 1–8: add one mechanism at a time, from a model reply to tools, a loop and saved sessions. A saved conversation and the files it describes are different kinds of state.* [Open full size](harness/assets/foundations-v1.png).
 
 **Goal.** Send a prompt to a model and print the reply.
 
@@ -710,10 +696,6 @@ message list and returns the list to continue with.
 
 ## Stage 9: An installable command
 
-![Planning, permissions, execution boundaries and worker context provide different controls around the loop.](harness/assets/control-v1.png)
-
-*Stages 9–15: package the agent, then add controls. Permission answers whether an action may run; a sandbox limits where it can run. Separate agent context does not by itself provide operating-system isolation.* [Open full size](harness/assets/control-v1.png).
-
 **Goal.** Run the harness from any directory.
 
 **The idea.** Move the files into a `harness/` package, put the loop in
@@ -1031,10 +1013,6 @@ Install them all with `pip install -r requirements-sdks.txt`.
 
 ## Step 16: Claude Agent SDK
 
-![Compare local, SDK and hosted implementations by who owns the loop, tools, state and approvals.](harness/assets/adapters-v1.png)
-
-*Steps 16–20: change the provider or SDK while tracing the same responsibilities. These are illustrative arrangements; inspect each implementation before assuming its behavior matches another.* [Open full size](harness/assets/adapters-v1.png).
-
 **What it is.** Claude Code as a library. It spawns the `claude` CLI and
 speaks to it over JSON. The loop, the coding tools, sessions, compaction and
 the `Task` subagent tool are built in.
@@ -1210,10 +1188,6 @@ step, each built on the step before it, in the same shape as Part 1.
 > steps were built from is in `NEXT_STEPS_SPEC.md`.
 
 ## Step 21: Streaming and headless mode
-
-![Streaming, parallel tools and external capabilities feed observations and status into an evaluation.](harness/assets/tools-v1.png)
-
-*Steps 21–30: connect more capabilities and keep each result tied to its action. Useful text in a stream does not prove that a tool completed successfully.* [Open full size](harness/assets/tools-v1.png).
 
 **Goal.** See the answer as it is written, and run the harness from a
 script.
@@ -1731,10 +1705,6 @@ durability, and orchestration.
 
 ## Step 31: Project instruction files
 
-![Recover interrupted work by comparing saved instructions, execution records and the actual workspace.](harness/assets/recovery-v1.png)
-
-*Steps 31–38: make work resumable. After an interruption, inspect both the saved record and the action's actual effects before retrying.* [Open full size](harness/assets/recovery-v1.png).
-
 **Goal.** Let a project tell the agent how to work in it.
 
 **The idea.** An `AGENTS.md` file at the project root, or in any directory
@@ -2167,10 +2137,6 @@ Six more mechanisms that production harnesses expose, and a port of the
 core to a second language.
 
 ## Step 39: Approval modes
-
-![Decisions, handoffs, stop conditions and trace records make a run inspectable.](harness/assets/production-v2.png)
-
-*Steps 39–45: explain who acted, why the run stopped and what its trace records. Replaying a trace does not repeat the original tool effects. Event labels in this illustration are conceptual.* [Open full size](harness/assets/production-v2.png).
 
 **Goal.** Switch the whole permission policy with one command.
 
@@ -2810,10 +2776,6 @@ quick demo against a local server.
 > step 46 script. No key goes into any agent definition.
 
 ## Step 46: The loop on TrueForge
-
-![A client submits work to a service and distinguishes completed, cancelled, failed and disconnected turns.](harness/assets/server-v3.png)
-
-*Steps 46–51: move the loop behind a service. A closed connection is not a completion event; preserve uncertainty when the terminal status is missing.* [Open full size](harness/assets/server-v3.png).
 
 **Goal.** Run one turn: open a session, stream events, read the usage.
 

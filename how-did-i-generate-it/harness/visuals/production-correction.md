@@ -1,0 +1,3 @@
+# Production figure correction
+
+Edit the existing production infographic. Preserve its composition, typography and all useful content. Remove the curved teal arrow from the Trace timeline to the New execution panel: a saved record must not appear to launch a new tool execution. Keep the arrow from Trace to Replay. The New execution panel must stand independently with Task -> tools. Replace the four green ticks beneath Python harness / TypeScript core with empty neutral circles, because these are things to check, not verified compatibility claims. Keep the heading Check supported features. Do not change anything else.
