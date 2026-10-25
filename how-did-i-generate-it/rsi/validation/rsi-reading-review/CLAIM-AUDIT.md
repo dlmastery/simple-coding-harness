@@ -1,6 +1,6 @@
 # What the recorded comparison supports
 
-The strongest supported claim is a bounded, author-guided demonstration: a revised promotion procedure is read and applied in later improvement work. In the constructed regression case it avoids the loss caused by the weaker rule; in the classification case both retain the useful child. See the original [claim audit](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/CLAIM-AUDIT.md) and [results](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/FINAL-RESULTS.csv).
+The strongest supported claim is a bounded, author-guided demonstration: a revised promotion procedure is read and applied in later improvement work. In the constructed regression case it avoids the loss caused by the weaker rule; in the classification case both retain the useful child. See the original [claim audit](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/CLAIM-AUDIT.md) and [results](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/FINAL-RESULTS.csv).
 
 | Claim | Evidence and limit |
 |---|---|

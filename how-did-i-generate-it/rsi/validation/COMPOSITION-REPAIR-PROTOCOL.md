@@ -69,4 +69,4 @@ construction checks and ten extra checks pass, including identical constructors
 for the two earlier factor-0.3 revised fits. No fifth attempt was added.
 The archive retains the original protocol snapshot, failed first preflight,
 actual fitted source and later source separately. See the
-[repair evidence](../../../rsi/evidence/2026-09-22/composition-repair/README.md).
+[repair evidence](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/composition-repair/README.md).

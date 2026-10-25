@@ -1,0 +1,11 @@
+{
+  "model": "gpt-5.4-nano",
+  "temperature": 0.7,
+  "max_tokens": 4000,
+  "steps": 4,
+  "num_drafts": 1,
+  "max_debug": 1,
+  "exec_timeout": 600,
+  "preview_rows": 3,
+  "memory": false
+}

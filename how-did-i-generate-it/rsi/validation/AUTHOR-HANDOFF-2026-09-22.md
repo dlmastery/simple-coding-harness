@@ -4,8 +4,8 @@
 the user's review.** The completion statements and counts below describe that
 earlier checkpoint. They are not the current whole-project completion status.
 The [current implementation record](../IMPLEMENTATION-RECORD.md) tracks the
-repaired comparisons. [Nested development](../../../rsi/evidence/2026-09-22/nested-research-development/README.md)
-has two small gains and four ties. The [reserved-task evaluation](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md)
+repaired comparisons. [Nested development](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/nested-research-development/README.md)
+has two small gains and four ties. The [reserved-task evaluation](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/nested-research-evaluation/README.md)
 is now complete: two gains, three ties and one regression, with no reliable overall benefit.
 The [requested presentation](PRESENTATION-BRIEF-2026-09-22.md) is still pending.
 
@@ -15,15 +15,15 @@ The course materials and maintainer acceptance pass are complete for a teaching 
 
 | Deliverable | Where to start |
 |---|---|
-| A progressive masterclass | [Main README](../../../rsi/README.md), [course map](../../../rsi/COURSE-MAP.md): 101 codelabs in twelve themes |
-| Runnable natural-language lessons | [Source index](../../../rsi/SOURCE-ARTIFACTS.md): lesson README, intent brief and maintained source for every lab; seven shared course skills |
+| A progressive masterclass | [Main README](../../../backups/rsi-masterclass-2026-10-23/README.md), [course map](../../../backups/rsi-masterclass-2026-10-23/COURSE-MAP.md): 101 codelabs in twelve themes |
+| Runnable natural-language lessons | [Source index](../../../backups/rsi-masterclass-2026-10-23/SOURCE-ARTIFACTS.md): lesson README, intent brief and maintained source for every lab; seven shared course skills |
 | Research studio and capstones | 38 research labs in thirteen groups, followed by five capstones; local exercises keep measured, synthetic, replay and source-reported results distinct |
-| Visual explanations | [Visual guide](../../../rsi/VISUAL-GUIDE.md): all 101 labs illustrated, plus theme/course/studio/capstone maps; 105 selected conceptual figures and 155 archived versions |
+| Visual explanations | [Visual guide](../../../backups/rsi-masterclass-2026-10-23/VISUAL-GUIDE.md): all 101 labs illustrated, plus theme/course/studio/capstone maps; 105 selected conceptual figures and 155 archived versions |
 | Assessment and intuition | Every lab has an example, prediction, expected outputs, recovery, takeaways, four questions with explained answers, and a next step |
-| Recent primary research | [Research guide](../../../rsi/research/README.md): 37 papers and five reports, explicit dates and reading depth; discovery refreshed through 22 September |
-| Larger-compute route | [Compute guide](../../../rsi/compute/README.md) and scale skill preserve scientific contracts while generating backend-specific jobs and checks |
+| Recent primary research | [Research guide](../../../backups/rsi-masterclass-2026-10-23/research/README.md): 37 papers and five reports, explicit dates and reading depth; discovery refreshed through 22 September |
+| Larger-compute route | [Compute guide](../../../backups/rsi-masterclass-2026-10-23/compute/README.md) and scale skill preserve scientific contracts while generating backend-specific jobs and checks |
 | Reusable authoring process | [Course-building skill](../../../skills/build-research-codelabs/SKILL.md) and its references retain the user's guidance for another topic |
-| Reproducible examples and provenance | [Measured guide](../../../rsi/evidence/README.md), [portfolio](../../../rsi/PORTFOLIO.md), original backups, source identities, rejected artifacts and [development history](../README.md) |
+| Reproducible examples and provenance | [Measured guide](../../../backups/rsi-masterclass-2026-10-23/evidence/README.md), [portfolio](../../../backups/rsi-masterclass-2026-10-23/PORTFOLIO.md), original backups, source identities, rejected artifacts and [development history](../README.md) |
 
 ## What was checked
 
@@ -45,6 +45,6 @@ GitHub navigation sometimes returned the old page immediately after a click. A l
 - **RSI claims:** the author supplies improver revisions and uses shared context. Evidence supports bounded mechanisms and specific comparisons, not autonomous discovery, general improver superiority or sustained acceleration.
 - **Repository CI:** the RSI workflow passes. Separate repository-wide failures have occurred outside this course and are recorded in the CI notes. Do not describe the entire repository as green.
 
-These are disclosed boundaries and follow-up evaluation opportunities. They do not leave an unwritten lab, missing required illustration or unfinished course skill. The next meaningful teaching step is a real learner pilot using [Start here](../../../rsi/START-HERE.md), with feedback preserved before changing the course. Publication remains on `codex/rsi-masterclass-rebuild`; no merge into `main` is part of this handoff.
+These are disclosed boundaries and follow-up evaluation opportunities. They do not leave an unwritten lab, missing required illustration or unfinished course skill. The next meaningful teaching step is a real learner pilot using [Start here](../../../backups/rsi-masterclass-2026-10-23/START-HERE.md), with feedback preserved before changing the course. Publication remains on `codex/rsi-masterclass-rebuild`; no merge into `main` is part of this handoff.
 
 Final documentation check: 101 lessons, 5,628 local links, zero publication problems. All three RSI jobs on 8578fc0 finished successfully. The separate repository test run 35712379021 finished with failure; no new diagnosis or unrelated repair is claimed in this handoff.

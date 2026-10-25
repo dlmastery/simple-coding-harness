@@ -10,21 +10,21 @@ Start with the [master plan](RSI-MASTERCLASS-PLAN.md). It proposes a gradual pat
 |---|---|
 | [Requirements and restart notes](RSI-STEERING-AND-RESTART.md) | The user's directions, current decisions, and how to resume |
 | [Master plan](RSI-MASTERCLASS-PLAN.md) | Course structure, task choice, teaching approach, execution, and acceptance criteria |
-| [Course folder map](../../rsi/STRUCTURE.md) | Final organization, actual theme counts, lab contents, and the distinction from other repository courses |
-| [Source instructions for all labs](../../rsi/SOURCE-ARTIFACTS.md) | Every lab procedure, intent brief, authoring module, shared skill, and whole-course requirement |
+| [Course folder map](../../backups/rsi-masterclass-2026-10-23/STRUCTURE.md) | Final organization, actual theme counts, lab contents, and the distinction from other repository courses |
+| [Source instructions for all labs](../../backups/rsi-masterclass-2026-10-23/SOURCE-ARTIFACTS.md) | Every lab procedure, intent brief, authoring module, shared skill, and whole-course requirement |
 | [Research inventory](RSI-RESEARCH-SWEEP.md) | Recent primary sources, reading status, gaps, and proposed lesson use |
 | [Tabular search-space source audit](research/2026-09-22-TABULAR-SEARCH-SPACES.md) | September research directly relevant to agent-written pipeline modules and strong optimization controls |
-| [Completed discovery comparison](../../rsi/evidence/2026-09-22/discovery-final/README.md) | Sixteen paired tasks, actual fit savings, quality uncertainty and the disclosed host interruption |
-| [Completed public-tabular comparison](../../rsi/evidence/2026-09-22/tabular-comparison/README.md) | Six procedures, 324 attempts, checked skill inheritance, strong controls and uncertain updater gains |
-| [Rejected harness revision](../../rsi/evidence/2026-09-22/harness-revision-development/README.md) | Actual source inheritance, six paired tasks, fixed gate and retrospective noise diagnostic |
+| [Completed discovery comparison](../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/discovery-final/README.md) | Sixteen paired tasks, actual fit savings, quality uncertainty and the disclosed host interruption |
+| [Completed public-tabular comparison](../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/tabular-comparison/README.md) | Six procedures, 324 attempts, checked skill inheritance, strong controls and uncertain updater gains |
+| [Rejected harness revision](../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/harness-revision-development/README.md) | Actual source inheritance, six paired tasks, fixed gate and retrospective noise diagnostic |
 | [Work log](RSI-WORK-LOG.md) | Completed steps, reasons for changes, evidence limits, and next actions |
 | [GitHub checkpoints](CHECKPOINTS.md) | Published milestones and the working branch |
 | [Implementation record](IMPLEMENTATION-RECORD.md) | Execution design, migration, research additions, and unresolved decisions |
 | [Lesson publishing source](scripts/lesson-content.mjs) | Index of the authored lesson modules and reproducible Markdown publisher |
 | [Visual explanations and review](visuals/REVIEW.md) | Technical diagrams, retained revisions, raster prompts, and review limits |
 | [Generated illustration gallery](visuals/generated/README.md) | Selected images, exact prompts, earlier versions, generator metadata, and scientific review |
-| [Compute extension](../../rsi/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
-| [Course evidence](../../rsi/evidence/README.md) | Actual model fits, mechanism checks, completed repair studies and limits |
+| [Compute extension](../../backups/rsi-masterclass-2026-10-23/compute/README.md) | Readable job briefs, adapter behavior, and backend checks |
+| [Course evidence](../../backups/rsi-masterclass-2026-10-23/evidence/README.md) | Actual model fits, mechanism checks, completed repair studies and limits |
 | [Completed nested-study publication](validation/NESTED-PUBLICATION-REVIEW.md) | Checked archive, lesson integration, publication repair and remaining gaps |
 | [Presentation source](presentation/STORYBOARD.md) | 37-slide outline, checked results and speaker-note draft; PPTX pending |
 | [Cross-platform checks](validation/CROSS-PLATFORM-CHECKS.md) | Successful RSI jobs on Linux, macOS, and Windows; separate aggregate failures |

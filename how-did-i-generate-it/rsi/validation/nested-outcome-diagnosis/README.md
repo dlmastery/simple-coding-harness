@@ -65,6 +65,6 @@ replacement and then call the same final results an untouched evaluation.
 - [Executed analysis source](diagnose_nested_outcomes.py) uses the standard
   library to recompute balanced accuracy or MAE, match rows and truths,
   inspect selected constructor identities and count changed predictions.
-- [The full study](../../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md)
+- [The full study](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/nested-research-evaluation/README.md)
   retains all controls, uncertainty and costs. This diagnostic adds no new
   efficacy claim or model attempts.

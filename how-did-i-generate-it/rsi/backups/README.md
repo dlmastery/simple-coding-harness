@@ -5,7 +5,7 @@ The original RSI course is preserved at commit [`eed9cbbdf19c665ae54646253f303be
 - [Original README, unchanged text](before-rebuild-eed9cbb/README.original.txt).
 - [Complete original tracked RSI directory, ZIP](before-rebuild-eed9cbb/rsi-original.zip).
 - [Original README in its working GitHub context](https://github.com/dlmastery/simple-coding-harness/blob/eed9cbbdf19c665ae54646253f303be85030798c/rsi/README.md).
-- [Current course](../../../rsi/README.md).
+- [Current course](../../../backups/rsi-masterclass-2026-10-23/README.md).
 
 The separate text copy preserves the exact original Markdown bytes. Its `.txt` extension identifies an archival source, outside the active course's navigation checks; its relative links still assume the original directory. Git attributes prevent line-ending conversion of this copy. Use the historical GitHub page for browsing, or ask the coding agent to extract the ZIP into a separate directory. The archive contains `original-rsi/rsi/README.md` with its original filename and preserves the original file layout. It does not contain untracked local files or external dependencies.
 

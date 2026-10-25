@@ -11,7 +11,7 @@ This is the component and permission map for the recorded synthetic-task compari
 | Interpreter | Recorded `run-matched-improver.py` | Recognizes exactly the two supported rules. Reads the selected skill and procedure, runs the declared fits and saves decisions. It is not a general natural-language execution engine. |
 | External comparison | Saved protocol, data partitions, metric functions and frozen final-scoring procedure | Judges the retained outputs. Candidates do not change these by the declared protocol; filesystem permissions do not enforce that restriction against the host. |
 
-The [original protocol](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/PROTOCOL.md) fixes the task and comparison. The [driver](../../scripts/run-matched-improver.py) contains both implementation and checking logic. This is organizational separation in a cooperative local workflow, not independent evaluation authority or secret final data.
+The [original protocol](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/PROTOCOL.md) fixes the task and comparison. The [driver](../../scripts/run-matched-improver.py) contains both implementation and checking logic. This is organizational separation in a cooperative local workflow, not independent evaluation authority or secret final data.
 
 Three edits have different meanings:
 

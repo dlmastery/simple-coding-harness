@@ -10,7 +10,7 @@ The authoring agent read the 07.05 and 07.06 activities, wrote a small simulatio
 
 This is a maintainer reproduction command. Learners ask the tutor to run the plain-language lesson steps.
 
-Exit status was 0. Eight simulation cases passed job identity, duration, constructed-result, and scheduling non-overlap checks. The [evidence](../../../rsi/evidence/2026-09-20/organization-and-emergence/README.md) retains inputs, the protocol saved before simulation, event CSVs, results, source hash, and a separate interpretation review.
+Exit status was 0. Eight simulation cases passed job identity, duration, constructed-result, and scheduling non-overlap checks. The [evidence](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/organization-and-emergence/README.md) retains inputs, the protocol saved before simulation, event CSVs, results, source hash, and a separate interpretation review.
 
 The main 07.05 activities and one optional overhead case were exercised. The three main 07.06 conditions and the optional two-policy deadline comparison were exercised. The budgets now state these optional cases explicitly. No ML fits or language-model training were required. No learner predictions, quiz answers, or teach-back responses were supplied or invented.
 

@@ -4,8 +4,8 @@ The user requested a glossary and teaching roadmap after the author handoff. Thi
 
 ## What changed
 
-- Expanded the [glossary](../../../rsi/GLOSSARY.md) from its quick-reference table into 113 definition entries grouped around experiments, agent operation, revisions, evidence, research and compute. Added worked metric examples, ten commonly confused distinctions, lesson links and a short self-check.
-- Added the [teaching roadmap](../../../rsi/TEACHING-ROADMAP.md): a two-hour preview, the 58-lab core and the full 101-lab route. Its 18 teaching blocks include prerequisites, outputs and explanations. Dense blocks can span several meetings; the calendar is not a measured completion promise.
+- Expanded the [glossary](../../../backups/rsi-masterclass-2026-10-23/GLOSSARY.md) from its quick-reference table into 113 definition entries grouped around experiments, agent operation, revisions, evidence, research and compute. Added worked metric examples, ten commonly confused distinctions, lesson links and a short self-check.
+- Added the [teaching roadmap](../../../backups/rsi-masterclass-2026-10-23/TEACHING-ROADMAP.md): a two-hour preview, the 58-lab core and the full 101-lab route. Its 18 teaching blocks include prerequisites, outputs and explanations. Dense blocks can span several meetings; the calendar is not a measured completion promise.
 - Added a 90-minute session pattern, readiness checks, capstone planning milestones, shorter studio routes, a complete tutor entry point and pilot feedback instructions. Reused the existing course mindmap without image generation.
 - Linked both resources from the main README, learning path, instructor guide and generated course map. Changed the course-map generator so regeneration retains the links.
 - Preserved these requirements in the reusable authoring standard and requirement-coverage table. Synchronized only the changed reference into the installed skill.

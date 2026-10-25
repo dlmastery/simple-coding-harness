@@ -62,4 +62,4 @@ These three sources were already inside the dated inventory. This pass opened th
 
 ## ScienceBuddy classroom validation reading
 
-Reopened selected primary methods, evaluation, and appendix sections for the local advanced-lab execution. The concise [source-scoped audit](../../../rsi/evidence/2026-09-20/sciencebuddy-laptop/10-26/RESULTS-AUDIT.md) records what was inspected. No new source or reproduction is counted. The official glossary link in the separate conceptual note is background terminology, not a recent-paper discovery.
+Reopened selected primary methods, evaluation, and appendix sections for the local advanced-lab execution. The concise [source-scoped audit](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/sciencebuddy-laptop/10-26/RESULTS-AUDIT.md) records what was inspected. No new source or reproduction is counted. The official glossary link in the separate conceptual note is background terminology, not a recent-paper discovery.

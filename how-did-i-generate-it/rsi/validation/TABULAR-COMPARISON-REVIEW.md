@@ -19,7 +19,7 @@ restarted and no final outcome changed a choice.
 - The measured chart was inspected twice. Version one is retained; version
   two names tasks plainly and uses six decimals for small naval errors.
 
-See the [report and trace](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md).
+See the [report and trace](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/tabular-comparison/README.md).
 The 10,353 checks include the search checks, so these counts must not be added
 as if they were disjoint tests. Constructor inspections perform zero fits.
 

@@ -1,0 +1,13 @@
+{
+  "proposer_model": "gpt-5.4-mini",
+  "proposer_effort": "medium",
+  "evidence": "traces",
+  "k": 3,
+  "budget_max": 4,
+  "budget_min": 4,
+  "critic": false,
+  "prune": false,
+  "accept": "greedy",
+  "cost_slack": 0.25,
+  "cost_per_gain": 5.0
+}

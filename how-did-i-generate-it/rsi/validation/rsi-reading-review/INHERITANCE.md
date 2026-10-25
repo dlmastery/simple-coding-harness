@@ -1,8 +1,8 @@
 # From a procedural failure to a later decision
 
-The original [change proposal](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/CHANGE-PROPOSAL.md) targets a specific failure: perfect training fit can accompany worse selection performance. The author changes one instruction, from promoting on training score to promoting on selection score. The author supplies both versions; there is no autonomous discovery claim.
+The original [change proposal](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/CHANGE-PROPOSAL.md) targets a specific failure: perfect training fit can accompany worse selection performance. The author changes one instruction, from promoting on training score to promoting on selection score. The author supplies both versions; there is no autonomous discovery claim.
 
-The two [diagnostic cases](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/DIAGNOSTIC-FIXTURES.csv) are synthetic numbers, not model measurements:
+The two [diagnostic cases](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/DIAGNOSTIC-FIXTURES.csv) are synthetic numbers, not model measurements:
 
 | Case | Training MAE, parent → child | Selection MAE, parent → child | v0 | v1 |
 |---|---|---|---|---|
@@ -17,9 +17,9 @@ The expected benefit is fewer retained overfit children. The limitation is selec
 
 The later regression round provides the inheritance evidence:
 
-1. [BEFORE.md](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/BEFORE.md) names the revised improver hash, task-skill hashes, new data identity and two-fit allocation.
+1. [BEFORE.md](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/BEFORE.md) names the revised improver hash, task-skill hashes, new data identity and two-fit allocation.
 2. The parent and child produce actual predictions under the unchanged task. Their selection MAEs are about 24.20 and 71.88.
-3. [DECISION.md](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/DECISION.md) records the selected instruction and rejects the child before final scoring.
+3. [DECISION.md](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/rounds/regression/v1/DECISION.md) records the selected instruction and rejects the child before final scoring.
 4. The matched v0 arm retains the child. Corresponding prediction files are byte-identical across arms; the implemented promotion rule explains the differing choice in this controlled case.
 
 Those two v1 fits are a subset of the original eight-fit comparison, not two additional fits to add again. The revision is used in a later candidate trial; this does not demonstrate an independently accepted improver autonomously launching another generation.

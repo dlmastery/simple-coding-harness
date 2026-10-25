@@ -51,6 +51,6 @@ teach-back and quiz responses were skipped. Other agent products and remote
 compute were not tested. All earlier study budgets remain closed; this separate
 one-attempt handoff allocation is now exhausted.
 
-The next learning step is [a bounded experiment loop](../../../../rsi/02_loop_engineering/README.md).
+The next learning step is [a bounded experiment loop](../../../../backups/rsi-masterclass-2026-10-23/02_loop_engineering/README.md).
 It adds repeated decisions to the fixed procedure. This check alone provides
 no evidence that the procedure learns or improves itself.
