@@ -26,7 +26,7 @@ from pathlib import Path
 
 from . import agent, edits, llm
 
-EDITOR = """You edit the harness of an ML-engineering agent while it works on a Kaggle-style task.
+EDITOR = """You edit the harness of an ML-engineering agent while it works on a tabular prediction task.
 No grader is available: you only see what the agent did and what validation it reported.
 
 # Current harness
@@ -128,4 +128,4 @@ def step(h_dir, cid, library, out, model, replica=0, use_library=True):
 def _summ(att):
     return {"best_val": att.nodes[att.best].val if att.best is not None else None,
             "ran": sum(n.ok for n in att.nodes), "steps": len(att.nodes), "tokens": att.tokens,
-            "seconds": round(att.exec_seconds, 1), "hidden_beats": att.final["beats"]}
+            "seconds": round(att.exec_seconds, 1), "hidden_norm": att.final["norm"]}

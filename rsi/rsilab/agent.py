@@ -30,7 +30,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from . import llm, mle
+from . import llm, bench
 
 EXEC_CACHE = llm.CACHE_DIR / "exec.jsonl"
 _exec_lock = threading.Lock()
@@ -62,8 +62,8 @@ class Attempt:
 
     @property
     def final(self):
-        return self.nodes[self.best].grade if self.best is not None else {"beats": 0.0, "above_median": False,
-                                                                          "any_medal": False, "score": None, "valid": False}
+        return self.nodes[self.best].grade if self.best is not None else {"norm": 0.0, "beats_forest": False,
+                                                                          "score": None, "valid": False}
 
     @property
     def exec_seconds(self):
@@ -166,7 +166,7 @@ def execute(cid, code, run_dir, timeout):
         return hit
     if os.environ.get("RSI_LLM") == "replay":
         raise llm.ReplayMiss(f"no cached execution for this script on {cid}")
-    comp = mle.get(cid)
+    comp = bench.get(cid)
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "submission").mkdir(exist_ok=True)
     (run_dir / "solution.py").write_text(code, encoding="utf-8")
@@ -192,7 +192,7 @@ def execute(cid, code, run_dir, timeout):
     sub = run_dir / "submission" / "submission.csv"
     sample = next(comp.public.glob("sample*ubmission*.csv"), None)
     sub_ok = sub.exists() and sample is not None and _submission_ok(sub, sample)
-    grade = mle.grade(cid, sub) if sub.exists() else None
+    grade = bench.grade(cid, sub) if sub.exists() else None
     row = {"key": key, "competition": cid, "output": output, "seconds": round(seconds, 1),
            "ok": bool(code_ok and sub_ok and val is not None and val == val), "val": val, "grade": grade}
     with _exec_lock:
@@ -216,7 +216,7 @@ def solve(h, cid, replica, workdir, progress=None):
     description = ctx["obfuscated"] if cfg.get("obfuscate") else ctx["description"]
     rows = cfg["preview_rows"]
     if str(rows) not in ctx["preview"]:
-        ctx["preview"][str(rows)] = data_preview(mle.get(cid).public, rows)
+        ctx["preview"][str(rows)] = data_preview(bench.get(cid).public, rows)
     preview = ctx["preview"][str(rows)]
     fill = {"description": description.strip(), "data_preview": preview, "timeout": cfg["exec_timeout"],
             "direction": "lower" if lower else "higher"}
@@ -257,7 +257,7 @@ def solve(h, cid, replica, workdir, progress=None):
     return att
 
 
-# Offline replay needs the prompt context without the Kaggle data: it is stored once per competition.
+# Offline replay needs the prompt context without the task data: it is stored once per competition.
 CONTEXT = llm.CACHE_DIR / "context.json"
 
 
@@ -277,9 +277,9 @@ def context(cids):
     missing = [c for c in cids if c not in ctx]
     if missing and os.environ.get("RSI_LLM") != "replay":
         for cid in missing:
-            comp = mle.get(cid)
+            comp = bench.get(cid)
             ctx[cid] = {"lower": comp.lower_is_better, "description": comp.description,
-                        "obfuscated": mle.obfuscated_description(cid),
+                        "obfuscated": bench.obfuscated_description(cid),
                         "preview": {str(r): data_preview(comp.public, r) for r in (0, 3, 10)},
                         "terms": _terms(comp)}
         CONTEXT.parent.mkdir(parents=True, exist_ok=True)

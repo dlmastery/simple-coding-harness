@@ -24,7 +24,7 @@ import re
 import shutil
 from pathlib import Path
 
-from . import edits, evaluate, improve, llm, mle
+from . import edits, evaluate, improve, llm, bench
 
 META = """You are improving an IMPROVER: a procedure that edits the harness of an ML-engineering agent.
 The improver's instructions are propose.md; its settings are policy.json.
@@ -55,7 +55,7 @@ PLACEHOLDERS = ["{harness}", "{archive}", "{evidence}", "{budget}"]
 
 def transfer_report(product_dir, competitions, replicas=(0, 1)):
     res = evaluate.evaluate(Path(product_dir), competitions, replicas)
-    return res, "\n".join(f"- {c}: beats {v:.2f} of Kaggle teams" for c, v in res.per_competition().items())
+    return res, "\n".join(f"- {c}: norm {v:.2f} (1.0 = random-forest baseline)" for c, v in res.per_competition().items())
 
 
 def meta_step(improver_dir, run_dir, out_dir, transfer_text, model="gpt-5.5", sample=0):
@@ -94,7 +94,7 @@ def meta_step(improver_dir, run_dir, out_dir, transfer_text, model="gpt-5.5", sa
 
 def run_improver(improver_dir, run_dir, start_harness, rounds, progress=print):
     p = improve.load_policy(improver_dir)
-    best = improve.evolve(run_dir, start_harness, mle.SPLITS["evolve"], rounds, p, progress, improver_dir)
+    best = improve.evolve(run_dir, start_harness, bench.SPLITS["evolve"], rounds, p, progress, improver_dir)
     return Path(run_dir) / best / "harness"
 
 

@@ -1,4 +1,4 @@
-"""Offline tests for rsilab: no API key, no Kaggle data, no network."""
+"""Offline tests for rsilab: no API key, no task data, no network."""
 
 import json
 import sys
@@ -56,7 +56,7 @@ def fake_solve(monkeypatch, outcomes, lower=True):
     def execute(cid, code, run_dir, timeout):
         ok, val = next(results)
         return {"output": "out", "ok": ok, "val": val, "seconds": 1.0,
-                "grade": {"beats": val or 0, "above_median": False, "any_medal": False, "score": val, "valid": ok}}
+                "grade": {"norm": val or 0, "beats_forest": False, "score": val, "valid": ok}}
     monkeypatch.setattr(agent, "execute", execute)
     return calls
 

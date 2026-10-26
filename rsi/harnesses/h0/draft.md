@@ -1,4 +1,4 @@
-# Competition
+# Task
 
 {description}
 
@@ -12,7 +12,7 @@ The data is in ./input. Files:
 
 Write one complete Python script that:
 1. reads the data from ./input,
-2. trains a model, holding out part of the training data to measure the competition metric,
+2. trains a model, holding out part of the training data to measure the task metric,
 3. prints the held-out metric on its own line as `VALIDATION_SCORE: <number>`,
 4. writes predictions for the test set to ./submission/submission.csv in the format of the sample submission.
 

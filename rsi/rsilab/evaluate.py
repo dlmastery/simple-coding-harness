@@ -1,7 +1,7 @@
 """Honest measurement: replicas, paired comparisons, a noise band, and cost.
 
 The unit of evidence is a cell: one competition x one replica. A harness is
-scored by the mean, over cells, of `beats`: the fraction of real Kaggle teams
+scored by the mean, over cells, of `norm`: the benchmark's normalized score (AMLB: 0 = constant predictor, 1 = random forest)
 its final submission would have beaten. Every claim in the course goes through
 `evaluate` and `paired_diff`.
 """
@@ -21,10 +21,10 @@ COST_PER_EXEC_SECOND = 50  # tokens: one CPU-second of training is priced like 5
 
 @dataclass
 class Result:
-    cells: dict                    # "competition/r<k>" -> beats
+    cells: dict                    # "competition/r<k>" -> norm
     tokens: float                  # mean model tokens per attempt
     exec_seconds: float            # mean training seconds per attempt
-    above_median: float            # fraction of cells above the Kaggle median
+    beats_forest: float            # fraction of cells above the Kaggle median
     valid: float                   # fraction of cells with a gradable submission
     attempts: list = field(default_factory=list, repr=False)
 
@@ -43,12 +43,12 @@ class Result:
         return {k: statistics.fmean(v) for k, v in out.items()}
 
     def __str__(self):
-        return (f"beats {self.score:.3f}  above-median {self.above_median:.2f}  valid {self.valid:.2f}  "
+        return (f"beats {self.score:.3f}  above-median {self.beats_forest:.2f}  valid {self.valid:.2f}  "
                 f"tokens {self.tokens:7.0f}  train-s {self.exec_seconds:6.1f}")
 
     def to_json(self):
         return {"score": self.score, "cost": self.cost, "cells": self.cells, "tokens": self.tokens,
-                "exec_seconds": self.exec_seconds, "above_median": self.above_median, "valid": self.valid}
+                "exec_seconds": self.exec_seconds, "beats_forest": self.beats_forest, "valid": self.valid}
 
 
 def evaluate(harness, competitions, replicas=(0, 1), jobs=6, workdir=None, progress=None, save_to=None,
@@ -65,10 +65,10 @@ def evaluate(harness, competitions, replicas=(0, 1), jobs=6, workdir=None, progr
     with ThreadPoolExecutor(jobs) as pool:
         attempts = list(pool.map(lambda cr: agent.solve(h, cr[0], cr[1], workdir, progress), cells))
     res = Result(
-        cells={f"{a.competition}/r{a.replica}": a.final["beats"] for a in attempts},
+        cells={f"{a.competition}/r{a.replica}": a.final["norm"] for a in attempts},
         tokens=statistics.fmean(a.tokens for a in attempts),
         exec_seconds=statistics.fmean(a.exec_seconds for a in attempts),
-        above_median=statistics.fmean(bool(a.final["above_median"]) for a in attempts),
+        beats_forest=statistics.fmean(bool(a.final["beats_forest"]) for a in attempts),
         valid=statistics.fmean(bool(a.final["valid"]) for a in attempts),
         attempts=attempts,
     )

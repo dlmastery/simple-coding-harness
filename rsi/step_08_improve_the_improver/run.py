@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from rsilab import course, edits, evaluate, mle, recursive, report  # noqa: E402
+from rsilab import course, edits, evaluate, bench, recursive, report  # noqa: E402
 
 course.banner("Lab 08 · improve the improver")
 
@@ -14,7 +14,7 @@ RUN1 = course.RUNS / "08-i1"
 
 # 1. The meta-improver reads i0's whole run and how its product did on heldout competitions.
 product0, best0 = report.product(RUN0)
-_, transfer = recursive.transfer_report(product0, mle.SPLITS["heldout"])
+_, transfer = recursive.transfer_report(product0, bench.SPLITS["heldout"])
 if not (I1 / "policy.json").exists():
     diagnosis, refused = recursive.meta_step(course.I0, RUN0, I1, transfer)
     print("refused meta-edits:", refused or "none")
@@ -28,7 +28,7 @@ _, best1 = report.product(RUN1)
 
 # 3. Fair comparison. Heldout was seen by the meta-improver, so only OOD is untouched by every level.
 report.splits_table({f"i0 product {best0}": product0, f"i1 product {best1}": product1})
-d = evaluate.paired_diff(evaluate.evaluate(product1, mle.SPLITS["ood"], (0, 1)),
-                         evaluate.evaluate(product0, mle.SPLITS["ood"], (0, 1)))
+d = evaluate.paired_diff(evaluate.evaluate(product1, bench.SPLITS["ood"], (0, 1)),
+                         evaluate.evaluate(product0, bench.SPLITS["ood"], (0, 1)))
 print("i1 versus i0 on OOD, the only split no level has seen:\n  ", evaluate.fmt_diff(d))
 course.spend()

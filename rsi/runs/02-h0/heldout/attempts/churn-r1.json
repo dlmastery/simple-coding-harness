@@ -1,0 +1,84 @@
+{
+ "competition": "churn",
+ "replica": 1,
+ "nodes": [
+  {
+   "step": 0,
+   "stage": "draft",
+   "parent": null,
+   "plan": "",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import roc_auc_score\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef main():\n    input_dir = \"./input\"\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n\n    train_path = os.path.join(input_dir, \"train.csv\")\n    test_path = os.path.join(input_dir, \"test.csv\")\n    sample_path = os.path.join(input_dir, \"sample_submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n\n    # Ensure expected target exists\n    if \"class\" not in train_df.columns:\n        raise ValueError(\"Target column `class` not found in train.csv\")\n\n    y = train_df[\"class\"].astype(int).values\n    X = train_df.drop(columns=[\"class\"])\n\n    # Identify column types\n    # Treat object columns as categorical; everything else as numeric.\n    categorical_cols = [c for c in X.columns if X[c].dtype == \"object\"]\n    numeric_cols = [c for c in X.columns if c not in categorical_cols]\n\n    # If there are no object columns, categorical_cols can be empty.\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n                (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\", sparse_output=True))\n            ]), categorical_cols),\n            (\"num\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"median\")),\n            ]), numeric_cols),\n        ],\n        remainder=\"drop\",\n        verbose_feature_names_out=False\n    )\n\n    # Model: regularized logistic regression (fast + strong baseline for AUC)\n    clf = LogisticRegression(\n        max_iter=2000,\n        solver=\"lbfgs\",\n        n_jobs=None,\n        C=1.0\n    )\n\n    model = Pipeline(steps=[\n        (\"preprocess\", preprocessor),\n        (\"clf\", clf)\n    ])\n\n    # Train/validation split\n    X_train, X_valid, y_train, y_valid = train_test_split(\n        X, y, test_size=0.2, random_state=42, stratify=y\n    )\n\n    model.fit(X_train, y_train)\n    valid_pred = model.predict_proba(X_valid)[:, 1]\n    valid_auc = roc_auc_score(y_valid, valid_pred)\n\n    print(f\"VALIDATION_SCORE: {valid_auc}\")\n\n    # Predict test\n    test_pred = model.predict_proba(test_df)[:, 1]\n\n    # Load sample submission for correct format (id + class)\n    sample_sub = pd.read_csv(sample_path)\n    # Use test_df[\"id\"] to align; sample may have same ids but we follow spec.\n    submission = pd.DataFrame({\n        \"id\": test_df[\"id\"].values,\n        \"class\": test_pred\n    })\n\n    # If sample submission has a specific order, match it\n    if \"id\" in sample_sub.columns:\n        submission = submission.set_index(\"id\").loc[sample_sub[\"id\"].values].reset_index()\n\n    submission_path = os.path.join(out_dir, \"submission.csv\")\n    submission.to_csv(submission_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 0.7751284924836727\nC:\\Users\\evija\\anaconda3\\Lib\\site-packages\\sklearn\\linear_model\\_logistic.py:406: ConvergenceWarning: lbfgs failed to converge after 2000 iteration(s) (status=1):\nSTOP: TOTAL NO. of ITERATIONS REACHED LIMIT\n\nIncrease the number of iterations to improve the convergence (max_iter=2000).\nYou might also want to scale the data as shown in:\n    https://scikit-learn.org/stable/modules/preprocessing.html\nPlease also refer to the documentation for alternative solver options:\n    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression\n  n_iter_i = _check_optimize_result(\n",
+   "ok": true,
+   "val": 0.7751284924836727,
+   "seconds": 12.5,
+   "grade": {
+    "score": 0.7783914992693136,
+    "valid": true,
+    "norm": 0.6479156058145902,
+    "beats_forest": false
+   }
+  },
+  {
+   "step": 1,
+   "stage": "improve",
+   "parent": 0,
+   "plan": "Change: replace the plain numeric preprocessing with standardization (via `StandardScaler`) inside the pipeline before Logistic Regression to improve convergence and calibration, and increase `max_iter` to ensure the solver fully converges.",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import roc_auc_score\nfrom sklearn.linear_model import LogisticRegression\n\n\ndef main():\n    input_dir = \"./input\"\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n\n    train_path = os.path.join(input_dir, \"train.csv\")\n    test_path = os.path.join(input_dir, \"test.csv\")\n    sample_path = os.path.join(input_dir, \"sample_submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n\n    if \"class\" not in train_df.columns:\n        raise ValueError(\"Target column `class` not found in train.csv\")\n\n    y = train_df[\"class\"].astype(int).values\n    X = train_df.drop(columns=[\"class\"])\n\n    # Identify column types\n    categorical_cols = [c for c in X.columns if X[c].dtype == \"object\"]\n    numeric_cols = [c for c in X.columns if c not in categorical_cols]\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n                (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\", sparse_output=True))\n            ]), categorical_cols),\n            (\"num\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"median\")),\n                (\"scaler\", StandardScaler(with_mean=True, with_std=True)),\n            ]), numeric_cols),\n        ],\n        remainder=\"drop\",\n        verbose_feature_names_out=False\n    )\n\n    # Logistic Regression with stronger convergence settings\n    clf = LogisticRegression(\n        max_iter=5000,\n        solver=\"lbfgs\",\n        n_jobs=None,\n        C=1.0\n    )\n\n    model = Pipeline(steps=[\n        (\"preprocess\", preprocessor),\n        (\"clf\", clf)\n    ])\n\n    X_train, X_valid, y_train, y_valid = train_test_split(\n        X, y, test_size=0.2, random_state=42, stratify=y\n    )\n\n    model.fit(X_train, y_train)\n    valid_pred = model.predict_proba(X_valid)[:, 1]\n    valid_auc = roc_auc_score(y_valid, valid_pred)\n    print(f\"VALIDATION_SCORE: {valid_auc}\")\n\n    test_pred = model.predict_proba(test_df)[:, 1]\n\n    sample_sub = pd.read_csv(sample_path)\n    submission = pd.DataFrame({\n        \"id\": test_df[\"id\"].values,\n        \"class\": test_pred\n    })\n\n    if \"id\" in sample_sub.columns:\n        submission = submission.set_index(\"id\").loc[sample_sub[\"id\"].values].reset_index()\n\n    submission_path = os.path.join(out_dir, \"submission.csv\")\n    submission.to_csv(submission_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 0.7999252875784159\n",
+   "ok": true,
+   "val": 0.7999252875784159,
+   "seconds": 4.7,
+   "grade": {
+    "score": 0.8093775543060957,
+    "valid": true,
+    "norm": 0.7200311290028151,
+    "beats_forest": false
+   }
+  },
+  {
+   "step": 2,
+   "stage": "improve",
+   "parent": 1,
+   "plan": "Change: switch the classifier from Logistic Regression to a tree-based model (RandomForest) while keeping the same preprocessing, which often improves AUC on tabular churn data with nonlinear feature interactions.",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import roc_auc_score\nfrom sklearn.ensemble import RandomForestClassifier\n\n\ndef main():\n    input_dir = \"./input\"\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n\n    train_path = os.path.join(input_dir, \"train.csv\")\n    test_path = os.path.join(input_dir, \"test.csv\")\n    sample_path = os.path.join(input_dir, \"sample_submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n\n    if \"class\" not in train_df.columns:\n        raise ValueError(\"Target column `class` not found in train.csv\")\n\n    y = train_df[\"class\"].astype(int).values\n    X = train_df.drop(columns=[\"class\"])\n\n    categorical_cols = [c for c in X.columns if X[c].dtype == \"object\"]\n    numeric_cols = [c for c in X.columns if c not in categorical_cols]\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n                (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\", sparse_output=True))\n            ]), categorical_cols),\n            (\"num\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"median\")),\n                (\"scaler\", StandardScaler(with_mean=True, with_std=True)),\n            ]), numeric_cols),\n        ],\n        remainder=\"drop\",\n        verbose_feature_names_out=False\n    )\n\n    # RandomForest often captures nonlinearities better than linear models for tabular data\n    clf = RandomForestClassifier(\n        n_estimators=600,\n        max_depth=None,\n        min_samples_split=2,\n        min_samples_leaf=1,\n        max_features=\"sqrt\",\n        bootstrap=True,\n        n_jobs=-1,\n        random_state=42\n    )\n\n    model = Pipeline(steps=[\n        (\"preprocess\", preprocessor),\n        (\"clf\", clf)\n    ])\n\n    X_train, X_valid, y_train, y_valid = train_test_split(\n        X, y, test_size=0.2, random_state=42, stratify=y\n    )\n\n    model.fit(X_train, y_train)\n    valid_pred = model.predict_proba(X_valid)[:, 1]\n    valid_auc = roc_auc_score(y_valid, valid_pred)\n    print(f\"VALIDATION_SCORE: {valid_auc}\")\n\n    test_pred = model.predict_proba(test_df)[:, 1]\n\n    sample_sub = pd.read_csv(sample_path)\n    submission = pd.DataFrame({\n        \"id\": test_df[\"id\"].values,\n        \"class\": test_pred\n    })\n\n    if \"id\" in sample_sub.columns:\n        submission = submission.set_index(\"id\").loc[sample_sub[\"id\"].values].reset_index()\n\n    submission_path = os.path.join(out_dir, \"submission.csv\")\n    submission.to_csv(submission_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 0.8818126779250557\n",
+   "ok": true,
+   "val": 0.8818126779250557,
+   "seconds": 8.1,
+   "grade": {
+    "score": 0.9297632906480404,
+    "valid": true,
+    "norm": 1.000211369772201,
+    "beats_forest": true
+   }
+  },
+  {
+   "step": 3,
+   "stage": "improve",
+   "parent": 2,
+   "plan": "Change: Replace the RandomForest with an `XGBoost`-style gradient boosting model (`HistGradientBoostingClassifier`) and tune its regularization/learning dynamics, which often improves AUC on tabular churn data.",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import roc_auc_score\nfrom sklearn.ensemble import HistGradientBoostingClassifier\n\n\ndef main():\n    input_dir = \"./input\"\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n\n    train_path = os.path.join(input_dir, \"train.csv\")\n    test_path = os.path.join(input_dir, \"test.csv\")\n    sample_path = os.path.join(input_dir, \"sample_submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n\n    if \"class\" not in train_df.columns:\n        raise ValueError(\"Target column `class` not found in train.csv\")\n\n    y = train_df[\"class\"].astype(int).values\n    X = train_df.drop(columns=[\"class\"])\n\n    categorical_cols = [c for c in X.columns if X[c].dtype == \"object\"]\n    numeric_cols = [c for c in X.columns if c not in categorical_cols]\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n                (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\", sparse_output=True))\n            ]), categorical_cols),\n            (\"num\", Pipeline(steps=[\n                (\"imputer\", SimpleImputer(strategy=\"median\")),\n                (\"scaler\", StandardScaler(with_mean=True, with_std=True)),\n            ]), numeric_cols),\n        ],\n        remainder=\"drop\",\n        verbose_feature_names_out=False\n    )\n\n    # Gradient boosting often yields better AUC than RF for churn-like tabular problems\n    clf = HistGradientBoostingClassifier(\n        loss=\"log_loss\",\n        learning_rate=0.05,\n        max_depth=6,\n        max_iter=600,\n        l2_regularization=1e-3,\n        max_leaf_nodes=31,\n        min_samples_leaf=20,\n        random_state=42\n    )\n\n    model = Pipeline(steps=[\n        (\"preprocess\", preprocessor),\n        (\"clf\", clf)\n    ])\n\n    X_train, X_valid, y_train, y_valid = train_test_split(\n        X, y, test_size=0.2, random_state=42, stratify=y\n    )\n\n    model.fit(X_train, y_train)\n    valid_pred = model.predict_proba(X_valid)[:, 1]\n    valid_auc = roc_auc_score(y_valid, valid_pred)\n    print(f\"VALIDATION_SCORE: {valid_auc}\")\n\n    test_pred = model.predict_proba(test_df)[:, 1]\n\n    sample_sub = pd.read_csv(sample_path)\n    submission = pd.DataFrame({\n        \"id\": test_df[\"id\"].values,\n        \"class\": test_pred\n    })\n\n    if \"id\" in sample_sub.columns:\n        submission = submission.set_index(\"id\").loc[sample_sub[\"id\"].values].reset_index()\n\n    submission_path = os.path.join(out_dir, \"submission.csv\")\n    submission.to_csv(submission_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 0.8971931316097951\n",
+   "ok": true,
+   "val": 0.8971931316097951,
+   "seconds": 9.3,
+   "grade": {
+    "score": 0.926939621364113,
+    "valid": true,
+    "norm": 0.9936396914001325,
+    "beats_forest": false
+   }
+  }
+ ],
+ "best": 3,
+ "tokens": 8317,
+ "calls": 4,
+ "final": {
+  "score": 0.926939621364113,
+  "valid": true,
+  "norm": 0.9936396914001325,
+  "beats_forest": false
+ },
+ "exec_seconds": 34.6
+}

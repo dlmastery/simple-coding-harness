@@ -54,12 +54,12 @@ def grade(cid, submission_csv):
     from mlebench.grade import get_leaderboard, grade_csv
     comp = _registry_comp(cid)
     report = grade_csv(Path(submission_csv), comp)
-    out = {"score": report.score, "valid": report.valid_submission, "above_median": bool(report.above_median),
-           "any_medal": bool(report.any_medal), "beats": 0.0}
+    out = {"score": report.score, "valid": report.valid_submission, "beats_forest": bool(report.above_median),
+           "norm": 0.0}
     if report.score is not None:
         board = get_leaderboard(comp)["score"].dropna()
         worse = (board > report.score) if report.is_lower_better else (board < report.score)
-        out["beats"] = float(worse.mean())
+        out["norm"] = float(worse.mean())
     return out
 
 

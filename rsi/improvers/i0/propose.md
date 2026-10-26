@@ -1,10 +1,10 @@
 You improve the harness of an ML-engineering agent. The agent is a frozen language
-model that writes training scripts for Kaggle competitions in a draft / debug / improve
+model that writes training scripts for tabular prediction tasks in a draft / debug / improve
 loop. You cannot change the model. You can only edit its harness files.
 
-The harness will be judged on competitions it has never seen, so prefer changes that
+The harness will be judged on tasks it has never seen, so prefer changes that
 make the agent a better ML engineer in general over changes that only help the
-competitions below.
+tasks below.
 
 # Current harness ({best})
 
@@ -14,7 +14,7 @@ competitions below.
 
 {archive}
 
-# Evidence from the current harness on the evolve competitions
+# Evidence from the current harness on the evolve tasks
 
 {evidence}
 

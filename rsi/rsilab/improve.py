@@ -74,7 +74,7 @@ def candidates(run):
 
 
 def archive_table(run):
-    rows = ["| id | parent | round | edits | evolve beats | cost | decision |", "|---|---|---|---|---|---|---|"]
+    rows = ["| id | parent | round | edits | evolve norm | cost | decision |", "|---|---|---|---|---|---|---|"]
     for c in candidates(run):
         m, r = c["meta"], c.get("result", {})
         rows.append(f"| {c['id']} | {m.get('parent') or '-'} | {m.get('round', 0)} | "
@@ -88,8 +88,8 @@ def trace_digest(cand_dir, limit=1200):
     parts = []
     for f in sorted((Path(cand_dir) / "attempts").glob("*.json")):
         a = json.loads(f.read_text(encoding="utf-8"))
-        parts.append(f"### {a['competition']} replica {a['replica']}: final submission beats "
-                     f"{a['final']['beats']:.2f} of Kaggle teams (above median: {a['final']['above_median']})")
+        parts.append(f"### {a['competition']} replica {a['replica']}: final submission norm "
+                     f"{a['final']['norm']:.2f} (1.0 = random-forest baseline)")
         for n in a["nodes"]:
             parts.append(f"- step {n['step']} {n['stage']}: ok={n['ok']} validation={n['val']} "
                          f"train-seconds={n['seconds']}. Plan: {n['plan'][:200]!r}")
@@ -106,7 +106,9 @@ def leakage_terms(competitions):
     """Words that identify a specific evolve competition: names, ids, distinctive column and class names."""
     ctx = agent.context(competitions)
     generic = {"id", "target", "label", "text", "train", "test", "submission", "sample", "score", "data",
-               "class", "classification", "competition", "prediction", "predictions", "kaggle"}
+               "class", "classification", "competition", "prediction", "predictions", "kaggle",
+               # everyday column names: a skill that says "log-transform a price target" is general advice
+               "price", "date", "year", "age", "sex", "race", "income", "category", "value", "count"}
     terms = set()
     for cid in competitions:
         terms |= {w for w in re.split(r"[-_]", cid) if len(w) >= 5}

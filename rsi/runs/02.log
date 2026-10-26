@@ -1,0 +1,22 @@
+== Lab 02 · measure before you improve  (model calls: auto)
+
+split    competition     norm (mean of 4 replicas)
+-------  --------------  -------------------------
+evolve   adult           1.032                    
+evolve   amazon          0.982                    
+evolve   house-sales     1.006                    
+heldout  bank-marketing  1.008                    
+heldout  churn           0.985                    
+heldout  diamonds        1.063                    
+ood      jungle-chess    0.836                    
+ood      cnae-9          0.753                    
+
+split    norm   noise band (2 SE)  beats forest  valid  tokens/attempt  train s/attempt
+-------  -----  -----------------  ------------  -----  --------------  ---------------
+evolve   1.007  0.027              0.75          1.00   9,557           349            
+heldout  1.019  0.034              0.42          1.00   9,160           253            
+ood      0.794  0.298              0.25          0.88   15,409          56             
+
+A/A test on evolve (identical harness, different draws):
+   +0.029  95% CI [-0.011, +0.081]  W/T/L 3/1/2  (n=6 cells) -> not established (interval includes zero)
+model calls this run: 124 live, 4 replayed; tokens 347,866

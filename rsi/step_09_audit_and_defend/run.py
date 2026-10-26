@@ -4,11 +4,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from rsilab import course, improve, mle  # noqa: E402
+from rsilab import course, improve, bench  # noqa: E402
 
 course.banner("Lab 09 · audit and defend")
 
-terms = improve.leakage_terms(mle.SPLITS["evolve"])
+terms = improve.leakage_terms(bench.SPLITS["evolve"])
 rows = []
 for run_dir in sorted(p for p in course.RUNS.iterdir() if (p / "BEST").exists()):
     best = (run_dir / "BEST").read_text(encoding="utf-8").strip()
