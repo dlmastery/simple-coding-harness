@@ -1,4 +1,0 @@
-field,value
-Dataset,wine
-Split,stratified
-Metric,macro_f1

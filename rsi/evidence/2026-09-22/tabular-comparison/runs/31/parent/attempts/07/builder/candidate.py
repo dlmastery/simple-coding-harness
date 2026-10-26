@@ -1,5 +1,0 @@
-from study_engine import build_recipe
-
-
-def build(schema, kind, seed=41):
-    return build_recipe(schema, kind, 'base:linear', 0.9, seed)

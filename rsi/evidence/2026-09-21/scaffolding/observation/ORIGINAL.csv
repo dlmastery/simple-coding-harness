@@ -1,4 +1,0 @@
-field,required,initial
-Dataset,bike,bike
-Split,chronological,
-Metric,MAE,MAE

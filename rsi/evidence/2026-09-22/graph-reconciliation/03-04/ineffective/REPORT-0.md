@@ -1,3 +1,0 @@
-# Selection report
-
-Metric: MAE

@@ -1,3 +1,0 @@
-# Execution output
-
-missing Split

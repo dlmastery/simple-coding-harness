@@ -1,4 +1,0 @@
-field,required,initial
-Dataset,wine,
-Split,stratified,stratified
-Metric,macro_f1,macro_f1

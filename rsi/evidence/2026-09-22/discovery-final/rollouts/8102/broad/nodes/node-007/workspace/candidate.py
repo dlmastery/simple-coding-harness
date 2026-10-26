@@ -1,9 +1,0 @@
-from engine import build as build_pipeline
-
-FAMILY = 'linear'
-TRANSFORM = 'pairwise'
-STRENGTH = 0.1
-STAGE = 2
-
-def build(kind, seed):
-    return build_pipeline(kind, FAMILY, TRANSFORM, STRENGTH, seed)

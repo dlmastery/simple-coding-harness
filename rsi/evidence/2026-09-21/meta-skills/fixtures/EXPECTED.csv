@@ -1,6 +1,0 @@
-case,expected
-seconds,A
-milliseconds,A
-minutes,B
-microseconds,A
-unknown,refused
