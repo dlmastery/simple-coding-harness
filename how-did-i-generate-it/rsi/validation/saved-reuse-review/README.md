@@ -2,7 +2,7 @@
 
 This 22 September author review connects labs 01.05 and 06.06 to their existing executions. It adds no fits, no fresh agent and no new generated harness. The source records stay unchanged.
 
-The two [historical package executions](../../../../rsi/evidence/2026-09-20/clean-journey/HARNESS-EXECUTION.md) each ran one baseline into a new output folder and rejected the wrong task with exit 2. This review compares their complete prediction bytes and contracts to the earlier runs, checks generation identities, and confirms their one-row successful fit ledgers. See [actual checks](CHECKS.csv) and [source hashes](SOURCE-IDENTITIES.csv). These are file and record checks, not reruns of the commands.
+The two [historical package executions](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/HARNESS-EXECUTION.md) each ran one baseline into a new output folder and rejected the wrong task with exit 2. This review compares their complete prediction bytes and contracts to the earlier runs, checks generation identities, and confirms their one-row successful fit ledgers. See [actual checks](CHECKS.csv) and [source hashes](SOURCE-IDENTITIES.csv). These are file and record checks, not reruns of the commands.
 
 | Package | Recorded recipe | Repeated result | Handoff prepared in this review |
 |---|---|---|---|

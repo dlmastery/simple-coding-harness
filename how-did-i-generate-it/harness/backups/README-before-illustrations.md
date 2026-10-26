@@ -39,12 +39,12 @@ Series   rsi/             101 illustrated codelabs in 12 themes: one ML experime
                           students use natural language and skills, and the coding agent writes code
 ```
 
-A second series lives in [`genui/`](genui/): **zero to hero on generative
+A second series lives in [`genui/`](genui): **zero to hero on generative
 UI**, where the agent's output becomes an interface. It continues this
 codelab into the user-facing side with AG-UI, A2UI, OpenUI Lang,
 json-render and MCP Apps.
 
-A third series lives in [`rsi/`](rsi/): **from one ML experiment to recursive
+A third series lives in [`rsi/`](rsi): **from one ML experiment to recursive
 self-improvement**. Its 101 codelabs include 38 research labs and five capstones.
 Students use natural language and Markdown skills; the coding agent writes and
 runs the implementation. Each lab includes an illustration, instructions,
@@ -101,11 +101,11 @@ check_snippets.py    every README snippet exists verbatim in the code it names
 | You want to | Start at | Then |
 |---|---|---|
 | understand what a coding agent *is* | [Stage 1](#stage-1-one-api-call) and read through [Stage 2.4](#stage-24-the-agent-loop) | Stages 3 - 15, one per sitting |
-| take the harness as a base for your own | [step 45](step_45_typescript_core/) (the final Python harness; TypeScript port beside it) | the [robustness contract](#two-rules-and-a-contract-that-hold-the-design-together) below says what it guarantees |
+| take the harness as a base for your own | [step 45](step_45_typescript_core) (the final Python harness; TypeScript port beside it) | the [robustness contract](#two-rules-and-a-contract-that-hold-the-design-together) below says what it guarantees |
 | see what an agent SDK gives you | [Step 16](#step-16-claude-agent-sdk) - 19 and [Who owns which mechanism](#who-owns-which-mechanism) | Step 20 for routing and cost |
 | run the harness on a server instead of a laptop | [Step 46](#step-46-the-loop-on-trueforge) - 51 | step 51 is the comparison table |
-| put an interface on the agent's output | [`genui/`](genui/) | it reuses step 21's loop as is |
-| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi/) | open Claude Code (or this harness) in a lesson directory and invoke the skill; it reuses the ideas of stages 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
+| put an interface on the agent's output | [`genui/`](genui) | it reuses step 21's loop as is |
+| make the agent's own files improve across runs, and prove it | [`rsi/`](rsi) | open Claude Code (or this harness) in a lesson directory and invoke the skill; it reuses the ideas of stages 4 (skills), 15 (`execute`), 30 (evals) and 35 (approvals) |
 
 **How to read one step.** Open the step's `README.md`. The first paragraph says what the
 step adds and why; the sections that follow quote the code that changed (`check_snippets.py`
@@ -3244,62 +3244,62 @@ both sides.
 
 | Stage | Adds | Files that change |
 |------:|------|-------------------|
-| [1](step_01_minimal_chat/) | minimal chat | `llm.py` |
-| [2.1](step_02_1_bash_tool/) | a bash tool | `llm.py` |
-| [2.2](step_02_2_generic_tools/) | tool registry | `tools.py`, `llm.py` |
-| [2.3](step_02_3_read_file/) | `read_file` | `tools.py` |
-| [2.4](step_02_4_agent_loop/) | **the agent loop** | `agent.py`, `llm.py` |
-| [3](step_03_better_ui/) | terminal UI, chat loop | `ui.py`, `agent.py` |
-| [4](step_04_skills/) | skills | `skills.py`, `tools.py`, `llm.py` |
-| [5](step_05_file_editing/) | `write_file`, `str_replace` | `tools.py`, `llm.py` |
-| [6](step_06_late_injection/) | late injection | `context.py`, `agent.py` |
-| [7](step_07_file_freshness/) | file freshness | `context.py`, `tools.py` |
-| [8](step_08_sessions_rewind/) | sessions, `/rewind` | `session.py`, `commands.py`, `agent.py`, `ui.py` |
-| [9](step_09_installable_command/) | package, `harness` command | `harness/`, `pyproject.toml` |
-| [10](step_10_todos/) | todos | `todos.py`, `context.py`, `llm.py` |
-| [11](step_11_permissions/) | allow / ask / deny | `permissions.py`, `agent.py`, `ui.py` |
-| [12](step_12_sandbox/) | OS sandbox, timeouts | `sandbox.py`, `tools.py` |
-| [13](step_13_readable_todos_input_line/) | checklist, input line | `prompt.py`, `ui.py` |
-| [14](step_14_compaction/) | cap / strip / fit, compaction | `history.py`, `compact.py`, `agent.py` |
-| [15](step_15_subagents/) | subagents | `subagent.py`, `tools.py` |
-| [16](step_16_claude_agent_sdk/) | Claude Agent SDK | `harness.py`, `rules.py` |
-| [17](step_17_openai_agents_sdk/) | OpenAI Agents SDK | `harness.py`, `rules.py` |
-| [18](step_18_google_antigravity_sdk/) | Google Antigravity SDK | `harness.py`, `rules.py` |
-| [19](step_19_deepseek_harness/) | DeepSeek Harness | `harness.py`, `plugin/` |
-| [20](step_20_openrouter/) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
-| [21](step_21_streaming_headless/) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
-| [22](step_22_parallel_tools/) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
-| [23](step_23_browser_use/) | browser use, browser subagent | `browser.py`, `permissions.py` |
-| [24](step_24_computer_use/) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
-| [25](step_25_memory/) | persistent memory | `memory.py`, `context.py`, `commands.py` |
-| [26](step_26_mcp_client/) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
-| [27](step_27_hooks/) | hooks | `hooks.py`, `tools.py`, `agent.py` |
-| [28](step_28_plan_mode/) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
-| [29](step_29_jobs_parallel_subagents/) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
-| [30](step_30_eval/) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
-| [31](step_31_instruction_files/) | project instruction files, `/init` | `instructions.py`, `commands.py` |
-| [32](step_32_context_budget/) | context budget, deferred tools | `budget.py`, `tools.py` |
-| [33](step_33_checkpoints/) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
-| [34](step_34_durability/) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
-| [35](step_35_human_in_the_loop/) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
-| [36](step_36_orchestration/) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
-| [37](step_37_production_anatomy/) | production harness anatomy | `README.md` |
-| [38](step_38_capstone/) | capstone | `capstone/` |
-| [39](step_39_approval_modes/) | approval modes | `modes.py`, `permissions.py` |
-| [40](step_40_handoffs/) | handoffs | `handoff.py`, `agent.py` |
-| [41](step_41_stop_conditions/) | stop conditions, stop hook | `stop.py`, `hooks.py` |
-| [42](step_42_streaming_tool_output/) | streaming tool output | `tools.py`, `ui.py` |
-| [43](step_43_extensions/) | extensions | `extensions.py` |
-| [44](step_44_replay_trace/) | replay and trace viewer | `session.py`, `trace.py` |
-| [45](step_45_typescript_core/) | the core loop in TypeScript | `harness-ts/` |
-| [46](step_46_trueforge_loop/) | the loop on TrueForge | `client/loop.py` |
-| [47](step_47_trueforge_tools_mcp/) | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
-| [48](step_48_trueforge_sandbox_skills/) | sandbox, skills, code mode | `client/sandbox.py` |
-| [49](step_49_trueforge_context/) | context, questions, stop conditions | `client/context.py` |
-| [50](step_50_trueforge_subagents_eval/) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
-| [51](step_51_trueforge_comparison/) | TrueForge versus this codelab versus managed agents | `README.md` |
-| [genui](genui/) | a second series: generative UI (AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps) | `genui/` |
-| [rsi](rsi/) | a third series: recursive self-improvement, skill packs run inside a coding agent, 18 lessons on a curriculum of ML problems | `rsi/` |
+| [1](step_01_minimal_chat) | minimal chat | `llm.py` |
+| [2.1](step_02_1_bash_tool) | a bash tool | `llm.py` |
+| [2.2](step_02_2_generic_tools) | tool registry | `tools.py`, `llm.py` |
+| [2.3](step_02_3_read_file) | `read_file` | `tools.py` |
+| [2.4](step_02_4_agent_loop) | **the agent loop** | `agent.py`, `llm.py` |
+| [3](step_03_better_ui) | terminal UI, chat loop | `ui.py`, `agent.py` |
+| [4](step_04_skills) | skills | `skills.py`, `tools.py`, `llm.py` |
+| [5](step_05_file_editing) | `write_file`, `str_replace` | `tools.py`, `llm.py` |
+| [6](step_06_late_injection) | late injection | `context.py`, `agent.py` |
+| [7](step_07_file_freshness) | file freshness | `context.py`, `tools.py` |
+| [8](step_08_sessions_rewind) | sessions, `/rewind` | `session.py`, `commands.py`, `agent.py`, `ui.py` |
+| [9](step_09_installable_command) | package, `harness` command | `harness/`, `pyproject.toml` |
+| [10](step_10_todos) | todos | `todos.py`, `context.py`, `llm.py` |
+| [11](step_11_permissions) | allow / ask / deny | `permissions.py`, `agent.py`, `ui.py` |
+| [12](step_12_sandbox) | OS sandbox, timeouts | `sandbox.py`, `tools.py` |
+| [13](step_13_readable_todos_input_line) | checklist, input line | `prompt.py`, `ui.py` |
+| [14](step_14_compaction) | cap / strip / fit, compaction | `history.py`, `compact.py`, `agent.py` |
+| [15](step_15_subagents) | subagents | `subagent.py`, `tools.py` |
+| [16](step_16_claude_agent_sdk) | Claude Agent SDK | `harness.py`, `rules.py` |
+| [17](step_17_openai_agents_sdk) | OpenAI Agents SDK | `harness.py`, `rules.py` |
+| [18](step_18_google_antigravity_sdk) | Google Antigravity SDK | `harness.py`, `rules.py` |
+| [19](step_19_deepseek_harness) | DeepSeek Harness | `harness.py`, `plugin/` |
+| [20](step_20_openrouter) | OpenRouter routing and cost | `openrouter.py`, `llm.py`, `commands.py` |
+| [21](step_21_streaming_headless) | streaming, headless `-p` | `llm.py`, `ui.py`, `agent.py` |
+| [22](step_22_parallel_tools) | parallel tool calls | `tools.py`, `agent.py`, `subagent.py` |
+| [23](step_23_browser_use) | browser use, browser subagent | `browser.py`, `permissions.py` |
+| [24](step_24_computer_use) | computer use, image messages | `computer.py`, `history.py`, `agent.py` |
+| [25](step_25_memory) | persistent memory | `memory.py`, `context.py`, `commands.py` |
+| [26](step_26_mcp_client) | MCP client | `mcp_client.py`, `permissions.py`, `commands.py` |
+| [27](step_27_hooks) | hooks | `hooks.py`, `tools.py`, `agent.py` |
+| [28](step_28_plan_mode) | plan mode, structured output | `plan.py`, `commands.py`, `permissions.py` |
+| [29](step_29_jobs_parallel_subagents) | background jobs, parallel subagents | `jobs.py`, `subagent.py`, `context.py` |
+| [30](step_30_eval) | evaluation harness | `evaluate.py`, `agent.py`, `evals/` |
+| [31](step_31_instruction_files) | project instruction files, `/init` | `instructions.py`, `commands.py` |
+| [32](step_32_context_budget) | context budget, deferred tools | `budget.py`, `tools.py` |
+| [33](step_33_checkpoints) | workspace checkpoints, `/undo` | `checkpoint.py`, `commands.py` |
+| [34](step_34_durability) | retries, loop detection, crash recovery | `llm.py`, `agent.py`, `session.py` |
+| [35](step_35_human_in_the_loop) | `ask_user`, steering, session rules | `tools.py`, `agent.py`, `permissions.py` |
+| [36](step_36_orchestration) | subagent definitions, `/pipeline` | `agents.py`, `commands.py` |
+| [37](step_37_production_anatomy) | production harness anatomy | `README.md` |
+| [38](step_38_capstone) | capstone | `capstone/` |
+| [39](step_39_approval_modes) | approval modes | `modes.py`, `permissions.py` |
+| [40](step_40_handoffs) | handoffs | `handoff.py`, `agent.py` |
+| [41](step_41_stop_conditions) | stop conditions, stop hook | `stop.py`, `hooks.py` |
+| [42](step_42_streaming_tool_output) | streaming tool output | `tools.py`, `ui.py` |
+| [43](step_43_extensions) | extensions | `extensions.py` |
+| [44](step_44_replay_trace) | replay and trace viewer | `session.py`, `trace.py` |
+| [45](step_45_typescript_core) | the core loop in TypeScript | `harness-ts/` |
+| [46](step_46_trueforge_loop) | the loop on TrueForge | `client/loop.py` |
+| [47](step_47_trueforge_tools_mcp) | tools and permissions as MCP | `tools_server.py`, `client/approve.py` |
+| [48](step_48_trueforge_sandbox_skills) | sandbox, skills, code mode | `client/sandbox.py` |
+| [49](step_49_trueforge_context) | context, questions, stop conditions | `client/context.py` |
+| [50](step_50_trueforge_subagents_eval) | subagents, sessions, evaluation | `client/threads.py`, `client/evaluate.py` |
+| [51](step_51_trueforge_comparison) | TrueForge versus this codelab versus managed agents | `README.md` |
+| [genui](genui) | a second series: generative UI (AG-UI, A2UI, OpenUI Lang, json-render, MCP Apps) | `genui/` |
+| [rsi](rsi) | a third series: recursive self-improvement, skill packs run inside a coding agent, 18 lessons on a curriculum of ML problems | `rsi/` |
 
 ## Tests and checks
 

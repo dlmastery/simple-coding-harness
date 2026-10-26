@@ -1,6 +1,6 @@
 # Read the RSI evidence as one chain
 
-This 22 September review connects labs 09.01, 09.03, 09.04 and 09.07 to the existing [eight-fit comparison](../../../../rsi/evidence/2026-09-20/clean-journey/09-05/README.md). It adds the missing component map, explicit lesson-to-artifact mapping, pointer replay and claim-removal exercise. It does not repeat those eight fits or claim a new autonomous experiment.
+This 22 September review connects labs 09.01, 09.03, 09.04 and 09.07 to the existing [eight-fit comparison](../../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/clean-journey/09-05/README.md). It adds the missing component map, explicit lesson-to-artifact mapping, pointer replay and claim-removal exercise. It does not repeat those eight fits or claim a new autonomous experiment.
 
 The [read-only audit](../../scripts/audit-rsi-reading-path.mjs) passed **24 checks** and recorded **25 source-file identities**, with **zero new fits**. It checks historical identities, before/decision records, eight matching prediction pairs, fit counts and the pointer replay. It does not recompute model metrics, load serialized models, recreate agent contexts or establish when an unsigned local file was first written. Metric execution belongs to the original linked run.
 

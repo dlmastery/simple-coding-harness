@@ -1,6 +1,6 @@
 # Self-* and measurement execution review
 
-Date: 20 September 2026. The [protocol](SELF-STAR-AND-MEASUREMENT-PROTOCOL.md) covers nine labs: 07.01–07.04, 07.08, and 08.03–08.06. The [run index](../../../rsi/evidence/2026-09-20/self-star-and-measurement/README.md) links every main activity, additional check, output, and limitation.
+Date: 20 September 2026. The [protocol](SELF-STAR-AND-MEASUREMENT-PROTOCOL.md) covers nine labs: 07.01–07.04, 07.08, and 08.03–08.06. The [run index](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/self-star-and-measurement/README.md) links every main activity, additional check, output, and limitation.
 
 ## Failure, correction, and preservation
 

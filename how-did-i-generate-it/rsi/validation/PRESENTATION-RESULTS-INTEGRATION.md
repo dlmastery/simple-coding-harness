@@ -32,4 +32,4 @@ The existing illustrations are retained. No image generation was used.
 Read the [storyboard](../presentation/STORYBOARD.md),
 [diagnostic report](nested-outcome-diagnosis/README.md),
 [reusable requirement mapping](../SKILL-REQUIREMENT-COVERAGE.md) and
-[presentation status](../../../rsi/PRESENTATION.md).
+[presentation status](../../../backups/rsi-masterclass-2026-10-23/PRESENTATION.md).

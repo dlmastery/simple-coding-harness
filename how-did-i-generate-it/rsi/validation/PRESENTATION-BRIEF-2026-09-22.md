@@ -1,4 +1,4 @@
-Current status: [37-slide review draft with embedded notes](../../../rsi/PRESENTATION.md) is available. It presents verified mixed findings. The original success condition is not assumed satisfied. [Publication checks](../presentation/REVIEW.md). Earlier planning below is retained.
+Current status: [37-slide review draft with embedded notes](../../../backups/rsi-masterclass-2026-10-23/PRESENTATION.md) is available. It presents verified mixed findings. The original success condition is not assumed satisfied. [Publication checks](../presentation/REVIEW.md). Earlier planning below is retained.
 
 # RSI presentation after experimental repair
 
@@ -13,7 +13,7 @@ Status: a [37-slide teaching sequence and speaker-note draft](../presentation/ST
 Update after public-tabular scoring: the 324-attempt comparison and later
 updater use are now checked. Memory beats random but loses to fixed overall;
 the revised updater's mean interval includes zero. Read the
-[full report](../../../rsi/evidence/2026-09-22/tabular-comparison/README.md).
+[full report](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/tabular-comparison/README.md).
 The execution gap is closed for this study, but the requested effective-RSI
 result remains unestablished. No PPTX is claimed complete from these findings.
 

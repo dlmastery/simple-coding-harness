@@ -6,7 +6,7 @@ masterclass branch diverged.
 
 - [Browse the old course at its original commit](https://github.com/dlmastery/simple-coding-harness/tree/c8c5153d87947cf2e872bfe6894e808a97be83d4/rsi).
 - [Download the complete old RSI directory](rsi-original.zip).
-- [Open the replacement course](../../rsi/README.md).
+- [Open the replacement course](../rsi-masterclass-2026-10-23/README.md).
 
 The archive was made directly from Git, not from a modified working directory.
 It preserves all 500 tracked files under `original/rsi/`. Untracked files and

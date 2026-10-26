@@ -1,2 +1,4 @@
-runs/
+runs/*/work/
+runs/01-work/
 __pycache__/
+cache/

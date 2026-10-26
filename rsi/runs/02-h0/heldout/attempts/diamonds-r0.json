@@ -1,0 +1,84 @@
+{
+ "competition": "diamonds",
+ "replica": 0,
+ "nodes": [
+  {
+   "step": 0,
+   "stage": "draft",
+   "parent": null,
+   "plan": "",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.ensemble import HistGradientBoostingRegressor\n\n\ndef rmse(y_true, y_pred):\n    return np.sqrt(mean_squared_error(y_true, y_pred))\n\n\ndef main():\n    base_dir = \"./input\"\n    train_path = os.path.join(base_dir, \"train.csv\")\n    test_path = os.path.join(base_dir, \"test.csv\")\n    sample_path = os.path.join(base_dir, \"sample_submission.csv\")\n\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n    out_path = os.path.join(out_dir, \"submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n    sample_df = pd.read_csv(sample_path)\n\n    target_col = \"price\"\n    drop_cols = [\"id\"]\n\n    feature_cols = [c for c in train_df.columns if c not in [target_col]]\n    X = train_df[feature_cols].copy()\n    y = train_df[target_col].astype(float).values\n\n    X_test = test_df[feature_cols].copy()\n\n    # Split for validation\n    rng = np.random.RandomState(42)\n    idx = np.arange(len(X))\n    rng.shuffle(idx)\n    val_size = int(0.15 * len(X))\n    val_idx = idx[:val_size]\n    tr_idx = idx[val_size:]\n\n    X_tr, X_val = X.iloc[tr_idx], X.iloc[val_idx]\n    y_tr, y_val = y[tr_idx], y[val_idx]\n\n    # Identify categorical / numerical columns\n    categorical_cols = [c for c in X_tr.columns if X_tr[c].dtype == \"object\"]\n    numerical_cols = [c for c in X_tr.columns if c not in categorical_cols]\n\n    # Preprocess\n    categorical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]\n    )\n    numerical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"median\")),\n        ]\n    )\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", categorical_transformer, categorical_cols),\n            (\"num\", numerical_transformer, numerical_cols),\n        ],\n        remainder=\"drop\",\n    )\n\n    # Model: strong baseline for tabular with mixed types\n    model = HistGradientBoostingRegressor(\n        loss=\"squared_error\",\n        learning_rate=0.08,\n        max_depth=6,\n        max_leaf_nodes=31,\n        min_samples_leaf=20,\n        l2_regularization=1e-4,\n        max_bins=255,\n        random_state=42,\n    )\n\n    pipe = Pipeline(steps=[(\"preprocess\", preprocessor), (\"model\", model)])\n\n    pipe.fit(X_tr, y_tr)\n    val_pred = pipe.predict(X_val)\n    score = rmse(y_val, val_pred)\n    print(f\"VALIDATION_SCORE: {score}\")\n\n    # Predict test\n    test_pred = pipe.predict(X_test)\n\n    # Create submission in required format\n    submission = pd.DataFrame(\n        {\"id\": sample_df[\"id\"].values, \"price\": test_pred}\n    )\n    # Ensure ordering matches sample_submission.csv\n    # (Assumes sample_submission has same ids as test)\n    # If not, align by id.\n    if not np.array_equal(submission[\"id\"].values, sample_df[\"id\"].values):\n        submission = submission.set_index(\"id\").loc[sample_df[\"id\"].values].reset_index()\n\n    submission.to_csv(out_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 67.21546645659572\n",
+   "ok": true,
+   "val": 67.21546645659572,
+   "seconds": 7.6,
+   "grade": {
+    "score": 90.02505340277396,
+    "valid": true,
+    "norm": 1.1317950883463856,
+    "beats_forest": true
+   }
+  },
+  {
+   "step": 1,
+   "stage": "improve",
+   "parent": 0,
+   "plan": "Change: switch from `HistGradientBoostingRegressor` to `CatBoostRegressor` (with categorical features handled directly) to better model interactions between `cut/color/clarity` and numeric size features.",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.model_selection import train_test_split\n\n# CatBoost provides strong performance on tabular data with categorical variables.\nfrom catboost import CatBoostRegressor\n\n\ndef rmse(y_true, y_pred):\n    return np.sqrt(mean_squared_error(y_true, y_pred))\n\n\ndef main():\n    base_dir = \"./input\"\n    train_path = os.path.join(base_dir, \"train.csv\")\n    test_path = os.path.join(base_dir, \"test.csv\")\n    sample_path = os.path.join(base_dir, \"sample_submission.csv\")\n\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n    out_path = os.path.join(out_dir, \"submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n    sample_df = pd.read_csv(sample_path)\n\n    target_col = \"price\"\n    id_col = \"id\"\n\n    # Features\n    feature_cols = [c for c in train_df.columns if c != target_col]\n    feature_cols = [c for c in feature_cols if c != id_col]\n\n    X = train_df[feature_cols].copy()\n    y = train_df[target_col].astype(float).values\n    X_test = test_df[feature_cols].copy()\n\n    # Identify categorical columns (by dtype object)\n    categorical_cols = [c for c in X.columns if X[c].dtype == \"object\"]\n    categorical_features = [X.columns.get_loc(c) for c in categorical_cols]\n\n    # Split for validation\n    X_tr, X_val, y_tr, y_val = train_test_split(\n        X, y, test_size=0.15, random_state=42\n    )\n\n    # CatBoost expects categorical columns as either indices or names;\n    # we pass indices to avoid any ordering issues.\n    model = CatBoostRegressor(\n        loss_function=\"RMSE\",\n        iterations=5000,\n        learning_rate=0.05,\n        depth=8,\n        l2_leaf_reg=5.0,\n        random_seed=42,\n        eval_metric=\"RMSE\",\n        verbose=0,\n        early_stopping_rounds=200,\n        # Use all features; CatBoost will handle missing values internally.\n    )\n\n    model.fit(\n        X_tr, y_tr,\n        cat_features=categorical_features,\n        eval_set=(X_val, y_val),\n        use_best_model=True\n    )\n\n    val_pred = model.predict(X_val)\n    score = rmse(y_val, val_pred)\n    print(f\"VALIDATION_SCORE: {score}\")\n\n    test_pred = model.predict(X_test)\n\n    submission = pd.DataFrame({\"id\": sample_df[\"id\"].values, \"price\": test_pred})\n\n    # Align by id if needed\n    if not np.array_equal(submission[\"id\"].values, sample_df[\"id\"].values):\n        submission = submission.set_index(\"id\").loc[sample_df[\"id\"].values].reset_index()\n\n    submission.to_csv(out_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 519.0331792673792\n",
+   "ok": true,
+   "val": 519.0331792673792,
+   "seconds": 324.5,
+   "grade": {
+    "score": 530.0436320512066,
+    "valid": true,
+    "norm": 1.0038176022741323,
+    "beats_forest": true
+   }
+  },
+  {
+   "step": 2,
+   "stage": "improve",
+   "parent": 0,
+   "plan": "Change: add a log1p transform of the target (`price`) and train the regressor to predict the transformed target, then invert with `expm1` for validation and test predictions (this typically improves RMSE on skewed price targets).",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.ensemble import HistGradientBoostingRegressor\n\n\ndef rmse(y_true, y_pred):\n    return np.sqrt(mean_squared_error(y_true, y_pred))\n\n\ndef main():\n    base_dir = \"./input\"\n    train_path = os.path.join(base_dir, \"train.csv\")\n    test_path = os.path.join(base_dir, \"test.csv\")\n    sample_path = os.path.join(base_dir, \"sample_submission.csv\")\n\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n    out_path = os.path.join(out_dir, \"submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n    sample_df = pd.read_csv(sample_path)\n\n    target_col = \"price\"\n    drop_cols = [\"id\"]\n\n    feature_cols = [c for c in train_df.columns if c not in [target_col]]\n    X = train_df[feature_cols].copy()\n    # Log-transform target to reduce skewness\n    y = np.log1p(train_df[target_col].astype(float).values)\n\n    X_test = test_df[feature_cols].copy()\n\n    # Split for validation\n    rng = np.random.RandomState(42)\n    idx = np.arange(len(X))\n    rng.shuffle(idx)\n    val_size = int(0.15 * len(X))\n    val_idx = idx[:val_size]\n    tr_idx = idx[val_size:]\n\n    X_tr, X_val = X.iloc[tr_idx], X.iloc[val_idx]\n    y_tr, y_val = y[tr_idx], y[val_idx]\n\n    # Identify categorical / numerical columns\n    categorical_cols = [c for c in X_tr.columns if X_tr[c].dtype == \"object\"]\n    numerical_cols = [c for c in X_tr.columns if c not in categorical_cols]\n\n    # Preprocess\n    categorical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]\n    )\n    numerical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"median\")),\n        ]\n    )\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", categorical_transformer, categorical_cols),\n            (\"num\", numerical_transformer, numerical_cols),\n        ],\n        remainder=\"drop\",\n    )\n\n    # Model\n    model = HistGradientBoostingRegressor(\n        loss=\"squared_error\",\n        learning_rate=0.08,\n        max_depth=6,\n        max_leaf_nodes=31,\n        min_samples_leaf=20,\n        l2_regularization=1e-4,\n        max_bins=255,\n        random_state=42,\n    )\n\n    pipe = Pipeline(steps=[(\"preprocess\", preprocessor), (\"model\", model)])\n\n    pipe.fit(X_tr, y_tr)\n\n    # Validation: invert transform back to price\n    val_pred_log = pipe.predict(X_val)\n    val_pred = np.expm1(val_pred_log)\n    y_val_price = np.expm1(y_val)\n    score = rmse(y_val_price, val_pred)\n    print(f\"VALIDATION_SCORE: {score}\")\n\n    # Predict test: invert transform back to price\n    test_pred_log = pipe.predict(X_test)\n    test_pred = np.expm1(test_pred_log)\n\n    submission = pd.DataFrame({\"id\": sample_df[\"id\"].values, \"price\": test_pred})\n\n    # Ensure ordering matches sample_submission.csv\n    if not np.array_equal(submission[\"id\"].values, sample_df[\"id\"].values):\n        submission = submission.set_index(\"id\").loc[sample_df[\"id\"].values].reset_index()\n\n    submission.to_csv(out_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 204.23622843847733\n",
+   "ok": true,
+   "val": 204.23622843847733,
+   "seconds": 7.0,
+   "grade": {
+    "score": 243.5773711761694,
+    "valid": true,
+    "norm": 1.0871350658774073,
+    "beats_forest": true
+   }
+  },
+  {
+   "step": 3,
+   "stage": "improve",
+   "parent": 0,
+   "plan": "Change: log-transform the target (`price`) during training (and invert the transform for predictions) to better handle the strong right-skew in diamond prices, which typically improves RMSE.",
+   "code": "import os\nimport numpy as np\nimport pandas as pd\n\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import OneHotEncoder\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.ensemble import HistGradientBoostingRegressor\n\n\ndef rmse(y_true, y_pred):\n    return np.sqrt(mean_squared_error(y_true, y_pred))\n\n\ndef main():\n    base_dir = \"./input\"\n    train_path = os.path.join(base_dir, \"train.csv\")\n    test_path = os.path.join(base_dir, \"test.csv\")\n    sample_path = os.path.join(base_dir, \"sample_submission.csv\")\n\n    out_dir = \"./submission\"\n    os.makedirs(out_dir, exist_ok=True)\n    out_path = os.path.join(out_dir, \"submission.csv\")\n\n    train_df = pd.read_csv(train_path)\n    test_df = pd.read_csv(test_path)\n    sample_df = pd.read_csv(sample_path)\n\n    target_col = \"price\"\n    feature_cols = [c for c in train_df.columns if c != target_col and c != \"id\"]\n\n    X = train_df[feature_cols].copy()\n    y = train_df[target_col].astype(float).values\n    X_test = test_df[feature_cols].copy()\n\n    # Log-transform target to reduce skew\n    # price is positive in diamonds dataset\n    y_log = np.log1p(y)\n\n    # Split for validation\n    rng = np.random.RandomState(42)\n    idx = np.arange(len(X))\n    rng.shuffle(idx)\n    val_size = int(0.15 * len(X))\n    val_idx = idx[:val_size]\n    tr_idx = idx[val_size:]\n\n    X_tr, X_val = X.iloc[tr_idx], X.iloc[val_idx]\n    y_tr, y_val = y_log[tr_idx], y_log[val_idx]\n\n    # Identify categorical / numerical columns\n    categorical_cols = [c for c in X_tr.columns if X_tr[c].dtype == \"object\"]\n    numerical_cols = [c for c in X_tr.columns if c not in categorical_cols]\n\n    # Preprocess\n    categorical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"most_frequent\")),\n            (\"onehot\", OneHotEncoder(handle_unknown=\"ignore\")),\n        ]\n    )\n    numerical_transformer = Pipeline(\n        steps=[\n            (\"imputer\", SimpleImputer(strategy=\"median\")),\n        ]\n    )\n\n    preprocessor = ColumnTransformer(\n        transformers=[\n            (\"cat\", categorical_transformer, categorical_cols),\n            (\"num\", numerical_transformer, numerical_cols),\n        ],\n        remainder=\"drop\",\n    )\n\n    # Model\n    model = HistGradientBoostingRegressor(\n        loss=\"squared_error\",\n        learning_rate=0.08,\n        max_depth=6,\n        max_leaf_nodes=31,\n        min_samples_leaf=20,\n        l2_regularization=1e-4,\n        max_bins=255,\n        random_state=42,\n    )\n\n    pipe = Pipeline(steps=[(\"preprocess\", preprocessor), (\"model\", model)])\n\n    pipe.fit(X_tr, y_tr)\n\n    val_pred_log = pipe.predict(X_val)\n    val_pred = np.expm1(val_pred_log)\n    score = rmse(np.expm1(y_val), val_pred)\n    print(f\"VALIDATION_SCORE: {score}\")\n\n    # Predict test\n    test_pred_log = pipe.predict(X_test)\n    test_pred = np.expm1(test_pred_log)\n\n    submission = pd.DataFrame({\"id\": sample_df[\"id\"].values, \"price\": test_pred})\n    if not np.array_equal(submission[\"id\"].values, sample_df[\"id\"].values):\n        submission = submission.set_index(\"id\").loc[sample_df[\"id\"].values].reset_index()\n\n    submission.to_csv(out_path, index=False)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+   "output": "VALIDATION_SCORE: 596.2321301942542\n",
+   "ok": true,
+   "val": 596.2321301942542,
+   "seconds": 6.1,
+   "grade": {
+    "score": 626.6888211404745,
+    "valid": true,
+    "norm": 0.9757087701911484,
+    "beats_forest": false
+   }
+  }
+ ],
+ "best": 0,
+ "tokens": 8043,
+ "calls": 4,
+ "final": {
+  "score": 90.02505340277396,
+  "valid": true,
+  "norm": 1.1317950883463856,
+  "beats_forest": true
+ },
+ "exec_seconds": 345.2
+}

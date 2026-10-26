@@ -17,7 +17,7 @@ b7557350d9b49d4d74fe2981bdf9dae0e53af9e25d8825b34b601cd0ec2cc0a1.
 - [Application and object results](native-v2/APPLICATION.txt).
 - [Per-slide checks](native-v2/NATIVE-CHECKS.csv).
 - [Unchanged input check](native-v2/UNCHANGED.txt).
-- [All native exports and extracted notes](native-v2/).
+- [All native exports and extracted notes](native-v2).
 
 The command used Windows PowerShell in STA mode, the current v2 PPTX, its
 build-v2/SLIDE-CONTENT.json source and the new native-v2 output directory.

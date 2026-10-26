@@ -1,7 +1,7 @@
 # Presentation sources and review
 
 The [current PowerPoint review draft](output/rsi-masterclass-review-v2.pptx)
-contains 37 slides with embedded notes. Read the [course introduction](../../../rsi/PRESENTATION.md),
+contains 37 slides with embedded notes. Read the [course introduction](../../../backups/rsi-masterclass-2026-10-23/PRESENTATION.md),
 [speaker notes](build-v2/SPEAKER-NOTES.md) or [rendered slides](RENDERED-SLIDES.md).
 
 | Artifact | Purpose |
@@ -17,7 +17,7 @@ contains 37 slides with embedded notes. Read the [course introduction](../../../
 | [Review record](REVIEW.md) | Visual inspection, corrections and limitations |
 | [Native PowerPoint review](NATIVE-REVIEW.md) | Read-only opening, all notes, native objects and exported slides |
 | [Earlier PowerPoint draft](output/rsi-masterclass-review-v1.pptx) | Retained intermediate version |
-| [Earlier builder and renders](build-v1/) | First build, startup failure and original review material |
+| [Earlier builder and renders](build-v1) | First build, startup failure and original review material |
 
 The build uses the bundled presentation runtime. Its local dependency junctions
 are temporary and are not committed. Each build's candidate PPTX, exported PPTX,

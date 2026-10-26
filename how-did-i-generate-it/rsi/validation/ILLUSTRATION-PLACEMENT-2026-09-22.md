@@ -23,7 +23,7 @@ Added the existing lab 10.02 announcement-evidence illustration and reading
 guidance to the canonical research-group source, then regenerated the pages.
 The next audit passed every placement. No image generation was required.
 
-Both READMEs now link to the [presentation status](../../../rsi/PRESENTATION.md).
+Both READMEs now link to the [presentation status](../../../backups/rsi-masterclass-2026-10-23/PRESENTATION.md).
 The 37-slide storyboard and draft notes are available; no RSI PPTX exists yet.
 The eventual deck remains conditional on the experimental repair, method
 comparisons and presentation review. A different-topic PPTX in the repository

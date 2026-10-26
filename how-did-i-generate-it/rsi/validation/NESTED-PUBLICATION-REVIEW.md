@@ -37,7 +37,7 @@ inheritance into an established overall RSI gain.
 The [archive check](NESTED-EVALUATION-ARCHIVE-INDEX-CHECK.csv),
 [placement check](ILLUSTRATION-PLACEMENT-2026-09-22.csv),
 [navigation publisher](../scripts/publish-nested-source-readme.mjs) and
-[full report](../../../rsi/evidence/2026-09-22/nested-research-evaluation/README.md)
+[full report](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-22/nested-research-evaluation/README.md)
 make these checks inspectable. The optimized archive checker uses one Git
 batch process instead of launching a process for each file; a separate
 125-file [smoke check](BATCH-ARCHIVE-CHECK-SMOKE.csv) preceded its use here.

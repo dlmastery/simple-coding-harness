@@ -2,7 +2,7 @@
 
 This is the original diagnosis, preserved as the starting point of the repair.
 For completed experiments and the current boundary of the claims, read
-[what changed after the zero-gain results](../../../rsi/RESULTS-GUIDE.md).
+[what changed after the zero-gain results](../../../backups/rsi-masterclass-2026-10-23/RESULTS-GUIDE.md).
 The proposed next steps below are historical; the implementation record tracks
 which have since run.
 
@@ -10,7 +10,7 @@ The user supplied a seven-row comparison from the original course and asked wher
 
 ## Evidence inspected
 
-Read the original contracts at Git commit `eed9cbb`: the exam intent, actor evaluation and tool contracts, recipe schema, Dream policy library, and lesson-17 map. Also inspected the preserved [original README](../backups/before-rebuild-eed9cbb/README.original.txt), the rebuilt [Dream exercise](../../../rsi/evidence/2026-09-21/dream-labs/README.md), [AIDE exercise](../../../rsi/evidence/2026-09-21/aide-labs/README.md), [meta-skill exercise](../../../rsi/evidence/2026-09-21/meta-skills/README.md) and [recursive capstone](../../../rsi/evidence/2026-09-21/capstone-recursion/README.md).
+Read the original contracts at Git commit `eed9cbb`: the exam intent, actor evaluation and tool contracts, recipe schema, Dream policy library, and lesson-17 map. Also inspected the preserved [original README](../backups/before-rebuild-eed9cbb/README.original.txt), the rebuilt [Dream exercise](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-21/dream-labs/README.md), [AIDE exercise](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-21/aide-labs/README.md), [meta-skill exercise](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-21/meta-skills/README.md) and [recursive capstone](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-21/capstone-recursion/README.md).
 
 Checked the primary [Dream-RSI paper](https://arxiv.org/html/2609.14858v1), especially its method, and opened the [AIDE² author report](https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement). The dated discovery query targeted the last 30 days: `Dream-RSI September 2026 discovery tree replay self improvement arxiv`. This was a targeted diagnosis, not another complete literature sweep.
 

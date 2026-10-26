@@ -4,7 +4,7 @@ Date: 20 September 2026. This review covers labs 02.06, 05.02–05.05, and 08.01
 
 ## Original declared run
 
-The [protocol](LOOPS-AND-SYSTEMS-PROTOCOL.md) and [driver](../scripts/run-loops-and-systems.py) were pushed at `c9f9cd9a6dd49b1187b8010dc71fd331a46fa7e9` before execution. The driver completed thirteen CPU fits and 26 child commands with exit 0. Every candidate passed the row-identity, target, ledger, and reported-score check. There was no final evaluation. All 146 original files were copied and verified. See the [archived run](../../../rsi/evidence/2026-09-20/loops-and-systems/README.md).
+The [protocol](LOOPS-AND-SYSTEMS-PROTOCOL.md) and [driver](../scripts/run-loops-and-systems.py) were pushed at `c9f9cd9a6dd49b1187b8010dc71fd331a46fa7e9` before execution. The driver completed thirteen CPU fits and 26 child commands with exit 0. Every candidate passed the row-identity, target, ledger, and reported-score check. There was no final evaluation. All 146 original files were copied and verified. See the [archived run](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/loops-and-systems/README.md).
 
 | Requirement | Actual input and action | Result and limit |
 |---|---|---|
@@ -20,7 +20,7 @@ The main loop/system run records 4.611563 fit seconds, 77.637044 child wall seco
 
 The original coordinator produced a successful baseline and executable handoff verdicts, but built the transition table afterward. That retrospective trace was too weak to show that state governed execution. The [separate correction protocol](LIVE-COORDINATOR-PROTOCOL.md) and [driver](../scripts/run-live-coordinator.py) were pushed at `7850ec92378f6d1a52c105782dd9b5c770118a8f` before a fresh one-fit experiment. No original budget or outcome was changed.
 
-The [corrected evidence](../../../rsi/evidence/2026-09-20/live-coordinator/README.md) has 15 ordered events and four state snapshots. `running` is saved before fitting. The fit process exits at `awaiting-check`; another process reads that state before checking. Three handoff fixtures reject missing evidence, ambiguous meaning, and the wrong candidate. The wrong candidate has genuinely checked, byte-identical predictions. A matching real check permits `complete`. A subsequent fit action returns the expected exit 1 and leaves the ledger hash unchanged.
+The [corrected evidence](../../../backups/rsi-masterclass-2026-10-23/evidence/2026-09-20/live-coordinator/README.md) has 15 ordered events and four state snapshots. `running` is saved before fitting. The fit process exits at `awaiting-check`; another process reads that state before checking. Three handoff fixtures reject missing evidence, ambiguous meaning, and the wrong candidate. The wrong candidate has genuinely checked, byte-identical predictions. A matching real check permits `complete`. A subsequent fit action returns the expected exit 1 and leaves the ledger hash unchanged.
 
 The correction adds one fit, with 0.103099 fit seconds. Fit/check child wall times are 2.048124 and 2.177792 seconds. Twenty-seven original files were copied and hash-verified. Combined new work is fourteen fits; failed validation reasoning and the initial run's costs are not erased.
 

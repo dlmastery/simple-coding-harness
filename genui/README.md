@@ -122,29 +122,29 @@ A skipped test is not a pass for that capability. Token-count checks may skip wh
 
 | # | Step | You build | You learn | Mode / transport |
 |--:|---|---|---|---|
-| 1 | [01.1](01_foundations/step_01_static_components/) static components | three tools, three renderers, an SSE stream | the agent selects, you draw | static |
-| 2 | [01.2](01_foundations/step_02_declarative_tree/) declarative tree | a catalog, a JSON Schema, a partial-JSON parser | why flat element maps stream and nested trees do not | declarative |
-| 3 | [01.3](01_foundations/step_03_open_ended_html/) open-ended HTML | a sandboxed iframe with a CSP and one message shape | what freedom costs, in tokens and seconds | open-ended |
-| 4 | [01.4](01_foundations/step_04_hybrid_escape_hatch/) hybrid escape hatch | a `GeneratedView` in the catalog, buttons that close the loop | the report's recommended default | hybrid |
-| 5 | [02.1](02_ag_ui/step_01_ag_ui_server/) AG-UI server | a run as a generator, encoded events, a hand-written client | typed events connect agent and page | your product |
-| 6 | [02.2](02_ag_ui/step_02_ag_ui_tools_and_state/) tools and state | tool call events, state snapshots and JSON Patch deltas, a client tool | generative UI as shared state | your product |
-| 7 | [02.3](02_ag_ui/step_03_ag_ui_from_the_harness/) from the harness | a bridge from the stage 21 loop to AG-UI, the official client | a loop's callbacks become a browser's events | your product |
-| 8 | [03.1](03_a2ui/step_01_a2ui_messages_by_hand/) A2UI by hand | the four envelopes, schema validation, a surface renderer | structure and data as two streams | declarative |
-| 9 | [03.2](03_a2ui/step_02_a2ui_from_a_model/) A2UI from a model | the agent SDK's prompt and stream parser, a correction loop, actions | validation errors are results | declarative |
-| 10 | [03.3](03_a2ui/step_03_a2ui_lit_and_ag_ui/) Lit over AG-UI | the official renderer, A2UI carried as AG-UI custom events | format and transport are separate choices | declarative, your product |
-| 11 | [04.1](04_openui_lang/step_01_openui_lang_parser/) OpenUI Lang parser | a tokenizer, a resolver, a streaming parser, a DOM renderer | forward references are the trick | declarative |
-| 12 | [04.2](04_openui_lang/step_02_openui_react_lang/) the React renderer | a Zod catalog, a generated prompt, streaming into React | one definition, three uses | declarative |
-| 13 | [04.3](04_openui_lang/step_03_format_benchmark/) format benchmark | four formats, seven scenarios, one tokenizer | token counts and declared assumptions | measurement |
-| 14 | [04.4](04_openui_lang/step_04_openui_html_artifact/) OpenUI's html artifact | catalog primitives plus an `HtmlArtifact` in a sandboxed iframe | the hybrid on the reference implementation | hybrid |
-| 15 | [05.1](05_json_render/step_01_json_render_catalog/) json-render catalog | a Zod catalog, the library's prompt, the React renderer | the catalog is prompt, validator and registry | declarative |
-| 16 | [05.2](05_json_render/step_02_json_render_streaming_patches/) streaming patches | RFC 6902 patches into the element map, in the page and in Python | incremental rendering and first-paint measurement | declarative |
-| 17 | [05.3](05_json_render/step_03_json_render_actions_and_targets/) actions and targets | buttons that round-trip to the model, the same spec in a terminal | one spec, two renderers | declarative |
-| 18 | [06.1](06_mcp_apps/step_01_mcp_app_resource/) an MCP App | a tool that carries a UI resource, a minimal host with a bridge | the host decides what the iframe may do | third-party host |
-| 19 | [06.2](06_mcp_apps/step_02_mcp_app_in_a_real_host/) in a real host | the harness's MCP client as a text host; Claude Desktop and Goose setup | one interface, two transports, ship both | third-party host |
-| 20 | [06.3](06_mcp_apps/step_03_mcp_app_hybrid/) hybrid inside an MCP App | catalog components plus a model-generated region in a nested sandbox, the server holding the key | open-ended and static together, two boundaries deep | hybrid, third-party host |
-| 21 | [07.1](07_harness_genui/step_01_render_ui_tool/) render_ui in the harness | a validated spec tool, a terminal renderer, a web surface | one agent, two surfaces | terminal and your product |
-| 22 | [07.2](07_harness_genui/step_02_trueforge_generative_ui/) TrueForge generative UI | a hosted harness's OpenUI output, parsed and rendered by your page | a UI language is as portable as its parsers | the TrueForge SDK |
-| 23 | [07.3](07_harness_genui/step_03_trueforge_hybrid/) hybrid on TrueForge | the hosted harness's catalog plus one `HtmlArtifact` in a sandboxed iframe on your page | the escape hatch a hosted harness does not ship | hybrid, the TrueForge SDK |
+| 1 | [01.1](01_foundations/step_01_static_components) static components | three tools, three renderers, an SSE stream | the agent selects, you draw | static |
+| 2 | [01.2](01_foundations/step_02_declarative_tree) declarative tree | a catalog, a JSON Schema, a partial-JSON parser | why flat element maps stream and nested trees do not | declarative |
+| 3 | [01.3](01_foundations/step_03_open_ended_html) open-ended HTML | a sandboxed iframe with a CSP and one message shape | what freedom costs, in tokens and seconds | open-ended |
+| 4 | [01.4](01_foundations/step_04_hybrid_escape_hatch) hybrid escape hatch | a `GeneratedView` in the catalog, buttons that close the loop | the report's recommended default | hybrid |
+| 5 | [02.1](02_ag_ui/step_01_ag_ui_server) AG-UI server | a run as a generator, encoded events, a hand-written client | typed events connect agent and page | your product |
+| 6 | [02.2](02_ag_ui/step_02_ag_ui_tools_and_state) tools and state | tool call events, state snapshots and JSON Patch deltas, a client tool | generative UI as shared state | your product |
+| 7 | [02.3](02_ag_ui/step_03_ag_ui_from_the_harness) from the harness | a bridge from the stage 21 loop to AG-UI, the official client | a loop's callbacks become a browser's events | your product |
+| 8 | [03.1](03_a2ui/step_01_a2ui_messages_by_hand) A2UI by hand | the four envelopes, schema validation, a surface renderer | structure and data as two streams | declarative |
+| 9 | [03.2](03_a2ui/step_02_a2ui_from_a_model) A2UI from a model | the agent SDK's prompt and stream parser, a correction loop, actions | validation errors are results | declarative |
+| 10 | [03.3](03_a2ui/step_03_a2ui_lit_and_ag_ui) Lit over AG-UI | the official renderer, A2UI carried as AG-UI custom events | format and transport are separate choices | declarative, your product |
+| 11 | [04.1](04_openui_lang/step_01_openui_lang_parser) OpenUI Lang parser | a tokenizer, a resolver, a streaming parser, a DOM renderer | forward references are the trick | declarative |
+| 12 | [04.2](04_openui_lang/step_02_openui_react_lang) the React renderer | a Zod catalog, a generated prompt, streaming into React | one definition, three uses | declarative |
+| 13 | [04.3](04_openui_lang/step_03_format_benchmark) format benchmark | four formats, seven scenarios, one tokenizer | token counts and declared assumptions | measurement |
+| 14 | [04.4](04_openui_lang/step_04_openui_html_artifact) OpenUI's html artifact | catalog primitives plus an `HtmlArtifact` in a sandboxed iframe | the hybrid on the reference implementation | hybrid |
+| 15 | [05.1](05_json_render/step_01_json_render_catalog) json-render catalog | a Zod catalog, the library's prompt, the React renderer | the catalog is prompt, validator and registry | declarative |
+| 16 | [05.2](05_json_render/step_02_json_render_streaming_patches) streaming patches | RFC 6902 patches into the element map, in the page and in Python | incremental rendering and first-paint measurement | declarative |
+| 17 | [05.3](05_json_render/step_03_json_render_actions_and_targets) actions and targets | buttons that round-trip to the model, the same spec in a terminal | one spec, two renderers | declarative |
+| 18 | [06.1](06_mcp_apps/step_01_mcp_app_resource) an MCP App | a tool that carries a UI resource, a minimal host with a bridge | the host decides what the iframe may do | third-party host |
+| 19 | [06.2](06_mcp_apps/step_02_mcp_app_in_a_real_host) in a real host | the harness's MCP client as a text host; Claude Desktop and Goose setup | one interface, two transports, ship both | third-party host |
+| 20 | [06.3](06_mcp_apps/step_03_mcp_app_hybrid) hybrid inside an MCP App | catalog components plus a model-generated region in a nested sandbox, the server holding the key | open-ended and static together, two boundaries deep | hybrid, third-party host |
+| 21 | [07.1](07_harness_genui/step_01_render_ui_tool) render_ui in the harness | a validated spec tool, a terminal renderer, a web surface | one agent, two surfaces | terminal and your product |
+| 22 | [07.2](07_harness_genui/step_02_trueforge_generative_ui) TrueForge generative UI | a hosted harness's OpenUI output, parsed and rendered by your page | a UI language is as portable as its parsers | the TrueForge SDK |
+| 23 | [07.3](07_harness_genui/step_03_trueforge_hybrid) hybrid on TrueForge | the hosted harness's catalog plus one `HtmlArtifact` in a sandboxed iframe on your page | the escape hatch a hosted harness does not ship | hybrid, the TrueForge SDK |
 
 ## Inspect the real examples
 
@@ -173,4 +173,4 @@ Every lesson keeps its run instructions, source explanation and checkpoint. The 
 
 Your next step is [01.1 · Static components](01_foundations/step_01_static_components/README.md). Trace one tool call into one visible card before adding more machinery.
 
-[Change record and verification](../how-did-i-generate-it/genui/README.md) · [Original course backup](../how-did-i-generate-it/genui/backups/README.md) · [Parent harness course](../README.md) · [RSI course](../rsi/README.md)
+[Change record and verification](../how-did-i-generate-it/genui/README.md) · [Original course backup](../how-did-i-generate-it/genui/backups/README.md) · [Parent harness course](../README.md) · [RSI course](../backups/rsi-masterclass-2026-10-23/README.md)
